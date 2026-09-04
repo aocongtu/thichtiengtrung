@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Từ Điển Hán Việt 4.0</title>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;font-family:Arial,"Noto Sans",sans-serif;
+  background:linear-gradient(135deg,#eef7ff,#dff4ee);
+  color:#17324d;
+}
+header{
+  padding:28px 18px 18px;text-align:center;
+}
+h1{
+  display:inline-block;margin:0 0 18px;padding:14px 24px;
+  background:#e8f5ff;border:2px solid #76b8ef;border-radius:16px;
+  color:#1768b3;font-size:30px;
+}
+.search{
+  max-width:900px;margin:auto;display:flex;gap:10px;
+}
+.search input{
+  flex:1;padding:15px 18px;border-radius:14px;border:2px solid #a8d1ef;
+  font-size:17px;outline:none;background:white;
+}
+button{
+  border:0;border-radius:12px;padding:12px 18px;cursor:pointer;
+  background:#2586df;color:white;font-weight:bold;
+}
+button:hover{opacity:.88}
+nav{
+  display:flex;gap:8px;flex-wrap:wrap;justify-content:center;
+  padding:0 14px 20px;
+}
+nav button{background:#4b9bea}
+nav button.active{background:#1f6fc0}
+main{max-width:1100px;margin:auto;padding:0 15px 40px}
+.toolbar{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:14px;gap:10px;flex-wrap:wrap
+}
+.progress{
+  height:10px;background:#d5e4e9;border-radius:10px;overflow:hidden;flex:1;min-width:220px
+}
+.progress div{height:100%;width:32%;background:#20b58a}
+.cards{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:12px
+}
+.card{
+  background:rgba(255,255,255,.92);border:1px solid #c9dce8;
+  border-radius:15px;padding:16px;box-shadow:0 3px 12px rgba(30,80,120,.08);
+  position:relative;min-height:150px
+}
+.hanzi{font-size:38px;font-weight:700;color:#183f66;margin-bottom:5px}
+.pinyin{font-size:17px;color:#5282ad;margin:4px 0}
+.meaning{font-size:16px;color:#35505f}
+.tag{position:absolute;right:12px;top:12px;background:#e8f4ff;color:#2672b3;padding:5px 8px;border-radius:8px;font-size:12px}
+.speaker{position:absolute;right:12px;bottom:12px;background:#edf6ff;color:#2474b5;padding:7px 10px}
+.learned{position:absolute;left:12px;bottom:12px;color:#1aa178;font-size:13px}
+.practice{
+  margin-top:30px;background:white;border-radius:18px;padding:24px;
+  text-align:center;box-shadow:0 4px 18px rgba(30,80,120,.1)
+}
+.practice h2{margin-top:0}
+.target{font-size:42px;font-weight:bold;letter-spacing:3px;margin:15px}
+.practice input{width:min(600px,100%);padding:14px;border:2px solid #b7d3e5;border-radius:12px;font-size:20px;text-align:center}
+.result{min-height:28px;margin-top:12px;font-weight:bold}
+@media(max-width:800px){.cards{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.cards{grid-template-columns:1fr}h1{font-size:23px}.target{font-size:32px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>📘 Từ Điển Hán Việt <span style="font-size:18px">4.0</span></h1>
+  <div class="search">
+    <input id="search" placeholder="Tìm kiếm từ vựng, HSK1...">
+    <button onclick="searchWords()">Tìm</button>
+  </div>
+</header>
+
+<nav>
+  <button class="active" onclick="showLesson(0,this)">Đã học</button>
+  <button onclick="showLesson(1,this)">Từ điển</button>
+  <button onclick="showLesson(1,this)">Bài 1</button>
+  <button onclick="showLesson(2,this)">Bài 2</button>
+  <button onclick="showLesson(3,this)">Bài 3</button>
+  <button onclick="showLesson(4,this)">Bài 4</button>
+  <button onclick="showLesson(5,this)">Bài 5</button>
+  <button onclick="showLesson(6,this)">Bài 6</button>
+  <button onclick="showLesson(7,this)">Bài 7</button>
+  <button onclick="showLesson(8,this)">Bài 8</button>
+  <button onclick="showLesson(9,this)">Bài 9</button>
+  <button onclick="practice()">Luyện câu</button>
+</nav>
+
+<main>
+  <div class="toolbar">
+    <strong id="title">Từ vựng mẫu</strong>
+    <div class="progress"><div id="bar"></div></div>
+    <span id="count">0 / 10</span>
+  </div>
+
+  <section class="cards" id="cards"></section>
+
+  <section class="practice">
+    <h2>✍️ Luyện gõ Hán tự</h2>
+    <p id="hint">Nhìn câu và tự gõ lại bằng chữ Hán</p>
+    <div class="target" id="target">我们相处得很好</div>
+    <input id="answer" placeholder="Nhập chữ Hán..." onkeydown="if(event.key==='Enter')checkAnswer()">
+    <br><br>
+    <button onclick="checkAnswer()">Kiểm tra</button>
+    <button onclick="speak()">🔊 Nghe</button>
+    <div class="result" id="result"></div>
+  </section>
+</main>
+
+<script>
+const words=[
+ {h:"八",p:"bā",m:"tám",t:"Số từ"},
+ {h:"爸爸",p:"bàba",m:"bố, cha",t:"Danh từ"},
+ {h:"杯子",p:"bēizi",m:"cốc, cái ly",t:"Danh từ"},
+ {h:"北京",p:"Běijīng",m:"Bắc Kinh",t:"Danh từ"},
+ {h:"本",p:"běn",m:"cuốn, quyển (lượng từ)",t:"Lượng từ"},
+ {h:"不客气",p:"bú kè qi",m:"không có gì, đừng khách sáo",t:"Cụm từ"},
+ {h:"不",p:"bù",m:"không",t:"Phó từ"},
+ {h:"菜",p:"cài",m:"món ăn, rau củ",t:"Danh từ"},
+ {h:"茶",p:"chá",m:"trà",t:"Danh từ"},
+ {h:"相处",p:"xiāngchǔ",m:"sống/ở cùng, hòa thuận với nhau",t:"Động từ"}
+];
+
+const sentences=["我们相处得很好","爸爸喜欢喝茶","我不客气地拿了一杯水"];
+let currentSentence=0;
+
+function render(list=words){
+ const box=document.getElementById("cards");
+ box.innerHTML=list.map((w,i)=>`
+ <article class="card">
+   <span class="tag">${w.t}</span>
+   <div class="hanzi">${w.h}</div>
+   <div class="pinyin">Pinyin: ${w.p}</div>
+   <div class="meaning">Nghĩa: ${w.m}</div>
+   <button class="speaker" onclick="say('${w.h}')">🔊</button>
+   <span class="learned">✓ Đã học</span>
+ </article>`).join("");
+ document.getElementById("count").textContent=`${list.length} từ`;
+ document.getElementById("bar").style.width=Math.min(100,list.length*10)+"%";
+}
+function say(text){
+ if("speechSynthesis" in window){
+   const u=new SpeechSynthesisUtterance(text);
+   u.lang="zh-CN"; u.rate=.8; speechSynthesis.speak(u);
+ }
+}
+function searchWords(){
+ const q=document.getElementById("search").value.trim().toLowerCase();
+ if(!q){render();return}
+ render(words.filter(w=>
+   w.h.includes(q)||w.p.toLowerCase().includes(q)||w.m.toLowerCase().includes(q)
+ ));
+}
+function showLesson(n,btn){
+ document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
+ btn.classList.add("active");
+ document.getElementById("title").textContent=n===0?"Từ đã học":"Bài "+n;
+ render(words.slice(0,Math.max(3,Math.min(words.length,n+3))));
+}
+function practice(){
+ document.querySelector(".practice").scrollIntoView({behavior:"smooth"});
+}
+function checkAnswer(){
+ const a=document.getElementById("answer").value.trim();
+ const r=document.getElementById("result");
+ if(a===document.getElementById("target").textContent){
+   r.textContent="✅ Chính xác! Rất tốt!";
+   r.style.color="#15956f";
+ }else{
+   r.textContent="❌ Chưa đúng, thử lại nhé!";
+   r.style.color="#d35b5b";
+ }
+}
+function speak(){say(document.getElementById("target").textContent)}
+document.getElementById("search").addEventListener("input",searchWords);
+render();
+</script>
+</body>
+</html>
