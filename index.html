@@ -8955,6 +8955,893 @@ document.addEventListener(
 render(currentList);
 
 </script>
+<!-- =========================================================
+     🇨🇳 THÍCH TIẾNG TRUNG
+     HỆ THỐNG ĐĂNG KÝ / ĐĂNG NHẬP
+     ========================================================= -->
 
+<script type="module">
+
+/* =========================================================
+   1. KẾT NỐI SUPABASE
+   ========================================================= */
+
+import { createClient }
+from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+const SUPABASE_URL =
+  "https://nkwdunamzvqrldkkcajz.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+  "sb_publishable_5qAsAhRZk3pmPYtOrKAK2A_R3IlFECT";
+
+const supabase = createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+
+
+/* =========================================================
+   2. CSS
+   ========================================================= */
+
+const accountStyle = document.createElement("style");
+
+accountStyle.textContent = `
+
+#accountSystem{
+  max-width:700px;
+  margin:30px auto;
+  padding:20px;
+  box-sizing:border-box;
+}
+
+.account-box{
+  background:#fff;
+  border-radius:18px;
+  padding:25px;
+  box-shadow:0 8px 30px rgba(0,0,0,.10);
+  border:1px solid #eee;
+}
+
+.account-title{
+  text-align:center;
+  font-size:25px;
+  font-weight:800;
+  margin-bottom:8px;
+}
+
+.account-subtitle{
+  text-align:center;
+  color:#666;
+  margin-bottom:22px;
+}
+
+.account-tabs{
+  display:flex;
+  gap:8px;
+  margin-bottom:20px;
+}
+
+.account-tab{
+  flex:1;
+  padding:12px;
+  border:0;
+  border-radius:10px;
+  background:#f0f0f0;
+  cursor:pointer;
+  font-weight:700;
+}
+
+.account-tab.active{
+  background:#d71920;
+  color:white;
+}
+
+.account-form{
+  display:none;
+}
+
+.account-form.active{
+  display:block;
+}
+
+.account-input{
+  width:100%;
+  box-sizing:border-box;
+  padding:13px;
+  margin-bottom:12px;
+  border:1px solid #ddd;
+  border-radius:10px;
+  font-size:16px;
+  outline:none;
+}
+
+.account-input:focus{
+  border-color:#d71920;
+}
+
+.account-button{
+  width:100%;
+  padding:13px;
+  border:0;
+  border-radius:10px;
+  background:#d71920;
+  color:white;
+  font-size:16px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.account-button:hover{
+  opacity:.9;
+}
+
+.account-message{
+  margin-top:15px;
+  padding:12px;
+  border-radius:10px;
+  text-align:center;
+  display:none;
+  line-height:1.5;
+}
+
+.account-message.success{
+  display:block;
+  background:#e8f7e8;
+  color:#176b17;
+}
+
+.account-message.error{
+  display:block;
+  background:#ffeaea;
+  color:#b00000;
+}
+
+.account-user{
+  text-align:center;
+}
+
+.account-user-name{
+  font-size:21px;
+  font-weight:800;
+  margin-bottom:8px;
+}
+
+.account-status{
+  margin:15px 0;
+  padding:15px;
+  border-radius:12px;
+  background:#f7f7f7;
+}
+
+.account-logout{
+  padding:11px 20px;
+  border:0;
+  border-radius:10px;
+  background:#333;
+  color:#fff;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.account-free{
+  margin-top:15px;
+  padding:12px;
+  border-radius:10px;
+  background:#fff8df;
+  color:#765900;
+  font-size:14px;
+}
+
+`;
+
+
+/* =========================================================
+   3. THÊM CSS VÀO TRANG
+   ========================================================= */
+
+document.head.appendChild(accountStyle);
+
+
+/* =========================================================
+   4. TẠO GIAO DIỆN TÀI KHOẢN
+   ========================================================= */
+
+function createAccountSystem(){
+
+  if(document.getElementById("accountSystem")){
+    return;
+  }
+
+  const box = document.createElement("section");
+
+  box.id = "accountSystem";
+
+  box.innerHTML = `
+
+    <div class="account-box">
+
+      <div class="account-title">
+        👤 TÀI KHOẢN
+      </div>
+
+      <div class="account-subtitle">
+        Đăng ký để sử dụng đầy đủ tính năng học tiếng Trung
+      </div>
+
+
+      <!-- ================= TABS ================= -->
+
+      <div class="account-tabs">
+
+        <button
+          class="account-tab active"
+          id="accountLoginTab">
+          🔐 Đăng nhập
+        </button>
+
+        <button
+          class="account-tab"
+          id="accountSignupTab">
+          📝 Đăng ký
+        </button>
+
+      </div>
+
+
+      <!-- ================= LOGIN ================= -->
+
+      <div
+        class="account-form active"
+        id="accountLoginForm">
+
+        <input
+          class="account-input"
+          id="loginEmail"
+          type="email"
+          placeholder="📧 Email">
+
+        <input
+          class="account-input"
+          id="loginPassword"
+          type="password"
+          placeholder="🔑 Mật khẩu">
+
+        <button
+          class="account-button"
+          id="loginButton">
+          🔐 ĐĂNG NHẬP
+        </button>
+
+      </div>
+
+
+      <!-- ================= SIGN UP ================= -->
+
+      <div
+        class="account-form"
+        id="accountSignupForm">
+
+        <input
+          class="account-input"
+          id="signupName"
+          type="text"
+          placeholder="👤 Họ và tên">
+
+        <input
+          class="account-input"
+          id="signupPhone"
+          type="tel"
+          placeholder="📱 Số điện thoại">
+
+        <input
+          class="account-input"
+          id="signupEmail"
+          type="email"
+          placeholder="📧 Email">
+
+        <input
+          class="account-input"
+          id="signupPassword"
+          type="password"
+          placeholder="🔑 Mật khẩu (tối thiểu 6 ký tự)">
+
+        <button
+          class="account-button"
+          id="signupButton">
+          📝 TẠO TÀI KHOẢN
+        </button>
+
+      </div>
+
+
+      <!-- ================= MESSAGE ================= -->
+
+      <div
+        class="account-message"
+        id="accountMessage">
+      </div>
+
+
+      <!-- ================= USER ================= -->
+
+      <div
+        class="account-user"
+        id="accountUser"
+        style="display:none;">
+
+        <div
+          class="account-user-name"
+          id="accountUserName">
+        </div>
+
+        <div
+          class="account-status"
+          id="accountUserStatus">
+        </div>
+
+        <button
+          class="account-logout"
+          id="logoutButton">
+          🚪 Đăng xuất
+        </button>
+
+        <div class="account-free">
+          🎁 HSK 1–6 hiện đang miễn phí.
+        </div>
+
+      </div>
+
+    </div>
+  `;
+
+  /* =====================================================
+     ĐẶT GIAO DIỆN TÀI KHOẢN NGAY DƯỚI TIÊU ĐỀ
+     ===================================================== */
+
+  const header = document.querySelector("header");
+
+  if(header){
+
+    header.insertAdjacentElement(
+      "afterend",
+      box
+    );
+
+  }else{
+
+    document.body.prepend(box);
+
+  }
+  
+  /* =====================================================
+     TAB ĐĂNG NHẬP
+     ===================================================== */
+
+  document
+    .getElementById("accountLoginTab")
+    .addEventListener("click", function(){
+
+      document
+        .getElementById("accountLoginTab")
+        .classList.add("active");
+
+      document
+        .getElementById("accountSignupTab")
+        .classList.remove("active");
+
+      document
+        .getElementById("accountLoginForm")
+        .classList.add("active");
+
+      document
+        .getElementById("accountSignupForm")
+        .classList.remove("active");
+
+      clearAccountMessage();
+
+    });
+
+
+  /* =====================================================
+     TAB ĐĂNG KÝ
+     ===================================================== */
+
+  document
+    .getElementById("accountSignupTab")
+    .addEventListener("click", function(){
+
+      document
+        .getElementById("accountSignupTab")
+        .classList.add("active");
+
+      document
+        .getElementById("accountLoginTab")
+        .classList.remove("active");
+
+      document
+        .getElementById("accountSignupForm")
+        .classList.add("active");
+
+      document
+        .getElementById("accountLoginForm")
+        .classList.remove("active");
+
+      clearAccountMessage();
+
+    });
+
+
+  /* =====================================================
+     ĐĂNG KÝ
+     ===================================================== */
+
+  document
+    .getElementById("signupButton")
+    .addEventListener("click", signupUser);
+
+
+  async function signupUser(){
+
+    const name =
+      document
+      .getElementById("signupName")
+      .value
+      .trim();
+
+    const phone =
+      document
+      .getElementById("signupPhone")
+      .value
+      .trim();
+
+    const email =
+      document
+      .getElementById("signupEmail")
+      .value
+      .trim();
+
+    const password =
+      document
+      .getElementById("signupPassword")
+      .value;
+
+
+    if(!name){
+
+      showAccountMessage(
+        "⚠️ Anh/chị chưa nhập họ tên.",
+        "error"
+      );
+
+      return;
+    }
+
+
+    if(!email){
+
+      showAccountMessage(
+        "⚠️ Anh/chị chưa nhập email.",
+        "error"
+      );
+
+      return;
+    }
+
+
+    if(password.length < 6){
+
+      showAccountMessage(
+        "⚠️ Mật khẩu phải có ít nhất 6 ký tự.",
+        "error"
+      );
+
+      return;
+    }
+
+
+    const button =
+      document.getElementById("signupButton");
+
+    button.disabled = true;
+    button.textContent = "⏳ ĐANG TẠO TÀI KHOẢN...";
+
+
+    const { data, error } =
+      await supabase.auth.signUp({
+
+        email: email,
+
+        password: password,
+
+        options: {
+
+          data: {
+            full_name: name,
+            phone: phone
+          }
+
+        }
+
+      });
+
+
+    button.disabled = false;
+    button.textContent = "📝 TẠO TÀI KHOẢN";
+
+
+    if(error){
+
+      showAccountMessage(
+        "❌ " + error.message,
+        "error"
+      );
+
+      return;
+    }
+
+
+    showAccountMessage(
+      "✅ Tạo tài khoản thành công!<br>" +
+      "📧 Nếu Supabase yêu cầu xác nhận email, " +
+      "hãy kiểm tra hộp thư rồi bấm vào link xác nhận.",
+      "success"
+    );
+
+  }
+
+
+  /* =====================================================
+     ĐĂNG NHẬP
+     ===================================================== */
+
+  document
+    .getElementById("loginButton")
+    .addEventListener("click", loginUser);
+
+
+  async function loginUser(){
+
+    const email =
+      document
+      .getElementById("loginEmail")
+      .value
+      .trim();
+
+    const password =
+      document
+      .getElementById("loginPassword")
+      .value;
+
+
+    if(!email || !password){
+
+      showAccountMessage(
+        "⚠️ Vui lòng nhập email và mật khẩu.",
+        "error"
+      );
+
+      return;
+    }
+
+
+    const button =
+      document.getElementById("loginButton");
+
+    button.disabled = true;
+    button.textContent = "⏳ ĐANG ĐĂNG NHẬP...";
+
+
+    const { data, error } =
+      await supabase.auth.signInWithPassword({
+
+        email: email,
+        password: password
+
+      });
+
+
+    button.disabled = false;
+    button.textContent = "🔐 ĐĂNG NHẬP";
+
+
+    if(error){
+
+      showAccountMessage(
+        "❌ Email hoặc mật khẩu không đúng.",
+        "error"
+      );
+
+      return;
+    }
+
+
+    showAccountMessage(
+      "✅ Đăng nhập thành công!",
+      "success"
+    );
+
+
+    updateAccountUI(data.user);
+
+  }
+
+
+  /* =====================================================
+     ĐĂNG XUẤT
+     ===================================================== */
+
+  document
+    .getElementById("logoutButton")
+    .addEventListener("click", async function(){
+
+      await supabase.auth.signOut();
+
+      updateAccountUI(null);
+
+      showAccountMessage(
+        "👋 Đã đăng xuất tài khoản.",
+        "success"
+      );
+
+    });
+
+}
+
+
+/* =========================================================
+   5. THÔNG BÁO
+   ========================================================= */
+
+function showAccountMessage(text, type){
+
+  const message =
+    document.getElementById("accountMessage");
+
+  if(!message) return;
+
+  message.innerHTML = text;
+
+  message.className =
+    "account-message " + type;
+
+}
+
+
+function clearAccountMessage(){
+
+  const message =
+    document.getElementById("accountMessage");
+
+  if(!message) return;
+
+  message.innerHTML = "";
+
+  message.className =
+    "account-message";
+
+}
+
+
+/* =========================================================
+   6. CẬP NHẬT GIAO DIỆN
+   ========================================================= */
+
+async function updateAccountUI(user){
+
+  const loginForm =
+    document.getElementById("accountLoginForm");
+
+  const signupForm =
+    document.getElementById("accountSignupForm");
+
+  const loginTab =
+    document.getElementById("accountLoginTab");
+
+  const signupTab =
+    document.getElementById("accountSignupTab");
+
+  const accountUser =
+    document.getElementById("accountUser");
+
+
+  if(!user){
+
+    if(loginForm)
+      loginForm.style.display = "block";
+
+    if(signupForm)
+      signupForm.style.display = "none";
+
+    if(loginTab)
+      loginTab.style.display = "block";
+
+    if(signupTab)
+      signupTab.style.display = "block";
+
+    if(accountUser)
+      accountUser.style.display = "none";
+
+    return;
+  }
+
+
+  /* =====================================================
+     ĐÃ ĐĂNG NHẬP
+     ===================================================== */
+
+  if(loginForm)
+    loginForm.style.display = "none";
+
+  if(signupForm)
+    signupForm.style.display = "none";
+
+  if(loginTab)
+    loginTab.style.display = "none";
+
+  if(signupTab)
+    signupTab.style.display = "none";
+
+  if(accountUser)
+    accountUser.style.display = "block";
+
+
+  const name =
+    user.user_metadata?.full_name ||
+    user.email ||
+    "Thành viên";
+
+
+  const nameBox =
+    document.getElementById("accountUserName");
+
+  if(nameBox){
+
+    nameBox.textContent =
+      "👋 Xin chào, " + name;
+
+  }
+
+
+  /* =====================================================
+     LẤY MEMBERSHIP
+     ===================================================== */
+
+  const statusBox =
+    document.getElementById("accountUserStatus");
+
+
+  if(!statusBox) return;
+
+
+  const { data, error } =
+    await supabase
+      .from("memberships")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", {
+        ascending:false
+      })
+      .limit(1);
+
+
+  if(error || !data || data.length === 0){
+
+    statusBox.innerHTML = `
+      🎓 <b>Tài khoản miễn phí</b><br><br>
+      HSK 1–6: <b>Miễn phí</b><br>
+      TEST + luyện câu: <b>Miễn phí theo chính sách website</b>
+    `;
+
+    return;
+  }
+
+
+  const membership = data[0];
+
+
+  if(membership.status === "active"){
+
+    statusBox.innerHTML = `
+      💎 <b>THÀNH VIÊN ĐANG HOẠT ĐỘNG</b><br><br>
+      Gói: ${membership.plan}<br>
+      Hạn sử dụng:
+      ${membership.end_date
+        ? new Date(
+            membership.end_date
+          ).toLocaleDateString("vi-VN")
+        : "Không xác định"}
+    `;
+
+  }else{
+
+    statusBox.innerHTML = `
+      ⏳ <b>Đang chờ kích hoạt</b><br><br>
+      Gói đăng ký của anh/chị đang được xử lý.
+    `;
+
+  }
+
+}
+
+
+/* =========================================================
+   7. KIỂM TRA SESSION KHI MỞ WEBSITE
+   ========================================================= */
+
+async function checkCurrentSession(){
+
+  const {
+    data
+  } = await supabase.auth.getSession();
+
+  if(data && data.session){
+
+    updateAccountUI(
+      data.session.user
+    );
+
+  }else{
+
+    updateAccountUI(null);
+
+  }
+
+}
+
+
+/* =========================================================
+   8. THEO DÕI ĐĂNG NHẬP / ĐĂNG XUẤT
+   ========================================================= */
+
+supabase.auth.onAuthStateChange(
+  function(event, session){
+
+    if(session){
+
+      updateAccountUI(
+        session.user
+      );
+
+    }else{
+
+      updateAccountUI(null);
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   9. KHỞI ĐỘNG
+   ========================================================= */
+
+function initAccountSystem(){
+
+  createAccountSystem();
+
+  checkCurrentSession();
+
+}
+
+
+/* Chờ toàn bộ HTML tải xong */
+
+if(document.readyState === "loading"){
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    initAccountSystem
+  );
+
+}else{
+
+  initAccountSystem();
+
+}
+
+</script>
 </body>
 </html>
