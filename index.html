@@ -342,7 +342,7 @@ main{
 <header>
 
 <h1>
-🇨🇳 THÍCH TIẾNG TRUNG
+   THÍCH TIẾNG TRUNG
 <span style="font-size:18px">HSK 1 → HSK 9</span>
 </h1>
 
@@ -1353,345 +1353,1237 @@ function showHSK(level,btn){
   render(currentList);
 }
 
+/* =====================================================
+   🎙️ HỆ THỐNG GIỌNG ĐỌC TIẾNG TRUNG — PHIÊN BẢN HOÀN CHỈNH
+   ===================================================== */
 
-/* ==================================================
-   GIỌNG TIẾNG TRUNG
-================================================== */
+let chineseVoice = null;
 
-let chineseVoice=null;
+let selectedVoiceName =
+  localStorage.getItem("ttsVoiceName") || "";
+
+let selectedRate =
+  parseFloat(localStorage.getItem("ttsRate") || "0.65");
+
+
+/* =====================================================
+   🇨🇳 LẤY DANH SÁCH GIỌNG TRUNG QUỐC ĐẠI LỤC
+   ===================================================== */
+
+function getChineseVoices(){
+
+  if(!("speechSynthesis" in window)) return [];
+
+  const voices =
+    speechSynthesis.getVoices();
+
+  return voices.filter(function(voice){
+
+    const lang =
+      (voice.lang || "").toLowerCase();
+
+    return (
+      lang.startsWith("zh-cn") ||
+      lang === "zh"
+    )
+    &&
+    !lang.startsWith("zh-tw")
+    &&
+    !lang.startsWith("zh-hk");
+
+  });
+
+}
+
+
+/* =====================================================
+   🎤 CHỌN GIỌNG HIỆN TẠI
+   ===================================================== */
 
 function loadChineseVoice(){
 
-  if(!("speechSynthesis" in window)) return;
+  if(!("speechSynthesis" in window)){
 
-  const voices=speechSynthesis.getVoices();
+    chineseVoice = null;
 
-  chineseVoice=
-    voices.find(v=>
-      v.lang &&
-      v.lang.toLowerCase().startsWith("zh-cn")
-    )
-    ||
-    voices.find(v=>
-      v.lang &&
-      v.lang.toLowerCase().startsWith("zh")
-    )
-    ||
+    return;
+  }
+
+  const voices =
+    getChineseVoices();
+
+
+  /* Giọng người dùng đã chọn */
+
+  if(selectedVoiceName){
+
+    const savedVoice =
+      voices.find(function(voice){
+
+        return voice.name === selectedVoiceName;
+
+      });
+
+    if(savedVoice){
+
+      chineseVoice =
+        savedVoice;
+
+      return;
+
+    }
+
+  }
+
+
+  /* Ưu tiên một số giọng nữ phổ biến */
+
+  const femaleVoice =
+    voices.find(function(voice){
+
+      const name =
+        (voice.name || "").toLowerCase();
+
+      return (
+        name.includes("xiaoxiao") ||
+        name.includes("yaoyao") ||
+        name.includes("huihui") ||
+        name.includes("female")
+      );
+
+    });
+
+
+  chineseVoice =
+    femaleVoice ||
+    voices[0] ||
     null;
+
+
+  /* Lưu lựa chọn mặc định */
+
+  if(chineseVoice){
+
+    selectedVoiceName =
+      chineseVoice.name;
+
+    localStorage.setItem(
+      "ttsVoiceName",
+      selectedVoiceName
+    );
+
+  }
+
 }
 
-if("speechSynthesis" in window){
 
-  loadChineseVoice();
-
-  speechSynthesis.onvoiceschanged=
-    loadChineseVoice;
-}
-
+/* =====================================================
+   🔊 ĐỌC TIẾNG TRUNG
+   ===================================================== */
 
 function say(text){
 
   if(!("speechSynthesis" in window)){
 
-    alert("Trình duyệt không hỗ trợ đọc tiếng Trung.");
+    alert(
+      "Trình duyệt của anh không hỗ trợ đọc tiếng Trung."
+    );
 
     return;
   }
+
+
+  if(!text) return;
+
 
   speechSynthesis.cancel();
 
+
   loadChineseVoice();
 
-  const u=new SpeechSynthesisUtterance(text);
 
-  u.lang="zh-CN";
-  u.rate=.8;
-  u.pitch=1;
+  const utterance =
+    new SpeechSynthesisUtterance(
+      String(text)
+    );
+
+
+  /* 🇨🇳 Tiếng Trung phổ thông */
+
+  utterance.lang =
+    "zh-CN";
+
+
+  /* 🎚️ Tốc độ */
+
+  utterance.rate =
+    selectedRate;
+
+
+  /* 🎵 Cao độ */
+
+  utterance.pitch =
+    1;
+
+
+  /* 🎤 Giọng đã chọn */
 
   if(chineseVoice){
-    u.voice=chineseVoice;
+
+    utterance.voice =
+      chineseVoice;
+
   }
 
-  speechSynthesis.speak(u);
+
+  speechSynthesis.speak(
+    utterance
+  );
+
 }
 
 
 /* ==================================================
-   TÌM KIẾM
+   🔊 ĐỌC CÂU TIẾNG TRUNG
+   DÙNG CHUNG HỆ THỐNG GIỌNG ĐỌC
 ================================================== */
 
-function searchWords(){
+function saySentence(){
 
-  const q=
-    document.getElementById("search")
-    .value
-    .trim()
-    .toLowerCase();
-
-  if(!q){
-
-    render(currentList);
-
-    document.getElementById("title").textContent=
-      `HSK ${currentHSK} — ${currentList.length} từ`;
+  if(
+    typeof sentences === "undefined" ||
+    !sentences.length
+  ){
 
     return;
   }
 
-  const result=currentList.filter(w=>
 
-    w.h.includes(q) ||
-    w.p.toLowerCase().includes(q) ||
-    w.m.toLowerCase().includes(q) ||
-    w.t.toLowerCase().includes(q)
+  const s =
+    sentences[sentenceIndex];
 
+
+  if(!s || !s.answer){
+
+    return;
+  }
+
+
+  /*
+     ⭐ QUAN TRỌNG
+
+     Không tự tạo SpeechSynthesisUtterance ở đây.
+
+     Gọi chung say()
+     → dùng đúng giọng anh đã chọn
+     → dùng đúng tốc độ anh đã chọn
+     → lưu lựa chọn bằng localStorage
+  */
+
+  say(s.answer);
+
+}
+
+
+
+/* =====================================================
+   🎤 TẠO BẢNG CHỌN GIỌNG TỰ ĐỘNG
+   Không cần viết HTML riêng
+   ===================================================== */
+
+function createVoiceSettings(){
+
+  /* Không tạo lần 2 */
+
+  if(
+    document.getElementById(
+      "voiceSettingsAuto"
+    )
+  ){
+
+    return;
+
+  }
+
+
+  const box =
+    document.createElement("div");
+
+
+  box.id =
+    "voiceSettingsAuto";
+
+
+  box.innerHTML = `
+
+    <div class="voice-settings-title">
+      🎙️ Hệ thống giọng đọc
+    </div>
+
+    <div class="voice-settings-row">
+
+      <label>
+        🇨🇳 Chọn giọng:
+      </label>
+
+      <select id="voiceSelectAuto"></select>
+
+    </div>
+
+
+    <div class="voice-settings-row">
+
+      <label>
+        🎚️ Tốc độ đọc:
+      </label>
+
+      <select id="voiceRateAuto">
+
+        <option value="0.5">
+          🐢 0.5× Rất chậm
+        </option>
+
+        <option value="0.6">
+          🐢 0.6× Chậm
+        </option>
+
+        <option value="0.65">
+          🗣️ 0.65× Rõ ràng
+        </option>
+
+        <option value="0.75">
+          🗣️ 0.75× Tự nhiên
+        </option>
+
+        <option value="0.85">
+          ⚡ 0.85× Nhanh
+        </option>
+
+        <option value="1">
+          ⚡ 1.0× Bình thường
+        </option>
+
+      </select>
+
+    </div>
+
+
+    <button
+      type="button"
+      id="testVoiceAuto">
+
+      🔊 Nghe thử
+
+    </button>
+
+  `;
+
+
+  /* =================================================
+     🎨 GIAO DIỆN
+     ================================================= */
+
+  box.style.cssText = `
+
+    margin:20px 0;
+
+    padding:18px;
+
+    border-radius:16px;
+
+    background:#ffffff;
+
+    box-shadow:
+      0 4px 15px rgba(0,0,0,.08);
+
+    border:
+      1px solid #eeeeee;
+
+    box-sizing:border-box;
+
+  `;
+
+
+  /* =================================================
+     🎨 TIÊU ĐỀ
+     ================================================= */
+
+  const title =
+    box.querySelector(
+      ".voice-settings-title"
+    );
+
+
+  title.style.cssText = `
+
+    font-size:18px;
+
+    font-weight:700;
+
+    margin-bottom:16px;
+
+  `;
+
+
+  /* =================================================
+     🎨 DÒNG CÀI ĐẶT
+     ================================================= */
+
+  box.querySelectorAll(
+    ".voice-settings-row"
+  ).forEach(function(row){
+
+    row.style.cssText = `
+
+      margin-bottom:12px;
+
+    `;
+
+  });
+
+
+  box.querySelectorAll(
+    ".voice-settings-row label"
+  ).forEach(function(label){
+
+    label.style.cssText = `
+
+      display:block;
+
+      font-weight:600;
+
+      margin-bottom:6px;
+
+    `;
+
+  });
+
+
+  /* =================================================
+     🎨 SELECT
+     ================================================= */
+
+  box.querySelectorAll(
+    "select"
+  ).forEach(function(select){
+
+    select.style.cssText = `
+
+      width:100%;
+
+      padding:11px;
+
+      border-radius:10px;
+
+      border:1px solid #dddddd;
+
+      background:#ffffff;
+
+      font-size:15px;
+
+      box-sizing:border-box;
+
+    `;
+
+  });
+
+
+  /* =================================================
+     🎨 NÚT NGHE THỬ
+     ================================================= */
+
+  const testButton =
+    box.querySelector(
+      "#testVoiceAuto"
+    );
+
+
+  testButton.style.cssText = `
+
+    margin-top:4px;
+
+    width:100%;
+
+    padding:12px;
+
+    border:none;
+
+    border-radius:10px;
+
+    cursor:pointer;
+
+    font-size:15px;
+
+    font-weight:700;
+
+  `;
+
+
+  /* =================================================
+     📍 ĐƯA BẢNG VÀO TRANG
+     ================================================= */
+
+  const main =
+    document.querySelector("main");
+
+
+  const firstContainer =
+    document.querySelector(
+      ".container"
+    );
+
+
+  const header =
+    document.querySelector("header");
+
+
+  if(main){
+
+    main.insertBefore(
+      box,
+      main.firstChild
+    );
+
+  }
+
+  else if(firstContainer){
+
+    firstContainer.insertBefore(
+      box,
+      firstContainer.firstChild
+    );
+
+  }
+
+  else if(header){
+
+    header.insertAdjacentElement(
+      "afterend",
+      box
+    );
+
+  }
+
+  else{
+
+    document.body.prepend(
+      box
+    );
+
+  }
+
+
+  /* =================================================
+     🔄 HIỆN DANH SÁCH GIỌNG
+     ================================================= */
+
+  updateVoiceListAuto();
+
+
+  /* =================================================
+     🎚️ KHÔI PHỤC TỐC ĐỘ
+     ================================================= */
+
+  const rateSelect =
+    document.getElementById(
+      "voiceRateAuto"
+    );
+
+
+  if(rateSelect){
+
+    rateSelect.value =
+      String(selectedRate);
+
+  }
+
+
+  /* =================================================
+     👤 ĐỔI GIỌNG
+     ================================================= */
+
+  const voiceSelect =
+    document.getElementById(
+      "voiceSelectAuto"
+    );
+
+
+  if(voiceSelect){
+
+    voiceSelect.addEventListener(
+      "change",
+      function(){
+
+        selectedVoiceName =
+          voiceSelect.value;
+
+        localStorage.setItem(
+          "ttsVoiceName",
+          selectedVoiceName
+        );
+
+
+        loadChineseVoice();
+
+
+        /* 🔊 Nghe thử ngay */
+
+        say(
+          "你好，很高兴认识你。"
+        );
+
+      }
+    );
+
+  }
+
+
+  /* =================================================
+     🎚️ ĐỔI TỐC ĐỘ
+     ================================================= */
+
+  if(rateSelect){
+
+    rateSelect.addEventListener(
+      "change",
+      function(){
+
+        selectedRate =
+          parseFloat(
+            rateSelect.value
+          );
+
+
+        localStorage.setItem(
+          "ttsRate",
+          selectedRate
+        );
+
+      }
+    );
+
+  }
+
+
+  /* =================================================
+     🔊 NÚT NGHE THỬ
+     ================================================= */
+
+  if(testButton){
+
+    testButton.addEventListener(
+      "click",
+      function(){
+
+        say(
+          "你好，欢迎来到喜欢中文。"
+        );
+
+      }
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   📋 CẬP NHẬT DANH SÁCH GIỌNG
+   ===================================================== */
+
+function updateVoiceListAuto(){
+
+  const select =
+    document.getElementById(
+      "voiceSelectAuto"
+    );
+
+
+  if(!select) return;
+
+
+  const voices =
+    getChineseVoices();
+
+
+  select.innerHTML = "";
+
+
+  /* Không có giọng Trung */
+
+  if(!voices.length){
+
+    const option =
+      document.createElement(
+        "option"
+      );
+
+
+    option.value = "";
+
+
+    option.textContent =
+      "⚠️ Chưa tìm thấy giọng Trung Quốc";
+
+
+    select.appendChild(
+      option
+    );
+
+
+    chineseVoice =
+      null;
+
+
+    return;
+
+  }
+
+
+  /* Thêm từng giọng */
+
+  voices.forEach(
+    function(voice){
+
+      const option =
+        document.createElement(
+          "option"
+        );
+
+
+      option.value =
+        voice.name;
+
+
+      option.textContent =
+        "🇨🇳 " +
+        voice.name +
+        " (" +
+        voice.lang +
+        ")";
+
+
+      select.appendChild(
+        option
+      );
+
+    }
   );
 
-  render(result);
 
-  document.getElementById("title").textContent=
-    `HSK ${currentHSK} — Tìm thấy ${result.length} từ`;
+  /* Kiểm tra giọng đã lưu */
+
+  const savedExists =
+    voices.some(
+      function(voice){
+
+        return (
+          voice.name ===
+          selectedVoiceName
+        );
+
+      }
+    );
+
+
+  if(savedExists){
+
+    select.value =
+      selectedVoiceName;
+
+  }
+
+  else{
+
+    select.value =
+      voices[0].name;
+
+    selectedVoiceName =
+      voices[0].name;
+
+    localStorage.setItem(
+      "ttsVoiceName",
+      selectedVoiceName
+    );
+
+  }
+
+
+  loadChineseVoice();
+
 }
 
 
-/* ==================================================
-   LỌC TỪ LOẠI
-================================================== */
+/* =====================================================
+   🔄 TRÌNH DUYỆT NẠP GIỌNG
+   ===================================================== */
 
-function showType(type,btn){
+if("speechSynthesis" in window){
 
-  document
-    .querySelectorAll("nav button")
-    .forEach(b=>b.classList.remove("active"));
+  speechSynthesis.onvoiceschanged =
+    function(){
 
-  btn.classList.add("active");
+      loadChineseVoice();
 
-  document.getElementById("vocabularySection")
-    .classList.remove("hidden");
+      updateVoiceListAuto();
 
-  document.getElementById("testSection")
-    .classList.add("hidden");
+    };
 
-  document.getElementById("sentenceSection")
-    .classList.add("hidden");
-
-  const result=
-    currentList.filter(w=>w.t.includes(type));
-
-  document.getElementById("title").textContent=
-    `HSK ${currentHSK} — ${type}`;
-
-  render(result);
 }
 
+
+/* =====================================================
+   🚀 KHỞI ĐỘNG
+   ===================================================== */
+
+function initVoiceSystem(){
+
+  loadChineseVoice();
+
+
+  createVoiceSettings();
+
+
+  /*
+     Một số trình duyệt cần thêm thời gian
+     để tải danh sách voice
+  */
+
+  setTimeout(function(){
+
+    loadChineseVoice();
+
+    updateVoiceListAuto();
+
+  },500);
+
+
+  setTimeout(function(){
+
+    updateVoiceListAuto();
+
+  },1500);
+
+}
+
+
+/* =====================================================
+   ✅ CHẠY SAU KHI TRANG TẢI XONG
+   ===================================================== */
+
+if(
+  document.readyState ===
+  "loading"
+){
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    initVoiceSystem
+  );
+
+}
+
+else{
+
+  initVoiceSystem();
+
+}
 
 /* ==================================================
    TEST TỪ VỰNG
 ================================================== */
 
-let testQuestions=[];
-let testIndex=0;
-let testScore=0;
-let testAnswered=false;
+let testQuestions = [];
+let testIndex = 0;
+let testScore = 0;
+let testAnswered = false;
+let testFinished = false;
 
 
-/* --------------------------------------------------
-   BẮT ĐẦU TEST
--------------------------------------------------- */
+/* ==================================================
+   ❌ DANH SÁCH TỪ SAI
+   Lưu lâu dài trong trình duyệt
+================================================== */
+
+let testWrongWords =
+  JSON.parse(
+    localStorage.getItem("wrongWords") || "[]"
+  );
+
+
+/* ==================================================
+   ❌ LƯU TỪ SAI
+================================================== */
+
+function saveTestWrongWord(word){
+
+  if(!word || !word.h) return;
+
+
+  const exists =
+    testWrongWords.some(function(item){
+
+      return item.h === word.h;
+
+    });
+
+
+  /*
+     Không lưu trùng
+  */
+
+  if(!exists){
+
+    testWrongWords.push({
+
+      h: word.h,
+
+      p: word.p || "",
+
+      m: word.m || "",
+
+      type: word.type || "",
+
+      hsk: word.hsk || currentHSK
+
+    });
+
+
+    localStorage.setItem(
+      "wrongWords",
+      JSON.stringify(testWrongWords)
+    );
+
+  }
+
+
+  updateTestWrongWordCount();
+
+}
+
+
+/* ==================================================
+   📊 HIỂN THỊ SỐ TỪ SAI
+================================================== */
+
+function updateTestWrongWordCount(){
+
+  const element =
+    document.getElementById(
+      "testWrongWordCount"
+    );
+
+
+  if(!element) return;
+
+
+  element.textContent =
+    `❌ Từ sai đã nhớ: ${testWrongWords.length}`;
+
+}
+
+
+/* ==================================================
+   📝 BẮT ĐẦU TEST
+================================================== */
 
 function startTest(btn){
 
   document
     .querySelectorAll("nav button")
-    .forEach(b=>b.classList.remove("active"));
+    .forEach(function(b){
+
+      b.classList.remove("active");
+
+    });
+
 
   btn.classList.add("active");
 
-  document.getElementById("vocabularySection")
+
+  document
+    .getElementById("vocabularySection")
     .classList.add("hidden");
 
-  document.getElementById("sentenceSection")
+
+  document
+    .getElementById("sentenceSection")
     .classList.add("hidden");
 
-  document.getElementById("testSection")
+
+  document
+    .getElementById("testSection")
     .classList.remove("hidden");
 
 
   /*
-     Lấy tối đa 10 từ ngẫu nhiên
-     trong HSK hiện tại
+     ⭐ Mỗi lượt lấy tối đa 10 từ ngẫu nhiên
   */
 
-  testQuestions=
+  testQuestions =
     [...currentList]
-      .sort(()=>Math.random()-.5)
+      .sort(function(){
+
+        return Math.random() - 0.5;
+
+      })
       .slice(0,10);
 
 
-  testIndex=0;
-  testScore=0;
-  testAnswered=false;
+  testIndex = 0;
+
+  testScore = 0;
+
+  testAnswered = false;
+
+  testFinished = false;
 
 
-  document.getElementById("testTitle").textContent=
-    `📝 TEST TỪ VỰNG HSK ${currentHSK}`;
+  document
+    .getElementById("testTitle")
+    .textContent =
+      `📝 TEST TỪ VỰNG HSK ${currentHSK}`;
 
 
   /*
      Nếu HSK chưa có dữ liệu
   */
 
-  if(testQuestions.length===0){
+  if(testQuestions.length === 0){
 
-    document.getElementById("testNumber").textContent=
-      "Chưa có dữ liệu";
+    document
+      .getElementById("testNumber")
+      .textContent =
+        "Chưa có dữ liệu";
 
-    document.getElementById("testQuestion").textContent=
-      `HSK ${currentHSK}`;
 
-    document.getElementById("testHint").textContent=
-      "Hiện chưa có từ vựng cho HSK này.";
+    document
+      .getElementById("testQuestion")
+      .textContent =
+        `HSK ${currentHSK}`;
 
-    document.getElementById("testInput").value="";
 
-    document.getElementById("testResult").textContent=
-      "👉 Hãy thêm dữ liệu HSK trước nhé!";
+    document
+      .getElementById("testHint")
+      .textContent =
+        "Hiện chưa có từ vựng cho HSK này.";
 
-    document.getElementById("score").textContent="";
+
+    document
+      .getElementById("testInput")
+      .value = "";
+
+
+    document
+      .getElementById("testResult")
+      .textContent =
+        "👉 Hãy thêm dữ liệu HSK trước nhé!";
+
+
+    document
+      .getElementById("score")
+      .textContent = "";
+
+
+    createTestButtons();
+
+    updateTestButtonState();
 
     return;
+
   }
 
 
   showTestQuestion();
 
 
+  createTestButtons();
+
+
   document
     .getElementById("testSection")
-    .scrollIntoView({behavior:"smooth"});
+    .scrollIntoView({
+      behavior:"smooth"
+    });
+
 }
 
 
-/* --------------------------------------------------
-   HIỂN THỊ CÂU HỎI
--------------------------------------------------- */
+/* ==================================================
+   📖 HIỂN THỊ CÂU HỎI
+================================================== */
 
 function showTestQuestion(){
-
-  const w=testQuestions[testIndex];
-
-  if(!w) return;
-
-
-  document.getElementById("testNumber").textContent=
-    `Câu ${testIndex+1} / ${testQuestions.length}`;
-
-
-  /*
-     QUAN TRỌNG:
-
-     HIỂN THỊ NGHĨA TIẾNG VIỆT
-     KHÔNG HIỂN THỊ HÁN TỰ
-  */
-
-  document.getElementById("testQuestion").textContent=
-    w.m;
-
-
-  document.getElementById("testHint").textContent=
-    "✍️ Hãy nhập Hán tự tiếng Trung của nghĩa trên.";
-
-
-  document.getElementById("testInput").value="";
-
-  document.getElementById("testResult").textContent="";
-
-
-  document.getElementById("score").textContent=
-    `Điểm hiện tại: ${testScore * 10} / 100`;
-
-
-  testAnswered=false;
-
-
-  /*
-     Đưa con trỏ vào ô nhập
-  */
-
-  setTimeout(()=>{
-    document.getElementById("testInput").focus();
-  },50);
-}
-
-
-
-/* --------------------------------------------------
-   KIỂM TRA HÁN TỰ
--------------------------------------------------- */
-
-
-/* ==============================
-   KIỂM TRA ĐÁP ÁN
-============================== */
-
-function checkTest(){
-
-  if(testAnswered) return;
-
-  const input =
-    document.getElementById("testInput").value.trim();
 
   const w =
     testQuestions[testIndex];
 
+
   if(!w) return;
 
+
+  testAnswered = false;
+
+
+  document
+    .getElementById("testNumber")
+    .textContent =
+      `Câu ${testIndex + 1} / ${testQuestions.length}`;
+
+
+  /*
+     ⭐ CHỈ HIỆN NGHĨA TIẾNG VIỆT
+  */
+
+  document
+    .getElementById("testQuestion")
+    .textContent =
+      w.m;
+
+
+  document
+    .getElementById("testHint")
+    .textContent =
+      "✍️ Hãy nhập Hán tự tiếng Trung của nghĩa trên.";
+
+
+  document
+    .getElementById("testInput")
+    .value = "";
+
+
+  document
+    .getElementById("testResult")
+    .textContent = "";
+
+
+  document
+    .getElementById("score")
+    .textContent =
+      `Điểm hiện tại: ${testScore * 10} / 100`;
+
+
+  updateTestButtonState();
+
+
+  /*
+     Tự đưa con trỏ vào ô nhập
+  */
+
+  setTimeout(function(){
+
+    const input =
+      document.getElementById("testInput");
+
+
+    if(input){
+
+      input.focus();
+
+    }
+
+  },50);
+
+}
+
+
+/* ==================================================
+   ✅ KIỂM TRA ĐÁP ÁN
+================================================== */
+
+function checkTest(){
+
+  /*
+     Không cho kiểm tra lại câu đã hoàn thành
+  */
+
+  if(testAnswered) return;
+
+
+  if(testFinished) return;
+
+
+  const inputElement =
+    document.getElementById(
+      "testInput"
+    );
+
+
   const result =
-    document.getElementById("testResult");
+    document.getElementById(
+      "testResult"
+    );
 
 
-  /* ===== CHƯA NHẬP ===== */
+  const w =
+    testQuestions[testIndex];
+
+
+  if(!w) return;
+
+
+  const input =
+    inputElement.value.trim();
+
+
+  /* ==================================================
+     ⚠️ CHƯA NHẬP
+  ================================================== */
 
   if(!input){
 
     result.textContent =
       "⚠️ Anh hãy nhập Hán tự trước nhé!";
 
+
     result.style.color =
       "#d08a00";
 
+
     return;
+
   }
 
 
   const cleanInput =
     input.replace(/\s+/g,"");
 
+
   const cleanAnswer =
-    w.h.trim().replace(/\s+/g,"");
+    w.h
+      .trim()
+      .replace(/\s+/g,"");
 
 
-  /* ==============================
-     ĐÚNG
-  ============================== */
+  /* ==================================================
+     ✅ ĐÚNG
+  ================================================== */
 
   if(cleanInput === cleanAnswer){
 
     testScore++;
 
+
     testAnswered = true;
+
 
     result.textContent =
       `✅ Chính xác! ${w.h} = ${w.m}`;
 
+
     result.style.color =
       "#15956f";
 
-    document.getElementById("score").textContent =
-      `Điểm hiện tại: ${testScore * 10} / 100`;
+
+    document
+      .getElementById("score")
+      .textContent =
+        `Điểm hiện tại: ${testScore * 10} / 100`;
 
 
-    /* TỰ ĐỌC ĐÁP ÁN */
+    /*
+       🔊 TỰ ĐỌC
+    */
 
     setTimeout(function(){
 
@@ -1699,143 +2591,523 @@ function checkTest(){
 
     },150);
 
+
+    updateTestButtonState();
+
+
     return;
+
   }
 
 
-  /* ==============================
-     SAI
-  ============================== */
+  /* ==================================================
+     ❌ SAI
+  ================================================== */
 
   result.innerHTML =
     `❌ Chưa đúng.<br>
      Đáp án: <strong>${w.h}</strong><br>
-     Pinyin: ${w.p}`;
+     Pinyin: ${w.p || ""}`;
+
 
   result.style.color =
     "#d35b5b";
 
+
+  /*
+     ⭐ NHỚ TỪ SAI
+  */
+
+  saveTestWrongWord(w);
+
+
   testAnswered = true;
 
-  document.getElementById("score").textContent =
-    `Điểm hiện tại: ${testScore * 10} / 100`;
+
+  document
+    .getElementById("score")
+    .textContent =
+      `Điểm hiện tại: ${testScore * 10} / 100`;
+
+
+  /*
+     🔊 ĐỌC ĐÁP ÁN ĐÚNG
+  */
+
+  setTimeout(function(){
+
+    say(w.h);
+
+  },150);
+
+
+  updateTestButtonState();
 
 }
 
 
-/* --------------------------------------------------
+/* ==================================================
    🔊 NGHE ĐÁP ÁN
--------------------------------------------------- */
+================================================== */
 
 function sayTestAnswer(){
 
   const w =
     testQuestions[testIndex];
 
+
   if(!w) return;
+
 
   say(w.h);
 
 }
 
 
-/* --------------------------------------------------
+/* ==================================================
    ➡️ CÂU TIẾP
--------------------------------------------------- */
+================================================== */
 
 function nextTest(){
+
+  /*
+     Không có bài
+  */
 
   if(!testQuestions.length) return;
 
 
-  /* ==============================
-     CHƯA TRẢ LỜI
-  ============================== */
+  /*
+     Hết bài
+  */
+
+  if(testFinished) return;
+
+
+  /*
+     ⭐ Chưa trả lời thì không được sang câu khác
+  */
 
   if(!testAnswered){
 
     const result =
-      document.getElementById("testResult");
+      document.getElementById(
+        "testResult"
+      );
+
 
     result.textContent =
       "👉 Hãy trả lời câu này trước nhé!";
 
+
     result.style.color =
       "#d08a00";
 
+
     return;
+
   }
 
 
-  /* ==============================
-     SANG CÂU TIẾP THEO
-     CHỈ 1 LẦN SPACE
-  ============================== */
+  /*
+     ⭐ Chỉ đi về phía trước
+     Không quay lại câu cũ
+  */
 
   testIndex++;
 
 
-  /* ==============================
-     HẾT BÀI
-  ============================== */
+  /*
+     HẾT 10 CÂU
+  */
 
-  if(testIndex >= testQuestions.length){
+  if(
+    testIndex >=
+    testQuestions.length
+  ){
 
     finishTest();
 
     return;
+
   }
 
 
-  /* ==============================
-     HIỆN CÂU MỚI
-  ============================== */
+  /*
+     Hiện câu tiếp theo
+  */
 
   showTestQuestion();
 
 }
 
 
-/* --------------------------------------------------
+/* ==================================================
    🏆 HOÀN THÀNH TEST
--------------------------------------------------- */
+================================================== */
 
 function finishTest(){
 
-  document.getElementById("testNumber").textContent =
-    "🎉 HOÀN THÀNH BÀI TEST";
-
-
-  document.getElementById("testQuestion").textContent =
-    `🏆 ${testScore * 10} / 100`;
-
-
-  document.getElementById("testHint").textContent =
-    testScore >= 9
-      ? "🏆 Quá xuất sắc!"
-      : testScore >= 7
-        ? "👏 Rất tốt! Tiếp tục cố gắng!"
-        : testScore >= 5
-          ? "💪 Khá tốt, ôn lại những từ sai nhé!"
-          : "🔥 Không sao! Làm lại một lần nữa sẽ nhớ lâu hơn!";
-
-
-  document.getElementById("testInput").value =
-    "";
-
-
-  document.getElementById("testResult").textContent =
-    `Đúng ${testScore} / ${testQuestions.length} câu`;
-
-
-  document.getElementById("score").textContent =
-    `🏆 ĐIỂM CUỐI: ${testScore * 10} / 100`;
-
+  testFinished = true;
 
   testAnswered = true;
 
+
+  const total =
+    testQuestions.length;
+
+
+  const wrong =
+    total - testScore;
+
+
+  document
+    .getElementById("testNumber")
+    .textContent =
+      "🎉 HOÀN THÀNH BÀI TEST";
+
+
+  document
+    .getElementById("testQuestion")
+    .textContent =
+      `🏆 ${testScore * 10} / 100`;
+
+
+  document
+    .getElementById("testHint")
+    .textContent =
+      testScore >= 9
+        ? "🏆 Quá xuất sắc!"
+        : testScore >= 7
+          ? "👏 Rất tốt! Tiếp tục cố gắng!"
+          : testScore >= 5
+            ? "💪 Khá tốt, ôn lại những từ sai nhé!"
+            : "🔥 Không sao! Ôn lại từ sai rồi làm lại nhé!";
+
+
+  document
+    .getElementById("testInput")
+    .value = "";
+
+
+  document
+    .getElementById("testResult")
+    .innerHTML =
+      `
+      ✅ Đúng: <strong>${testScore}</strong> câu<br>
+      ❌ Sai: <strong>${wrong}</strong> câu<br>
+      🏆 Điểm: <strong>${testScore * 10} / 100</strong>
+      `;
+
+
+  document
+    .getElementById("testResult")
+    .style.color =
+      "#333";
+
+
+  document
+    .getElementById("score")
+    .textContent =
+      `🏆 ĐIỂM CUỐI: ${testScore * 10} / 100`;
+
+
+  updateTestWrongWordCount();
+
+
+  updateTestButtonState();
+
 }
 
+
+/* ==================================================
+   🔄 LÀM LẠI TỪ ĐẦU
+   Tạo một lượt 10 câu mới
+================================================== */
+
+function resetTest(){
+
+  /*
+     Lấy lại 10 câu mới
+  */
+
+  testQuestions =
+    [...currentList]
+      .sort(function(){
+
+        return Math.random() - 0.5;
+
+      })
+      .slice(0,10);
+
+
+  testIndex = 0;
+
+  testScore = 0;
+
+  testAnswered = false;
+
+  testFinished = false;
+
+
+  if(testQuestions.length === 0){
+
+    showTestQuestion();
+
+    return;
+
+  }
+
+
+  document
+    .getElementById("testTitle")
+    .textContent =
+      `📝 TEST TỪ VỰNG HSK ${currentHSK}`;
+
+
+  showTestQuestion();
+
+
+  document
+    .getElementById("testSection")
+    .scrollIntoView({
+      behavior:"smooth"
+    });
+
+
+}
+
+
+/* ==================================================
+   🧩 TẠO NÚT TEST
+================================================== */
+
+function createTestButtons(){
+
+  /*
+     Không tạo lặp lại
+  */
+
+  if(
+    document.getElementById(
+      "testButtonsAuto"
+    )
+  ){
+
+    updateTestWrongWordCount();
+
+    updateTestButtonState();
+
+    return;
+
+  }
+
+
+  const testSection =
+    document.getElementById(
+      "testSection"
+    );
+
+
+  if(!testSection) return;
+
+
+  const box =
+    document.createElement(
+      "div"
+    );
+
+
+  box.id =
+    "testButtonsAuto";
+
+
+  box.innerHTML = `
+
+    <div
+      id="testWrongWordCount"
+      style="
+        margin:15px 0 10px;
+        font-weight:600;
+      ">
+      ❌ Từ sai đã nhớ: 0
+    </div>
+
+
+    <div
+      style="
+        display:flex;
+        gap:10px;
+        flex-wrap:wrap;
+        margin-top:10px;
+      ">
+
+      <button
+        type="button"
+        id="nextTestButton">
+        ➡️ Câu tiếp
+      </button>
+
+
+      <button
+        type="button"
+        id="resetTestButton">
+        🔄 Làm lại từ đầu
+      </button>
+
+    </div>
+
+  `;
+
+
+  /*
+     Đặt cuối khu vực TEST
+  */
+
+  testSection.appendChild(
+    box
+  );
+
+
+  /*
+     Nút CÂU TIẾP
+  */
+
+  document
+    .getElementById(
+      "nextTestButton"
+    )
+    .addEventListener(
+      "click",
+      function(){
+
+        nextTest();
+
+      }
+    );
+
+
+  /*
+     Nút RESET
+  */
+
+  document
+    .getElementById(
+      "resetTestButton"
+    )
+    .addEventListener(
+      "click",
+      function(){
+
+        resetTest();
+
+      }
+    );
+
+
+  updateTestWrongWordCount();
+
+  updateTestButtonState();
+
+}
+
+
+/* ==================================================
+   🔒 KHÓA / MỞ NÚT CÂU TIẾP
+================================================== */
+
+function updateTestButtonState(){
+
+  const nextButton =
+    document.getElementById(
+      "nextTestButton"
+    );
+
+
+  if(!nextButton) return;
+
+
+  /*
+     Hết bài
+  */
+
+  if(testFinished){
+
+    nextButton.disabled = true;
+
+    nextButton.textContent =
+      "✅ Đã hoàn thành";
+
+    return;
+
+  }
+
+
+  /*
+     Chưa trả lời
+  */
+
+  if(!testAnswered){
+
+    nextButton.disabled = true;
+
+    nextButton.textContent =
+      "➡️ Câu tiếp";
+
+    return;
+
+  }
+
+
+  /*
+     Đã trả lời
+  */
+
+  nextButton.disabled = false;
+
+
+  /*
+     Câu cuối
+  */
+
+  if(
+    testIndex ===
+    testQuestions.length - 1
+  ){
+
+    nextButton.textContent =
+      "🏁 Xem kết quả";
+
+  }
+
+  else{
+
+    nextButton.textContent =
+      "➡️ Câu tiếp";
+
+  }
+
+}
+
+
+/* ==================================================
+   🧹 XÓA DANH SÁCH TỪ SAI
+   Chỉ chạy khi anh chủ động gọi
+================================================== */
+
+function clearTestWrongWords(){
+
+  testWrongWords = [];
+
+
+  localStorage.removeItem(
+    "wrongWords"
+  );
+
+
+  updateTestWrongWordCount();
+
+}
 
 /* ==================================================
    PHẦN LUYỆN CÂU
@@ -2174,6 +3446,7 @@ function nextSentence(){
   showSentence();
 
 }
+
 /* ==================================================
    ⌨️ PHÍM TẮT
 ================================================== */
@@ -2194,10 +3467,6 @@ document.addEventListener(
       document.getElementById("sentenceSection");
 
 
-    const sentenceInput =
-      document.getElementById("sentenceInput");
-
-
     const isInput =
       active &&
       (
@@ -2213,7 +3482,7 @@ document.addEventListener(
 
     if(event.key === "Control"){
 
-      /* TEST */
+      /* ---------------- TEST ---------------- */
 
       if(
         testSection &&
@@ -2233,11 +3502,10 @@ document.addEventListener(
         }
 
         return;
-
       }
 
 
-      /* LUYỆN CÂU */
+      /* ---------------- LUYỆN CÂU ---------------- */
 
       if(
         sentenceSection &&
@@ -2253,7 +3521,6 @@ document.addEventListener(
         }
 
         return;
-
       }
 
     }
@@ -2280,22 +3547,40 @@ document.addEventListener(
         searchWords();
 
         return;
-
       }
 
 
       /* ----------------------------------------------
          TEST
+         ENTER LẦN 1  → KIỂM TRA
+         ENTER LẦN 2  → CÂU TIẾP
       ---------------------------------------------- */
 
       if(
         active &&
-        active.id === "testInput"
+        active.id === "testInput" &&
+        testSection &&
+        !testSection.classList.contains("hidden")
       ){
 
-        checkTest();
+        /* TEST CHƯA TRẢ LỜI */
 
-        return;
+        if(!testAnswered){
+
+          checkTest();
+
+          return;
+        }
+
+
+        /* TEST ĐÃ TRẢ LỜI */
+
+        if(testAnswered){
+
+          nextTest();
+
+          return;
+        }
 
       }
 
@@ -2320,7 +3605,6 @@ document.addEventListener(
           sentenceEnterCount = 1;
 
           return;
-
         }
 
 
@@ -2333,7 +3617,6 @@ document.addEventListener(
           nextSentence();
 
           return;
-
         }
 
       }
@@ -2351,7 +3634,6 @@ document.addEventListener(
         saySentence();
 
         return;
-
       }
 
 
@@ -2367,7 +3649,6 @@ document.addEventListener(
         );
 
         return;
-
       }
 
     }
@@ -2378,6 +3659,24 @@ document.addEventListener(
     ================================================== */
 
     if(event.key === "ArrowRight"){
+
+      /* ---------------- TEST ---------------- */
+
+      if(
+        testSection &&
+        !testSection.classList.contains("hidden") &&
+        testQuestions.length
+      ){
+
+        event.preventDefault();
+
+        nextTest();
+
+        return;
+      }
+
+
+      /* ---------------- LUYỆN CÂU ---------------- */
 
       if(
         sentenceSection &&
@@ -2391,7 +3690,6 @@ document.addEventListener(
         nextSentence();
 
         return;
-
       }
 
     }
@@ -2404,21 +3702,20 @@ document.addEventListener(
     if(event.code === "Space"){
 
       /*
-       * Nếu đang gõ trong INPUT
-       * → Space hoạt động bình thường
-       */
+         Nếu đang gõ trong INPUT
+         → Space hoạt động bình thường
+      */
 
       if(isInput){
 
         return;
-
       }
 
 
       event.preventDefault();
 
 
-      /* TEST */
+      /* ---------------- TEST ---------------- */
 
       if(
         testSection &&
@@ -2428,11 +3725,10 @@ document.addEventListener(
         nextTest();
 
         return;
-
       }
 
 
-      /* LUYỆN CÂU */
+      /* ---------------- LUYỆN CÂU ---------------- */
 
       if(
         sentenceSection &&
@@ -2449,7 +3745,6 @@ document.addEventListener(
           sentenceSpaceCount = 1;
 
           return;
-
         }
 
 
@@ -2460,7 +3755,6 @@ document.addEventListener(
           nextSentence();
 
           return;
-
         }
 
       }
