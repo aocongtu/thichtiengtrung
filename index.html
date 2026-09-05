@@ -947,23 +947,310 @@ const words = [
 /* ==================================================
    CÂU LUYỆN TẬP
 ================================================== */
-
 const sentences = [
-
-{meaning:"Tôi là học sinh.",answer:"我是学生"},
-{meaning:"Tôi thích uống trà.",answer:"我喜欢喝茶"},
-{meaning:"Bố tôi là giáo viên.",answer:"我爸爸是老师"},
-{meaning:"Tôi sống ở Bắc Kinh.",answer:"我住在北京"},
-{meaning:"Bạn tên là gì?",answer:"你叫什么名字"},
-{meaning:"Hôm nay thời tiết rất tốt.",answer:"今天天气很好"},
-{meaning:"Tôi muốn ăn cơm.",answer:"我想吃饭"},
-{meaning:"Cô ấy là bác sĩ.",answer:"她是医生"},
-{meaning:"Tôi có một người bạn.",answer:"我有一个朋友"},
-{meaning:"Ngày mai tôi đi trường học.",answer:"明天我去学校"},
-{meaning:"Anh ấy đang xem tivi.",answer:"他在看电视"},
-{meaning:"Tôi cảm ơn bạn.",answer:"谢谢你"}
-
+  {meaning:"Chào bạn!",answer:"你好!",hsk:1},
+  {meaning:"Bạn khỏe không?",answer:"你好吗？",hsk:1},
+  {meaning:"Sức khỏe bố mẹ bạn tốt không?",answer:"你爸爸妈妈身体好吗？",hsk:1},
+  {meaning:"Sức khỏe bố mẹ tôi đều rất tốt.",answer:"我爸爸妈妈身体都很好。",hsk:1},
+  {meaning:"Hôm nay công việc của bạn bận không?",answer:"今天你的工作忙吗？",hsk:1},
+  {meaning:"Hôm nay công việc của tôi không bận lắm.",answer:"今天我的工作不太忙。",hsk:1},
+  {meaning:"Ngày mai anh trai bạn bận không?",answer:"明天你哥哥忙吗？",hsk:1},
+  {meaning:"Ngày mai anh trai tôi rất bận.",answer:"明天我哥哥很忙。",hsk:1},
+  {meaning:"Hôm qua chị gái bạn đi đâu?",answer:"昨天你的姐姐去哪儿？",hsk:1},
+  {meaning:"Hôm qua chị gái tôi đến nhà cô giáo.",answer:"昨天我的姐姐去老师家。",hsk:1},
+  {meaning:"Chị gái bạn đến nhà cô giáo làm gì?",answer:"你的姐姐去老师家做什么？",hsk:1},
+  {meaning:"Chị gái tôi đến nhà cô giáo học tiếng Trung.",answer:"我的姐姐去老师家学习汉语。",hsk:1},
+  {meaning:"Nhà cô giáo bạn ở đâu?",answer:"你老师的家在哪儿？",hsk:1},
+  {meaning:"Nhà cô giáo tôi ở trường học.",answer:"我老师的家在学校。",hsk:1},
+  {meaning:"Trường học của bạn ở đâu?",answer:"你的学校在哪儿？",hsk:1},
+  {meaning:"Trường học của tôi ở Hà Nội.",answer:"我的学校在河内。",hsk:1},
+  {meaning:"Hôm nay thứ mấy?",answer:"今天星期几？",hsk:1},
+  {meaning:"Hôm nay thứ hai.",answer:"今天星期一。",hsk:1},
+  {meaning:"Ngày mai thứ mấy?",answer:"明天星期几？",hsk:1},
+  {meaning:"Ngày mai thứ ba.",answer:"明天星期二。",hsk:1},
+  {meaning:"Hôm qua thứ mấy?",answer:"昨天星期几？",hsk:1},
+  {meaning:"Hôm qua chủ nhật.",answer:"昨天星期天。",hsk:1},
+  {meaning:"Chủ nhật bạn làm gì?",answer:"星期天你做什么？",hsk:1},
+  {meaning:"Chủ nhật tôi ở nhà xem tivi.",answer:"星期天我在家看电视。",hsk:1},
+  {meaning:"Chủ nhật tôi cũng ở nhà xem tivi.",answer:"星期天我也在家看电视。",hsk:1},
+  {meaning:"Chủ nhật chúng tôi đều ở nhà xem tivi.",answer:"星期天我们都在家看电视。",hsk:1},
+  {meaning:"Ngày mai tôi đến bưu điện gửi thư, bạn đi không?",answer:"明天我去邮局寄信，你去吗？",hsk:1},
+  {meaning:"Ngày mai tôi không đến bưu điện gửi thư.",answer:"明天我不去邮局寄信。",hsk:1},
+  {meaning:"Ngày mai tôi đến ngân hàng rút tiền.",answer:"明天我去银行取钱。",hsk:1},
+  {meaning:"Ngày mai tôi không đến ngân hàng rút tiền.",answer:"明天我不去银行取钱。",hsk:1},
+  {meaning:"Ngày mai tôi đi Bắc Kinh, bạn đi không?",answer:"明天我去北京，你去吗？",hsk:1},
+  {meaning:"Ngày mai tôi không đi Bắc Kinh, tôi đi Thiên An Môn.",answer:"明天我不去北京，我去天安门。",hsk:1},
+  {meaning:"Thiên An Môn ở đâu?",answer:"天安门在哪儿？",hsk:1},
+  {meaning:"Thiên An Môn ở Trung Quốc.",answer:"天安门在中国。",hsk:1},
+  {meaning:"Bạn biết Trung Quốc ở đâu không?",answer:"你知道中国在哪儿吗？",hsk:1},
+  {meaning:"Tôi không biết Trung Quốc ở đâu.",answer:"我不知道中国在哪儿。",hsk:1},
+  {meaning:"Thứ bảy tôi ở nhà học bài.",answer:"星期六我在家学习。",hsk:1},
+  {meaning:"Thứ bảy tôi muốn đến trường học tiếng Anh.",answer:"星期六我要去学校学习英语。",hsk:1},
+  {meaning:"Bạn quen biết người kia không? Ông ta là ai?",answer:"你认识那个人吗？他是谁？",hsk:1},
+  {meaning:"Tôi không biết ông ta là ai.",answer:"我不知道他是谁。",hsk:1},
+  {meaning:"Ông ta là bạn của bố tôi, ông ta là bác sĩ.",answer:"他是我爸爸的朋友，他是大夫。",hsk:1},
+  {meaning:"Ông ta là bác sĩ à?",answer:"他是大夫吗？",hsk:1},
+  {meaning:"Phải, ông ta là bác sĩ của tôi.",answer:"对，他是我的大夫。",hsk:1},
+  {meaning:"Em gái bạn làm nghề gì?",answer:"你的妹妹做什么工作？",hsk:1},
+  {meaning:"Em gái tôi là học sinh.",answer:"我的妹妹是学生。",hsk:1},
+  {meaning:"Em gái bạn là lưu học sinh Việt Nam phải không?",answer:"你的妹妹是越南留学生吗？",hsk:1},
+  {meaning:"Đúng, em gái tôi là lưu học sinh Việt Nam.",answer:"对，我的妹妹是越南留学生。",hsk:1},
+  {meaning:"Em gái của bạn cũng là lưu học sinh Việt Nam phải không?",answer:"你的妹妹也是越南留学生吗？",hsk:1},
+  {meaning:"Phải, bọn họ đều là lưu học sinh Việt Nam.",answer:"是，他们都是越南留学生。",hsk:1},
+  {meaning:"Tôi tên là Vũ.",answer:"我叫阿武。",hsk:1},
+  {meaning:"Năm nay tôi 20 tuổi.",answer:"我今年二十岁。",hsk:1},
+  {meaning:"Tôi là giáo viên tiếng Trung.",answer:"我是汉语老师。",hsk:1},
+  {meaning:"Văn phòng của tôi ở trường học.",answer:"我的办公室在学校。",hsk:1},
+  {meaning:"Tôi sống ở tòa nhà này.",answer:"我住在这个楼。",hsk:1},
+  {meaning:"Số phòng của tôi là 808.",answer:"我的房间号是八零八。",hsk:1},
+  {meaning:"Anh trai tôi là bác sĩ.",answer:"我的哥哥是大夫。",hsk:1},
+  {meaning:"Em gái tôi là sinh viên.",answer:"我的妹妹是大学生。",hsk:1},
+  {meaning:"Em trai tôi là lưu học sinh.",answer:"我的弟弟是留学生。",hsk:1},
+  {meaning:"Tôi quen biết cô giáo của bạn.",answer:"我认识你的女老师。",hsk:1},
+  {meaning:"Cô giáo của bạn là giáo viên tiếng Anh.",answer:"你的老师是英语老师。",hsk:1},
+  {meaning:"Hôm nay công việc của tôi rất mệt.",answer:"今天我的工作很累。",hsk:1},
+  {meaning:"Tôi muốn về nhà nghỉ ngơi.",answer:"我要回家休息。",hsk:1},
+  {meaning:"Công việc của em gái tôi cũng rất bận.",answer:"我妹妹的工作也很忙。",hsk:1},
+  {meaning:"Em trai tôi cũng muốn đến ngân hàng đổi tiền.",answer:"我的弟弟也要去银行换钱。",hsk:1},
+  {meaning:"Sáng ngày mai chúng tôi đều đến ngân hàng đổi tiền.",answer:"明天上午我们都去银行换钱。",hsk:1},
+  {meaning:"Chúng tôi muốn đổi 8000 nhân dân tệ.",answer:"我们要换八千人民币。",hsk:1},
+  {meaning:"Bạn của tôi muốn đổi 3000 đô Mỹ.",answer:"我的朋友要换三千美元。",hsk:1},
+  {meaning:"Chiều hôm nay chúng tôi còn đến bưu điện gửi thư.",answer:"今天下午我们还去邮局寄信。",hsk:1},
+  {meaning:"Tôi gửi thư cho mẹ của tôi.",answer:"我给我的妈妈寄信。",hsk:1},
+  {meaning:"Họ đều rất khỏe.",answer:"他们都很好。",hsk:1},
+  {meaning:"Chủ nhật chúng tôi đến cửa hàng mua hoa quả.",answer:"星期日我们去商店买水果。",hsk:1},
+  {meaning:"Mẹ tôi muốn mua hai cân táo.",answer:"我的妈妈要买两斤苹果。",hsk:1},
+  {meaning:"Táo một cân bao nhiêu tiền?",answer:"苹果一斤多少钱？",hsk:1},
+  {meaning:"Táo một cân là 8 tệ.",answer:"苹果一斤八块钱。",hsk:1},
+  {meaning:"Bạn muốn mua mấy cân táo?",answer:"你要买几斤苹果？",hsk:1},
+  {meaning:"Tôi muốn mua 4 cân táo.",answer:"我要买四斤苹果。",hsk:1},
+  {meaning:"4 cân táo là 60 tệ.",answer:"四斤苹果是六十块钱。",hsk:1},
+  {meaning:"Bạn còn muốn mua cái khác không?",answer:"你还要买别的吗？",hsk:1},
+  {meaning:"Tôi còn muốn mua quýt.",answer:"我还要买橘子。",hsk:1},
+  {meaning:"Quýt 1 cân bao nhiêu tiền?",answer:"橘子一斤多少钱？",hsk:1},
+  {meaning:"Một cân quýt là 9 tệ.",answer:"橘子一斤是九块钱。",hsk:1},
+  {meaning:"Bạn muốn mua mấy cân quýt?",answer:"你要买几斤橘子？",hsk:1},
+  {meaning:"Tôi muốn mua 5 cân quýt.",answer:"我要买五斤橘子。",hsk:1},
+  {meaning:"5 cân quýt là 80 tệ.",answer:"五斤橘子是八十块钱。",hsk:1},
+  {meaning:"Tổng cộng hết bao nhiêu tiền?",answer:"一共多少钱？",hsk:1},
+  {meaning:"Tổng cộng hết 890 tệ.",answer:"一共八百九十块钱。",hsk:1},
+  {meaning:"Bạn đưa cho tôi 1000 tệ đi.",answer:"你给我一千块钱吧。",hsk:1},
+  {meaning:"Tôi không có 1000 tệ.",answer:"我没有一千块钱。",hsk:1},
+  {meaning:"Vậy bạn đưa cho tôi 3000 tệ cũng được.",answer:"那你给我三千块钱也可以。",hsk:1},
+  {meaning:"Đây là 3000 nhân dân tệ.",answer:"这是你的三千人民币。",hsk:1},
+  {meaning:"Tôi trả lại bạn 5 tệ tiền thừa.",answer:"我找你五块钱。",hsk:1},
+  {meaning:"Đây là cái gì?",answer:"这是什么？",hsk:1},
+  {meaning:"Đây là sách.",answer:"这是书。",hsk:1},
+  {meaning:"Đây là sách gì?",answer:"这是什么书？",hsk:1},
+  {meaning:"Đây là sách tiếng Trung.",answer:"这是汉语书。",hsk:1},
+  {meaning:"Đây là sách tiếng Trung của ai?",answer:"这是谁的汉语书？",hsk:1},
+  {meaning:"Đây là sách tiếng Trung của tôi.",answer:"这是我的汉语书。",hsk:1},
+  {meaning:"Đây là sách tiếng Trung của cô giáo của tôi.",answer:"这是我的老师的汉语书。",hsk:1},
+  {meaning:"Kia là cái gì?",answer:"那是什么？",hsk:1},
+  {meaning:"Kia là tạp chí.",answer:"那是杂志。",hsk:1},
+  {meaning:"Kia là tạp chí gì?",answer:"那是什么杂志？",hsk:1},
+  {meaning:"Kia là tạp chí tiếng Anh.",answer:"那是英文杂志。",hsk:1},
+  {meaning:"Kia là tạp chí tiếng Anh của ai?",answer:"那是谁的英文杂志？",hsk:1},
+  {meaning:"Kia là tạp chí tiếng Anh của tôi.",answer:"那是我的英文杂志。",hsk:1},
+  {meaning:"Kia là tạp chí tiếng Anh của cô giáo của tôi.",answer:"那是我的老师的英文杂志。",hsk:1},
+  {meaning:"Đây là sách tiếng Anh của bạn của tôi.",answer:"这是我的朋友的英语书。",hsk:1},
+  {meaning:"Buổi trưa hôm nay các bạn muốn đi đâu ăn cơm?",answer:"今天中午你们要去哪儿吃饭？",hsk:1},
+  {meaning:"Buổi trưa hôm nay chúng tôi muốn đến nhà ăn ăn cơm.",answer:"今天中午我们要去食堂吃饭。",hsk:1},
+  {meaning:"Các bạn muốn ăn gì?",answer:"你们要吃什么？",hsk:1},
+  {meaning:"Chúng tôi muốn ăn 8 chiếc bánh màn thầu.",answer:"我们要吃八个馒头。",hsk:1},
+  {meaning:"Các bạn muốn uống gì?",answer:"你们要喝什么？",hsk:1},
+  {meaning:"Chúng tôi muốn uống canh.",answer:"我们要喝汤。",hsk:1},
+  {meaning:"Các bạn muốn uống canh gì?",answer:"你们要喝什么汤？",hsk:1},
+  {meaning:"Chúng tôi muốn uống canh trứng gà.",answer:"我们要喝鸡蛋汤。",hsk:1},
+  {meaning:"Các bạn muốn uống mấy bát canh trứng gà?",answer:"你们要喝几碗鸡蛋汤？",hsk:1},
+  {meaning:"Tôi muốn uống 1 bát canh trứng gà.",answer:"我要喝一碗鸡蛋汤。",hsk:1},
+  {meaning:"Các bạn uống rượu không?",answer:"你们要喝酒吗？",hsk:1},
+  {meaning:"Chúng tôi không uống rượu.",answer:"我们不喝酒。",hsk:1},
+  {meaning:"Chúng tôi muốn uống bia.",answer:"我们要喝啤酒。",hsk:1},
+  {meaning:"Những cái này là gì?",answer:"这些是什么？",hsk:1},
+  {meaning:"Những cái này là bánh bao, sủi cảo và mì sợi.",answer:"这些是包子、饺子和面条。",hsk:1},
+  {meaning:"Những cái kia là gì?",answer:"那些是什么？",hsk:1},
+  {meaning:"Những cái kia là sách tiếng Anh của tôi.",answer:"那些是我的英语书。",hsk:1},
+  {meaning:"Bạn họ gì?",answer:"你姓什么？",hsk:1},
+  {meaning:"Bạn tên là gì?",answer:"你叫什么名字？",hsk:1},
+  {meaning:"Bạn là người nước nào?",answer:"你是哪国人？",hsk:1},
+  {meaning:"Tôi là người Việt Nam.",answer:"我是越南人。",hsk:1},
+  {meaning:"Cô ta là người nước nào?",answer:"她是哪国人？",hsk:1},
+  {meaning:"Cô ta là người nước Mỹ.",answer:"她是美国人。",hsk:1},
+  {meaning:"Các bạn đều là lưu học sinh phải không?",answer:"你们都是留学生吗？",hsk:1},
+  {meaning:"Chúng tôi đều là lưu học sinh Việt Nam.",answer:"我们都是越南留学生。",hsk:1},
+  {meaning:"Các bạn học cái gì?",answer:"你们学习什么？",hsk:1},
+  {meaning:"Chúng tôi đều học tiếng Trung tại Trung tâm Tiếng Trung TiengTrungNet.",answer:"我们都在TiengTrungNet汉语中心学习汉语。",hsk:1},
+  {meaning:"Tiếng Trung khó không?",answer:"汉语难吗？",hsk:1},
+  {meaning:"Tiếng Trung không khó lắm.",answer:"汉语不太难。",hsk:1},
+  {meaning:"Chữ Hán rất khó, phát âm không khó lắm.",answer:"汉字很难，发音不太难。",hsk:1},
+  {meaning:"Bố tôi muốn mua ba cân quýt.",answer:"我爸爸要买三斤橘子。",hsk:1},
+  {meaning:"Tổng cộng hết 250 tệ.",answer:"一共二百五十块钱。",hsk:1},
+  {meaning:"Hôm nay chúng tôi đều rất mệt.",answer:"今天我们都很累。",hsk:1},
+  {meaning:"Chúng tôi đều rất vui.",answer:"我们都很高兴。",hsk:1},
+  {meaning:"Ngày mai chúng tôi đến văn phòng làm việc của bạn.",answer:"明天我们去你的办公室。",hsk:1},
+  {meaning:"Trường học của bạn ở Việt Nam phải không?",answer:"你的学校在越南吗？",hsk:1},
+  {meaning:"Trường học tôi ở đàng kia.",answer:"我的学校在那儿。",hsk:1},
+  {meaning:"Cô giáo của bạn là giáo viên tiếng Trung phải không?",answer:"你的女老师是汉语老师吗？",hsk:1},
+  {meaning:"Cô giáo của tôi là giáo viên tiếng Anh.",answer:"我的女老师是英语老师。",hsk:1},
+  {meaning:"Bạn biết cô giáo bạn sống ở đâu không?",answer:"你知道你的女老师住在哪儿吗？",hsk:1},
+  {meaning:"Tôi không biết cô giáo tôi sống ở đâu.",answer:"我不知道我的女老师住在哪儿。",hsk:1},
+  {meaning:"Cô giáo bạn sống ở tòa nhà này phải không?",answer:"你的女老师住在这个楼吗？",hsk:1},
+  {meaning:"Cô giáo tôi sống ở tòa nhà kia.",answer:"我的女老师住在那个楼。",hsk:1},
+  {meaning:"Số phòng của cô giáo bạn là bao nhiêu?",answer:"你的女老师的房间号是多少？",hsk:1},
+  {meaning:"Số phòng của cô giáo tôi là 999.",answer:"我的女老师的房间号是九九九。",hsk:1},
+  {meaning:"Bạn biết số di động của cô giáo bạn là bao nhiêu không?",answer:"你知道你的女老师的手机号是多少吗？",hsk:1},
+  {meaning:"Tôi không biết số di động của cô giáo tôi là bao nhiêu.",answer:"我不知道我的女老师的手机号是多少。",hsk:1},
+  {meaning:"Cô giáo của bạn năm nay bao nhiêu tuổi rồi?",answer:"你的女老师今年多大了？",hsk:1},
+  {meaning:"Năm nay cô giáo tôi 20 tuổi rồi.",answer:"我的女老师今年二十岁了。",hsk:1},
+  {meaning:"Văn phòng của cô giáo bạn ở đâu?",answer:"你的女老师的办公室在哪儿？",hsk:1},
+  {meaning:"Văn phòng của cô giáo tôi ở nhà tôi.",answer:"我的女老师的办公室在我的家。",hsk:1},
+  {meaning:"Nhà bạn ở đâu?",answer:"你的家在哪儿？",hsk:1},
+  {meaning:"Nhà tôi ở Việt Nam.",answer:"我的家在越南。",hsk:1},
+  {meaning:"Bạn sống ở đâu?",answer:"你住在哪儿？",hsk:1},
+  {meaning:"Tôi sống ở nhà của anh trai bạn.",answer:"我住在你哥哥的家。",hsk:1},
+  {meaning:"Bạn sống ở tòa nhà này phải không?",answer:"你住在这个楼吗？",hsk:1},
+  {meaning:"Số phòng của bạn gái tôi là 908.",answer:"我的女朋友的房间号是九零八。",hsk:1},
+  {meaning:"Anh trai tôi biết bạn của cô ta sống ở đâu.",answer:"我的哥哥知道她的朋友住在哪儿。",hsk:1},
+  {meaning:"Anh trai bạn có điện thoại di động không?",answer:"你的哥哥有手机号吗？",hsk:1},
+  {meaning:"Anh trai tôi có điện thoại di động.",answer:"我的哥哥有手机。",hsk:1},
+  {meaning:"Số điện thoại di động của anh trai bạn là bao nhiêu?",answer:"你的哥哥的手机号是多少？",hsk:1},
+  {meaning:"Số điện thoại di động của anh trai tôi là 666.888.999.",answer:"我的哥哥的手机号是六六六八八八九九九。",hsk:1},
+  {meaning:"Tôi rất thích số điện thoại di động của anh trai bạn.",answer:"我很喜欢你的哥哥的手机号。",hsk:1},
+  {meaning:"Số di động của anh trai bạn rất đẹp.",answer:"你的哥哥的手机号很好看。",hsk:1},
+  {meaning:"Anh trai bạn mua số di động này ở đâu?",answer:"你哥哥在哪儿买这个手机号？",hsk:1},
+  {meaning:"Anh trai tôi mua ở cửa hàng bán điện thoại di động.",answer:"我哥哥在卖手机商店买这个手机号。",hsk:1},
+  {meaning:"Bao nhiêu tiền?",answer:"多少钱？",hsk:1},
+  {meaning:"1000 nhân dân tệ.",answer:"一千人民币。",hsk:1},
+  {meaning:"Đắt quá, 100 nhân dân tệ thôi.",answer:"太贵了，一百人民币吧。",hsk:1},
+  {meaning:"100 nhân dân tệ ít quá, tôi không bán cho bạn.",answer:"一百人民币太少了，我不卖给你。",hsk:1},
+  {meaning:"Vậy 101 nhân dân tệ nhé, được không?",answer:"那一百零一人民币吧，行吗？",hsk:1},
+  {meaning:"Ok, đây là số di động của bạn.",answer:"好吧，这是你的手机号。",hsk:1},
+  {meaning:"Ngày mai là sinh nhật của chị gái bạn phải không?",answer:"明天是你的姐姐的生日吗？",hsk:1},
+  {meaning:"Ngày mai không phải là sinh nhật của chị gái tôi.",answer:"明天不是我的姐姐的生日。",hsk:1},
+  {meaning:"Ngày mai là sinh nhật của em gái bạn.",answer:"明天是我的妹妹的生日。",hsk:1},
+  {meaning:"Đúng rồi, ngày mai bạn tới nhà tôi nhé.",answer:"对啊，明天你来我家吧。",hsk:1},
+  {meaning:"Tôi không biết nhà bạn ở đâu.",answer:"我不知道你的家在哪儿。",hsk:1},
+  {meaning:"Nhà tôi ở đàng kia kìa.",answer:"我的家在那儿呢。",hsk:1},
+  {meaning:"Nhà bạn có mấy người?",answer:"你家有几个人？",hsk:1},
+  {meaning:"Nhà tôi có 4 người, họ là bố mẹ tôi, em gái tôi và tôi.",answer:"我家有四个人，他们是我爸爸、妈妈、妹妹和我。",hsk:1},
+  {meaning:"Bố bạn là bác sĩ phải không?",answer:"你的爸爸是大夫吗？",hsk:1},
+  {meaning:"Bố tôi là bác sĩ.",answer:"我爸爸是大夫。",hsk:1},
+  {meaning:"Thế còn mẹ bạn?",answer:"你妈妈呢？",hsk:1},
+  {meaning:"Mẹ tôi là nhân viên giao dịch.",answer:"我妈妈是营业员。",hsk:1},
+  {meaning:"Em gái bạn làm công việc gì?",answer:"你的妹妹做什么工作？",hsk:1},
+  {meaning:"Em gái tôi là y tá.",answer:"我的妹妹是护士。",hsk:1},
+  {meaning:"Em gái bạn năm nay bao nhiêu tuổi rồi?",answer:"你的妹妹今年多大了？",hsk:1},
+  {meaning:"Em gái tôi năm nay 20 tuổi.",answer:"我的妹妹今年二十岁。",hsk:1},
+  {meaning:"Em gái bạn học trường đại học gì?",answer:"你的妹妹读什么大学？",hsk:1},
+  {meaning:"Em gái tôi học trường Đại học Hà Nội.",answer:"我的妹妹在河内大学学习。",hsk:1},
+  {meaning:"Trường Đại học Hà Nội ở đâu?",answer:"河内大学在哪儿？",hsk:1},
+  {meaning:"Tôi không biết trường đó ở đâu.",answer:"我不知道河内大学在哪儿。",hsk:1},
+  {meaning:"Trường Đại học Hà Nội ở Hà Nội.",answer:"河内大学在河内。",hsk:1},
+  {meaning:"Tôi xin được giới thiệu cho các bạn trước chút, vị này là giáo sư trường tôi, vị này là hiệu trưởng trường tôi.",answer:"我先给你们介绍一下儿，这位是我大学教授，这位是我学校校长。",hsk:1},
+  {meaning:"Cô ta là thư ký của tôi, cô ta là người nước Mỹ.",answer:"她是我的秘书，她是美国人。",hsk:1},
+  {meaning:"Chào mừng các bạn tới nhà tôi.",answer:"欢迎你们来我家。",hsk:1},
+  {meaning:"Hai bọn họ đều là lưu học sinh nước Mỹ.",answer:"他们俩都是美国留学生。",hsk:1},
+  {meaning:"Các bạn học tiếng Trung ở đâu?",answer:"你们在哪儿学习汉语？",hsk:1},
+  {meaning:"Chúng tôi học tiếng Trung ở trường Đại học Ngôn ngữ Bắc Kinh.",answer:"我们在北京语言大学学习汉语。",hsk:1},
+  {meaning:"Cô giáo của các bạn thế nào?",answer:"你们的老师怎么样？",hsk:1},
+  {meaning:"Bạn cảm thấy học tiếng Trung khó không?",answer:"你觉得学汉语难吗？",hsk:1},
+  {meaning:"Tôi cảm thấy ngữ pháp rất khó, nghe và nói cũng tương đối dễ, nhưng mà đọc và viết rất khó.",answer:"我觉得语法很难，听和说也比较容易，但是读和写很难。",hsk:1},
+  {meaning:"Tôi giới thiệu cho các bạn một chút, vị này là học sinh mới của chúng ta, cũng là bạn cùng phòng của tôi.",answer:"我给你们介绍一下儿，这位是我们的新同学，也是我的舍友。",hsk:1},
+  {meaning:"Các bạn học tiếng Trung ở lớp nào?",answer:"你们在哪个班学习汉语？",hsk:1},
+  {meaning:"Chúng tôi học tiếng Trung ở lớp 999.",answer:"我们在九九九班学习汉语。",hsk:1},
+  {meaning:"Giáo viên của các bạn là ai?",answer:"你们的老师是谁？",hsk:1},
+  {meaning:"Giáo viên của chúng tôi là người nước Anh.",answer:"我们的老师是英国人。",hsk:1},
+  {meaning:"Bạn có vali không?",answer:"你有箱子吗？",hsk:1},
+  {meaning:"Tôi không có vali.",answer:"我没有箱子。",hsk:1},
+  {meaning:"Bạn có mấy chiếc vali?",answer:"你有几个箱子？",hsk:1},
+  {meaning:"Tôi có 2 chiếc vali.",answer:"我有两个箱子。",hsk:1},
+  {meaning:"Vali của bạn màu gì?",answer:"你的箱子是什么颜色的？",hsk:1},
+  {meaning:"Vali của tôi màu đen, vali của tôi ở đàng kia kìa.",answer:"我的箱子是黑色的，我的箱子在那儿呢。",hsk:1},
+  {meaning:"Vali của bạn nặng không?",answer:"你的箱子重吗？",hsk:1},
+  {meaning:"Vali của tôi không nặng lắm, rất nhẹ.",answer:"我的箱子不太重，很轻的。",hsk:1},
+  {meaning:"Xin hỏi, đây là cái gì?",answer:"请问，这是什么？",hsk:1},
+  {meaning:"Đây là thuốc bắc, đây là thuốc tây.",answer:"这是中药，这是西药。",hsk:1},
+  {meaning:"Bạn muốn uống thuốc gì?",answer:"你要吃什么药？",hsk:1},
+  {meaning:"Tôi muốn uống thuốc bắc và thuốc tây.",answer:"我要吃中药和西药。",hsk:1},
+  {meaning:"Những cái này là cái gì?",answer:"这些是什么？",hsk:1},
+  {meaning:"Những cái này là đồ dùng hàng ngày, quần áo, ô che mưa và nước hoa.",answer:"这些是日用品、衣服、雨伞和香水。",hsk:1},
+  {meaning:"Chiếc vali của tôi rất nặng. Chiếc của bạn nặng hay không nặng?",answer:"我的箱子很重。你的箱子重不重？",hsk:1},
+  {meaning:"Cái màu đen này rất nặng, cái màu đỏ kia tương đối nhẹ.",answer:"这个黑色的很重，那个红色的比较轻。",hsk:1},
+  {meaning:"Vali của bạn là chiếc mới hay là chiếc cũ?",answer:"你的箱子是新的还是旧的？",hsk:1},
+  {meaning:"Vali của tôi là chiếc mới, của bạn là chiếc cũ.",answer:"我的箱子是新的，你的是旧的。",hsk:1},
+  {meaning:"Thưa ông, những cái màu trắng này là đồ gì vậy?",answer:"先生，这些白色的是什么东西？",hsk:1},
+  {meaning:"Những cái màu trắng này là thuốc tây.",answer:"这些白色的是西药。",hsk:1},
+  {meaning:"Thuốc này rất đắt tiền đó, ông muốn uống chút không?",answer:"这种药很贵的。你要吃点儿吗？",hsk:1},
+  {meaning:"Lâu ngày không gặp bạn, dạo này bạn thế nào?",answer:"好久不见你了。你最近怎么样？",hsk:1},
+  {meaning:"Tôi rất khỏe, cảm ơn. Dạo này công việc bạn bận hay không bận?",answer:"我很好，谢谢。最近你的工作忙不忙？",hsk:1},
+  {meaning:"Bạn muốn uống chút gì không?",answer:"你要喝点儿什么吗？",hsk:1},
+  {meaning:"Bạn muốn uống trà hay là café?",answer:"你要喝咖啡还是喝茶？",hsk:1},
+  {meaning:"Tôi muốn uống chút trà nóng.",answer:"我要喝点儿热茶。",hsk:1},
+  {meaning:"Xe của bạn màu gì?",answer:"你的车是什么颜色的？",hsk:1},
+  {meaning:"Xe của tôi màu đen.",answer:"我的车是黑色的。",hsk:1},
+  {meaning:"Xe của bạn mới hay cũ?",answer:"你的车是新的还是旧的？",hsk:1},
+  {meaning:"Xe của tôi là chiếc mới.",answer:"我的车是新的。",hsk:1},
+  {meaning:"Chiếc xe màu đen kia là của bạn phải không?",answer:"那辆黑色的是你的车吗？",hsk:1},
+  {meaning:"Tôi là giám đốc của công ty này, cô ta là thư ký của tôi.",answer:"我是这个公司的经理，她是我的秘书。",hsk:1},
+  {meaning:"Tôi có hai chiếc xe máy, 3 chiếc ô tô và một chiếc xe đạp.",answer:"我有两辆摩托车，三辆汽车和一辆自行车。",hsk:1},
+  {meaning:"Bạn biết xe đạp của tôi ở đâu không?",answer:"你知道我的自行车在哪儿吗？",hsk:1},
+  {meaning:"Đây là ảnh của cả gia đình tôi.",answer:"这是我全家的照片。",hsk:1},
+  {meaning:"Bạn có chị gái không?",answer:"你有姐姐吗？",hsk:1},
+  {meaning:"Tôi không có chị gái, tôi chỉ có một em gái.",answer:"我没有姐姐，我只有一个妹妹。",hsk:1},
+  {meaning:"Mẹ tôi là bác sĩ, em gái tôi là y tá, bố tôi là giám đốc, tôi là học sinh.",answer:"我的妈妈是大夫，我的妹妹是护士，我的爸爸是经理，我是学生。",hsk:1},
+  {meaning:"Công ty các bạn là công ty gì?",answer:"你们的是一家什么公司？",hsk:1},
+  {meaning:"Công ty chúng tôi là công ty thương mại quốc tế.",answer:"我们的公司是外贸公司。",hsk:1},
+  {meaning:"Công ty các bạn có bao nhiêu nhân viên?",answer:"你们的公司有大概多少个职员？",hsk:1},
+  {meaning:"Công ty chúng tôi có khoảng 150 nhân viên.",answer:"我们的公司有大概一百五十个职员。",hsk:1},
+  {meaning:"Bạn là nhân viên của cô ta phải không?",answer:"你是她的职员吗？",hsk:1},
+  {meaning:"Cô ta là thư ký của bạn phải không?",answer:"她是你的秘书吗？",hsk:1},
+  {meaning:"Anh trai bạn đã kết hôn chưa?",answer:"你的哥哥结婚了吗？",hsk:1},
+  {meaning:"Nhà bạn có mấy nhóc rồi?",answer:"你家有几个孩子了？",hsk:1},
+  {meaning:"Nhà tôi có hai đứa, đứa lớn là con gái, đứa thứ hai là con trai.",answer:"我家有两个孩子，老大是女的，老二是男的。",hsk:1},
+  {meaning:"Anh trai bạn là nhân viên ngân hàng phải không?",answer:"你的哥哥是银行职员吗？",hsk:1},
+  {meaning:"Anh trai tôi không phải là nhân viên ngân hàng, chị gái tôi là nhân viên ngân hàng.",answer:"我的哥哥不是银行职员，我的姐姐是银行职员。",hsk:1},
+  {meaning:"Em gái bạn là giáo viên hay là y tá?",answer:"你的妹妹是老师还是护士？",hsk:1},
+  {meaning:"Em gái tôi là y tá.",answer:"我的妹妹是护士。",hsk:1},
+  {meaning:"Em gái bạn làm việc ở đâu?",answer:"你的妹妹在哪儿工作？",hsk:1},
+  {meaning:"Em gái tôi làm việc ở bệnh viện, chị gái tôi làm việc ở ngân hàng.",answer:"我的妹妹在医院工作，我的姐姐在银行工作。",hsk:1},
+  {meaning:"Bạn muốn uống chút café không?",answer:"你要喝点儿咖啡吗？",hsk:1},
+  {meaning:"Cảm ơn, cho tôi một tách café nhé.",answer:"谢谢，给我来一杯咖啡吧。",hsk:1},
+  {meaning:"Tối nay chúng ta đi xem phim hay là đi mua đồ?",answer:"今天晚上我们去看电影还是买东西？",hsk:1},
+  {meaning:"Tối nay tôi muốn đi siêu thị mua sắm.",answer:"今天晚上我要去超市买东西。",hsk:1},
+  {meaning:"Bạn thích ăn đào hay là dâu tây?",answer:"你喜欢吃桃还是草莓？",hsk:1},
+  {meaning:"Tôi đều thích ăn cả hai.",answer:"两个我都喜欢吃。",hsk:1},
+  {meaning:"Đây là sách tiếng Trung mà tôi rất thích xem.",answer:"这是我很喜欢看的中文书。",hsk:1},
+  {meaning:"Bạn đang học trường Đại học gì?",answer:"你在读什么大学？",hsk:1},
+  {meaning:"Tôi đang học trường Đại học Bắc Kinh.",answer:"我在读北京大学。",hsk:1},
+  {meaning:"Bây giờ mấy giờ rồi?",answer:"现在几点了？",hsk:1},
+  {meaning:"Bây giờ là 7:30.",answer:"现在是七点半。",hsk:1},
+  {meaning:"Mấy giờ bạn vào học?",answer:"你几点上课？",hsk:1},
+  {meaning:"Sáng 8 giờ tôi vào học.",answer:"上午八点我上课。",hsk:1},
+  {meaning:"Mấy giờ bạn có tiết học?",answer:"你几点有课？",hsk:1},
+  {meaning:"Tối 6:30 tôi có tiết học.",answer:"晚上六点半我有课。",hsk:1},
+  {meaning:"Khi nào chúng ta đi siêu thị mua quần áo?",answer:"我们什么时候去超市买衣服？",hsk:1},
+  {meaning:"Chiều nay chúng ta đến đó mua ít đồ.",answer:"今天下午我们去那儿买一些东西。",hsk:1},
+  {meaning:"Bây giờ là 8 giờ kém 5 phút.",answer:"现在是八点差五分。",hsk:1},
+  {meaning:"Xin hỏi, đến ngân hàng đi như thế nào?",answer:"请问，去银行怎么走？",hsk:1},
+  {meaning:"Bạn đi thẳng một mạch đến ngã tư thứ nhất thì rẽ phải, đi bộ khoảng 5 phút sẽ tới, ngân hàng ở phía bên trái bạn.",answer:"你一直往前走，到第一个红绿灯就往右拐，走路大概五分钟就到，银行就在你的左边。",hsk:1},
+  {meaning:"Ngân hàng cách đây bao xa?",answer:"银行离这儿有多远？",hsk:1},
+  {meaning:"Khoảng 5 phút đi bộ.",answer:"走路大概五分钟。",hsk:1},
+  {meaning:"Xin hỏi, Tòa nhà Parkson ở chỗ nào?",answer:"请问，百盛大楼在哪儿？",hsk:1},
+  {meaning:"Bạn nhìn kìa, chính là tòa nhà phía trước bạn đó.",answer:"你看，你前边的那个楼就是。",hsk:1},
+  {meaning:"Bạn biết từ đây đến bưu điện đi như thế nào không?",answer:"你知道从这儿到邮局怎么走吗？",hsk:1},
+  {meaning:"Tôi không biết, bạn hỏi cô ta xem.",answer:"我不知道，你问她吧。",hsk:1},
+  {meaning:"Rất đơn giản, bạn ngồi taxi khoảng 5 phút là tới.",answer:"很简单的，你坐出租车大概五分钟就到。",hsk:1},
+  {meaning:"Xin hỏi, cô ta vẫn sống ở phòng 302 phải không?",answer:"请问，她还住在三零二号房间吗？",hsk:1},
+  {meaning:"Cô ta không sống ở đây, cô ta dọn nhà rồi, dọn đến phòng 303 rồi.",answer:"她不住在这儿，她搬家了，搬到三零三号房间去了。",hsk:1},
+  {meaning:"Tối nay tôi muốn đi xem phim, bạn đi với tôi nhé.",answer:"今天晚上我要去看电影，你跟我去吧。",hsk:1},
+  {meaning:"Không được, tối nay tôi muốn đi xem phim với bạn gái tôi.",answer:"不行，今天晚上我要跟我的女朋友去看电影了。",hsk:1},
+  {meaning:"Hôm nay tôi mời, bạn muốn ăn gì?",answer:"今天我请客，你想吃什么？",hsk:1},
+  {meaning:"Chúng ta đến khách sạn ăn cơm đi.",answer:"我们去酒店吃饭吧。",hsk:1},
+  {meaning:"Bây giờ tôi đến thư viện, bạn đi cùng tôi đi.",answer:"我现在去图书馆，你跟我一起去吧。",hsk:1},
+  {meaning:"Ok, chúng ta đi thôi.",answer:"好吧，咱们走吧。",hsk:1}
 ];
+
 
 
 /* ==================================================
@@ -1558,6 +1845,13 @@ let sentenceIndex = 0;
 
 let sentenceSpaceCount = 0;
 
+// Đã kiểm tra đúng câu hiện tại chưa?
+let sentenceChecked = false;
+
+
+/* ==================================================
+   RESET
+================================================== */
 
 function resetSentenceSpace(){
 
@@ -1565,6 +1859,10 @@ function resetSentenceSpace(){
 
 }
 
+
+/* ==================================================
+   MỞ LUYỆN CÂU
+================================================== */
 
 function openSentences(btn){
 
@@ -1593,6 +1891,8 @@ function openSentences(btn){
 
   sentenceIndex = 0;
 
+  sentenceChecked = false;
+
   resetSentenceSpace();
 
   showSentence();
@@ -1606,10 +1906,19 @@ function openSentences(btn){
 }
 
 
+/* ==================================================
+   HIỆN CÂU
+================================================== */
+
 function showSentence(){
+
+  if(!sentences.length) return;
+
 
   const s =
     sentences[sentenceIndex];
+
+  sentenceChecked = false;
 
   resetSentenceSpace();
 
@@ -1621,7 +1930,7 @@ function showSentence(){
 
   document.getElementById("sentenceMeaning")
     .textContent =
-      s.meaning;
+      s.meaning || "";
 
 
   document.getElementById("sentenceTarget")
@@ -1638,77 +1947,219 @@ function showSentence(){
     .textContent =
       "";
 
+
+  document.getElementById("sentenceAnswer")
+    .textContent =
+      "";
+
+
+  setTimeout(function(){
+
+    document.getElementById("sentenceInput")
+      .focus();
+
+  },50);
+
 }
 
 
-function checkSentence(){
+/* ==================================================
+   🔧 CHUẨN HÓA CÂU
+   Giúp kiểm tra chính xác hơn
+================================================== */
 
-  const input =
-    document.getElementById("sentenceInput")
-      .value.trim();
+function normalizeSentence(text){
+
+  return String(text || "")
+    .trim()
+
+    // Chuẩn hóa khoảng trắng
+    .replace(/\s+/g,"")
+
+    // Chuẩn hóa dấu câu tiếng Trung / tiếng Anh
+    .replace(/[，,]/g,"，")
+    .replace(/[。.!！]/g,"。")
+    .replace(/[？?]/g,"？")
+    .replace(/[：:]/g,"：")
+    .replace(/[；;]/g,"；")
+    .replace(/[（）()]/g,"（）")
+
+    // Bỏ dấu câu ở cuối câu
+    .replace(/[。！？；，：]$/,"")
+
+    // Chuẩn hóa Unicode
+    .normalize("NFC");
+
+}
+
+
+/* ==================================================
+   🔊 ĐỌC CÂU TIẾNG TRUNG
+================================================== */
+
+function saySentence(){
+
+  if(!sentences.length) return;
 
 
   const s =
     sentences[sentenceIndex];
 
 
+  if(!s || !s.answer) return;
+
+
+  if(!("speechSynthesis" in window)){
+
+    alert(
+      "Trình duyệt không hỗ trợ đọc tiếng Trung."
+    );
+
+    return;
+
+  }
+
+
+  speechSynthesis.cancel();
+
+  loadChineseVoice();
+
+
+  const u =
+    new SpeechSynthesisUtterance(s.answer);
+
+
+  u.lang = "zh-CN";
+
+  // Đọc chậm, rõ
+  u.rate = 0.65;
+
+  u.pitch = 1;
+
+
+  if(chineseVoice){
+
+    u.voice = chineseVoice;
+
+  }
+
+
+  speechSynthesis.speak(u);
+
+}
+/* ==================================================
+   KIỂM TRA CÂU
+================================================== */
+
+function checkSentence(){
+
+  if(!sentences.length) return;
+
+  const s =
+    sentences[sentenceIndex];
+
+  if(!s || !s.answer) return;
+
+
+  const inputElement =
+    document.getElementById("sentenceInput");
+
   const result =
     document.getElementById("sentenceResult");
 
+  const answerElement =
+    document.getElementById("sentenceAnswer");
+
+  const targetElement =
+    document.getElementById("sentenceTarget");
+
+
+  const input =
+    normalizeSentence(
+      inputElement.value
+    );
+
+  const answer =
+    normalizeSentence(
+      s.answer
+    );
+
+
+  /* ==================================================
+     ⭐ ENTER LẦN 1
+     → KIỂM TRA + HIỆN ĐÁP ÁN
+  ================================================== */
 
   if(!input){
 
     result.textContent =
-      "⚠️ Anh hãy gõ câu trước nhé!";
+      "⚠️ Anh chưa nhập câu.";
 
     result.style.color =
       "#d08a00";
 
-    return;
   }
 
-
-  if(input === s.answer){
+  else if(input === answer){
 
     result.textContent =
-      "✅ Chính xác! Rất tốt!";
+      "✅ Chính xác!";
 
     result.style.color =
       "#15956f";
 
+  }
 
-    setTimeout(function(){
-
-      say(s.answer);
-
-    },150);
-
-
-  }else{
+  else{
 
     result.textContent =
-      `❌ Chưa đúng. Đáp án: ${s.answer}`;
+      "❌ Chưa đúng!";
 
     result.style.color =
       "#d35b5b";
 
   }
 
+
+  /* ==================================================
+     ⭐ LUÔN HIỆN CÂU ĐÚNG
+  ================================================== */
+
+  targetElement.textContent =
+    s.answer;
+
+  answerElement.textContent =
+    s.answer;
+
+
+  /* ==================================================
+     ⭐ ĐÁNH DẤU ĐÃ KIỂM TRA
+     → ENTER LẦN 2 SẼ SANG CÂU
+  ================================================== */
+
+  sentenceChecked = true;
+
+
+  /* ==================================================
+     🔊 ĐỌC CÂU ĐÚNG
+  ================================================== */
+
+  setTimeout(function(){
+
+    saySentence();
+
+  },150);
+
 }
 
+/* ==================================================
+   ➡️ CÂU TIẾP
+================================================== */
 
-function saySentence(){
+function nextSentence(){
 
   if(!sentences.length) return;
 
-  say(
-    sentences[sentenceIndex].answer
-  );
-
-}
-
-
-function nextSentence(){
 
   sentenceIndex++;
 
@@ -1723,8 +2174,6 @@ function nextSentence(){
   showSentence();
 
 }
-
-
 /* ==================================================
    ⌨️ PHÍM TẮT
 ================================================== */
@@ -1737,15 +2186,34 @@ document.addEventListener(
       document.activeElement;
 
 
-    /* ----------------------------------------------
-       CTRL → ĐỌC HÁN TỰ TEST
-    ---------------------------------------------- */
+    const testSection =
+      document.getElementById("testSection");
+
+
+    const sentenceSection =
+      document.getElementById("sentenceSection");
+
+
+    const sentenceInput =
+      document.getElementById("sentenceInput");
+
+
+    const isInput =
+      active &&
+      (
+        active.tagName === "INPUT" ||
+        active.tagName === "TEXTAREA" ||
+        active.isContentEditable
+      );
+
+
+    /* ==================================================
+       CTRL → ĐỌC
+    ================================================== */
 
     if(event.key === "Control"){
 
-      const testSection =
-        document.getElementById("testSection");
-
+      /* TEST */
 
       if(
         testSection &&
@@ -1756,117 +2224,124 @@ document.addEventListener(
 
         event.preventDefault();
 
-        say(
-          testQuestions[testIndex].h
-        );
+        if(!event.repeat){
+
+          say(
+            testQuestions[testIndex].h
+          );
+
+        }
 
         return;
+
       }
 
-    }
 
+      /* LUYỆN CÂU */
 
-    /* ----------------------------------------------
-       ĐANG GÕ TRONG INPUT
-    ---------------------------------------------- */
-
-    if(
-      active &&
-      (
-        active.tagName === "INPUT" ||
-        active.tagName === "TEXTAREA" ||
-        active.isContentEditable
-      )
-    ){
-
-      /* ENTER → KIỂM TRA */
-
-      if(event.key === "Enter"){
+      if(
+        sentenceSection &&
+        !sentenceSection.classList.contains("hidden")
+      ){
 
         event.preventDefault();
 
+        if(!event.repeat){
 
-        /* Ô TÌM KIẾM */
-
-        if(active.id === "search"){
-
-          searchWords();
-
-          return;
+          saySentence();
 
         }
 
-
-        /* Ô TEST */
-
-        if(active.id === "testInput"){
-
-          checkTest();
-
-          return;
-
-        }
-
-
-        /* Ô LUYỆN CÂU */
-
-        if(active.id === "sentenceInput"){
-
-          checkSentence();
-
-          return;
-
-        }
+        return;
 
       }
-
-
-      /*
-       * SPACE TRONG Ô NHẬP
-       * VẪN GÕ BÌNH THƯỜNG
-       */
-
-      return;
 
     }
 
 
-    /* ----------------------------------------------
-       ENTER NGOÀI INPUT
-    ---------------------------------------------- */
+    /* ==================================================
+       ENTER
+    ================================================== */
 
     if(event.key === "Enter"){
 
       event.preventDefault();
 
 
-      /* ===== TEST ===== */
-
-      const testSection =
-        document.getElementById("testSection");
-
+      /* ----------------------------------------------
+         Ô TÌM KIẾM
+      ---------------------------------------------- */
 
       if(
-        testSection &&
-        !testSection.classList.contains("hidden") &&
-        testQuestions.length &&
-        testQuestions[testIndex]
+        active &&
+        active.id === "search"
       ){
 
-        say(
-          testQuestions[testIndex].h
-        );
+        searchWords();
 
         return;
 
       }
 
 
-      /* ===== LUYỆN CÂU ===== */
+      /* ----------------------------------------------
+         TEST
+      ---------------------------------------------- */
 
-      const sentenceSection =
-        document.getElementById("sentenceSection");
+      if(
+        active &&
+        active.id === "testInput"
+      ){
 
+        checkTest();
+
+        return;
+
+      }
+
+
+      /* ----------------------------------------------
+         LUYỆN CÂU
+      ---------------------------------------------- */
+
+      if(
+        active &&
+        active.id === "sentenceInput" &&
+        sentenceSection &&
+        !sentenceSection.classList.contains("hidden")
+      ){
+
+        /* ENTER LẦN 1 */
+
+        if(sentenceEnterCount === 0){
+
+          checkSentence();
+
+          sentenceEnterCount = 1;
+
+          return;
+
+        }
+
+
+        /* ENTER LẦN 2 */
+
+        if(sentenceEnterCount === 1){
+
+          sentenceEnterCount = 0;
+
+          nextSentence();
+
+          return;
+
+        }
+
+      }
+
+
+      /* ----------------------------------------------
+         ENTER NGOÀI INPUT
+      ---------------------------------------------- */
 
       if(
         sentenceSection &&
@@ -1879,26 +2354,71 @@ document.addEventListener(
 
       }
 
+
+      if(
+        testSection &&
+        !testSection.classList.contains("hidden") &&
+        testQuestions.length &&
+        testQuestions[testIndex]
+      ){
+
+        say(
+          testQuestions[testIndex].h
+        );
+
+        return;
+
+      }
+
     }
 
 
-    /* ----------------------------------------------
-       SPACE NGOÀI INPUT
-    ---------------------------------------------- */
+    /* ==================================================
+       → MŨI TÊN PHẢI
+    ================================================== */
+
+    if(event.key === "ArrowRight"){
+
+      if(
+        sentenceSection &&
+        !sentenceSection.classList.contains("hidden")
+      ){
+
+        event.preventDefault();
+
+        sentenceEnterCount = 0;
+
+        nextSentence();
+
+        return;
+
+      }
+
+    }
+
+
+    /* ==================================================
+       SPACE
+    ================================================== */
 
     if(event.code === "Space"){
+
+      /*
+       * Nếu đang gõ trong INPUT
+       * → Space hoạt động bình thường
+       */
+
+      if(isInput){
+
+        return;
+
+      }
+
 
       event.preventDefault();
 
 
-      /* ==========================================
-         TEST TỪ VỰNG
-         SPACE = SANG CÂU TIẾP THEO
-         ========================================== */
-
-      const testSection =
-        document.getElementById("testSection");
-
+      /* TEST */
 
       if(
         testSection &&
@@ -1912,22 +2432,12 @@ document.addEventListener(
       }
 
 
-      /* ==========================================
-         LUYỆN CÂU
-         SPACE LẦN 1 → HIỆN ĐÁP ÁN
-         SPACE LẦN 2 → CÂU TIẾP
-         ========================================== */
-
-      const sentenceSection =
-        document.getElementById("sentenceSection");
-
+      /* LUYỆN CÂU */
 
       if(
         sentenceSection &&
         !sentenceSection.classList.contains("hidden")
       ){
-
-        /* SPACE lần 1 → hiện đáp án */
 
         if(sentenceSpaceCount === 0){
 
@@ -1943,9 +2453,9 @@ document.addEventListener(
         }
 
 
-        /* SPACE lần 2 → câu tiếp */
-
         if(sentenceSpaceCount === 1){
+
+          sentenceEnterCount = 0;
 
           nextSentence();
 
