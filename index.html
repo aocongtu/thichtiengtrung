@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>THÍCH TIẾNG TRUNG - HSK 1 → HSK 9</title>
+<title>THÍCH TIẾNG TRUNG</title>
 
 <style>
 *{box-sizing:border-box}
@@ -343,7 +343,7 @@ main{
 
 <h1>
    THÍCH TIẾNG TRUNG
-<span style="font-size:18px">HSK 1 → HSK 9</span>
+<span style="font-size:18px"></span>
 </h1>
 
 <div class="search">
@@ -355,6 +355,476 @@ main{
 </div>
 
 </header>
+<!-- =========================================================
+     🌈 TIÊU ĐỀ 7 MÀU + 💎 BẢNG GIÁ + 📱 QR
+========================================================= -->
+
+<style>
+
+/* =========================
+   🌈 TIÊU ĐỀ 7 MÀU
+========================= */
+
+h1{
+  display:inline-block;
+  margin:0 0 18px;
+  padding:14px 28px;
+  background:#fff;
+  border:3px solid transparent;
+  border-radius:18px;
+
+  background:
+    linear-gradient(#fff,#fff) padding-box,
+    linear-gradient(
+      90deg,
+      #ff0000,
+      #ff7a00,
+      #ffd600,
+      #00b85c,
+      #0099ff,
+      #694cff,
+      #d000ff,
+      #ff0000
+    ) border-box;
+
+  background-size:100% 100%,400% 100%;
+
+  animation:
+    rainbowTitle 5s linear infinite,
+    titleGlow 1.8s ease-in-out infinite alternate;
+
+  box-shadow:0 0 12px rgba(255,0,80,.20);
+}
+
+h1 .title-main{
+  display:block;
+  font-size:32px;
+  font-weight:900;
+
+  background:linear-gradient(
+    90deg,
+    #ff0000,
+    #ff7a00,
+    #ffd600,
+    #00b85c,
+    #0099ff,
+    #694cff,
+    #d000ff,
+    #ff0000
+  );
+
+  background-size:400% auto;
+
+  -webkit-background-clip:text;
+  background-clip:text;
+  -webkit-text-fill-color:transparent;
+
+  animation:rainbowText 5s linear infinite;
+}
+
+h1 .title-sub{
+  display:block;
+  margin-top:5px;
+  font-size:17px;
+  font-weight:bold;
+  color:#52718a;
+}
+
+@keyframes rainbowText{
+  0%{
+    background-position:0% 50%;
+  }
+
+  100%{
+    background-position:400% 50%;
+  }
+}
+
+@keyframes rainbowTitle{
+  0%{
+    background-position:0% 50%,0% 50%;
+  }
+
+  100%{
+    background-position:0% 50%,400% 50%;
+  }
+}
+
+@keyframes titleGlow{
+  from{
+    box-shadow:0 0 8px rgba(255,0,80,.18);
+  }
+
+  to{
+    box-shadow:0 0 22px rgba(180,0,255,.35);
+  }
+}
+
+
+/* =========================
+   💎 BẢNG GIÁ THÀNH VIÊN
+========================= */
+
+.price-box{
+  max-width:900px;
+  margin:20px auto 25px;
+  padding:25px 20px;
+
+  background:linear-gradient(
+    135deg,
+    #ffffff,
+    #f5faff
+  );
+
+  border:2px solid #d8e9f5;
+  border-radius:22px;
+
+  box-shadow:
+    0 8px 25px rgba(0,80,150,.10);
+
+  text-align:center;
+}
+
+.price-title{
+  font-size:25px;
+  font-weight:900;
+  color:#1769aa;
+  margin-bottom:8px;
+}
+
+.price-free{
+  font-size:17px;
+  font-weight:bold;
+  color:#159447;
+  margin-bottom:12px;
+}
+
+.price-note{
+  display:inline-block;
+  padding:7px 15px;
+
+  background:#fff4d6;
+  color:#9a6500;
+
+  border-radius:12px;
+
+  font-size:14px;
+  font-weight:bold;
+
+  margin-bottom:20px;
+}
+
+.price-list{
+  display:flex;
+  justify-content:center;
+  gap:15px;
+  flex-wrap:wrap;
+}
+
+.price-card{
+  width:190px;
+  padding:18px 12px;
+
+  background:#fff;
+
+  border:2px solid #dcecf8;
+  border-radius:18px;
+
+  box-shadow:0 5px 15px rgba(0,0,0,.06);
+
+  transition:.25s;
+}
+
+.price-card:hover{
+  transform:translateY(-5px);
+  box-shadow:0 10px 22px rgba(0,0,0,.12);
+}
+
+.price-time{
+  font-size:18px;
+  font-weight:900;
+  color:#52718a;
+}
+
+.price-money{
+  margin-top:8px;
+
+  font-size:25px;
+  font-weight:900;
+
+  color:#e85d04;
+}
+
+.price-desc{
+  margin-top:5px;
+  font-size:13px;
+  color:#777;
+}
+
+
+/* =========================
+   📱 QR VIETQR
+========================= */
+
+.qr-area{
+  margin-top:25px;
+  padding-top:20px;
+
+  border-top:1px dashed #c9dce8;
+}
+
+.qr-title{
+  font-size:18px;
+  font-weight:900;
+  color:#1769aa;
+  margin-bottom:12px;
+}
+
+#vietqrBox{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+#vietqrBox img{
+  width:220px;
+  max-width:80%;
+
+  border-radius:15px;
+
+  box-shadow:
+    0 5px 18px rgba(0,0,0,.12);
+
+  background:#fff;
+  padding:8px;
+}
+
+.qr-note{
+  margin-top:10px;
+  font-size:13px;
+  color:#777;
+}
+
+
+/* =========================
+   📱 ĐIỆN THOẠI
+========================= */
+
+@media(max-width:600px){
+
+  h1{
+    padding:12px 16px;
+    border-radius:15px;
+  }
+
+  h1 .title-main{
+    font-size:25px;
+  }
+
+  h1 .title-sub{
+    font-size:14px;
+  }
+
+  .price-box{
+    margin:15px 8px 20px;
+    padding:20px 12px;
+  }
+
+  .price-title{
+    font-size:21px;
+  }
+
+  .price-list{
+    gap:10px;
+  }
+
+  .price-card{
+    width:135px;
+    padding:15px 8px;
+  }
+
+  .price-money{
+    font-size:21px;
+  }
+
+}
+
+</style>
+
+
+<!-- =========================================================
+     🌈 TIÊU ĐỀ
+========================================================= -->
+
+<script>
+
+document.addEventListener("DOMContentLoaded",function(){
+
+  const h1 = document.querySelector("h1");
+
+  if(h1){
+
+    h1.innerHTML = `
+      <span class="title-main">
+          THÍCH TIẾNG TRUNG
+      </span>
+
+      <span class="title-sub">
+        Học tiếng Trung mỗi ngày · Chinh phục HSK 1 → HSK 9
+      </span>
+    `;
+
+  }
+
+});
+
+</script>
+
+
+<!-- =========================================================
+     💎 BẢNG GIÁ
+========================================================= -->
+
+<div class="price-box">
+
+  <div class="price-title">
+    💎 GÓI THÀNH VIÊN THÍCH TIẾNG TRUNG
+  </div>
+
+  <div class="price-free">
+    🎁 HSK 1 → HSK 6: MIỄN PHÍ
+  </div>
+
+  <div class="price-free">
+    🎯 TEST + LUYỆN CÂU: MIỄN PHÍ 1 TUẦN
+  </div>
+
+  <div class="price-note">
+    🔥 GIÁ ƯU ĐÃI CHỈ ÁP DỤNG TRONG 3 THÁNG ĐẦU
+  </div>
+
+
+  <div class="price-list">
+
+    <div class="price-card">
+
+      <div class="price-time">
+        📅 1 THÁNG
+      </div>
+
+      <div class="price-money">
+        20.000 VNĐ
+      </div>
+
+      <div class="price-desc">
+        Truy cập thành viên
+      </div>
+
+    </div>
+
+
+    <div class="price-card">
+
+      <div class="price-time">
+        📅 6 THÁNG
+      </div>
+
+      <div class="price-money">
+        100.000 VNĐ
+      </div>
+
+      <div class="price-desc">
+        Tiết kiệm hơn
+      </div>
+
+    </div>
+
+
+    <div class="price-card">
+
+      <div class="price-time">
+        📅 1 NĂM
+      </div>
+
+      <div class="price-money">
+        150.000 VNĐ
+      </div>
+
+      <div class="price-desc">
+        Gói tiết kiệm nhất
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================
+       📱 QR THANH TOÁN
+  ========================= -->
+
+  <div class="qr-area">
+
+    <div class="qr-title">
+      📱 QUÉT QR ĐỂ ĐĂNG KÝ
+    </div>
+
+    <div id="vietqrBox">
+      ⏳ Đang tạo mã QR...
+    </div>
+
+    <div class="qr-note">
+      Sau khi chuyển khoản, vui lòng liên hệ để kích hoạt tài khoản thành viên.
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- =========================================================
+     📱 TẠO QR VIETQR
+========================================================= -->
+
+<script>
+
+(function(){
+
+  const vietQRPayload =
+    "00020101021138570010A00000072701270006970405011323102362222360208QRIBFTTA53037045802VN63046973";
+
+  const box =
+    document.getElementById("vietqrBox");
+
+  if(!box) return;
+
+  const img =
+    document.createElement("img");
+
+  img.alt =
+    "QR thanh toán THÍCH TIẾNG TRUNG";
+
+  img.src =
+    "https://api.qrserver.com/v1/create-qr-code/?size=500x500&data="
+    + encodeURIComponent(vietQRPayload);
+
+  img.onload = function(){
+
+    box.innerHTML = "";
+    box.appendChild(img);
+
+  };
+
+  img.onerror = function(){
+
+    box.innerHTML =
+      "⚠️ Không thể tải mã QR. Vui lòng kiểm tra kết nối Internet.";
+
+  };
+
+})();
+
+</script>
 
 <nav>
 
