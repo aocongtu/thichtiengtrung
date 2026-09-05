@@ -3,187 +3,1555 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Từ Điển Hán Việt 4.0</title>
+<title>THÍCH TIẾNG TRUNG - HSK 1</title>
+
 <style>
 *{box-sizing:border-box}
+
 body{
-  margin:0;font-family:Arial,"Noto Sans",sans-serif;
+  margin:0;
+  font-family:Arial,"Noto Sans",sans-serif;
   background:linear-gradient(135deg,#eef7ff,#dff4ee);
   color:#17324d;
 }
+
 header{
-  padding:28px 18px 18px;text-align:center;
+  padding:25px 15px 18px;
+  text-align:center;
 }
+
 h1{
-  display:inline-block;margin:0 0 18px;padding:14px 24px;
-  background:#e8f5ff;border:2px solid #76b8ef;border-radius:16px;
-  color:#1768b3;font-size:30px;
+  display:inline-block;
+  margin:0 0 18px;
+  padding:14px 24px;
+  background:#e8f5ff;
+  border:2px solid #76b8ef;
+  border-radius:16px;
+  color:#1768b3;
+  font-size:30px;
 }
+
 .search{
-  max-width:900px;margin:auto;display:flex;gap:10px;
+  max-width:900px;
+  margin:auto;
+  display:flex;
+  gap:10px;
 }
+
 .search input{
-  flex:1;padding:15px 18px;border-radius:14px;border:2px solid #a8d1ef;
-  font-size:17px;outline:none;background:white;
+  flex:1;
+  padding:14px 18px;
+  border-radius:14px;
+  border:2px solid #a8d1ef;
+  font-size:17px;
+  outline:none;
 }
+
 button{
-  border:0;border-radius:12px;padding:12px 18px;cursor:pointer;
-  background:#2586df;color:white;font-weight:bold;
+  border:0;
+  border-radius:12px;
+  padding:11px 17px;
+  cursor:pointer;
+  background:#2586df;
+  color:white;
+  font-weight:bold;
 }
-button:hover{opacity:.88}
+
+button:hover{
+  opacity:.88;
+}
+
 nav{
-  display:flex;gap:8px;flex-wrap:wrap;justify-content:center;
-  padding:0 14px 20px;
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  justify-content:center;
+  padding:0 12px 20px;
 }
-nav button{background:#4b9bea}
-nav button.active{background:#1f6fc0}
-main{max-width:1100px;margin:auto;padding:0 15px 40px}
+
+nav button{
+  background:#4b9bea;
+}
+
+nav button.active{
+  background:#1f6fc0;
+}
+
+main{
+  max-width:1150px;
+  margin:auto;
+  padding:0 15px 50px;
+}
+
 .toolbar{
-  display:flex;justify-content:space-between;align-items:center;
-  margin-bottom:14px;gap:10px;flex-wrap:wrap
+  display:flex;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:15px;
 }
+
 .progress{
-  height:10px;background:#d5e4e9;border-radius:10px;overflow:hidden;flex:1;min-width:220px
+  height:10px;
+  background:#d5e4e9;
+  border-radius:10px;
+  overflow:hidden;
+  flex:1;
+  min-width:180px;
 }
-.progress div{height:100%;width:32%;background:#20b58a}
+
+.progress div{
+  height:100%;
+  width:0%;
+  background:#20b58a;
+  transition:.3s;
+}
+
+/* =========================
+   CARDS
+========================= */
+
 .cards{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:12px
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:14px;
 }
+
 .card{
-  background:rgba(255,255,255,.92);border:1px solid #c9dce8;
-  border-radius:15px;padding:16px;box-shadow:0 3px 12px rgba(30,80,120,.08);
-  position:relative;min-height:150px
+  position:relative;
+  background:rgba(255,255,255,.97);
+  border:1px solid #c9dce8;
+  border-radius:17px;
+  padding:62px 17px 50px;
+  min-height:205px;
+  box-shadow:0 3px 12px rgba(30,80,120,.09);
 }
-.hanzi{font-size:38px;font-weight:700;color:#183f66;margin-bottom:5px}
-.pinyin{font-size:17px;color:#5282ad;margin:4px 0}
-.meaning{font-size:16px;color:#35505f}
-.tag{position:absolute;right:12px;top:12px;background:#e8f4ff;color:#2672b3;padding:5px 8px;border-radius:8px;font-size:12px}
-.speaker{position:absolute;right:12px;bottom:12px;background:#edf6ff;color:#2474b5;padding:7px 10px}
-.learned{position:absolute;left:12px;bottom:12px;color:#1aa178;font-size:13px}
-.practice{
-  margin-top:30px;background:white;border-radius:18px;padding:24px;
-  text-align:center;box-shadow:0 4px 18px rgba(30,80,120,.1)
+
+.hsk{
+  position:absolute;
+  top:12px;
+  left:12px;
+  background:#fff0d5;
+  color:#b56b00;
+  padding:5px 9px;
+  border-radius:8px;
+  font-size:12px;
+  font-weight:bold;
 }
-.practice h2{margin-top:0}
-.target{font-size:42px;font-weight:bold;letter-spacing:3px;margin:15px}
-.practice input{width:min(600px,100%);padding:14px;border:2px solid #b7d3e5;border-radius:12px;font-size:20px;text-align:center}
-.result{min-height:28px;margin-top:12px;font-weight:bold}
-@media(max-width:800px){.cards{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:520px){.cards{grid-template-columns:1fr}h1{font-size:23px}.target{font-size:32px}}
+
+.type{
+  position:absolute;
+  top:12px;
+  right:12px;
+  max-width:55%;
+  background:#e8f4ff;
+  color:#2672b3;
+  padding:5px 9px;
+  border-radius:8px;
+  font-size:12px;
+  font-weight:bold;
+  text-align:right;
+}
+
+.hanzi{
+  font-size:45px;
+  line-height:1.25;
+  font-weight:700;
+  color:#183f66;
+  margin-bottom:7px;
+}
+
+.pinyin{
+  font-size:18px;
+  color:#5282ad;
+  margin-bottom:7px;
+}
+
+.meaning{
+  font-size:16px;
+  line-height:1.5;
+  color:#35505f;
+  padding-right:5px;
+}
+
+.speaker{
+  position:absolute;
+  right:12px;
+  bottom:12px;
+  padding:7px 11px;
+  background:#edf6ff;
+  color:#2474b5;
+  font-size:17px;
+}
+
+.learned{
+  position:absolute;
+  left:13px;
+  bottom:15px;
+  color:#1aa178;
+  font-size:13px;
+  font-weight:bold;
+}
+
+/* =========================
+   PANEL
+========================= */
+
+.panel{
+  margin-top:32px;
+  background:white;
+  border-radius:20px;
+  padding:25px;
+  box-shadow:0 4px 18px rgba(30,80,120,.10);
+}
+
+.panel h2{
+  margin-top:0;
+  color:#1768b3;
+}
+
+.test-box{
+  text-align:center;
+}
+
+.test-number{
+  color:#678;
+  margin-bottom:10px;
+}
+
+.test-question{
+  font-size:32px;
+  font-weight:bold;
+  margin:20px 0;
+}
+
+.test-input{
+  width:min(600px,100%);
+  padding:14px;
+  border:2px solid #b7d3e5;
+  border-radius:12px;
+  font-size:19px;
+  text-align:center;
+  outline:none;
+}
+
+.test-result{
+  min-height:30px;
+  margin:15px 0;
+  font-weight:bold;
+  font-size:17px;
+}
+
+.score{
+  font-size:25px;
+  font-weight:bold;
+  margin:15px 0;
+}
+
+/* =========================
+   PHÍM TẮT
+========================= */
+
+.keyboard-help{
+  margin:10px auto 20px;
+  padding:10px 15px;
+  max-width:700px;
+  background:#eef8ff;
+  border:1px solid #c7e2f5;
+  border-radius:12px;
+  color:#47718d;
+  font-size:14px;
+}
+
+.key{
+  display:inline-block;
+  padding:3px 8px;
+  margin:0 3px;
+  background:white;
+  border:1px solid #b9d1df;
+  border-radius:6px;
+  font-weight:bold;
+  color:#216b9f;
+}
+
+/* =========================
+   LUYỆN CÂU
+========================= */
+
+.sentence-box{
+  text-align:center;
+}
+
+.sentence-meaning{
+  font-size:20px;
+  color:#52718a;
+  margin:15px 0;
+}
+
+.sentence-target{
+  min-height:55px;
+  font-size:40px;
+  font-weight:bold;
+  color:#183f66;
+  margin:20px 0;
+}
+
+.sentence-input{
+  width:min(700px,100%);
+  padding:14px;
+  border:2px solid #b7d3e5;
+  border-radius:12px;
+  font-size:20px;
+  text-align:center;
+  outline:none;
+}
+
+.sentence-result{
+  min-height:30px;
+  margin:15px 0;
+  font-weight:bold;
+}
+
+/* ẨN PANEL */
+
+.hidden{
+  display:none;
+}
+
+/* MOBILE */
+
+@media(max-width:850px){
+  .cards{
+    grid-template-columns:repeat(2,1fr);
+  }
+}
+
+@media(max-width:550px){
+
+  h1{
+    font-size:23px;
+  }
+
+  .cards{
+    grid-template-columns:1fr;
+  }
+
+  .hanzi{
+    font-size:42px;
+  }
+
+  .test-question{
+    font-size:27px;
+  }
+
+  .sentence-target{
+    font-size:32px;
+  }
+}
 </style>
 </head>
+
 <body>
+
 <header>
-  <h1>📘 Từ Điển Hán Việt <span style="font-size:18px">4.0</span></h1>
-  <div class="search">
-    <input id="search" placeholder="Tìm kiếm từ vựng, HSK1...">
-    <button onclick="searchWords()">Tìm</button>
-  </div>
+
+<h1>
+🇨🇳 THÍCH TIẾNG TRUNG
+<span style="font-size:18px">HSK 1 → HSK 9</span>
+</h1>
+
+<div class="search">
+<input
+ id="search"
+ placeholder="🔎 Tìm Hán tự, Pinyin, nghĩa tiếng Việt..."
+>
+<button onclick="searchWords()">Tìm</button>
+</div>
+
 </header>
 
 <nav>
-  <button class="active" onclick="showLesson(0,this)">Đã học</button>
-  <button onclick="showLesson(1,this)">Từ điển</button>
-  <button onclick="showLesson(1,this)">Bài 1</button>
-  <button onclick="showLesson(2,this)">Bài 2</button>
-  <button onclick="showLesson(3,this)">Bài 3</button>
-  <button onclick="showLesson(4,this)">Bài 4</button>
-  <button onclick="showLesson(5,this)">Bài 5</button>
-  <button onclick="showLesson(6,this)">Bài 6</button>
-  <button onclick="showLesson(7,this)">Bài 7</button>
-  <button onclick="showLesson(8,this)">Bài 8</button>
-  <button onclick="showLesson(9,this)">Bài 9</button>
-  <button onclick="practice()">Luyện câu</button>
+
+<button class="active" onclick="showAll(this)">
+HSK 1
+</button>
+
+<button onclick="showType('Động từ',this)">
+Động từ
+</button>
+
+<button onclick="showType('Danh từ',this)">
+Danh từ
+</button>
+
+<button onclick="showType('Tính từ',this)">
+Tính từ
+</button>
+
+<button onclick="showType('Đại từ',this)">
+Đại từ
+</button>
+
+<button onclick="showType('Số từ',this)">
+Số từ
+</button>
+
+<button onclick="startTest(this)">
+📝 Test từ vựng
+</button>
+
+<button onclick="openSentences(this)">
+✍️ Luyện câu
+</button>
+
 </nav>
 
 <main>
-  <div class="toolbar">
-    <strong id="title">Từ vựng mẫu</strong>
-    <div class="progress"><div id="bar"></div></div>
-    <span id="count">0 / 10</span>
-  </div>
 
-  <section class="cards" id="cards"></section>
+<section id="vocabularySection">
 
-  <section class="practice">
-    <h2>✍️ Luyện gõ Hán tự</h2>
-    <p id="hint">Nhìn câu và tự gõ lại bằng chữ Hán</p>
-    <div class="target" id="target">我们相处得很好</div>
-    <input id="answer" placeholder="Nhập chữ Hán..." onkeydown="if(event.key==='Enter')checkAnswer()">
-    <br><br>
-    <button onclick="checkAnswer()">Kiểm tra</button>
-    <button onclick="speak()">🔊 Nghe</button>
-    <div class="result" id="result"></div>
-  </section>
+<div class="toolbar">
+
+<strong id="title">
+HSK 1 — 150 từ
+</strong>
+
+<div class="progress">
+<div id="bar"></div>
+</div>
+
+<span id="count">
+150 từ
+</span>
+
+</div>
+
+<section class="cards" id="cards"></section>
+
+</section>
+
+
+<!-- =========================
+     TEST TỪ VỰNG
+========================= -->
+
+<section id="testSection" class="panel hidden">
+
+<h2>📝 TEST TỪ VỰNG HSK 1</h2>
+
+<div class="keyboard-help">
+⌨️
+<span class="key">Enter</span>
+🔊 Phát âm &nbsp;·&nbsp;
+<span class="key">Space</span>
+➡️ Câu tiếp
+<br>
+Khi đang nhập đáp án:
+<span class="key">Enter</span>
+→ Kiểm tra &nbsp;·&nbsp;
+Space → gõ khoảng trắng bình thường
+</div>
+
+<div class="test-box">
+
+<div class="test-number" id="testNumber">
+Câu 1 / 10
+</div>
+
+<div class="test-question" id="testQuestion">
+</div>
+
+<p id="testHint">
+Hãy nhập nghĩa tiếng Việt của từ trên.
+</p>
+
+<input
+ id="testInput"
+ class="test-input"
+ placeholder="Nhập đáp án..."
+>
+
+<br><br>
+
+<button onclick="checkTest()">
+Kiểm tra
+</button>
+
+<button onclick="nextTest()">
+➡️ Câu tiếp
+</button>
+
+<div id="testResult" class="test-result"></div>
+
+<div id="score" class="score"></div>
+
+</div>
+
+</section>
+
+
+<!-- =========================
+     LUYỆN CÂU
+========================= -->
+
+<section id="sentenceSection" class="panel hidden">
+
+<h2>✍️ LUYỆN CÂU VỚI TỪ VỰNG HSK 1</h2>
+
+<div class="keyboard-help">
+⌨️
+<span class="key">Enter</span>
+🔊 Phát âm &nbsp;·&nbsp;
+<span class="key">Space × 1</span>
+👀 Hiện đáp án &nbsp;·&nbsp;
+<span class="key">Space × 2</span>
+➡️ Câu tiếp
+<br>
+Khi đang nhập câu:
+<span class="key">Enter</span>
+→ Kiểm tra &nbsp;·&nbsp;
+Space → gõ khoảng trắng bình thường
+</div>
+
+<div class="sentence-box">
+
+<div class="test-number" id="sentenceNumber">
+Câu 1
+</div>
+
+<div class="sentence-meaning" id="sentenceMeaning">
+</div>
+
+<div class="sentence-target" id="sentenceTarget">
+？？？
+</div>
+
+<input
+ id="sentenceInput"
+ class="sentence-input"
+ placeholder="Gõ câu bằng chữ Hán..."
+>
+
+<br><br>
+
+<button onclick="checkSentence()">
+Kiểm tra
+</button>
+
+<button onclick="saySentence()">
+🔊 Nghe
+</button>
+
+<button onclick="nextSentence()">
+➡️ Câu tiếp
+</button>
+
+<div id="sentenceResult" class="sentence-result"></div>
+
+</div>
+
+</section>
+
 </main>
 
+
 <script>
-const words=[
- {h:"八",p:"bā",m:"tám",t:"Số từ"},
- {h:"爸爸",p:"bàba",m:"bố, cha",t:"Danh từ"},
- {h:"杯子",p:"bēizi",m:"cốc, cái ly",t:"Danh từ"},
- {h:"北京",p:"Běijīng",m:"Bắc Kinh",t:"Danh từ"},
- {h:"本",p:"běn",m:"cuốn, quyển (lượng từ)",t:"Lượng từ"},
- {h:"不客气",p:"bú kè qi",m:"không có gì, đừng khách sáo",t:"Cụm từ"},
- {h:"不",p:"bù",m:"không",t:"Phó từ"},
- {h:"菜",p:"cài",m:"món ăn, rau củ",t:"Danh từ"},
- {h:"茶",p:"chá",m:"trà",t:"Danh từ"},
- {h:"相处",p:"xiāngchǔ",m:"sống/ở cùng, hòa thuận với nhau",t:"Động từ"}
+
+/* ==================================================
+   HSK 1 — 150 TỪ
+================================================== */
+
+const words = [
+
+{h:"爱",p:"ài",m:"yêu, thích",t:"Động từ",hsk:1},
+{h:"八",p:"bā",m:"tám",t:"Số từ",hsk:1},
+{h:"爸爸",p:"bàba",m:"bố, cha",t:"Danh từ",hsk:1},
+{h:"吧",p:"ba",m:"trợ từ ngữ khí",t:"Trợ từ",hsk:1},
+{h:"白",p:"bái",m:"trắng",t:"Tính từ",hsk:1},
+{h:"百",p:"bǎi",m:"trăm",t:"Số từ",hsk:1},
+{h:"班",p:"bān",m:"lớp",t:"Danh từ",hsk:1},
+{h:"半",p:"bàn",m:"một nửa",t:"Số từ",hsk:1},
+{h:"包",p:"bāo",m:"túi, bao",t:"Danh từ",hsk:1},
+{h:"杯子",p:"bēizi",m:"cốc, cái ly",t:"Danh từ",hsk:1},
+{h:"北京",p:"Běijīng",m:"Bắc Kinh",t:"Danh từ",hsk:1},
+{h:"本",p:"běn",m:"quyển, cuốn",t:"Lượng từ",hsk:1},
+{h:"比",p:"bǐ",m:"so với",t:"Giới từ",hsk:1},
+{h:"别",p:"bié",m:"đừng",t:"Phó từ",hsk:1},
+{h:"不",p:"bù",m:"không",t:"Phó từ",hsk:1},
+{h:"不客气",p:"bú kè qi",m:"không có gì, đừng khách sáo",t:"Cụm từ",hsk:1},
+{h:"菜",p:"cài",m:"món ăn, rau",t:"Danh từ",hsk:1},
+{h:"茶",p:"chá",m:"trà",t:"Danh từ",hsk:1},
+{h:"吃",p:"chī",m:"ăn",t:"Động từ",hsk:1},
+{h:"车",p:"chē",m:"xe",t:"Danh từ",hsk:1},
+{h:"吃饭",p:"chī fàn",m:"ăn cơm",t:"Động từ",hsk:1},
+{h:"出",p:"chū",m:"ra, đi ra",t:"Động từ",hsk:1},
+{h:"出租车",p:"chūzūchē",m:"taxi",t:"Danh từ",hsk:1},
+{h:"打电话",p:"dǎ diànhuà",m:"gọi điện thoại",t:"Động từ",hsk:1},
+{h:"大",p:"dà",m:"to, lớn",t:"Tính từ",hsk:1},
+{h:"大家",p:"dàjiā",m:"mọi người",t:"Đại từ",hsk:1},
+{h:"到",p:"dào",m:"đến, tới",t:"Động từ",hsk:1},
+{h:"的",p:"de",m:"của; trợ từ",t:"Trợ từ",hsk:1},
+{h:"得",p:"de",m:"trợ từ",t:"Trợ từ",hsk:1},
+{h:"等",p:"děng",m:"đợi, chờ",t:"Động từ",hsk:1},
+{h:"弟弟",p:"dìdi",m:"em trai",t:"Danh từ",hsk:1},
+{h:"第一",p:"dì yī",m:"thứ nhất",t:"Số từ",hsk:1},
+{h:"点",p:"diǎn",m:"giờ; điểm",t:"Danh từ",hsk:1},
+{h:"电脑",p:"diànnǎo",m:"máy tính",t:"Danh từ",hsk:1},
+{h:"电视",p:"diànshì",m:"tivi, truyền hình",t:"Danh từ",hsk:1},
+{h:"电影",p:"diànyǐng",m:"phim điện ảnh",t:"Danh từ",hsk:1},
+{h:"东西",p:"dōngxi",m:"đồ vật, thứ",t:"Danh từ",hsk:1},
+{h:"都",p:"dōu",m:"đều",t:"Phó từ",hsk:1},
+{h:"读",p:"dú",m:"đọc",t:"Động từ",hsk:1},
+{h:"对",p:"duì",m:"đúng; đối với",t:"Tính từ/Giới từ",hsk:1},
+{h:"对不起",p:"duìbuqǐ",m:"xin lỗi",t:"Cụm từ",hsk:1},
+{h:"多",p:"duō",m:"nhiều",t:"Tính từ",hsk:1},
+{h:"多少",p:"duōshao",m:"bao nhiêu",t:"Đại từ",hsk:1},
+{h:"儿子",p:"érzi",m:"con trai",t:"Danh từ",hsk:1},
+{h:"二",p:"èr",m:"hai",t:"Số từ",hsk:1},
+{h:"饭",p:"fàn",m:"cơm, bữa ăn",t:"Danh từ",hsk:1},
+{h:"饭店",p:"fàndiàn",m:"nhà hàng, khách sạn",t:"Danh từ",hsk:1},
+{h:"房间",p:"fángjiān",m:"phòng",t:"Danh từ",hsk:1},
+{h:"非常",p:"fēicháng",m:"rất, vô cùng",t:"Phó từ",hsk:1},
+{h:"飞机",p:"fēijī",m:"máy bay",t:"Danh từ",hsk:1},
+{h:"分",p:"fēn",m:"phút; phần",t:"Danh từ",hsk:1},
+{h:"高兴",p:"gāoxìng",m:"vui, vui vẻ",t:"Tính từ",hsk:1},
+{h:"个",p:"gè",m:"cái, người",t:"Lượng từ",hsk:1},
+{h:"给",p:"gěi",m:"cho, đưa cho",t:"Động từ",hsk:1},
+{h:"工作",p:"gōngzuò",m:"công việc; làm việc",t:"Danh từ/Động từ",hsk:1},
+{h:"狗",p:"gǒu",m:"con chó",t:"Danh từ",hsk:1},
+{h:"汉语",p:"Hànyǔ",m:"tiếng Hán, tiếng Trung",t:"Danh từ",hsk:1},
+{h:"好",p:"hǎo",m:"tốt, khỏe",t:"Tính từ",hsk:1},
+{h:"好吃",p:"hǎochī",m:"ngon",t:"Tính từ",hsk:1},
+{h:"和",p:"hé",m:"và, với",t:"Liên từ/Giới từ",hsk:1},
+{h:"喝",p:"hē",m:"uống",t:"Động từ",hsk:1},
+{h:"很",p:"hěn",m:"rất",t:"Phó từ",hsk:1},
+{h:"后面",p:"hòumiàn",m:"phía sau",t:"Danh từ",hsk:1},
+{h:"回",p:"huí",m:"về, quay lại",t:"Động từ",hsk:1},
+{h:"会",p:"huì",m:"biết, có thể",t:"Động từ năng nguyện",hsk:1},
+{h:"几",p:"jǐ",m:"mấy, bao nhiêu",t:"Đại từ",hsk:1},
+{h:"家",p:"jiā",m:"nhà, gia đình",t:"Danh từ",hsk:1},
+{h:"叫",p:"jiào",m:"gọi, tên là",t:"Động từ",hsk:1},
+{h:"今天",p:"jīntiān",m:"hôm nay",t:"Danh từ",hsk:1},
+{h:"九",p:"jiǔ",m:"chín",t:"Số từ",hsk:1},
+{h:"开",p:"kāi",m:"mở; lái",t:"Động từ",hsk:1},
+{h:"看",p:"kàn",m:"xem, nhìn, đọc",t:"Động từ",hsk:1},
+{h:"看见",p:"kànjiàn",m:"nhìn thấy",t:"Động từ",hsk:1},
+{h:"块",p:"kuài",m:"đồng; miếng",t:"Lượng từ",hsk:1},
+{h:"来",p:"lái",m:"đến",t:"Động từ",hsk:1},
+{h:"老师",p:"lǎoshī",m:"giáo viên",t:"Danh từ",hsk:1},
+{h:"了",p:"le",m:"trợ từ hoàn thành/thay đổi",t:"Trợ từ",hsk:1},
+{h:"冷",p:"lěng",m:"lạnh",t:"Tính từ",hsk:1},
+{h:"里",p:"lǐ",m:"bên trong",t:"Danh từ",hsk:1},
+{h:"六",p:"liù",m:"sáu",t:"Số từ",hsk:1},
+{h:"妈妈",p:"māma",m:"mẹ",t:"Danh từ",hsk:1},
+{h:"吗",p:"ma",m:"trợ từ nghi vấn",t:"Trợ từ",hsk:1},
+{h:"买",p:"mǎi",m:"mua",t:"Động từ",hsk:1},
+{h:"猫",p:"māo",m:"con mèo",t:"Danh từ",hsk:1},
+{h:"没关系",p:"méiguānxi",m:"không sao, không có gì",t:"Cụm từ",hsk:1},
+{h:"没有",p:"méiyǒu",m:"không có, chưa",t:"Động từ",hsk:1},
+{h:"米饭",p:"mǐfàn",m:"cơm",t:"Danh từ",hsk:1},
+{h:"名字",p:"míngzi",m:"tên",t:"Danh từ",hsk:1},
+{h:"明天",p:"míngtiān",m:"ngày mai",t:"Danh từ",hsk:1},
+{h:"哪",p:"nǎ",m:"nào",t:"Đại từ",hsk:1},
+{h:"哪个",p:"nǎge",m:"cái nào, người nào",t:"Đại từ",hsk:1},
+{h:"哪儿",p:"nǎr",m:"ở đâu",t:"Đại từ",hsk:1},
+{h:"那",p:"nà",m:"kia, đó",t:"Đại từ",hsk:1},
+{h:"呢",p:"ne",m:"trợ từ ngữ khí",t:"Trợ từ",hsk:1},
+{h:"能",p:"néng",m:"có thể",t:"Động từ năng nguyện",hsk:1},
+{h:"你",p:"nǐ",m:"bạn, anh, chị",t:"Đại từ",hsk:1},
+{h:"你好",p:"nǐ hǎo",m:"xin chào",t:"Cụm từ",hsk:1},
+{h:"年",p:"nián",m:"năm",t:"Danh từ",hsk:1},
+{h:"女儿",p:"nǚ'ér",m:"con gái",t:"Danh từ",hsk:1},
+{h:"朋友",p:"péngyou",m:"bạn bè",t:"Danh từ",hsk:1},
+{h:"漂亮",p:"piàoliang",m:"đẹp",t:"Tính từ",hsk:1},
+{h:"苹果",p:"píngguǒ",m:"quả táo",t:"Danh từ",hsk:1},
+{h:"七",p:"qī",m:"bảy",t:"Số từ",hsk:1},
+{h:"前面",p:"qiánmiàn",m:"phía trước",t:"Danh từ",hsk:1},
+{h:"钱",p:"qián",m:"tiền",t:"Danh từ",hsk:1},
+{h:"请",p:"qǐng",m:"mời, xin, vui lòng",t:"Động từ",hsk:1},
+{h:"请问",p:"qǐngwèn",m:"xin hỏi",t:"Cụm từ",hsk:1},
+{h:"去",p:"qù",m:"đi",t:"Động từ",hsk:1},
+{h:"热",p:"rè",m:"nóng",t:"Tính từ",hsk:1},
+{h:"人",p:"rén",m:"người",t:"Danh từ",hsk:1},
+{h:"认识",p:"rènshi",m:"biết, quen biết",t:"Động từ",hsk:1},
+{h:"三",p:"sān",m:"ba",t:"Số từ",hsk:1},
+{h:"商店",p:"shāngdiàn",m:"cửa hàng",t:"Danh từ",hsk:1},
+{h:"上",p:"shàng",m:"trên; lên",t:"Danh từ/Động từ",hsk:1},
+{h:"上午",p:"shàngwǔ",m:"buổi sáng",t:"Danh từ",hsk:1},
+{h:"少",p:"shǎo",m:"ít",t:"Tính từ",hsk:1},
+{h:"谁",p:"shéi",m:"ai",t:"Đại từ",hsk:1},
+{h:"什么",p:"shénme",m:"cái gì",t:"Đại từ",hsk:1},
+{h:"十",p:"shí",m:"mười",t:"Số từ",hsk:1},
+{h:"时候",p:"shíhou",m:"thời gian, lúc",t:"Danh từ",hsk:1},
+{h:"是",p:"shì",m:"là",t:"Động từ",hsk:1},
+{h:"书",p:"shū",m:"sách",t:"Danh từ",hsk:1},
+{h:"水",p:"shuǐ",m:"nước",t:"Danh từ",hsk:1},
+{h:"水果",p:"shuǐguǒ",m:"hoa quả, trái cây",t:"Danh từ",hsk:1},
+{h:"睡觉",p:"shuìjiào",m:"ngủ",t:"Động từ",hsk:1},
+{h:"说",p:"shuō",m:"nói",t:"Động từ",hsk:1},
+{h:"四",p:"sì",m:"bốn",t:"Số từ",hsk:1},
+{h:"岁",p:"suì",m:"tuổi",t:"Lượng từ",hsk:1},
+{h:"他",p:"tā",m:"anh ấy, ông ấy",t:"Đại từ",hsk:1},
+{h:"她",p:"tā",m:"cô ấy, bà ấy",t:"Đại từ",hsk:1},
+{h:"太",p:"tài",m:"quá, rất",t:"Phó từ",hsk:1},
+{h:"天气",p:"tiānqì",m:"thời tiết",t:"Danh từ",hsk:1},
+{h:"听",p:"tīng",m:"nghe",t:"Động từ",hsk:1},
+{h:"同学",p:"tóngxué",m:"bạn học",t:"Danh từ",hsk:1},
+{h:"外面",p:"wàimiàn",m:"bên ngoài",t:"Danh từ",hsk:1},
+{h:"玩",p:"wán",m:"chơi",t:"Động từ",hsk:1},
+{h:"晚上",p:"wǎnshang",m:"buổi tối",t:"Danh từ",hsk:1},
+{h:"问",p:"wèn",m:"hỏi",t:"Động từ",hsk:1},
+{h:"我",p:"wǒ",m:"tôi, mình",t:"Đại từ",hsk:1},
+{h:"我们",p:"wǒmen",m:"chúng tôi, chúng ta",t:"Đại từ",hsk:1},
+{h:"五",p:"wǔ",m:"năm",t:"Số từ",hsk:1},
+{h:"喜欢",p:"xǐhuan",m:"thích",t:"Động từ",hsk:1},
+{h:"下",p:"xià",m:"dưới; xuống",t:"Danh từ/Động từ",hsk:1},
+{h:"下午",p:"xiàwǔ",m:"buổi chiều",t:"Danh từ",hsk:1},
+{h:"下雨",p:"xiàyǔ",m:"mưa",t:"Động từ",hsk:1},
+{h:"先生",p:"xiānsheng",m:"ông, ngài",t:"Danh từ",hsk:1},
+{h:"现在",p:"xiànzài",m:"bây giờ, hiện tại",t:"Danh từ",hsk:1},
+{h:"想",p:"xiǎng",m:"muốn, nghĩ",t:"Động từ",hsk:1},
+{h:"小",p:"xiǎo",m:"nhỏ",t:"Tính từ",hsk:1},
+{h:"小姐",p:"xiǎojiě",m:"cô, tiểu thư",t:"Danh từ",hsk:1},
+{h:"些",p:"xiē",m:"một vài, một ít",t:"Lượng từ",hsk:1},
+{h:"写",p:"xiě",m:"viết",t:"Động từ",hsk:1},
+{h:"谢谢",p:"xièxie",m:"cảm ơn",t:"Cụm từ",hsk:1},
+{h:"星期",p:"xīngqī",m:"tuần, thứ",t:"Danh từ",hsk:1},
+{h:"学生",p:"xuésheng",m:"học sinh, sinh viên",t:"Danh từ",hsk:1},
+{h:"学习",p:"xuéxí",m:"học, học tập",t:"Động từ",hsk:1},
+{h:"学校",p:"xuéxiào",m:"trường học",t:"Danh từ",hsk:1},
+{h:"一",p:"yī",m:"một",t:"Số từ",hsk:1},
+{h:"一点儿",p:"yìdiǎnr",m:"một chút",t:"Cụm từ",hsk:1},
+{h:"衣服",p:"yīfu",m:"quần áo",t:"Danh từ",hsk:1},
+{h:"医生",p:"yīshēng",m:"bác sĩ",t:"Danh từ",hsk:1},
+{h:"医院",p:"yīyuàn",m:"bệnh viện",t:"Danh từ",hsk:1},
+{h:"椅子",p:"yǐzi",m:"cái ghế",t:"Danh từ",hsk:1},
+{h:"有",p:"yǒu",m:"có",t:"Động từ",hsk:1},
+{h:"月",p:"yuè",m:"tháng, mặt trăng",t:"Danh từ",hsk:1},
+{h:"再见",p:"zàijiàn",m:"tạm biệt",t:"Cụm từ",hsk:1},
+{h:"在",p:"zài",m:"ở, tại, đang",t:"Động từ/Giới từ",hsk:1},
+{h:"怎么",p:"zěnme",m:"thế nào, làm sao",t:"Đại từ",hsk:1},
+{h:"怎么样",p:"zěnmeyàng",m:"thế nào",t:"Đại từ",hsk:1},
+{h:"这",p:"zhè",m:"này, đây",t:"Đại từ",hsk:1},
+{h:"中国",p:"Zhōngguó",m:"Trung Quốc",t:"Danh từ",hsk:1},
+{h:"中午",p:"zhōngwǔ",m:"buổi trưa",t:"Danh từ",hsk:1},
+{h:"住",p:"zhù",m:"ở, cư trú",t:"Động từ",hsk:1},
+{h:"桌子",p:"zhuōzi",m:"cái bàn",t:"Danh từ",hsk:1},
+{h:"字",p:"zì",m:"chữ",t:"Danh từ",hsk:1},
+{h:"昨天",p:"zuótiān",m:"hôm qua",t:"Danh từ",hsk:1},
+{h:"坐",p:"zuò",m:"ngồi; đi bằng",t:"Động từ",hsk:1},
+{h:"做",p:"zuò",m:"làm",t:"Động từ",hsk:1}
+
 ];
 
-const sentences=["我们相处得很好","爸爸喜欢喝茶","我不客气地拿了一杯水"];
-let currentSentence=0;
+
+/* ==================================================
+   CÂU LUYỆN TẬP
+================================================== */
+
+const sentences = [
+
+{
+  meaning:"Tôi là học sinh.",
+  answer:"我是学生"
+},
+
+{
+  meaning:"Tôi thích uống trà.",
+  answer:"我喜欢喝茶"
+},
+
+{
+  meaning:"Bố tôi là giáo viên.",
+  answer:"我爸爸是老师"
+},
+
+{
+  meaning:"Tôi sống ở Bắc Kinh.",
+  answer:"我住在北京"
+},
+
+{
+  meaning:"Bạn tên là gì?",
+  answer:"你叫什么名字"
+},
+
+{
+  meaning:"Hôm nay thời tiết rất tốt.",
+  answer:"今天天气很好"
+},
+
+{
+  meaning:"Tôi muốn ăn cơm.",
+  answer:"我想吃饭"
+},
+
+{
+  meaning:"Cô ấy là bác sĩ.",
+  answer:"她是医生"
+},
+
+{
+  meaning:"Tôi có một người bạn.",
+  answer:"我有一个朋友"
+},
+
+{
+  meaning:"Ngày mai tôi đi trường học.",
+  answer:"明天我去学校"
+},
+
+{
+  meaning:"Anh ấy đang xem tivi.",
+  answer:"他在看电视"
+},
+
+{
+  meaning:"Tôi cảm ơn bạn.",
+  answer:"谢谢你"
+}
+
+];
+
+
+/* ==================================================
+   HIỂN THỊ TỪ
+================================================== */
 
 function render(list=words){
- const box=document.getElementById("cards");
- box.innerHTML=list.map((w,i)=>`
- <article class="card">
-   <span class="tag">${w.t}</span>
-   <div class="hanzi">${w.h}</div>
-   <div class="pinyin">Pinyin: ${w.p}</div>
-   <div class="meaning">Nghĩa: ${w.m}</div>
-   <button class="speaker" onclick="say('${w.h}')">🔊</button>
-   <span class="learned">✓ Đã học</span>
- </article>`).join("");
- document.getElementById("count").textContent=`${list.length} từ`;
- document.getElementById("bar").style.width=Math.min(100,list.length*10)+"%";
+
+  const box=document.getElementById("cards");
+
+  box.innerHTML=list.map(w=>`
+
+    <article class="card">
+
+      <span class="hsk">
+        HSK ${w.hsk}
+      </span>
+
+      <span class="type">
+        ${w.t}
+      </span>
+
+      <div class="hanzi">
+        ${w.h}
+      </div>
+
+      <div class="pinyin">
+        Pinyin: ${w.p}
+      </div>
+
+      <div class="meaning">
+        Nghĩa: ${w.m}
+      </div>
+
+      <button
+        class="speaker"
+        onclick='say(${JSON.stringify(w.h)})'>
+        🔊
+      </button>
+
+      <span class="learned">
+        ✓ Học
+      </span>
+
+    </article>
+
+  `).join("");
+
+  document.getElementById("count").textContent =
+    `${list.length} từ`;
+
+  document.getElementById("bar").style.width =
+    Math.min(100,list.length/words.length*100)+"%";
 }
+
+
+/* ==================================================
+   GIỌNG TIẾNG TRUNG
+================================================== */
+
+let chineseVoice=null;
+
+function loadChineseVoice(){
+
+  if(!("speechSynthesis" in window)) return;
+
+  const voices=speechSynthesis.getVoices();
+
+  chineseVoice =
+    voices.find(v=>
+      v.lang &&
+      v.lang.toLowerCase().startsWith("zh-cn")
+    )
+    ||
+    voices.find(v=>
+      v.lang &&
+      v.lang.toLowerCase().startsWith("zh")
+    )
+    ||
+    null;
+}
+
+if("speechSynthesis" in window){
+
+  loadChineseVoice();
+
+  speechSynthesis.onvoiceschanged=
+    loadChineseVoice;
+}
+
+
 function say(text){
- if("speechSynthesis" in window){
-   const u=new SpeechSynthesisUtterance(text);
-   u.lang="zh-CN"; u.rate=.8; speechSynthesis.speak(u);
- }
+
+  if(!("speechSynthesis" in window)){
+
+    alert("Trình duyệt không hỗ trợ đọc tiếng Trung.");
+
+    return;
+  }
+
+  speechSynthesis.cancel();
+
+  loadChineseVoice();
+
+  const u=new SpeechSynthesisUtterance(text);
+
+  u.lang="zh-CN";
+  u.rate=.8;
+  u.pitch=1;
+
+  if(chineseVoice){
+    u.voice=chineseVoice;
+  }
+
+  speechSynthesis.speak(u);
 }
+
+
+/* ==================================================
+   TÌM KIẾM
+================================================== */
+
 function searchWords(){
- const q=document.getElementById("search").value.trim().toLowerCase();
- if(!q){render();return}
- render(words.filter(w=>
-   w.h.includes(q)||w.p.toLowerCase().includes(q)||w.m.toLowerCase().includes(q)
- ));
+
+  const q=
+    document.getElementById("search")
+    .value
+    .trim()
+    .toLowerCase();
+
+  if(!q){
+
+    render(words);
+
+    document.getElementById("title").textContent=
+      "HSK 1 — 150 từ";
+
+    return;
+  }
+
+  const result=words.filter(w=>
+
+    w.h.includes(q) ||
+
+    w.p.toLowerCase().includes(q) ||
+
+    w.m.toLowerCase().includes(q) ||
+
+    w.t.toLowerCase().includes(q)
+
+  );
+
+  render(result);
+
+  document.getElementById("title").textContent=
+    `Tìm thấy ${result.length} từ`;
 }
-function showLesson(n,btn){
- document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
- btn.classList.add("active");
- document.getElementById("title").textContent=n===0?"Từ đã học":"Bài "+n;
- render(words.slice(0,Math.max(3,Math.min(words.length,n+3))));
+
+
+/* ==================================================
+   LỌC TỪ LOẠI
+================================================== */
+
+function showType(type,btn){
+
+  document
+    .querySelectorAll("nav button")
+    .forEach(b=>b.classList.remove("active"));
+
+  btn.classList.add("active");
+
+  document.getElementById("vocabularySection")
+    .classList.remove("hidden");
+
+  document.getElementById("testSection")
+    .classList.add("hidden");
+
+  document.getElementById("sentenceSection")
+    .classList.add("hidden");
+
+  const result=
+    words.filter(w=>w.t.includes(type));
+
+  document.getElementById("title").textContent=
+    type;
+
+  render(result);
 }
-function practice(){
- document.querySelector(".practice").scrollIntoView({behavior:"smooth"});
+
+
+/* ==================================================
+   HIỆN HSK1
+================================================== */
+
+function showAll(btn){
+
+  document
+    .querySelectorAll("nav button")
+    .forEach(b=>b.classList.remove("active"));
+
+  btn.classList.add("active");
+
+  document.getElementById("vocabularySection")
+    .classList.remove("hidden");
+
+  document.getElementById("testSection")
+    .classList.add("hidden");
+
+  document.getElementById("sentenceSection")
+    .classList.add("hidden");
+
+  document.getElementById("title").textContent=
+    "HSK 1 — 150 từ";
+
+  render(words);
 }
-function checkAnswer(){
- const a=document.getElementById("answer").value.trim();
- const r=document.getElementById("result");
- if(a===document.getElementById("target").textContent){
-   r.textContent="✅ Chính xác! Rất tốt!";
-   r.style.color="#15956f";
- }else{
-   r.textContent="❌ Chưa đúng, thử lại nhé!";
-   r.style.color="#d35b5b";
- }
+
+
+/* ==================================================
+   TEST TỪ VỰNG
+================================================== */
+
+let testQuestions=[];
+let testIndex=0;
+let testScore=0;
+let testAnswered=false;
+
+
+function startTest(btn){
+
+  document
+    .querySelectorAll("nav button")
+    .forEach(b=>b.classList.remove("active"));
+
+  btn.classList.add("active");
+
+  document.getElementById("vocabularySection")
+    .classList.add("hidden");
+
+  document.getElementById("sentenceSection")
+    .classList.add("hidden");
+
+  document.getElementById("testSection")
+    .classList.remove("hidden");
+
+  testQuestions=
+    [...words]
+      .sort(()=>Math.random()-.5)
+      .slice(0,10);
+
+  testIndex=0;
+  testScore=0;
+  testAnswered=false;
+
+  showTestQuestion();
+
+  document
+    .getElementById("testSection")
+    .scrollIntoView({behavior:"smooth"});
 }
-function speak(){say(document.getElementById("target").textContent)}
-document.getElementById("search").addEventListener("input",searchWords);
-render();
+
+
+function showTestQuestion(){
+
+  const w=testQuestions[testIndex];
+
+  if(!w) return;
+
+  document.getElementById("testNumber").textContent=
+    `Câu ${testIndex+1} / ${testQuestions.length}`;
+
+  document.getElementById("testQuestion").textContent=
+    w.h;
+
+  document.getElementById("testHint").textContent=
+    "Hãy nhập nghĩa tiếng Việt của từ trên.";
+
+  document.getElementById("testInput").value="";
+
+  document.getElementById("testResult").textContent="";
+
+  document.getElementById("score").textContent=
+    `Điểm hiện tại: ${testScore * 10}`;
+
+  testAnswered=false;
+}
+
+
+function checkTest(){
+
+  if(testAnswered) return;
+
+  const input=
+    document
+      .getElementById("testInput")
+      .value
+      .trim()
+      .toLowerCase();
+
+  const w=testQuestions[testIndex];
+
+  if(!w) return;
+
+  const result=
+    document.getElementById("testResult");
+
+  if(!input){
+
+    result.textContent=
+      "⚠️ Anh hãy nhập đáp án trước nhé!";
+
+    result.style.color="#d08a00";
+
+    return;
+  }
+
+  const answer=w.m.toLowerCase();
+
+  const firstAnswer=
+    answer.split(/[，,；;]/)[0].trim();
+
+  if(
+    input===answer ||
+    input===firstAnswer ||
+    answer.includes(input)
+  ){
+
+    testScore++;
+
+    result.textContent=
+      `✅ Chính xác! ${w.h} = ${w.m}`;
+
+    result.style.color="#15956f";
+
+  }else{
+
+    result.textContent=
+      `❌ Chưa đúng. Đáp án: ${w.m}`;
+
+    result.style.color="#d35b5b";
+  }
+
+  testAnswered=true;
+
+  document.getElementById("score").textContent=
+    `Điểm hiện tại: ${testScore * 10} / 100`;
+}
+
+
+function nextTest(){
+
+  if(!testQuestions.length) return;
+
+  if(!testAnswered){
+
+    document.getElementById("testResult").textContent=
+      "👉 Hãy kiểm tra câu này trước nhé!";
+
+    return;
+  }
+
+  testIndex++;
+
+  if(testIndex>=testQuestions.length){
+
+    finishTest();
+
+    return;
+  }
+
+  showTestQuestion();
+}
+
+
+function finishTest(){
+
+  document.getElementById("testNumber").textContent=
+    "🎉 HOÀN THÀNH BÀI TEST";
+
+  document.getElementById("testQuestion").textContent=
+    `${testScore * 10} / 100`;
+
+  document.getElementById("testHint").textContent=
+    testScore>=9
+      ? "🏆 Quá xuất sắc!"
+      : testScore>=7
+        ? "👏 Rất tốt! Tiếp tục cố gắng!"
+        : testScore>=5
+          ? "💪 Khá tốt, ôn lại những từ sai nhé!"
+          : "🔥 Không sao! Làm lại một lần nữa sẽ nhớ lâu hơn!";
+
+  document.getElementById("testInput").value="";
+
+  document.getElementById("testResult").textContent=
+    `Đúng ${testScore} / ${testQuestions.length} câu`;
+
+  document.getElementById("score").textContent=
+    `🏆 ĐIỂM CUỐI: ${testScore * 10} / 100`;
+
+  testAnswered=true;
+}
+
+
+/* ==================================================
+   LUYỆN CÂU
+================================================== */
+
+let sentenceIndex=0;
+
+/*
+   0 = chưa hiện đáp án
+   1 = đã hiện đáp án
+*/
+let sentenceSpaceCount=0;
+
+
+function resetSentenceSpace(){
+
+  sentenceSpaceCount=0;
+}
+
+
+function openSentences(btn){
+
+  document
+    .querySelectorAll("nav button")
+    .forEach(b=>b.classList.remove("active"));
+
+  btn.classList.add("active");
+
+  document.getElementById("vocabularySection")
+    .classList.add("hidden");
+
+  document.getElementById("testSection")
+    .classList.add("hidden");
+
+  document.getElementById("sentenceSection")
+    .classList.remove("hidden");
+
+  sentenceIndex=0;
+
+  resetSentenceSpace();
+
+  showSentence();
+
+  document
+    .getElementById("sentenceSection")
+    .scrollIntoView({behavior:"smooth"});
+}
+
+
+function showSentence(){
+
+  const s=sentences[sentenceIndex];
+
+  resetSentenceSpace();
+
+  document.getElementById("sentenceNumber").textContent=
+    `Câu ${sentenceIndex+1} / ${sentences.length}`;
+
+  document.getElementById("sentenceMeaning").textContent=
+    `🇻🇳 ${s.meaning}`;
+
+  document.getElementById("sentenceTarget").textContent=
+    "？？？";
+
+  document.getElementById("sentenceInput").value="";
+
+  document.getElementById("sentenceResult").textContent="";
+}
+
+
+function checkSentence(){
+
+  const input=
+    document
+      .getElementById("sentenceInput")
+      .value
+      .trim();
+
+  const s=sentences[sentenceIndex];
+
+  const result=
+    document.getElementById("sentenceResult");
+
+  if(!input){
+
+    result.textContent=
+      "⚠️ Anh hãy gõ câu trước nhé!";
+
+    result.style.color="#d08a00";
+
+    return;
+  }
+
+  if(input===s.answer){
+
+    result.textContent=
+      "✅ Chính xác! Rất tốt!";
+
+    result.style.color="#15956f";
+
+  }else{
+
+    result.textContent=
+      `❌ Chưa đúng. Đáp án: ${s.answer}`;
+
+    result.style.color="#d35b5b";
+  }
+}
+
+
+function saySentence(){
+
+  say(sentences[sentenceIndex].answer);
+}
+
+
+function nextSentence(){
+
+  sentenceIndex++;
+
+  if(sentenceIndex>=sentences.length){
+    sentenceIndex=0;
+  }
+
+  showSentence();
+}
+
+
+/* ==================================================
+   ⭐ PHÍM TẮT BÀN PHÍM
+================================================== */
+
+document.addEventListener("keydown",function(event){
+
+  const active=document.activeElement;
+
+
+  /* ==================================================
+     ĐANG GÕ TRONG INPUT
+     
+     Space → GÕ BÌNH THƯỜNG
+     Enter → THỰC HIỆN CHỨC NĂNG
+  ================================================== */
+
+  if(
+    active &&
+    (
+      active.tagName==="INPUT" ||
+      active.tagName==="TEXTAREA" ||
+      active.isContentEditable
+    )
+  ){
+
+    if(event.key==="Enter"){
+
+      event.preventDefault();
+
+
+      /* Ô tìm kiếm */
+
+      if(active.id==="search"){
+
+        searchWords();
+
+        return;
+      }
+
+
+      /* Ô Test */
+
+      if(active.id==="testInput"){
+
+        checkTest();
+
+        return;
+      }
+
+
+      /* Ô Luyện câu */
+
+      if(active.id==="sentenceInput"){
+
+        checkSentence();
+
+        return;
+      }
+
+    }
+
+
+    /*
+       Rất quan trọng:
+       Không chặn Space khi đang gõ.
+    */
+
+    return;
+  }
+
+
+  /* ==================================================
+     ENTER = 🔊 PHÁT ÂM
+  ================================================== */
+
+  if(event.key==="Enter"){
+
+    event.preventDefault();
+
+
+    /* ---------- TEST ---------- */
+
+    const testSection=
+      document.getElementById("testSection");
+
+    if(
+      testSection &&
+      !testSection.classList.contains("hidden")
+    ){
+
+      if(
+        testQuestions.length &&
+        testQuestions[testIndex]
+      ){
+
+        say(testQuestions[testIndex].h);
+
+      }
+
+      return;
+    }
+
+
+    /* ---------- LUYỆN CÂU ---------- */
+
+    const sentenceSection=
+      document.getElementById("sentenceSection");
+
+    if(
+      sentenceSection &&
+      !sentenceSection.classList.contains("hidden")
+    ){
+
+      saySentence();
+
+      return;
+    }
+
+  }
+
+
+  /* ==================================================
+     SPACE
+  ================================================== */
+
+  if(event.code==="Space"){
+
+    event.preventDefault();
+
+
+    /* ==================================================
+       TEST
+       
+       Space → câu tiếp
+    ================================================== */
+
+    const testSection=
+      document.getElementById("testSection");
+
+    if(
+      testSection &&
+      !testSection.classList.contains("hidden")
+    ){
+
+      nextTest();
+
+      return;
+    }
+
+
+    /* ==================================================
+       LUYỆN CÂU
+       
+       Space lần 1 → hiện đáp án
+       Space lần 2 → câu tiếp
+    ================================================== */
+
+    const sentenceSection=
+      document.getElementById("sentenceSection");
+
+    if(
+      sentenceSection &&
+      !sentenceSection.classList.contains("hidden")
+    ){
+
+      const target=
+        document.getElementById("sentenceTarget");
+
+      /*
+         LẦN 1
+         → hiện đáp án
+      */
+
+      if(sentenceSpaceCount===0){
+
+        target.textContent=
+          sentences[sentenceIndex].answer;
+
+        sentenceSpaceCount=1;
+
+        return;
+      }
+
+
+      /*
+         LẦN 2
+         → sang câu tiếp
+      */
+
+      if(sentenceSpaceCount===1){
+
+        nextSentence();
+
+        return;
+      }
+
+    }
+
+  }
+
+});
+
+
+/* ==================================================
+   KHỞI ĐỘNG
+================================================== */
+
+render(words);
+
 </script>
+
 </body>
 </html>
