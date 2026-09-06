@@ -10147,16 +10147,16 @@ function createAccountSystem(){
 
       return;
     }
+showAccountMessage(
+  "✅ Đăng nhập thành công!",
+  "success"
+);
 
 
-    showAccountMessage(
-      "✅ Đăng nhập thành công!",
-      "success"
-    );
+currentUser = data.user;
 
 
-    updateAccountUI(data.user);
-
+updateAccountUI(data.user);
   }
 
 
