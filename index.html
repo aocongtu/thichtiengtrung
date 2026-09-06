@@ -9843,5 +9843,217 @@ if(document.readyState === "loading"){
 }
 
 </script>
+<script>
+/* =========================================================
+   🏦 THAY TOÀN BỘ QR BẰNG THÔNG TIN CHUYỂN KHOẢN
+   ========================================================= */
+
+(function(){
+
+  function replaceQRWithBank(){
+
+    /* XÓA CÁC KHU VỰC QR */
+    document.querySelectorAll(
+      '#vietqrBox, .qr-area, .qr-title, .qr-note'
+    ).forEach(function(el){
+      el.remove();
+    });
+
+    /* XÓA CÁC ẢNH QR */
+    document.querySelectorAll('img').forEach(function(img){
+
+      const src = img.src || '';
+      const alt = img.alt || '';
+
+      if(
+        src.includes('qrserver.com') ||
+        src.includes('vietqr') ||
+        src.includes('QRIBFTTA') ||
+        alt.toLowerCase().includes('qr')
+      ){
+        const parent = img.closest('.qr-area');
+
+        if(parent){
+          parent.remove();
+        }else{
+          img.remove();
+        }
+      }
+
+    });
+
+    /* NẾU ĐÃ CÓ BOX NGÂN HÀNG THÌ KHÔNG TẠO LẠI */
+    if(document.getElementById('finalBankBox')){
+      return;
+    }
+
+    /* TÌM VỊ TRÍ CŨ CỦA QR */
+    const accountSystem =
+      document.getElementById('accountSystem');
+
+    if(!accountSystem){
+      return;
+    }
+
+    const bankBox = document.createElement('div');
+
+    bankBox.id = 'finalBankBox';
+
+    bankBox.style.cssText = `
+      margin:15px 0;
+      padding:18px;
+      background:#f7fbff;
+      border:2px solid #cfe3f2;
+      border-radius:16px;
+      box-sizing:border-box;
+    `;
+
+    bankBox.innerHTML = `
+      <div style="
+        font-size:19px;
+        font-weight:bold;
+        color:#17324d;
+        margin-bottom:14px;
+      ">
+        🏦 THÔNG TIN CHUYỂN KHOẢN
+      </div>
+
+      <div style="
+        margin:8px 0;
+        line-height:1.7;
+      ">
+        Ngân hàng:
+        <b>AGRIBANK</b>
+      </div>
+
+      <div style="
+        margin:8px 0;
+        line-height:1.7;
+      ">
+        Chủ tài khoản:
+        <b>TRAN DINH HUY</b>
+      </div>
+
+      <div style="
+        margin:12px 0;
+        display:flex;
+        align-items:center;
+        gap:10px;
+        flex-wrap:wrap;
+      ">
+        <span>Số tài khoản:</span>
+
+        <b style="
+          font-size:20px;
+          letter-spacing:1px;
+          color:#17324d;
+        ">
+          2310236222236
+        </b>
+
+        <button
+          type="button"
+          id="finalCopyBank"
+          style="
+            padding:8px 13px;
+            border:0;
+            border-radius:9px;
+            cursor:pointer;
+            background:#2586df;
+            color:white;
+            font-weight:bold;
+          "
+        >
+          📋 Sao chép
+        </button>
+      </div>
+
+      <div style="
+        margin-top:12px;
+        padding:10px;
+        background:white;
+        border-radius:10px;
+        font-size:13px;
+        line-height:1.6;
+        color:#567;
+      ">
+        💡 Sau khi chuyển khoản, đăng nhập tài khoản
+        và chọn gói thành viên để gửi yêu cầu xác nhận thanh toán.
+      </div>
+    `;
+
+    /* ĐẶT BOX NGAY ĐẦU accountSystem */
+    accountSystem.prepend(bankBox);
+
+    /* NÚT SAO CHÉP */
+    const copyButton =
+      document.getElementById('finalCopyBank');
+
+    if(copyButton){
+
+      copyButton.addEventListener('click', function(){
+
+        navigator.clipboard.writeText(
+          '2310236222236'
+        ).then(function(){
+
+          copyButton.textContent =
+            '✅ Đã sao chép!';
+
+          setTimeout(function(){
+
+            copyButton.textContent =
+              '📋 Sao chép';
+
+          },1500);
+
+        }).catch(function(){
+
+          alert(
+            'Số tài khoản: 2310236222236'
+          );
+
+        });
+
+      });
+
+    }
+
+  }
+
+
+  /* CHẠY KHI TRANG ĐÃ TẢI */
+  if(document.readyState === 'loading'){
+
+    document.addEventListener(
+      'DOMContentLoaded',
+      replaceQRWithBank
+    );
+
+  }else{
+
+    replaceQRWithBank();
+
+  }
+
+
+  /* THEO DÕI TRƯỜNG HỢP JAVASCRIPT CŨ TẠO QR SAU ĐÓ */
+  const observer =
+    new MutationObserver(function(){
+
+      replaceQRWithBank();
+
+    });
+
+  observer.observe(
+    document.body,
+    {
+      childList:true,
+      subtree:true
+    }
+  );
+
+})();
+</script>
 </body>
 </html>
