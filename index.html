@@ -1019,8 +1019,6 @@ document.addEventListener("DOMContentLoaded",function(){
 
 let selectedPlan = null;
 
-let currentUser = null;
-
 
 /* =========================================================
    DANH SÁCH GÓI
@@ -1060,17 +1058,24 @@ function generateTransferCode(){
 
   let code = "TTC-";
 
-  if(window.crypto && crypto.getRandomValues){
+
+  if(
+    window.crypto &&
+    window.crypto.getRandomValues
+  ){
 
     const array =
       new Uint32Array(4);
 
-    crypto.getRandomValues(array);
+    window.crypto.getRandomValues(array);
+
 
     for(let i = 0; i < 4; i++){
 
       code +=
-        chars[array[i] % chars.length];
+        chars[
+          array[i] % chars.length
+        ];
 
     }
 
@@ -1089,6 +1094,7 @@ function generateTransferCode(){
 
   }
 
+
   return code;
 
 }
@@ -1105,6 +1111,7 @@ function selectPlan(plan){
       "paymentDetails"
     );
 
+
   if(!box){
 
     return;
@@ -1114,6 +1121,7 @@ function selectPlan(plan){
 
   const data =
     PLANS[plan];
+
 
   if(!data){
 
@@ -1132,16 +1140,11 @@ function selectPlan(plan){
     "block";
 
 
-  /* Tên gói + giá */
+  /* Tên gói */
 
   const planText =
     document.getElementById(
       "selectedPlanText"
-    );
-
-  const amountBox =
-    document.getElementById(
-      "paymentAmount"
     );
 
 
@@ -1154,6 +1157,14 @@ function selectPlan(plan){
       "</strong>";
 
   }
+
+
+  /* Số tiền */
+
+  const amountBox =
+    document.getElementById(
+      "paymentAmount"
+    );
 
 
   if(amountBox){
@@ -1185,13 +1196,53 @@ function selectPlan(plan){
   }
 
 
-  /* Cuộn nhẹ tới khu vực thanh toán */
+  /* Nếu chọn lại gói thì cho phép gửi lại */
+
+  const sendButton =
+    document.querySelector(
+      '#paymentDetails button[onclick="sendPaymentRequest()"]'
+    );
+
+
+  if(sendButton){
+
+    sendButton.disabled =
+      false;
+
+    sendButton.textContent =
+      "📤 GỬI YÊU CẦU THANH TOÁN";
+
+  }
+
+
+  /* Xóa thông báo cũ */
+
+  const status =
+    document.getElementById(
+      "paymentStatus"
+    );
+
+
+  if(status){
+
+    status.textContent =
+      "";
+
+  }
+
+
+  /* Cuộn tới khu vực thanh toán */
 
   setTimeout(function(){
 
     box.scrollIntoView({
-      behavior:"smooth",
-      block:"center"
+
+      behavior:
+        "smooth",
+
+      block:
+        "center"
+
     });
 
   },100);
@@ -1210,6 +1261,10 @@ async function sendPaymentRequest(){
       "paymentStatus"
     );
 
+
+  /* =====================================================
+     KIỂM TRA GÓI
+  ===================================================== */
 
   if(!selectedPlan){
 
@@ -1231,17 +1286,26 @@ async function sendPaymentRequest(){
 
   if(!data){
 
+    if(status){
+
+      status.textContent =
+        "❌ Không tìm thấy thông tin gói.";
+
+    }
+
     return;
 
   }
 
 
-  /* Kiểm tra đăng nhập */
+  /* =====================================================
+     KIỂM TRA ĐĂNG NHẬP
 
-  if(
-    typeof currentUser === "undefined" ||
-    !currentUser
-  ){
+     ⚠️ Dùng chung tài khoản với hệ thống đăng nhập
+     Không tạo currentUser riêng ở đây.
+  ===================================================== */
+
+  if(!window.currentUser){
 
     if(status){
 
@@ -1255,29 +1319,71 @@ async function sendPaymentRequest(){
   }
 
 
+  /* =====================================================
+     KIỂM TRA KẾT NỐI SUPABASE
+  ===================================================== */
+
+  if(!window.supabase){
+
+    console.error(
+      "❌ window.supabase chưa sẵn sàng."
+    );
+
+
+    if(status){
+
+      status.textContent =
+        "❌ Hệ thống chưa sẵn sàng. Vui lòng tải lại trang.";
+
+    }
+
+    return;
+
+  }
+
+
+  /* =====================================================
+     LẤY THÔNG TIN THANH TOÁN
+  ===================================================== */
+
   const transferCode =
-    document.getElementById(
-      "transferCode"
-    )?.value.trim();
+    document
+      .getElementById(
+        "transferCode"
+      )
+      ?.value
+      .trim();
 
 
   const transactionId =
-    document.getElementById(
-      "transactionId"
-    )?.value.trim();
+    document
+      .getElementById(
+        "transactionId"
+      )
+      ?.value
+      .trim();
 
 
   const transferTime =
-    document.getElementById(
-      "transferTime"
-    )?.value;
+    document
+      .getElementById(
+        "transferTime"
+      )
+      ?.value;
 
 
   const note =
-    document.getElementById(
-      "paymentNote"
-    )?.value.trim();
+    document
+      .getElementById(
+        "paymentNote"
+      )
+      ?.value
+      .trim();
 
+
+  /* =====================================================
+     KIỂM TRA THỜI GIAN
+  ===================================================== */
 
   if(!transferTime){
 
@@ -1293,6 +1399,10 @@ async function sendPaymentRequest(){
   }
 
 
+  /* =====================================================
+     KIỂM TRA MÃ CHUYỂN KHOẢN
+  ===================================================== */
+
   if(!transferCode){
 
     if(status){
@@ -1307,6 +1417,10 @@ async function sendPaymentRequest(){
   }
 
 
+  /* =====================================================
+     HIỂN THỊ ĐANG GỬI
+  ===================================================== */
+
   if(status){
 
     status.textContent =
@@ -1315,15 +1429,44 @@ async function sendPaymentRequest(){
   }
 
 
+  /* =====================================================
+     NÚT GỬI
+  ===================================================== */
+
+  const sendButton =
+    document.querySelector(
+      '#paymentDetails button[onclick="sendPaymentRequest()"]'
+    );
+
+
+  if(sendButton){
+
+    sendButton.disabled =
+      true;
+
+    sendButton.textContent =
+      "⏳ ĐANG GỬI...";
+
+  }
+
+
+  /* =====================================================
+     GỬI SANG SUPABASE
+  ===================================================== */
+
   try{
 
     const { error } =
-      await supabase
-        .from("payment_requests")
+      await window.supabase
+
+        .from(
+          "payment_requests"
+        )
+
         .insert({
 
           user_id:
-            currentUser.id,
+            window.currentUser.id,
 
           plan:
             selectedPlan,
@@ -1358,10 +1501,14 @@ async function sendPaymentRequest(){
         });
 
 
+    /* ===================================================
+       KIỂM TRA LỖI
+    =================================================== */
+
     if(error){
 
       console.error(
-        "Payment request error:",
+        "❌ Payment request error:",
         error
       );
 
@@ -1370,6 +1517,10 @@ async function sendPaymentRequest(){
     }
 
 
+    /* ===================================================
+       GỬI THÀNH CÔNG
+    =================================================== */
+
     if(status){
 
       status.innerHTML =
@@ -1377,14 +1528,6 @@ async function sendPaymentRequest(){
         "Yêu cầu thanh toán đã được gửi thành công.";
 
     }
-
-
-    /* Không cho gửi trùng ngay */
-
-    const sendButton =
-      document.querySelector(
-        '#paymentDetails button[onclick="sendPaymentRequest()"]'
-      );
 
 
     if(sendButton){
@@ -1398,15 +1541,37 @@ async function sendPaymentRequest(){
     }
 
 
+    console.log(
+      "✅ Yêu cầu thanh toán đã gửi thành công."
+    );
+
+
   }catch(error){
 
-    console.error(error);
+    console.error(
+      "❌ Gửi yêu cầu thanh toán thất bại:",
+      error
+    );
+
+
+    /* Cho phép thử lại */
+
+    if(sendButton){
+
+      sendButton.disabled =
+        false;
+
+      sendButton.textContent =
+        "📤 GỬI YÊU CẦU THANH TOÁN";
+
+    }
 
 
     if(status){
 
-      status.textContent =
-        "❌ Gửi yêu cầu thất bại. Vui lòng thử lại.";
+      status.innerHTML =
+        "❌ Gửi yêu cầu thất bại.<br>" +
+        "Vui lòng thử lại.";
 
     }
 
@@ -1415,6 +1580,7 @@ async function sendPaymentRequest(){
 }
 
 </script>
+
 
 
 <nav>
@@ -9549,9 +9715,14 @@ document.addEventListener(
 render(currentList);
 
 </script>
+
 <!-- =========================================================
      🇨🇳 THÍCH TIẾNG TRUNG
      HỆ THỐNG ĐĂNG KÝ / ĐĂNG NHẬP
+     ========================================================= -->
+<!-- =========================================================
+     🇨🇳 THÍCH TIẾNG TRUNG
+     👤 HỆ THỐNG TÀI KHOẢN
      ========================================================= -->
 
 <script type="module">
@@ -9563,231 +9734,681 @@ render(currentList);
 import { createClient }
 from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
+
 const SUPABASE_URL =
   "https://nkwdunamzvqrldkkcajz.supabase.co";
+
 
 const SUPABASE_PUBLISHABLE_KEY =
   "sb_publishable_5qAsAhRZk3pmPYtOrKAK2A_R3IlFECT";
 
-window.supabase = createClient(
-  SUPABASE_URL,
-  SUPABASE_PUBLISHABLE_KEY
-);
+
+window.supabase =
+  createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+  );
 
 
 /* =========================================================
-   2. CSS
+   2. BIẾN TÀI KHOẢN
    ========================================================= */
 
-const accountStyle = document.createElement("style");
+window.currentUser = null;
+
+
+/* =========================================================
+   3. CSS GIAO DIỆN TÀI KHOẢN MỚI
+   ========================================================= */
+
+const accountStyle =
+  document.createElement("style");
+
 
 accountStyle.textContent = `
 
+/* =========================================================
+   👤 NÚT TÀI KHOẢN GÓC TRÁI
+   ========================================================= */
+
 #accountSystem{
-  max-width:700px;
-  margin:30px auto;
-  padding:20px;
-  box-sizing:border-box;
+
+  position:fixed;
+
+  top:12px;
+  left:12px;
+
+  z-index:99999;
+
+  margin:0;
+  padding:0;
+
+  width:auto;
+
 }
+
 
 .account-box{
-  background:#fff;
-  border-radius:18px;
-  padding:25px;
-  box-shadow:0 8px 30px rgba(0,0,0,.10);
-  border:1px solid #eee;
+
+  position:relative;
+
+  margin:0;
+  padding:0;
+
+  background:transparent;
+
+  border:0;
+
+  box-shadow:none;
+
 }
 
-.account-title{
-  text-align:center;
-  font-size:25px;
-  font-weight:800;
-  margin-bottom:8px;
-}
 
+/* =========================================================
+   🚫 ẨN TIÊU ĐỀ CŨ
+   ========================================================= */
+
+.account-title,
 .account-subtitle{
-  text-align:center;
-  color:#666;
-  margin-bottom:22px;
+
+  display:none;
+
 }
+
+
+/* =========================================================
+   🔐 KHU VỰC ĐĂNG NHẬP / ĐĂNG KÝ
+   ========================================================= */
 
 .account-tabs{
+
   display:flex;
-  gap:8px;
-  margin-bottom:20px;
+
+  gap:5px;
+
+  margin:0 0 8px 0;
+
 }
+
 
 .account-tab{
-  flex:1;
-  padding:12px;
-  border:0;
-  border-radius:10px;
-  background:#f0f0f0;
+
+  padding:6px 10px;
+
+  border:1px solid #ddd;
+
+  border-radius:8px;
+
+  background:white;
+
+  color:#333;
+
   cursor:pointer;
-  font-weight:700;
+
+  font-size:12px;
+
+  font-weight:600;
+
 }
+
 
 .account-tab.active{
+
   background:#d71920;
+
   color:white;
+
+  border-color:#d71920;
+
 }
+
 
 .account-form{
+
   display:none;
+
 }
+
 
 .account-form.active{
+
   display:block;
+
 }
+
 
 .account-input{
-  width:100%;
+
+  display:block;
+
+  width:240px;
+
   box-sizing:border-box;
-  padding:13px;
-  margin-bottom:12px;
+
+  padding:9px 10px;
+
+  margin-bottom:7px;
+
   border:1px solid #ddd;
-  border-radius:10px;
-  font-size:16px;
+
+  border-radius:8px;
+
+  background:white;
+
+  font-size:14px;
+
   outline:none;
+
 }
+
 
 .account-input:focus{
+
   border-color:#d71920;
+
 }
+
 
 .account-button{
-  width:100%;
-  padding:13px;
+
+  display:block;
+
+  width:240px;
+
+  padding:9px;
+
   border:0;
-  border-radius:10px;
+
+  border-radius:8px;
+
   background:#d71920;
+
   color:white;
-  font-size:16px;
-  font-weight:800;
+
+  font-size:13px;
+
+  font-weight:700;
+
   cursor:pointer;
+
 }
 
-.account-button:hover{
-  opacity:.9;
-}
 
-.account-message{
-  margin-top:15px;
-  padding:12px;
-  border-radius:10px;
-  text-align:center;
-  display:none;
-  line-height:1.5;
-}
-
-.account-message.success{
-  display:block;
-  background:#e8f7e8;
-  color:#176b17;
-}
-
-.account-message.error{
-  display:block;
-  background:#ffeaea;
-  color:#b00000;
-}
+/* =========================================================
+   👤 TÊN NGƯỜI DÙNG
+   ========================================================= */
 
 .account-user{
-  text-align:center;
+
+  position:relative;
+
+  text-align:left;
+
 }
+
 
 .account-user-name{
-  font-size:21px;
-  font-weight:800;
-  margin-bottom:8px;
+
+  display:inline-flex;
+
+  align-items:center;
+
+  gap:5px;
+
+  max-width:180px;
+
+  padding:6px 10px;
+
+  box-sizing:border-box;
+
+  background:rgba(255,255,255,.96);
+
+  border:1px solid #ddd;
+
+  border-radius:18px;
+
+  box-shadow:0 2px 7px rgba(0,0,0,.08);
+
+  color:#333;
+
+  font-size:13px;
+
+  font-weight:600;
+
+  cursor:pointer;
+
+  white-space:nowrap;
+
+  overflow:hidden;
+
+  text-overflow:ellipsis;
+
 }
+
+
+.account-user-name:hover{
+
+  background:#f8f8f8;
+
+}
+
+
+/* =========================================================
+   📋 MENU TÀI KHOẢN
+   ========================================================= */
+
+.account-menu{
+
+  display:none;
+
+  position:absolute;
+
+  top:39px;
+
+  left:0;
+
+  width:230px;
+
+  box-sizing:border-box;
+
+  padding:10px;
+
+  background:white;
+
+  border:1px solid #ddd;
+
+  border-radius:12px;
+
+  box-shadow:0 6px 25px rgba(0,0,0,.14);
+
+}
+
+
+.account-user.menu-open .account-menu{
+
+  display:block;
+
+}
+
+
+/* =========================================================
+   💎 THÔNG TIN GÓI
+   ========================================================= */
 
 .account-status{
-  margin:15px 0;
-  padding:15px;
-  border-radius:12px;
+
+  margin:0;
+
+  padding:9px 10px;
+
+  border-radius:8px;
+
   background:#f7f7f7;
+
+  color:#333;
+
+  font-size:13px;
+
+  line-height:1.6;
+
 }
 
-.account-logout{
-  padding:11px 20px;
+
+/* =========================================================
+   🔘 CÁC NÚT TRONG MENU
+   ========================================================= */
+
+.account-actions{
+
+  margin-top:7px;
+
+}
+
+
+.account-action{
+
+  display:block;
+
+  width:100%;
+
+  padding:8px 9px;
+
+  margin-top:4px;
+
   border:0;
-  border-radius:10px;
-  background:#333;
-  color:#fff;
-  font-weight:700;
+
+  border-radius:7px;
+
+  background:white;
+
+  color:#333;
+
+  text-align:left;
+
+  font-size:13px;
+
   cursor:pointer;
+
 }
 
-.account-free{
-  margin-top:15px;
-  padding:12px;
-  border-radius:10px;
-  background:#fff8df;
-  color:#765900;
+
+.account-action:hover{
+
+  background:#f2f2f2;
+
+}
+
+
+.account-action.logout{
+
+  color:#c00000;
+
+}
+
+
+/* =========================================================
+   🚫 ẨN PHẦN CŨ
+   ========================================================= */
+
+.account-free,
+.account-logout{
+
+  display:none;
+
+}
+
+
+/* =========================================================
+   💬 THÔNG BÁO
+   ========================================================= */
+
+.account-message{
+
+  position:fixed;
+
+  top:55px;
+  left:12px;
+
+  width:260px;
+
+  box-sizing:border-box;
+
+  padding:9px;
+
+  border-radius:8px;
+
+  background:white;
+
+  font-size:12px;
+
+  line-height:1.5;
+
+  text-align:center;
+
+  display:none;
+
+  box-shadow:0 3px 15px rgba(0,0,0,.12);
+
+}
+
+
+.account-message.success{
+
+  display:block;
+
+  background:#e8f7e8;
+
+  color:#176b17;
+
+}
+
+
+.account-message.error{
+
+  display:block;
+
+  background:#ffeaea;
+
+  color:#b00000;
+
+}
+
+
+/* =========================================================
+   🔑 HỘP ĐỔI MẬT KHẨU
+   ========================================================= */
+
+.password-overlay{
+
+  display:none;
+
+  position:fixed;
+
+  inset:0;
+
+  z-index:100000;
+
+  background:rgba(0,0,0,.25);
+
+}
+
+
+.password-overlay.show{
+
+  display:block;
+
+}
+
+
+.password-box{
+
+  position:absolute;
+
+  top:50%;
+  left:50%;
+
+  transform:translate(-50%,-50%);
+
+  width:290px;
+
+  padding:18px;
+
+  box-sizing:border-box;
+
+  background:white;
+
+  border-radius:13px;
+
+  box-shadow:0 10px 35px rgba(0,0,0,.2);
+
+}
+
+
+.password-title{
+
+  margin-bottom:12px;
+
+  font-size:16px;
+
+  font-weight:800;
+
+}
+
+
+.password-input{
+
+  width:100%;
+
+  box-sizing:border-box;
+
+  padding:10px;
+
+  margin-bottom:8px;
+
+  border:1px solid #ddd;
+
+  border-radius:8px;
+
   font-size:14px;
+
+}
+
+
+.password-save{
+
+  width:100%;
+
+  padding:10px;
+
+  border:0;
+
+  border-radius:8px;
+
+  background:#d71920;
+
+  color:white;
+
+  font-weight:700;
+
+  cursor:pointer;
+
+}
+
+
+.password-close{
+
+  width:100%;
+
+  margin-top:7px;
+
+  padding:8px;
+
+  border:0;
+
+  border-radius:8px;
+
+  background:#eee;
+
+  color:#333;
+
+  cursor:pointer;
+
+}
+
+
+/* =========================================================
+   📱 MOBILE
+   ========================================================= */
+
+@media(max-width:600px){
+
+  #accountSystem{
+
+    top:8px;
+    left:8px;
+
+  }
+
+
+  .account-user-name{
+
+    max-width:145px;
+
+    padding:5px 8px;
+
+    font-size:12px;
+
+  }
+
+
+  .account-menu{
+
+    width:210px;
+
+  }
+
+
+  .account-input,
+  .account-button{
+
+    width:220px;
+
+  }
+
 }
 
 `;
 
 
-/* =========================================================
-   3. THÊM CSS VÀO TRANG
-   ========================================================= */
-
 document.head.appendChild(accountStyle);
 
 
 /* =========================================================
-   4. TẠO GIAO DIỆN TÀI KHOẢN
+   4. TẠO GIAO DIỆN
    ========================================================= */
 
 function createAccountSystem(){
 
   if(document.getElementById("accountSystem")){
+
     return;
+
   }
 
-  const box = document.createElement("section");
 
-  box.id = "accountSystem";
+  const box =
+    document.createElement("section");
+
+
+  box.id =
+    "accountSystem";
+
 
   box.innerHTML = `
 
     <div class="account-box">
 
-      <div class="account-title">
-        👤 TÀI KHOẢN
-      </div>
 
-      <div class="account-subtitle">
-        Đăng ký để sử dụng đầy đủ tính năng học tiếng Trung
-      </div>
+      <!-- =================================================
+           ĐĂNG NHẬP / ĐĂNG KÝ
+           ================================================= -->
+
+      <div
+        class="account-tabs"
+        id="accountTabs">
 
 
-      <!-- ================= TABS ================= -->
+        <button
+          type="button"
+          class="account-tab active"
+          id="accountLoginTab">
 
-      <div class="account-tabs"> 
-               <button
-                 type="button"
-                 class="account-tab active"
-                 id="accountLoginTab">
-                    🔐 Đăng nhập
-               <button
-                 type="button"
-                 class="account-tab"
-                 id="accountSignupTab">
-                  📝 Đăng ký
+          🔐 Đăng nhập
+
         </button>
 
+
+        <button
+          type="button"
+          class="account-tab"
+          id="accountSignupTab">
+
+          📝 Đăng ký
+
+        </button>
+
+
       </div>
 
 
-      <!-- ================= LOGIN ================= -->
+      <!-- =================================================
+           FORM ĐĂNG NHẬP
+           ================================================= -->
 
       <div
         class="account-form active"
         id="accountLoginForm">
+
 
         <input
           class="account-input"
@@ -9795,26 +10416,35 @@ function createAccountSystem(){
           type="email"
           placeholder="📧 Email">
 
+
         <input
           class="account-input"
           id="loginPassword"
           type="password"
           placeholder="🔑 Mật khẩu">
 
+
         <button
+          type="button"
           class="account-button"
           id="loginButton">
+
           🔐 ĐĂNG NHẬP
+
         </button>
+
 
       </div>
 
 
-      <!-- ================= SIGN UP ================= -->
+      <!-- =================================================
+           FORM ĐĂNG KÝ
+           ================================================= -->
 
       <div
         class="account-form"
         id="accountSignupForm">
+
 
         <input
           class="account-input"
@@ -9822,11 +10452,13 @@ function createAccountSystem(){
           type="text"
           placeholder="👤 Họ và tên">
 
+
         <input
           class="account-input"
           id="signupPhone"
           type="tel"
           placeholder="📱 Số điện thoại">
+
 
         <input
           class="account-input"
@@ -9834,22 +10466,30 @@ function createAccountSystem(){
           type="email"
           placeholder="📧 Email">
 
+
         <input
           class="account-input"
           id="signupPassword"
           type="password"
           placeholder="🔑 Mật khẩu (tối thiểu 6 ký tự)">
 
+
         <button
+          type="button"
           class="account-button"
           id="signupButton">
+
           📝 TẠO TÀI KHOẢN
+
         </button>
+
 
       </div>
 
 
-      <!-- ================= MESSAGE ================= -->
+      <!-- =================================================
+           THÔNG BÁO
+           ================================================= -->
 
       <div
         class="account-message"
@@ -9857,43 +10497,141 @@ function createAccountSystem(){
       </div>
 
 
-      <!-- ================= USER ================= -->
+      <!-- =================================================
+           NGƯỜI ĐÃ ĐĂNG NHẬP
+           ================================================= -->
 
       <div
         class="account-user"
         id="accountUser"
         style="display:none;">
 
+
         <div
           class="account-user-name"
           id="accountUserName">
+
         </div>
+
 
         <div
-          class="account-status"
-          id="accountUserStatus">
+          class="account-menu"
+          id="accountMenu">
+
+
+          <div
+            class="account-status"
+            id="accountUserStatus">
+
+            ⏳ Đang tải thông tin...
+
+          </div>
+
+
+          <div
+            class="account-actions">
+
+
+            <button
+              type="button"
+              class="account-action"
+              id="changePasswordButton">
+
+              🔑 Đổi mật khẩu
+
+            </button>
+
+
+            <button
+              type="button"
+              class="account-action logout"
+              id="logoutButton">
+
+              🚪 Đăng xuất
+
+            </button>
+
+
+          </div>
+
+
         </div>
 
-        <button
-          class="account-logout"
-          id="logoutButton">
-          🚪 Đăng xuất
-        </button>
-
-        <div class="account-free">
-          🎁 HSK 1–6 hiện đang miễn phí.
-        </div>
 
       </div>
 
+
     </div>
+
+
+    <!-- ===================================================
+         🔑 HỘP ĐỔI MẬT KHẨU
+         =================================================== -->
+
+    <div
+      class="password-overlay"
+      id="passwordOverlay">
+
+
+      <div class="password-box">
+
+
+        <div class="password-title">
+
+          🔑 Đổi mật khẩu
+
+        </div>
+
+
+        <input
+          class="password-input"
+          id="newPassword"
+          type="password"
+          placeholder="Mật khẩu mới">
+
+
+        <input
+          class="password-input"
+          id="confirmPassword"
+          type="password"
+          placeholder="Nhập lại mật khẩu mới">
+
+
+        <button
+          type="button"
+          class="password-save"
+          id="savePasswordButton">
+
+          💾 LƯU MẬT KHẨU
+
+        </button>
+
+
+        <button
+          type="button"
+          class="password-close"
+          id="closePasswordButton">
+
+          Hủy
+
+        </button>
+
+
+      </div>
+
+
+    </div>
+
   `;
 
-  /* =====================================================
-     ĐẶT GIAO DIỆN TÀI KHOẢN NGAY DƯỚI TIÊU ĐỀ
-     ===================================================== */
 
-  const header = document.querySelector("header");
+  /* =======================================================
+     ĐẶT GIAO DIỆN NGAY SAU HEADER
+     ======================================================= */
+
+  const header =
+    document.querySelector("header");
+
 
   if(header){
 
@@ -9907,10 +10645,11 @@ function createAccountSystem(){
     document.body.prepend(box);
 
   }
-  
-  /* =====================================================
+
+
+  /* =======================================================
      TAB ĐĂNG NHẬP
-     ===================================================== */
+     ======================================================= */
 
   document
     .getElementById("accountLoginTab")
@@ -9920,26 +10659,30 @@ function createAccountSystem(){
         .getElementById("accountLoginTab")
         .classList.add("active");
 
+
       document
         .getElementById("accountSignupTab")
         .classList.remove("active");
+
 
       document
         .getElementById("accountLoginForm")
         .classList.add("active");
 
+
       document
         .getElementById("accountSignupForm")
         .classList.remove("active");
+
 
       clearAccountMessage();
 
     });
 
 
-  /* =====================================================
+  /* =======================================================
      TAB ĐĂNG KÝ
-     ===================================================== */
+     ======================================================= */
 
   document
     .getElementById("accountSignupTab")
@@ -9949,30 +10692,37 @@ function createAccountSystem(){
         .getElementById("accountSignupTab")
         .classList.add("active");
 
+
       document
         .getElementById("accountLoginTab")
         .classList.remove("active");
+
 
       document
         .getElementById("accountSignupForm")
         .classList.add("active");
 
+
       document
         .getElementById("accountLoginForm")
         .classList.remove("active");
+
 
       clearAccountMessage();
 
     });
 
 
-  /* =====================================================
+  /* =======================================================
      ĐĂNG KÝ
-     ===================================================== */
+     ======================================================= */
 
   document
     .getElementById("signupButton")
-    .addEventListener("click", signupUser);
+    .addEventListener(
+      "click",
+      signupUser
+    );
 
 
   async function signupUser(){
@@ -9983,17 +10733,20 @@ function createAccountSystem(){
       .value
       .trim();
 
+
     const phone =
       document
       .getElementById("signupPhone")
       .value
       .trim();
 
+
     const email =
       document
       .getElementById("signupEmail")
       .value
       .trim();
+
 
     const password =
       document
@@ -10009,6 +10762,7 @@ function createAccountSystem(){
       );
 
       return;
+
     }
 
 
@@ -10020,6 +10774,7 @@ function createAccountSystem(){
       );
 
       return;
+
     }
 
 
@@ -10031,28 +10786,40 @@ function createAccountSystem(){
       );
 
       return;
+
     }
 
 
     const button =
-      document.getElementById("signupButton");
+      document.getElementById(
+        "signupButton"
+      );
+
 
     button.disabled = true;
-    button.textContent = "⏳ ĐANG TẠO TÀI KHOẢN...";
+
+    button.textContent =
+      "⏳ ĐANG TẠO TÀI KHOẢN...";
 
 
-    const { data, error } =
-      await supabase.auth.signUp({
+    const {
+      data,
+      error
+    } =
+      await window.supabase.auth.signUp({
 
-        email: email,
+        email:email,
 
-        password: password,
+        password:password,
 
-        options: {
+        options:{
 
-          data: {
-            full_name: name,
-            phone: phone
+          data:{
+
+            full_name:name,
+
+            phone:phone
+
           }
 
         }
@@ -10061,7 +10828,9 @@ function createAccountSystem(){
 
 
     button.disabled = false;
-    button.textContent = "📝 TẠO TÀI KHOẢN";
+
+    button.textContent =
+      "📝 TẠO TÀI KHOẢN";
 
 
     if(error){
@@ -10072,26 +10841,29 @@ function createAccountSystem(){
       );
 
       return;
+
     }
 
 
     showAccountMessage(
       "✅ Tạo tài khoản thành công!<br>" +
-      "📧 Nếu Supabase yêu cầu xác nhận email, " +
-      "hãy kiểm tra hộp thư rồi bấm vào link xác nhận.",
+      "📧 Hãy kiểm tra email nếu Supabase yêu cầu xác nhận.",
       "success"
     );
 
   }
 
 
-  /* =====================================================
+  /* =======================================================
      ĐĂNG NHẬP
-     ===================================================== */
+     ======================================================= */
 
   document
     .getElementById("loginButton")
-    .addEventListener("click", loginUser);
+    .addEventListener(
+      "click",
+      loginUser
+    );
 
 
   async function loginUser(){
@@ -10101,6 +10873,7 @@ function createAccountSystem(){
       .getElementById("loginEmail")
       .value
       .trim();
+
 
     const password =
       document
@@ -10116,27 +10889,39 @@ function createAccountSystem(){
       );
 
       return;
+
     }
 
 
     const button =
-      document.getElementById("loginButton");
+      document.getElementById(
+        "loginButton"
+      );
+
 
     button.disabled = true;
-    button.textContent = "⏳ ĐANG ĐĂNG NHẬP...";
+
+    button.textContent =
+      "⏳ ĐANG ĐĂNG NHẬP...";
 
 
-    const { data, error } =
-      await supabase.auth.signInWithPassword({
+    const {
+      data,
+      error
+    } =
+      await window.supabase.auth.signInWithPassword({
 
-        email: email,
-        password: password
+        email:email,
+
+        password:password
 
       });
 
 
     button.disabled = false;
-    button.textContent = "🔐 ĐĂNG NHẬP";
+
+    button.textContent =
+      "🔐 ĐĂNG NHẬP";
 
 
     if(error){
@@ -10147,38 +10932,285 @@ function createAccountSystem(){
       );
 
       return;
+
     }
-showAccountMessage(
-  "✅ Đăng nhập thành công!",
-  "success"
-);
 
 
-currentUser = data.user;
+    window.currentUser =
+      data.user;
 
 
-updateAccountUI(data.user);
+    showAccountMessage(
+      "✅ Đăng nhập thành công!",
+      "success"
+    );
+
+
+    updateAccountUI(
+      data.user
+    );
+
   }
 
 
-  /* =====================================================
-     ĐĂNG XUẤT
-     ===================================================== */
+  /* =======================================================
+     👤 BẤM VÀO TÊN → MỞ MENU
+     ======================================================= */
+
+  document
+    .getElementById("accountUserName")
+    .addEventListener(
+      "click",
+      function(event){
+
+        event.stopPropagation();
+
+        const userBox =
+          document.getElementById(
+            "accountUser"
+          );
+
+
+        userBox.classList.toggle(
+          "menu-open"
+        );
+
+      }
+    );
+
+
+  /* =======================================================
+     🔑 ĐỔI MẬT KHẨU
+     ======================================================= */
+
+  document
+    .getElementById("changePasswordButton")
+    .addEventListener(
+      "click",
+      function(){
+
+        document
+          .getElementById(
+            "passwordOverlay"
+          )
+          .classList.add("show");
+
+
+        document
+          .getElementById(
+            "accountUser"
+          )
+          .classList.remove(
+            "menu-open"
+          );
+
+      }
+    );
+
+
+  /* =======================================================
+     ❌ ĐÓNG HỘP ĐỔI MẬT KHẨU
+     ======================================================= */
+
+  document
+    .getElementById("closePasswordButton")
+    .addEventListener(
+      "click",
+      function(){
+
+        closePasswordBox();
+
+      }
+    );
+
+
+  document
+    .getElementById("passwordOverlay")
+    .addEventListener(
+      "click",
+      function(event){
+
+        if(
+          event.target ===
+          this
+        ){
+
+          closePasswordBox();
+
+        }
+
+      }
+    );
+
+
+  /* =======================================================
+     💾 LƯU MẬT KHẨU
+     ======================================================= */
+
+  document
+    .getElementById("savePasswordButton")
+    .addEventListener(
+      "click",
+      changePassword
+    );
+
+
+  async function changePassword(){
+
+    const newPassword =
+      document
+      .getElementById("newPassword")
+      .value;
+
+
+    const confirmPassword =
+      document
+      .getElementById("confirmPassword")
+      .value;
+
+
+    if(newPassword.length < 6){
+
+      alert(
+        "Mật khẩu mới phải có ít nhất 6 ký tự."
+      );
+
+      return;
+
+    }
+
+
+    if(newPassword !== confirmPassword){
+
+      alert(
+        "Hai mật khẩu không giống nhau."
+      );
+
+      return;
+
+    }
+
+
+    const button =
+      document.getElementById(
+        "savePasswordButton"
+      );
+
+
+    button.disabled = true;
+
+    button.textContent =
+      "⏳ ĐANG LƯU...";
+
+
+    const {
+      error
+    } =
+      await window.supabase.auth.updateUser({
+
+        password:newPassword
+
+      });
+
+
+    button.disabled = false;
+
+    button.textContent =
+      "💾 LƯU MẬT KHẨU";
+
+
+    if(error){
+
+      alert(
+        "❌ Không thể đổi mật khẩu. Vui lòng thử lại."
+      );
+
+      console.error(error);
+
+      return;
+
+    }
+
+
+    document
+      .getElementById("newPassword")
+      .value = "";
+
+
+    document
+      .getElementById("confirmPassword")
+      .value = "";
+
+
+    closePasswordBox();
+
+
+    showAccountMessage(
+      "✅ Đã đổi mật khẩu thành công!",
+      "success"
+    );
+
+  }
+
+
+  /* =======================================================
+     🚪 ĐĂNG XUẤT
+     ======================================================= */
 
   document
     .getElementById("logoutButton")
-    .addEventListener("click", async function(){
+    .addEventListener(
+      "click",
+      async function(){
 
-      await supabase.auth.signOut();
+        await window.supabase.auth.signOut();
 
-      updateAccountUI(null);
+        window.currentUser =
+          null;
 
-      showAccountMessage(
-        "👋 Đã đăng xuất tài khoản.",
-        "success"
-      );
+        document
+          .getElementById(
+            "accountUser"
+          )
+          .classList.remove(
+            "menu-open"
+          );
 
-    });
+        updateAccountUI(null);
+
+        showAccountMessage(
+          "👋 Đã đăng xuất tài khoản.",
+          "success"
+        );
+
+      }
+    );
+
+
+  /* =======================================================
+     🖱️ BẤM RA NGOÀI → ĐÓNG MENU
+     ======================================================= */
+
+  document.addEventListener(
+    "click",
+    function(){
+
+      const userBox =
+        document.getElementById(
+          "accountUser"
+        );
+
+
+      if(userBox){
+
+        userBox.classList.remove(
+          "menu-open"
+        );
+
+      }
+
+    }
+  );
 
 }
 
@@ -10187,17 +11219,44 @@ updateAccountUI(data.user);
    5. THÔNG BÁO
    ========================================================= */
 
-function showAccountMessage(text, type){
+function showAccountMessage(
+  text,
+  type
+){
 
   const message =
-    document.getElementById("accountMessage");
+    document.getElementById(
+      "accountMessage"
+    );
 
-  if(!message) return;
 
-  message.innerHTML = text;
+  if(!message){
+
+    return;
+
+  }
+
+
+  message.innerHTML =
+    text;
+
 
   message.className =
     "account-message " + type;
+
+
+  setTimeout(
+    function(){
+
+      message.className =
+        "account-message";
+
+      message.innerHTML =
+        "";
+
+    },
+    4000
+  );
 
 }
 
@@ -10205,11 +11264,21 @@ function showAccountMessage(text, type){
 function clearAccountMessage(){
 
   const message =
-    document.getElementById("accountMessage");
+    document.getElementById(
+      "accountMessage"
+    );
 
-  if(!message) return;
 
-  message.innerHTML = "";
+  if(!message){
+
+    return;
+
+  }
+
+
+  message.innerHTML =
+    "";
+
 
   message.className =
     "account-message";
@@ -10218,66 +11287,116 @@ function clearAccountMessage(){
 
 
 /* =========================================================
-   6. CẬP NHẬT GIAO DIỆN
+   6. ĐÓNG HỘP ĐỔI MẬT KHẨU
+   ========================================================= */
+
+function closePasswordBox(){
+
+  const overlay =
+    document.getElementById(
+      "passwordOverlay"
+    );
+
+
+  if(overlay){
+
+    overlay.classList.remove(
+      "show"
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   7. CẬP NHẬT GIAO DIỆN TÀI KHOẢN
    ========================================================= */
 
 async function updateAccountUI(user){
 
+  const tabs =
+    document.getElementById(
+      "accountTabs"
+    );
+
+
   const loginForm =
-    document.getElementById("accountLoginForm");
+    document.getElementById(
+      "accountLoginForm"
+    );
+
 
   const signupForm =
-    document.getElementById("accountSignupForm");
+    document.getElementById(
+      "accountSignupForm"
+    );
 
-  const loginTab =
-    document.getElementById("accountLoginTab");
-
-  const signupTab =
-    document.getElementById("accountSignupTab");
 
   const accountUser =
-    document.getElementById("accountUser");
+    document.getElementById(
+      "accountUser"
+    );
 
 
   if(!user){
 
-    if(loginForm)
-      loginForm.style.display = "block";
+    window.currentUser =
+      null;
 
-    if(signupForm)
-      signupForm.style.display = "none";
 
-    if(loginTab)
-      loginTab.style.display = "block";
+    if(tabs)
+      tabs.style.display =
+        "flex";
 
-    if(signupTab)
-      signupTab.style.display = "block";
+       if(loginForm) 
+
+         loginForm.style.display =
+
+           "";
+
+       if(signupForm)
+          signupForm.style.display =
+
+           "";
+    
 
     if(accountUser)
-      accountUser.style.display = "none";
+      accountUser.style.display =
+        "none";
+
 
     return;
+
   }
 
 
-  /* =====================================================
+  /* =======================================================
      ĐÃ ĐĂNG NHẬP
-     ===================================================== */
+     ======================================================= */
+
+  window.currentUser =
+    user;
+
+
+  if(tabs)
+    tabs.style.display =
+      "none";
+
 
   if(loginForm)
-    loginForm.style.display = "none";
+    loginForm.style.display =
+      "none";
+
 
   if(signupForm)
-    signupForm.style.display = "none";
+    signupForm.style.display =
+      "none";
 
-  if(loginTab)
-    loginTab.style.display = "none";
-
-  if(signupTab)
-    signupTab.style.display = "none";
 
   if(accountUser)
-    accountUser.style.display = "block";
+    accountUser.style.display =
+      "block";
 
 
   const name =
@@ -10287,71 +11406,151 @@ async function updateAccountUI(user){
 
 
   const nameBox =
-    document.getElementById("accountUserName");
+    document.getElementById(
+      "accountUserName"
+    );
+
 
   if(nameBox){
 
     nameBox.textContent =
-      "👋 Xin chào, " + name;
+      "👤 " + name + " ▾";
 
   }
 
 
-  /* =====================================================
-     LẤY MEMBERSHIP
-     ===================================================== */
+  /* =======================================================
+     LẤY THÔNG TIN MEMBERSHIP
+     ======================================================= */
 
   const statusBox =
-    document.getElementById("accountUserStatus");
+    document.getElementById(
+      "accountUserStatus"
+    );
 
 
-  if(!statusBox) return;
+  if(!statusBox){
+
+    return;
+
+  }
 
 
-  const { data, error } =
-    await supabase
+  statusBox.innerHTML =
+    "⏳ Đang tải thông tin...";
+
+
+  const {
+    data,
+    error
+  } =
+    await window.supabase
       .from("memberships")
       .select("*")
-      .eq("user_id", user.id)
-      .order("created_at", {
-        ascending:false
-      })
+      .eq(
+        "user_id",
+        user.id
+      )
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      )
       .limit(1);
 
 
-  if(error || !data || data.length === 0){
+  if(
+    error ||
+    !data ||
+    data.length === 0
+  ){
 
     statusBox.innerHTML = `
-      🎓 <b>Tài khoản miễn phí</b><br><br>
-      HSK 1–6: <b>Miễn phí</b><br>
-      TEST + luyện câu: <b>Miễn phí theo chính sách website</b>
+
+      🎓 <b>Tài khoản miễn phí</b><br>
+
+      HSK 1–6: <b>Miễn phí</b>
+
     `;
 
     return;
+
   }
 
 
-  const membership = data[0];
+  const membership =
+    data[0];
 
 
-  if(membership.status === "active"){
+  /* =======================================================
+     TÊN GÓI
+     ======================================================= */
 
-    statusBox.innerHTML = `
-      💎 <b>THÀNH VIÊN ĐANG HOẠT ĐỘNG</b><br><br>
-      Gói: ${membership.plan}<br>
-      Hạn sử dụng:
-      ${membership.end_date
+  const planNames = {
+
+    "1month":
+      "1 tháng",
+
+    "6month":
+      "6 tháng",
+
+    "1year":
+      "1 năm"
+
+  };
+
+
+  const planName =
+    planNames[membership.plan] ||
+    membership.plan ||
+    "Không xác định";
+
+
+  /* =======================================================
+     ĐANG HOẠT ĐỘNG
+     ======================================================= */
+
+  if(
+    membership.status ===
+    "active"
+  ){
+
+    const endDate =
+      membership.end_date
         ? new Date(
             membership.end_date
-          ).toLocaleDateString("vi-VN")
-        : "Không xác định"}
+          ).toLocaleDateString(
+            "vi-VN"
+          )
+        : "Không xác định";
+
+
+    statusBox.innerHTML = `
+
+      💎 <b>THÀNH VIÊN</b><br>
+
+      📦 Gói: <b>${planName}</b><br>
+
+      📅 Hạn sử dụng: <b>${endDate}</b>
+
     `;
+
 
   }else{
 
+    /* =====================================================
+       ĐANG CHỜ XÁC NHẬN
+       ===================================================== */
+
     statusBox.innerHTML = `
-      ⏳ <b>Đang chờ kích hoạt</b><br><br>
-      Gói đăng ký của anh/chị đang được xử lý.
+
+      ⏳ <b>ĐANG CHỜ XÁC NHẬN</b><br>
+
+      📦 Gói: <b>${planName}</b><br>
+
+      Yêu cầu đăng ký đang được xử lý.
+
     `;
 
   }
@@ -10360,16 +11559,25 @@ async function updateAccountUI(user){
 
 
 /* =========================================================
-   7. KIỂM TRA SESSION KHI MỞ WEBSITE
+   8. KIỂM TRA SESSION
    ========================================================= */
 
 async function checkCurrentSession(){
 
   const {
     data
-  } = await supabase.auth.getSession();
+  } =
+    await window.supabase.auth.getSession();
 
-  if(data && data.session){
+
+  if(
+    data &&
+    data.session
+  ){
+
+    window.currentUser =
+      data.session.user;
+
 
     updateAccountUI(
       data.session.user
@@ -10377,7 +11585,13 @@ async function checkCurrentSession(){
 
   }else{
 
-    updateAccountUI(null);
+    window.currentUser =
+      null;
+
+
+    updateAccountUI(
+      null
+    );
 
   }
 
@@ -10385,13 +11599,20 @@ async function checkCurrentSession(){
 
 
 /* =========================================================
-   8. THEO DÕI ĐĂNG NHẬP / ĐĂNG XUẤT
+   9. THEO DÕI LOGIN / LOGOUT
    ========================================================= */
 
-supabase.auth.onAuthStateChange(
-  function(event, session){
+window.supabase.auth.onAuthStateChange(
+  function(
+    event,
+    session
+  ){
 
     if(session){
+
+      window.currentUser =
+        session.user;
+
 
       updateAccountUI(
         session.user
@@ -10399,7 +11620,13 @@ supabase.auth.onAuthStateChange(
 
     }else{
 
-      updateAccountUI(null);
+      window.currentUser =
+        null;
+
+
+      updateAccountUI(
+        null
+      );
 
     }
 
@@ -10408,7 +11635,7 @@ supabase.auth.onAuthStateChange(
 
 
 /* =========================================================
-   9. KHỞI ĐỘNG
+   10. KHỞI ĐỘNG
    ========================================================= */
 
 function initAccountSystem(){
@@ -10420,9 +11647,10 @@ function initAccountSystem(){
 }
 
 
-/* Chờ toàn bộ HTML tải xong */
-
-if(document.readyState === "loading"){
+if(
+  document.readyState ===
+  "loading"
+){
 
   document.addEventListener(
     "DOMContentLoaded",
@@ -10436,23 +11664,32 @@ if(document.readyState === "loading"){
 }
 
 </script>
+
 <script>
 /* =========================================================
    🏦 THAY TOÀN BỘ QR BẰNG THÔNG TIN CHUYỂN KHOẢN
+   📌 ĐẶT TRONG KHU VỰC GÓI NÂNG CẤP
    ========================================================= */
 
 (function(){
 
   function replaceQRWithBank(){
 
-    /* XÓA CÁC KHU VỰC QR */
+    /* =====================================================
+       1. XÓA CÁC KHU VỰC QR CŨ
+       ===================================================== */
+
     document.querySelectorAll(
       '#vietqrBox, .qr-area, .qr-title, .qr-note'
     ).forEach(function(el){
       el.remove();
     });
 
-    /* XÓA CÁC ẢNH QR */
+
+    /* =====================================================
+       2. XÓA CÁC ẢNH QR
+       ===================================================== */
+
     document.querySelectorAll('img').forEach(function(img){
 
       const src = img.src || '';
@@ -10464,36 +11701,111 @@ if(document.readyState === "loading"){
         src.includes('QRIBFTTA') ||
         alt.toLowerCase().includes('qr')
       ){
-        const parent = img.closest('.qr-area');
+
+        const parent =
+          img.closest('.qr-area');
 
         if(parent){
           parent.remove();
         }else{
           img.remove();
         }
+
       }
 
     });
 
-    /* NẾU ĐÃ CÓ BOX NGÂN HÀNG THÌ KHÔNG TẠO LẠI */
-    if(document.getElementById('finalBankBox')){
+
+    /* =====================================================
+       3. NẾU ĐÃ CÓ BOX THÌ KHÔNG TẠO LẠI
+       ===================================================== */
+
+    if(
+      document.getElementById('finalBankBox')
+    ){
       return;
     }
 
-    /* TÌM VỊ TRÍ CŨ CỦA QR */
-    const accountSystem =
-      document.getElementById('accountSystem');
 
-    if(!accountSystem){
-      return;
+    /* =====================================================
+       4. TÌM KHU VỰC "GÓI NÂNG CẤP"
+       ===================================================== */
+
+    let upgradeBox =
+      document.querySelector(
+        '#upgradeSection'
+      );
+
+
+    /*
+       Nếu trang của anh chưa có ID #upgradeSection,
+       tìm khu vực chứa các gói 1 tháng / 6 tháng / 1 năm.
+    */
+
+    if(!upgradeBox){
+
+      const allElements =
+        document.querySelectorAll(
+          'section, div'
+        );
+
+      for(
+        let i = 0;
+        i < allElements.length;
+        i++
+      ){
+
+        const text =
+          allElements[i]
+            .innerText
+            .toLowerCase();
+
+        if(
+          text.includes('1 tháng') &&
+          text.includes('6 tháng') &&
+          text.includes('1 năm')
+        ){
+
+          upgradeBox =
+            allElements[i];
+
+          break;
+        }
+
+      }
+
     }
 
-    const bankBox = document.createElement('div');
 
-    bankBox.id = 'finalBankBox';
+    /* =====================================================
+       5. KHÔNG TÌM THẤY KHU VỰC GÓI
+       ===================================================== */
+
+    if(!upgradeBox){
+
+      console.warn(
+        '⚠️ Không tìm thấy khu vực Gói nâng cấp.'
+      );
+
+      return;
+
+    }
+
+
+    /* =====================================================
+       6. TẠO BOX THÔNG TIN NGÂN HÀNG
+       ===================================================== */
+
+    const bankBox =
+      document.createElement('div');
+
+    bankBox.id =
+      'finalBankBox';
+
 
     bankBox.style.cssText = `
-      margin:15px 0;
+      width:100%;
+      margin:22px 0 10px;
       padding:18px;
       background:#f7fbff;
       border:2px solid #cfe3f2;
@@ -10501,9 +11813,11 @@ if(document.readyState === "loading"){
       box-sizing:border-box;
     `;
 
+
     bankBox.innerHTML = `
+
       <div style="
-        font-size:19px;
+        font-size:18px;
         font-weight:bold;
         color:#17324d;
         margin-bottom:14px;
@@ -10511,21 +11825,24 @@ if(document.readyState === "loading"){
         🏦 THÔNG TIN CHUYỂN KHOẢN
       </div>
 
+
       <div style="
-        margin:8px 0;
+        margin:7px 0;
         line-height:1.7;
       ">
         Ngân hàng:
         <b>AGRIBANK</b>
       </div>
 
+
       <div style="
-        margin:8px 0;
+        margin:7px 0;
         line-height:1.7;
       ">
         Chủ tài khoản:
         <b>TRAN DINH HUY</b>
       </div>
+
 
       <div style="
         margin:12px 0;
@@ -10534,21 +11851,26 @@ if(document.readyState === "loading"){
         gap:10px;
         flex-wrap:wrap;
       ">
-        <span>Số tài khoản:</span>
+
+        <span>
+          Số tài khoản:
+        </span>
+
 
         <b style="
-          font-size:20px;
+          font-size:19px;
           letter-spacing:1px;
           color:#17324d;
         ">
           2310236222236
         </b>
 
+
         <button
           type="button"
           id="finalCopyBank"
           style="
-            padding:8px 13px;
+            padding:7px 12px;
             border:0;
             border-radius:9px;
             cursor:pointer;
@@ -10559,7 +11881,9 @@ if(document.readyState === "loading"){
         >
           📋 Sao chép
         </button>
+
       </div>
+
 
       <div style="
         margin-top:12px;
@@ -10570,51 +11894,121 @@ if(document.readyState === "loading"){
         line-height:1.6;
         color:#567;
       ">
-        💡 Sau khi chuyển khoản, đăng nhập tài khoản
+        💡 Sau khi chuyển khoản, hãy đăng nhập tài khoản
         và chọn gói thành viên để gửi yêu cầu xác nhận thanh toán.
       </div>
+
     `;
 
-    /* ĐẶT BOX NGAY ĐẦU accountSystem */
-    accountSystem.prepend(bankBox);
 
-    /* NÚT SAO CHÉP */
+    /* =====================================================
+       7. ĐẶT BOX Ở CUỐI KHU VỰC GÓI NÂNG CẤP
+       ===================================================== */
+
+    upgradeBox.appendChild(
+      bankBox
+    );
+
+
+    /* =====================================================
+       8. NÚT SAO CHÉP SỐ TÀI KHOẢN
+       ===================================================== */
+
     const copyButton =
-      document.getElementById('finalCopyBank');
+      document.getElementById(
+        'finalCopyBank'
+      );
+
 
     if(copyButton){
 
-      copyButton.addEventListener('click', function(){
+      copyButton.addEventListener(
+        'click',
+        function(){
 
-        navigator.clipboard.writeText(
-          '2310236222236'
-        ).then(function(){
+          navigator.clipboard
+            .writeText(
+              '2310236222236'
+            )
+            .then(function(){
 
-          copyButton.textContent =
-            '✅ Đã sao chép!';
+              copyButton.textContent =
+                '✅ Đã sao chép!';
 
-          setTimeout(function(){
 
-            copyButton.textContent =
-              '📋 Sao chép';
+              setTimeout(
+                function(){
 
-          },1500);
+                  copyButton.textContent =
+                    '📋 Sao chép';
 
-        }).catch(function(){
+                },
+                1500
+              );
 
-          alert(
-            'Số tài khoản: 2310236222236'
-          );
+            })
+            .catch(function(){
 
-        });
+              alert(
+                'Số tài khoản: 2310236222236'
+              );
 
-      });
+            });
+
+        }
+      );
 
     }
 
   }
 
 
+  /* =======================================================
+     🚀 CHẠY SAU KHI TRANG TẢI
+     ======================================================= */
+
+  if(
+    document.readyState ===
+    'loading'
+  ){
+
+    document.addEventListener(
+      'DOMContentLoaded',
+      replaceQRWithBank
+    );
+
+  }else{
+
+    replaceQRWithBank();
+
+  }
+
+
+  /* =======================================================
+     🔄 THEO DÕI THAY ĐỔI TRÊN TRANG
+     ======================================================= */
+
+  const observer =
+    new MutationObserver(
+      function(){
+
+        replaceQRWithBank();
+
+      }
+    );
+
+
+  observer.observe(
+    document.body,
+    {
+      childList:true,
+      subtree:true
+    }
+  );
+
+
+})();
+</script>
   /* CHẠY KHI TRANG ĐÃ TẢI */
   if(document.readyState === 'loading'){
 
