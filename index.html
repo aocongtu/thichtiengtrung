@@ -680,9 +680,8 @@ document.addEventListener("DOMContentLoaded",function(){
 
 </script>
 
-
 <!-- =========================================================
-     💎 BẢNG GIÁ
+     💎 BẢNG GIÁ + THANH TOÁN THÀNH VIÊN
 ========================================================= -->
 
 <div class="price-box">
@@ -706,7 +705,12 @@ document.addEventListener("DOMContentLoaded",function(){
 
   <div class="price-list">
 
-    <div class="price-card">
+    <!-- 1 THÁNG -->
+    <div
+      class="price-card"
+      onclick="selectPlan('1month')"
+      style="cursor:pointer;"
+    >
 
       <div class="price-time">
         📅 1 THÁNG
@@ -723,7 +727,12 @@ document.addEventListener("DOMContentLoaded",function(){
     </div>
 
 
-    <div class="price-card">
+    <!-- 6 THÁNG -->
+    <div
+      class="price-card"
+      onclick="selectPlan('6month')"
+      style="cursor:pointer;"
+    >
 
       <div class="price-time">
         📅 6 THÁNG
@@ -740,7 +749,12 @@ document.addEventListener("DOMContentLoaded",function(){
     </div>
 
 
-    <div class="price-card">
+    <!-- 1 NĂM -->
+    <div
+      class="price-card"
+      onclick="selectPlan('1year')"
+      style="cursor:pointer;"
+    >
 
       <div class="price-time">
         📅 1 NĂM
@@ -759,23 +773,238 @@ document.addEventListener("DOMContentLoaded",function(){
   </div>
 
 
-  <!-- =========================
-       📱 QR THANH TOÁN
-  ========================= -->
+  <!-- =====================================================
+       💳 THÔNG TIN THANH TOÁN
+  ====================================================== -->
 
-  <div class="qr-area">
+  <div
+    id="paymentDetails"
+    style="
+      display:none;
+      max-width:650px;
+      margin:20px auto 0;
+      padding:18px;
+      border:1px solid #ddd;
+      border-radius:12px;
+      background:#fafafa;
+      text-align:left;
+    "
+  >
 
-    <div class="qr-title">
-      📱 QUÉT QR ĐỂ ĐĂNG KÝ
+    <div
+      style="
+        font-size:20px;
+        font-weight:bold;
+        text-align:center;
+        margin-bottom:15px;
+      "
+    >
+      💳 THÔNG TIN CHUYỂN KHOẢN
     </div>
 
-    <div id="vietqrBox">
-      ⏳ Đang tạo mã QR...
+
+    <div
+      id="selectedPlanText"
+      style="
+        padding:10px;
+        margin-bottom:12px;
+        border-radius:8px;
+        background:#fff;
+        font-weight:bold;
+      "
+    ></div>
+
+
+    <div
+      style="
+        padding:12px;
+        background:#fff;
+        border-radius:8px;
+        line-height:1.8;
+      "
+    >
+
+      🏦 Ngân hàng:
+      <strong>AGRIBANK</strong>
+
+      <br>
+
+      👤 Chủ tài khoản:
+      <strong>TRAN DINH HUY</strong>
+
+      <br>
+
+      💳 Số tài khoản:
+      <strong>2310236222236</strong>
+
+      <br>
+
+      💰 Số tiền:
+      <strong id="paymentAmount"></strong>
+
     </div>
 
-    <div class="qr-note">
-      Sau khi chuyển khoản, vui lòng liên hệ để kích hoạt tài khoản thành viên.
+
+    <!-- MÃ CHUYỂN KHOẢN -->
+
+    <div
+      style="
+        margin-top:12px;
+        padding:12px;
+        background:#fff;
+        border-radius:8px;
+      "
+    >
+
+      🔑 Nội dung chuyển khoản:
+
+      <div
+        style="
+          display:flex;
+          gap:8px;
+          align-items:center;
+          margin-top:8px;
+        "
+      >
+
+        <input
+          id="transferCode"
+          readonly
+          style="
+            flex:1;
+            padding:10px;
+            border:1px solid #ccc;
+            border-radius:7px;
+            font-weight:bold;
+            font-size:16px;
+          "
+        >
+
+        <button
+          type="button"
+          onclick="copyText(
+            document.getElementById('transferCode').value,
+            'Đã sao chép mã chuyển khoản'
+          )"
+        >
+          📋 Sao chép
+        </button>
+
+      </div>
+
     </div>
+
+
+    <div
+      style="
+        margin-top:12px;
+        padding:10px;
+        border-radius:8px;
+        background:#fff8e1;
+      "
+    >
+      ⚠️ Anh/chị vui lòng ghi <strong>đúng mã chuyển khoản</strong>
+      ở trên vào nội dung chuyển khoản.
+    </div>
+
+
+    <!-- THÔNG TIN GIAO DỊCH -->
+
+    <div style="margin-top:15px;">
+
+      <label>
+        🧾 Mã giao dịch / Transaction ID
+      </label>
+
+      <input
+        id="transactionId"
+        type="text"
+        placeholder="Nhập mã giao dịch nếu có..."
+        style="
+          width:100%;
+          box-sizing:border-box;
+          margin-top:6px;
+          padding:10px;
+          border:1px solid #ccc;
+          border-radius:7px;
+        "
+      >
+
+    </div>
+
+
+    <div style="margin-top:12px;">
+
+      <label>
+        🕐 Thời gian chuyển khoản
+      </label>
+
+      <input
+        id="transferTime"
+        type="datetime-local"
+        style="
+          width:100%;
+          box-sizing:border-box;
+          margin-top:6px;
+          padding:10px;
+          border:1px solid #ccc;
+          border-radius:7px;
+        "
+      >
+
+    </div>
+
+
+    <div style="margin-top:12px;">
+
+      <label>
+        📝 Ghi chú
+      </label>
+
+      <textarea
+        id="paymentNote"
+        rows="3"
+        placeholder="Ghi chú thêm nếu cần..."
+        style="
+          width:100%;
+          box-sizing:border-box;
+          margin-top:6px;
+          padding:10px;
+          border:1px solid #ccc;
+          border-radius:7px;
+          resize:vertical;
+        "
+      ></textarea>
+
+    </div>
+
+
+    <button
+      type="button"
+      onclick="sendPaymentRequest()"
+      style="
+        width:100%;
+        margin-top:15px;
+        padding:12px;
+        border:none;
+        border-radius:8px;
+        cursor:pointer;
+        font-size:16px;
+        font-weight:bold;
+      "
+    >
+      📤 GỬI YÊU CẦU THANH TOÁN
+    </button>
+
+
+    <div
+      id="paymentStatus"
+      style="
+        margin-top:12px;
+        text-align:center;
+        font-weight:bold;
+      "
+    ></div>
 
   </div>
 
@@ -783,48 +1012,411 @@ document.addEventListener("DOMContentLoaded",function(){
 
 
 <!-- =========================================================
-     📱 TẠO QR VIETQR
+     💳 JAVASCRIPT THANH TOÁN
 ========================================================= -->
 
 <script>
 
-(function(){
+let selectedPlan = null;
 
-  const vietQRPayload =
-    "00020101021138570010A00000072701270006970405011323102362222360208QRIBFTTA53037045802VN63046973";
+
+/* =========================================================
+   DANH SÁCH GÓI
+========================================================= */
+
+const PLANS = {
+
+  "1month": {
+    name: "1 tháng",
+    amount: 20000,
+    days: 30
+  },
+
+  "6month": {
+    name: "6 tháng",
+    amount: 100000,
+    days: 180
+  },
+
+  "1year": {
+    name: "1 năm",
+    amount: 150000,
+    days: 365
+  }
+
+};
+
+
+/* =========================================================
+   TẠO MÃ CHUYỂN KHOẢN
+========================================================= */
+
+function generateTransferCode(){
+
+  const chars =
+    "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+  let code = "TTC-";
+
+  if(window.crypto && crypto.getRandomValues){
+
+    const array =
+      new Uint32Array(4);
+
+    crypto.getRandomValues(array);
+
+    for(let i = 0; i < 4; i++){
+
+      code +=
+        chars[array[i] % chars.length];
+
+    }
+
+  }else{
+
+    for(let i = 0; i < 4; i++){
+
+      code +=
+        chars[
+          Math.floor(
+            Math.random() * chars.length
+          )
+        ];
+
+    }
+
+  }
+
+  return code;
+
+}
+
+
+/* =========================================================
+   CHỌN GÓI
+========================================================= */
+
+function selectPlan(plan){
 
   const box =
-    document.getElementById("vietqrBox");
+    document.getElementById(
+      "paymentDetails"
+    );
 
-  if(!box) return;
+  if(!box){
 
-  const img =
-    document.createElement("img");
+    return;
 
-  img.alt =
-    "QR thanh toán THÍCH TIẾNG TRUNG";
+  }
 
-  img.src =
-    "https://api.qrserver.com/v1/create-qr-code/?size=500x500&data="
-    + encodeURIComponent(vietQRPayload);
 
-  img.onload = function(){
+  const data =
+    PLANS[plan];
 
-    box.innerHTML = "";
-    box.appendChild(img);
+  if(!data){
 
-  };
+    return;
 
-  img.onerror = function(){
+  }
 
-    box.innerHTML =
-      "⚠️ Không thể tải mã QR. Vui lòng kiểm tra kết nối Internet.";
 
-  };
+  selectedPlan =
+    plan;
 
-})();
+
+  /* Hiện thông tin thanh toán */
+
+  box.style.display =
+    "block";
+
+
+  /* Tên gói + giá */
+
+  const planText =
+    document.getElementById(
+      "selectedPlanText"
+    );
+
+  const amountBox =
+    document.getElementById(
+      "paymentAmount"
+    );
+
+
+  if(planText){
+
+    planText.innerHTML =
+      "📅 Gói đã chọn: " +
+      "<strong>" +
+      data.name +
+      "</strong>";
+
+  }
+
+
+  if(amountBox){
+
+    amountBox.textContent =
+      data.amount.toLocaleString("vi-VN") +
+      " VNĐ";
+
+  }
+
+
+  /* Tạo mã chuyển khoản mới */
+
+  const code =
+    generateTransferCode();
+
+
+  const codeBox =
+    document.getElementById(
+      "transferCode"
+    );
+
+
+  if(codeBox){
+
+    codeBox.value =
+      code;
+
+  }
+
+
+  /* Cuộn nhẹ tới khu vực thanh toán */
+
+  setTimeout(function(){
+
+    box.scrollIntoView({
+      behavior:"smooth",
+      block:"center"
+    });
+
+  },100);
+
+}
+
+
+/* =========================================================
+   GỬI YÊU CẦU THANH TOÁN
+========================================================= */
+
+async function sendPaymentRequest(){
+
+  const status =
+    document.getElementById(
+      "paymentStatus"
+    );
+
+
+  if(!selectedPlan){
+
+    if(status){
+
+      status.textContent =
+        "⚠️ Vui lòng chọn gói thành viên.";
+
+    }
+
+    return;
+
+  }
+
+
+  const data =
+    PLANS[selectedPlan];
+
+
+  if(!data){
+
+    return;
+
+  }
+
+
+  /* Kiểm tra đăng nhập */
+
+  if(
+    typeof currentUser === "undefined" ||
+    !currentUser
+  ){
+
+    if(status){
+
+      status.textContent =
+        "⚠️ Anh/chị cần đăng nhập tài khoản trước.";
+
+    }
+
+    return;
+
+  }
+
+
+  const transferCode =
+    document.getElementById(
+      "transferCode"
+    )?.value.trim();
+
+
+  const transactionId =
+    document.getElementById(
+      "transactionId"
+    )?.value.trim();
+
+
+  const transferTime =
+    document.getElementById(
+      "transferTime"
+    )?.value;
+
+
+  const note =
+    document.getElementById(
+      "paymentNote"
+    )?.value.trim();
+
+
+  if(!transferTime){
+
+    if(status){
+
+      status.textContent =
+        "⚠️ Vui lòng nhập thời gian chuyển khoản.";
+
+    }
+
+    return;
+
+  }
+
+
+  if(!transferCode){
+
+    if(status){
+
+      status.textContent =
+        "⚠️ Không tìm thấy mã chuyển khoản.";
+
+    }
+
+    return;
+
+  }
+
+
+  if(status){
+
+    status.textContent =
+      "⏳ Đang gửi yêu cầu...";
+
+  }
+
+
+  try{
+
+    const { error } =
+      await supabase
+        .from("payment_requests")
+        .insert({
+
+          user_id:
+            currentUser.id,
+
+          plan:
+            selectedPlan,
+
+          amount:
+            data.amount,
+
+          transfer_code:
+            transferCode,
+
+          bank_name:
+            "AGRIBANK",
+
+          account_number:
+            "2310236222236",
+
+          account_holder:
+            "TRAN DINH HUY",
+
+          transaction_id:
+            transactionId || null,
+
+          transferred_at:
+            transferTime,
+
+          note:
+            note || null,
+
+          status:
+            "pending"
+
+        });
+
+
+    if(error){
+
+      console.error(
+        "Payment request error:",
+        error
+      );
+
+      throw error;
+
+    }
+
+
+    if(status){
+
+      status.innerHTML =
+        "⏳ <strong>Đang chờ xác nhận</strong><br>" +
+        "Yêu cầu thanh toán đã được gửi thành công.";
+
+    }
+
+
+    /* Không cho gửi trùng ngay */
+
+    const sendButton =
+      document.querySelector(
+        '#paymentDetails button[onclick="sendPaymentRequest()"]'
+      );
+
+
+    if(sendButton){
+
+      sendButton.disabled =
+        true;
+
+      sendButton.textContent =
+        "⏳ ĐÃ GỬI YÊU CẦU";
+
+    }
+
+
+  }catch(error){
+
+    console.error(error);
+
+
+    if(status){
+
+      status.textContent =
+        "❌ Gửi yêu cầu thất bại. Vui lòng thử lại.";
+
+    }
+
+  }
+
+}
 
 </script>
+
+
+<nav>
+
 
 <nav>
 
