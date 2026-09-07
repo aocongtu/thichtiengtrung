@@ -1104,7 +1104,7 @@ function generateTransferCode(){
    CHỌN GÓI
 ========================================================= */
 
-function selectPlan(plan){
+window.selectPlan = function(plan){
 
   const box =
     document.getElementById(
@@ -1196,7 +1196,48 @@ function selectPlan(plan){
   }
 
 
-  /* Nếu chọn lại gói thì cho phép gửi lại */
+  /* Xóa thông tin cũ */
+
+  const transactionId =
+    document.getElementById(
+      "transactionId"
+    );
+
+  if(transactionId){
+
+    transactionId.value =
+      "";
+
+  }
+
+
+  const transferTime =
+    document.getElementById(
+      "transferTime"
+    );
+
+  if(transferTime){
+
+    transferTime.value =
+      "";
+
+  }
+
+
+  const paymentNote =
+    document.getElementById(
+      "paymentNote"
+    );
+
+  if(paymentNote){
+
+    paymentNote.value =
+      "";
+
+  }
+
+
+  /* Cho phép gửi lại */
 
   const sendButton =
     document.querySelector(
@@ -1247,14 +1288,14 @@ function selectPlan(plan){
 
   },100);
 
-}
+};
 
 
 /* =========================================================
    GỬI YÊU CẦU THANH TOÁN
 ========================================================= */
 
-async function sendPaymentRequest(){
+window.sendPaymentRequest = async function(){
 
   const status =
     document.getElementById(
@@ -1300,9 +1341,6 @@ async function sendPaymentRequest(){
 
   /* =====================================================
      KIỂM TRA ĐĂNG NHẬP
-
-     ⚠️ Dùng chung tài khoản với hệ thống đăng nhập
-     Không tạo currentUser riêng ở đây.
   ===================================================== */
 
   if(!window.currentUser){
@@ -1320,7 +1358,7 @@ async function sendPaymentRequest(){
 
 
   /* =====================================================
-     KIỂM TRA KẾT NỐI SUPABASE
+     KIỂM TRA SUPABASE
   ===================================================== */
 
   if(!window.supabase){
@@ -1382,6 +1420,24 @@ async function sendPaymentRequest(){
 
 
   /* =====================================================
+     KIỂM TRA MÃ CHUYỂN KHOẢN
+  ===================================================== */
+
+  if(!transferCode){
+
+    if(status){
+
+      status.textContent =
+        "⚠️ Không tìm thấy mã chuyển khoản.";
+
+    }
+
+    return;
+
+  }
+
+
+  /* =====================================================
      KIỂM TRA THỜI GIAN
   ===================================================== */
 
@@ -1400,21 +1456,32 @@ async function sendPaymentRequest(){
 
 
   /* =====================================================
-     KIỂM TRA MÃ CHUYỂN KHOẢN
+     GỘP THÔNG TIN VÀO transfer_note
+     
+     Vì bảng payment_requests của anh chỉ có
+     transfer_note để lưu thông tin giao dịch.
   ===================================================== */
 
-  if(!transferCode){
+  const transferNote = [
 
-    if(status){
+    "Mã chuyển khoản: " +
+      transferCode,
 
-      status.textContent =
-        "⚠️ Không tìm thấy mã chuyển khoản.";
+    transactionId
+      ? "Mã giao dịch: " + transactionId
+      : "",
 
-    }
+    transferTime
+      ? "Thời gian chuyển: " + transferTime
+      : "",
 
-    return;
+    note
+      ? "Ghi chú: " + note
+      : ""
 
-  }
+  ]
+    .filter(Boolean)
+    .join("\n");
 
 
   /* =====================================================
@@ -1452,6 +1519,14 @@ async function sendPaymentRequest(){
 
   /* =====================================================
      GỬI SANG SUPABASE
+     
+     CHỈ DÙNG CÁC CỘT ĐANG CÓ:
+     
+     user_id
+     plan
+     amount
+     transfer_note
+     status
   ===================================================== */
 
   try{
@@ -1474,23 +1549,8 @@ async function sendPaymentRequest(){
           amount:
             data.amount,
 
-          transfer_code:
-            transferCode,
-
-          bank_name:
-            "AGRIBANK",
-
-          account_number:
-            "2310236222236",
-
-          transaction_id:
-            transactionId || null,
-
-          transferred_at:
-            transferTime,
-
-          note:
-            note || null,
+          transfer_note:
+            transferNote,
 
           status:
             "pending"
@@ -1574,10 +1634,10 @@ async function sendPaymentRequest(){
 
   }
 
-}
+};
+
 
 </script>
-
 
 
 <nav>
