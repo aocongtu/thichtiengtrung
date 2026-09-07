@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Admin - Thích Tiếng Trung</title>
+
+  <!-- SUPABASE -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+  <style>
+
+    *{
+      box-sizing:border-box;
+    }
+
+    body{
+      margin:0;
+      padding:20px;
+      font-family:Arial,sans-serif;
+      background:#f5f6f8;
+      color:#222;
+    }
+
+    .container{
+      max-width:1000px;
+      margin:auto;
+    }
+
+    h1{
+      margin-top:0;
+    }
+
+    #adminStatus{
+      background:white;
+      padding:15px;
+      border-radius:12px;
+      margin:15px 0;
+      box-shadow:0 2px 8px rgba(0,0,0,.08);
+    }
+
+    .payment-card{
+      background:white;
+      padding:18px;
+      margin-bottom:15px;
+      border-radius:12px;
+      box-shadow:0 2px 8px rgba(0,0,0,.08);
+    }
+
+    .payment-card p{
+      margin:8px 0;
+      word-break:break-word;
+    }
+
+    .pending{
+      color:#d97706;
+      font-weight:bold;
+    }
+
+    .approved{
+      color:#16a34a;
+      font-weight:bold;
+    }
+
+    .approve-btn{
+      margin-top:15px;
+      padding:11px 20px;
+      border:0;
+      border-radius:9px;
+      background:#16a34a;
+      color:white;
+      font-size:15px;
+      font-weight:bold;
+      cursor:pointer;
+    }
+
+    .approve-btn:disabled{
+      opacity:.6;
+      cursor:not-allowed;
+    }
+
+    .refresh-btn{
+      padding:10px 16px;
+      border:0;
+      border-radius:8px;
+      background:#2563eb;
+      color:white;
+      font-weight:bold;
+      cursor:pointer;
+      margin-bottom:15px;
+    }
+
+    .empty{
+      background:white;
+      padding:20px;
+      border-radius:12px;
+    }
+
+  </style>
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+  <h1>🛠️ Admin quản lý thanh toán</h1>
+
+  <div id="adminStatus">
+    ⏳ Đang kiểm tra quyền Admin...
+  </div>
+
+  <button
+    class="refresh-btn"
+    onclick="loadPaymentRequests()"
+  >
+    🔄 TẢI LẠI
+  </button>
+
+  <div id="paymentList">
+    ⏳ Đang tải...
+  </div>
+
+</div>
+
+
+
+<script>
+
+/* =========================================================
+   SUPABASE
+   ========================================================= */
+
+const SUPABASE_URL =
+  "https://nkwdunamzvqrldkkcajz.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+  "sb_publishable_5qAsAhRZk3pmPYtOrKAK2A_R3IlFECT";
+
+
+const supabase =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+  );
+
+
+/* =========================================================
+   HIỂN THỊ GÓI
+   ========================================================= */
+
+function getPlanName(plan){
+
+  const planNames = {
+
+    "1month":
+      "Premium 1 tháng",
+
+    "6months":
+      "Premium 6 tháng",
+
+    "1year":
+      "Premium 1 năm"
+
+  };
+
+  return (
+    planNames[plan] ||
+    plan
+  );
+
+}
+
+
+/* =========================================================
+   HIỂN THỊ SỐ TIỀN
+   ========================================================= */
+
+function formatAmount(amount){
+
+  if(
+    amount === null ||
+    amount === undefined
+  ){
+
+    return "";
+
+  }
+
+  const number =
+    Number(amount);
+
+  if(Number.isNaN(number)){
+
+    return amount;
+
+  }
+
+  return number.toLocaleString("vi-VN")
+    + " đ";
+
+}
+
+
+/* =========================================================
+   KIỂM TRA ADMIN
+   ========================================================= */
+
+async function checkAdmin(){
+
+  /* -------------------------------------------------------
+     Lấy user hiện tại
+     ------------------------------------------------------- */
+
+  const {
+    data: {
+      user
+    },
+    error: userError
+  } =
+    await supabase.auth.getUser();
+
+
+  if(userError){
+
+    console.error(
+      "Get user error:",
+      userError
+    );
+
+    throw userError;
+
+  }
+
+
+  if(!user){
+
+    return {
+      isAdmin:false,
+      user:null
+    };
+
+  }
+
+
+  /* -------------------------------------------------------
+     Kiểm tra Admin bằng SECURITY DEFINER RPC
+     ------------------------------------------------------- */
+
+  const {
+    data,
+    error
+  } =
+    await supabase.rpc(
+      "is_admin"
+    );
+
+
+  if(error){
+
+    console.error(
+      "Admin RPC error:",
+      error
+    );
+
+    throw error;
+
+  }
+
+
+  return {
+    isAdmin:data === true,
+    user:user
+  };
+
+}
+
+
+/* =========================================================
+   TẢI DANH SÁCH PAYMENT
+   ========================================================= */
+
+async function loadPaymentRequests(){
+
+  const adminStatus =
+    document.getElementById(
+      "adminStatus"
+    );
+
+  const paymentList =
+    document.getElementById(
+      "paymentList"
+    );
+
+
+  adminStatus.innerHTML =
+    "⏳ Đang kiểm tra quyền Admin...";
+
+
+  paymentList.innerHTML =
+    "⏳ Đang tải danh sách thanh toán...";
+
+
+  try{
+
+    /* -----------------------------------------------------
+       1. KIỂM TRA ADMIN
+       ----------------------------------------------------- */
+
+    const admin =
+      await checkAdmin();
+
+
+    if(!admin.user){
+
+      adminStatus.innerHTML =
+        "❌ Anh chưa đăng nhập.";
+
+      paymentList.innerHTML =
+        "";
+
+      return;
+
+    }
+
+
+    if(!admin.isAdmin){
+
+      adminStatus.innerHTML =
+        "⛔ Tài khoản này không có quyền Admin.";
+
+      paymentList.innerHTML =
+        "";
+
+      return;
+
+    }
+
+
+    adminStatus.innerHTML =
+      "✅ Đã xác nhận quyền Admin.";
+
+
+    /* -----------------------------------------------------
+       2. LẤY PAYMENT BẰNG ADMIN RPC
+       ----------------------------------------------------- */
+
+    const {
+      data: payments,
+      error
+    } =
+      await supabase.rpc(
+        "get_admin_payment_requests"
+      );
+
+
+    if(error){
+
+      console.error(
+        "Payment RPC error:",
+        error
+      );
+
+      throw error;
+
+    }
+
+
+    /* -----------------------------------------------------
+       3. KHÔNG CÓ PAYMENT
+       ----------------------------------------------------- */
+
+    if(
+      !payments ||
+      payments.length === 0
+    ){
+
+      paymentList.innerHTML =
+        `<div class="empty">
+          📭 Chưa có yêu cầu thanh toán.
+        </div>`;
+
+      return;
+
+    }
+
+
+    paymentList.innerHTML =
+      "";
+
+
+    /* -----------------------------------------------------
+       4. HIỂN THỊ TỪNG PAYMENT
+       ----------------------------------------------------- */
+
+    payments.forEach(
+      payment => {
+
+        const card =
+          document.createElement(
+            "div"
+          );
+
+
+        card.className =
+          "payment-card";
+
+
+        const statusClass =
+          payment.status === "approved"
+            ? "approved"
+            : "pending";
+
+
+        card.innerHTML = `
+
+          <p>
+            <strong>ID:</strong>
+            ${payment.id}
+          </p>
+
+          <p>
+            <strong>User ID:</strong>
+            ${payment.user_id}
+          </p>
+
+          <p>
+            <strong>Gói:</strong>
+            ${getPlanName(
+              payment.plan
+            )}
+          </p>
+
+          <p>
+            <strong>Số tiền:</strong>
+            ${formatAmount(
+              payment.amount
+            )}
+          </p>
+
+          <p>
+            <strong>Nội dung chuyển khoản:</strong><br>
+            ${payment.transfer_note || ""}
+          </p>
+
+          <p>
+            <strong>Trạng thái:</strong>
+            <span class="${statusClass}">
+              ${payment.status}
+            </span>
+          </p>
+
+          <p>
+            <strong>Thời gian gửi:</strong>
+            ${payment.created_at}
+          </p>
+
+        `;
+
+
+        /* -------------------------------------------------
+           CHỈ HIỆN NÚT DUYỆT KHI PENDING
+           ------------------------------------------------- */
+
+        if(
+          payment.status ===
+          "pending"
+        ){
+
+          const button =
+            document.createElement(
+              "button"
+            );
+
+
+          button.className =
+            "approve-btn";
+
+
+          button.textContent =
+            "✅ DUYỆT";
+
+
+          button.onclick =
+            function(){
+
+              approvePayment(
+                payment.id,
+                button
+              );
+
+            };
+
+
+          card.appendChild(
+            button
+          );
+
+        }
+
+
+        paymentList.appendChild(
+          card
+        );
+
+      }
+    );
+
+
+  }catch(error){
+
+    console.error(
+      "Admin page error:",
+      error
+    );
+
+
+    adminStatus.innerHTML =
+      "❌ Có lỗi xảy ra.";
+
+
+    paymentList.innerHTML =
+      `<div class="empty">
+        ❌ Không tải được dữ liệu.<br><br>
+        ${error.message || ""}
+      </div>`;
+
+  }
+
+}
+
+
+/* =========================================================
+   DUYỆT PAYMENT
+   ========================================================= */
+
+async function approvePayment(
+  paymentId,
+  button
+){
+
+  const confirmed =
+    confirm(
+      "Anh có chắc muốn DUYỆT thanh toán này không?"
+    );
+
+
+  if(!confirmed){
+
+    return;
+
+  }
+
+
+  button.disabled =
+    true;
+
+
+  button.textContent =
+    "⏳ ĐANG DUYỆT...";
+
+
+  try{
+
+    /* -----------------------------------------------------
+       GỌI RPC SECURITY DEFINER
+       ----------------------------------------------------- */
+
+    const {
+      data,
+      error
+    } =
+      await supabase.rpc(
+        "approve_payment_request",
+        {
+          request_id:
+            paymentId
+        }
+      );
+
+
+    if(error){
+
+      console.error(
+        "Approve error:",
+        error
+      );
+
+
+      alert(
+        "❌ Duyệt thất bại:\n\n" +
+        error.message
+      );
+
+
+      button.disabled =
+        false;
+
+
+      button.textContent =
+        "✅ DUYỆT";
+
+
+      return;
+
+    }
+
+
+    console.log(
+      "✅ Approve result:",
+      data
+    );
+
+
+    alert(
+      "✅ Thanh toán đã được duyệt thành công!"
+    );
+
+
+    /* -----------------------------------------------------
+       TẢI LẠI DANH SÁCH
+       ----------------------------------------------------- */
+
+    await loadPaymentRequests();
+
+
+  }catch(error){
+
+    console.error(
+      "Approve exception:",
+      error
+    );
+
+
+    alert(
+      "❌ Có lỗi khi duyệt thanh toán:\n\n" +
+      error.message
+    );
+
+
+    button.disabled =
+      false;
+
+
+    button.textContent =
+      "✅ DUYỆT";
+
+  }
+
+}
+
+
+/* =========================================================
+   KHỞI ĐỘNG
+   ========================================================= */
+
+loadPaymentRequests();
+
+</script>
+
+</body>
+
+</html>
