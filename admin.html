@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -218,12 +217,29 @@ function formatAmount(amount){
 
 async function checkAdmin(){
 
+  /* -------------------------------------------------------
+     Lấy user hiện tại
+     ------------------------------------------------------- */
+
   const {
     data: {
       user
-    }
+    },
+    error: userError
   } =
     await supabase.auth.getUser();
+
+
+  if(userError){
+
+    console.error(
+      "Get user error:",
+      userError
+    );
+
+    throw userError;
+
+  }
 
 
   if(!user){
@@ -236,24 +252,23 @@ async function checkAdmin(){
   }
 
 
+  /* -------------------------------------------------------
+     Kiểm tra Admin bằng SECURITY DEFINER RPC
+     ------------------------------------------------------- */
+
   const {
     data,
     error
   } =
-    await supabase
-      .from("admin_users")
-      .select("user_id")
-      .eq(
-        "user_id",
-        user.id
-      )
-      .maybeSingle();
+    await supabase.rpc(
+      "is_admin"
+    );
 
 
   if(error){
 
     console.error(
-      "Admin check error:",
+      "Admin RPC error:",
       error
     );
 
@@ -263,7 +278,7 @@ async function checkAdmin(){
 
 
   return {
-    isAdmin:!!data,
+    isAdmin:data === true,
     user:user
   };
 
@@ -336,28 +351,22 @@ async function loadPaymentRequests(){
 
 
     /* -----------------------------------------------------
-       2. LẤY PAYMENT REQUESTS
+       2. LẤY PAYMENT BẰNG ADMIN RPC
        ----------------------------------------------------- */
 
     const {
       data: payments,
       error
     } =
-      await supabase
-        .from("payment_requests")
-        .select("*")
-        .order(
-          "created_at",
-          {
-            ascending:false
-          }
-        );
+      await supabase.rpc(
+        "get_admin_payment_requests"
+      );
 
 
     if(error){
 
       console.error(
-        "Payment request error:",
+        "Payment RPC error:",
         error
       );
 
