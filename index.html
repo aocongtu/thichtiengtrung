@@ -732,100 +732,153 @@ document.addEventListener("DOMContentLoaded",function(){
 </script>
 
 <!-- =========================================================
-     💎 BẢNG GIÁ + THANH TOÁN THÀNH VIÊN
+     💎 PREMIUM + THANH TOÁN THÀNH VIÊN
 ========================================================= -->
 
-<div class="price-box">
+<div
+  class="price-box"
+  style="
+    max-width:650px;
+    margin:15px auto;
+    padding:10px 14px;
+    border:1px solid #ddd;
+    border-radius:10px;
+    background:#fff;
+  "
+>
 
-  <div class="price-title">
-    💎 GÓI THÀNH VIÊN THÍCH TIẾNG TRUNG
-  </div>
+  <!-- THANH PREMIUM NHỎ GỌN -->
+  <div
+    style="
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    "
+  >
 
-  <div class="price-free">
-    🎁 HSK 1 → HSK 6: MIỄN PHÍ
-  </div>
-
-  <div class="price-free">
-    🎯 TEST + LUYỆN CÂU: MIỄN PHÍ 1 TUẦN
-  </div>
-
-  <div class="price-note">
-    🔥 GIÁ ƯU ĐÃI CHỈ ÁP DỤNG TRONG 3 THÁNG ĐẦU
-  </div>
-
-
-  <div class="price-list">
-
-    <!-- 1 THÁNG -->
     <div
-      class="price-card"
-      onclick="selectPlan('1month')"
-      style="cursor:pointer;"
+      style="
+        font-size:16px;
+        font-weight:bold;
+      "
     >
-
-      <div class="price-time">
-        📅 1 THÁNG
-      </div>
-
-      <div class="price-money">
-        20.000 VNĐ
-      </div>
-
-      <div class="price-desc">
-        Truy cập thành viên
-      </div>
-
+      💎 Premium
     </div>
 
 
-    <!-- 6 THÁNG -->
-    <div
-      class="price-card"
-      onclick="selectPlan('6month')"
-      style="cursor:pointer;"
-    >
+    <details>
 
-      <div class="price-time">
-        📅 6 THÁNG
+      <summary
+        style="
+          cursor:pointer;
+          padding:7px 12px;
+          border:1px solid #ccc;
+          border-radius:7px;
+          font-size:14px;
+          font-weight:bold;
+          list-style:none;
+        "
+      >
+        Chọn gói ▾
+      </summary>
+
+
+      <!-- =====================================================
+           💎 CÁC GÓI THÀNH VIÊN
+      ====================================================== -->
+
+      <div
+        class="price-list"
+        style="
+          margin-top:12px;
+          display:flex;
+          flex-wrap:wrap;
+          gap:8px;
+        "
+      >
+
+        <!-- 1 THÁNG -->
+        <div
+          class="price-card"
+          onclick="selectPlan('1month')"
+          style="
+            cursor:pointer;
+            flex:1;
+            min-width:150px;
+            padding:10px;
+            text-align:center;
+          "
+        >
+
+          <div class="price-time">
+            📅 1 THÁNG
+          </div>
+
+          <div class="price-money">
+            20.000 VNĐ
+          </div>
+
+        </div>
+
+
+        <!-- 6 THÁNG -->
+        <div
+          class="price-card"
+          onclick="selectPlan('6month')"
+          style="
+            cursor:pointer;
+            flex:1;
+            min-width:150px;
+            padding:10px;
+            text-align:center;
+          "
+        >
+
+          <div class="price-time">
+            📅 6 THÁNG
+          </div>
+
+          <div class="price-money">
+            100.000 VNĐ
+          </div>
+
+        </div>
+
+
+        <!-- 1 NĂM -->
+        <div
+          class="price-card"
+          onclick="selectPlan('1year')"
+          style="
+            cursor:pointer;
+            flex:1;
+            min-width:150px;
+            padding:10px;
+            text-align:center;
+          "
+        >
+
+          <div class="price-time">
+            📅 1 NĂM
+          </div>
+
+          <div class="price-money">
+            150.000 VNĐ
+          </div>
+
+        </div>
+
       </div>
 
-      <div class="price-money">
-        100.000 VNĐ
-      </div>
-
-      <div class="price-desc">
-        Tiết kiệm hơn
-      </div>
-
-    </div>
-
-
-    <!-- 1 NĂM -->
-    <div
-      class="price-card"
-      onclick="selectPlan('1year')"
-      style="cursor:pointer;"
-    >
-
-      <div class="price-time">
-        📅 1 NĂM
-      </div>
-
-      <div class="price-money">
-        150.000 VNĐ
-      </div>
-
-      <div class="price-desc">
-        Gói tiết kiệm nhất
-      </div>
-
-    </div>
+    </details>
 
   </div>
 
 
   <!-- =====================================================
        💳 THÔNG TIN THANH TOÁN
+       ⚠️ GIỮ NGUYÊN LOGIC HIỆN TẠI
   ====================================================== -->
 
   <div
@@ -833,7 +886,7 @@ document.addEventListener("DOMContentLoaded",function(){
     style="
       display:none;
       max-width:650px;
-      margin:20px auto 0;
+      margin:15px auto 0;
       padding:18px;
       border:1px solid #ddd;
       border-radius:12px;
@@ -954,7 +1007,8 @@ document.addEventListener("DOMContentLoaded",function(){
         background:#fff8e1;
       "
     >
-      ⚠️ Anh/chị vui lòng ghi <strong>đúng mã chuyển khoản</strong>
+      ⚠️ Anh/chị vui lòng ghi
+      <strong>đúng mã chuyển khoản</strong>
       ở trên vào nội dung chuyển khoản.
     </div>
 
@@ -1060,6 +1114,7 @@ document.addEventListener("DOMContentLoaded",function(){
   </div>
 
 </div>
+
 
 
 <!-- =========================================================
@@ -1537,36 +1592,21 @@ window.sendPaymentRequest = async function(){
      → TÊN GÓI SUPABASE
   ===================================================== */
 
-  const DB_PLANS = {
-
-    "1month":
-      "1_month",
-
-    "6month":
-      "6_months",
-
-    "1year":
-      "1_year"
-
-  };
+ const dbPlan = selectedPlan;
 
 
-  const dbPlan =
-    DB_PLANS[selectedPlan];
+if(!dbPlan){
 
+  if(status){
 
-  if(!dbPlan){
-
-    if(status){
-
-      status.textContent =
-        "❌ Không xác định được gói thành viên.";
-
-    }
-
-    return;
+    status.textContent =
+      "❌ Không xác định được gói thành viên.";
 
   }
+
+  return;
+
+}
 
 
   /* =====================================================
@@ -11751,6 +11791,12 @@ function closePasswordBox(){
    7. CẬP NHẬT GIAO DIỆN TÀI KHOẢN
    ========================================================= */
 
+
+/* =======================================================
+   7. CẬP NHẬT GIAO DIỆN TÀI KHOẢN
+   + HIỂN THỊ FREE TRIAL 5 GIỜ
+   ======================================================= */
+
 async function updateAccountUI(user){
 
   const tabs =
@@ -11777,6 +11823,10 @@ async function updateAccountUI(user){
     );
 
 
+  /* =====================================================
+     CHƯA ĐĂNG NHẬP
+     ===================================================== */
+
   if(!user){
 
     window.currentUser =
@@ -11787,17 +11837,16 @@ async function updateAccountUI(user){
       tabs.style.display =
         "flex";
 
-       if(loginForm) 
 
-         loginForm.style.display =
+    if(loginForm)
+      loginForm.style.display =
+        "";
 
-           "";
 
-       if(signupForm)
-          signupForm.style.display =
+    if(signupForm)
+      signupForm.style.display =
+        "";
 
-           "";
-    
 
     if(accountUser)
       accountUser.style.display =
@@ -11809,9 +11858,9 @@ async function updateAccountUI(user){
   }
 
 
-  /* =======================================================
+  /* =====================================================
      ĐÃ ĐĂNG NHẬP
-     ======================================================= */
+     ===================================================== */
 
   window.currentUser =
     user;
@@ -11837,6 +11886,10 @@ async function updateAccountUI(user){
       "block";
 
 
+  /* =====================================================
+     TÊN TÀI KHOẢN
+     ===================================================== */
+
   const name =
     user.user_metadata?.full_name ||
     user.email ||
@@ -11857,9 +11910,9 @@ async function updateAccountUI(user){
   }
 
 
-  /* =======================================================
-     LẤY THÔNG TIN MEMBERSHIP
-     ======================================================= */
+  /* =====================================================
+     HỘP TRẠNG THÁI
+     ===================================================== */
 
   const statusBox =
     document.getElementById(
@@ -11877,6 +11930,10 @@ async function updateAccountUI(user){
   statusBox.innerHTML =
     "⏳ Đang tải thông tin...";
 
+
+  /* =====================================================
+     KIỂM TRA MEMBERSHIP
+     ===================================================== */
 
   const {
     data,
@@ -11898,32 +11955,9 @@ async function updateAccountUI(user){
       .limit(1);
 
 
-  if(
-    error ||
-    !data ||
-    data.length === 0
-  ){
-
-    statusBox.innerHTML = `
-
-      🎓 <b>Tài khoản miễn phí</b><br>
-
-      HSK 1–6: <b>Miễn phí</b>
-
-    `;
-
-    return;
-
-  }
-
-
-  const membership =
-    data[0];
-
-
-  /* =======================================================
-     TÊN GÓI
-     ======================================================= */
+  /* =====================================================
+     TÊN CÁC GÓI
+     ===================================================== */
 
   const planNames = {
 
@@ -11939,59 +11973,276 @@ async function updateAccountUI(user){
   };
 
 
-  const planName =
-    planNames[membership.plan] ||
-    membership.plan ||
-    "Không xác định";
-
-
-  /* =======================================================
-     ĐANG HOẠT ĐỘNG
-     ======================================================= */
+  /* =====================================================
+     CÓ MEMBERSHIP HOẶC ĐANG CHỜ
+     ===================================================== */
 
   if(
-    membership.status ===
-    "active"
+    !error &&
+    data &&
+    data.length > 0
   ){
 
-    const endDate =
-      membership.end_date
-        ? new Date(
-            membership.end_date
-          ).toLocaleDateString(
-            "vi-VN"
-          )
-        : "Không xác định";
+    const membership =
+      data[0];
 
 
-    statusBox.innerHTML = `
-
-      💎 <b>THÀNH VIÊN</b><br>
-
-      📦 Gói: <b>${planName}</b><br>
-
-      📅 Hạn sử dụng: <b>${endDate}</b>
-
-    `;
+    const planName =
+      planNames[membership.plan] ||
+      membership.plan ||
+      "Không xác định";
 
 
-  }else{
+    /* ===================================================
+       ĐANG HOẠT ĐỘNG
+       =================================================== */
 
-    /* =====================================================
+    if(
+      membership.status ===
+      "active"
+    ){
+
+      const endDate =
+        membership.end_date
+          ? new Date(
+              membership.end_date
+            ).toLocaleDateString(
+              "vi-VN"
+            )
+          : "Không xác định";
+
+
+      statusBox.innerHTML = `
+
+        💎 <b>THÀNH VIÊN PREMIUM</b><br>
+
+        📦 Gói: <b>${planName}</b><br>
+
+        📅 Hạn sử dụng: <b>${endDate}</b>
+
+      `;
+
+
+      return;
+
+    }
+
+
+    /* ===================================================
        ĐANG CHỜ XÁC NHẬN
-       ===================================================== */
+       =================================================== */
 
-    statusBox.innerHTML = `
+    if(
+      membership.status ===
+      "pending"
+    ){
 
-      ⏳ <b>ĐANG CHỜ XÁC NHẬN</b><br>
+      statusBox.innerHTML = `
 
-      📦 Gói: <b>${planName}</b><br>
+        ⏳ <b>ĐANG CHỜ XÁC NHẬN</b><br>
 
-      Yêu cầu đăng ký đang được xử lý.
+        📦 Gói: <b>${planName}</b><br>
 
-    `;
+        Yêu cầu đăng ký đang được xử lý.
+
+      `;
+
+
+      return;
+
+    }
 
   }
+
+
+  /* =====================================================
+     KHÔNG CÓ PREMIUM
+     → KIỂM TRA FREE TRIAL 5 GIỜ
+     ===================================================== */
+
+  const trial =
+    await checkFreeTrial();
+
+
+  /* =====================================================
+     TRIAL CÒN THỜI GIAN
+     ===================================================== */
+
+  if(
+    trial.allowed
+  ){
+
+    statusBox.innerHTML = `
+
+      🎁 <b>HỌC THỬ PREMIUM</b><br>
+
+      ⏱️ Còn lại:
+      <b id="accountTrialCountdown">
+        Đang tính...
+      </b><br>
+
+      🎓 HSK 1–3: <b>Miễn phí</b>
+
+    `;
+
+
+    /* ===================================================
+       ĐỒNG HỒ TRIAL
+       =================================================== */
+
+    startAccountTrialCountdown(
+      trial.remaining
+    );
+
+
+    return;
+
+  }
+
+
+  /* =====================================================
+     TRIAL ĐÃ HẾT
+     ===================================================== */
+
+  statusBox.innerHTML = `
+
+    ⏰ <b>ĐÃ HẾT THỜI GIAN HỌC THỬ</b><br>
+
+    🎓 HSK 1–3: <b>Miễn phí</b><br>
+
+    💎 HSK 4–9: <b>Premium</b>
+
+  `;
+
+}
+
+
+/* =========================================================
+   ĐỒNG HỒ ĐẾM NGƯỢC TRIAL HIỂN THỊ CHO TÀI KHOẢN
+========================================================= */
+
+let accountTrialCountdownTimer =
+  null;
+
+
+function startAccountTrialCountdown(
+  remainingSeconds
+){
+
+  if(
+    accountTrialCountdownTimer
+  ){
+
+    clearInterval(
+      accountTrialCountdownTimer
+    );
+
+  }
+
+
+  let remaining =
+    Math.max(
+      0,
+      Number(
+        remainingSeconds || 0
+      )
+    );
+
+
+  function updateCountdown(){
+
+    const box =
+      document.getElementById(
+        "accountTrialCountdown"
+      );
+
+
+    if(!box){
+
+      clearInterval(
+        accountTrialCountdownTimer
+      );
+
+      accountTrialCountdownTimer =
+        null;
+
+      return;
+
+    }
+
+
+    if(
+      remaining <= 0
+    ){
+
+      box.textContent =
+        "00:00:00";
+
+
+      clearInterval(
+        accountTrialCountdownTimer
+      );
+
+      accountTrialCountdownTimer =
+        null;
+
+
+      return;
+
+    }
+
+
+    const hours =
+      Math.floor(
+        remaining / 3600
+      );
+
+
+    const minutes =
+      Math.floor(
+        (remaining % 3600) / 60
+      );
+
+
+    const seconds =
+      remaining % 60;
+
+
+    box.textContent =
+
+      String(hours).padStart(
+        2,
+        "0"
+      )
+
+      + ":" +
+
+      String(minutes).padStart(
+        2,
+        "0"
+      )
+
+      + ":" +
+
+      String(seconds).padStart(
+        2,
+        "0"
+      );
+
+
+    remaining--;
+
+  }
+
+
+  updateCountdown();
+
+
+  accountTrialCountdownTimer =
+    setInterval(
+      updateCountdown,
+      1000
+    );
 
 }
 
