@@ -1457,9 +1457,6 @@ window.sendPaymentRequest = async function(){
 
   /* =====================================================
      GỘP THÔNG TIN VÀO transfer_note
-     
-     Vì bảng payment_requests của anh chỉ có
-     transfer_note để lưu thông tin giao dịch.
   ===================================================== */
 
   const transferNote = [
@@ -1482,6 +1479,43 @@ window.sendPaymentRequest = async function(){
   ]
     .filter(Boolean)
     .join("\n");
+
+
+  /* =====================================================
+     CHUYỂN TÊN GÓI WEBSITE
+     → TÊN GÓI SUPABASE
+  ===================================================== */
+
+  const DB_PLANS = {
+
+    "1month":
+      "1_month",
+
+    "6month":
+      "6_months",
+
+    "1year":
+      "1_year"
+
+  };
+
+
+  const dbPlan =
+    DB_PLANS[selectedPlan];
+
+
+  if(!dbPlan){
+
+    if(status){
+
+      status.textContent =
+        "❌ Không xác định được gói thành viên.";
+
+    }
+
+    return;
+
+  }
 
 
   /* =====================================================
@@ -1520,8 +1554,7 @@ window.sendPaymentRequest = async function(){
   /* =====================================================
      GỬI SANG SUPABASE
      
-     CHỈ DÙNG CÁC CỘT ĐANG CÓ:
-     
+     CÁC CỘT:
      user_id
      plan
      amount
@@ -1543,8 +1576,10 @@ window.sendPaymentRequest = async function(){
           user_id:
             window.currentUser.id,
 
+          /* QUAN TRỌNG:
+             Dùng tên gói mà CHECK CONSTRAINT cho phép */
           plan:
-            selectedPlan,
+            dbPlan,
 
           amount:
             data.amount,
