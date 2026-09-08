@@ -8812,6 +8812,153 @@ let testScore = 0;
 let testAnswered = false;
 let testFinished = false;
 
+/* =========================================================
+   💾 LƯU TIẾN ĐỘ TEST THEO TÀI KHOẢN
+   ========================================================= */
+
+async function loadTestProgress(level){
+
+  if(!window.currentUser){
+    return {
+      current_index: 0,
+      completed: false
+    };
+  }
+
+  const { data, error } =
+    await window.supabase
+      .from("vocabulary_test_progress")
+      .select("current_index, completed")
+      .eq("user_id", window.currentUser.id)
+      .eq("hsk_level", level)
+      .maybeSingle();
+
+  if(error){
+
+    console.error(
+      "Load test progress error:",
+      error
+    );
+
+    return {
+      current_index: 0,
+      completed: false
+    };
+
+  }
+
+  if(!data){
+
+    return {
+      current_index: 0,
+      completed: false
+    };
+
+  }
+
+  return data;
+
+}
+
+
+async function saveTestProgress(
+  level,
+  currentIndex,
+  completed = false
+){
+
+  if(!window.currentUser){
+    return false;
+  }
+
+  const { error } =
+    await window.supabase
+      .from("vocabulary_test_progress")
+      .upsert(
+        {
+          user_id:
+            window.currentUser.id,
+
+          hsk_level:
+            level,
+
+          current_index:
+            currentIndex,
+
+          completed:
+            completed,
+
+          updated_at:
+            new Date().toISOString()
+        },
+        {
+          onConflict:
+            "user_id,hsk_level"
+        }
+      );
+
+  if(error){
+
+    console.error(
+      "Save test progress error:",
+      error
+    );
+
+    return false;
+
+  }
+
+  return true;
+
+}
+
+
+async function resetTestProgress(level){
+
+  if(!window.currentUser){
+    return false;
+  }
+
+  const { error } =
+    await window.supabase
+      .from("vocabulary_test_progress")
+      .upsert(
+        {
+          user_id:
+            window.currentUser.id,
+
+          hsk_level:
+            level,
+
+          current_index:
+            0,
+
+          completed:
+            false,
+
+          updated_at:
+            new Date().toISOString()
+        },
+        {
+          onConflict:
+            "user_id,hsk_level"
+        }
+      );
+
+  if(error){
+
+    console.error(
+      "Reset test progress error:",
+      error
+    );
+
+    return false;
+
+  }
+
+  return true;
+
+}
 
 /* ==================================================
    ❌ DANH SÁCH TỪ SAI
@@ -8935,29 +9082,78 @@ async function startTest(btn){
     .getElementById("testSection")
     .classList.remove("hidden");
 
+/* =========================================================
+   📚 TEST TUẦN TỰ THEO THỨ TỰ TỪ VỰNG
+   Không random
+   Không giới hạn 10 câu
+   Tiếp tục từ tiến độ đã lưu
+========================================================= */
 
-  /*
-     ⭐ Mỗi lượt lấy tối đa 10 từ ngẫu nhiên
-  */
+testQuestions = [...currentList];
 
-  testQuestions =
-    [...currentList]
-      .sort(function(){
+testScore = 0;
 
-        return Math.random() - 0.5;
+testAnswered = false;
 
-      })
-      .slice(0,10);
+testFinished = false;
 
 
-  testIndex = 0;
+/* =========================================================
+   💾 ĐỌC TIẾN ĐỘ HSK HIỆN TẠI
+========================================================= */
 
-  testScore = 0;
+const progress =
+  await loadTestProgress(currentHSK);
 
-  testAnswered = false;
 
-  testFinished = false;
+testIndex =
+  Number(progress.current_index || 0);
 
+
+/* =========================================================
+   🎉 ĐÃ HOÀN THÀNH HSK
+========================================================= */
+
+if(progress.completed){
+
+  testFinished = true;
+
+  document
+    .getElementById("testNumber")
+    .textContent =
+      "🎉 Đã hoàn thành";
+
+  document
+    .getElementById("testQuestion")
+    .textContent =
+      `🎉 Đã hoàn thành HSK ${currentHSK}`;
+
+  document
+    .getElementById("testHint")
+    .textContent =
+      "Anh đã hoàn thành toàn bộ từ vựng HSK này.";
+
+  document
+    .getElementById("testInput")
+    .value = "";
+
+  document
+    .getElementById("testResult")
+    .textContent =
+      "🔄 Anh có thể RESET để làm lại từ đầu.";
+
+  document
+    .getElementById("score")
+    .textContent = "";
+
+  createTestButtons();
+
+  updateTestButtonState();
+
+  return;
+
+}
+ 
 
   document
     .getElementById("testTitle")
@@ -9186,6 +9382,17 @@ function checkTest(){
 
     testAnswered = true;
 
+/* ==================================================
+   💾 LƯU TIẾN ĐỘ
+   Câu hiện tại đã hoàn thành
+   → lần sau sẽ bắt đầu từ câu tiếp theo
+================================================== */
+
+saveTestProgress(
+  currentHSK,
+  testIndex + 1,
+  false
+);
 
     result.textContent =
       `✅ Chính xác! ${w.h} = ${w.m}`;
@@ -9243,6 +9450,15 @@ function checkTest(){
 
   testAnswered = true;
 
+/* ==================================================
+   💾 LƯU TIẾN ĐỘ
+================================================== */
+
+saveTestProgress(
+  currentHSK,
+  testIndex + 1,
+  false
+);
 
   document
     .getElementById("score")
