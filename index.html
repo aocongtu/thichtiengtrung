@@ -7456,66 +7456,85 @@ function render(list=currentList){
 ================================================== */
 
 /* ==================================================
-   🔎 TÌM KIẾM TỪ VỰNG
+   🔎 TÌM KIẾM TOÀN BỘ TỪ VỰNG
    Tìm theo:
    - Hán tự
    - Pinyin
    - Nghĩa tiếng Việt
+   - Không phân biệt dấu
 ================================================== */
 
 function searchWords(){
 
   const input =
-    document
-      .getElementById("search");
+    document.getElementById("search");
 
   if(!input){
     return;
   }
+
 
   const keyword =
     input.value
       .trim()
       .toLowerCase();
 
-  /* Không nhập gì → hiện lại danh sách hiện tại */
+
+  /* ==================================================
+     KHÔNG NHẬP GÌ
+     → HIỆN LẠI HSK HIỆN TẠI
+  ================================================== */
 
   if(!keyword){
 
     render(currentList);
 
-    document
-      .getElementById("title")
-      .textContent =
-        `HSK ${currentHSK} — ${currentList.length} từ`;
+    document.getElementById("title").textContent =
+      `HSK ${currentHSK} — ${currentList.length} từ`;
 
     return;
   }
 
 
   /* ==================================================
-     TÌM TRONG DANH SÁCH HSK HIỆN TẠI
+     BỎ DẤU ĐỂ TÌM DỄ HƠN
+  ================================================== */
+
+  function normalizeText(text){
+
+    return String(text || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g,"");
+
+  }
+
+
+  const searchKey =
+    normalizeText(keyword);
+
+
+  /* ==================================================
+     🔎 TÌM TRONG TOÀN BỘ KHO TỪ
   ================================================== */
 
   const result =
-    currentList.filter(function(word){
+    words.filter(function(word){
 
       const hanzi =
-        String(word.h || "")
-          .toLowerCase();
+        normalizeText(word.h);
 
       const pinyin =
-        String(word.p || "")
-          .toLowerCase();
+        normalizeText(word.p);
 
       const meaning =
-        String(word.m || "")
-          .toLowerCase();
+        normalizeText(word.m);
+
 
       return (
-        hanzi.includes(keyword) ||
-        pinyin.includes(keyword) ||
-        meaning.includes(keyword)
+        hanzi.includes(searchKey) ||
+        pinyin.includes(searchKey) ||
+        meaning.includes(searchKey)
       );
 
     });
@@ -7528,10 +7547,8 @@ function searchWords(){
   render(result);
 
 
-  document
-    .getElementById("title")
-    .textContent =
-      `🔎 Kết quả tìm kiếm: ${result.length} từ`;
+  document.getElementById("title").textContent =
+    `🔎 Tìm thấy ${result.length} từ`;
 
 
   /* ==================================================
@@ -7540,31 +7557,28 @@ function searchWords(){
 
   if(result.length === 0){
 
-    document
-      .getElementById("cards")
-      .innerHTML = `
-        <div
-          style="
-            grid-column:1/-1;
-            text-align:center;
-            padding:30px;
-            font-size:18px;
-            color:#777;
-          "
-        >
-          🔎 Không tìm thấy từ
-          <strong>${keyword}</strong>
-        </div>
-      `;
+    document.getElementById("cards").innerHTML = `
+      <div
+        style="
+          grid-column:1/-1;
+          text-align:center;
+          padding:30px;
+          font-size:18px;
+          color:#777;
+        "
+      >
+        🔎 Không tìm thấy từ
+        <strong>${keyword}</strong>
+      </div>
+    `;
 
-    document
-      .getElementById("count")
-      .textContent =
-        "0 từ";
+    document.getElementById("count").textContent =
+      "0 từ";
 
   }
 
 }
+
 
 /* =========================================================
    💎 HỆ THỐNG PREMIUM + FREE TRIAL 5 GIỜ
