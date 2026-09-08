@@ -15,7 +15,6 @@
   <!-- SUPABASE -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-
   <style>
 
     *{
@@ -108,7 +107,6 @@
 
 </head>
 
-
 <body>
 
 <div class="container">
@@ -133,7 +131,6 @@
 </div>
 
 
-
 <script>
 
 /* =========================================================
@@ -146,8 +143,7 @@ const SUPABASE_URL =
 const SUPABASE_PUBLISHABLE_KEY =
   "sb_publishable_5qAsAhRZk3pmPYtOrKAK2A_R3IlFECT";
 
-
-const supabase =
+const supabaseClient =
   window.supabase.createClient(
     SUPABASE_URL,
     SUPABASE_PUBLISHABLE_KEY
@@ -217,17 +213,13 @@ function formatAmount(amount){
 
 async function checkAdmin(){
 
-  /* -------------------------------------------------------
-     Lấy user hiện tại
-     ------------------------------------------------------- */
-
   const {
     data: {
       user
     },
     error: userError
   } =
-    await supabase.auth.getUser();
+    await supabaseClient.auth.getUser();
 
 
   if(userError){
@@ -252,15 +244,11 @@ async function checkAdmin(){
   }
 
 
-  /* -------------------------------------------------------
-     Kiểm tra Admin bằng SECURITY DEFINER RPC
-     ------------------------------------------------------- */
-
   const {
     data,
     error
   } =
-    await supabase.rpc(
+    await supabaseClient.rpc(
       "is_admin"
     );
 
@@ -305,16 +293,11 @@ async function loadPaymentRequests(){
   adminStatus.innerHTML =
     "⏳ Đang kiểm tra quyền Admin...";
 
-
   paymentList.innerHTML =
     "⏳ Đang tải danh sách thanh toán...";
 
 
   try{
-
-    /* -----------------------------------------------------
-       1. KIỂM TRA ADMIN
-       ----------------------------------------------------- */
 
     const admin =
       await checkAdmin();
@@ -350,15 +333,11 @@ async function loadPaymentRequests(){
       "✅ Đã xác nhận quyền Admin.";
 
 
-    /* -----------------------------------------------------
-       2. LẤY PAYMENT BẰNG ADMIN RPC
-       ----------------------------------------------------- */
-
     const {
       data: payments,
       error
     } =
-      await supabase.rpc(
+      await supabaseClient.rpc(
         "get_admin_payment_requests"
       );
 
@@ -374,10 +353,6 @@ async function loadPaymentRequests(){
 
     }
 
-
-    /* -----------------------------------------------------
-       3. KHÔNG CÓ PAYMENT
-       ----------------------------------------------------- */
 
     if(
       !payments ||
@@ -397,10 +372,6 @@ async function loadPaymentRequests(){
     paymentList.innerHTML =
       "";
 
-
-    /* -----------------------------------------------------
-       4. HIỂN THỊ TỪNG PAYMENT
-       ----------------------------------------------------- */
 
     payments.forEach(
       payment => {
@@ -466,10 +437,6 @@ async function loadPaymentRequests(){
 
         `;
 
-
-        /* -------------------------------------------------
-           CHỈ HIỆN NÚT DUYỆT KHI PENDING
-           ------------------------------------------------- */
 
         if(
           payment.status ===
@@ -564,22 +531,17 @@ async function approvePayment(
   button.disabled =
     true;
 
-
   button.textContent =
     "⏳ ĐANG DUYỆT...";
 
 
   try{
 
-    /* -----------------------------------------------------
-       GỌI RPC SECURITY DEFINER
-       ----------------------------------------------------- */
-
     const {
       data,
       error
     } =
-      await supabase.rpc(
+      await supabaseClient.rpc(
         "approve_payment_request",
         {
           request_id:
@@ -605,10 +567,8 @@ async function approvePayment(
       button.disabled =
         false;
 
-
       button.textContent =
         "✅ DUYỆT";
-
 
       return;
 
@@ -625,10 +585,6 @@ async function approvePayment(
       "✅ Thanh toán đã được duyệt thành công!"
     );
 
-
-    /* -----------------------------------------------------
-       TẢI LẠI DANH SÁCH
-       ----------------------------------------------------- */
 
     await loadPaymentRequests();
 
@@ -649,7 +605,6 @@ async function approvePayment(
 
     button.disabled =
       false;
-
 
     button.textContent =
       "✅ DUYỆT";
