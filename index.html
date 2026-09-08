@@ -9586,7 +9586,18 @@ function finishTest(){
 
   testFinished = true;
 
-  testAnswered = true;
+   testAnswered = true;
+
+
+/* ==================================================
+   💾 LƯU ĐÃ HOÀN THÀNH TOÀN BỘ HSK
+================================================== */
+
+saveTestProgress(
+  currentHSK,
+  testQuestions.length,
+  true
+);
 
 
   const total =
@@ -9655,26 +9666,14 @@ function finishTest(){
 
 }
 
-
-/* ==================================================
-   🔄 LÀM LẠI TỪ ĐẦU
-   Tạo một lượt 10 câu mới
-================================================== */
-
 function resetTest(){
 
-  /*
-     Lấy lại 10 câu mới
-  */
+  /* ==================================================
+     📚 RESET ĐÚNG HSK ĐANG CHỌN
+  ================================================== */
 
   testQuestions =
-    [...currentList]
-      .sort(function(){
-
-        return Math.random() - 0.5;
-
-      })
-      .slice(0,10);
+    [...currentList];
 
 
   testIndex = 0;
@@ -9686,6 +9685,19 @@ function resetTest(){
   testFinished = false;
 
 
+  /* ==================================================
+     💾 XÓA TIẾN ĐỘ CỦA RIÊNG HSK NÀY
+  ================================================== */
+
+  resetTestProgress(
+    currentHSK
+  );
+
+
+  /* ==================================================
+     ⚠️ HSK KHÔNG CÓ TỪ
+  ================================================== */
+
   if(testQuestions.length === 0){
 
     showTestQuestion();
@@ -9695,21 +9707,32 @@ function resetTest(){
   }
 
 
+  /* ==================================================
+     📝 CẬP NHẬT TIÊU ĐỀ
+  ================================================== */
+
   document
     .getElementById("testTitle")
     .textContent =
       `📝 TEST TỪ VỰNG HSK ${currentHSK}`;
 
 
+  /* ==================================================
+     ▶️ BẮT ĐẦU LẠI TỪ CÂU 1
+  ================================================== */
+
   showTestQuestion();
 
+
+  /* ==================================================
+     📱 CUỘN ĐẾN KHU VỰC TEST
+  ================================================== */
 
   document
     .getElementById("testSection")
     .scrollIntoView({
       behavior:"smooth"
     });
-
 
 }
 
