@@ -7455,6 +7455,116 @@ function render(list=currentList){
    CHỌN HSK
 ================================================== */
 
+/* ==================================================
+   🔎 TÌM KIẾM TỪ VỰNG
+   Tìm theo:
+   - Hán tự
+   - Pinyin
+   - Nghĩa tiếng Việt
+================================================== */
+
+function searchWords(){
+
+  const input =
+    document
+      .getElementById("search");
+
+  if(!input){
+    return;
+  }
+
+  const keyword =
+    input.value
+      .trim()
+      .toLowerCase();
+
+  /* Không nhập gì → hiện lại danh sách hiện tại */
+
+  if(!keyword){
+
+    render(currentList);
+
+    document
+      .getElementById("title")
+      .textContent =
+        `HSK ${currentHSK} — ${currentList.length} từ`;
+
+    return;
+  }
+
+
+  /* ==================================================
+     TÌM TRONG DANH SÁCH HSK HIỆN TẠI
+  ================================================== */
+
+  const result =
+    currentList.filter(function(word){
+
+      const hanzi =
+        String(word.h || "")
+          .toLowerCase();
+
+      const pinyin =
+        String(word.p || "")
+          .toLowerCase();
+
+      const meaning =
+        String(word.m || "")
+          .toLowerCase();
+
+      return (
+        hanzi.includes(keyword) ||
+        pinyin.includes(keyword) ||
+        meaning.includes(keyword)
+      );
+
+    });
+
+
+  /* ==================================================
+     HIỂN THỊ KẾT QUẢ
+  ================================================== */
+
+  render(result);
+
+
+  document
+    .getElementById("title")
+    .textContent =
+      `🔎 Kết quả tìm kiếm: ${result.length} từ`;
+
+
+  /* ==================================================
+     KHÔNG TÌM THẤY
+  ================================================== */
+
+  if(result.length === 0){
+
+    document
+      .getElementById("cards")
+      .innerHTML = `
+        <div
+          style="
+            grid-column:1/-1;
+            text-align:center;
+            padding:30px;
+            font-size:18px;
+            color:#777;
+          "
+        >
+          🔎 Không tìm thấy từ
+          <strong>${keyword}</strong>
+        </div>
+      `;
+
+    document
+      .getElementById("count")
+      .textContent =
+        "0 từ";
+
+  }
+
+}
 
 /* =========================================================
    💎 HỆ THỐNG PREMIUM + FREE TRIAL 5 GIỜ
