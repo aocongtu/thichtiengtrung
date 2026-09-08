@@ -7768,6 +7768,68 @@ async function checkPremiumAccess(level){
 
 }
 
+/* =========================================================
+   💎 KIỂM TRA QUYỀN PREMIUM CHO TEST / LUYỆN TẬP
+   Free:
+   - Chỉ xem từ vựng HSK 1–3
+   - Không được Test / Luyện câu
+
+   Premium:
+   - Được Test
+   - Được Luyện câu
+   - Được sử dụng các chức năng luyện tập
+========================================================= */
+
+async function checkPremiumFeature(){
+
+  /* ================================
+     CHƯA ĐĂNG NHẬP
+  ================================= */
+
+  if(!window.currentUser){
+
+    alert(
+      "🔒 Tính năng Premium\n\n" +
+      "Test và các chức năng luyện tập " +
+      "chỉ dành cho thành viên Premium.\n\n" +
+      "Vui lòng đăng nhập hoặc đăng ký Premium."
+    );
+
+    return false;
+  }
+
+
+  /* ================================
+     ĐÃ CÓ GÓI PREMIUM
+  ================================= */
+
+  const paid =
+    await hasActiveMembership();
+
+  if(paid){
+
+    return true;
+
+  }
+
+
+  /* ================================
+     KHÔNG CÓ PREMIUM
+     → GIỮ NGUYÊN HỆ THỐNG
+       FREE TRIAL 5 GIỜ
+  ================================= */
+
+  alert(
+    "💎 Tính năng Premium\n\n" +
+    "Test và các chức năng luyện tập " +
+    "chỉ dành cho thành viên Premium.\n\n" +
+    "Vui lòng đăng ký gói Premium để sử dụng."
+  );
+
+  return false;
+
+}
+
 
 /* =========================================================
    4. HEARTBEAT — CẬP NHẬT THỜI GIAN SỬ DỤNG
@@ -8838,7 +8900,14 @@ function updateTestWrongWordCount(){
    📝 BẮT ĐẦU TEST
 ================================================== */
 
-function startTest(btn){
+async function startTest(btn){
+
+  const allowed =
+    await checkPremiumFeature();
+
+  if(!allowed){
+    return;
+  }
 
   document
     .querySelectorAll("nav button")
@@ -9687,7 +9756,14 @@ function resetSentenceSpace(){
    MỞ LUYỆN CÂU
 ================================================== */
 
-function openSentences(btn){
+async function openSentences(btn){
+
+  const allowed =
+    await checkPremiumFeature();
+
+  if(!allowed){
+    return;
+  }
 
   document.querySelectorAll("nav button")
     .forEach(function(b){
