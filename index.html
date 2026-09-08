@@ -1592,7 +1592,13 @@ window.sendPaymentRequest = async function(){
      → TÊN GÓI SUPABASE
   ===================================================== */
 
- const dbPlan = selectedPlan;
+ const dbPlanMap = {
+  "1month": "1_month",
+  "6month": "6_months",
+  "1year": "1_year"
+};
+
+const dbPlan = dbPlanMap[selectedPlan];
 
 
 if(!dbPlan){
