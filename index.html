@@ -13199,12 +13199,25 @@ async function changeAutoLearningHSK(level){
     return;
   }
 
-  if(hsk >= 4){
 
-    const allowed =
-      await checkPremiumAccess(hsk);
+  /* =================================================
+     🔒 AUTO LEARNING HSK 2–9
+     CHỈ PREMIUM THẬT SỰ MỚI ĐƯỢC HỌC
+     KHÔNG DÙNG FREE TRIAL
+     ================================================= */
 
-    if(!allowed){
+  if(hsk >= 2){
+
+    const paid =
+      await hasActiveMembership();
+
+    if(!paid){
+
+      alert(
+        "🔒 AUTO LEARNING HSK " + hsk + "\n\n" +
+        "HSK 2–9 là nội dung Premium.\n\n" +
+        "Vui lòng đăng ký gói Premium để tiếp tục học."
+      );
 
       const select =
         document.getElementById(
@@ -13212,18 +13225,28 @@ async function changeAutoLearningHSK(level){
         );
 
       if(select){
+
         select.value =
           String(autoLearningHSK);
+
       }
 
       return;
     }
   }
 
+
+  /* =================================================
+     📚 TẠO DANH SÁCH RIÊNG CHO AUTO
+     ================================================= */
+
   const list =
     words.filter(function(word){
+
       return Number(word.hsk) === hsk;
+
     });
+
 
   if(!list.length){
 
@@ -13235,11 +13258,21 @@ async function changeAutoLearningHSK(level){
     return;
   }
 
+
+  /* =================================================
+     ▶️ CHUYỂN HSK AUTO
+     ================================================= */
+
   stopAutoLearning();
 
-  autoLearningHSK = hsk;
-  autoLearningList = list;
-  autoLearningIndex = 0;
+  autoLearningHSK =
+    hsk;
+
+  autoLearningList =
+    list;
+
+  autoLearningIndex =
+    0;
 
   renderAutoLearningWord();
 }
