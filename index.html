@@ -18987,7 +18987,7 @@ function setupFlashcardMobile(){
 
 
   /* =========================================================
-   🔊 FLASHCARD AUDIO — PHÁT TIẾNG TRUNG ỔN ĐỊNH
+   🔊 AUDIO ENGINE — DÙNG CHUNG TOÀN WEBSITE
    ========================================================= */
 
 function speakFlashcardText(text){
@@ -18996,6 +18996,10 @@ function speakFlashcardText(text){
     return false;
   }
 
+
+  /* =====================================================
+     1. KIỂM TRA TRÌNH DUYỆT
+     ===================================================== */
 
   if(
     !("speechSynthesis" in window)
@@ -19022,6 +19026,10 @@ function speakFlashcardText(text){
     window.speechSynthesis;
 
 
+  /* =====================================================
+     2. DỪNG ÂM THANH CŨ
+     ===================================================== */
+
   try{
 
     synth.cancel();
@@ -19031,16 +19039,16 @@ function speakFlashcardText(text){
   }catch(error){
 
     console.warn(
-      "Flashcard speech reset:",
+      "Audio reset:",
       error
     );
 
   }
 
 
-  /* ---------------------------------------------------------
-     Cố gắng lấy giọng tiếng Trung đang dùng chung của web
-     --------------------------------------------------------- */
+  /* =====================================================
+     3. LẤY GIỌNG TIẾNG TRUNG CHUNG
+     ===================================================== */
 
   try{
 
@@ -19063,15 +19071,27 @@ function speakFlashcardText(text){
   }
 
 
+  /* =====================================================
+     4. TẠO AUDIO
+     ===================================================== */
+
   const utterance =
     new SpeechSynthesisUtterance(
       String(text)
     );
 
 
+  /* =====================================================
+     5. NGÔN NGỮ
+     ===================================================== */
+
   utterance.lang =
     "zh-CN";
 
+
+  /* =====================================================
+     6. TỐC ĐỘ
+     ===================================================== */
 
   utterance.rate =
     typeof selectedRate ===
@@ -19080,9 +19100,17 @@ function speakFlashcardText(text){
       : 0.85;
 
 
+  /* =====================================================
+     7. CAO ĐỘ
+     ===================================================== */
+
   utterance.pitch =
     1;
 
+
+  /* =====================================================
+     8. GIỌNG ĐÃ CHỌN
+     ===================================================== */
 
   try{
 
@@ -19107,6 +19135,10 @@ function speakFlashcardText(text){
   }
 
 
+  /* =====================================================
+     9. BẮT ĐẦU PHÁT
+     ===================================================== */
+
   utterance.onstart =
     function(){
 
@@ -19124,6 +19156,10 @@ function speakFlashcardText(text){
 
     };
 
+
+  /* =====================================================
+     10. PHÁT XONG
+     ===================================================== */
 
   utterance.onend =
     function(){
@@ -19143,11 +19179,15 @@ function speakFlashcardText(text){
     };
 
 
+  /* =====================================================
+     11. LỖI
+     ===================================================== */
+
   utterance.onerror =
     function(event){
 
       console.warn(
-        "Flashcard speech error:",
+        "Audio speech error:",
         event
       );
 
@@ -19167,10 +19207,9 @@ function speakFlashcardText(text){
     };
 
 
-  /* ---------------------------------------------------------
-     Một khoảng rất ngắn giúp một số trình duyệt mobile
-     nhận đúng thao tác bấm của người dùng.
-     --------------------------------------------------------- */
+  /* =====================================================
+     12. PHÁT ÂM
+     ===================================================== */
 
   setTimeout(
     function(){
@@ -19186,7 +19225,7 @@ function speakFlashcardText(text){
       }catch(error){
 
         console.error(
-          "Flashcard speech failed:",
+          "Audio speech failed:",
           error
         );
 
@@ -19200,7 +19239,6 @@ function speakFlashcardText(text){
   return true;
 
 }
-
 
 /* =========================================================
    🔊 AUDIO TỪ VỰNG
