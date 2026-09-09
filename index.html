@@ -1877,18 +1877,163 @@ HSK 1 — 150 từ
 
 <section class="cards" id="cards"></section>
 
-</section>
-
-
-
-
 <!-- =========================================================
      🔊 THÍCH TIẾNG TRUNG — AUTO LEARNING
-     ...
-     NGUYÊN KHỐI AUTO LEARNING CỦA ANH
-     ...
-========================================================= -->
+     ========================================================= -->
 
+<style>
+
+.auto-learning{
+  margin:20px 0;
+  padding:20px;
+  border-radius:18px;
+  background:#ffffff;
+  box-shadow:0 4px 15px rgba(0,0,0,.08);
+  text-align:center;
+}
+
+.auto-learning h2{
+  margin:0 0 15px;
+}
+
+.auto-learning-word{
+  font-size:42px;
+  font-weight:700;
+  margin:15px 0 5px;
+}
+
+.auto-learning-pinyin{
+  font-size:22px;
+  color:#666;
+  margin-bottom:5px;
+}
+
+.auto-learning-meaning{
+  font-size:20px;
+  margin-bottom:18px;
+}
+
+.auto-learning-buttons{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:8px;
+  margin-top:12px;
+}
+
+.auto-learning button{
+  border:0;
+  border-radius:10px;
+  padding:10px 14px;
+  cursor:pointer;
+  font-size:15px;
+}
+
+.auto-learning select{
+  padding:9px 12px;
+  border-radius:9px;
+  border:1px solid #ccc;
+}
+
+.auto-learning-status{
+  margin-top:12px;
+  font-size:14px;
+  color:#666;
+}
+
+</style>
+
+<div id="autoLearning" class="auto-learning">
+
+  <h2>🔊 AUTO LEARNING</h2>
+
+  <div id="autoLearningWord" class="auto-learning-word">
+    爱好
+  </div>
+
+  <div id="autoLearningPinyin" class="auto-learning-pinyin">
+    àihào
+  </div>
+
+  <div id="autoLearningMeaning" class="auto-learning-meaning">
+    Sở thích
+  </div>
+
+  <div class="auto-learning-buttons">
+
+    <button type="button"
+            onclick="autoPreviousWord()">
+      ⬅️ Trước
+    </button>
+
+    <button type="button"
+            onclick="toggleAutoLearning()">
+      ▶️ Tự động
+    </button>
+
+    <button type="button"
+            onclick="autoNextWord()">
+      Sau ➡️
+    </button>
+
+    <button type="button"
+            onclick="autoRepeatWord()">
+      🔁 Lặp
+    </button>
+
+    <button type="button"
+            onclick="autoSpeakChinese()">
+      🔊 Tiếng Trung
+    </button>
+
+    <button type="button"
+            onclick="autoSpeakVietnamese()">
+      🇻🇳 Nghĩa
+    </button>
+
+    <button type="button"
+            onclick="startVocabularyCheck()">
+      📝 Kiểm tra
+    </button>
+
+  </div>
+
+  <div class="auto-learning-buttons">
+
+    <label>
+      ⏱️ Khoảng nghỉ:
+      <select id="autoInterval"
+              onchange="changeAutoInterval(this.value)">
+
+        <option value="2000">
+          2 giây
+        </option>
+
+        <option value="3000" selected>
+          3 giây
+        </option>
+
+        <option value="5000">
+          5 giây
+        </option>
+
+        <option value="7000">
+          7 giây
+        </option>
+
+      </select>
+    </label>
+
+  </div>
+
+  <div id="autoLearningStatus"
+       class="auto-learning-status">
+    Sẵn sàng học
+  </div>
+
+</div>
+
+</section>
 
 
 <!-- ==================================================
@@ -12964,6 +13109,814 @@ window.supabase.auth.onAuthStateChange(
   }
 );
 
+/* =========================================================
+   🔊 THÍCH TIẾNG TRUNG — AUTO LEARNING ENGINE
+   ---------------------------------------------------------
+   Dùng chung:
+   - currentList
+   - hệ thống TTS hiện tại
+   - vị trí học
+   - HSK hiện tại
+   ========================================================= */
+
+let autoLearningIndex = 0;
+let autoLearningTimer = null;
+let autoLearningRunning = false;
+let autoLearningPaused = false;
+
+
+/* =========================================================
+   📚 LẤY DANH SÁCH TỪ ĐANG HỌC
+   ========================================================= */
+
+function getAutoLearningList(){
+
+  if(
+    typeof currentList !== "undefined" &&
+    Array.isArray(currentList) &&
+    currentList.length
+  ){
+
+    return currentList;
+
+  }
+
+  return [];
+}
+
+
+/* =========================================================
+   💾 LƯU VỊ TRÍ
+   ========================================================= */
+
+function saveAutoLearningPosition(){
+
+  const key =
+    "ttc_auto_learning_" +
+    (
+      typeof currentHSK !== "undefined"
+        ? currentHSK
+        : 1
+    );
+
+  localStorage.setItem(
+    key,
+    String(autoLearningIndex)
+  );
+
+}
+
+
+/* =========================================================
+   📂 KHÔI PHỤC VỊ TRÍ
+   ========================================================= */
+
+function loadAutoLearningPosition(){
+
+  const key =
+    "ttc_auto_learning_" +
+    (
+      typeof currentHSK !== "undefined"
+        ? currentHSK
+        : 1
+    );
+
+  const saved =
+    parseInt(
+      localStorage.getItem(key) || "0",
+      10
+    );
+
+  autoLearningIndex =
+    Number.isFinite(saved)
+      ? saved
+      : 0;
+
+}
+
+
+/* =========================================================
+   🖥️ TẠO KHU VỰC HIỂN THỊ TỪ
+   ========================================================= */
+
+function ensureAutoLearningDisplay(){
+
+  const box =
+    document.getElementById(
+      "autoLearning"
+    );
+
+  if(!box){
+    return null;
+  }
+
+
+  let display =
+    document.getElementById(
+      "autoLearningDisplay"
+    );
+
+  if(display){
+    return display;
+  }
+
+
+  display =
+    document.createElement("div");
+
+  display.id =
+    "autoLearningDisplay";
+
+
+  display.style.cssText = `
+    margin:18px 0;
+    padding:22px;
+    background:#ffffff;
+    border-radius:16px;
+    border:1px solid #dcecf8;
+    box-shadow:0 4px 15px rgba(0,0,0,.06);
+    text-align:center;
+  `;
+
+
+  display.innerHTML = `
+
+    <div
+      id="autoLearningHanzi"
+      style="
+        font-size:48px;
+        font-weight:900;
+        color:#183f66;
+        margin-bottom:8px;
+      "
+    ></div>
+
+    <div
+      id="autoLearningPinyin"
+      style="
+        font-size:20px;
+        color:#5282ad;
+        margin-bottom:8px;
+      "
+    ></div>
+
+    <div
+      id="autoLearningMeaning"
+      style="
+        font-size:18px;
+        color:#35505f;
+        margin-bottom:12px;
+      "
+    ></div>
+
+    <div
+      id="autoLearningStatus"
+      style="
+        font-size:14px;
+        color:#777;
+      "
+    ></div>
+
+  `;
+
+
+  box.insertBefore(
+    display,
+    box.children[1] || null
+  );
+
+
+  return display;
+
+}
+
+
+/* =========================================================
+   📝 HIỂN THỊ TỪ HIỆN TẠI
+   ========================================================= */
+
+function renderAutoLearningWord(){
+
+  const list =
+    getAutoLearningList();
+
+  if(!list.length){
+    return;
+  }
+
+
+  if(
+    autoLearningIndex < 0
+  ){
+    autoLearningIndex = 0;
+  }
+
+
+  if(
+    autoLearningIndex >= list.length
+  ){
+    autoLearningIndex =
+      list.length - 1;
+  }
+
+
+  const word =
+    list[autoLearningIndex];
+
+
+  ensureAutoLearningDisplay();
+
+
+  const hanzi =
+    document.getElementById(
+      "autoLearningHanzi"
+    );
+
+  const pinyin =
+    document.getElementById(
+      "autoLearningPinyin"
+    );
+
+  const meaning =
+    document.getElementById(
+      "autoLearningMeaning"
+    );
+
+  const status =
+    document.getElementById(
+      "autoLearningStatus"
+    );
+
+
+  if(hanzi){
+    hanzi.textContent =
+      word.h || "";
+  }
+
+
+  if(pinyin){
+    pinyin.textContent =
+      word.p
+        ? "Pinyin: " + word.p
+        : "";
+  }
+
+
+  if(meaning){
+    meaning.textContent =
+      word.m
+        ? "🇻🇳 " + word.m
+        : "";
+  }
+
+
+  if(status){
+
+    status.textContent =
+      "Từ " +
+      (autoLearningIndex + 1) +
+      " / " +
+      list.length;
+
+  }
+
+
+  saveAutoLearningPosition();
+
+}
+
+
+/* =========================================================
+   🔊 ĐỌC TIẾNG TRUNG
+   ========================================================= */
+
+function autoSpeakChinese(){
+
+  const list =
+    getAutoLearningList();
+
+  if(!list.length){
+    return;
+  }
+
+
+  const word =
+    list[autoLearningIndex];
+
+
+  if(!word || !word.h){
+    return;
+  }
+
+
+  say(word.h);
+
+}
+
+
+/* =========================================================
+   🇻🇳 ĐỌC NGHĨA TIẾNG VIỆT
+   ========================================================= */
+
+function autoSpeakVietnamese(){
+
+  const list =
+    getAutoLearningList();
+
+  if(!list.length){
+    return;
+  }
+
+
+  const word =
+    list[autoLearningIndex];
+
+
+  if(
+    !word ||
+    !word.m ||
+    !("speechSynthesis" in window)
+  ){
+    return;
+  }
+
+
+  const utterance =
+    new SpeechSynthesisUtterance(
+      String(word.m)
+    );
+
+
+  utterance.lang =
+    "vi-VN";
+
+  utterance.rate =
+    0.9;
+
+  utterance.pitch =
+    1;
+
+
+  speechSynthesis.speak(
+    utterance
+  );
+
+}
+
+
+/* =========================================================
+   🔊 ĐỌC TRUNG → 🇻🇳 ĐỌC NGHĨA
+   ========================================================= */
+
+function autoSpeakCurrentWord(){
+
+  const list =
+    getAutoLearningList();
+
+  if(!list.length){
+    return;
+  }
+
+
+  const word =
+    list[autoLearningIndex];
+
+
+  if(!word){
+    return;
+  }
+
+
+  if(!("speechSynthesis" in window)){
+    return;
+  }
+
+
+  speechSynthesis.cancel();
+
+
+  loadChineseVoice();
+
+
+  const chinese =
+    new SpeechSynthesisUtterance(
+      String(word.h || "")
+    );
+
+
+  chinese.lang =
+    "zh-CN";
+
+  chinese.rate =
+    typeof selectedRate !== "undefined"
+      ? selectedRate
+      : 0.65;
+
+  chinese.pitch =
+    1;
+
+
+  if(
+    typeof chineseVoice !== "undefined" &&
+    chineseVoice
+  ){
+
+    chinese.voice =
+      chineseVoice;
+
+  }
+
+
+  chinese.onend =
+    function(){
+
+      if(
+        !autoLearningRunning ||
+        autoLearningPaused
+      ){
+
+        return;
+
+      }
+
+
+      const wait =
+        parseInt(
+          document.getElementById(
+            "autoInterval"
+          )?.value || "3000",
+          10
+        );
+
+
+      setTimeout(
+        function(){
+
+          if(
+            !autoLearningRunning ||
+            autoLearningPaused
+          ){
+            return;
+          }
+
+
+          autoSpeakVietnamese();
+
+
+          setTimeout(
+            function(){
+
+              if(
+                !autoLearningRunning ||
+                autoLearningPaused
+              ){
+                return;
+              }
+
+
+              autoNextWord();
+
+              autoSpeakCurrentWord();
+
+            },
+            900
+          );
+
+        },
+        wait
+      );
+
+    };
+
+
+  speechSynthesis.speak(
+    chinese
+  );
+
+}
+
+
+/* =========================================================
+   ▶️ / ⏸️ TỰ ĐỘNG
+   ========================================================= */
+
+function toggleAutoLearning(){
+
+  const list =
+    getAutoLearningList();
+
+  if(!list.length){
+
+    alert(
+      "⚠️ Chưa có danh sách từ vựng."
+    );
+
+    return;
+
+  }
+
+
+  const button =
+    document.querySelector(
+      '#autoLearning button[onclick="toggleAutoLearning()"]'
+    );
+
+
+  /* ĐANG CHẠY → TẠM DỪNG */
+
+  if(autoLearningRunning){
+
+    autoLearningPaused = true;
+
+    speechSynthesis.pause();
+
+
+    if(button){
+
+      button.textContent =
+        "▶️ Tiếp tục";
+
+    }
+
+    return;
+
+  }
+
+
+  /* ĐANG TẠM DỪNG → TIẾP TỤC */
+
+  if(autoLearningPaused){
+
+    autoLearningPaused = false;
+    autoLearningRunning = true;
+
+    speechSynthesis.resume();
+
+
+    if(button){
+
+      button.textContent =
+        "⏸️ Dừng";
+
+    }
+
+    return;
+
+  }
+
+
+  /* BẮT ĐẦU */
+
+  autoLearningRunning = true;
+  autoLearningPaused = false;
+
+
+  renderAutoLearningWord();
+
+
+  if(button){
+
+    button.textContent =
+      "⏸️ Dừng";
+
+  }
+
+
+  autoSpeakCurrentWord();
+
+}
+
+
+/* =========================================================
+   ⏹️ DỪNG HOÀN TOÀN
+   ========================================================= */
+
+function stopAutoLearning(){
+
+  autoLearningRunning = false;
+  autoLearningPaused = false;
+
+
+  if(autoLearningTimer){
+
+    clearTimeout(
+      autoLearningTimer
+    );
+
+    autoLearningTimer =
+      null;
+
+  }
+
+
+  if(
+    "speechSynthesis" in window
+  ){
+
+    speechSynthesis.cancel();
+
+  }
+
+
+  const button =
+    document.querySelector(
+      '#autoLearning button[onclick="toggleAutoLearning()"]'
+    );
+
+
+  if(button){
+
+    button.textContent =
+      "▶️ Tự động";
+
+  }
+
+}
+
+
+/* =========================================================
+   ⬅️ TỪ TRƯỚC
+   ========================================================= */
+
+function autoPreviousWord(){
+
+  const list =
+    getAutoLearningList();
+
+  if(!list.length){
+    return;
+  }
+
+
+  stopAutoLearning();
+
+
+  autoLearningIndex--;
+
+
+  if(
+    autoLearningIndex < 0
+  ){
+
+    autoLearningIndex =
+      list.length - 1;
+
+  }
+
+
+  renderAutoLearningWord();
+
+}
+
+
+/* =========================================================
+   ➡️ TỪ SAU
+   ========================================================= */
+
+function autoNextWord(){
+
+  const list =
+    getAutoLearningList();
+
+  if(!list.length){
+    return;
+  }
+
+
+  autoLearningIndex++;
+
+
+  if(
+    autoLearningIndex >= list.length
+  ){
+
+    autoLearningIndex = 0;
+
+  }
+
+
+  renderAutoLearningWord();
+
+}
+
+
+/* =========================================================
+   🔁 LẶP TỪ HIỆN TẠI
+   ========================================================= */
+
+function autoRepeatWord(){
+
+  stopAutoLearning();
+
+  renderAutoLearningWord();
+
+  autoSpeakCurrentWord();
+
+}
+
+
+/* =========================================================
+   ⏱️ THAY ĐỔI KHOẢNG NGHỈ
+   ========================================================= */
+
+function changeAutoInterval(value){
+
+  const interval =
+    parseInt(
+      value || "3000",
+      10
+    );
+
+
+  localStorage.setItem(
+    "ttc_auto_interval",
+    String(interval)
+  );
+
+}
+
+
+/* =========================================================
+   🔄 ĐỒNG BỘ KHI ĐỔI HSK
+   ========================================================= */
+
+function resetAutoLearningForCurrentHSK(){
+
+  stopAutoLearning();
+
+  loadAutoLearningPosition();
+
+  renderAutoLearningWord();
+
+}
+
+
+/* =========================================================
+   🚀 KHỞI TẠO AUTO LEARNING
+   ========================================================= */
+
+function initAutoLearning(){
+
+  const box =
+    document.getElementById(
+      "autoLearning"
+    );
+
+  if(!box){
+    return;
+  }
+
+
+  const savedInterval =
+    localStorage.getItem(
+      "ttc_auto_interval"
+    );
+
+
+  const intervalSelect =
+    document.getElementById(
+      "autoInterval"
+    );
+
+
+  if(
+    intervalSelect &&
+    savedInterval
+  ){
+
+    intervalSelect.value =
+      savedInterval;
+
+  }
+
+
+  loadAutoLearningPosition();
+
+  renderAutoLearningWord();
+
+}
+
+
+/* =========================================================
+   🌱 KHỞI ĐỘNG
+   ========================================================= */
+
+if(
+  document.readyState ===
+  "loading"
+){
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    initAutoLearning
+  );
+
+}else{
+
+  initAutoLearning();
+
+}
+
 
 /* =========================================================
    10. KHỞI ĐỘNG
@@ -13340,40 +14293,7 @@ if(
 
 })();
 </script>
-  /* CHẠY KHI TRANG ĐÃ TẢI */
-  if(document.readyState === 'loading'){
-
-    document.addEventListener(
-      'DOMContentLoaded',
-      replaceQRWithBank
-    );
-
-  }else{
-
-    replaceQRWithBank();
-
-  }
-
-
-  /* THEO DÕI TRƯỜNG HỢP JAVASCRIPT CŨ TẠO QR SAU ĐÓ */
-  const observer =
-    new MutationObserver(function(){
-
-      replaceQRWithBank();
-
-    });
-
-  observer.observe(
-    document.body,
-    {
-      childList:true,
-      subtree:true
-    }
-  );
-
-})();
-</script>
-
+  
 <!-- 🏠 NÚT VỀ ĐẦU TRANG -->
 <button
   id="homeButton"
