@@ -647,13 +647,63 @@ main{
   border-bottom:1px solid #e5eaf2;
 }
 
+.flashcard-back-position{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  min-width:0;
+}
+
+.flashcard-back-counter{
+  color:#64748b;
+  font-size:12px;
+  font-weight:700;
+  white-space:nowrap;
+}
+
 .flashcard-back-hanzi{
   font-size:42px;
   line-height:1;
   font-weight:800;
   color:#172033;
+
+  min-width:0;
+  max-width:100%;
+
+  overflow-wrap:anywhere;
+  word-break:break-word;
+
+  transition:
+    font-size .2s ease;
 }
 
+/* Tự co theo số lượng Hán tự */
+
+.flashcard-back-hanzi[data-length="1"]{
+  font-size:42px;
+}
+
+.flashcard-back-hanzi[data-length="2"]{
+  font-size:38px;
+}
+
+.flashcard-back-hanzi[data-length="3"]{
+  font-size:34px;
+}
+
+.flashcard-back-hanzi[data-length="4"]{
+  font-size:31px;
+}
+
+.flashcard-back-hanzi[data-length="5"]{
+  font-size:28px;
+}
+
+.flashcard-back-hanzi[data-length="6"],
+.flashcard-back-hanzi[data-length="7"],
+.flashcard-back-hanzi[data-length="8"]{
+  font-size:25px;
+}
 .flashcard-back-pinyin{
   font-size:23px;
   font-weight:800;
@@ -3916,23 +3966,33 @@ Số từ
 
         <div class="flashcard-back-top">
 
-          <div
-            id="flashcardBackHanzi"
-            class="flashcard-back-hanzi"
-          >
-            爱
-          </div>
+  <div class="flashcard-back-position">
 
-          <div
-            id="flashcardBackPinyin"
-            class="flashcard-back-pinyin"
-          >
-            ài
-          </div>
+    <div
+      id="flashcardBackCounter"
+      class="flashcard-back-counter"
+    >
+      📍 1 / 300
+    </div>
 
-        </div>
+    <div
+      id="flashcardBackHanzi"
+      class="flashcard-back-hanzi"
+    >
+      爱
+    </div>
 
+  </div>
 
+  <div
+    id="flashcardBackPinyin"
+    class="flashcard-back-pinyin"
+  >
+    ài
+  </div>
+
+</div>
+     
         <!-- THÔNG TIN CƠ BẢN -->
 
         <div class="flashcard-info-grid">
@@ -3978,7 +4038,7 @@ Số từ
             </span>
 
             <div>
-              <small>Cấp độ</small>
+              <small>HSK</small>
 
               <strong id="flashcardBackHSK">
                 HSK 1
@@ -17284,11 +17344,28 @@ function closeFlashcardMobile(){
 
     if(backHanzi){
 
-      backHanzi.textContent =
-        word.h || "—";
+  const backHanziText =
+    word.h || "";
 
-    }
+  backHanzi.textContent =
+    backHanziText || "—";
 
+
+  const backHanziLength =
+    Array.from(
+      backHanziText
+    ).length;
+
+
+  backHanzi.dataset.length =
+    String(
+      Math.min(
+        backHanziLength,
+        8
+      )
+    );
+
+}
 
     /* =====================================================
        📖 TÊN HÁN TỰ
@@ -17533,14 +17610,29 @@ function closeFlashcardMobile(){
 
     if(counter){
 
-      counter.textContent =
-        "📍 " +
-        (index + 1) +
-        " / " +
-        total;
+  counter.textContent =
+    "📍 " +
+    (index + 1) +
+    " / " +
+    total;
 
-    }
+}
 
+
+const backCounter =
+  document.getElementById(
+    "flashcardBackCounter"
+  );
+
+if(backCounter){
+
+  backCounter.textContent =
+    "📍 " +
+    (index + 1) +
+    " / " +
+    total;
+
+}
 
     /* =====================================================
        📊 STATUS
