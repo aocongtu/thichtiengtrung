@@ -7832,6 +7832,10 @@ function searchWords(){
 
     render(currentList);
 
+if(typeof window.resetAutoLearningForCurrentHSK === "function"){
+  window.resetAutoLearningForCurrentHSK();
+}
+
     document.getElementById("title").textContent =
       `HSK ${currentHSK} — ${currentList.length} từ`;
 
@@ -7887,8 +7891,18 @@ function searchWords(){
      HIỂN THỊ KẾT QUẢ
   ================================================== */
 
+currentList = result;
+
+TTC.search.keyword = keyword;
+TTC.search.results = result;
+TTC.vocabulary.searchActive = true;
+
+
   render(result);
 
+if(typeof window.refreshAutoLearning === "function"){
+  window.refreshAutoLearning(true);
+}
 
   document.getElementById("title").textContent =
     `🔎 Tìm thấy ${result.length} từ`;
@@ -13111,34 +13125,23 @@ window.supabase.auth.onAuthStateChange(
 
 /* =========================================================
    🔊 THÍCH TIẾNG TRUNG — AUTO LEARNING ENGINE
-   ---------------------------------------------------------
-   Dùng chung:
-   - currentList
-   - hệ thống TTS hiện tại
-   - vị trí học
-   - HSK hiện tại
    ========================================================= */
 
 let autoLearningIndex = 0;
 let autoLearningTimer = null;
 let autoLearningRunning = false;
 let autoLearningPaused = false;
+let autoLearningSpeaking = false;
 
 
 /* =========================================================
-   📚 LẤY DANH SÁCH TỪ ĐANG HỌC
+   1. LẤY DANH SÁCH HIỆN TẠI
    ========================================================= */
 
 function getAutoLearningList(){
 
-  if(
-    typeof currentList !== "undefined" &&
-    Array.isArray(currentList) &&
-    currentList.length
-  ){
-
+  if(Array.isArray(currentList) && currentList.length){
     return currentList;
-
   }
 
   return [];
@@ -13146,153 +13149,79 @@ function getAutoLearningList(){
 
 
 /* =========================================================
-   💾 LƯU VỊ TRÍ
+   2. STORAGE
    ========================================================= */
+
+function getAutoLearningStorageKey(){
+
+  if(TTC.vocabulary.searchActive){
+
+    const keyword =
+      TTC.search.keyword || "search";
+
+    return "ttc_auto_search_" + keyword;
+
+  }
+
+  return "ttc_auto_hsk_" + currentHSK;
+}
+
 
 function saveAutoLearningPosition(){
 
-  const key =
-    "ttc_auto_learning_" +
-    (
-      typeof currentHSK !== "undefined"
-        ? currentHSK
-        : 1
+  try{
+
+    localStorage.setItem(
+      getAutoLearningStorageKey(),
+      String(autoLearningIndex)
     );
 
-  localStorage.setItem(
-    key,
-    String(autoLearningIndex)
-  );
+  }catch(e){
+
+    console.warn(
+      "Auto Learning storage error:",
+      e
+    );
+
+  }
 
 }
 
-
-/* =========================================================
-   📂 KHÔI PHỤC VỊ TRÍ
-   ========================================================= */
 
 function loadAutoLearningPosition(){
 
-  const key =
-    "ttc_auto_learning_" +
-    (
-      typeof currentHSK !== "undefined"
-        ? currentHSK
-        : 1
+  try{
+
+    const saved =
+      localStorage.getItem(
+        getAutoLearningStorageKey()
+      );
+
+    if(saved !== null){
+
+      const index =
+        parseInt(saved,10);
+
+      if(Number.isInteger(index)){
+        autoLearningIndex = index;
+      }
+
+    }
+
+  }catch(e){
+
+    console.warn(
+      "Auto Learning load error:",
+      e
     );
 
-  const saved =
-    parseInt(
-      localStorage.getItem(key) || "0",
-      10
-    );
-
-  autoLearningIndex =
-    Number.isFinite(saved)
-      ? saved
-      : 0;
+  }
 
 }
 
 
 /* =========================================================
-   🖥️ TẠO KHU VỰC HIỂN THỊ TỪ
-   ========================================================= */
-
-function ensureAutoLearningDisplay(){
-
-  const box =
-    document.getElementById(
-      "autoLearning"
-    );
-
-  if(!box){
-    return null;
-  }
-
-
-  let display =
-    document.getElementById(
-      "autoLearningDisplay"
-    );
-
-  if(display){
-    return display;
-  }
-
-
-  display =
-    document.createElement("div");
-
-  display.id =
-    "autoLearningDisplay";
-
-
-  display.style.cssText = `
-    margin:18px 0;
-    padding:22px;
-    background:#ffffff;
-    border-radius:16px;
-    border:1px solid #dcecf8;
-    box-shadow:0 4px 15px rgba(0,0,0,.06);
-    text-align:center;
-  `;
-
-
-  display.innerHTML = `
-
-    <div
-      id="autoLearningHanzi"
-      style="
-        font-size:48px;
-        font-weight:900;
-        color:#183f66;
-        margin-bottom:8px;
-      "
-    ></div>
-
-    <div
-      id="autoLearningPinyin"
-      style="
-        font-size:20px;
-        color:#5282ad;
-        margin-bottom:8px;
-      "
-    ></div>
-
-    <div
-      id="autoLearningMeaning"
-      style="
-        font-size:18px;
-        color:#35505f;
-        margin-bottom:12px;
-      "
-    ></div>
-
-    <div
-      id="autoLearningStatus"
-      style="
-        font-size:14px;
-        color:#777;
-      "
-    ></div>
-
-  `;
-
-
-  box.insertBefore(
-    display,
-    box.children[1] || null
-  );
-
-
-  return display;
-
-}
-
-
-/* =========================================================
-   📝 HIỂN THỊ TỪ HIỆN TẠI
+   3. HIỂN THỊ TỪ
    ========================================================= */
 
 function renderAutoLearningWord(){
@@ -13300,86 +13229,112 @@ function renderAutoLearningWord(){
   const list =
     getAutoLearningList();
 
+  const wordEl =
+    document.getElementById(
+      "autoLearningWord"
+    );
+
+  const pinyinEl =
+    document.getElementById(
+      "autoLearningPinyin"
+    );
+
+  const meaningEl =
+    document.getElementById(
+      "autoLearningMeaning"
+    );
+
+  const statusEl =
+    document.getElementById(
+      "autoLearningStatus"
+    );
+
+  if(!wordEl){
+    return;
+  }
+
   if(!list.length){
+
+    wordEl.textContent = "—";
+
+    if(pinyinEl){
+      pinyinEl.textContent = "";
+    }
+
+    if(meaningEl){
+      meaningEl.textContent =
+        "Chưa có từ để học";
+    }
+
+    if(statusEl){
+      statusEl.textContent =
+        "Chưa có dữ liệu";
+    }
+
     return;
   }
 
 
-  if(
-    autoLearningIndex < 0
-  ){
+  if(autoLearningIndex < 0){
     autoLearningIndex = 0;
   }
 
+  if(autoLearningIndex >= list.length){
 
-  if(
-    autoLearningIndex >= list.length
-  ){
     autoLearningIndex =
       list.length - 1;
+
   }
 
 
   const word =
     list[autoLearningIndex];
 
-
-  ensureAutoLearningDisplay();
-
-
-  const hanzi =
-    document.getElementById(
-      "autoLearningHanzi"
-    );
-
-  const pinyin =
-    document.getElementById(
-      "autoLearningPinyin"
-    );
-
-  const meaning =
-    document.getElementById(
-      "autoLearningMeaning"
-    );
-
-  const status =
-    document.getElementById(
-      "autoLearningStatus"
-    );
-
-
-  if(hanzi){
-    hanzi.textContent =
-      word.h || "";
+  if(!word){
+    return;
   }
 
 
-  if(pinyin){
-    pinyin.textContent =
-      word.p
-        ? "Pinyin: " + word.p
-        : "";
-  }
+  wordEl.textContent =
+    word.h || word.word || "—";
 
 
-  if(meaning){
-    meaning.textContent =
-      word.m
-        ? "🇻🇳 " + word.m
-        : "";
-  }
+  if(pinyinEl){
 
-
-  if(status){
-
-    status.textContent =
-      "Từ " +
-      (autoLearningIndex + 1) +
-      " / " +
-      list.length;
+    pinyinEl.textContent =
+      word.p ||
+      word.pinyin ||
+      "";
 
   }
 
+
+  if(meaningEl){
+
+    meaningEl.textContent =
+      word.v ||
+      word.meaning ||
+      "";
+
+  }
+
+
+  if(statusEl){
+
+    statusEl.textContent =
+      `Từ ${autoLearningIndex + 1} / ${list.length}`;
+
+  }
+
+
+  TTC.vocabulary.currentIndex =
+    autoLearningIndex;
+
+  TTC.vocabulary.currentWord =
+    word;
+
+  TTC.audio.playing =
+    autoLearningSpeaking;
 
   saveAutoLearningPosition();
 
@@ -13387,7 +13342,26 @@ function renderAutoLearningWord(){
 
 
 /* =========================================================
-   🔊 ĐỌC TIẾNG TRUNG
+   4. DỪNG TIMER
+   ========================================================= */
+
+function clearAutoLearningTimer(){
+
+  if(autoLearningTimer !== null){
+
+    clearTimeout(
+      autoLearningTimer
+    );
+
+    autoLearningTimer = null;
+
+  }
+
+}
+
+
+/* =========================================================
+   5. NÓI TIẾNG TRUNG
    ========================================================= */
 
 function autoSpeakChinese(){
@@ -13395,27 +13369,41 @@ function autoSpeakChinese(){
   const list =
     getAutoLearningList();
 
-  if(!list.length){
-    return;
-  }
-
-
   const word =
     list[autoLearningIndex];
 
+  if(!word){
+    return;
+  }
 
-  if(!word || !word.h){
+  const text =
+    word.h ||
+    word.word ||
+    "";
+
+  if(!text){
     return;
   }
 
 
-  say(word.h);
+  try{
+
+    say(text);
+
+  }catch(e){
+
+    console.warn(
+      "Chinese TTS error:",
+      e
+    );
+
+  }
 
 }
 
 
 /* =========================================================
-   🇻🇳 ĐỌC NGHĨA TIẾNG VIỆT
+   6. NÓI NGHĨA TIẾNG VIỆT
    ========================================================= */
 
 function autoSpeakVietnamese(){
@@ -13423,49 +13411,60 @@ function autoSpeakVietnamese(){
   const list =
     getAutoLearningList();
 
-  if(!list.length){
-    return;
-  }
-
-
   const word =
     list[autoLearningIndex];
 
+  if(!word){
+    return;
+  }
 
-  if(
-    !word ||
-    !word.m ||
-    !("speechSynthesis" in window)
-  ){
+  const text =
+    word.v ||
+    word.meaning ||
+    "";
+
+  if(!text){
     return;
   }
 
 
-  const utterance =
-    new SpeechSynthesisUtterance(
-      String(word.m)
+  if(!("speechSynthesis" in window)){
+    return;
+  }
+
+
+  try{
+
+    speechSynthesis.cancel();
+
+
+    const utter =
+      new SpeechSynthesisUtterance(
+        text
+      );
+
+    utter.lang = "vi-VN";
+
+    utter.rate = 0.95;
+
+    speechSynthesis.speak(
+      utter
     );
 
+  }catch(e){
 
-  utterance.lang =
-    "vi-VN";
+    console.warn(
+      "Vietnamese TTS error:",
+      e
+    );
 
-  utterance.rate =
-    0.9;
-
-  utterance.pitch =
-    1;
-
-
-  speechSynthesis.speak(
-    utterance
-  );
+  }
 
 }
 
 
 /* =========================================================
-   🔊 ĐỌC TRUNG → 🇻🇳 ĐỌC NGHĨA
+   7. AUTO SPEAK HIỆN TẠI
    ========================================================= */
 
 function autoSpeakCurrentWord(){
@@ -13477,127 +13476,161 @@ function autoSpeakCurrentWord(){
     return;
   }
 
-
   const word =
     list[autoLearningIndex];
-
 
   if(!word){
     return;
   }
 
 
-  if(!("speechSynthesis" in window)){
-    return;
-  }
+  autoLearningSpeaking =
+    true;
 
-
-  speechSynthesis.cancel();
-
-
-  loadChineseVoice();
+  TTC.audio.playing =
+    true;
 
 
   const chinese =
-    new SpeechSynthesisUtterance(
-      String(word.h || "")
-    );
+    word.h ||
+    word.word ||
+    "";
+
+  const vietnamese =
+    word.v ||
+    word.meaning ||
+    "";
 
 
-  chinese.lang =
-    "zh-CN";
+  if("speechSynthesis" in window){
 
-  chinese.rate =
-    typeof selectedRate !== "undefined"
-      ? selectedRate
-      : 0.65;
-
-  chinese.pitch =
-    1;
-
-
-  if(
-    typeof chineseVoice !== "undefined" &&
-    chineseVoice
-  ){
-
-    chinese.voice =
-      chineseVoice;
+    speechSynthesis.cancel();
 
   }
 
 
-  chinese.onend =
-    function(){
+  try{
 
-      if(
-        !autoLearningRunning ||
-        autoLearningPaused
-      ){
+    say(chinese);
 
+  }catch(e){
+
+    console.warn(
+      "Chinese speech error:",
+      e
+    );
+
+  }
+
+
+  /*
+     Chờ một khoảng ngắn rồi đọc nghĩa
+  */
+
+  autoLearningTimer =
+    setTimeout(() => {
+
+      if(!autoLearningRunning){
         return;
+      }
 
+      if(autoLearningPaused){
+        return;
       }
 
 
-      const wait =
-        parseInt(
-          document.getElementById(
-            "autoInterval"
-          )?.value || "3000",
-          10
-        );
+      if("speechSynthesis" in window){
 
+        try{
 
-      setTimeout(
-        function(){
+          const utter =
+            new SpeechSynthesisUtterance(
+              vietnamese
+            );
 
-          if(
-            !autoLearningRunning ||
-            autoLearningPaused
-          ){
-            return;
-          }
+          utter.lang =
+            "vi-VN";
 
+          utter.rate =
+            0.95;
 
-          autoSpeakVietnamese();
+          utter.onend =
+            scheduleAutoNext;
 
-
-          setTimeout(
-            function(){
-
-              if(
-                !autoLearningRunning ||
-                autoLearningPaused
-              ){
-                return;
-              }
-
-
-              autoNextWord();
-
-              autoSpeakCurrentWord();
-
-            },
-            900
+          speechSynthesis.speak(
+            utter
           );
 
-        },
-        wait
-      );
+        }catch(e){
 
-    };
+          console.warn(
+            "Vietnamese speech error:",
+            e
+          );
 
+          scheduleAutoNext();
 
-  speechSynthesis.speak(
-    chinese
-  );
+        }
+
+      }else{
+
+        scheduleAutoNext();
+
+      }
+
+    },700);
 
 }
 
 
 /* =========================================================
-   ▶️ / ⏸️ TỰ ĐỘNG
+   8. TỰ ĐỘNG SANG TỪ TIẾP
+   ========================================================= */
+
+function scheduleAutoNext(){
+
+  if(!autoLearningRunning){
+    return;
+  }
+
+  if(autoLearningPaused){
+    return;
+  }
+
+
+  clearAutoLearningTimer();
+
+
+  const intervalEl =
+    document.getElementById(
+      "autoInterval"
+    );
+
+
+  const seconds =
+    intervalEl
+      ? Number(intervalEl.value)
+      : 3;
+
+
+  autoLearningTimer =
+    setTimeout(() => {
+
+      autoNextWord();
+
+      if(autoLearningRunning){
+
+        autoSpeakCurrentWord();
+
+      }
+
+    }, seconds * 1000);
+
+}
+
+
+/* =========================================================
+   9. BẬT / TẮT AUTO
    ========================================================= */
 
 function toggleAutoLearning(){
@@ -13607,34 +13640,63 @@ function toggleAutoLearning(){
 
   if(!list.length){
 
-    alert(
-      "⚠️ Chưa có danh sách từ vựng."
-    );
+    renderAutoLearningWord();
 
     return;
 
   }
 
 
-  const button =
-    document.querySelector(
-      '#autoLearning button[onclick="toggleAutoLearning()"]'
-    );
-
-
-  /* ĐANG CHẠY → TẠM DỪNG */
+  /*
+     Đang chạy → tạm dừng
+  */
 
   if(autoLearningRunning){
 
-    autoLearningPaused = true;
+    autoLearningPaused =
+      !autoLearningPaused;
 
-    speechSynthesis.pause();
+
+    if(autoLearningPaused){
+
+      if("speechSynthesis" in window){
+        speechSynthesis.pause();
+      }
+
+      clearAutoLearningTimer();
+
+      const statusEl =
+        document.getElementById(
+          "autoLearningStatus"
+        );
+
+      if(statusEl){
+
+        statusEl.textContent =
+          `⏸️ Tạm dừng • Từ ${autoLearningIndex + 1}/${list.length}`;
+
+      }
 
 
-    if(button){
+    }else{
 
-      button.textContent =
-        "▶️ Tiếp tục";
+      if("speechSynthesis" in window){
+        speechSynthesis.resume();
+      }
+
+      const statusEl =
+        document.getElementById(
+          "autoLearningStatus"
+        );
+
+      if(statusEl){
+
+        statusEl.textContent =
+          `▶️ Đang học • Từ ${autoLearningIndex + 1}/${list.length}`;
+
+      }
+
+      autoSpeakCurrentWord();
 
     }
 
@@ -13643,44 +13705,17 @@ function toggleAutoLearning(){
   }
 
 
-  /* ĐANG TẠM DỪNG → TIẾP TỤC */
+  /*
+     Bắt đầu
+  */
 
-  if(autoLearningPaused){
+  autoLearningRunning =
+    true;
 
-    autoLearningPaused = false;
-    autoLearningRunning = true;
-
-    speechSynthesis.resume();
-
-
-    if(button){
-
-      button.textContent =
-        "⏸️ Dừng";
-
-    }
-
-    return;
-
-  }
-
-
-  /* BẮT ĐẦU */
-
-  autoLearningRunning = true;
-  autoLearningPaused = false;
-
+  autoLearningPaused =
+    false;
 
   renderAutoLearningWord();
-
-
-  if(button){
-
-    button.textContent =
-      "⏸️ Dừng";
-
-  }
-
 
   autoSpeakCurrentWord();
 
@@ -13688,54 +13723,44 @@ function toggleAutoLearning(){
 
 
 /* =========================================================
-   ⏹️ DỪNG HOÀN TOÀN
+   10. DỪNG AUTO
    ========================================================= */
 
 function stopAutoLearning(){
 
-  autoLearningRunning = false;
-  autoLearningPaused = false;
+  autoLearningRunning =
+    false;
+
+  autoLearningPaused =
+    false;
+
+  autoLearningSpeaking =
+    false;
+
+  clearAutoLearningTimer();
 
 
-  if(autoLearningTimer){
-
-    clearTimeout(
-      autoLearningTimer
-    );
-
-    autoLearningTimer =
-      null;
-
-  }
-
-
-  if(
-    "speechSynthesis" in window
-  ){
+  if("speechSynthesis" in window){
 
     speechSynthesis.cancel();
 
   }
 
 
-  const button =
-    document.querySelector(
-      '#autoLearning button[onclick="toggleAutoLearning()"]'
-    );
+  TTC.audio.autoMode =
+    false;
+
+  TTC.audio.playing =
+    false;
 
 
-  if(button){
-
-    button.textContent =
-      "▶️ Tự động";
-
-  }
+  renderAutoLearningWord();
 
 }
 
 
 /* =========================================================
-   ⬅️ TỪ TRƯỚC
+   11. TỪ TRƯỚC
    ========================================================= */
 
 function autoPreviousWord(){
@@ -13753,10 +13778,7 @@ function autoPreviousWord(){
 
   autoLearningIndex--;
 
-
-  if(
-    autoLearningIndex < 0
-  ){
+  if(autoLearningIndex < 0){
 
     autoLearningIndex =
       list.length - 1;
@@ -13770,7 +13792,7 @@ function autoPreviousWord(){
 
 
 /* =========================================================
-   ➡️ TỪ SAU
+   12. TỪ SAU
    ========================================================= */
 
 function autoNextWord(){
@@ -13785,10 +13807,7 @@ function autoNextWord(){
 
   autoLearningIndex++;
 
-
-  if(
-    autoLearningIndex >= list.length
-  ){
+  if(autoLearningIndex >= list.length){
 
     autoLearningIndex = 0;
 
@@ -13801,14 +13820,25 @@ function autoNextWord(){
 
 
 /* =========================================================
-   🔁 LẶP TỪ HIỆN TẠI
+   13. LẶP LẠI
    ========================================================= */
 
 function autoRepeatWord(){
 
+  const list =
+    getAutoLearningList();
+
+  if(!list.length){
+    return;
+  }
+
+
   stopAutoLearning();
 
   renderAutoLearningWord();
+
+  autoLearningRunning =
+    true;
 
   autoSpeakCurrentWord();
 
@@ -13816,34 +13846,55 @@ function autoRepeatWord(){
 
 
 /* =========================================================
-   ⏱️ THAY ĐỔI KHOẢNG NGHỈ
+   14. ĐỔI THỜI GIAN
    ========================================================= */
 
 function changeAutoInterval(value){
 
-  const interval =
-    parseInt(
-      value || "3000",
-      10
-    );
+  const seconds =
+    Number(value);
 
 
-  localStorage.setItem(
-    "ttc_auto_interval",
-    String(interval)
-  );
+  if(!Number.isFinite(seconds)){
+    return;
+  }
+
+
+  TTC.audio.interval =
+    seconds * 1000;
+
+
+  if(autoLearningRunning){
+
+    clearAutoLearningTimer();
+
+    autoSpeakCurrentWord();
+
+  }
 
 }
 
 
 /* =========================================================
-   🔄 ĐỒNG BỘ KHI ĐỔI HSK
+   15. RESET KHI ĐỔI HSK / DANH SÁCH
    ========================================================= */
 
 function resetAutoLearningForCurrentHSK(){
 
   stopAutoLearning();
 
+
+  autoLearningIndex =
+    0;
+
+
+  TTC.vocabulary.currentIndex =
+    0;
+
+  TTC.vocabulary.currentWord =
+    null;
+
+
   loadAutoLearningPosition();
 
   renderAutoLearningWord();
@@ -13852,43 +13903,112 @@ function resetAutoLearningForCurrentHSK(){
 
 
 /* =========================================================
-   🚀 KHỞI TẠO AUTO LEARNING
+   16. REFRESH KHI SEARCH
+   ========================================================= */
+
+function refreshAutoLearning(resetIndex = false){
+
+  stopAutoLearning();
+
+
+  if(resetIndex){
+
+    autoLearningIndex =
+      0;
+
+  }else{
+
+    loadAutoLearningPosition();
+
+  }
+
+
+  renderAutoLearningWord();
+
+}
+
+
+/* =========================================================
+   17. 📝 KIỂM TRA TỪ VỰNG
+   ========================================================= */
+
+function startVocabularyCheck(){
+
+  const buttons =
+    Array.from(
+      document.querySelectorAll(
+        "button"
+      )
+    );
+
+
+  const testButton =
+    buttons.find(
+      btn =>
+        btn.textContent
+          .includes("Test từ vựng")
+    );
+
+
+  if(typeof startTest === "function"){
+
+    if(testButton){
+
+      startTest(testButton);
+
+    }else{
+
+      console.warn(
+        "Không tìm thấy nút Test từ vựng"
+      );
+
+    }
+
+  }
+
+}
+
+
+/* =========================================================
+   18. KẾT NỐI VỚI HTML onclick
+   ========================================================= */
+
+window.autoPreviousWord =
+  autoPreviousWord;
+
+window.toggleAutoLearning =
+  toggleAutoLearning;
+
+window.autoNextWord =
+  autoNextWord;
+
+window.autoRepeatWord =
+  autoRepeatWord;
+
+window.autoSpeakChinese =
+  autoSpeakChinese;
+
+window.autoSpeakVietnamese =
+  autoSpeakVietnamese;
+
+window.changeAutoInterval =
+  changeAutoInterval;
+
+window.startVocabularyCheck =
+  startVocabularyCheck;
+
+window.resetAutoLearningForCurrentHSK =
+  resetAutoLearningForCurrentHSK;
+
+window.refreshAutoLearning =
+  refreshAutoLearning;
+
+
+/* =========================================================
+   19. KHỞI ĐỘNG
    ========================================================= */
 
 function initAutoLearning(){
-
-  const box =
-    document.getElementById(
-      "autoLearning"
-    );
-
-  if(!box){
-    return;
-  }
-
-
-  const savedInterval =
-    localStorage.getItem(
-      "ttc_auto_interval"
-    );
-
-
-  const intervalSelect =
-    document.getElementById(
-      "autoInterval"
-    );
-
-
-  if(
-    intervalSelect &&
-    savedInterval
-  ){
-
-    intervalSelect.value =
-      savedInterval;
-
-  }
-
 
   loadAutoLearningPosition();
 
@@ -13896,6 +14016,8 @@ function initAutoLearning(){
 
 }
 
+
+initAutoLearning();
 
 /* =========================================================
    🌱 KHỞI ĐỘNG
