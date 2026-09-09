@@ -1875,8 +1875,7 @@ main{
       var(--flashcard-drag-x),
       var(--flashcard-drag-y),
       0
-    )
-    rotateZ(
+    )    rotateZ(
       var(--flashcard-drag-rotate)
     )
     rotateY(
@@ -17868,7 +17867,6 @@ function resetFlashcardLearning(){
    👉 LÊN + PHẢI = TỪ TIẾP THEO
    👈 LÊN + TRÁI  = TỪ TRƯỚC
    ========================================================= */
-
 function initFlashcardMobileGestures(){
 
   const scene =
@@ -17885,6 +17883,10 @@ function initFlashcardMobileGestures(){
     return;
   }
 
+
+  /* ---------------------------------------------------------
+     🚫 KHÔNG ĐĂNG KÝ LISTENER NHIỀU LẦN
+     --------------------------------------------------------- */
 
   if(
     scene.dataset.mobileGesturesReady ===
@@ -17906,17 +17908,15 @@ function initFlashcardMobileGestures(){
   let startTime = 0;
 
   let lastMoveX = 0;
-  let lastMoveY = 0;
   let lastMoveTime = 0;
 
   let dragging = false;
-  let diagonalIntent = false;
+  let swipeIntent = false;
   let locked = false;
 
   let startTarget = null;
 
   let swipeDirection = 0;
-
 
   let lastTapTime = 0;
   let lastTapX = 0;
@@ -17924,7 +17924,7 @@ function initFlashcardMobileGestures(){
 
 
   /* =========================================================
-     🃏 LẤY TỪ TRƯỚC / SAU
+     🃏 LẤY TỪ KẾ TIẾP / TỪ TRƯỚC
      ========================================================= */
 
   function getPreviewWord(direction){
@@ -17954,7 +17954,8 @@ function initFlashcardMobileGestures(){
       index--;
 
       if(index < 0){
-        index = list.length - 1;
+        index =
+          list.length - 1;
       }
 
     }
@@ -18031,10 +18032,8 @@ function initFlashcardMobileGestures(){
     hanzi.textContent =
       hanziText || "—";
 
-
     pinyin.textContent =
       word.pinyin || "";
-
 
     meaning.textContent =
       word.meaning || "";
@@ -18068,14 +18067,14 @@ function initFlashcardMobileGestures(){
       scene.clientWidth || 320;
 
 
-    const startX =
+    const startOffset =
       direction > 0
         ? width
         : -width;
 
 
     preview.style.transform =
-      `translate3d(${startX}px,80px,0)`;
+      `translate3d(${startOffset}px,0,0)`;
 
 
     return preview;
@@ -18103,6 +18102,9 @@ function initFlashcardMobileGestures(){
 
   /* =========================================================
      🎯 CARD ĐI THEO NGÓN TAY
+     
+     ↗️ ↘️ = NEXT
+     ↖️ ↙️ = PREVIOUS
      ========================================================= */
 
   function moveCard(
@@ -18114,35 +18116,38 @@ function initFlashcardMobileGestures(){
       scene.clientWidth || 320;
 
 
-    const maxX =
+    const maxDrag =
       width * 1.15;
-
-
-    const maxY =
-      scene.clientHeight * .75;
 
 
     currentX =
       Math.max(
-        -maxX,
+        -maxDrag,
         Math.min(
-          maxX,
+          maxDrag,
           deltaX
         )
       );
 
 
     /*
-      Chuyển động Y được giảm nhẹ để card
-      đi chếch lên tự nhiên, không bay thẳng lên.
+       Cho card đi theo ngón tay theo chiều dọc.
+
+       Không giới hạn lên hay xuống.
+       Chỉ giảm nhẹ Y để card không
+       bay quá mạnh.
     */
+
+    const maxVertical =
+      scene.clientHeight || 600;
+
 
     currentY =
       Math.max(
-        -maxY,
+        -maxVertical * 0.45,
         Math.min(
-          40,
-          deltaY * .72
+          maxVertical * 0.45,
+          deltaY * 0.75
         )
       );
 
@@ -18191,11 +18196,13 @@ function initFlashcardMobileGestures(){
         currentX;
 
 
+      /*
+         Preview cũng đi nhẹ theo Y
+         để tạo cảm giác quân bài thật.
+      */
+
       const previewY =
-        Math.min(
-          80,
-          currentY + 80
-        );
+        currentY * 0.35;
 
 
       preview.style.transform =
@@ -18207,7 +18214,7 @@ function initFlashcardMobileGestures(){
 
 
   /* =========================================================
-     🎬 RESET CARD
+     🎬 RESET CARD VỀ GIỮA
      ========================================================= */
 
   function snapBack(){
@@ -18253,7 +18260,7 @@ function initFlashcardMobileGestures(){
       preview.style.transform =
         `translate3d(${
           swipeDirection * width
-        }px,80px,0)`;
+        }px,0,0)`;
 
     }
 
@@ -18262,12 +18269,13 @@ function initFlashcardMobileGestures(){
 
       removePreview();
 
+
       card.style.transition =
         "transform .62s cubic-bezier(.22,.72,.2,1)";
 
+
       currentX = 0;
       currentY = 0;
-
       swipeDirection = 0;
 
     },500);
@@ -18293,10 +18301,6 @@ function initFlashcardMobileGestures(){
       scene.clientWidth || 320;
 
 
-    const height =
-      scene.clientHeight || 600;
-
-
     const targetX =
       direction > 0
         ? width + 45
@@ -18304,15 +18308,19 @@ function initFlashcardMobileGestures(){
 
 
     /*
-      Card bay chếch lên.
+       Khi hoàn tất:
+       card bay theo X và hơi bay theo hướng Y
+       để giữ cảm giác tự nhiên.
     */
 
     const targetY =
-      -height * .38;
+      currentY >= 0
+        ? 70
+        : -70;
 
 
     card.style.transition =
-      "transform .32s cubic-bezier(.55,.05,.8,.25)";
+      "transform .28s cubic-bezier(.55,.05,.8,.25)";
 
 
     card.style.setProperty(
@@ -18346,7 +18354,7 @@ function initFlashcardMobileGestures(){
     if(preview){
 
       preview.style.transition =
-        "transform .32s cubic-bezier(.22,.72,.2,1)";
+        "transform .28s cubic-bezier(.22,.72,.2,1)";
 
 
       preview.style.transform =
@@ -18358,8 +18366,8 @@ function initFlashcardMobileGestures(){
     setTimeout(function(){
 
       /*
-        👉 PHẢI = TỪ TIẾP THEO
-        👈 TRÁI = TỪ TRƯỚC
+         👉 PHẢI = TỪ TIẾP THEO
+         👈 TRÁI = TỪ TRƯỚC
       */
 
       if(direction > 0){
@@ -18412,10 +18420,10 @@ function initFlashcardMobileGestures(){
       swipeDirection = 0;
 
       dragging = false;
-      diagonalIntent = false;
+      swipeIntent = false;
       locked = false;
 
-    },340);
+    },300);
 
   }
 
@@ -18439,6 +18447,7 @@ function initFlashcardMobileGestures(){
       const touch =
         event.changedTouches[0];
 
+
       if(!touch){
         return;
       }
@@ -18449,7 +18458,7 @@ function initFlashcardMobileGestures(){
 
 
       /*
-        Không xử lý khi bấm nút.
+         Không xử lý gesture khi chạm nút
       */
 
       if(
@@ -18487,18 +18496,12 @@ function initFlashcardMobileGestures(){
         startX;
 
 
-      lastMoveY =
-        startY;
-
-
       lastMoveTime =
         startTime;
 
 
       dragging = true;
-
-      diagonalIntent = false;
-
+      swipeIntent = false;
       swipeDirection = 0;
 
 
@@ -18514,6 +18517,8 @@ function initFlashcardMobileGestures(){
 
   /* =========================================================
      👉 TOUCH MOVE
+     
+     KHÔNG HỦY CHỈ VÌ ĐI LÊN / ĐI XUỐNG
      ========================================================= */
 
   scene.addEventListener(
@@ -18532,6 +18537,7 @@ function initFlashcardMobileGestures(){
       const touch =
         event.changedTouches[0];
 
+
       if(!touch){
         return;
       }
@@ -18547,55 +18553,37 @@ function initFlashcardMobileGestures(){
         startY;
 
 
-      const upward =
-        deltaY < 0;
+      const distance =
+        Math.hypot(
+          deltaX,
+          deltaY
+        );
 
 
-      const horizontal =
-        Math.abs(deltaX);
+      /*
+         Chỉ cần bắt đầu di chuyển
+         một chút là cho card theo tay.
+      */
+
+      if(
+        !swipeIntent &&
+        distance < 7
+      ){
+        return;
+      }
 
 
-      const vertical =
-        Math.abs(deltaY);
+      /*
+         Chỉ cần có X đủ rõ.
+         KHÔNG quan tâm Y là lên hay xuống.
+      */
 
+      if(
+        !swipeIntent &&
+        Math.abs(deltaX) >= 6
+      ){
 
-      /* -----------------------------------------------------
-         Xác định gesture
-         ----------------------------------------------------- */
-
-      if(!diagonalIntent){
-
-        if(
-          horizontal < 10 &&
-          vertical < 10
-        ){
-          return;
-        }
-
-
-        /*
-          Chỉ nhận khi ngón tay đang đi lên
-          và có thành phần trái/phải.
-        */
-
-        if(
-          !upward ||
-          horizontal < 18
-        ){
-
-          dragging = false;
-
-          return;
-
-        }
-
-
-        /*
-          Cho phép kéo chéo.
-          Không còn yêu cầu X phải lớn hơn Y.
-        */
-
-        diagonalIntent = true;
+        swipeIntent = true;
 
 
         swipeDirection =
@@ -18611,7 +18599,12 @@ function initFlashcardMobileGestures(){
       }
 
 
-      if(diagonalIntent){
+      /*
+         Khi đã xác định gesture,
+         card luôn đi theo ngón tay.
+      */
+
+      if(swipeIntent){
 
         event.preventDefault();
 
@@ -18626,10 +18619,6 @@ function initFlashcardMobileGestures(){
 
       lastMoveX =
         touch.clientX;
-
-
-      lastMoveY =
-        touch.clientY;
 
 
       lastMoveTime =
@@ -18661,10 +18650,15 @@ function initFlashcardMobileGestures(){
       const touch =
         event.changedTouches[0];
 
+
       if(!touch){
         return;
       }
 
+
+      /*
+         Nếu bắt đầu bằng nút → bỏ qua
+      */
 
       if(
         startTarget &&
@@ -18703,37 +18697,33 @@ function initFlashcardMobileGestures(){
         Math.abs(deltaX);
 
 
-      const upwardDistance =
-        Math.max(
-          0,
-          -deltaY
-        );
-
-
       const elapsed =
         Date.now() -
         startTime;
 
 
       /* =====================================================
-         🃏 DRAG CHẾCH LÊN
+         🃏 SWIPE
+         
+         LÊN + XUỐNG ĐỀU OK
          ===================================================== */
 
-      if(diagonalIntent){
+      if(swipeIntent){
 
         const width =
           scene.clientWidth || 320;
 
 
-        const thresholdX =
+        /*
+           Ngưỡng nhẹ hơn trước.
+           Không bắt anh phải kéo quá xa.
+        */
+
+        const threshold =
           Math.max(
-            75,
-            width * .18
+            55,
+            width * 0.16
           );
-
-
-        const thresholdY =
-          45;
 
 
         const moveElapsed =
@@ -18750,28 +18740,25 @@ function initFlashcardMobileGestures(){
             : 0;
 
 
-        /*
-          Đủ xa theo chiều ngang,
-          hoặc kéo nhanh,
-          và bắt buộc đã kéo lên.
-        */
-
         const shouldComplete =
-          (
-            distanceX >= thresholdX &&
-            upwardDistance >= thresholdY
-          )
-          ||
-          (
-            velocity >= .55 &&
-            upwardDistance >= 35
-          );
+          distanceX >= threshold ||
+          velocity >= 0.50;
 
+
+        /*
+           Không kiểm tra deltaY nữa.
+
+           Vì:
+           ↗️ lên phải = NEXT
+           ↘️ xuống phải = NEXT
+           ↖️ lên trái = PREVIOUS
+           ↙️ xuống trái = PREVIOUS
+        */
 
         if(shouldComplete){
 
           completeSwipe(
-            deltaX >= 0
+            deltaX > 0
               ? 1
               : -1
           );
@@ -18786,7 +18773,7 @@ function initFlashcardMobileGestures(){
         lastTapTime = 0;
 
         dragging = false;
-        diagonalIntent = false;
+        swipeIntent = false;
 
         return;
 
@@ -18876,7 +18863,7 @@ function initFlashcardMobileGestures(){
 
       if(
         dragging &&
-        diagonalIntent
+        swipeIntent
       ){
 
         snapBack();
@@ -18885,8 +18872,7 @@ function initFlashcardMobileGestures(){
 
 
       dragging = false;
-      diagonalIntent = false;
-
+      swipeIntent = false;
       lastTapTime = 0;
 
     },
