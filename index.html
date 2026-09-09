@@ -816,7 +816,7 @@ document.addEventListener("DOMContentLoaded",function(){
           </div>
 
           <div class="price-money">
-            20.000 VNĐ
+            50.000 VNĐ
           </div>
 
         </div>
@@ -840,7 +840,7 @@ document.addEventListener("DOMContentLoaded",function(){
           </div>
 
           <div class="price-money">
-            100.000 VNĐ
+            290.000 VNĐ
           </div>
 
         </div>
@@ -864,7 +864,7 @@ document.addEventListener("DOMContentLoaded",function(){
           </div>
 
           <div class="price-money">
-            150.000 VNĐ
+            500.000 VNĐ
           </div>
 
         </div>
@@ -1130,28 +1130,38 @@ let selectedPlan = null;
    DANH SÁCH GÓI
 ========================================================= */
 
+/* =========================================================
+   💎 THÍCH TIẾNG TRUNG — TRUNG TÂM GÓI PREMIUM
+   ⚠️ CHỈ KHAI BÁO GIÁ TẠI ĐÂY
+   ========================================================= */
+
 const PLANS = {
 
   "1month": {
+    key: "1month",
     name: "1 tháng",
-    amount: 20000,
-    days: 30
+    amount: 50000,
+    days: 30,
+    label: "50.000 VNĐ"
   },
 
   "6month": {
+    key: "6month",
     name: "6 tháng",
-    amount: 100000,
-    days: 180
+    amount: 290000,
+    days: 180,
+    label: "290.000 VNĐ"
   },
 
   "1year": {
+    key: "1year",
     name: "1 năm",
-    amount: 150000,
-    days: 365
+    amount: 500000,
+    days: 365,
+    label: "500.000 VNĐ"
   }
 
 };
-
 
 /* =========================================================
    TẠO MÃ CHUYỂN KHOẢN
@@ -1868,6 +1878,17 @@ HSK 1 — 150 từ
 <section class="cards" id="cards"></section>
 
 </section>
+
+
+
+
+<!-- =========================================================
+     🔊 THÍCH TIẾNG TRUNG — AUTO LEARNING
+     ...
+     NGUYÊN KHỐI AUTO LEARNING CỦA ANH
+     ...
+========================================================= -->
+
 
 
 <!-- ==================================================
@@ -7389,6 +7410,187 @@ let currentHSK=1;
 
 let currentList=
   words.filter(w=>w.hsk===1);
+
+/* =========================================================
+   🧠 THÍCH TIẾNG TRUNG — VOCABULARY CORE
+   ---------------------------------------------------------
+   Đây là "xương sống" dùng chung cho:
+
+   📚 Học từ vựng
+   🃏 Flashcard
+   🔊 Auto Learning
+   📝 Test
+   ✍️ Luyện câu
+   🎙️ Phát âm
+   📊 Tiến độ
+
+   ⚠️ Không thay thế hệ thống cũ.
+   Chỉ tạo một lớp trung tâm để các tính năng mới
+   có thể kết nối dần về sau.
+   ========================================================= */
+
+const TTC = {
+
+  version: "1.0",
+
+  /* =========================================
+     📚 TRẠNG THÁI TỪ VỰNG
+     ========================================= */
+
+  vocabulary: {
+
+    currentHSK: 1,
+
+    currentList: [],
+
+    currentIndex: 0,
+
+    currentWord: null,
+
+    searchActive: false
+
+  },
+
+
+  /* =========================================
+     🎯 LUYỆN TẬP
+     ========================================= */
+
+  practice: {
+
+    mode: null,
+
+    testIndex: 0,
+
+    sentenceIndex: 0,
+
+    pronunciationIndex: 0
+
+  },
+
+
+  /* =========================================
+     📊 TIẾN ĐỘ
+     ========================================= */
+
+  progress: {
+
+    learned: {},
+
+    wrong: {},
+
+    pronunciation: {},
+
+    lastWord: null
+
+  },
+
+
+  /* =========================================
+     🔊 AUDIO
+     ========================================= */
+
+  audio: {
+
+    autoMode: false,
+
+    playing: false,
+
+    interval: 3000
+
+  },
+
+
+  /* =========================================
+     🃏 FLASHCARD
+     ========================================= */
+
+  flashcard: {
+
+    index: 0,
+
+    flipped: false
+
+  },
+
+
+  /* =========================================
+     🔎 TÌM KIẾM
+     ========================================= */
+
+  search: {
+
+    keyword: "",
+
+    results: []
+
+  }
+
+};
+
+
+/* =========================================================
+   🔗 ĐỒNG BỘ DỮ LIỆU TỪ VỰNG
+   ========================================================= */
+
+function syncVocabularyCore(){
+
+  TTC.vocabulary.currentHSK =
+    currentHSK;
+
+  TTC.vocabulary.currentList =
+    currentList;
+
+  TTC.vocabulary.currentWord =
+    currentList[
+      TTC.vocabulary.currentIndex
+    ] || null;
+
+}
+
+
+/* =========================================================
+   📍 LƯU TỪ ĐANG HỌC
+   ========================================================= */
+
+function setCurrentVocabularyIndex(index){
+
+  if(!Array.isArray(currentList)){
+    return;
+  }
+
+  if(index < 0){
+    index = 0;
+  }
+
+  if(index >= currentList.length){
+    index = currentList.length - 1;
+  }
+
+  TTC.vocabulary.currentIndex =
+    index;
+
+  TTC.vocabulary.currentWord =
+    currentList[index] || null;
+
+}
+
+
+/* =========================================================
+   🧠 LẤY TỪ HIỆN TẠI
+   ========================================================= */
+
+function getCurrentVocabularyWord(){
+
+  return (
+    TTC.vocabulary.currentWord ||
+    currentList[
+      TTC.vocabulary.currentIndex
+    ] ||
+    null
+  );
+
+}
 
 
 /* ==================================================
