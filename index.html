@@ -13484,13 +13484,6 @@ function autoSpeakCurrentWord(){
   }
 
 
-  autoLearningSpeaking =
-    true;
-
-  TTC.audio.playing =
-    true;
-
-
   const chinese =
     word.h ||
     word.word ||
@@ -13502,33 +13495,65 @@ function autoSpeakCurrentWord(){
     "";
 
 
-  if("speechSynthesis" in window){
-
-    speechSynthesis.cancel();
-
+  if(!chinese && !vietnamese){
+    scheduleAutoNext();
+    return;
   }
 
 
-  try{
-
-    say(chinese);
-
-  }catch(e){
-
-    console.warn(
-      "Chinese speech error:",
-      e
-    );
-
+  if(!("speechSynthesis" in window)){
+    scheduleAutoNext();
+    return;
   }
+
+
+  autoLearningSpeaking = true;
+  TTC.audio.playing = true;
 
 
   /*
-     Chờ một khoảng ngắn rồi đọc nghĩa
+     Hủy âm thanh cũ trước khi bắt đầu từ mới
   */
 
-  autoLearningTimer =
-    setTimeout(() => {
+  speechSynthesis.cancel();
+
+
+  /*
+     ==============================
+     🇨🇳 ĐỌC TIẾNG TRUNG
+     ==============================
+  */
+
+  const chineseUtterance =
+    new SpeechSynthesisUtterance(
+      String(chinese)
+    );
+
+  chineseUtterance.lang =
+    "zh-CN";
+
+
+  /*
+     Dùng đúng tốc độ
+     và giọng Trung mà hệ thống
+     hiện tại của anh đã chọn
+  */
+
+  chineseUtterance.rate =
+    selectedRate;
+
+  chineseUtterance.pitch =
+    1;
+
+
+  if(chineseVoice){
+    chineseUtterance.voice =
+      chineseVoice;
+  }
+
+
+  chineseUtterance.onend =
+    function(){
 
       if(!autoLearningRunning){
         return;
@@ -13539,46 +13564,88 @@ function autoSpeakCurrentWord(){
       }
 
 
-      if("speechSynthesis" in window){
+      /*
+         ==============================
+         🇻🇳 ĐỌC NGHĨA
+         ==============================
+      */
 
-        try{
+      if(!vietnamese){
 
-          const utter =
-            new SpeechSynthesisUtterance(
-              vietnamese
-            );
+        scheduleAutoNext();
+        return;
 
-          utter.lang =
-            "vi-VN";
+      }
 
-          utter.rate =
-            0.95;
 
-          utter.onend =
-            scheduleAutoNext;
+      const vietnameseUtterance =
+        new SpeechSynthesisUtterance(
+          String(vietnamese)
+        );
 
-          speechSynthesis.speak(
-            utter
-          );
+      vietnameseUtterance.lang =
+        "vi-VN";
 
-        }catch(e){
+      vietnameseUtterance.rate =
+        0.95;
 
-          console.warn(
-            "Vietnamese speech error:",
-            e
-          );
+
+      vietnameseUtterance.onend =
+        function(){
+
+          if(!autoLearningRunning){
+            return;
+          }
+
+          if(autoLearningPaused){
+            return;
+          }
 
           scheduleAutoNext();
 
-        }
+        };
 
-      }else{
+
+      vietnameseUtterance.onerror =
+        function(){
+
+          if(
+            autoLearningRunning &&
+            !autoLearningPaused
+          ){
+
+            scheduleAutoNext();
+
+          }
+
+        };
+
+
+      speechSynthesis.speak(
+        vietnameseUtterance
+      );
+
+    };
+
+
+  chineseUtterance.onerror =
+    function(){
+
+      if(
+        autoLearningRunning &&
+        !autoLearningPaused
+      ){
 
         scheduleAutoNext();
 
       }
 
-    },700);
+    };
+
+
+  speechSynthesis.speak(
+    chineseUtterance
+  );
 
 }
 
@@ -13607,27 +13674,59 @@ function scheduleAutoNext(){
     );
 
 
-  const seconds =
+  /*
+     HTML đang lưu:
+     2000 = 2 giây
+     3000 = 3 giây
+     5000 = 5 giây
+     7000 = 7 giây
+
+     Vì vậy KHÔNG được nhân 1000 nữa.
+  */
+
+  let delay =
     intervalEl
       ? Number(intervalEl.value)
-      : 3;
+      : 3000;
+
+
+  if(
+    !Number.isFinite(delay) ||
+    delay < 0
+  ){
+
+    delay = 3000;
+
+  }
 
 
   autoLearningTimer =
-    setTimeout(() => {
+    setTimeout(
+      function(){
 
-      autoNextWord();
+        if(!autoLearningRunning){
+          return;
+        }
 
-      if(autoLearningRunning){
+        if(autoLearningPaused){
+          return;
+        }
 
-        autoSpeakCurrentWord();
 
-      }
+        autoNextWord();
 
-    }, seconds * 1000);
+
+        if(autoLearningRunning){
+
+          autoSpeakCurrentWord();
+
+        }
+
+      },
+      delay
+    );
 
 }
-
 
 /* =========================================================
    9. BẬT / TẮT AUTO
@@ -13851,24 +13950,34 @@ function autoRepeatWord(){
 
 function changeAutoInterval(value){
 
-  const seconds =
+  const delay =
     Number(value);
 
 
-  if(!Number.isFinite(seconds)){
+  if(
+    !Number.isFinite(delay) ||
+    delay < 0
+  ){
+
     return;
+
   }
 
 
   TTC.audio.interval =
-    seconds * 1000;
+    delay;
 
+
+  /*
+     Nếu AUTO đang chạy,
+     áp dụng thời gian mới ngay.
+  */
 
   if(autoLearningRunning){
 
     clearAutoLearningTimer();
 
-    autoSpeakCurrentWord();
+    scheduleAutoNext();
 
   }
 
