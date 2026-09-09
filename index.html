@@ -2003,25 +2003,34 @@ HSK 1 — 150 từ
     <label>
       ⏱️ Khoảng nghỉ:
       <select id="autoInterval"
-              onchange="changeAutoInterval(this.value)">
+        onchange="changeAutoInterval(this.value)">
 
-        <option value="2000">
-          2 giây
-        </option>
+  <option value="0">
+    ⚡ 0 giây — chuyển ngay
+  </option>
 
-        <option value="3000" selected>
-          3 giây
-        </option>
+  <option value="1000">
+    ⚡ 1 giây
+  </option>
 
-        <option value="5000">
-          5 giây
-        </option>
+  <option value="2000">
+    2 giây
+  </option>
 
-        <option value="7000">
-          7 giây
-        </option>
+  <option value="3000" selected>
+    3 giây
+  </option>
 
-      </select>
+  <option value="5000">
+    5 giây
+  </option>
+
+  <option value="7000">
+    7 giây
+  </option>
+
+</select>
+
     </label>
 
   </div>
@@ -13312,9 +13321,14 @@ function renderAutoLearningWord(){
   if(meaningEl){
 
     meaningEl.textContent =
-      word.v ||
-      word.meaning ||
-      "";
+
+      word.m ||
+
+          word.v ||
+
+          word.meaning ||
+
+          "";
 
   }
 
@@ -13490,10 +13504,10 @@ function autoSpeakCurrentWord(){
     "";
 
   const vietnamese =
-    word.v ||
-    word.meaning ||
-    "";
-
+  word.m ||
+  word.v ||
+  word.meaning ||
+  "";
 
   if(!chinese && !vietnamese){
     scheduleAutoNext();
