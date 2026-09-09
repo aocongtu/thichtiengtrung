@@ -1259,6 +1259,606 @@ main{
 
 </style>
 
+<style>
+
+/* =========================================================
+   📱 FLASHCARD MOBILE — FULL SCREEN LEARNING MODE
+   ========================================================= */
+
+@media (max-width:600px){
+
+  /* ---------------------------------------------------------
+     🔒 KHÓA TRANG PHÍA SAU KHI ĐANG HỌC
+     --------------------------------------------------------- */
+
+  body.flashcard-mobile-mode{
+    overflow:hidden !important;
+    height:100vh !important;
+    height:100dvh !important;
+    touch-action:none;
+  }
+
+
+  /* ---------------------------------------------------------
+     📱 FLASHCARD FULL SCREEN
+     --------------------------------------------------------- */
+
+  #flashcardSection.flashcard-fullscreen{
+
+    position:fixed !important;
+
+    inset:0 !important;
+
+    width:100% !important;
+    max-width:none !important;
+
+    height:100vh !important;
+    height:100dvh !important;
+
+    margin:0 !important;
+    padding:0 !important;
+
+    z-index:99990 !important;
+
+    background:
+      linear-gradient(
+        145deg,
+        #f7faff 0%,
+        #eef4ff 100%
+      );
+
+    overflow-y:auto !important;
+    overflow-x:hidden !important;
+
+    overscroll-behavior:contain;
+
+  }
+
+
+  /* ---------------------------------------------------------
+     🚫 ẨN THANH MỞ FLASHCARD CŨ
+     --------------------------------------------------------- */
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-collapsed-bar{
+
+    display:none !important;
+
+  }
+
+
+  /* ---------------------------------------------------------
+     📦 NỘI DUNG
+     --------------------------------------------------------- */
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-content{
+
+    display:block !important;
+
+    width:100%;
+
+    min-height:100vh;
+    min-height:100dvh;
+
+    margin:0 !important;
+
+    padding:
+      max(12px, env(safe-area-inset-top))
+      12px
+      max(18px, env(safe-area-inset-bottom))
+      12px;
+
+  }
+
+
+  /* ---------------------------------------------------------
+     🏷️ HEADER
+     --------------------------------------------------------- */
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-header{
+
+    margin-bottom:10px;
+
+    min-height:42px;
+
+  }
+
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-title{
+
+    font-size:17px;
+
+    white-space:nowrap;
+
+  }
+
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-controls{
+
+    width:auto;
+
+    flex-wrap:nowrap;
+
+    gap:7px;
+
+  }
+
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-hsk-select{
+
+    flex:0 0 auto;
+
+    min-width:82px;
+
+    width:82px;
+
+    padding:7px 8px;
+
+    font-size:12px;
+
+  }
+
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-counter{
+
+    font-size:11px;
+
+    padding:6px 8px;
+
+  }
+
+
+  /* ---------------------------------------------------------
+     🔄 NÚT HỌC LẠI
+     --------------------------------------------------------- */
+
+  .flashcard-reset-button{
+
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+
+    width:34px;
+    height:34px;
+
+    padding:0;
+
+    border-radius:50%;
+
+    background:#ffffff;
+
+    color:#2457c5;
+
+    border:1px solid #dfe7f5;
+
+    box-shadow:
+      0 3px 10px rgba(0,0,0,.08);
+
+    font-size:16px;
+
+    flex-shrink:0;
+
+  }
+
+
+  .flashcard-reset-button:active{
+
+    transform:scale(.92);
+
+  }
+
+
+  /* ---------------------------------------------------------
+     ✕ NÚT ĐÓNG
+     --------------------------------------------------------- */
+
+  #flashcardExitButton{
+
+    position:fixed;
+
+    top:max(10px, env(safe-area-inset-top));
+
+    right:12px;
+
+    z-index:100000;
+
+    width:34px;
+    height:34px;
+
+    padding:0;
+
+    border:0;
+
+    border-radius:50%;
+
+    background:rgba(255,255,255,.94);
+
+    color:#475569;
+
+    box-shadow:
+      0 4px 14px rgba(0,0,0,.14);
+
+    font-size:23px;
+
+    font-weight:400;
+
+    line-height:1;
+
+  }
+
+
+  #flashcardExitButton:active{
+
+    transform:scale(.90);
+
+  }
+
+
+  /* ---------------------------------------------------------
+     🃏 KHUNG CARD
+     --------------------------------------------------------- */
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-scene{
+
+    width:100%;
+
+    height:
+      calc(
+        100dvh - 125px
+      );
+
+    min-height:430px;
+
+    perspective:1200px;
+
+    touch-action:manipulation;
+
+    user-select:none;
+
+    -webkit-user-select:none;
+
+    overscroll-behavior:contain;
+
+  }
+
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-face{
+
+    border-radius:22px;
+
+  }
+
+
+  /* ---------------------------------------------------------
+     🈶 MẶT TRƯỚC
+     --------------------------------------------------------- */
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-front{
+
+    padding:25px 18px;
+
+  }
+
+
+  /* Bỏ nhãn TỪ VỰNG trên mobile */
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-label{
+
+    display:none;
+
+  }
+
+
+  /* Bỏ tên Hán tự trên mobile */
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-name{
+
+    display:none;
+
+  }
+
+
+  /* Hán tự tự co */
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-hanzi{
+
+    width:100%;
+
+    max-width:100%;
+
+    margin-bottom:22px;
+
+    line-height:1.08;
+
+    text-align:center;
+
+    overflow-wrap:anywhere;
+
+    word-break:normal;
+
+    font-size:clamp(
+      58px,
+      19vw,
+      105px
+    );
+
+  }
+
+
+  /* 1 chữ */
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-hanzi[data-length="1"]{
+
+    font-size:clamp(
+      90px,
+      28vw,
+      150px
+    );
+
+  }
+
+
+  /* 2 chữ */
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-hanzi[data-length="2"]{
+
+    font-size:clamp(
+      72px,
+      23vw,
+      125px
+    );
+
+  }
+
+
+  /* 3 chữ */
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-hanzi[data-length="3"]{
+
+    font-size:clamp(
+      65px,
+      20vw,
+      105px
+    );
+
+  }
+
+
+  /* 4 chữ */
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-hanzi[data-length="4"]{
+
+    font-size:clamp(
+      58px,
+      17vw,
+      90px
+    );
+
+  }
+
+
+  /* 5 chữ */
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-hanzi[data-length="5"]{
+
+    font-size:clamp(
+      52px,
+      15vw,
+      80px
+    );
+
+  }
+
+
+  /* 6 chữ */
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-hanzi[data-length="6"]{
+
+    font-size:clamp(
+      47px,
+      13vw,
+      70px
+    );
+
+  }
+
+
+  /* 7 chữ */
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-hanzi[data-length="7"]{
+
+    font-size:clamp(
+      43px,
+      12vw,
+      64px
+    );
+
+  }
+
+
+  /* 8 chữ trở lên */
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-hanzi[data-length="8"]{
+
+    font-size:clamp(
+      38px,
+      10vw,
+      56px
+    );
+
+  }
+
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-pinyin{
+
+    font-size:21px;
+
+    margin-bottom:12px;
+
+  }
+
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-meaning{
+
+    max-width:94%;
+
+    font-size:18px;
+
+    line-height:1.5;
+
+  }
+
+
+  /* ---------------------------------------------------------
+     🚫 MOBILE KHÔNG HIỆN NÚT LẬT
+     --------------------------------------------------------- */
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-flip-button{
+
+    display:none !important;
+
+  }
+
+
+  /* ---------------------------------------------------------
+     🏷️ MẶT SAU
+     --------------------------------------------------------- */
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-back{
+
+    padding:17px;
+
+  }
+
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-back-hanzi{
+
+    font-size:34px;
+
+  }
+
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-back-pinyin{
+
+    font-size:19px;
+
+  }
+
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-info-grid{
+
+    grid-template-columns:1fr;
+
+    gap:7px;
+
+  }
+
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-info-item{
+
+    padding:9px;
+
+  }
+
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-detail-box{
+
+    padding:12px;
+
+    margin-bottom:9px;
+
+  }
+
+
+  /* ---------------------------------------------------------
+     🚫 ẨN 3 NÚT ĐIỀU HƯỚNG MOBILE
+     --------------------------------------------------------- */
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-navigation{
+
+    display:none !important;
+
+  }
+
+
+  /* ---------------------------------------------------------
+     📍 STATUS
+     --------------------------------------------------------- */
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-status{
+
+    margin-top:9px;
+
+    font-size:11px;
+
+    padding:7px;
+
+  }
+
+}
+
+
+/* =========================================================
+   📱 MÁY RẤT NHỎ
+   ========================================================= */
+
+@media(max-width:380px){
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-scene{
+
+    min-height:400px;
+
+    height:
+      calc(
+        100dvh - 118px
+      );
+
+  }
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-hanzi[data-length="1"]{
+
+    font-size:105px;
+
+  }
+
+}
+
+</style>
+
 </head>
 
 <body>
@@ -15995,38 +16595,286 @@ if(
 
   function toggleFlashcardSection(){
 
-    const section =
-      document.getElementById(
-        "flashcardSection"
+  const section =
+    document.getElementById(
+      "flashcardSection"
+    );
+
+  const button =
+    document.getElementById(
+      "flashcardToggleButton"
+    );
+
+  if(!section){
+    return;
+  }
+
+
+  /* =====================================================
+     📱 MOBILE — FULL SCREEN APP MODE
+     ===================================================== */
+
+  if(window.innerWidth <= 600){
+
+    const isOpening =
+      !section.classList.contains(
+        "flashcard-fullscreen"
       );
 
-    const button =
-      document.getElementById(
-        "flashcardToggleButton"
-      );
 
-    if(!section){
-      return;
-    }
+    /* ---------------------------------------------------
+       🔓 MỞ FULL SCREEN
+       --------------------------------------------------- */
 
+    if(isOpening){
 
-    const isOpen =
-      section.classList.toggle(
+      section.classList.add(
         "flashcard-open"
       );
 
+      section.classList.add(
+        "flashcard-fullscreen"
+      );
 
-    if(button){
+      document.body.classList.add(
+        "flashcard-mobile-mode"
+      );
 
-      button.textContent =
-        isOpen
-          ? "🃏 FLASHCARD  −"
-          : "🃏 FLASHCARD  ＋";
+
+      /* Ẩn thanh mở cũ */
+
+      const collapsedBar =
+        section.querySelector(
+          ".flashcard-collapsed-bar"
+        );
+
+      if(collapsedBar){
+
+        collapsedBar.style.display =
+          "none";
+
+      }
+
+
+      /* -------------------------------------------------
+         ✕ TẠO NÚT ĐÓNG
+         ------------------------------------------------- */
+
+      let exitButton =
+        document.getElementById(
+          "flashcardExitButton"
+        );
+
+      if(!exitButton){
+
+        exitButton =
+          document.createElement(
+            "button"
+          );
+
+        exitButton.id =
+          "flashcardExitButton";
+
+        exitButton.type =
+          "button";
+
+        exitButton.textContent =
+          "×";
+
+        exitButton.setAttribute(
+          "aria-label",
+          "Đóng Flashcard"
+        );
+
+        exitButton.onclick =
+          closeFlashcardMobile;
+
+        document.body.appendChild(
+          exitButton
+        );
+
+      }
+
+
+      /* -------------------------------------------------
+         🔄 TẠO NÚT HỌC LẠI
+         ------------------------------------------------- */
+
+      let resetButton =
+        document.getElementById(
+          "flashcardResetButton"
+        );
+
+      if(!resetButton){
+
+        resetButton =
+          document.createElement(
+            "button"
+          );
+
+        resetButton.id =
+          "flashcardResetButton";
+
+        resetButton.type =
+          "button";
+
+        resetButton.className =
+          "flashcard-reset-button";
+
+        resetButton.textContent =
+          "🔄";
+
+        resetButton.title =
+          "Học lại từ đầu";
+
+        resetButton.setAttribute(
+          "aria-label",
+          "Học lại từ đầu"
+        );
+
+        resetButton.onclick =
+          resetFlashcardLearning;
+
+
+        const controls =
+          section.querySelector(
+            ".flashcard-controls"
+          );
+
+        if(controls){
+
+          controls.appendChild(
+            resetButton
+          );
+
+        }
+
+      }
+
+
+      /* -------------------------------------------------
+         🔄 LUÔN BẮT ĐẦU HIỂN THỊ MẶT TRƯỚC
+         ------------------------------------------------- */
+
+      resetFlashcardFlip();
+
+      return;
 
     }
 
+
+    /* ---------------------------------------------------
+       🔒 ĐÓNG FULL SCREEN
+       --------------------------------------------------- */
+
+    closeFlashcardMobile();
+
+    return;
+
   }
 
+
+  /* =====================================================
+     💻 DESKTOP — GIỮ NGUYÊN CÁCH CŨ
+     ===================================================== */
+
+  const isOpen =
+    section.classList.toggle(
+      "flashcard-open"
+    );
+
+
+  if(button){
+
+    button.textContent =
+      isOpen
+        ? "🃏 FLASHCARD  −"
+        : "🃏 FLASHCARD  ＋";
+
+  }
+
+}
+
+/* =========================================================
+   ✕ ĐÓNG FLASHCARD MOBILE
+   ========================================================= */
+
+function closeFlashcardMobile(){
+
+  const section =
+    document.getElementById(
+      "flashcardSection"
+    );
+
+  if(!section){
+    return;
+  }
+
+
+  section.classList.remove(
+    "flashcard-fullscreen"
+  );
+
+  section.classList.remove(
+    "flashcard-open"
+  );
+
+
+  document.body.classList.remove(
+    "flashcard-mobile-mode"
+  );
+
+
+  const collapsedBar =
+    section.querySelector(
+      ".flashcard-collapsed-bar"
+    );
+
+  if(collapsedBar){
+
+    collapsedBar.style.display =
+      "";
+
+  }
+
+
+  const exitButton =
+    document.getElementById(
+      "flashcardExitButton"
+    );
+
+  if(exitButton){
+
+    exitButton.remove();
+
+  }
+
+
+  const resetButton =
+    document.getElementById(
+      "flashcardResetButton"
+    );
+
+  if(resetButton){
+
+    resetButton.remove();
+
+  }
+
+
+  const button =
+    document.getElementById(
+      "flashcardToggleButton"
+    );
+
+  if(button){
+
+    button.textContent =
+      "🃏 FLASHCARD  ＋";
+
+  }
+
+}
 
   /* =========================================================
      🔄 RESET FLIP
@@ -16144,14 +16992,34 @@ if(
         "flashcardBackHanzi"
       );
 
-
     if(frontHanzi){
 
-      frontHanzi.textContent =
-        word.h || "—";
+  const hanziText =
+    word.h || "";
 
-    }
+  frontHanzi.textContent =
+    hanziText || "—";
 
+
+  /* ===================================================
+     🔠 TỰ CO KÍCH THƯỚC THEO SỐ CHỮ
+     =================================================== */
+
+  const hanziLength =
+    Array.from(
+      hanziText
+    ).length;
+
+
+  frontHanzi.dataset.length =
+    String(
+      Math.min(
+        hanziLength,
+        8
+      )
+    );
+
+}
 
     if(backHanzi){
 
@@ -16699,6 +17567,306 @@ if(
 
   }
 
+/* =========================================================
+   🔄 HỌC LẠI TỪ ĐẦU
+   ========================================================= */
+
+function resetFlashcardLearning(){
+
+  const list =
+    getFlashcardList();
+
+  if(!list.length){
+    return;
+  }
+
+
+  const ok =
+    confirm(
+      "🔄 Học lại từ đầu?\n\n" +
+      "Vị trí Flashcard sẽ trở về từ số 1."
+    );
+
+
+  if(!ok){
+    return;
+  }
+
+
+  setFlashcardIndex(0);
+
+  resetFlashcardFlip();
+
+  renderFlashcard();
+
+}
+
+
+/* =========================================================
+   📱 MOBILE — SWIPE + DOUBLE TAP
+   ========================================================= */
+
+function initFlashcardMobileGestures(){
+
+  const scene =
+    document.querySelector(
+      ".flashcard-scene"
+    );
+
+  if(!scene){
+    return;
+  }
+
+
+  /* Không đăng ký listener nhiều lần */
+
+  if(
+    scene.dataset.mobileGesturesReady ===
+    "true"
+  ){
+
+    return;
+
+  }
+
+
+  scene.dataset.mobileGesturesReady =
+    "true";
+
+
+  let startX = 0;
+
+  let startY = 0;
+
+  let startTime = 0;
+
+  let startTarget = null;
+
+
+  let lastTapTime = 0;
+
+  let lastTapX = 0;
+
+  let lastTapY = 0;
+
+
+  /* =====================================================
+     👆 TOUCH START
+     ===================================================== */
+
+  scene.addEventListener(
+    "touchstart",
+    function(event){
+
+      if(
+        window.innerWidth > 600
+      ){
+
+        return;
+
+      }
+
+
+      const touch =
+        event.changedTouches[0];
+
+      if(!touch){
+        return;
+      }
+
+
+      startX =
+        touch.clientX;
+
+      startY =
+        touch.clientY;
+
+      startTime =
+        Date.now();
+
+      startTarget =
+        event.target;
+
+    },
+    {
+      passive:true
+    }
+  );
+
+
+  /* =====================================================
+     👆 TOUCH END
+     ===================================================== */
+
+  scene.addEventListener(
+    "touchend",
+    function(event){
+
+      if(
+        window.innerWidth > 600
+      ){
+
+        return;
+
+      }
+
+
+      const touch =
+        event.changedTouches[0];
+
+      if(!touch){
+        return;
+      }
+
+
+      /* -----------------------------------------------
+         Không xử lý swipe khi bấm nút
+         ----------------------------------------------- */
+
+      if(
+        startTarget &&
+        startTarget.closest &&
+        startTarget.closest(
+          "button, select, input, textarea, a"
+        )
+      ){
+
+        return;
+
+      }
+
+
+      const endX =
+        touch.clientX;
+
+      const endY =
+        touch.clientY;
+
+
+      const deltaX =
+        endX - startX;
+
+      const deltaY =
+        endY - startY;
+
+
+      const distanceX =
+        Math.abs(deltaX);
+
+      const distanceY =
+        Math.abs(deltaY);
+
+
+      const elapsed =
+        Date.now() - startTime;
+
+
+      /* =================================================
+         👉 SWIPE
+         
+         QUY ƯỚC CHÍNH THỨC:
+         
+         Vuốt PHẢI → NEXT
+         Vuốt TRÁI  → PREVIOUS
+         ================================================= */
+
+      if(
+        distanceX >= 55 &&
+        distanceX > distanceY * 1.25 &&
+        elapsed <= 700
+      ){
+
+        if(deltaX > 0){
+
+          /* 👉 PHẢI = TỪ TIẾP THEO */
+
+          nextFlashcard();
+
+        }else{
+
+          /* 👈 TRÁI = TỪ TRƯỚC */
+
+          previousFlashcard();
+
+        }
+
+
+        lastTapTime = 0;
+
+        return;
+
+      }
+
+
+      /* =================================================
+         👆👆 DOUBLE TAP
+         ================================================= */
+
+      if(
+        distanceX < 25 &&
+        distanceY < 25 &&
+        elapsed <= 350
+      ){
+
+        const now =
+          Date.now();
+
+
+        const tapGap =
+          now - lastTapTime;
+
+
+        const tapDistance =
+          Math.hypot(
+            endX - lastTapX,
+            endY - lastTapY
+          );
+
+
+        if(
+          tapGap > 0 &&
+          tapGap <= 320 &&
+          tapDistance <= 45
+        ){
+
+          flipFlashcard();
+
+          lastTapTime = 0;
+
+          return;
+
+        }
+
+
+        lastTapTime =
+          now;
+
+        lastTapX =
+          endX;
+
+        lastTapY =
+          endY;
+
+      }
+
+    },
+    {
+      passive:true
+    }
+  );
+
+}
+
+
+/* =========================================================
+   📱 KHỞI TẠO GESTURE KHI TRANG SẴN SÀNG
+   ========================================================= */
+
+function setupFlashcardMobile(){
+
+  initFlashcardMobileGestures();
+
+}
 
   /* =========================================================
      🔊 AUDIO TỪ VỰNG
@@ -16834,6 +18002,7 @@ if(
 
 
     renderFlashcard();
+setupFlashcardMobile();
 
   }
 
@@ -16868,6 +18037,12 @@ if(
 
   window.initFlashcard =
     initFlashcard;
+
+  window.resetFlashcardLearning =
+     resetFlashcardLearning;
+
+  window.closeFlashcardMobile =
+     closeFlashcardMobile;
 
 
   /* =========================================================
