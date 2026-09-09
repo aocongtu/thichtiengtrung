@@ -1858,19 +1858,22 @@ main{
 }
 
 /* =========================================================
-   🃏 FLASHCARD — HIỆU ỨNG KÉO NHƯ QUÂN BÀI TÚ LƠ KHƠ
+   🃏 FLASHCARD — KÉO CHẾCH LÊN NHƯ QUÂN BÀI
+   👉 LÊN + PHẢI = TỪ TIẾP THEO
+   👈 LÊN + TRÁI  = TỪ TRƯỚC
    ========================================================= */
 
 /* Card thật */
 #flashcardSection.flashcard-fullscreen .flashcard{
   --flashcard-drag-x:0px;
+  --flashcard-drag-y:0px;
   --flashcard-drag-rotate:0deg;
   --flashcard-flip-angle:0deg;
 
   transform:
     translate3d(
       var(--flashcard-drag-x),
-      0,
+      var(--flashcard-drag-y),
       0
     )
     rotateZ(
@@ -1886,6 +1889,7 @@ main{
   will-change:transform;
 }
 
+
 /* Khi lật mặt sau */
 #flashcardSection.flashcard-fullscreen
 .flashcard.is-flipped{
@@ -1894,7 +1898,7 @@ main{
 
 
 /* =========================================================
-   🃏 QUÂN BÀI KẾ TIẾP / QUÂN BÀI TRƯỚC
+   🃏 CARD PREVIEW
    ========================================================= */
 
 .flashcard-swipe-preview{
@@ -1930,26 +1934,21 @@ main{
 
   pointer-events:none;
 
-  opacity:1;
-
   will-change:transform;
-
-  transform:
-    translate3d(0,0,0);
 
   transition:
     transform .62s cubic-bezier(.22,.72,.2,1);
 }
 
 
-/* Card thật luôn nằm phía trên */
+/* Card thật nằm phía trên preview */
 #flashcardSection.flashcard-fullscreen
 .flashcard{
   z-index:2;
 }
 
 
-/* Nội dung card preview */
+/* Nội dung preview */
 .flashcard-swipe-preview-inner{
   width:100%;
   padding:25px 18px;
@@ -1981,18 +1980,16 @@ main{
   );
 
   line-height:1.08;
-
   font-weight:800;
 
   color:#172033;
-
   text-align:center;
 
   overflow-wrap:anywhere;
 }
 
 
-/* Kích thước Hán tự preview giống card thật */
+/* Kích thước theo số chữ */
 .flashcard-swipe-preview-hanzi[data-length="1"]{
   font-size:clamp(90px,28vw,150px);
 }
@@ -2028,11 +2025,8 @@ main{
 
 .flashcard-swipe-preview-pinyin{
   font-size:21px;
-
   font-weight:700;
-
   color:#2563eb;
-
   margin-bottom:12px;
 }
 
@@ -2041,9 +2035,7 @@ main{
   max-width:94%;
 
   font-size:18px;
-
   line-height:1.5;
-
   font-weight:700;
 
   color:#263247;
@@ -2051,7 +2043,63 @@ main{
 
 
 /* =========================================================
-   📱 MOBILE — KHÓA CẢM GIÁC KÉO
+   🔄 RESET — LUÔN HIỆN RÕ TRÊN MOBILE
+   ========================================================= */
+
+#flashcardSection.flashcard-fullscreen
+.flashcard-reset-button{
+
+  display:flex !important;
+
+  position:fixed !important;
+
+  top:
+    max(
+      10px,
+      env(safe-area-inset-top)
+    ) !important;
+
+  right:56px !important;
+
+  z-index:100001 !important;
+
+  width:38px !important;
+  height:38px !important;
+
+  padding:0 !important;
+
+  align-items:center !important;
+  justify-content:center !important;
+
+  border-radius:50% !important;
+
+  background:
+    rgba(255,255,255,.96) !important;
+
+  color:#2457c5 !important;
+
+  border:1px solid #dfe7f5 !important;
+
+  box-shadow:
+    0 4px 14px rgba(0,0,0,.14) !important;
+
+  font-size:18px !important;
+
+  line-height:1 !important;
+
+  flex-shrink:0 !important;
+}
+
+#flashcardSection.flashcard-fullscreen
+.flashcard-reset-button:active{
+
+  transform:scale(.90);
+
+}
+
+
+/* =========================================================
+   📱 KHÓA VÙNG KÉO
    ========================================================= */
 
 @media(max-width:600px){
@@ -17816,7 +17864,9 @@ function resetFlashcardLearning(){
 }
 
 /* =========================================================
-   📱 MOBILE — KÉO CARD NHƯ QUÂN BÀI TÚ LƠ KHƠ
+   📱 MOBILE — KÉO CARD CHẾCH LÊN NHƯ QUÂN BÀI
+   👉 LÊN + PHẢI = TỪ TIẾP THEO
+   👈 LÊN + TRÁI  = TỪ TRƯỚC
    ========================================================= */
 
 function initFlashcardMobileGestures(){
@@ -17836,10 +17886,6 @@ function initFlashcardMobileGestures(){
   }
 
 
-  /* ---------------------------------------------------------
-     🚫 KHÔNG ĐĂNG KÝ LISTENER NHIỀU LẦN
-     --------------------------------------------------------- */
-
   if(
     scene.dataset.mobileGesturesReady ===
     "true"
@@ -17855,14 +17901,16 @@ function initFlashcardMobileGestures(){
   let startY = 0;
 
   let currentX = 0;
+  let currentY = 0;
 
   let startTime = 0;
 
   let lastMoveX = 0;
+  let lastMoveY = 0;
   let lastMoveTime = 0;
 
   let dragging = false;
-  let horizontalIntent = false;
+  let diagonalIntent = false;
   let locked = false;
 
   let startTarget = null;
@@ -17876,7 +17924,7 @@ function initFlashcardMobileGestures(){
 
 
   /* =========================================================
-     🃏 LẤY TỪ KẾ TIẾP / TỪ TRƯỚC
+     🃏 LẤY TỪ TRƯỚC / SAU
      ========================================================= */
 
   function getPreviewWord(direction){
@@ -18007,45 +18055,27 @@ function initFlashcardMobileGestures(){
       );
 
 
-    inner.appendChild(
-      hanzi
-    );
+    inner.appendChild(hanzi);
+    inner.appendChild(pinyin);
+    inner.appendChild(meaning);
 
-    inner.appendChild(
-      pinyin
-    );
+    preview.appendChild(inner);
 
-    inner.appendChild(
-      meaning
-    );
+    scene.appendChild(preview);
 
-
-    preview.appendChild(
-      inner
-    );
-
-
-    scene.appendChild(
-      preview
-    );
-
-
-    /* -------------------------------------------------------
-       Card mới nằm ngoài màn hình
-       ------------------------------------------------------- */
 
     const width =
       scene.clientWidth || 320;
 
 
-    const startOffset =
+    const startX =
       direction > 0
         ? width
         : -width;
 
 
     preview.style.transform =
-      `translate3d(${startOffset}px,0,0)`;
+      `translate3d(${startX}px,80px,0)`;
 
 
     return preview;
@@ -18072,25 +18102,47 @@ function initFlashcardMobileGestures(){
 
 
   /* =========================================================
-     🎯 ĐẶT CARD THEO NGÓN TAY
+     🎯 CARD ĐI THEO NGÓN TAY
      ========================================================= */
 
-  function moveCard(deltaX){
+  function moveCard(
+    deltaX,
+    deltaY
+  ){
 
     const width =
       scene.clientWidth || 320;
 
 
-    const maxDrag =
+    const maxX =
       width * 1.15;
+
+
+    const maxY =
+      scene.clientHeight * .75;
 
 
     currentX =
       Math.max(
-        -maxDrag,
+        -maxX,
         Math.min(
-          maxDrag,
+          maxX,
           deltaX
+        )
+      );
+
+
+    /*
+      Chuyển động Y được giảm nhẹ để card
+      đi chếch lên tự nhiên, không bay thẳng lên.
+    */
+
+    currentY =
+      Math.max(
+        -maxY,
+        Math.min(
+          40,
+          deltaY * .72
         )
       );
 
@@ -18112,6 +18164,12 @@ function initFlashcardMobileGestures(){
 
 
     card.style.setProperty(
+      "--flashcard-drag-y",
+      `${currentY}px`
+    );
+
+
+    card.style.setProperty(
       "--flashcard-drag-rotate",
       `${rotate}deg`
     );
@@ -18123,15 +18181,25 @@ function initFlashcardMobileGestures(){
       );
 
 
-    if(preview && swipeDirection){
+    if(
+      preview &&
+      swipeDirection
+    ){
 
       const previewX =
         swipeDirection * width -
         currentX;
 
 
+      const previewY =
+        Math.min(
+          80,
+          currentY + 80
+        );
+
+
       preview.style.transform =
-        `translate3d(${previewX}px,0,0)`;
+        `translate3d(${previewX}px,${previewY}px,0)`;
 
     }
 
@@ -18139,7 +18207,7 @@ function initFlashcardMobileGestures(){
 
 
   /* =========================================================
-     🎬 RESET CARD VỀ GIỮA
+     🎬 RESET CARD
      ========================================================= */
 
   function snapBack(){
@@ -18150,6 +18218,12 @@ function initFlashcardMobileGestures(){
 
     card.style.setProperty(
       "--flashcard-drag-x",
+      "0px"
+    );
+
+
+    card.style.setProperty(
+      "--flashcard-drag-y",
       "0px"
     );
 
@@ -18179,7 +18253,7 @@ function initFlashcardMobileGestures(){
       preview.style.transform =
         `translate3d(${
           swipeDirection * width
-        }px,0,0)`;
+        }px,80px,0)`;
 
     }
 
@@ -18192,10 +18266,11 @@ function initFlashcardMobileGestures(){
         "transform .62s cubic-bezier(.22,.72,.2,1)";
 
       currentX = 0;
+      currentY = 0;
 
       swipeDirection = 0;
 
-    }, 500);
+    },500);
 
   }
 
@@ -18218,19 +18293,37 @@ function initFlashcardMobileGestures(){
       scene.clientWidth || 320;
 
 
+    const height =
+      scene.clientHeight || 600;
+
+
     const targetX =
       direction > 0
         ? width + 45
         : -width - 45;
 
 
+    /*
+      Card bay chếch lên.
+    */
+
+    const targetY =
+      -height * .38;
+
+
     card.style.transition =
-      "transform .28s cubic-bezier(.55,.05,.8,.25)";
+      "transform .32s cubic-bezier(.55,.05,.8,.25)";
 
 
     card.style.setProperty(
       "--flashcard-drag-x",
       `${targetX}px`
+    );
+
+
+    card.style.setProperty(
+      "--flashcard-drag-y",
+      `${targetY}px`
     );
 
 
@@ -18253,7 +18346,7 @@ function initFlashcardMobileGestures(){
     if(preview){
 
       preview.style.transition =
-        "transform .28s cubic-bezier(.22,.72,.2,1)";
+        "transform .32s cubic-bezier(.22,.72,.2,1)";
 
 
       preview.style.transform =
@@ -18264,10 +18357,10 @@ function initFlashcardMobileGestures(){
 
     setTimeout(function(){
 
-      /* -----------------------------------------------------
-         👉 PHẢI = TỪ TIẾP THEO
-         👈 TRÁI = TỪ TRƯỚC
-         ----------------------------------------------------- */
+      /*
+        👉 PHẢI = TỪ TIẾP THEO
+        👈 TRÁI = TỪ TRƯỚC
+      */
 
       if(direction > 0){
 
@@ -18280,16 +18373,18 @@ function initFlashcardMobileGestures(){
       }
 
 
-      /* -----------------------------------------------------
-         Card thật được đưa về giữa
-         ----------------------------------------------------- */
-
       card.style.transition =
         "none";
 
 
       card.style.setProperty(
         "--flashcard-drag-x",
+        "0px"
+      );
+
+
+      card.style.setProperty(
+        "--flashcard-drag-y",
         "0px"
       );
 
@@ -18312,17 +18407,15 @@ function initFlashcardMobileGestures(){
 
 
       currentX = 0;
+      currentY = 0;
 
       swipeDirection = 0;
 
       dragging = false;
-
-      horizontalIntent = false;
-
+      diagonalIntent = false;
       locked = false;
 
-
-    }, 300);
+    },340);
 
   }
 
@@ -18355,9 +18448,9 @@ function initFlashcardMobileGestures(){
         event.target;
 
 
-      /* -----------------------------------------------------
-         Không xử lý gesture khi chạm nút
-         ----------------------------------------------------- */
+      /*
+        Không xử lý khi bấm nút.
+      */
 
       if(
         startTarget &&
@@ -18383,6 +18476,8 @@ function initFlashcardMobileGestures(){
 
 
       currentX = 0;
+      currentY = 0;
+
 
       startTime =
         Date.now();
@@ -18392,13 +18487,17 @@ function initFlashcardMobileGestures(){
         startX;
 
 
+      lastMoveY =
+        startY;
+
+
       lastMoveTime =
         startTime;
 
 
       dragging = true;
 
-      horizontalIntent = false;
+      diagonalIntent = false;
 
       swipeDirection = 0;
 
@@ -18448,23 +18547,40 @@ function initFlashcardMobileGestures(){
         startY;
 
 
+      const upward =
+        deltaY < 0;
+
+
+      const horizontal =
+        Math.abs(deltaX);
+
+
+      const vertical =
+        Math.abs(deltaY);
+
+
       /* -----------------------------------------------------
-         Xác định hướng kéo
+         Xác định gesture
          ----------------------------------------------------- */
 
-      if(!horizontalIntent){
+      if(!diagonalIntent){
 
         if(
-          Math.abs(deltaX) < 8 &&
-          Math.abs(deltaY) < 8
+          horizontal < 10 &&
+          vertical < 10
         ){
           return;
         }
 
 
+        /*
+          Chỉ nhận khi ngón tay đang đi lên
+          và có thành phần trái/phải.
+        */
+
         if(
-          Math.abs(deltaX) <=
-          Math.abs(deltaY)
+          !upward ||
+          horizontal < 18
         ){
 
           dragging = false;
@@ -18474,7 +18590,12 @@ function initFlashcardMobileGestures(){
         }
 
 
-        horizontalIntent = true;
+        /*
+          Cho phép kéo chéo.
+          Không còn yêu cầu X phải lớn hơn Y.
+        */
+
+        diagonalIntent = true;
 
 
         swipeDirection =
@@ -18490,13 +18611,14 @@ function initFlashcardMobileGestures(){
       }
 
 
-      if(horizontalIntent){
+      if(diagonalIntent){
 
         event.preventDefault();
 
 
         moveCard(
-          deltaX
+          deltaX,
+          deltaY
         );
 
       }
@@ -18504,6 +18626,10 @@ function initFlashcardMobileGestures(){
 
       lastMoveX =
         touch.clientX;
+
+
+      lastMoveY =
+        touch.clientY;
 
 
       lastMoveTime =
@@ -18539,10 +18665,6 @@ function initFlashcardMobileGestures(){
         return;
       }
 
-
-      /* -----------------------------------------------------
-         Nếu bắt đầu bằng nút → bỏ qua
-         ----------------------------------------------------- */
 
       if(
         startTarget &&
@@ -18581,8 +18703,11 @@ function initFlashcardMobileGestures(){
         Math.abs(deltaX);
 
 
-      const distanceY =
-        Math.abs(deltaY);
+      const upwardDistance =
+        Math.max(
+          0,
+          -deltaY
+        );
 
 
       const elapsed =
@@ -18591,20 +18716,24 @@ function initFlashcardMobileGestures(){
 
 
       /* =====================================================
-         🃏 DRAG CARD
+         🃏 DRAG CHẾCH LÊN
          ===================================================== */
 
-      if(horizontalIntent){
+      if(diagonalIntent){
 
         const width =
           scene.clientWidth || 320;
 
 
-        const threshold =
+        const thresholdX =
           Math.max(
-            90,
-            width * 0.22
+            75,
+            width * .18
           );
+
+
+        const thresholdY =
+          45;
 
 
         const moveElapsed =
@@ -18621,18 +18750,28 @@ function initFlashcardMobileGestures(){
             : 0;
 
 
+        /*
+          Đủ xa theo chiều ngang,
+          hoặc kéo nhanh,
+          và bắt buộc đã kéo lên.
+        */
+
         const shouldComplete =
-          distanceX >= threshold ||
-          velocity >= 0.55;
+          (
+            distanceX >= thresholdX &&
+            upwardDistance >= thresholdY
+          )
+          ||
+          (
+            velocity >= .55 &&
+            upwardDistance >= 35
+          );
 
 
-        if(
-          shouldComplete &&
-          distanceX > distanceY * 1.15
-        ){
+        if(shouldComplete){
 
           completeSwipe(
-            deltaX > 0
+            deltaX >= 0
               ? 1
               : -1
           );
@@ -18647,8 +18786,7 @@ function initFlashcardMobileGestures(){
         lastTapTime = 0;
 
         dragging = false;
-
-        horizontalIntent = false;
+        diagonalIntent = false;
 
         return;
 
@@ -18658,6 +18796,10 @@ function initFlashcardMobileGestures(){
       /* =====================================================
          👆👆 DOUBLE TAP
          ===================================================== */
+
+      const distanceY =
+        Math.abs(deltaY);
+
 
       if(
         distanceX < 25 &&
@@ -18734,7 +18876,7 @@ function initFlashcardMobileGestures(){
 
       if(
         dragging &&
-        horizontalIntent
+        diagonalIntent
       ){
 
         snapBack();
@@ -18743,8 +18885,7 @@ function initFlashcardMobileGestures(){
 
 
       dragging = false;
-
-      horizontalIntent = false;
+      diagonalIntent = false;
 
       lastTapTime = 0;
 
@@ -18755,7 +18896,6 @@ function initFlashcardMobileGestures(){
   );
 
 }
-
 
 /* =========================================================
    📱 KHỞI TẠO GESTURE KHI TRANG SẴN SÀNG
