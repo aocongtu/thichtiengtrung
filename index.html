@@ -1947,6 +1947,40 @@ HSK 1 — 150 từ
 
   <h2>🔊 AUTO LEARNING</h2>
 
+<div style="
+  margin: 10px 0 18px;
+  text-align: center;
+">
+  <label style="
+    font-weight: bold;
+    margin-right: 8px;
+  ">
+    📚 Chọn HSK:
+  </label>
+<select
+  id="autoLearningHSK"
+    onchange="changeAutoLearningHSK(this.value)"
+    style="
+      padding: 9px 14px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 15px;
+      font-weight: bold;
+      background: #fff;
+    "
+  >
+    <option value="1">HSK 1</option>
+    <option value="2">HSK 2</option>
+    <option value="3">HSK 3</option>
+    <option value="4">HSK 4</option>
+    <option value="5">HSK 5</option>
+    <option value="6">HSK 6</option>
+    <option value="7">HSK 7</option>
+    <option value="8">HSK 8</option>
+    <option value="9">HSK 9</option>
+  </select>
+</div>
+
   <div id="autoLearningWord" class="auto-learning-word">
     爱好
   </div>
@@ -13132,11 +13166,12 @@ window.supabase.auth.onAuthStateChange(
    ========================================================= */
 
 let autoLearningIndex = 0;
+let autoLearningList = null;
+let autoLearningHSK = 1;
 let autoLearningTimer = null;
 let autoLearningRunning = false;
 let autoLearningPaused = false;
 let autoLearningSpeaking = false;
-
 
 /* =========================================================
    1. LẤY DANH SÁCH HIỆN TẠI
@@ -13144,13 +13179,68 @@ let autoLearningSpeaking = false;
 
 function getAutoLearningList(){
 
-  if(Array.isArray(currentList) && currentList.length){
-    return currentList;
+  if(
+    Array.isArray(autoLearningList) &&
+    autoLearningList.length
+  ){
+    return autoLearningList;
   }
 
   return [];
 }
 
+async function changeAutoLearningHSK(level){
+
+  const hsk = Number(level);
+
+  if(hsk < 1 || hsk > 9){
+    return;
+  }
+
+  if(hsk >= 4){
+
+    const allowed =
+      await checkPremiumAccess(hsk);
+
+    if(!allowed){
+
+      const select =
+        document.getElementById(
+          "autoLearningHSK"
+        );
+
+      if(select){
+        select.value =
+          String(autoLearningHSK);
+      }
+
+      return;
+    }
+  }
+
+  const list =
+    words.filter(function(word){
+      return Number(word.hsk) === hsk;
+    });
+
+  if(!list.length){
+
+    alert(
+      "Chưa có dữ liệu từ vựng HSK " +
+      hsk
+    );
+
+    return;
+  }
+
+  stopAutoLearning();
+
+  autoLearningHSK = hsk;
+  autoLearningList = list;
+  autoLearningIndex = 0;
+
+  renderAutoLearningWord();
+}
 
 /* =========================================================
    2. STORAGE
@@ -14112,6 +14202,9 @@ window.autoSpeakVietnamese =
 window.changeAutoInterval =
   changeAutoInterval;
 
+window.changeAutoLearningHSK =
+  changeAutoLearningHSK;
+
 window.startVocabularyCheck =
   startVocabularyCheck;
 
@@ -14128,12 +14221,24 @@ window.refreshAutoLearning =
 
 function initAutoLearning(){
 
+  if(
+    !Array.isArray(autoLearningList) ||
+    !autoLearningList.length
+  ){
+
+    autoLearningHSK =
+      Number(currentHSK) || 1;
+
+    autoLearningList =
+      words.filter(function(word){
+        return Number(word.hsk) === autoLearningHSK;
+      });
+
+  }
+
   loadAutoLearningPosition();
-
   renderAutoLearningWord();
-
 }
-
 
 initAutoLearning();
 
