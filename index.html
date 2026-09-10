@@ -16970,12 +16970,34 @@ window.openFlashcardForWord = async function(hanzi){
      5. MỞ FLASHCARD
      ===================================================== */
 
-  toggleFlashcardSection();
+  const section =
+  document.getElementById(
+    "flashcardSection"
+  );
 
+const isOpen =
+  section &&
+  (
+    section.classList.contains(
+      "flashcard-open"
+    ) ||
+    section.classList.contains(
+      "flashcard-fullscreen"
+    )
+  );
+
+if(!isOpen){
+  toggleFlashcardSection();
+}
 
   /* =====================================================
      6. Cuộn tới Flashcard
      ===================================================== */
+
+       const target =
+         document.getElementById(
+           "flashcardSection"
+         );
 
   setTimeout(function(){
 
