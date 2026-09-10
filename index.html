@@ -797,6 +797,140 @@ main{
   line-height:1.5;
 }
 
+/* =========================================================
+   ✍️ THỨ TỰ NÉT — KHUNG VISUAL
+   ========================================================= */
+
+.flashcard-stroke-board{
+  width:100%;
+  padding:10px 0 4px;
+  text-align:center;
+}
+
+.stroke-order-loading{
+  padding:28px 12px;
+  color:#64748b;
+  font-size:14px;
+  text-align:center;
+}
+
+.stroke-order-canvas{
+  position:relative;
+  width:min(100%,420px);
+  margin:0 auto;
+  aspect-ratio:1 / 1;
+  border-radius:18px;
+  background:#f8fafc;
+  border:1px solid #e6ebf3;
+  overflow:hidden;
+}
+
+.stroke-order-svg{
+  display:block;
+  width:100%;
+  height:100%;
+}
+
+.stroke-path{
+  fill:#172033;
+  transition:opacity .25s ease;
+}
+
+.stroke-path.is-hidden{
+  opacity:.10;
+}
+
+.stroke-number{
+  fill:#2563eb;
+  stroke:#ffffff;
+  stroke-width:3;
+}
+
+.stroke-number-text{
+  fill:#ffffff;
+  font-size:28px;
+  font-weight:800;
+  text-anchor:middle;
+  dominant-baseline:middle;
+  pointer-events:none;
+}
+
+.stroke-arrow{
+  stroke:#ef4444;
+  stroke-width:8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  fill:none;
+}
+
+.stroke-arrow-head{
+  fill:#ef4444;
+}
+
+.stroke-order-controls{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:12px;
+}
+
+.stroke-order-button{
+  min-height:44px;
+  padding:10px 15px;
+  border:0;
+  border-radius:13px;
+  background:#eef4ff;
+  color:#2457c5;
+  font-size:13px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.stroke-order-button:active{
+  transform:translateY(1px);
+}
+
+.stroke-order-info{
+  margin-top:10px;
+  color:#64748b;
+  font-size:12px;
+  line-height:1.5;
+  text-align:center;
+}
+
+.stroke-order-error{
+  padding:20px 12px;
+  color:#b45309;
+  font-size:13px;
+  line-height:1.5;
+  text-align:center;
+}
+
+@media(max-width:600px){
+
+  .flashcard-stroke-board{
+    padding-top:4px;
+  }
+
+  .stroke-order-canvas{
+    width:min(100%,340px);
+    border-radius:16px;
+  }
+
+  .stroke-number-text{
+    font-size:24px;
+  }
+
+  .stroke-order-controls{
+    gap:8px;
+  }
+
+  .stroke-order-button{
+    flex:1 1 140px;
+  }
+
+}
 
 /* =========================================================
    AUDIO
@@ -16881,6 +17015,1056 @@ if(
   let flashcardHSK = 1;
   let flashcardList = [];
 
+/* =========================================================
+   ✍️ STROKE ORDER ENGINE
+   Dữ liệu nét từ Hanzi Writer Data
+   ========================================================= */
+
+const strokeOrderCache = {};
+
+
+/* =========================================================
+   📥 TẢI DỮ LIỆU THỨ TỰ NÉT
+   ========================================================= */
+
+async function loadStrokeOrderData(character){
+
+  if(!character){
+    return null;
+  }
+
+
+  /* -------------------------------------------------------
+     Dùng cache nếu đã tải trước đó
+     ------------------------------------------------------- */
+
+  if(
+    Object.prototype.hasOwnProperty.call(
+      strokeOrderCache,
+      character
+    )
+  ){
+
+    return strokeOrderCache[character];
+
+  }
+
+
+  try{
+
+    const url =
+      "https://cdn.jsdelivr.net/npm/" +
+      "hanzi-writer-data@2.0/" +
+      encodeURIComponent(character) +
+      ".json";
+
+
+    const response =
+      await fetch(url);
+
+
+    if(!response.ok){
+
+      throw new Error(
+        "Không tải được dữ liệu nét."
+      );
+
+    }
+
+
+    const data =
+      await response.json();
+
+
+    strokeOrderCache[character] =
+      data;
+
+
+    return data;
+
+  }
+  catch(error){
+
+    console.error(
+      "Stroke Order Error:",
+      error
+    );
+
+
+    strokeOrderCache[character] =
+      null;
+
+
+    return null;
+
+  }
+
+}
+
+
+/* =========================================================
+   📐 CHUYỂN TỌA ĐỘ MEDIAN → SVG
+   Hanzi Writer dùng hệ tọa độ Y ngược với SVG
+   ========================================================= */
+
+function strokePointToSvg(point){
+
+  if(
+    !Array.isArray(point) ||
+    point.length < 2
+  ){
+
+    return null;
+
+  }
+
+
+  const x =
+    Number(point[0]);
+
+  const y =
+    900 -
+    Number(point[1]);
+
+
+  if(
+    !Number.isFinite(x) ||
+    !Number.isFinite(y)
+  ){
+
+    return null;
+
+  }
+
+
+  return {
+    x:x,
+    y:y
+  };
+
+}
+
+/* =========================================================
+   🧭 LẤY ĐIỂM ĐẦU / CUỐI CỦA MỘT NÉT
+   ========================================================= */
+
+function getStrokeEndpoints(median){
+
+  if(
+    !Array.isArray(median) ||
+    !median.length
+  ){
+
+    return null;
+
+  }
+
+
+  const first =
+    strokePointToSvg(
+      median[0]
+    );
+
+  const last =
+    strokePointToSvg(
+      median[median.length - 1]
+    );
+
+
+  if(!first || !last){
+
+    return null;
+
+  }
+
+
+  return {
+    start:first,
+    end:last
+  };
+
+}
+
+
+/* =========================================================
+   ➰ TẠO PATH TỪ MEDIAN
+   Dùng đường gấp khúc mượt để hiển thị hướng nét
+   ========================================================= */
+
+function medianToPath(median){
+
+  if(
+    !Array.isArray(median) ||
+    !median.length
+  ){
+
+    return "";
+
+  }
+
+
+  const points =
+    median
+      .map(strokePointToSvg)
+      .filter(Boolean);
+
+
+  if(!points.length){
+
+    return "";
+
+  }
+
+
+  let d =
+    "M " +
+    points[0].x +
+    " " +
+    points[0].y;
+
+
+  for(
+    let i = 1;
+    i < points.length;
+    i++
+  ){
+
+    d +=
+      " L " +
+      points[i].x +
+      " " +
+      points[i].y;
+
+  }
+
+
+  return d;
+
+}
+
+
+/* =========================================================
+   🔢 TẠO SỐ THỨ TỰ NÉT
+   ========================================================= */
+
+function createStrokeNumber(
+  svg,
+  number,
+  point
+){
+
+  if(
+    !svg ||
+    !point
+  ){
+
+    return;
+
+  }
+
+
+  const group =
+    document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "g"
+    );
+
+
+  group.setAttribute(
+    "class",
+    "stroke-number"
+  );
+
+
+  const circle =
+    document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "circle"
+    );
+
+
+  circle.setAttribute(
+    "cx",
+    point.x
+  );
+
+  circle.setAttribute(
+    "cy",
+    point.y
+  );
+
+  circle.setAttribute(
+    "r",
+    "25"
+  );
+
+
+  const text =
+    document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "text"
+    );
+
+
+  text.setAttribute(
+    "class",
+    "stroke-number-text"
+  );
+
+
+  text.setAttribute(
+    "x",
+    point.x
+  );
+
+  text.setAttribute(
+    "y",
+    point.y
+  );
+
+
+  text.textContent =
+    String(number);
+
+
+  group.appendChild(
+    circle
+  );
+
+  group.appendChild(
+    text
+  );
+
+
+  svg.appendChild(
+    group
+  );
+
+}
+
+
+/* =========================================================
+   ➡️ TẠO MŨI TÊN CHỈ HƯỚNG NÉT
+   ========================================================= */
+
+function createStrokeArrow(
+  svg,
+  start,
+  end
+){
+
+  if(
+    !svg ||
+    !start ||
+    !end
+  ){
+
+    return;
+
+  }
+
+
+  const group =
+    document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "g"
+    );
+
+
+  group.setAttribute(
+    "class",
+    "stroke-arrow"
+  );
+
+
+  const line =
+    document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "line"
+    );
+
+
+  line.setAttribute(
+    "x1",
+    start.x
+  );
+
+  line.setAttribute(
+    "y1",
+    start.y
+  );
+
+  line.setAttribute(
+    "x2",
+    end.x
+  );
+
+  line.setAttribute(
+    "y2",
+    end.y
+  );
+
+
+  group.appendChild(
+    line
+  );
+
+
+  svg.appendChild(
+    group
+  );
+
+}
+
+
+/* =========================================================
+   🛑 DỪNG ANIMATION
+   ========================================================= */
+
+function stopStrokeAnimation(){
+
+  if(
+    window.strokeAnimationTimer
+  ){
+
+    clearTimeout(
+      window.strokeAnimationTimer
+    );
+
+
+    window.strokeAnimationTimer =
+      null;
+
+  }
+
+}
+
+/* =========================================================
+   ✍️ RENDER THỨ TỰ NÉT CHO FLASHCARD
+   ========================================================= */
+
+let strokeRenderToken = 0;
+
+
+async function renderFlashcardStroke(character){
+
+  const strokeBox =
+    document.getElementById(
+      "flashcardStroke"
+    );
+
+
+  if(!strokeBox){
+
+    return;
+
+  }
+
+
+  stopStrokeAnimation();
+
+
+  const currentToken =
+    ++strokeRenderToken;
+
+
+  strokeBox.innerHTML =
+    `
+    <div class="stroke-order-loading">
+      ⏳ Đang tải thứ tự nét...
+    </div>
+    `;
+
+
+  const data =
+    await loadStrokeOrderData(
+      character
+    );
+
+
+  /*
+     Nếu người dùng đã chuyển sang
+     chữ khác trong lúc đang tải,
+     bỏ kết quả cũ.
+  */
+
+  if(
+    currentToken !==
+    strokeRenderToken
+  ){
+
+    return;
+
+  }
+
+
+  if(
+    !data ||
+    !Array.isArray(data.strokes) ||
+    !Array.isArray(data.medians)
+  ){
+
+    strokeBox.innerHTML =
+      `
+      <div class="stroke-order-error">
+        ⚠️ Chưa có dữ liệu thứ tự nét cho chữ này.
+      </div>
+      `;
+
+    return;
+
+  }
+
+
+  const strokes =
+    data.strokes;
+
+  const medians =
+    data.medians;
+
+
+  /*
+     --------------------------------------------------------
+     KHUNG HIỂN THỊ
+     --------------------------------------------------------
+  */
+
+  strokeBox.innerHTML =
+    `
+    <div class="flashcard-stroke-board">
+
+      <div class="stroke-order-canvas">
+
+        <svg
+          class="stroke-order-svg"
+          viewBox="0 0 1024 1024"
+          preserveAspectRatio="xMidYMid meet"
+          aria-label="Thứ tự nét ${character}"
+        >
+
+          <g
+            id="flashcardStrokePaths"
+          ></g>
+
+          <g
+            id="flashcardStrokeGuides"
+          ></g>
+
+          <g
+            id="flashcardStrokeNumbers"
+          ></g>
+
+        </svg>
+
+      </div>
+
+
+      <div class="stroke-order-controls">
+
+        <button
+          type="button"
+          class="stroke-order-button"
+          id="strokePlayButton"
+        >
+          ▶️ Xem thứ tự nét
+        </button>
+
+
+        <button
+          type="button"
+          class="stroke-order-button"
+          id="strokeShowAllButton"
+        >
+          🔄 Hiện đủ nét
+        </button>
+
+      </div>
+
+
+      <div
+        class="stroke-order-info"
+        id="strokeOrderInfo"
+      >
+        ${strokes.length} nét · Nét 1 → Nét ${strokes.length}
+      </div>
+
+    </div>
+    `;
+
+
+  const svgNS =
+    "http://www.w3.org/2000/svg";
+
+
+  const pathGroup =
+    document.getElementById(
+      "flashcardStrokePaths"
+    );
+
+   pathGroup.setAttribute(
+    "transform",
+    "translate(0,900) scale(1,-1)"
+  );
+
+  const guideGroup =
+    document.getElementById(
+      "flashcardStrokeGuides"
+    );
+
+
+  const numberGroup =
+    document.getElementById(
+      "flashcardStrokeNumbers"
+    );
+
+
+  if(
+    !pathGroup ||
+    !guideGroup ||
+    !numberGroup
+  ){
+
+    return;
+
+  }
+
+
+  /*
+     --------------------------------------------------------
+     VẼ TỪNG NÉT
+     --------------------------------------------------------
+  */
+
+  const pathElements = [];
+
+
+  strokes.forEach(
+    (
+      strokePath,
+      index
+    ) => {
+
+      const path =
+        document.createElementNS(
+          svgNS,
+          "path"
+        );
+
+
+      path.setAttribute(
+        "d",
+        strokePath
+      );
+
+
+      path.setAttribute(
+        "class",
+        "stroke-path is-hidden"
+      );
+
+
+      path.setAttribute(
+        "data-stroke-index",
+        index
+      );
+
+
+      pathElements.push(
+        path
+      );
+
+
+      pathGroup.appendChild(
+        path
+      );
+
+
+      /*
+         --------------------------------------------
+         LẤY MEDIAN
+         --------------------------------------------
+      */
+
+      const median =
+        medians[index];
+
+
+      if(
+        !Array.isArray(median) ||
+        !median.length
+      ){
+
+        return;
+
+      }
+
+
+      const first =
+        strokePointToSvg(
+          median[0]
+        );
+
+
+      const last =
+        strokePointToSvg(
+          median[
+            median.length - 1
+          ]
+        );
+
+
+      if(
+        !first ||
+        !last
+      ){
+
+        return;
+
+      }
+
+
+      /*
+         --------------------------------------------
+         SỐ THỨ TỰ NÉT
+         --------------------------------------------
+      */
+
+      const numberGroupItem =
+        document.createElementNS(
+          svgNS,
+          "g"
+        );
+
+
+      numberGroupItem.setAttribute(
+        "class",
+        "stroke-number"
+      );
+
+
+      const circle =
+        document.createElementNS(
+          svgNS,
+          "circle"
+        );
+
+
+      circle.setAttribute(
+        "cx",
+        first.x
+      );
+
+      circle.setAttribute(
+        "cy",
+        first.y
+      );
+
+      circle.setAttribute(
+        "r",
+        "25"
+      );
+
+
+      const numberText =
+        document.createElementNS(
+          svgNS,
+          "text"
+        );
+
+
+      numberText.setAttribute(
+        "class",
+        "stroke-number-text"
+      );
+
+
+      numberText.setAttribute(
+        "x",
+        first.x
+      );
+
+      numberText.setAttribute(
+        "y",
+        first.y
+      );
+
+
+      numberText.textContent =
+        String(index + 1);
+
+
+      numberGroupItem.appendChild(
+        circle
+      );
+
+
+      numberGroupItem.appendChild(
+        numberText
+      );
+
+
+      numberGroup.appendChild(
+        numberGroupItem
+      );
+
+
+      /*
+         --------------------------------------------
+         MŨI TÊN Ở CUỐI NÉT
+         --------------------------------------------
+      */
+
+      if(
+        median.length >= 2
+      ){
+
+        const beforeLast =
+          strokePointToSvg(
+            median[
+              median.length - 2
+            ]
+          );
+
+
+        if(beforeLast){
+
+          const arrow =
+            document.createElementNS(
+              svgNS,
+              "line"
+            );
+
+
+          arrow.setAttribute(
+            "class",
+            "stroke-arrow"
+          );
+
+
+          arrow.setAttribute(
+            "x1",
+            beforeLast.x
+          );
+
+          arrow.setAttribute(
+            "y1",
+            beforeLast.y
+          );
+
+          arrow.setAttribute(
+            "x2",
+            last.x
+          );
+
+          arrow.setAttribute(
+            "y2",
+            last.y
+          );
+
+
+          guideGroup.appendChild(
+            arrow
+          );
+
+        }
+
+      }
+
+    }
+  );
+
+
+  /*
+     --------------------------------------------------------
+     HIỆN ĐỦ NÉT
+     --------------------------------------------------------
+  */
+
+  function showAllStrokes(){
+
+    stopStrokeAnimation();
+
+
+    pathElements.forEach(
+      path => {
+
+        path.classList.remove(
+          "is-hidden"
+        );
+
+      }
+    );
+
+
+    const info =
+      document.getElementById(
+        "strokeOrderInfo"
+      );
+
+
+    if(info){
+
+      info.textContent =
+        `${strokes.length} nét · Đã hiện đầy đủ`;
+
+    }
+
+  }
+
+
+  /*
+     --------------------------------------------------------
+     CHẠY TỪNG NÉT
+     --------------------------------------------------------
+  */
+
+  function playStrokeAnimation(){
+
+    stopStrokeAnimation();
+
+
+    pathElements.forEach(
+      path => {
+
+        path.classList.add(
+          "is-hidden"
+        );
+
+      }
+    );
+
+
+    let current =
+      0;
+
+
+    const info =
+      document.getElementById(
+        "strokeOrderInfo"
+      );
+
+
+    function showNext(){
+
+      if(
+        current >=
+        pathElements.length
+      ){
+
+        if(info){
+
+          info.textContent =
+            `${strokes.length} nét · Hoàn thành`;
+
+        }
+
+        window.strokeAnimationTimer =
+          null;
+
+        return;
+
+      }
+
+
+      pathElements[
+        current
+      ].classList.remove(
+        "is-hidden"
+      );
+
+
+      if(info){
+
+        info.textContent =
+          `Đang viết nét ${current + 1} / ${strokes.length}`;
+
+      }
+
+
+      current++;
+
+
+      window.strokeAnimationTimer =
+        setTimeout(
+          showNext,
+          650
+        );
+
+    }
+
+
+    showNext();
+
+  }
+
+
+  /*
+     --------------------------------------------------------
+     NÚT XEM THỨ TỰ
+     --------------------------------------------------------
+  */
+
+  const playButton =
+    document.getElementById(
+      "strokePlayButton"
+    );
+
+
+  if(playButton){
+
+    playButton.onclick =
+      function(event){
+
+        event.stopPropagation();
+
+        playStrokeAnimation();
+
+      };
+
+  }
+
+
+  /*
+     --------------------------------------------------------
+     NÚT HIỆN ĐỦ
+     --------------------------------------------------------
+  */
+
+  const showAllButton =
+    document.getElementById(
+      "strokeShowAllButton"
+    );
+
+
+  if(showAllButton){
+
+    showAllButton.onclick =
+      function(event){
+
+        event.stopPropagation();
+
+        showAllStrokes();
+
+      };
+
+  }
+
+
+  /*
+     --------------------------------------------------------
+     HIỆN NÉT ĐẦU TIÊN
+     --------------------------------------------------------
+  */
+
+  if(pathElements.length){
+
+    pathElements[0].classList.remove(
+      "is-hidden"
+    );
+
+  }
+
+}
 
   /* =========================================================
      📚 LẤY DANH SÁCH FLASHCARD
@@ -17644,9 +18828,22 @@ if(stroke){
   stroke.innerHTML =
     `
     <div class="stroke-order-loading">
-      ⏳ Đang chuẩn bị thứ tự nét...
+      ⏳ Đang tải thứ tự nét...
     </div>
     `;
+
+
+  const character =
+    word.h;
+
+
+  if(character){
+
+    renderFlashcardStroke(
+      character
+    );
+
+  }
 
 }
 
