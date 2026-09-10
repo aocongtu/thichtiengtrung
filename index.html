@@ -1028,7 +1028,66 @@ main{
 .flashcard-example-audio:active{
   transform:translateY(1px);
 }
+/* =========================================================
+   🔘 LOA MẶT TRƯỚC — KIỂU HOME IPHONE 5
+   ========================================================= */
 
+.flashcard-front-audio-button{
+
+  width:58px;
+  height:58px;
+
+  padding:0;
+
+  margin:4px 0 2px;
+
+  border-radius:50%;
+
+  border:1px solid #d9e1ec;
+
+  background:#ffffff;
+
+  color:#475569;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  font-size:23px;
+
+  cursor:pointer;
+
+  box-shadow:
+    0 4px 8px rgba(0,0,0,.12),
+    inset 0 1px 2px rgba(255,255,255,.9);
+
+  transition:
+    transform .12s ease,
+    box-shadow .12s ease,
+    background .12s ease;
+
+  flex-shrink:0;
+}
+
+.flashcard-front-audio-button:hover{
+
+  background:#f8fafc;
+
+  box-shadow:
+    0 5px 11px rgba(0,0,0,.16),
+    inset 0 1px 2px rgba(255,255,255,.9);
+}
+
+.flashcard-front-audio-button:active{
+
+  transform:
+    scale(.91)
+    translateY(1px);
+
+  box-shadow:
+    inset 0 2px 4px rgba(0,0,0,.16),
+    0 1px 3px rgba(0,0,0,.10);
+}
 
 /* =========================================================
    CẤU TẠO HÁN TỰ
@@ -4113,7 +4172,19 @@ Số từ
         >
           爱
         </div>
-
+<button
+  type="button"
+  id="flashcardFrontAudioButton"
+  class="flashcard-front-audio-button"
+  onclick="
+    event.stopPropagation();
+    playFlashcardAudio();
+  "
+  aria-label="Nghe từ vựng"
+  title="Nghe từ vựng"
+>
+  🔊
+</button>
 
         <div
           id="flashcardFrontName"
@@ -41137,6 +41208,20 @@ let testIndex = 0;
 let testScore = 0;
 let testAnswered = false;
 let testFinished = false;
+function getTestScorePercent(){
+
+  const total =
+    testQuestions.length;
+
+  if(!total){
+    return 0;
+  }
+
+  return Math.round(
+    (testScore / total) * 100
+  );
+
+}
 
 /* =========================================================
    💾 LƯU TIẾN ĐỘ TEST THEO TÀI KHOẢN
@@ -41415,7 +41500,10 @@ async function startTest(btn){
    Tiếp tục từ tiến độ đã lưu
 ========================================================= */
 
-testQuestions = [...currentList];
+testQuestions =
+  words.filter(
+    w => Number(w.hsk) === Number(currentHSK)
+  );
 
 testScore = 0;
 
@@ -41602,7 +41690,7 @@ function showTestQuestion(){
   document
     .getElementById("score")
     .textContent =
-      `Điểm hiện tại: ${testScore * 10} / 100`;
+      `Điểm hiện tại: ${getTestScorePercent()} / 100`;
 
 
   updateTestButtonState();
@@ -41731,7 +41819,7 @@ saveTestProgress(
     document
       .getElementById("score")
       .textContent =
-        `Điểm hiện tại: ${testScore * 10} / 100`;
+        `Điểm hiện tại: ${getTestScorePercent()} / 100`;
 
 
     /*
@@ -41789,7 +41877,7 @@ saveTestProgress(
   document
     .getElementById("score")
     .textContent =
-      `Điểm hiện tại: ${testScore * 10} / 100`;
+      `Điểm hiện tại: ${getTestScorePercent()} / 100`;
 
 
   /*
@@ -41943,7 +42031,7 @@ saveTestProgress(
   document
     .getElementById("testQuestion")
     .textContent =
-      `🏆 ${testScore * 10} / 100`;
+      `🏆 ${getTestScorePercent()} / 100`;
 
 
   document
@@ -41969,7 +42057,7 @@ saveTestProgress(
       `
       ✅ Đúng: <strong>${testScore}</strong> câu<br>
       ❌ Sai: <strong>${wrong}</strong> câu<br>
-      🏆 Điểm: <strong>${testScore * 10} / 100</strong>
+      🏆 Điểm: <strong>${getTestScorePercent()} / 100</strong>
       `;
 
 
@@ -41982,7 +42070,7 @@ saveTestProgress(
   document
     .getElementById("score")
     .textContent =
-      `🏆 ĐIỂM CUỐI: ${testScore * 10} / 100`;
+      `🏆 ĐIỂM CUỐI: ${getTestScorePercent()} / 100`;
 
 
   updateTestWrongWordCount();
@@ -41999,7 +42087,9 @@ function resetTest(){
   ================================================== */
 
   testQuestions =
-    [...currentList];
+  words.filter(
+    w => Number(w.hsk) === Number(currentHSK)
+  );
 
 
   testIndex = 0;
@@ -42139,6 +42229,11 @@ function createTestButtons(){
         id="resetTestButton">
         🔄 Làm lại từ đầu
       </button>
+<button
+  type="button"
+  id="clearTestWrongWordsButton">
+  🧹 Xóa từ sai đã nhớ
+</button>
 
     </div>
 
@@ -42188,7 +42283,26 @@ function createTestButtons(){
 
       }
     );
+document
+  .getElementById(
+    "clearTestWrongWordsButton"
+  )
+  .addEventListener(
+    "click",
+    function(){
 
+      if(
+        !confirm(
+          "Anh có chắc muốn xóa toàn bộ các từ sai đã nhớ không?"
+        )
+      ){
+        return;
+      }
+
+      clearTestWrongWords();
+
+    }
+  );
 
   updateTestWrongWordCount();
 
