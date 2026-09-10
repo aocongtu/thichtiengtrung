@@ -9962,8 +9962,11 @@ function render(list=currentList){
 
   box.innerHTML=list.map(w=>`
 
-    <article class="card">
-
+    <article
+      class="card"
+      onclick='window.openFlashcardForWord(${JSON.stringify(w.h)})'
+      style="cursor:pointer;"
+    >
       <span class="hsk">
         HSK ${w.hsk}
       </span>
@@ -9985,8 +9988,8 @@ function render(list=currentList){
       </div>
 
       <button
-        class="speaker"
-        onclick='say(${JSON.stringify(w.h)})'>
+             class="speaker"
+            onclick='event.stopPropagation(); say(${JSON.stringify(w.h)})'>
         🔊
       </button>
 
@@ -16872,6 +16875,107 @@ if(
       : [];
 
   }
+
+/* =========================================================
+   🔗 SEARCH → FLASHCARD
+   Mở đúng Flashcard khi người dùng chọn một từ
+   ========================================================= */
+
+window.openFlashcardForWord = async function(hanzi){
+
+  if(!hanzi){
+    return;
+  }
+
+  const word =
+    Array.isArray(words)
+      ? words.find(function(item){
+          return item.h === hanzi;
+        })
+      : null;
+
+  if(!word){
+    return;
+  }
+
+
+  /* =====================================================
+     1. Chuyển Flashcard sang đúng HSK
+     ===================================================== */
+
+  const level =
+    Number(word.hsk) || 1;
+
+  await changeFlashcardHSK(level);
+
+
+  /* =====================================================
+     2. Kiểm tra lại dữ liệu Flashcard
+     ===================================================== */
+
+  const list =
+    getFlashcardList();
+
+  if(!list.length){
+    return;
+  }
+
+
+  /* =====================================================
+     3. Tìm đúng từ trong Flashcard
+     ===================================================== */
+
+  const index =
+    list.findIndex(function(item){
+      return item.h === hanzi;
+    });
+
+  if(index < 0){
+    return;
+  }
+
+
+  /* =====================================================
+     4. Đặt đúng vị trí
+     ===================================================== */
+
+  setFlashcardIndex(index);
+
+  resetFlashcardFlip();
+
+  renderFlashcard();
+
+
+  /* =====================================================
+     5. MỞ FLASHCARD
+     ===================================================== */
+
+  toggleFlashcardSection();
+
+
+  /* =====================================================
+     6. Cuộn tới Flashcard
+     ===================================================== */
+
+  setTimeout(function(){
+
+    const section =
+      document.getElementById(
+        "flashcardSection"
+      );
+
+    if(section){
+
+      section.scrollIntoView({
+        behavior:"smooth",
+        block:"start"
+      });
+
+    }
+
+  },100);
+
+};
 
 
   /* =========================================================
