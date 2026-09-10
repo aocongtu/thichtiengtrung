@@ -17920,83 +17920,300 @@ async function renderFlashcardStroke(character){
 
   function playStrokeAnimation(){
 
-    stopStrokeAnimation();
+  stopStrokeAnimation();
+
+  /* =====================================================
+     ẨN TOÀN BỘ NÉT
+     ===================================================== */
+
+  pathElements.forEach(
+    path => {
+      path.classList.add("is-hidden");
+    }
+  );
 
 
-    pathElements.forEach(
-      path => {
+  /* =====================================================
+     DỌN CÁC ĐƯỜNG ANIMATION CŨ
+     ===================================================== */
 
-        path.classList.add(
-          "is-hidden"
-        );
+  const oldAnimationLines =
+    guideGroup.querySelectorAll(
+      ".stroke-draw-animation"
+    );
 
-      }
+  oldAnimationLines.forEach(
+    line => {
+      line.remove();
+    }
+  );
+
+
+  const info =
+    document.getElementById(
+      "strokeOrderInfo"
     );
 
 
-    let current =
-      0;
+  let current = 0;
 
 
-    const info =
-      document.getElementById(
-        "strokeOrderInfo"
-      );
+  /* =====================================================
+     CHẠY TỪNG NÉT
+     ===================================================== */
+
+  function showNextStroke(){
+
+    if(
+      current >=
+      pathElements.length
+    ){
+
+      if(info){
+
+        info.textContent =
+          `${strokes.length} nét · Hoàn thành`;
+
+      }
+
+      window.strokeAnimationTimer =
+        null;
+
+      return;
+    }
 
 
-    function showNext(){
+    const median =
+      medians[current];
 
-      if(
-        current >=
-        pathElements.length
-      ){
+
+    /* ===================================================
+       NẾU CÓ MEDIAN → VẼ ĐƯỜNG ĐANG CHẠY
+       =================================================== */
+
+    if(
+      Array.isArray(median) &&
+      median.length >= 2
+    ){
+
+      const points =
+        median
+          .map(
+            strokePointToSvg
+          )
+          .filter(Boolean);
+
+
+      if(points.length >= 2){
+
+        const svgNS =
+          "http://www.w3.org/2000/svg";
+
+
+        const polyline =
+          document.createElementNS(
+            svgNS,
+            "polyline"
+          );
+
+
+        polyline.setAttribute(
+          "class",
+          "stroke-draw-animation"
+        );
+
+
+        polyline.setAttribute(
+          "points",
+          points
+            .map(
+              point =>
+                `${point.x},${point.y}`
+            )
+            .join(" ")
+        );
+
+
+        /* =============================================
+           STYLE TRỰC TIẾP
+           Không cần thêm CSS mới
+           ============================================= */
+
+        polyline.setAttribute(
+          "fill",
+          "none"
+        );
+
+        polyline.setAttribute(
+          "stroke",
+          "#2563eb"
+        );
+
+        polyline.setAttribute(
+          "stroke-width",
+          "34"
+        );
+
+        polyline.setAttribute(
+          "stroke-linecap",
+          "round"
+        );
+
+        polyline.setAttribute(
+          "stroke-linejoin",
+          "round"
+        );
+
+
+        guideGroup.appendChild(
+          polyline
+        );
+
+
+        /* =============================================
+           TÍNH ĐỘ DÀI ĐƯỜNG
+           ============================================= */
+
+        let totalLength = 0;
+
+        for(
+          let i = 1;
+          i < points.length;
+          i++
+        ){
+
+          const dx =
+            points[i].x -
+            points[i - 1].x;
+
+          const dy =
+            points[i].y -
+            points[i - 1].y;
+
+          totalLength +=
+            Math.sqrt(
+              dx * dx +
+              dy * dy
+            );
+
+        }
+
+
+        polyline.style.strokeDasharray =
+          totalLength;
+
+        polyline.style.strokeDashoffset =
+          totalLength;
+
+        polyline.style.transition =
+          "stroke-dashoffset .55s ease";
+
+
+        /* =============================================
+           HIỆN THÔNG TIN
+           ============================================= */
 
         if(info){
 
           info.textContent =
-            `${strokes.length} nét · Hoàn thành`;
+            `Đang viết nét ${current + 1} / ${strokes.length}`;
 
         }
 
+
+        /* =============================================
+           BẮT ĐẦU CHẠY
+           ============================================= */
+
+        requestAnimationFrame(
+          function(){
+
+            polyline.style.strokeDashoffset =
+              "0";
+
+          }
+        );
+
+
+        /* =============================================
+           KHI VIẾT XONG:
+           HIỆN NÉT THẬT
+           ============================================= */
+
         window.strokeAnimationTimer =
-          null;
+          setTimeout(
+            function(){
+
+              pathElements[
+                current
+              ].classList.remove(
+                "is-hidden"
+              );
+
+
+              polyline.remove();
+
+
+              current++;
+
+
+              window.strokeAnimationTimer =
+                setTimeout(
+                  showNextStroke,
+                  120
+                );
+
+            },
+            600
+          );
+
 
         return;
 
       }
 
-
-      pathElements[
-        current
-      ].classList.remove(
-        "is-hidden"
-      );
+    }
 
 
-      if(info){
+    /* ===================================================
+       FALLBACK:
+       NẾU KHÔNG CÓ MEDIAN
+       =================================================== */
 
-        info.textContent =
-          `Đang viết nét ${current + 1} / ${strokes.length}`;
-
-      }
-
-
-      current++;
+    pathElements[
+      current
+    ].classList.remove(
+      "is-hidden"
+    );
 
 
-      window.strokeAnimationTimer =
-        setTimeout(
-          showNext,
-          650
-        );
+    if(info){
+
+      info.textContent =
+        `Đang viết nét ${current + 1} / ${strokes.length}`;
 
     }
 
 
-    showNext();
+    current++;
+
+
+    window.strokeAnimationTimer =
+      setTimeout(
+        showNextStroke,
+        650
+      );
 
   }
 
+
+  /* =====================================================
+     BẮT ĐẦU
+     ===================================================== */
+
+  showNextStroke();
+
+}
 
   /*
      --------------------------------------------------------
