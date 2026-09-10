@@ -4070,23 +4070,21 @@ Số từ
         </div>
 
 
-        <!-- STROKE -->
+             <!-- STROKE -->
+     <div class="flashcard-detail-box">
+       <div class="flashcard-detail-title">
+         ✍️ THỨ TỰ NÉT
+       </div>
 
-        <div class="flashcard-detail-box">
-
-          <div class="flashcard-detail-title">
-            ✍️ THỨ TỰ NÉT
-          </div>
-
-          <div
-            id="flashcardStroke"
-            class="flashcard-detail-content"
-          >
-            Thứ tự nét sẽ được tích hợp tại đây.
-          </div>
-
-        </div>
-
+       <div
+         id="flashcardStroke"
+         class="flashcard-stroke-board"
+       >
+         <div class="stroke-order-loading">
+           ⏳ Đang tải thứ tự nét...
+         </div>
+       </div>
+     </div>
 
         <!-- CẤU TẠO HÁN TỰ -->
 
@@ -17632,25 +17630,25 @@ function closeFlashcardMobile(){
 
     }
 
+/* =====================================================
+   ✍️ THỨ TỰ NÉT
+   ===================================================== */
 
-    /* =====================================================
-       ✍️ THỨ TỰ NÉT
-       ===================================================== */
+const stroke =
+  document.getElementById(
+    "flashcardStroke"
+  );
 
-    const stroke =
-      document.getElementById(
-        "flashcardStroke"
-      );
+if(stroke){
 
+  stroke.innerHTML =
+    `
+    <div class="stroke-order-loading">
+      ⏳ Đang chuẩn bị thứ tự nét...
+    </div>
+    `;
 
-    if(stroke){
-
-      stroke.textContent =
-        word.stroke ||
-        "Thứ tự nét sẽ được tích hợp tại đây.";
-
-    }
-
+}
 
     /* =====================================================
        💡 CẤU TẠO HÁN TỰ
