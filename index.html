@@ -807,6 +807,64 @@ main{
   text-align:center;
 }
 
+/* =========================================================
+   ✍️ BƯỚC 9 — CHỌN TỪNG HÁN TỰ TRONG MỘT TỪ
+   ========================================================= */
+
+.stroke-character-selector{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  margin:0 0 12px;
+}
+
+.stroke-character-button{
+  min-width:48px;
+  min-height:44px;
+  padding:7px 12px;
+
+  border:1px solid #dbe4f0;
+  border-radius:13px;
+
+  background:#f8fafc;
+  color:#334155;
+
+  font-size:22px;
+  font-weight:800;
+
+  cursor:pointer;
+
+  transition:
+    background .2s ease,
+    color .2s ease,
+    transform .2s ease,
+    box-shadow .2s ease;
+}
+
+.stroke-character-button:hover{
+  transform:translateY(-1px);
+}
+
+.stroke-character-button.active{
+  background:#2563eb;
+  color:#ffffff;
+  border-color:#2563eb;
+
+  box-shadow:
+    0 5px 14px rgba(37,99,235,.22);
+}
+
+.stroke-character-label{
+  width:100%;
+  margin-bottom:2px;
+
+  color:#64748b;
+  font-size:12px;
+  font-weight:700;
+}
+
 .stroke-order-loading{
   padding:28px 12px;
   color:#64748b;
@@ -17446,13 +17504,45 @@ function stopStrokeAnimation(){
 let strokeRenderToken = 0;
 
 
-async function renderFlashcardStroke(character){
-
+async function renderFlashcardStroke(
+  wordText,
+  selectedIndex = 0
+){
+  
   const strokeBox =
     document.getElementById(
       "flashcardStroke"
     );
 
+
+  /* =====================================================
+     ✍️ TÁCH TỪ THÀNH TỪNG HÁN TỰ
+     ===================================================== */
+
+  const characters =
+    Array.from(
+      String(wordText || "")
+    ).filter(
+      char =>
+        /[\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF]/.test(char)
+    );
+
+
+  if(!characters.length){
+    return;
+  }
+
+
+  if(
+    selectedIndex < 0 ||
+    selectedIndex >= characters.length
+  ){
+    selectedIndex = 0;
+  }
+
+
+  const character =
+    characters[selectedIndex];
 
   if(!strokeBox){
 
@@ -17468,13 +17558,7 @@ async function renderFlashcardStroke(character){
     ++strokeRenderToken;
 
 
-  strokeBox.innerHTML =
-    `
-    <div class="stroke-order-loading">
-      ⏳ Đang tải thứ tự nét...
-    </div>
-    `;
-
+ 
 
   const data =
     await loadStrokeOrderData(
@@ -17532,6 +17616,38 @@ async function renderFlashcardStroke(character){
   strokeBox.innerHTML =
     `
     <div class="flashcard-stroke-board">
+      ${
+        characters.length > 1
+          ? `
+            <div class="stroke-character-selector">
+
+              <div class="stroke-character-label">
+                🀄 Chọn Hán tự muốn xem nét
+              </div>
+
+              ${characters
+                .map(
+                  (char,index) =>
+                    `
+                    <button
+                      type="button"
+                      class="stroke-character-button ${
+                        index === selectedIndex
+                          ? "active"
+                          : ""
+                      }"
+                      data-stroke-character-index="${index}"
+                    >
+                      ${index + 1} · ${char}
+                    </button>
+                    `
+                )
+                .join("")}
+
+            </div>
+          `
+          : ""
+      }
 
       <div class="stroke-order-canvas">
 
@@ -17594,6 +17710,54 @@ async function renderFlashcardStroke(character){
 
   const svgNS =
     "http://www.w3.org/2000/svg";
+
+  /* =====================================================
+     ✍️ CHỌN HÁN TỰ
+     ===================================================== */
+
+  const characterButtons =
+    strokeBox.querySelectorAll(
+      "[data-stroke-character-index]"
+    );
+
+
+  characterButtons.forEach(
+    button => {
+
+      button.addEventListener(
+        "click",
+        function(event){
+
+          event.stopPropagation();
+
+
+          const nextIndex =
+            Number(
+              button.getAttribute(
+                "data-stroke-character-index"
+              )
+            );
+
+
+          if(
+            !Number.isInteger(
+              nextIndex
+            )
+          ){
+            return;
+          }
+
+
+          renderFlashcardStroke(
+            wordText,
+            nextIndex
+          );
+
+        }
+      );
+
+    }
+  );
 
 
   const pathGroup =
