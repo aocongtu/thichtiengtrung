@@ -3750,6 +3750,68 @@ if(!dbPlan){
 
     }
 
+    /* ===================================================
+       📱 GỬI THÔNG BÁO ADMIN QUA VERCEL → NTFY
+    =================================================== */
+
+    try {
+
+      const userEmail =
+        window.currentUser?.email || "Không rõ email";
+
+      const userName =
+        window.currentUser?.user_metadata?.full_name ||
+        window.currentUser?.user_metadata?.name ||
+        "Thành viên";
+
+      const notifyMessage =
+        "🔔 CÓ YÊU CẦU THANH TOÁN MỚI\n\n" +
+        "👤 Thành viên: " + userName + "\n" +
+        "📧 Email: " + userEmail + "\n" +
+        "📦 Gói: " + data.name + "\n" +
+        "💰 Số tiền: " +
+          data.amount.toLocaleString("vi-VN") +
+          " VNĐ\n\n" +
+        "📝 Thông tin chuyển khoản:\n" +
+        transferNote;
+
+      const notifyResponse =
+        await fetch(
+          "/api/notify-admin",
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json"
+            },
+
+            body: JSON.stringify({
+              title:
+                "🔔 YÊU CẦU THANH TOÁN MỚI",
+
+              message:
+                notifyMessage
+            })
+          }
+        );
+
+      const notifyResult =
+        await notifyResponse.json();
+
+      console.log(
+        "📱 Kết quả thông báo admin:",
+        notifyResult
+      );
+
+    } catch(notifyError) {
+
+      console.error(
+        "⚠️ Không gửi được thông báo admin:",
+        notifyError
+      );
+
+    }
 
     /* ===================================================
        GỬI THÀNH CÔNG
