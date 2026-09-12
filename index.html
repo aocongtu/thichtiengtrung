@@ -70264,24 +70264,15 @@ async function checkFreeTrial(){
 
 async function checkPremiumAccess(level){
 
-  /* HSK 1–3 luôn miễn phí */
-
-  if(
-      level <= 3
-     ){
-
-    return true;
-
-  }
-
-
-  /* Chưa đăng nhập */
-
+  /* =====================================================
+     🔒 CHƯA CÓ TÀI KHOẢN
+     Không được xem bất kỳ HSK nào
+     ===================================================== */
   if(!window.currentUser){
 
     alert(
-      "🔒 HSK 4–9 cần tài khoản Premium.\n\n" +
-      "Vui lòng đăng nhập để sử dụng 5 giờ học thử miễn phí."
+      "🔒 Vui lòng đăng ký hoặc đăng nhập tài khoản trước.\n\n" +
+      "Tài khoản miễn phí được xem từ vựng HSK 1–2."
     );
 
     return false;
@@ -70289,8 +70280,21 @@ async function checkPremiumAccess(level){
   }
 
 
-  /* Có membership */
+  /* =====================================================
+     🟢 HSK 1–2
+     Tài khoản thường được xem miễn phí
+     ===================================================== */
+  if(level <= 2){
 
+    return true;
+
+  }
+
+
+  /* =====================================================
+     💎 HSK 3–9
+     Chỉ Premium
+     ===================================================== */
   const paid =
     await hasActiveMembership();
 
@@ -70302,27 +70306,14 @@ async function checkPremiumAccess(level){
   }
 
 
-  /* Không có membership → kiểm tra 5 giờ trial */
-
-  const trial =
-    await checkFreeTrial();
-
-
-  if(trial.allowed){
-
-    startPremiumHeartbeat();
-
-    return true;
-
-  }
-
-
-  /* Đã hết trial */
-
+  /* =====================================================
+     🔒 TÀI KHOẢN FREE
+     HSK 3–9 bị khóa
+     ===================================================== */
   alert(
-    "⏰ Thời gian học thử Premium 5 giờ đã hết.\n\n" +
-    "HSK 4–9 hiện đang bị khóa.\n\n" +
-    "Anh/chị có thể đăng ký gói thành viên để tiếp tục học."
+    "🔒 HSK " + level + " là nội dung Premium.\n\n" +
+    "Tài khoản Free chỉ được xem từ vựng HSK 1–2.\n\n" +
+    "Vui lòng đăng ký gói Premium để tiếp tục học."
   );
 
   return false;
@@ -70480,7 +70471,7 @@ async function showHSK(level,btn){
      💎 KIỂM TRA PREMIUM CHO HSK 4–9
      ================================================= */
 
-  if(level >= 4){
+  if(level >= 1){
 
     const allowed =
       await checkPremiumAccess(level);
@@ -75129,7 +75120,7 @@ async function updateAccountUI(user){
         Đang tính...
       </b><br>
 
-      🎓 HSK 1–3: <b>Miễn phí</b>
+      🎓 HSK 1–2: <b>Miễn phí</b>
 
     `;
 
@@ -75156,9 +75147,9 @@ async function updateAccountUI(user){
 
     ⏰ <b>ĐÃ HẾT THỜI GIAN HỌC THỬ</b><br>
 
-    🎓 HSK 1–3: <b>Miễn phí</b><br>
+    🎓 HSK 1–2: <b>Miễn phí</b><br>
 
-    💎 HSK 4–9: <b>Premium</b>
+    💎 HSK 3–9: <b>Premium</b>
 
   `;
 
