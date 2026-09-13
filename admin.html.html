@@ -1,18 +1,21 @@
 <!DOCTYPE html>
+
 <html lang="vi">
 
 <head>
 
   <meta charset="UTF-8">
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0"
+
+>
 
   <title>Admin - Thích Tiếng Trung</title>
 
   <!-- SUPABASE -->
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
@@ -117,11 +120,16 @@
     ⏳ Đang kiểm tra quyền Admin...
   </div>
 
-  <button
-    class="refresh-btn"
-    onclick="loadPaymentRequests()"
-  >
-    🔄 TẢI LẠI
+<button
+class="refresh-btn"
+onclick="loadPaymentRequests()"
+
+>
+
+```
+🔄 TẢI LẠI
+```
+
   </button>
 
   <div id="paymentList">
@@ -129,7 +137,6 @@
   </div>
 
 </div>
-
 
 <script>
 
@@ -158,13 +165,13 @@ function getPlanName(plan){
 
   const planNames = {
 
-    "1month":
+    "1_month":
       "Premium 1 tháng",
 
-    "6months":
+    "6_months":
       "Premium 6 tháng",
 
-    "1year":
+    "1_year":
       "Premium 1 năm"
 
   };
@@ -392,6 +399,14 @@ async function loadPaymentRequests(){
             : "pending";
 
 
+        const statusText =
+          payment.status === "approved"
+            ? "ĐÃ DUYỆT"
+            : payment.status === "pending"
+              ? "ĐANG CHỜ DUYỆT"
+              : payment.status;
+
+
         card.innerHTML = `
 
           <p>
@@ -426,7 +441,7 @@ async function loadPaymentRequests(){
           <p>
             <strong>Trạng thái:</strong>
             <span class="${statusClass}">
-              ${payment.status}
+              ${statusText}
             </span>
           </p>
 
