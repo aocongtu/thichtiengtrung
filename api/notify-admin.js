@@ -1,11 +1,10 @@
 export default async function handler(req, res) {
 
   /* =====================================================
-     🌐 CORS — CHO PHÉP GITHUB PAGES GỌI VERCEL
-     ===================================================== */
+     CORS
+  ===================================================== */
 
-  const origin =
-    req.headers.origin || "";
+  const origin = req.headers.origin || "";
 
   const allowedOrigins = [
     "https://aocongtu.github.io",
@@ -13,12 +12,10 @@ export default async function handler(req, res) {
   ];
 
   if (allowedOrigins.includes(origin)) {
-
     res.setHeader(
       "Access-Control-Allow-Origin",
       origin
     );
-
   }
 
   res.setHeader(
@@ -38,8 +35,8 @@ export default async function handler(req, res) {
 
 
   /* =====================================================
-     🔄 PREFLIGHT
-     ===================================================== */
+     PREFLIGHT
+  ===================================================== */
 
   if (req.method === "OPTIONS") {
 
@@ -51,8 +48,8 @@ export default async function handler(req, res) {
 
 
   /* =====================================================
-     🚫 CHỈ CHO PHÉP POST
-     ===================================================== */
+     CHỈ CHO PHÉP POST
+  ===================================================== */
 
   if (req.method !== "POST") {
 
@@ -60,8 +57,7 @@ export default async function handler(req, res) {
 
       ok: false,
 
-      error:
-        "Method not allowed"
+      error: "Method not allowed"
 
     });
 
@@ -71,8 +67,8 @@ export default async function handler(req, res) {
   try {
 
     /* ===================================================
-       📦 NHẬN DỮ LIỆU TỪ WEBSITE
-       =================================================== */
+       NHẬN DỮ LIỆU
+    =================================================== */
 
     const {
       message,
@@ -87,8 +83,7 @@ export default async function handler(req, res) {
 
         ok: false,
 
-        error:
-          "Missing message"
+        error: "Missing message"
 
       });
 
@@ -96,8 +91,8 @@ export default async function handler(req, res) {
 
 
     /* ===================================================
-       🔐 RESEND API KEY
-       =================================================== */
+       KIỂM TRA API KEY
+    =================================================== */
 
     const resendApiKey =
       process.env.RESEND_API_KEY;
@@ -106,7 +101,7 @@ export default async function handler(req, res) {
     if (!resendApiKey) {
 
       console.error(
-        "RESEND_API_KEY is missing"
+        "❌ RESEND_API_KEY is missing"
       );
 
       return res.status(500).json({
@@ -122,17 +117,16 @@ export default async function handler(req, res) {
 
 
     /* ===================================================
-       📧 EMAIL ADMIN
-       =================================================== */
+       EMAIL ADMIN
+    =================================================== */
 
     const adminEmail =
       "phaithatthanhcong34@gmail.com";
 
 
     /* ===================================================
-       🧹 CHUYỂN NỘI DUNG THÔNG BÁO
-       THÀNH HTML AN TOÀN
-       =================================================== */
+       ESCAPE HTML
+    =================================================== */
 
     const safeMessage =
       String(message)
@@ -140,6 +134,10 @@ export default async function handler(req, res) {
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;");
 
+
+    /* ===================================================
+       NỘI DUNG EMAIL
+    =================================================== */
 
     const emailHtml = `
 
@@ -223,16 +221,15 @@ export default async function handler(req, res) {
 
 
     /* ===================================================
-       📧 GỬI EMAIL QUA RESEND
-       =================================================== */
+       GỌI RESEND
+    =================================================== */
 
     const resendResponse =
       await fetch(
         "https://api.resend.com/emails",
         {
 
-          method:
-            "POST",
+          method: "POST",
 
           headers: {
 
@@ -266,28 +263,51 @@ export default async function handler(req, res) {
       );
 
 
-    const resendData =
-      await resendResponse.json();
+    /* ===================================================
+       ĐỌC RESPONSE AN TOÀN
+    =================================================== */
+
+    const responseText =
+      await resendResponse.text();
+
+
+    let resendData = null;
+
+    try {
+
+      resendData =
+        JSON.parse(responseText);
+
+    } catch {
+
+      resendData = {
+        raw: responseText
+      };
+
+    }
 
 
     /* ===================================================
-       ❌ RESEND BÁO LỖI
-       =================================================== */
+       RESEND BÁO LỖI
+    =================================================== */
 
     if (!resendResponse.ok) {
 
       console.error(
-        "RESEND ERROR:",
+        "❌ RESEND ERROR:",
         resendData
       );
-
 
       return res.status(500).json({
 
         ok: false,
 
+        email: false,
+
         error:
           resendData?.message ||
+          resendData?.error ||
+          resendData?.raw ||
           "Resend gửi email thất bại"
 
       });
@@ -296,22 +316,20 @@ export default async function handler(req, res) {
 
 
     /* ===================================================
-       ✅ THÀNH CÔNG
-       =================================================== */
+       THÀNH CÔNG
+    =================================================== */
 
     console.log(
-      "✅ Admin email sent:",
+      "✅ RESEND EMAIL SENT:",
       resendData
     );
 
 
     return res.status(200).json({
 
-      ok:
-        true,
+      ok: true,
 
-      email:
-        true,
+      email: true,
 
       id:
         resendData?.id || null
@@ -321,23 +339,20 @@ export default async function handler(req, res) {
 
   } catch (error) {
 
-    /* ===================================================
-       ❌ LỖI HỆ THỐNG
-       =================================================== */
-
     console.error(
-      "NOTIFICATION ERROR:",
+      "❌ NOTIFICATION ERROR:",
       error
     );
 
 
     return res.status(500).json({
 
-      ok:
-        false,
+      ok: false,
+
+      email: false,
 
       error:
-        error.message ||
+        error?.message ||
         "Notification failed"
 
     });
@@ -345,4 +360,3 @@ export default async function handler(req, res) {
   }
 
 }
-
