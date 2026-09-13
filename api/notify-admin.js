@@ -39,11 +39,9 @@ export default async function handler(req, res) {
   ===================================================== */
 
   if (req.method === "OPTIONS") {
-
     return res
       .status(204)
       .end();
-
   }
 
 
@@ -52,22 +50,17 @@ export default async function handler(req, res) {
   ===================================================== */
 
   if (req.method !== "POST") {
-
     return res.status(405).json({
-
       ok: false,
-
       error: "Method not allowed"
-
     });
-
   }
 
 
   try {
 
     /* ===================================================
-       NHẬN DỮ LIỆU
+       NHẬN DỮ LIỆU TỪ INDEX.HTML
     =================================================== */
 
     const {
@@ -80,18 +73,16 @@ export default async function handler(req, res) {
     if (!message) {
 
       return res.status(400).json({
-
         ok: false,
-
+        email: false,
         error: "Missing message"
-
       });
 
     }
 
 
     /* ===================================================
-       KIỂM TRA API KEY
+       LẤY RESEND API KEY
     =================================================== */
 
     const resendApiKey =
@@ -105,12 +96,10 @@ export default async function handler(req, res) {
       );
 
       return res.status(500).json({
-
         ok: false,
-
+        email: false,
         error:
           "RESEND_API_KEY chưa được cấu hình trên Vercel"
-
       });
 
     }
@@ -125,8 +114,17 @@ export default async function handler(req, res) {
 
 
     /* ===================================================
-       ESCAPE HTML
+       BẢO VỆ NỘI DUNG HTML
     =================================================== */
+
+    const safeTitle =
+      String(title)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
 
     const safeMessage =
       String(message)
@@ -136,129 +134,160 @@ export default async function handler(req, res) {
 
 
     /* ===================================================
-       NỘI DUNG EMAIL
+       HTML EMAIL
     =================================================== */
 
     const emailHtml = `
 
-      <div
+      <!DOCTYPE html>
+
+      <html lang="vi">
+
+      <head>
+
+        <meta charset="UTF-8">
+
+        <meta
+          name="viewport"
+          content="width=device-width,initial-scale=1.0"
+        >
+
+        <title>${safeTitle}</title>
+
+      </head>
+
+
+      <body
         style="
-          font-family:Arial,sans-serif;
-          max-width:700px;
-          margin:auto;
-          color:#222;
+          margin:0;
+          padding:20px;
+          background:#f3f4f6;
+          font-family:Arial,Helvetica,sans-serif;
         "
       >
 
         <div
           style="
-            background:#b91c1c;
-            color:white;
-            padding:18px;
-            border-radius:10px 10px 0 0;
+            max-width:700px;
+            margin:0 auto;
           "
         >
 
-          <h2 style="margin:0;">
-            💰 ${title}
-          </h2>
-
-        </div>
-
-
-        <div
-          style="
-            background:#ffffff;
-            padding:20px;
-            border:1px solid #ddd;
-            border-top:none;
-            border-radius:0 0 10px 10px;
-          "
-        >
-
-          <p
-            style="
-              margin-top:0;
-              font-size:16px;
-              font-weight:bold;
-            "
-          >
-            📢 Có yêu cầu thanh toán mới.
-          </p>
-
+          <!-- HEADER -->
 
           <div
             style="
-              background:#f5f5f5;
-              padding:15px;
-              border-radius:8px;
-              white-space:pre-wrap;
-              line-height:1.6;
-              font-size:15px;
+              background:#b91c1c;
+              color:#ffffff;
+              padding:20px;
+              border-radius:12px 12px 0 0;
             "
           >
-            ${safeMessage}
+
+            <h2
+              style="
+                margin:0;
+                font-size:20px;
+              "
+            >
+              💰 ${safeTitle}
+            </h2>
+
           </div>
 
 
-          <p
+          <!-- CONTENT -->
+
+          <div
             style="
-              margin-bottom:0;
-              margin-top:20px;
-              color:#666;
-              font-size:13px;
+              background:#ffffff;
+              padding:22px;
+              border:1px solid #dddddd;
+              border-top:none;
+              border-radius:0 0 12px 12px;
             "
           >
-            Đây là thông báo tự động từ hệ thống
-            Thích Tiếng Trung.
-          </p>
+
+            <p
+              style="
+                margin:0 0 16px 0;
+                font-size:16px;
+                font-weight:bold;
+              "
+            >
+              📢 Có yêu cầu thanh toán mới.
+            </p>
+
+
+            <div
+              style="
+                background:#f5f5f5;
+                padding:16px;
+                border-radius:8px;
+                white-space:pre-wrap;
+                line-height:1.7;
+                font-size:15px;
+              "
+            >
+              ${safeMessage}
+            </div>
+
+
+            <p
+              style="
+                margin:20px 0 0 0;
+                color:#777777;
+                font-size:13px;
+              "
+            >
+              Đây là thông báo tự động từ hệ thống
+              <strong>THÍCH TIẾNG TRUNG</strong>.
+            </p>
+
+          </div>
 
         </div>
 
-      </div>
+      </body>
+
+      </html>
 
     `;
 
 
     /* ===================================================
-       GỌI RESEND
+       GỬI EMAIL QUA RESEND
     =================================================== */
 
     const resendResponse =
       await fetch(
         "https://api.resend.com/emails",
         {
-
           method: "POST",
 
           headers: {
-
             "Authorization":
-              "Bearer " +
-              resendApiKey,
+              "Bearer " + resendApiKey,
 
             "Content-Type":
               "application/json"
-
           },
 
-          body:
-            JSON.stringify({
+          body: JSON.stringify({
 
-              from:
-                "Thích Tiếng Trung <onboarding@resend.dev>",
+            from:
+              "Thích Tiếng Trung <onboarding@resend.dev>",
 
-              to:
-                [adminEmail],
+            to:
+              [adminEmail],
 
-              subject:
-                title,
+            subject:
+              title,
 
-              html:
-                emailHtml
+            html:
+              emailHtml
 
-            })
-
+          })
         }
       );
 
@@ -270,8 +299,8 @@ export default async function handler(req, res) {
     const responseText =
       await resendResponse.text();
 
-
     let resendData = null;
+
 
     try {
 
@@ -288,7 +317,7 @@ export default async function handler(req, res) {
 
 
     /* ===================================================
-       RESEND BÁO LỖI
+       RESEND TRẢ VỀ LỖI
     =================================================== */
 
     if (!resendResponse.ok) {
@@ -320,7 +349,7 @@ export default async function handler(req, res) {
     =================================================== */
 
     console.log(
-      "✅ RESEND EMAIL SENT:",
+      "✅ ADMIN EMAIL SENT:",
       resendData
     );
 
@@ -338,6 +367,10 @@ export default async function handler(req, res) {
 
 
   } catch (error) {
+
+    /* ===================================================
+       LỖI HỆ THỐNG
+    =================================================== */
 
     console.error(
       "❌ NOTIFICATION ERROR:",
