@@ -1,4 +1,3 @@
-```js
 export default async function handler(req, res) {
 
   /* =====================================================
@@ -39,7 +38,7 @@ export default async function handler(req, res) {
 
 
   /* =====================================================
-     🔄 PREFLIGHT — TRÌNH DUYỆT KIỂM TRA CORS
+     🔄 PREFLIGHT
      ===================================================== */
 
   if (req.method === "OPTIONS") {
@@ -72,13 +71,13 @@ export default async function handler(req, res) {
   try {
 
     /* ===================================================
-       📦 NHẬN DỮ LIỆU
+       📦 NHẬN DỮ LIỆU TỪ WEBSITE
        =================================================== */
 
     const {
       message,
       title =
-        "THÍCH TIẾNG TRUNG"
+        "💰 THÍCH TIẾNG TRUNG — YÊU CẦU THANH TOÁN"
     } = req.body || {};
 
 
@@ -97,168 +96,225 @@ export default async function handler(req, res) {
 
 
     /* ===================================================
-       🔐 ENVIRONMENT VARIABLES
+       🔐 RESEND API KEY
        =================================================== */
 
-    const ntfyTopic =
-      process.env.NTFY_TOPIC;
-
-    const ntfyToken =
-      process.env.NTFY_TOKEN;
-
-    const gmailWebhook =
-      process.env.GMAIL_WEBHOOK_URL;
+    const resendApiKey =
+      process.env.RESEND_API_KEY;
 
 
-    let ntfyOk = false;
+    if (!resendApiKey) {
 
-    let gmailOk = false;
+      console.error(
+        "RESEND_API_KEY is missing"
+      );
 
+      return res.status(500).json({
 
-    /* ===================================================
-       📱 NTFY — THÔNG BÁO CHÍNH
-       =================================================== */
+        ok: false,
 
-    if (ntfyTopic) {
+        error:
+          "RESEND_API_KEY chưa được cấu hình trên Vercel"
 
-      const headers = {
-
-        "Title":
-          title,
-
-        "Priority":
-          "high",
-
-        "Tags":
-          "money_with_wings,thichtiengtrung"
-
-      };
-
-
-      if (ntfyToken) {
-
-        headers["Authorization"] =
-          "Bearer " +
-          ntfyToken;
-
-      }
-
-
-      const ntfyResponse =
-        await fetch(
-
-          "https://ntfy.sh/" +
-          encodeURIComponent(
-            ntfyTopic
-          ),
-
-          {
-
-            method:
-              "POST",
-
-            headers:
-              headers,
-
-            body:
-              message
-
-          }
-
-        );
-
-
-      ntfyOk =
-        ntfyResponse.ok;
-
-
-      if (!ntfyOk) {
-
-        console.error(
-
-          "NTFY ERROR:",
-
-          await ntfyResponse.text()
-
-        );
-
-      }
+      });
 
     }
 
 
     /* ===================================================
-       📧 GMAIL — DỰ PHÒNG
+       📧 EMAIL ADMIN
        =================================================== */
 
-    if (gmailWebhook) {
-
-      const gmailResponse =
-        await fetch(
-
-          gmailWebhook,
-
-          {
-
-            method:
-              "POST",
-
-            headers: {
-
-              "Content-Type":
-                "application/json"
-
-            },
-
-            body:
-              JSON.stringify({
-
-                subject:
-                  title,
-
-                message:
-                  message
-
-              })
-
-          }
-
-        );
+    const adminEmail =
+      "phaithatthanhcong34@gmail.com";
 
 
-      gmailOk =
-        gmailResponse.ok;
+    /* ===================================================
+       🧹 CHUYỂN NỘI DUNG THÔNG BÁO
+       THÀNH HTML AN TOÀN
+       =================================================== */
+
+    const safeMessage =
+      String(message)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
 
 
-      if (!gmailOk) {
+    const emailHtml = `
 
-        console.error(
+      <div
+        style="
+          font-family:Arial,sans-serif;
+          max-width:700px;
+          margin:auto;
+          color:#222;
+        "
+      >
 
-          "GMAIL WEBHOOK ERROR:",
+        <div
+          style="
+            background:#b91c1c;
+            color:white;
+            padding:18px;
+            border-radius:10px 10px 0 0;
+          "
+        >
 
-          await gmailResponse.text()
+          <h2 style="margin:0;">
+            💰 ${title}
+          </h2>
 
-        );
+        </div>
 
-      }
+
+        <div
+          style="
+            background:#ffffff;
+            padding:20px;
+            border:1px solid #ddd;
+            border-top:none;
+            border-radius:0 0 10px 10px;
+          "
+        >
+
+          <p
+            style="
+              margin-top:0;
+              font-size:16px;
+              font-weight:bold;
+            "
+          >
+            📢 Có yêu cầu thanh toán mới.
+          </p>
+
+
+          <div
+            style="
+              background:#f5f5f5;
+              padding:15px;
+              border-radius:8px;
+              white-space:pre-wrap;
+              line-height:1.6;
+              font-size:15px;
+            "
+          >
+            ${safeMessage}
+          </div>
+
+
+          <p
+            style="
+              margin-bottom:0;
+              margin-top:20px;
+              color:#666;
+              font-size:13px;
+            "
+          >
+            Đây là thông báo tự động từ hệ thống
+            Thích Tiếng Trung.
+          </p>
+
+        </div>
+
+      </div>
+
+    `;
+
+
+    /* ===================================================
+       📧 GỬI EMAIL QUA RESEND
+       =================================================== */
+
+    const resendResponse =
+      await fetch(
+        "https://api.resend.com/emails",
+        {
+
+          method:
+            "POST",
+
+          headers: {
+
+            "Authorization":
+              "Bearer " +
+              resendApiKey,
+
+            "Content-Type":
+              "application/json"
+
+          },
+
+          body:
+            JSON.stringify({
+
+              from:
+                "Thích Tiếng Trung <onboarding@resend.dev>",
+
+              to:
+                [adminEmail],
+
+              subject:
+                title,
+
+              html:
+                emailHtml
+
+            })
+
+        }
+      );
+
+
+    const resendData =
+      await resendResponse.json();
+
+
+    /* ===================================================
+       ❌ RESEND BÁO LỖI
+       =================================================== */
+
+    if (!resendResponse.ok) {
+
+      console.error(
+        "RESEND ERROR:",
+        resendData
+      );
+
+
+      return res.status(500).json({
+
+        ok: false,
+
+        error:
+          resendData?.message ||
+          "Resend gửi email thất bại"
+
+      });
 
     }
 
 
     /* ===================================================
-       ✅ TRẢ KẾT QUẢ
+       ✅ THÀNH CÔNG
        =================================================== */
+
+    console.log(
+      "✅ Admin email sent:",
+      resendData
+    );
+
 
     return res.status(200).json({
 
       ok:
         true,
 
-      ntfy:
-        ntfyOk,
+      email:
+        true,
 
-      gmail:
-        gmailOk
+      id:
+        resendData?.id || null
 
     });
 
@@ -266,15 +322,12 @@ export default async function handler(req, res) {
   } catch (error) {
 
     /* ===================================================
-       ❌ LỖI
+       ❌ LỖI HỆ THỐNG
        =================================================== */
 
     console.error(
-
       "NOTIFICATION ERROR:",
-
       error
-
     );
 
 
@@ -284,11 +337,12 @@ export default async function handler(req, res) {
         false,
 
       error:
-        error.message
+        error.message ||
+        "Notification failed"
 
     });
 
   }
 
 }
-```
+
