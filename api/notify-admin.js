@@ -115,18 +115,20 @@ export default async function handler(req, res) {
 
     const ntfyHeaders = {
 
-      "Title": String(title),
+  /* HTTP HEADER CHỈ DÙNG KÝ TỰ ASCII */
+  "Title":
+    "THICH TIENG TRUNG - YEU CAU THANH TOAN",
 
-      "Priority": "high",
+  "Priority":
+    "high",
 
-      "Tags":
-        "money_with_wings,thichtiengtrung",
+  "Tags":
+    "money_with_wings,thichtiengtrung",
 
-      "Content-Type":
-        "text/plain; charset=utf-8"
+  "Content-Type":
+    "text/plain; charset=utf-8"
 
-    };
-
+};
 
     /* ===================================================
        TOKEN NẾU CÓ
