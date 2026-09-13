@@ -3749,65 +3749,126 @@ if(!dbPlan){
       throw error;
 
     }
-
-    /* ===================================================
-       📱 GỬI THÔNG BÁO ADMIN QUA VERCEL → NTFY
+        /* ===================================================
+       📧 GỬI EMAIL THÔNG BÁO ADMIN
+       VERCEL → RESEND → GMAIL
     =================================================== */
 
     try {
 
       const userEmail =
-        window.currentUser?.email || "Không rõ email";
+        window.currentUser?.email ||
+        "Không rõ email";
 
       const userName =
         window.currentUser?.user_metadata?.full_name ||
         window.currentUser?.user_metadata?.name ||
         "Thành viên";
 
+
+      /* =================================================
+         NỘI DUNG THÔNG BÁO
+      ================================================= */
+
       const notifyMessage =
         "🔔 CÓ YÊU CẦU THANH TOÁN MỚI\n\n" +
-        "👤 Thành viên: " + userName + "\n" +
-        "📧 Email: " + userEmail + "\n" +
-        "📦 Gói: " + data.name + "\n" +
+        "👤 Thành viên: " +
+          userName + "\n" +
+        "📧 Email: " +
+          userEmail + "\n" +
+        "📦 Gói: " +
+          data.name + "\n" +
         "💰 Số tiền: " +
           data.amount.toLocaleString("vi-VN") +
           " VNĐ\n\n" +
         "📝 Thông tin chuyển khoản:\n" +
         transferNote;
 
-     const notifyResponse =
-  await fetch(
-    "https://thichtiengtrung.vercel.app/api/notify-admin",
+
+      /* =================================================
+         GỌI VERCEL
+      ================================================= */
+
+      const notifyResponse =
+        await fetch(
+          "https://thichtiengtrung.vercel.app/api/notify-admin",
           {
             method: "POST",
 
             headers: {
-              "Content-Type":
-                "application/json"
+              "Content-Type": "application/json"
             },
 
             body: JSON.stringify({
+
               title:
                 "🔔 YÊU CẦU THANH TOÁN MỚI",
 
               message:
                 notifyMessage
+
             })
           }
         );
 
-      const notifyResult =
-        await notifyResponse.json();
 
-      console.log(
-        "📱 Kết quả thông báo admin:",
-        notifyResult
-      );
+      /* =================================================
+         ĐỌC RESPONSE AN TOÀN
+      ================================================= */
+
+      const notifyText =
+        await notifyResponse.text();
+
+      let notifyResult = null;
+
+
+      try {
+
+        notifyResult =
+          JSON.parse(notifyText);
+
+      } catch {
+
+        notifyResult = {
+          raw: notifyText
+        };
+
+      }
+
+
+      /* =================================================
+         KIỂM TRA KẾT QUẢ EMAIL
+      ================================================= */
+
+      if (
+        !notifyResponse.ok ||
+        !notifyResult?.email
+      ) {
+
+        console.error(
+          "❌ GỬI EMAIL ADMIN THẤT BẠI:",
+          notifyResult
+        );
+
+        console.error(
+          "❌ HTTP STATUS:",
+          notifyResponse.status
+        );
+
+      } else {
+
+        console.log(
+          "✅ EMAIL ADMIN ĐÃ GỬI:",
+          notifyResult
+        );
+
+      }
+
 
     } catch(notifyError) {
 
       console.error(
-        "⚠️ Không gửi được thông báo admin:",
+        "⚠️ KHÔNG GỌI ĐƯỢC API THÔNG BÁO:",
         notifyError
       );
 
