@@ -3441,7 +3441,6 @@ window.selectPlan = function(plan){
 
 };
 
-
 /* =========================================================
    GỬI YÊU CẦU THANH TOÁN
 ========================================================= */
@@ -3637,27 +3636,29 @@ window.sendPaymentRequest = async function(){
      → TÊN GÓI SUPABASE
   ===================================================== */
 
- const dbPlanMap = {
-  "1month": "1_month",
-  "6month": "6_months",
-  "1year": "1_year"
-};
-
-const dbPlan = dbPlanMap[selectedPlan];
+  const dbPlanMap = {
+    "1month": "1_month",
+    "6month": "6_months",
+    "1year": "1_year"
+  };
 
 
-if(!dbPlan){
+  const dbPlan =
+    dbPlanMap[selectedPlan];
 
-  if(status){
 
-    status.textContent =
-      "❌ Không xác định được gói thành viên.";
+  if(!dbPlan){
+
+    if(status){
+
+      status.textContent =
+        "❌ Không xác định được gói thành viên.";
+
+    }
+
+    return;
 
   }
-
-  return;
-
-}
 
 
   /* =====================================================
@@ -3718,8 +3719,6 @@ if(!dbPlan){
           user_id:
             window.currentUser.id,
 
-          /* QUAN TRỌNG:
-             Dùng tên gói mà CHECK CONSTRAINT cho phép */
           plan:
             dbPlan,
 
@@ -3736,7 +3735,7 @@ if(!dbPlan){
 
 
     /* ===================================================
-       KIỂM TRA LỖI
+       KIỂM TRA LỖI SUPABASE
     =================================================== */
 
     if(error){
@@ -3749,9 +3748,14 @@ if(!dbPlan){
       throw error;
 
     }
-        /* ===================================================
-       📧 GỬI EMAIL THÔNG BÁO ADMIN
-       VERCEL → RESEND → GMAIL
+
+
+    /* ===================================================
+       🔔 GỬI THÔNG BÁO ADMIN QUA NTFY
+       
+       VERCEL → NTFY
+       
+       KHÔNG CÒN RESEND / GMAIL
     =================================================== */
 
     try {
@@ -3759,6 +3763,7 @@ if(!dbPlan){
       const userEmail =
         window.currentUser?.email ||
         "Không rõ email";
+
 
       const userName =
         window.currentUser?.user_metadata?.full_name ||
@@ -3796,7 +3801,8 @@ if(!dbPlan){
             method: "POST",
 
             headers: {
-              "Content-Type": "application/json"
+              "Content-Type":
+                "application/json"
             },
 
             body: JSON.stringify({
@@ -3808,16 +3814,18 @@ if(!dbPlan){
                 notifyMessage
 
             })
+
           }
         );
 
 
       /* =================================================
-         ĐỌC RESPONSE AN TOÀN
+         ĐỌC RESPONSE
       ================================================= */
 
       const notifyText =
         await notifyResponse.text();
+
 
       let notifyResult = null;
 
@@ -3825,28 +3833,31 @@ if(!dbPlan){
       try {
 
         notifyResult =
-          JSON.parse(notifyText);
+          JSON.parse(
+            notifyText
+          );
 
       } catch {
 
         notifyResult = {
-          raw: notifyText
+          raw:
+            notifyText
         };
 
       }
 
 
       /* =================================================
-         KIỂM TRA KẾT QUẢ EMAIL
+         KIỂM TRA KẾT QUẢ NTFY
       ================================================= */
 
-      if (
+      if(
         !notifyResponse.ok ||
-        !notifyResult?.email
-      ) {
+        notifyResult?.ntfy !== true
+      ){
 
         console.error(
-          "❌ GỬI EMAIL ADMIN THẤT BẠI:",
+          "❌ GỬI NTFY ADMIN THẤT BẠI:",
           notifyResult
         );
 
@@ -3858,21 +3869,26 @@ if(!dbPlan){
       } else {
 
         console.log(
-          "✅ EMAIL ADMIN ĐÃ GỬI:",
+          "✅ NTFY ADMIN ĐÃ NHẬN THÔNG BÁO:",
           notifyResult
         );
 
       }
 
 
-    } catch(notifyError) {
+    } catch(notifyError){
+
+      /* =================================================
+         NTFY LỖI KHÔNG LÀM HỎNG YÊU CẦU THANH TOÁN
+      ================================================= */
 
       console.error(
-        "⚠️ KHÔNG GỌI ĐƯỢC API THÔNG BÁO:",
+        "⚠️ KHÔNG GỌI ĐƯỢC API NTFY:",
         notifyError
       );
 
     }
+
 
     /* ===================================================
        GỬI THÀNH CÔNG
@@ -3911,7 +3927,9 @@ if(!dbPlan){
     );
 
 
-    /* Cho phép thử lại */
+    /* =================================================
+       CHO PHÉP THỬ LẠI
+    ================================================= */
 
     if(sendButton){
 
@@ -3935,7 +3953,6 @@ if(!dbPlan){
   }
 
 };
-
 
 </script>
 
