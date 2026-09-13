@@ -520,7 +520,6 @@ async function loadPaymentRequests(){
 
 }
 
-
 /* =========================================================
    DUYỆT PAYMENT
    ========================================================= */
@@ -596,10 +595,66 @@ async function approvePayment(
     );
 
 
+    /* =====================================================
+       GỬI THÔNG BÁO NTFY
+    ===================================================== */
+
+    try{
+
+      await fetch(
+        "https://thichtiengtrung.vercel.app/api/notify-admin",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body: JSON.stringify({
+
+            title:
+              "✅ THANH TOÁN ĐÃ ĐƯỢC DUYỆT",
+
+            message:
+              "✅ Thanh toán đã được Admin duyệt thành công.\n\n" +
+              "🆔 Payment ID: " +
+              paymentId +
+              "\n\n" +
+              "🌐 Website: THÍCH TIẾNG TRUNG"
+
+          })
+
+        }
+      );
+
+    }catch(notifyError){
+
+      console.error(
+        "❌ Gửi ntfy thất bại:",
+        notifyError
+      );
+
+      /* 
+         Không làm thất bại việc duyệt.
+         Thanh toán đã được duyệt trên Supabase.
+      */
+
+    }
+
+
+    /* =====================================================
+       THÔNG BÁO THÀNH CÔNG
+    ===================================================== */
+
     alert(
       "✅ Thanh toán đã được duyệt thành công!"
     );
 
+
+    /* =====================================================
+       TẢI LẠI DANH SÁCH
+    ===================================================== */
 
     await loadPaymentRequests();
 
