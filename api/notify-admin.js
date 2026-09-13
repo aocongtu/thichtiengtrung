@@ -52,6 +52,7 @@ export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({
       ok: false,
+      ntfy: false,
       error: "Method not allowed"
     });
   }
@@ -66,7 +67,7 @@ export default async function handler(req, res) {
     const {
       message,
       title =
-        "💰 THÍCH TIẾNG TRUNG — YÊU CẦU THANH TOÁN"
+        "🔔 THÍCH TIẾNG TRUNG — YÊU CẦU THANH TOÁN"
     } = req.body || {};
 
 
@@ -74,7 +75,7 @@ export default async function handler(req, res) {
 
       return res.status(400).json({
         ok: false,
-        email: false,
+        ntfy: false,
         error: "Missing message"
       });
 
@@ -82,212 +83,79 @@ export default async function handler(req, res) {
 
 
     /* ===================================================
-       LẤY RESEND API KEY
+       LẤY THÔNG TIN NTFY TỪ VERCEL
     =================================================== */
 
-    const resendApiKey =
-      process.env.RESEND_API_KEY;
+    const ntfyTopic =
+      process.env.NTFY_TOPIC;
+
+    const ntfyToken =
+      process.env.NTFY_TOKEN;
 
 
-    if (!resendApiKey) {
+    if (!ntfyTopic) {
 
       console.error(
-        "❌ RESEND_API_KEY is missing"
+        "❌ NTFY_TOPIC is missing"
       );
 
       return res.status(500).json({
         ok: false,
-        email: false,
+        ntfy: false,
         error:
-          "RESEND_API_KEY chưa được cấu hình trên Vercel"
+          "NTFY_TOPIC chưa được cấu hình trên Vercel"
       });
 
     }
 
 
     /* ===================================================
-       EMAIL ADMIN
+       HEADER NTFY
     =================================================== */
 
-    const adminEmail =
-      "phaithatthanhcong34@gmail.com";
+    const ntfyHeaders = {
+
+      "Title": String(title),
+
+      "Priority": "high",
+
+      "Tags":
+        "money_with_wings,thichtiengtrung",
+
+      "Content-Type":
+        "text/plain; charset=utf-8"
+
+    };
 
 
     /* ===================================================
-       BẢO VỆ NỘI DUNG HTML
+       TOKEN NẾU CÓ
     =================================================== */
 
-    const safeTitle =
-      String(title)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+    if (ntfyToken) {
 
+      ntfyHeaders["Authorization"] =
+        "Bearer " + ntfyToken;
 
-    const safeMessage =
-      String(message)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
+    }
 
 
     /* ===================================================
-       HTML EMAIL
+       GỬI THÔNG BÁO QUA NTFY
     =================================================== */
 
-    const emailHtml = `
-
-      <!DOCTYPE html>
-
-      <html lang="vi">
-
-      <head>
-
-        <meta charset="UTF-8">
-
-        <meta
-          name="viewport"
-          content="width=device-width,initial-scale=1.0"
-        >
-
-        <title>${safeTitle}</title>
-
-      </head>
-
-
-      <body
-        style="
-          margin:0;
-          padding:20px;
-          background:#f3f4f6;
-          font-family:Arial,Helvetica,sans-serif;
-        "
-      >
-
-        <div
-          style="
-            max-width:700px;
-            margin:0 auto;
-          "
-        >
-
-          <!-- HEADER -->
-
-          <div
-            style="
-              background:#b91c1c;
-              color:#ffffff;
-              padding:20px;
-              border-radius:12px 12px 0 0;
-            "
-          >
-
-            <h2
-              style="
-                margin:0;
-                font-size:20px;
-              "
-            >
-              💰 ${safeTitle}
-            </h2>
-
-          </div>
-
-
-          <!-- CONTENT -->
-
-          <div
-            style="
-              background:#ffffff;
-              padding:22px;
-              border:1px solid #dddddd;
-              border-top:none;
-              border-radius:0 0 12px 12px;
-            "
-          >
-
-            <p
-              style="
-                margin:0 0 16px 0;
-                font-size:16px;
-                font-weight:bold;
-              "
-            >
-              📢 Có yêu cầu thanh toán mới.
-            </p>
-
-
-            <div
-              style="
-                background:#f5f5f5;
-                padding:16px;
-                border-radius:8px;
-                white-space:pre-wrap;
-                line-height:1.7;
-                font-size:15px;
-              "
-            >
-              ${safeMessage}
-            </div>
-
-
-            <p
-              style="
-                margin:20px 0 0 0;
-                color:#777777;
-                font-size:13px;
-              "
-            >
-              Đây là thông báo tự động từ hệ thống
-              <strong>THÍCH TIẾNG TRUNG</strong>.
-            </p>
-
-          </div>
-
-        </div>
-
-      </body>
-
-      </html>
-
-    `;
-
-
-    /* ===================================================
-       GỬI EMAIL QUA RESEND
-    =================================================== */
-
-    const resendResponse =
+    const ntfyResponse =
       await fetch(
-        "https://api.resend.com/emails",
+        "https://ntfy.sh/" +
+        encodeURIComponent(ntfyTopic),
         {
           method: "POST",
 
-          headers: {
-            "Authorization":
-              "Bearer " + resendApiKey,
+          headers:
+            ntfyHeaders,
 
-            "Content-Type":
-              "application/json"
-          },
-
-          body: JSON.stringify({
-
-            from:
-              "Thích Tiếng Trung <onboarding@resend.dev>",
-
-            to:
-              [adminEmail],
-
-            subject:
-              title,
-
-            html:
-              emailHtml
-
-          })
+          body:
+            String(message)
         }
       );
 
@@ -297,47 +165,30 @@ export default async function handler(req, res) {
     =================================================== */
 
     const responseText =
-      await resendResponse.text();
-
-    let resendData = null;
-
-
-    try {
-
-      resendData =
-        JSON.parse(responseText);
-
-    } catch {
-
-      resendData = {
-        raw: responseText
-      };
-
-    }
+      await ntfyResponse.text();
 
 
     /* ===================================================
-       RESEND TRẢ VỀ LỖI
+       NTFY TRẢ VỀ LỖI
     =================================================== */
 
-    if (!resendResponse.ok) {
+    if (!ntfyResponse.ok) {
 
       console.error(
-        "❌ RESEND ERROR:",
-        resendData
+        "❌ NTFY ERROR:",
+        ntfyResponse.status,
+        responseText
       );
 
       return res.status(500).json({
 
         ok: false,
 
-        email: false,
+        ntfy: false,
 
         error:
-          resendData?.message ||
-          resendData?.error ||
-          resendData?.raw ||
-          "Resend gửi email thất bại"
+          responseText ||
+          "ntfy gửi thông báo thất bại"
 
       });
 
@@ -349,8 +200,7 @@ export default async function handler(req, res) {
     =================================================== */
 
     console.log(
-      "✅ ADMIN EMAIL SENT:",
-      resendData
+      "✅ NTFY NOTIFICATION SENT"
     );
 
 
@@ -358,10 +208,7 @@ export default async function handler(req, res) {
 
       ok: true,
 
-      email: true,
-
-      id:
-        resendData?.id || null
+      ntfy: true
 
     });
 
@@ -373,7 +220,7 @@ export default async function handler(req, res) {
     =================================================== */
 
     console.error(
-      "❌ NOTIFICATION ERROR:",
+      "❌ NTFY NOTIFICATION ERROR:",
       error
     );
 
@@ -382,7 +229,7 @@ export default async function handler(req, res) {
 
       ok: false,
 
-      email: false,
+      ntfy: false,
 
       error:
         error?.message ||
