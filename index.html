@@ -3775,9 +3775,9 @@ if(!dbPlan){
         "📝 Thông tin chuyển khoản:\n" +
         transferNote;
 
-      const notifyResponse =
-        await fetch(
-          "/api/notify-admin",
+     const notifyResponse =
+  await fetch(
+    "https://thichtiengtrung.vercel.app/api/notify-admin",
           {
             method: "POST",
 
