@@ -96563,5 +96563,238 @@ function renderUnscramble(){
  🛡️ END WHITE HAT V2.1
  ========================================================= -->
 
+<!-- =========================================================
+ 🛡️ WHITE HAT V2.2 — ENTER KIỂM TRA NGAY
+ ---------------------------------------------------------
+ Enter 1 → kiểm tra ngay
+ Đúng → giữ nguyên câu, không tự chuyển
+ Enter 2 → sang câu tiếp
+ Sai → nhập lại và Enter để kiểm tra lại
+
+ Không sửa WHITE HAT V2
+ Không sửa WHITE HAT V2.1
+ Không sửa UI hiện tại
+ ========================================================= -->
+
+<script>
+(function(){
+
+  "use strict";
+
+  let whiteHatV22Stage = 0;
+  let whiteHatV22Busy = false;
+
+  document.addEventListener(
+    "keydown",
+    function(event){
+
+      /* Chỉ bắt ENTER */
+      if(event.key !== "Enter"){
+        return;
+      }
+
+      const input =
+        document.getElementById(
+          "sentenceInput"
+        );
+
+      if(!input){
+        return;
+      }
+
+      /* Chỉ hoạt động khi đang ở ô nhập câu */
+      if(
+        document.activeElement !== input
+      ){
+        return;
+      }
+
+      /* Chỉ hoạt động khi Luyện câu đang mở */
+      const section =
+        document.getElementById(
+          "sentenceSection"
+        );
+
+      if(
+        !section ||
+        section.classList.contains("hidden")
+      ){
+        return;
+      }
+
+      /*
+       * CHẶN HOÀN TOÀN ENTER CŨ
+       * để WHITE HAT V2 không đọc câu trước.
+       */
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      if(whiteHatV22Busy){
+        return;
+      }
+
+      const typed =
+        input.value.trim();
+
+      if(!typed){
+        return;
+      }
+
+
+      /* =====================================================
+         ENTER 2
+         Nếu câu trước đã chính xác
+         → sang câu mới
+      ===================================================== */
+
+      const result =
+        document.getElementById(
+          "sentenceResult"
+        );
+
+      const alreadyCorrect =
+        result &&
+        result.textContent.includes(
+          "🎉 CHÍNH XÁC!"
+        );
+
+      if(
+        whiteHatV22Stage === 1 &&
+        alreadyCorrect
+      ){
+
+        whiteHatV22Stage = 0;
+
+        if(
+          typeof window.nextSentence ===
+          "function"
+        ){
+
+          window.nextSentence();
+
+        }
+
+        return;
+      }
+
+
+      /* =====================================================
+         ENTER 1
+         → KIỂM TRA NGAY
+      ===================================================== */
+
+      whiteHatV22Busy = true;
+
+      /*
+       * WHITE HAT V2 cũ có một setTimeout
+       * tự động chuyển câu sau 900ms.
+       *
+       * Tạm chặn timer đó để giữ nguyên
+       * câu đúng trên màn hình.
+       */
+
+      const originalSetTimeout =
+        window.setTimeout;
+
+      let capturedTimer = null;
+
+      window.setTimeout =
+        function(callback, delay){
+
+          if(
+            typeof delay === "number" &&
+            delay >= 800 &&
+            delay <= 1000
+          ){
+
+            capturedTimer =
+              originalSetTimeout(
+                function(){},
+                999999
+              );
+
+            return capturedTimer;
+          }
+
+          return originalSetTimeout.apply(
+            window,
+            arguments
+          );
+        };
+
+
+      try{
+
+        if(
+          typeof window.checkSentence ===
+          "function"
+        ){
+
+          window.checkSentence();
+
+        }
+
+      }finally{
+
+        window.setTimeout =
+          originalSetTimeout;
+
+      }
+
+
+      /*
+       * Kiểm tra kết quả sau khi V2 xử lý.
+       */
+      originalSetTimeout(
+        function(){
+
+          whiteHatV22Busy =
+            false;
+
+          const currentResult =
+            document.getElementById(
+              "sentenceResult"
+            );
+
+          if(
+            currentResult &&
+            currentResult.textContent.includes(
+              "🎉 CHÍNH XÁC!"
+            )
+          ){
+
+            /*
+             * ĐÚNG
+             * → chờ Enter lần 2
+             */
+            whiteHatV22Stage = 1;
+
+          }else{
+
+            /*
+             * SAI
+             * → vẫn là Enter kiểm tra
+             */
+            whiteHatV22Stage = 0;
+
+          }
+
+        },
+        20
+      );
+
+    },
+    true
+  );
+
+})();
+</script>
+
+<!-- =========================================================
+ 🛡️ END WHITE HAT V2.2
+ ========================================================= -->
+
+
 </body>
 </html>
