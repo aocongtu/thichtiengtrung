@@ -91496,30 +91496,46 @@ function renderUnscramble(){
      - không sửa HSK1–6
      ========================================================= -->
 
+<!-- =========================================================
+     🇨🇳 THÍCH TIẾNG TRUNG
+     🔊 MOBILE TTS PATCH V2
+     
+     📱 Sửa âm thanh mobile
+     🎤 GIỮ NGUYÊN GIỌNG NGƯỜI DÙNG ĐÃ CHỌN
+     ========================================================= -->
+
 <script>
 (function(){
 
   "use strict";
 
+
   /* =========================================================
-     🛡️ CHỐNG NẠP PATCH 2 LẦN
+     🛡️ CHỐNG CHẠY 2 LẦN
      ========================================================= */
 
-  if(window.__THICH_TIENg_TRUNG_MOBILE_TTS_PATCH__){
+  if(
+    window.__THICH_TIENg_TRUNG_MOBILE_TTS_V2__
+  ){
     return;
   }
 
-  window.__THICH_TIENg_TRUNG_MOBILE_TTS_PATCH__ = true;
+  window.__THICH_TIENg_TRUNG_MOBILE_TTS_V2__ =
+    true;
 
 
   /* =========================================================
-     🔊 KIỂM TRA SPEECH SYNTHESIS
+     🔊 SPEECH SYNTHESIS
      ========================================================= */
 
-  if(!("speechSynthesis" in window)){
+  if(
+    !("speechSynthesis" in window)
+  ){
+
     console.warn(
-      "THÍCH TIẾNG TRUNG: Trình duyệt không hỗ trợ Speech Synthesis."
+      "🇨🇳 Speech Synthesis không được hỗ trợ."
     );
+
     return;
   }
 
@@ -91529,169 +91545,12 @@ function renderUnscramble(){
 
 
   /* =========================================================
-     🇨🇳 LẤY VOICE TIẾNG TRUNG
+     🔄 ĐÁNH THỨC AUDIO ENGINE
      ========================================================= */
 
-  function getBestChineseVoice(){
-
-    let voices = [];
+  function wakeSpeech(){
 
     try{
-
-      voices =
-        synth.getVoices() || [];
-
-    }catch(error){
-
-      console.warn(
-        "Không lấy được danh sách voice:",
-        error
-      );
-
-      return null;
-    }
-
-
-    if(!voices.length){
-      return null;
-    }
-
-
-    const chinese =
-      voices.filter(function(voice){
-
-        const lang =
-          String(
-            voice.lang || ""
-          ).toLowerCase();
-
-        return lang.startsWith("zh");
-
-      });
-
-
-    if(!chinese.length){
-      return null;
-    }
-
-
-    /*
-       Ưu tiên:
-
-       1. zh-CN
-       2. zh-Hans-CN
-       3. zh-Hans
-       4. zh
-       5. bất kỳ zh-*
-    */
-
-    const preferred =
-      chinese.find(function(v){
-
-        const lang =
-          String(
-            v.lang || ""
-          ).toLowerCase();
-
-        return (
-          lang === "zh-cn" ||
-          lang === "zh-hans-cn"
-        );
-
-      });
-
-
-    if(preferred){
-      return preferred;
-    }
-
-
-    const simplified =
-      chinese.find(function(v){
-
-        const lang =
-          String(
-            v.lang || ""
-          ).toLowerCase();
-
-        return (
-          lang === "zh-hans" ||
-          lang === "zh"
-        );
-
-      });
-
-
-    if(simplified){
-      return simplified;
-    }
-
-
-    return chinese[0] || null;
-
-  }
-
-
-  /* =========================================================
-     🔄 ĐẢM BẢO VOICE ĐÃ LOAD
-     ========================================================= */
-
-  let voicesReady =
-    false;
-
-
-  function refreshVoices(){
-
-    try{
-
-      const voices =
-        synth.getVoices();
-
-      voicesReady =
-        Array.isArray(voices) &&
-        voices.length > 0;
-
-    }catch(error){
-
-      voicesReady = false;
-
-    }
-
-  }
-
-
-  refreshVoices();
-
-
-  if(
-    "onvoiceschanged"
-    in synth
-  ){
-
-    synth.addEventListener(
-      "voiceschanged",
-      function(){
-
-        refreshVoices();
-
-      }
-    );
-
-  }
-
-
-  /* =========================================================
-     📱 MOBILE AUDIO WAKE-UP
-     ========================================================= */
-
-  function wakeSpeechSynthesis(){
-
-    try{
-
-      /*
-         Nếu speech engine đang paused
-         → đánh thức lại.
-      */
 
       if(
         typeof synth.resume ===
@@ -91715,7 +91574,116 @@ function renderUnscramble(){
 
 
   /* =========================================================
-     🔊 HÀM PHÁT ÂM CHUNG
+     🎤 LẤY ĐÚNG GIỌNG ANH ĐÃ CHỌN
+     
+     KHÔNG TỰ CHỌN GIỌNG KHÁC.
+     ========================================================= */
+
+  function getCurrentChineseVoice(){
+
+    try{
+
+      /*
+         Hệ thống gốc của anh đã có
+         loadChineseVoice()
+         và biến chineseVoice.
+      */
+
+      if(
+        typeof loadChineseVoice ===
+        "function"
+      ){
+
+        loadChineseVoice();
+
+      }
+
+    }catch(error){
+
+      console.warn(
+        "Không thể load Chinese voice:",
+        error
+      );
+
+    }
+
+
+    /*
+       ⭐ ƯU TIÊN TUYỆT ĐỐI
+       giọng mà hệ thống gốc đã chọn.
+    */
+
+    if(
+      typeof chineseVoice !==
+      "undefined" &&
+      chineseVoice
+    ){
+
+      return chineseVoice;
+
+    }
+
+
+    /*
+       Nếu voice chưa load kịp,
+       thử lấy lại theo tên đã lưu.
+    */
+
+    try{
+
+      const voices =
+        synth.getVoices() || [];
+
+
+      if(
+        typeof selectedVoiceName !==
+        "undefined" &&
+        selectedVoiceName
+      ){
+
+        const selected =
+          voices.find(
+            function(voice){
+
+              return (
+                voice.name ===
+                selectedVoiceName
+              );
+
+            }
+          );
+
+
+        if(selected){
+
+          return selected;
+
+        }
+
+      }
+
+    }catch(error){
+
+      console.warn(
+        "Không thể tìm voice đã chọn:",
+        error
+      );
+
+    }
+
+
+    /*
+       Không tự chọn một voice khác.
+       Để browser dùng zh-CN.
+    */
+
+    return null;
+
+  }
+
+
+  /* =========================================================
+     🔊 ENGINE PHÁT ÂM MOBILE
      ========================================================= */
 
   function mobileSpeak(
@@ -91728,36 +91696,39 @@ function renderUnscramble(){
 
 
     if(!text){
+
       return false;
+
     }
 
 
     try{
 
       /*
-         Dừng câu cũ.
+         Dừng câu trước.
       */
 
       synth.cancel();
 
 
       /*
-         Đánh thức speech engine.
+         Đánh thức engine.
       */
 
-      wakeSpeechSynthesis();
+      wakeSpeech();
 
 
       /*
-         Lấy voice mới nhất.
+         Cập nhật voice hiện tại.
       */
 
-      refreshVoices();
-
-
       const voice =
-        getBestChineseVoice();
+        getCurrentChineseVoice();
 
+
+      /*
+         Tạo utterance.
+      */
 
       const utterance =
         new SpeechSynthesisUtterance(
@@ -91766,83 +91737,42 @@ function renderUnscramble(){
 
 
       /*
-         🇨🇳 Ngôn ngữ chính.
+         🇨🇳 Ngôn ngữ tiếng Trung.
       */
 
       utterance.lang =
-        "zh-CN";
+        voice && voice.lang
+          ? voice.lang
+          : "zh-CN";
 
 
       /*
-         Nếu thiết bị có voice Trung Quốc
-         thì dùng voice đó.
+         🎤 QUAN TRỌNG:
+         dùng đúng voice anh đã chọn.
       */
 
       if(voice){
 
-        try{
-
-          utterance.voice =
-            voice;
-
-          /*
-             Một số trình duyệt mobile
-             hoạt động tốt hơn khi lang
-             khớp với voice thực tế.
-          */
-
-          if(voice.lang){
-
-            utterance.lang =
-              voice.lang;
-
-          }
-
-        }catch(error){
-
-          console.warn(
-            "Không gán được Chinese voice:",
-            error
-          );
-
-        }
+        utterance.voice =
+          voice;
 
       }
 
 
       /*
-         Tốc độ.
+         🎚️ Tốc độ anh đã chọn.
       */
-
-      let finalRate =
-        Number(rate);
-
-
-      if(
-        !Number.isFinite(finalRate)
-      ){
-
-        finalRate = 0.65;
-
-      }
-
-
-      /*
-         Giới hạn tốc độ an toàn.
-      */
-
-      finalRate =
-        Math.max(
-          0.45,
-          Math.min(
-            1.2,
-            finalRate
-          )
-        );
-
 
       utterance.rate =
-        finalRate;
+        typeof rate ===
+        "number"
+          ? rate
+          : (
+              typeof selectedRate ===
+              "number"
+                ? selectedRate
+                : 0.65
+            );
 
 
       utterance.pitch =
@@ -91854,17 +91784,24 @@ function renderUnscramble(){
 
 
       /*
-         DEBUG — nếu mobile có lỗi
-         sẽ nhìn được trong console.
+         Trạng thái Flashcard.
       */
 
       utterance.onstart =
         function(){
 
-          console.log(
-            "🇨🇳 TTS START:",
-            text
-          );
+          const status =
+            document.getElementById(
+              "flashcardStatus"
+            );
+
+
+          if(status){
+
+            status.textContent =
+              "🔊 Đang phát âm...";
+
+          }
 
         };
 
@@ -91872,9 +91809,18 @@ function renderUnscramble(){
       utterance.onend =
         function(){
 
-          console.log(
-            "🇨🇳 TTS END"
-          );
+          const status =
+            document.getElementById(
+              "flashcardStatus"
+            );
+
+
+          if(status){
+
+            status.textContent =
+              "✅ Đã phát âm.";
+
+          }
 
         };
 
@@ -91883,16 +91829,32 @@ function renderUnscramble(){
         function(event){
 
           console.warn(
-            "🇨🇳 TTS ERROR:",
+            "🇨🇳 TTS error:",
             event
           );
+
+
+          const status =
+            document.getElementById(
+              "flashcardStatus"
+            );
+
+
+          if(status){
+
+            status.textContent =
+              "⚠️ Không phát được âm thanh. Anh thử bấm lại nhé.";
+
+          }
 
         };
 
 
       /*
          ⭐ QUAN TRỌNG:
-         phát ngay, không setTimeout.
+         KHÔNG setTimeout.
+         
+         speak() được gọi ngay.
       */
 
       synth.speak(
@@ -91900,12 +91862,7 @@ function renderUnscramble(){
       );
 
 
-      /*
-         Một số mobile browser
-         có thể pause speech ngay sau speak.
-      */
-
-      wakeSpeechSynthesis();
+      wakeSpeech();
 
 
       return true;
@@ -91913,7 +91870,7 @@ function renderUnscramble(){
     }catch(error){
 
       console.error(
-        "THÍCH TIẾNG TRUNG TTS:",
+        "🇨🇳 Mobile TTS:",
         error
       );
 
@@ -91926,78 +91883,58 @@ function renderUnscramble(){
 
   /* =========================================================
      🃏 FLASHCARD
-     GHI ĐÈ HÀM CŨ BẰNG BẢN MOBILE-SAFE
      ========================================================= */
 
   window.speakFlashcardText =
     function(text){
 
       if(!text){
+
         return false;
-      }
-
-
-      const ok =
-        mobileSpeak(
-          text,
-          typeof selectedRate ===
-          "number"
-            ? selectedRate
-            : 0.65
-        );
-
-
-      const status =
-        document.getElementById(
-          "flashcardStatus"
-        );
-
-
-      if(status){
-
-        status.textContent =
-          ok
-            ? "🔊 Đang phát âm..."
-            : "⚠️ Không phát được âm thanh.";
 
       }
 
 
-      return ok;
-
-    };
-
-
-  /* =========================================================
-     🔊 HỆ THỐNG SAY CHUNG
-     ========================================================= */
-
-  window.say =
-    function(text){
-
-      if(!text){
-        return;
-      }
-
-
-      let rate =
+      return mobileSpeak(
+        text,
         typeof selectedRate ===
         "number"
           ? selectedRate
-          : 0.65;
-
-
-      mobileSpeak(
-        text,
-        rate
+          : 0.65
       );
 
     };
 
 
   /* =========================================================
-     🔊 ĐỌC CÂU
-     GHI ĐÈ HÀM SAY SENTENCE CŨ
+     🔊 SAY CHUNG
+     
+     GIỮ NGUYÊN VOICE ĐÃ CHỌN
+     ========================================================= */
+
+  window.say =
+    function(text){
+
+      if(!text){
+
+        return;
+
+      }
+
+
+      mobileSpeak(
+        text,
+        typeof selectedRate ===
+        "number"
+          ? selectedRate
+          : 0.65
+      );
+
+    };
+
+
+  /* =========================================================
+     🔊 CÂU
      ========================================================= */
 
   window.saySentence =
@@ -92031,93 +91968,64 @@ function renderUnscramble(){
 
       mobileSpeak(
         s.answer,
-        0.65
+        typeof selectedRate ===
+        "number"
+          ? selectedRate
+          : 0.65
       );
 
     };
 
 
   /* =========================================================
-     🧩 GHI ĐÈ SPEECH SYNTHESIS.SPEAK
+     🧩 GRAMMAR
      
-     Mục đích:
-     Grammar đang có speakChinese()
-     riêng bên trong IIFE.
+     KHÔNG ÉP VOICE.
      
-     Patch này giúp cả những utterance
-     mà engine cũ tạo ra cũng được xử lý
-     voice mobile tốt hơn.
+     Nếu Grammar tạo utterance riêng,
+     chỉ bổ sung voice khi utterance
+     chưa có voice.
      ========================================================= */
 
-  const originalSpeak =
-    synth.speak.bind(synth);
+  try{
 
+    if(
+      !synth.__THICH_TIENg_TRUNG_SAFE_WRAP__
+    ){
 
-  if(
-    !synth.__thttMobileSpeakWrapped
-  ){
+      const nativeSpeak =
+        synth.speak.bind(synth);
 
-    const nativeSpeak =
-      originalSpeak;
-
-
-    try{
 
       synth.speak =
         function(utterance){
 
           try{
 
+            /*
+               ⭐ Nếu Grammar đã có voice
+               → TUYỆT ĐỐI KHÔNG ĐỤNG.
+            */
+
             if(
               utterance &&
-              utterance instanceof
-              SpeechSynthesisUtterance
+              !utterance.voice
             ){
 
-              /*
-                 Nếu chưa có voice,
-                 thử lấy voice tốt nhất.
-              */
-
               const voice =
-                getBestChineseVoice();
+                getCurrentChineseVoice();
 
 
-              if(
-                voice &&
-                String(
-                  utterance.lang || ""
-                ).toLowerCase()
-                  .startsWith("zh")
-              ){
+              if(voice){
 
-                try{
-
-                  utterance.voice =
-                    voice;
-
-                }catch(error){}
-
-              }
+                utterance.voice =
+                  voice;
 
 
-              /*
-                 Luôn bảo đảm Chinese language.
-              */
-
-              if(
-                String(
-                  utterance.lang || ""
-                ).toLowerCase()
-                  .startsWith("zh")
-              ){
-
-                if(
-                  !utterance.lang
-                ){
+                if(voice.lang){
 
                   utterance.lang =
-                    "zh-CN";
+                    voice.lang;
 
                 }
 
@@ -92128,23 +92036,15 @@ function renderUnscramble(){
           }catch(error){
 
             console.warn(
-              "TTS wrapper:",
+              "Safe voice wrapper:",
               error
             );
 
           }
 
 
-          /*
-             Mobile wake-up.
-          */
+          wakeSpeech();
 
-          wakeSpeechSynthesis();
-
-
-          /*
-             Gọi speech engine thật.
-          */
 
           return nativeSpeak(
             utterance
@@ -92153,52 +92053,75 @@ function renderUnscramble(){
         };
 
 
-      synth.__thttMobileSpeakWrapped =
+      synth.__THICH_TIENg_TRUNG_SAFE_WRAP__ =
         true;
 
-
-    }catch(error){
-
-      console.warn(
-        "Không thể bọc speechSynthesis.speak:",
-        error
-      );
-
     }
+
+  }catch(error){
+
+    console.warn(
+      "Không thể thiết lập safe wrapper:",
+      error
+    );
 
   }
 
 
   /* =========================================================
-     🔄 VOICE LIST READY
+     🔄 VOICE ĐƯỢC NẠP LẠI
      ========================================================= */
 
-  setTimeout(
-    function(){
+  if(
+    "onvoiceschanged" in synth
+  ){
 
-      refreshVoices();
+    synth.addEventListener(
+      "voiceschanged",
+      function(){
 
-    },
-    500
-  );
+        try{
 
+          if(
+            typeof loadChineseVoice ===
+            "function"
+          ){
 
-  setTimeout(
-    function(){
+            loadChineseVoice();
 
-      refreshVoices();
+          }
 
-    },
-    1500
-  );
+          if(
+            typeof updateVoiceListAuto ===
+            "function"
+          ){
+
+            updateVoiceListAuto();
+
+          }
+
+        }catch(error){
+
+          console.warn(
+            "Voice refresh:",
+            error
+          );
+
+        }
+
+      }
+    );
+
+  }
 
 
   console.log(
-    "🇨🇳 THÍCH TIẾNG TRUNG — Mobile TTS Patch đã kích hoạt."
+    "🇨🇳 THÍCH TIẾNG TRUNG — Mobile TTS V2 đã kích hoạt."
   );
 
 
 })();
 </script>
+
 </body>
 </html>
