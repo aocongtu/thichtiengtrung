@@ -92122,6 +92122,1774 @@ function renderUnscramble(){
 
 })();
 </script>
+<!-- =========================================================
+     🇨🇳 THÍCH TIẾNG TRUNG
+     🎙️ WHITE HAT VOICE LAB V3
+     
+     MỤC TIÊU:
+     - Lấy rộng hơn toàn bộ voice tiếng Trung thiết bị cung cấp
+     - Không tự đổi voice người dùng đã chọn
+     - Không phá Mobile TTS V2
+     - Có Voice Lab để thử từng giọng
+     - Hiển thị ngôn ngữ + local/remote + mặc định
+     - Tự cập nhật khi thiết bị nạp thêm voice
+     - Không sửa HSK1–6
+     ========================================================= -->
+
+<script>
+(function(){
+
+  "use strict";
+
+  /* =========================================================
+     🛡️ CHỐNG CHẠY 2 LẦN
+     ========================================================= */
+
+  if(window.__THICH_TIENg_TRUNG_VOICE_LAB_V3__){
+    return;
+  }
+
+  window.__THICH_TIENg_TRUNG_VOICE_LAB_V3__ = true;
+
+
+  /* =========================================================
+     🔊 KIỂM TRA TTS
+     ========================================================= */
+
+  if(!("speechSynthesis" in window)){
+    console.warn(
+      "🇨🇳 Voice Lab: trình duyệt không hỗ trợ Speech Synthesis."
+    );
+    return;
+  }
+
+
+  const synth =
+    window.speechSynthesis;
+
+
+  /* =========================================================
+     🇨🇳 NHẬN DIỆN VOICE TIẾNG TRUNG
+     
+     Mở rộng hơn engine cũ:
+     zh
+     zh-CN
+     zh-SG
+     zh-MY
+     zh-Hans
+     ...
+     
+     Loại:
+     zh-TW
+     zh-HK
+     zh-MO
+     ========================================================= */
+
+  function voiceIsChinese(voice){
+
+    if(!voice) return false;
+
+    const lang =
+      String(voice.lang || "")
+        .toLowerCase()
+        .trim();
+
+    if(!lang.startsWith("zh")){
+      return false;
+    }
+
+    if(
+      lang.startsWith("zh-tw") ||
+      lang.startsWith("zh-hk") ||
+      lang.startsWith("zh-mo")
+    ){
+      return false;
+    }
+
+    return true;
+  }
+
+
+  /* =========================================================
+     🎤 LẤY TOÀN BỘ VOICE TRUNG QUỐC
+     ========================================================= */
+
+  function getVoiceLabVoices(){
+
+    const voices =
+      synth.getVoices() || [];
+
+    return voices.filter(
+      voiceIsChinese
+    );
+
+  }
+
+
+  /* =========================================================
+     ⭐ HÀM QUAN TRỌNG
+     
+     Thay engine lọc cũ bằng bộ lọc mới.
+     
+     Mobile TTS V2 sẽ dùng chính danh sách này.
+     ========================================================= */
+
+  try{
+
+    window.getChineseVoices =
+      function(){
+
+        return getVoiceLabVoices();
+
+      };
+
+  }catch(error){
+
+    console.warn(
+      "Voice Lab: không thể thay bộ lọc voice.",
+      error
+    );
+
+  }
+
+
+  /* =========================================================
+     🎯 LOAD ĐÚNG VOICE ĐÃ CHỌN
+     
+     KHÔNG tự chọn voice nữ.
+     KHÔNG tự chọn voice đầu tiên
+     nếu người dùng đã có lựa chọn.
+     ========================================================= */
+
+  try{
+
+    window.loadChineseVoice =
+      function(){
+
+        const voices =
+          getVoiceLabVoices();
+
+        if(!voices.length){
+
+          if(
+            typeof chineseVoice !==
+            "undefined"
+          ){
+
+            chineseVoice =
+              null;
+
+          }
+
+          return null;
+
+        }
+
+
+        /* ---------------------------------------------
+           1️⃣ VOICE ĐÃ CHỌN
+           --------------------------------------------- */
+
+        if(
+          typeof selectedVoiceName !==
+          "undefined" &&
+          selectedVoiceName
+        ){
+
+          const saved =
+            voices.find(
+              function(voice){
+
+                return (
+                  voice.name ===
+                  selectedVoiceName
+                );
+
+              }
+            );
+
+          if(saved){
+
+            if(
+              typeof chineseVoice !==
+              "undefined"
+            ){
+
+              chineseVoice =
+                saved;
+
+            }
+
+            return saved;
+
+          }
+
+        }
+
+
+        /* ---------------------------------------------
+           2️⃣ CHƯA CÓ LỰA CHỌN
+           
+           Chỉ lúc này mới dùng default.
+           --------------------------------------------- */
+
+        const defaultVoice =
+          voices.find(
+            function(voice){
+
+              return voice.default;
+
+            }
+          ) ||
+          voices[0] ||
+          null;
+
+
+        if(
+          typeof chineseVoice !==
+          "undefined"
+        ){
+
+          chineseVoice =
+            defaultVoice;
+
+        }
+
+
+        if(defaultVoice){
+
+          if(
+            typeof selectedVoiceName !==
+            "undefined"
+          ){
+
+            selectedVoiceName =
+              defaultVoice.name;
+
+            localStorage.setItem(
+              "ttsVoiceName",
+              defaultVoice.name
+            );
+
+          }
+
+        }
+
+
+        return defaultVoice;
+
+      };
+
+  }catch(error){
+
+    console.warn(
+      "Voice Lab: không thể thay loadChineseVoice.",
+      error
+    );
+
+  }
+
+
+  /* =========================================================
+     🏷️ TÊN HIỂN THỊ
+     ========================================================= */
+
+  function voiceLabel(voice){
+
+    let label =
+      "🇨🇳 " +
+      voice.name +
+      " · " +
+      voice.lang;
+
+
+    if(voice.localService){
+
+      label +=
+        " · 🏠 Thiết bị";
+
+    }
+    else{
+
+      label +=
+        " · ☁️ Dịch vụ";
+
+    }
+
+
+    if(voice.default){
+
+      label +=
+        " · ⭐ Mặc định";
+
+    }
+
+
+    return label;
+
+  }
+
+
+  /* =========================================================
+     🔊 ĐỌC THỬ MỘT VOICE CỤ THỂ
+     ========================================================= */
+
+  function testVoice(voice){
+
+    if(!voice) return;
+
+    const text =
+      "你好，很高兴认识你。欢迎来到喜欢中文。";
+
+
+    try{
+
+      synth.cancel();
+
+      if(
+        typeof synth.resume ===
+        "function"
+      ){
+
+        synth.resume();
+
+      }
+
+
+      const utterance =
+        new SpeechSynthesisUtterance(
+          text
+        );
+
+
+      utterance.voice =
+        voice;
+
+
+      utterance.lang =
+        voice.lang ||
+        "zh-CN";
+
+
+      utterance.rate =
+        typeof selectedRate ===
+        "number"
+          ? selectedRate
+          : 0.65;
+
+
+      utterance.pitch =
+        1;
+
+
+      utterance.volume =
+        1;
+
+
+      synth.speak(
+        utterance
+      );
+
+
+    }catch(error){
+
+      console.error(
+        "Voice Lab test:",
+        error
+      );
+
+    }
+
+  }
+
+
+  /* =========================================================
+     🎨 CSS
+     ========================================================= */
+
+  const style =
+    document.createElement("style");
+
+  style.id =
+    "thtt-voice-lab-v3-style";
+
+
+  style.textContent = `
+
+    #thttVoiceLabV3{
+
+      margin:20px 0;
+
+      padding:18px;
+
+      border-radius:18px;
+
+      background:
+        linear-gradient(
+          145deg,
+          #ffffff,
+          #f7fbff
+        );
+
+      border:
+        1px solid #dbe7f3;
+
+      box-shadow:
+        0 5px 18px
+        rgba(30,80,120,.09);
+
+    }
+
+
+    #thttVoiceLabV3
+    .thtt-vlab-title{
+
+      font-size:19px;
+
+      font-weight:800;
+
+      color:#183f66;
+
+      margin-bottom:5px;
+
+    }
+
+
+    #thttVoiceLabV3
+    .thtt-vlab-subtitle{
+
+      color:#64748b;
+
+      font-size:13px;
+
+      line-height:1.5;
+
+      margin-bottom:14px;
+
+    }
+
+
+    #thttVoiceLabV3
+    .thtt-vlab-count{
+
+      display:inline-block;
+
+      padding:5px 10px;
+
+      border-radius:999px;
+
+      background:#eef4ff;
+
+      color:#2457c5;
+
+      font-size:12px;
+
+      font-weight:800;
+
+      margin-bottom:14px;
+
+    }
+
+
+    #thttVoiceLabV3
+    .thtt-vlab-current{
+
+      padding:11px 13px;
+
+      margin-bottom:14px;
+
+      border-radius:13px;
+
+      background:#f8fafc;
+
+      border:1px solid #e5eaf1;
+
+      color:#334155;
+
+      font-size:13px;
+
+      line-height:1.5;
+
+    }
+
+
+    #thttVoiceLabV3
+    .thtt-vlab-list{
+
+      display:flex;
+
+      flex-direction:column;
+
+      gap:9px;
+
+    }
+
+
+    #thttVoiceLabV3
+    .thtt-vlab-item{
+
+      display:flex;
+
+      align-items:center;
+
+      gap:9px;
+
+      padding:11px;
+
+      border-radius:13px;
+
+      background:#ffffff;
+
+      border:1px solid #e3eaf2;
+
+    }
+
+
+    #thttVoiceLabV3
+    .thtt-vlab-item.active{
+
+      border-color:#4b9bea;
+
+      background:#f3f8ff;
+
+    }
+
+
+    #thttVoiceLabV3
+    .thtt-vlab-info{
+
+      flex:1;
+
+      min-width:0;
+
+    }
+
+
+    #thttVoiceLabV3
+    .thtt-vlab-name{
+
+      font-size:14px;
+
+      font-weight:800;
+
+      color:#263247;
+
+      word-break:break-word;
+
+    }
+
+
+    #thttVoiceLabV3
+    .thtt-vlab-meta{
+
+      margin-top:3px;
+
+      font-size:11px;
+
+      color:#718096;
+
+    }
+
+
+    #thttVoiceLabV3
+    .thtt-vlab-btn{
+
+      flex-shrink:0;
+
+      border:0;
+
+      border-radius:10px;
+
+      padding:9px 11px;
+
+      background:#eef4ff;
+
+      color:#2457c5;
+
+      font-weight:800;
+
+      cursor:pointer;
+
+      font-size:12px;
+
+    }
+
+
+    #thttVoiceLabV3
+    .thtt-vlab-btn.select{
+
+      background:#2586df;
+
+      color:#ffffff;
+
+    }
+
+
+    #thttVoiceLabV3
+    .thtt-vlab-empty{
+
+      padding:15px;
+
+      border-radius:12px;
+
+      background:#fff8e8;
+
+      color:#8a5a00;
+
+      font-size:13px;
+
+      line-height:1.5;
+
+    }
+
+
+    @media(max-width:600px){
+
+      #thttVoiceLabV3{
+
+        padding:14px;
+
+      }
+
+
+      #thttVoiceLabV3
+      .thtt-vlab-item{
+
+        align-items:flex-start;
+
+      }
+
+
+      #thttVoiceLabV3
+      .thtt-vlab-btn{
+
+        padding:9px 10px;
+
+      }
+
+    }
+
+  `;
+
+
+  document.head.appendChild(
+    style
+  );
+
+
+  /* =========================================================
+     🧩 TẠO VOICE LAB
+     ========================================================= */
+
+  function createVoiceLab(){
+
+    if(
+      document.getElementById(
+        "thttVoiceLabV3"
+      )
+    ){
+
+      return;
+
+    }
+
+
+    const box =
+      document.createElement("section");
+
+
+    box.id =
+      "thttVoiceLabV3";
+
+
+    box.innerHTML = `
+
+      <div class="thtt-vlab-title">
+        🎙️ Voice Lab — Phòng thử giọng
+      </div>
+
+      <div class="thtt-vlab-subtitle">
+        Thiết bị cung cấp giọng nào, Voice Lab sẽ
+        hiển thị giọng đó. Anh có thể nghe thử
+        từng giọng trước khi chọn.
+      </div>
+
+      <div
+        class="thtt-vlab-count"
+        id="thttVoiceLabCount">
+        🔎 Đang tìm giọng...
+      </div>
+
+      <div
+        class="thtt-vlab-current"
+        id="thttVoiceLabCurrent">
+        🎤 Chưa chọn giọng
+      </div>
+
+      <div
+        class="thtt-vlab-list"
+        id="thttVoiceLabList">
+      </div>
+
+    `;
+
+
+    const main =
+      document.querySelector("main");
+
+
+    const voiceSettings =
+      document.getElementById(
+        "voiceSettingsAuto"
+      );
+
+
+    if(
+      voiceSettings &&
+      voiceSettings.parentNode
+    ){
+
+      voiceSettings
+        .parentNode
+        .insertBefore(
+          box,
+          voiceSettings.nextSibling
+        );
+
+    }
+    else if(main){
+
+      main.insertBefore(
+        box,
+        main.firstChild
+      );
+
+    }
+    else{
+
+      document.body.prepend(
+        box
+      );
+
+    }
+
+  }
+
+
+  /* =========================================================
+     🔄 RENDER VOICE LAB
+     ========================================================= */
+
+  function renderVoiceLab(){
+
+    const list =
+      document.getElementById(
+        "thttVoiceLabList"
+      );
+
+
+    const count =
+      document.getElementById(
+        "thttVoiceLabCount"
+      );
+
+
+    const current =
+      document.getElementById(
+        "thttVoiceLabCurrent"
+      );
+
+
+    if(!list) return;
+
+
+    const voices =
+      getVoiceLabVoices();
+
+
+    list.innerHTML = "";
+
+
+    if(count){
+
+      count.textContent =
+        "🎙️ " +
+        voices.length +
+        " giọng tiếng Trung khả dụng";
+
+    }
+
+
+    let currentName = "";
+
+    try{
+
+      currentName =
+        localStorage.getItem(
+          "ttsVoiceName"
+        ) || "";
+
+    }catch(error){}
+
+
+    if(current){
+
+      if(currentName){
+
+        const selected =
+          voices.find(
+            function(voice){
+
+              return (
+                voice.name ===
+                currentName
+              );
+
+            }
+          );
+
+
+        if(selected){
+
+          current.innerHTML =
+            "🎤 <b>Đang chọn:</b> " +
+            voiceLabel(selected);
+
+        }
+        else{
+
+          current.innerHTML =
+            "🎤 <b>Giọng đã lưu:</b> " +
+            currentName;
+
+        }
+
+      }
+      else{
+
+        current.innerHTML =
+          "🎤 <b>Chưa lưu lựa chọn voice.</b>";
+
+      }
+
+    }
+
+
+    if(!voices.length){
+
+      list.innerHTML = `
+
+        <div class="thtt-vlab-empty">
+
+          ⚠️ Thiết bị hiện chưa cung cấp
+          voice tiếng Trung phù hợp.
+
+          <br><br>
+
+          Hãy thử mở lại trang sau khi
+          hệ thống đã nạp voice.
+
+        </div>
+
+      `;
+
+      return;
+
+    }
+
+
+    voices.forEach(
+      function(voice){
+
+        const item =
+          document.createElement("div");
+
+
+        item.className =
+          "thtt-vlab-item";
+
+
+        if(
+          voice.name ===
+          currentName
+        ){
+
+          item.classList.add(
+            "active"
+          );
+
+        }
+
+
+        const info =
+          document.createElement("div");
+
+
+        info.className =
+          "thtt-vlab-info";
+
+
+        const name =
+          document.createElement("div");
+
+
+        name.className =
+          "thtt-vlab-name";
+
+
+        name.textContent =
+          voice.name;
+
+
+        const meta =
+          document.createElement("div");
+
+
+        meta.className =
+          "thtt-vlab-meta";
+
+
+        meta.textContent =
+          voice.lang +
+          " · " +
+          (
+            voice.localService
+              ? "🏠 Thiết bị"
+              : "☁️ Dịch vụ"
+          ) +
+          (
+            voice.default
+              ? " · ⭐ Mặc định"
+              : ""
+          );
+
+
+        info.appendChild(
+          name
+        );
+
+
+        info.appendChild(
+          meta
+        );
+
+
+        const test =
+          document.createElement("button");
+
+
+        test.type =
+          "button";
+
+
+        test.className =
+          "thtt-vlab-btn";
+
+
+        test.textContent =
+          "🔊 Thử";
+
+
+        test.addEventListener(
+          "click",
+          function(){
+
+            testVoice(
+              voice
+            );
+
+          }
+        );
+
+
+        const select =
+          document.createElement("button");
+
+
+        select.type =
+          "button";
+
+
+        select.className =
+          "thtt-vlab-btn select";
+
+
+        select.textContent =
+          voice.name ===
+          currentName
+            ? "✓ Đang chọn"
+            : "Chọn";
+
+
+        select.addEventListener(
+          "click",
+          function(){
+
+            try{
+
+              localStorage.setItem(
+                "ttsVoiceName",
+                voice.name
+              );
+
+            }catch(error){}
+
+
+            /*
+             * Cập nhật các biến của engine cũ
+             */
+
+            try{
+
+              if(
+                typeof selectedVoiceName !==
+                "undefined"
+              ){
+
+                selectedVoiceName =
+                  voice.name;
+
+              }
+
+            }catch(error){}
+
+
+            try{
+
+              if(
+                typeof chineseVoice !==
+                "undefined"
+              ){
+
+                chineseVoice =
+                  voice;
+
+              }
+
+            }catch(error){}
+
+
+            /*
+             * Đồng bộ select cũ
+             */
+
+            const oldSelect =
+              document.getElementById(
+                "voiceSelectAuto"
+              );
+
+
+            if(oldSelect){
+
+              oldSelect.value =
+                voice.name;
+
+            }
+
+
+            renderVoiceLab();
+
+
+            /*
+             * Nghe thử chính voice vừa chọn
+             */
+
+            testVoice(
+              voice
+            );
+
+          }
+        );
+
+
+        item.appendChild(
+          info
+        );
+
+
+        item.appendChild(
+          test
+        );
+
+
+        item.appendChild(
+          select
+        );
+
+
+        list.appendChild(
+          item
+        );
+
+      }
+    );
+
+  }
+
+
+  /* =========================================================
+     🔄 ĐỒNG BỘ SELECT CŨ
+     ========================================================= */
+
+  function refreshOldVoiceSelect(){
+
+    const select =
+      document.getElementById(
+        "voiceSelectAuto"
+      );
+
+
+    if(!select) return;
+
+
+    const voices =
+      getVoiceLabVoices();
+
+
+    if(!voices.length){
+
+      return;
+
+    }
+
+
+    const saved =
+      localStorage.getItem(
+        "ttsVoiceName"
+      ) || "";
+
+
+    select.innerHTML = "";
+
+
+    voices.forEach(
+      function(voice){
+
+        const option =
+          document.createElement(
+            "option"
+          );
+
+
+        option.value =
+          voice.name;
+
+
+        option.textContent =
+          voiceLabel(voice);
+
+
+        select.appendChild(
+          option
+        );
+
+      }
+    );
+
+
+    const exists =
+      voices.some(
+        function(voice){
+
+          return (
+            voice.name ===
+            saved
+          );
+
+        }
+      );
+
+
+    if(exists){
+
+      select.value =
+        saved;
+
+    }
+    else if(
+      typeof selectedVoiceName !==
+      "undefined" &&
+      selectedVoiceName
+    ){
+
+      const selectedExists =
+        voices.some(
+          function(voice){
+
+            return (
+              voice.name ===
+              selectedVoiceName
+            );
+
+          }
+        );
+
+
+      if(selectedExists){
+
+        select.value =
+          selectedVoiceName;
+
+      }
+
+    }
+
+  }
+
+
+  /* =========================================================
+     🚀 KHỞI ĐỘNG
+     ========================================================= */
+
+  function refreshAll(){
+
+    createVoiceLab();
+
+    refreshOldVoiceSelect();
+
+    renderVoiceLab();
+
+  }
+
+
+  /*
+   * Chạy sau khi engine cũ đã tạo
+   * voiceSettingsAuto.
+   */
+
+  setTimeout(
+    refreshAll,
+    300
+  );
+
+
+  setTimeout(
+    refreshAll,
+    900
+  );
+
+
+  setTimeout(
+    refreshAll,
+    1800
+  );
+
+
+  /* =========================================================
+     🔄 VOICE MỚI ĐƯỢC NẠP
+     ========================================================= */
+
+  synth.addEventListener(
+    "voiceschanged",
+    function(){
+
+      setTimeout(
+        refreshAll,
+        100
+      );
+
+    }
+  );
+
+
+  console.log(
+    "🇨🇳 THÍCH TIẾNG TRUNG — WHITE HAT VOICE LAB V3 đã kích hoạt."
+  );
+
+
+})();
+</script>
+<!-- =========================================================
+     🇨🇳 THÍCH TIẾNG TRUNG
+     🎙️ WHITE HAT VOICE LAB V4
+     
+     MỤC TIÊU:
+     - Bên ngoài chỉ hiện 1 nút
+     - Bấm nút → mở danh sách voice
+     - Bấm lần nữa → đóng danh sách
+     - Không sửa Voice Lab V3
+     - Không sửa TTS V2
+     - Không sửa HSK1–6
+     ========================================================= -->
+
+<script>
+(function(){
+
+  "use strict";
+
+  if(window.__THICH_TIENg_TRUNG_VOICE_LAB_V4__){
+    return;
+  }
+
+  window.__THICH_TIENg_TRUNG_VOICE_LAB_V4__ = true;
+
+
+  /* =========================================================
+     ⏳ CHỜ VOICE LAB V3 TẠO XONG
+     ========================================================= */
+
+  function initVoiceLabButton(){
+
+    const box =
+      document.getElementById(
+        "thttVoiceLabV3"
+      );
+
+    if(!box){
+
+      setTimeout(
+        initVoiceLabButton,
+        300
+      );
+
+      return;
+
+    }
+
+
+    /* ---------------------------------------------------------
+       🛡️ KHÔNG TẠO 2 NÚT
+       --------------------------------------------------------- */
+
+    if(
+      document.getElementById(
+        "thttVoiceLabToggleV4"
+      )
+    ){
+
+      return;
+
+    }
+
+
+    /* =========================================================
+       🎨 CSS
+       ========================================================= */
+
+    const style =
+      document.createElement("style");
+
+
+    style.id =
+      "thtt-voice-lab-v4-style";
+
+
+    style.textContent = `
+
+      /* ================================================
+         📦 VOICE LAB — CHẾ ĐỘ THU GỌN
+         ================================================ */
+
+      #thttVoiceLabV3{
+
+        padding:0 !important;
+
+        margin:16px 0 !important;
+
+        background:transparent !important;
+
+        border:0 !important;
+
+        box-shadow:none !important;
+
+      }
+
+
+      /* ================================================
+         🎙️ NÚT MỞ VOICE LAB
+         ================================================ */
+
+      #thttVoiceLabToggleV4{
+
+        width:100%;
+
+        display:flex;
+
+        align-items:center;
+
+        justify-content:space-between;
+
+        gap:10px;
+
+        padding:14px 16px;
+
+        border:1px solid #d9e5f1;
+
+        border-radius:14px;
+
+        background:#ffffff;
+
+        color:#183f66;
+
+        font-size:15px;
+
+        font-weight:800;
+
+        cursor:pointer;
+
+        box-shadow:
+          0 4px 14px
+          rgba(30,80,120,.08);
+
+        transition:
+          .18s ease;
+
+      }
+
+
+      #thttVoiceLabToggleV4:hover{
+
+        transform:
+          translateY(-1px);
+
+        box-shadow:
+          0 6px 18px
+          rgba(30,80,120,.12);
+
+      }
+
+
+      #thttVoiceLabToggleV4:active{
+
+        transform:
+          scale(.99);
+
+      }
+
+
+      #thttVoiceLabToggleV4
+      .thtt-v4-left{
+
+        display:flex;
+
+        align-items:center;
+
+        gap:9px;
+
+        min-width:0;
+
+      }
+
+
+      #thttVoiceLabToggleV4
+      .thtt-v4-icon{
+
+        font-size:21px;
+
+        flex-shrink:0;
+
+      }
+
+
+      #thttVoiceLabToggleV4
+      .thtt-v4-title{
+
+        white-space:nowrap;
+
+        overflow:hidden;
+
+        text-overflow:ellipsis;
+
+      }
+
+
+      #thttVoiceLabToggleV4
+      .thtt-v4-arrow{
+
+        font-size:15px;
+
+        flex-shrink:0;
+
+        transition:
+          transform .2s ease;
+
+      }
+
+
+      #thttVoiceLabToggleV4.open
+      .thtt-v4-arrow{
+
+        transform:
+          rotate(180deg);
+
+      }
+
+
+      /* ================================================
+         📂 KHU VỰC DANH SÁCH
+         ================================================ */
+
+      #thttVoiceLabContentV4{
+
+        display:none;
+
+        margin-top:10px;
+
+        padding:15px;
+
+        border-radius:16px;
+
+        background:#ffffff;
+
+        border:1px solid #dbe7f3;
+
+        box-shadow:
+          0 5px 18px
+          rgba(30,80,120,.08);
+
+        animation:
+          thttVoiceLabOpenV4
+          .18s ease;
+
+      }
+
+
+      #thttVoiceLabContentV4.open{
+
+        display:block;
+
+      }
+
+
+      @keyframes thttVoiceLabOpenV4{
+
+        from{
+
+          opacity:0;
+
+          transform:
+            translateY(-5px);
+
+        }
+
+        to{
+
+          opacity:1;
+
+          transform:
+            translateY(0);
+
+        }
+
+      }
+
+
+      /* ================================================
+         📱 MOBILE
+         ================================================ */
+
+      @media(max-width:600px){
+
+        #thttVoiceLabToggleV4{
+
+          padding:13px 14px;
+
+          font-size:14px;
+
+        }
+
+
+        #thttVoiceLabContentV4{
+
+          padding:12px;
+
+        }
+
+      }
+
+    `;
+
+
+    document.head.appendChild(
+      style
+    );
+
+
+    /* =========================================================
+       🎙️ NÚT
+       ========================================================= */
+
+    const button =
+      document.createElement("button");
+
+
+    button.type =
+      "button";
+
+
+    button.id =
+      "thttVoiceLabToggleV4";
+
+
+    button.setAttribute(
+      "aria-expanded",
+      "false"
+    );
+
+
+    button.innerHTML = `
+
+      <span class="thtt-v4-left">
+
+        <span class="thtt-v4-icon">
+          🎙️
+        </span>
+
+        <span class="thtt-v4-title">
+          Voice Lab — Phòng thử giọng
+        </span>
+
+      </span>
+
+      <span class="thtt-v4-arrow">
+        ▼
+      </span>
+
+    `;
+
+
+    /* =========================================================
+       📦 TẠO KHU VỰC NỘI DUNG
+       ========================================================= */
+
+    const content =
+      document.createElement("div");
+
+
+    content.id =
+      "thttVoiceLabContentV4";
+
+
+    /* =========================================================
+       🔄 ĐƯA NỘI DUNG V3 VÀO KHU VỰC ẨN
+       ========================================================= */
+
+    const children =
+      Array.from(
+        box.children
+      );
+
+
+    children.forEach(
+      function(child){
+
+        /*
+         * Không chuyển nút mới.
+         * Chỉ chuyển toàn bộ nội dung
+         * Voice Lab V3.
+         */
+
+        if(
+          child !== button
+        ){
+
+          content.appendChild(
+            child
+          );
+
+        }
+
+      }
+    );
+
+
+    /* =========================================================
+       🧱 XÓA NỘI DUNG CŨ
+       ========================================================= */
+
+    box.innerHTML = "";
+
+
+    box.appendChild(
+      button
+    );
+
+
+    box.appendChild(
+      content
+    );
+
+
+    /* =========================================================
+       🔘 CLICK MỞ / ĐÓNG
+       ========================================================= */
+
+    button.addEventListener(
+      "click",
+      function(){
+
+        const isOpen =
+          content.classList.toggle(
+            "open"
+          );
+
+
+        button.classList.toggle(
+          "open",
+          isOpen
+        );
+
+
+        button.setAttribute(
+          "aria-expanded",
+          String(isOpen)
+        );
+
+
+        /*
+         * Khi mở:
+         * cập nhật lại danh sách voice
+         */
+
+        if(
+          isOpen &&
+          typeof window.refreshVoiceLabV3 ===
+          "function"
+        ){
+
+          try{
+
+            window.refreshVoiceLabV3();
+
+          }catch(error){}
+
+        }
+
+      }
+    );
+
+
+    console.log(
+      "🎙️ Voice Lab V4 — giao diện thu gọn đã kích hoạt."
+    );
+
+  }
+
+
+  /* =========================================================
+     🚀 KHỞI ĐỘNG
+     ========================================================= */
+
+  setTimeout(
+    initVoiceLabButton,
+    500
+  );
+
+
+  setTimeout(
+    initVoiceLabButton,
+    1200
+  );
+
+
+  setTimeout(
+    initVoiceLabButton,
+    2200
+  );
+
+
+})();
+</script>
 
 </body>
 </html>
