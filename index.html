@@ -93890,6 +93890,241 @@ function renderUnscramble(){
 
 })();
 </script>
+<!-- =========================================================
+     🇻🇳 THÍCH TIẾNG TRUNG
+     🛡️ WHITE HAT — AUTO LEARNING VIETNAMESE VOICE FIX
 
+     MỤC TIÊU:
+     - Trả tiếng Việt về giọng Việt cũ
+     - Không để Voice Lab ép giọng Trung vào tiếng Việt
+     - Giữ nguyên tiếng Trung
+     - Không sửa Auto Learning Engine gốc
+     - Không sửa HSK1–6
+     ========================================================= -->
+
+<script>
+(function(){
+
+  "use strict";
+
+  /* =========================================================
+     🛡️ CHỐNG CHẠY 2 LẦN
+     ========================================================= */
+
+  if(
+    window.__THICH_TIENg_TRUNG_AUTO_VI_TTS_FIX__
+  ){
+    return;
+  }
+
+  window.__THICH_TIENg_TRUNG_AUTO_VI_TTS_FIX__ =
+    true;
+
+
+  /* =========================================================
+     🔊 KIỂM TRA SPEECH SYNTHESIS
+     ========================================================= */
+
+  if(
+    !("speechSynthesis" in window)
+  ){
+    return;
+  }
+
+
+  const synth =
+    window.speechSynthesis;
+
+
+  /* =========================================================
+     🇻🇳 TÌM GIỌNG VIỆT
+
+     Ưu tiên:
+     1. Giọng vi-VN mặc định của thiết bị
+     2. Giọng vi-VN đầu tiên
+
+     KHÔNG đụng vào giọng Trung.
+     ========================================================= */
+
+  function getVietnameseVoice(){
+
+    const voices =
+      synth.getVoices() || [];
+
+    const vietnamese =
+      voices.filter(function(voice){
+
+        const lang =
+          String(
+            voice.lang || ""
+          ).toLowerCase();
+
+        return (
+          lang === "vi-vn" ||
+          lang.startsWith("vi-")
+        );
+
+      });
+
+
+    if(!vietnamese.length){
+
+      return null;
+
+    }
+
+
+    /* Ưu tiên giọng Việt mặc định */
+
+    const defaultVoice =
+      vietnamese.find(function(voice){
+
+        return voice.default === true;
+
+      });
+
+
+    if(defaultVoice){
+
+      return defaultVoice;
+
+    }
+
+
+    /* Nếu không có default → lấy giọng Việt đầu tiên */
+
+    return vietnamese[0];
+
+  }
+
+
+  /* =========================================================
+     🛡️ BẢO VỆ TTS
+
+     Wrapper V2 phía trước sẽ ép giọng Trung
+     nếu utterance chưa có voice.
+
+     Vì vậy:
+     - Nếu là vi-VN
+     - và chưa có voice
+     → gán đúng voice Việt trước.
+
+     Khi đó wrapper Trung sẽ KHÔNG đụng vào.
+     ========================================================= */
+
+  const previousSpeak =
+    synth.speak.bind(synth);
+
+
+  synth.speak =
+    function(utterance){
+
+      try{
+
+        if(
+          utterance &&
+          !utterance.voice
+        ){
+
+          const lang =
+            String(
+              utterance.lang || ""
+            ).toLowerCase();
+
+
+          /* =========================================
+             🇻🇳 CHỈ XỬ LÝ TIẾNG VIỆT
+             ========================================= */
+
+          if(
+            lang === "vi-vn" ||
+            lang.startsWith("vi-")
+          ){
+
+            const vietnameseVoice =
+              getVietnameseVoice();
+
+
+            if(vietnameseVoice){
+
+              utterance.voice =
+                vietnameseVoice;
+
+              utterance.lang =
+                vietnameseVoice.lang ||
+                "vi-VN";
+
+            }
+
+          }
+
+        }
+
+      }catch(error){
+
+        console.warn(
+          "🇻🇳 Vietnamese TTS Fix:",
+          error
+        );
+
+      }
+
+
+      /*
+       * Gọi wrapper cũ.
+       *
+       * Vì utterance.voice đã là giọng Việt,
+       * wrapper tiếng Trung sẽ bỏ qua.
+       */
+
+      return previousSpeak(
+        utterance
+      );
+
+    };
+
+
+  /* =========================================================
+     🔄 KHI THIẾT BỊ NẠP THÊM VOICE
+
+     Không cần làm gì đặc biệt.
+     Mỗi lần speak lại tự lấy danh sách mới.
+     ========================================================= */
+
+  if(
+    typeof synth.addEventListener ===
+    "function"
+  ){
+
+    synth.addEventListener(
+      "voiceschanged",
+      function(){
+
+        try{
+
+          getVietnameseVoice();
+
+        }catch(error){
+
+          console.warn(
+            "Vietnamese voice refresh:",
+            error
+          );
+
+        }
+
+      }
+    );
+
+  }
+
+
+  console.log(
+    "🇻🇳 THÍCH TIẾNG TRUNG — Auto Learning Vietnamese Voice Fix đã kích hoạt."
+  );
+
+
+})();
+</script>
 </body>
 </html>
