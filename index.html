@@ -96794,7 +96794,432 @@ function renderUnscramble(){
 <!-- =========================================================
  🛡️ END WHITE HAT V2.2
  ========================================================= -->
+<!-- =========================================================
+ 🛡️ WHITE HAT MOBILE AUDIO PATCH
+ 🇨🇳 FIX PHÁT ÂM LUYỆN CÂU TRÊN ĐIỆN THOẠI
+ ---------------------------------------------------------
+ Không sửa WHITE HAT V2
+ Không sửa V2.1
+ Không sửa V2.2
+ Chỉ xử lý Speech Synthesis trên mobile
+ ========================================================= -->
 
+<script>
+(function(){
+
+  "use strict";
+
+  if(window.__WHITE_HAT_MOBILE_AUDIO_PATCH__){
+    return;
+  }
+
+  window.__WHITE_HAT_MOBILE_AUDIO_PATCH__ = true;
+
+
+  /* =========================================================
+     TRẠNG THÁI
+  ========================================================= */
+
+  let chineseVoice = null;
+  let audioUnlocked = false;
+
+
+  /* =========================================================
+     TÌM GIỌNG TIẾNG TRUNG
+  ========================================================= */
+
+  function findChineseVoice(){
+
+    if(!("speechSynthesis" in window)){
+      return null;
+    }
+
+    const voices =
+      window.speechSynthesis.getVoices();
+
+    if(!voices || !voices.length){
+      return null;
+    }
+
+    chineseVoice =
+      voices.find(function(v){
+
+        const lang =
+          String(v.lang || "")
+            .toLowerCase();
+
+        return (
+          lang === "zh-cn" ||
+          lang === "zh-hans" ||
+          lang.startsWith("zh-cn")
+        );
+
+      }) ||
+
+      voices.find(function(v){
+
+        const lang =
+          String(v.lang || "")
+            .toLowerCase();
+
+        return lang.startsWith("zh");
+
+      }) ||
+
+      null;
+
+    return chineseVoice;
+  }
+
+
+  /* =========================================================
+     LOAD VOICE
+  ========================================================= */
+
+  function loadChineseVoice(){
+
+    findChineseVoice();
+
+    if("speechSynthesis" in window){
+
+      window.speechSynthesis.onvoiceschanged =
+        function(){
+
+          findChineseVoice();
+
+        };
+
+    }
+  }
+
+
+  /* =========================================================
+     🔓 MỞ KHÓA AUDIO TRÊN MOBILE
+  ========================================================= */
+
+  function unlockMobileAudio(){
+
+    if(audioUnlocked){
+      return;
+    }
+
+    if(!("speechSynthesis" in window)){
+      return;
+    }
+
+    try{
+
+      /*
+       * iPhone/Safari đôi khi cần một thao tác
+       * người dùng trước khi cho Speech Synthesis hoạt động.
+       */
+
+      const utterance =
+        new SpeechSynthesisUtterance("");
+
+      utterance.lang = "zh-CN";
+      utterance.volume = 0;
+
+      window.speechSynthesis.cancel();
+
+      window.speechSynthesis.speak(
+        utterance
+      );
+
+      audioUnlocked = true;
+
+      findChineseVoice();
+
+    }catch(error){
+
+      console.log(
+        "WHITE HAT AUDIO UNLOCK:",
+        error
+      );
+
+    }
+
+  }
+
+
+  /* =========================================================
+     👆 BẮT THAO TÁC NGƯỜI DÙNG
+  ========================================================= */
+
+  [
+    "touchstart",
+    "touchend",
+    "pointerdown",
+    "click",
+    "keydown"
+  ].forEach(function(eventName){
+
+    document.addEventListener(
+      eventName,
+      function(){
+
+        unlockMobileAudio();
+
+      },
+      {
+        passive:true,
+        capture:true
+      }
+    );
+
+  });
+
+
+  /* =========================================================
+     🇨🇳 HÀM PHÁT TIẾNG TRUNG MOBILE
+  ========================================================= */
+
+  function mobileSpeak(text){
+
+    if(!text){
+      return;
+    }
+
+    if(!("speechSynthesis" in window)){
+
+      alert(
+        "📱 Thiết bị/trình duyệt này không hỗ trợ phát âm."
+      );
+
+      return;
+
+    }
+
+    unlockMobileAudio();
+
+    loadChineseVoice();
+
+    try{
+
+      window.speechSynthesis.cancel();
+
+      const utterance =
+        new SpeechSynthesisUtterance(
+          String(text)
+        );
+
+      utterance.lang =
+        "zh-CN";
+
+      utterance.rate =
+        typeof window.selectedRate === "number"
+          ? window.selectedRate
+          : 0.9;
+
+      utterance.pitch =
+        1;
+
+      utterance.volume =
+        1;
+
+      if(chineseVoice){
+
+        utterance.voice =
+          chineseVoice;
+
+      }
+
+      /*
+       * Một số iPhone cần delay cực ngắn
+       * sau cancel() mới phát ổn định.
+       */
+
+      window.setTimeout(
+        function(){
+
+          try{
+
+            window.speechSynthesis.speak(
+              utterance
+            );
+
+          }catch(error){
+
+            console.log(
+              "WHITE HAT MOBILE SPEAK:",
+              error
+            );
+
+          }
+
+        },
+        30
+      );
+
+    }catch(error){
+
+      console.log(
+        "WHITE HAT MOBILE AUDIO ERROR:",
+        error
+      );
+
+    }
+
+  }
+
+
+  /* =========================================================
+     🔊 GHI ĐÈ HÀM PHÁT CỦA WHITE HAT
+     ---------------------------------------------------------
+     Nếu hệ thống cũ có window.say()
+     → vẫn ưu tiên hệ thống cũ.
+
+     Nếu không phát được
+     → fallback sang mobileSpeak().
+  ========================================================= */
+
+  const originalSay =
+    window.say;
+
+  window.whiteHatMobileSpeak =
+    function(text){
+
+      if(!text){
+        return;
+      }
+
+      /*
+       * Nếu hàm say() hiện tại tồn tại,
+       * dùng nó trước.
+       */
+
+      if(typeof originalSay === "function"){
+
+        try{
+
+          originalSay(text);
+
+          /*
+           * Không return ngay trên mobile.
+           * Mobile patch vẫn chuẩn bị voice.
+           */
+
+          unlockMobileAudio();
+
+          return;
+
+        }catch(error){
+
+          console.log(
+            "WHITE HAT ORIGINAL SAY ERROR:",
+            error
+          );
+
+        }
+
+      }
+
+      /*
+       * Fallback
+       */
+
+      mobileSpeak(text);
+
+    };
+
+
+  /* =========================================================
+     🔊 GHI ĐÈ whiteHatSpeak NẾU ĐANG TỒN TẠI
+  ========================================================= */
+
+  if(typeof window.whiteHatSpeak === "function"){
+
+    window.whiteHatSpeak =
+      window.whiteHatMobileSpeak;
+
+  }
+
+
+  /* =========================================================
+     🔊 SỬA saySentence()
+     ---------------------------------------------------------
+     Khi bấm nút 🔊 Nghe trong Luyện câu
+     → dùng mobile audio patch.
+  ========================================================= */
+
+  const oldSaySentence =
+    window.saySentence;
+
+  window.saySentence =
+    function(){
+
+      try{
+
+        if(
+          typeof sentences !== "undefined" &&
+          Array.isArray(sentences)
+        ){
+
+          const index =
+            typeof window.sentenceIndex === "number"
+              ? window.sentenceIndex
+              : 0;
+
+          const item =
+            sentences[index];
+
+          if(
+            item &&
+            item.answer
+          ){
+
+            window.whiteHatMobileSpeak(
+              item.answer
+            );
+
+            return;
+
+          }
+
+        }
+
+      }catch(error){
+
+        console.log(
+          "WHITE HAT SAY SENTENCE:",
+          error
+        );
+
+      }
+
+      /*
+       * Fallback về hàm cũ nếu có.
+       */
+
+      if(typeof oldSaySentence === "function"){
+
+        try{
+          oldSaySentence();
+        }catch(error){
+          console.log(error);
+        }
+
+      }
+
+    };
+
+
+  /* =========================================================
+     KHỞI ĐỘNG
+  ========================================================= */
+
+  loadChineseVoice();
+
+  console.log(
+    "🛡️ WHITE HAT MOBILE AUDIO PATCH — READY 🇨🇳📱"
+  );
+
+})();
+</script>
+
+<!-- =========================================================
+ 🛡️ END WHITE HAT MOBILE AUDIO PATCH
+ ========================================================= -->
 
 </body>
 </html>
