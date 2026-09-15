@@ -81124,5 +81124,2869 @@ setupFlashcardMobile();
   🏠
 
 </button>
+
+<!-- =========================================================
+      THÍCH TIẾNG TRUNG
+🧩 GRAMMAR ENGINE HSK 1 → HSK 6
+BẢN HOÀN CHỈNH V3.1
+========================================================= -->
+
+<script>
+(function(){
+
+  "use strict";
+
+  /* =========================================================
+     🔒 CHỐNG NẠP TRÙNG V3.1
+  ========================================================= */
+
+  if(window.__THICH_TIENg_TRUNG_GRAMMAR_V3_1__) return;
+  window.__THICH_TIENg_TRUNG_GRAMMAR_V3_1__ = true;
+
+
+  /* =========================================================
+     DỮ LIỆU NGỮ PHÁP HSK 1 → HSK 6
+  ========================================================= */
+
+  const grammarData = {
+
+    /* =======================================================
+       HSK 1 — 39 MẪU
+    ======================================================= */
+
+    1: [
+
+      {
+        id:"hsk1_01",
+        pattern:"是",
+        title:"是 — là",
+        structure:"S + 是 + N",
+        example:"我是学生。",
+        pinyin:"Wǒ shì xuésheng.",
+        meaning:"Tôi là học sinh.",
+        explanation:"是 dùng để nối chủ ngữ với danh từ, biểu thị “là”.",
+        note:"Không dùng 是 trước tính từ trong câu cơ bản."
+      },
+
+      {
+        id:"hsk1_02",
+        pattern:"不是",
+        title:"不是 — không phải là",
+        structure:"S + 不是 + N",
+        example:"我不是老师。",
+        pinyin:"Wǒ bú shì lǎoshī.",
+        meaning:"Tôi không phải là giáo viên.",
+        explanation:"不是 là dạng phủ định của 是.",
+        note:"不 đứng trước 是."
+      },
+
+      {
+        id:"hsk1_03",
+        pattern:"有",
+        title:"有 — có",
+        structure:"S + 有 + N",
+        example:"我有一个朋友。",
+        pinyin:"Wǒ yǒu yí ge péngyou.",
+        meaning:"Tôi có một người bạn.",
+        explanation:"有 dùng để biểu thị sở hữu hoặc sự tồn tại.",
+        note:"Câu phủ định dùng 没有."
+      },
+
+      {
+        id:"hsk1_04",
+        pattern:"没有",
+        title:"没有 — không có",
+        structure:"S + 没有 + N",
+        example:"我没有钱。",
+        pinyin:"Wǒ méiyǒu qián.",
+        meaning:"Tôi không có tiền.",
+        explanation:"没有 là dạng phủ định thường dùng với 有.",
+        note:"Không nói 不有."
+      },
+
+      {
+        id:"hsk1_05",
+        pattern:"S + V + O",
+        title:"Câu chủ ngữ + động từ + tân ngữ",
+        structure:"S + V + O",
+        example:"我喝茶。",
+        pinyin:"Wǒ hē chá.",
+        meaning:"Tôi uống trà.",
+        explanation:"Đây là trật tự câu cơ bản trong tiếng Trung.",
+        note:"Động từ thường đứng trước tân ngữ."
+      },
+
+      {
+        id:"hsk1_06",
+        pattern:"很 + Adj",
+        title:"很 — rất / dùng nối với tính từ",
+        structure:"S + 很 + Adj",
+        example:"我很好。",
+        pinyin:"Wǒ hěn hǎo.",
+        meaning:"Tôi rất khỏe / Tôi ổn.",
+        explanation:"很 thường đứng trước tính từ trong câu miêu tả.",
+        note:"Trong câu cơ bản không cần dịch 很 thành “rất” một cách máy móc."
+      },
+
+      {
+        id:"hsk1_07",
+        pattern:"的",
+        title:"的 — sở hữu",
+        structure:"A + 的 + B",
+        example:"这是我的书。",
+        pinyin:"Zhè shì wǒ de shū.",
+        meaning:"Đây là sách của tôi.",
+        explanation:"的 nối người/vật sở hữu với danh từ.",
+        note:"我的 = của tôi."
+      },
+
+      {
+        id:"hsk1_08",
+        pattern:"这 / 那",
+        title:"这 / 那 — này / kia",
+        structure:"这/那 + N",
+        example:"这是我的电脑。",
+        pinyin:"Zhè shì wǒ de diànnǎo.",
+        meaning:"Đây là máy tính của tôi.",
+        explanation:"这 dùng cho vật/người ở gần; 那 dùng cho vật/người ở xa.",
+        note:"这/那 thường đi với danh từ hoặc 是."
+      },
+
+      {
+        id:"hsk1_09",
+        pattern:"这里 / 那里",
+        title:"这里 / 那里 — ở đây / ở đó",
+        structure:"S + 在 + 这里/那里",
+        example:"我在这里。",
+        pinyin:"Wǒ zài zhèlǐ.",
+        meaning:"Tôi ở đây.",
+        explanation:"这里 và 那里 là từ chỉ nơi chốn.",
+        note:"这里 = ở đây; 那里 = ở đó/kia."
+      },
+
+      {
+        id:"hsk1_10",
+        pattern:"在",
+        title:"在 — ở / tại",
+        structure:"S + 在 + Place",
+        example:"我在家。",
+        pinyin:"Wǒ zài jiā.",
+        meaning:"Tôi ở nhà.",
+        explanation:"在 đứng trước địa điểm để nói người/vật đang ở đâu.",
+        note:"Địa điểm thường đứng ngay sau 在."
+      },
+
+      {
+        id:"hsk1_11",
+        pattern:"数量",
+        title:"Số + lượng từ + danh từ",
+        structure:"Number + Measure Word + N",
+        example:"三个学生。",
+        pinyin:"Sān ge xuésheng.",
+        meaning:"Ba học sinh.",
+        explanation:"Danh từ thường đi sau số và lượng từ.",
+        note:"Không nói 三学生."
+      },
+
+      {
+        id:"hsk1_12",
+        pattern:"一 + 量词",
+        title:"Một + lượng từ",
+        structure:"一 + Measure Word + N",
+        example:"一本书。",
+        pinyin:"Yì běn shū.",
+        meaning:"Một quyển sách.",
+        explanation:"一本 dùng cho sách vì 本 là lượng từ của sách.",
+        note:"Lượng từ thay đổi tùy danh từ."
+      },
+
+      {
+        id:"hsk1_13",
+        pattern:"几 / 多少",
+        title:"几 / 多少 — mấy / bao nhiêu",
+        structure:"S + 有 + 几/多少 + N",
+        example:"你有几个朋友？",
+        pinyin:"Nǐ yǒu jǐ ge péngyou?",
+        meaning:"Bạn có mấy người bạn?",
+        explanation:"几 thường dùng để hỏi số lượng nhỏ; 多少 dùng để hỏi số lượng nói chung.",
+        note:"几 thường đi với lượng từ."
+      },
+
+      {
+        id:"hsk1_14",
+        pattern:"时间",
+        title:"Thời gian + câu",
+        structure:"Time + S + V + O",
+        example:"今天我去学校。",
+        pinyin:"Jīntiān wǒ qù xuéxiào.",
+        meaning:"Hôm nay tôi đi học.",
+        explanation:"Từ chỉ thời gian thường có thể đặt trước chủ ngữ.",
+        note:"Thời gian giúp xác định khi nào hành động xảy ra."
+      },
+
+      {
+        id:"hsk1_15",
+        pattern:"在 + Place",
+        title:"Chủ ngữ + 在 + địa điểm",
+        structure:"S + 在 + Place",
+        example:"他在北京。",
+        pinyin:"Tā zài Běijīng.",
+        meaning:"Anh ấy ở Bắc Kinh.",
+        explanation:"在 đứng trước địa điểm.",
+        note:"Đây là một cấu trúc rất cơ bản để nói vị trí."
+      },
+
+      {
+        id:"hsk1_16",
+        pattern:"方位词",
+        title:"Từ chỉ phương vị",
+        structure:"N + 上/下/里/外...",
+        example:"书在桌子上。",
+        pinyin:"Shū zài zhuōzi shàng.",
+        meaning:"Sách ở trên bàn.",
+        explanation:"上、下、里、外 biểu thị vị trí tương đối.",
+        note:"Từ chỉ phương vị thường đứng sau danh từ địa điểm."
+      },
+
+      {
+        id:"hsk1_17",
+        pattern:"不",
+        title:"不 — không",
+        structure:"不 + V / Adj",
+        example:"我不喝咖啡。",
+        pinyin:"Wǒ bù hē kāfēi.",
+        meaning:"Tôi không uống cà phê.",
+        explanation:"不 thường phủ định hành động, thói quen hoặc trạng thái ở hiện tại/tương lai.",
+        note:"不 dùng trước động từ hoặc tính từ."
+      },
+
+      {
+        id:"hsk1_18",
+        pattern:"没 / 没有",
+        title:"没 / 没有 — chưa / không",
+        structure:"没 + V / 没有 + N",
+        example:"我没吃饭。",
+        pinyin:"Wǒ méi chī fàn.",
+        meaning:"Tôi chưa ăn cơm.",
+        explanation:"没 thường phủ định hành động đã xảy ra hoặc chưa xảy ra.",
+        note:"没 thường đi với động từ; 没有 có thể dùng với 有."
+      },
+
+      {
+        id:"hsk1_19",
+        pattern:"别",
+        title:"别 — đừng",
+        structure:"别 + V",
+        example:"别说话。",
+        pinyin:"Bié shuōhuà.",
+        meaning:"Đừng nói chuyện.",
+        explanation:"别 dùng để đưa ra lời ngăn cản hoặc yêu cầu ai đó không làm gì.",
+        note:"别 + động từ."
+      },
+
+      {
+        id:"hsk1_20",
+        pattern:"也",
+        title:"也 — cũng",
+        structure:"S + 也 + V/Adj",
+        example:"我也喜欢中国。",
+        pinyin:"Wǒ yě xǐhuan Zhōngguó.",
+        meaning:"Tôi cũng thích Trung Quốc.",
+        explanation:"也 biểu thị ý nghĩa “cũng”, thường đứng trước động từ hoặc tính từ.",
+        note:"也 thường đứng sau chủ ngữ."
+      },
+
+      {
+        id:"hsk1_21",
+        pattern:"都",
+        title:"都 — đều",
+        structure:"S + 都 + V/Adj",
+        example:"我们都是学生。",
+        pinyin:"Wǒmen dōu shì xuésheng.",
+        meaning:"Chúng tôi đều là học sinh.",
+        explanation:"都 biểu thị toàn bộ các đối tượng trong phạm vi đang nói đến.",
+        note:"都 thường đứng sau chủ ngữ/phạm vi."
+      },
+
+      {
+        id:"hsk1_22",
+        pattern:"很",
+        title:"很 — rất / nối với tính từ",
+        structure:"S + 很 + Adj",
+        example:"他很好。",
+        pinyin:"Tā hěn hǎo.",
+        meaning:"Anh ấy rất tốt.",
+        explanation:"很 là phó từ thường đứng trước tính từ.",
+        note:"Cấu trúc 很 + tính từ rất phổ biến."
+      },
+
+      {
+        id:"hsk1_23",
+        pattern:"太……了",
+        title:"太……了 — quá / thật là",
+        structure:"太 + Adj + 了",
+        example:"太好了！",
+        pinyin:"Tài hǎo le!",
+        meaning:"Tốt quá!",
+        explanation:"太……了 biểu thị mức độ cao, thường mang cảm xúc.",
+        note:"了 ở cuối câu giúp biểu thị cảm xúc hoặc sự thay đổi."
+      },
+
+      {
+        id:"hsk1_24",
+        pattern:"非常 / 真 / 最",
+        title:"非常 / 真 / 最 — rất / thật / nhất",
+        structure:"Adv + Adj",
+        example:"今天非常冷。",
+        pinyin:"Jīntiān fēicháng lěng.",
+        meaning:"Hôm nay rất lạnh.",
+        explanation:"非常、真、最 đều có thể đứng trước tính từ để biểu thị mức độ.",
+        note:"最 biểu thị mức độ cao nhất."
+      },
+
+      {
+        id:"hsk1_25",
+        pattern:"还 / 再",
+        title:"还 / 再 — còn / lại",
+        structure:"还/再 + V",
+        example:"我还要喝水。",
+        pinyin:"Wǒ hái yào hē shuǐ.",
+        meaning:"Tôi vẫn muốn uống nước thêm.",
+        explanation:"还 có thể biểu thị “còn/vẫn”; 再 thường biểu thị hành động lặp lại trong tương lai.",
+        note:"Không phải lúc nào 还 và 再 cũng thay thế cho nhau."
+      },
+
+      {
+        id:"hsk1_26",
+        pattern:"会",
+        title:"会 — biết / có khả năng",
+        structure:"会 + V",
+        example:"我会说汉语。",
+        pinyin:"Wǒ huì shuō Hànyǔ.",
+        meaning:"Tôi biết nói tiếng Trung.",
+        explanation:"会 có thể biểu thị kỹ năng đã học được hoặc khả năng.",
+        note:"会 + động từ."
+      },
+
+      {
+        id:"hsk1_27",
+        pattern:"能",
+        title:"能 — có thể",
+        structure:"能 + V",
+        example:"我今天能去。",
+        pinyin:"Wǒ jīntiān néng qù.",
+        meaning:"Hôm nay tôi có thể đi.",
+        explanation:"能 biểu thị khả năng hoặc điều kiện cho phép thực hiện hành động.",
+        note:"能 thường liên quan đến khả năng hoặc điều kiện."
+      },
+
+      {
+        id:"hsk1_28",
+        pattern:"想",
+        title:"想 — muốn",
+        structure:"想 + V",
+        example:"我想喝水。",
+        pinyin:"Wǒ xiǎng hē shuǐ.",
+        meaning:"Tôi muốn uống nước.",
+        explanation:"想 đứng trước động từ để biểu thị mong muốn.",
+        note:"想 + động từ."
+      },
+
+      {
+        id:"hsk1_29",
+        pattern:"要",
+        title:"要 — muốn / cần",
+        structure:"要 + V/N",
+        example:"我要买书。",
+        pinyin:"Wǒ yào mǎi shū.",
+        meaning:"Tôi muốn mua sách.",
+        explanation:"要 có thể biểu thị ý muốn hoặc nhu cầu.",
+        note:"要 có nhiều cách dùng, HSK1 tập trung vào cách dùng cơ bản."
+      },
+
+      {
+        id:"hsk1_30",
+        pattern:"了",
+        title:"了 — hoàn thành",
+        structure:"S + V + 了 + O",
+        example:"我吃饭了。",
+        pinyin:"Wǒ chī fàn le.",
+        meaning:"Tôi ăn cơm rồi.",
+        explanation:"了 sau động từ có thể biểu thị hành động đã hoàn thành.",
+        note:"Không nên hiểu mọi 了 đều đơn giản là “đã”."
+      },
+
+      {
+        id:"hsk1_31",
+        pattern:"了",
+        title:"了 — thay đổi trạng thái",
+        structure:"S + Adj + 了",
+        example:"天气冷了。",
+        pinyin:"Tiānqì lěng le.",
+        meaning:"Thời tiết trở lạnh rồi.",
+        explanation:"了 ở cuối câu có thể biểu thị trạng thái đã thay đổi.",
+        note:"Đây là 了 biểu thị sự thay đổi trạng thái."
+      },
+
+      {
+        id:"hsk1_32",
+        pattern:"在 / 正在",
+        title:"在 / 正在 — đang",
+        structure:"S + 在/正在 + V",
+        example:"我正在吃饭。",
+        pinyin:"Wǒ zhèngzài chī fàn.",
+        meaning:"Tôi đang ăn cơm.",
+        explanation:"在 và 正在 có thể đứng trước động từ để biểu thị hành động đang diễn ra.",
+        note:"正在 nhấn mạnh quá trình đang diễn ra."
+      },
+
+      {
+        id:"hsk1_33",
+        pattern:"呢",
+        title:"呢 — còn bạn thì sao?",
+        structure:"Statement，S + 呢？",
+        example:"我很好，你呢？",
+        pinyin:"Wǒ hěn hǎo, nǐ ne?",
+        meaning:"Tôi rất khỏe, còn bạn thì sao?",
+        explanation:"呢 có thể dùng trong câu hỏi tiếp nối để hỏi lại thông tin.",
+        note:"呢 còn có nhiều cách dùng khác."
+      },
+
+      {
+        id:"hsk1_34",
+        pattern:"吧",
+        title:"吧 — nhé / đi",
+        structure:"S + V + 吧",
+        example:"我们走吧。",
+        pinyin:"Wǒmen zǒu ba.",
+        meaning:"Chúng ta đi nhé.",
+        explanation:"吧 thường dùng để đưa ra lời đề nghị hoặc gợi ý.",
+        note:"吧 làm câu nói mềm hơn."
+      },
+
+      {
+        id:"hsk1_35",
+        pattern:"吗",
+        title:"吗 — câu hỏi Yes/No",
+        structure:"Statement + 吗？",
+        example:"你是学生吗？",
+        pinyin:"Nǐ shì xuésheng ma?",
+        meaning:"Bạn là học sinh phải không?",
+        explanation:"吗 đặt cuối câu trần thuật để biến câu thành câu hỏi có/không.",
+        note:"Không dùng 吗 cùng với từ hỏi 什么、谁、哪..."
+      },
+
+      {
+        id:"hsk1_36",
+        pattern:"疑问词",
+        title:"Từ để hỏi",
+        structure:"什么 / 谁 / 哪 / 哪儿 / 哪里 / 哪些 / 几 / 多少 / 怎么 / 多",
+        example:"你叫什么名字？",
+        pinyin:"Nǐ jiào shénme míngzi?",
+        meaning:"Bạn tên là gì?",
+        explanation:"Từ để hỏi thường đứng ngay tại vị trí của thành phần cần hỏi.",
+        note:"Không đưa từ để hỏi lên đầu câu một cách máy móc."
+      },
+
+      {
+        id:"hsk1_37",
+        pattern:"还是",
+        title:"还是 — hay là",
+        structure:"A 还是 B？",
+        example:"你喝茶还是喝咖啡？",
+        pinyin:"Nǐ hē chá háishi hē kāfēi?",
+        meaning:"Bạn uống trà hay cà phê?",
+        explanation:"还是 dùng trong câu hỏi lựa chọn.",
+        note:"Trong câu hỏi lựa chọn, 还是 nối các phương án."
+      },
+
+      {
+        id:"hsk1_38",
+        pattern:"A 不 A",
+        title:"A-not-A — có... hay không?",
+        structure:"V 不 V？",
+        example:"你去不去？",
+        pinyin:"Nǐ qù bu qù?",
+        meaning:"Bạn có đi không?",
+        explanation:"Cấu trúc A-not-A tạo câu hỏi lựa chọn có/không.",
+        note:"Động từ hoặc tính từ được lặp lại theo mẫu."
+      },
+
+      {
+        id:"hsk1_39",
+        pattern:"比 / 没有",
+        title:"So sánh — 比 / 没有",
+        structure:"A 比 B + Adj / A 没有 B + Adj",
+        example:"我比他高。",
+        pinyin:"Wǒ bǐ tā gāo.",
+        meaning:"Tôi cao hơn anh ấy.",
+        explanation:"比 dùng để so sánh hơn; 没有 có thể dùng để nói A không bằng B.",
+        note:"Không thêm 更 một cách bắt buộc sau 比."
+      }
+
+    ],
+
+
+    /* =======================================================
+       HSK 2 → HSK 6
+       SẼ NỐI THÊM DỮ LIỆU SAU
+    ======================================================= */
+
+    2: [],
+    3: [],
+    4: [],
+    5: [],
+    6: []
+
+  };
+
+
+  /* =========================================================
+     TRẠNG THÁI
+  ========================================================= */
+
+  let currentLevel = 1;
+  let currentIndex = 0;
+  let currentMode = "normal";
+
+  let recorder = null;
+  let recordingStream = null;
+  let recordingChunks = [];
+
+
+  /* =========================================================
+     XÓA BẢN GRAMMAR CŨ NẾU CÒN
+  ========================================================= */
+
+  [
+    "thttGrammarStyle",
+    "thttGrammarOverlay",
+    "thttGrammarLauncher",
+    "thtt-grammar-style-v2",
+    "thtt-grammar-style-v3"
+  ].forEach(function(id){
+
+    const old =
+      document.getElementById(id);
+
+    if(old){
+      old.remove();
+    }
+
+  });
+
+
+  /* =========================================================
+     CSS
+  ========================================================= */
+
+  const style =
+    document.createElement("style");
+
+  style.id =
+    "thtt-grammar-style-v3-1";
+
+  style.textContent = `
+
+    #thttGrammarLauncher{
+      position:fixed;
+      right:18px;
+      bottom:90px;
+      z-index:99990;
+      border:0;
+      border-radius:50px;
+      padding:13px 17px;
+      background:#991b1b;
+      color:#fff;
+      font-weight:900;
+      cursor:pointer;
+      box-shadow:0 8px 24px rgba(0,0,0,.18);
+    }
+
+    #thttGrammarOverlay{
+      display:none;
+      position:fixed;
+      inset:0;
+      z-index:99991;
+      background:rgba(0,0,0,.58);
+      overflow:auto;
+      padding:20px 10px;
+    }
+
+    #thttGrammarApp{
+      width:min(760px,100%);
+      margin:30px auto;
+      background:#fff;
+      border-radius:20px;
+      overflow:hidden;
+      box-shadow:0 20px 70px rgba(0,0,0,.28);
+      color:#222;
+    }
+
+    .thtt-g-header{
+      background:linear-gradient(
+        135deg,
+        #991b1b,
+        #dc2626
+      );
+      color:#fff;
+      padding:17px;
+    }
+
+    .thtt-g-header-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+
+    .thtt-g-title{
+      font-size:22px;
+      font-weight:900;
+    }
+
+    .thtt-g-close{
+      width:40px;
+      height:40px;
+      border:0;
+      border-radius:50%;
+      background:rgba(255,255,255,.18);
+      color:#fff;
+      font-size:21px;
+      cursor:pointer;
+    }
+
+    .thtt-g-levels{
+      display:flex;
+      gap:7px;
+      overflow-x:auto;
+      padding-top:14px;
+    }
+
+    .thtt-g-level{
+      flex:0 0 auto;
+      border:1px solid #ddd;
+      background:#fff;
+      color:#222;
+      border-radius:10px;
+      padding:8px 13px;
+      font-weight:800;
+      cursor:pointer;
+    }
+
+    .thtt-g-level.active{
+      background:#991b1b;
+      color:#fff;
+      border-color:#991b1b;
+    }
+
+    .thtt-g-progress{
+      height:5px;
+      background:#eee;
+    }
+
+    .thtt-g-progress > div{
+      height:100%;
+      width:0%;
+      background:#dc2626;
+      transition:.25s;
+    }
+
+    .thtt-g-body{
+      padding:16px;
+    }
+
+    .thtt-g-card{
+      border:1px solid #eee;
+      border-radius:18px;
+      padding:18px;
+      background:#fff;
+    }
+
+    .thtt-g-label{
+      font-size:12px;
+      color:#777;
+      font-weight:800;
+      margin-bottom:6px;
+      text-transform:uppercase;
+    }
+
+    .thtt-g-pattern{
+      font-size:27px;
+      font-weight:900;
+      color:#991b1b;
+      margin-bottom:15px;
+    }
+
+    .thtt-g-structure{
+      background:#fff7f7;
+      border-left:4px solid #dc2626;
+      padding:12px;
+      border-radius:10px;
+      font-weight:800;
+      margin-bottom:14px;
+    }
+
+    .thtt-g-example{
+      font-size:25px;
+      font-weight:900;
+      text-align:center;
+      margin:20px 0 8px;
+      line-height:1.7;
+    }
+
+    .thtt-g-pinyin{
+      text-align:center;
+      color:#666;
+      margin-bottom:10px;
+    }
+
+    .thtt-g-meaning{
+      text-align:center;
+      font-weight:800;
+      margin-bottom:18px;
+    }
+
+    .thtt-g-info{
+      background:#fafafa;
+      border-radius:12px;
+      padding:12px;
+      margin-top:10px;
+      line-height:1.65;
+    }
+
+    .thtt-g-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:9px;
+      margin-top:16px;
+    }
+
+    .thtt-g-btn{
+      flex:1 1 150px;
+      border:0;
+      border-radius:12px;
+      padding:12px 13px;
+      font-weight:900;
+      cursor:pointer;
+      background:#991b1b;
+      color:#fff;
+    }
+
+    .thtt-g-btn.secondary{
+      background:#f3f3f3;
+      color:#333;
+    }
+
+    .thtt-g-btn.success{
+      background:#166534;
+      color:#fff;
+    }
+
+    /* =====================================================
+       THANH ĐIỀU HƯỚNG CÂU
+    ===================================================== */
+
+    .thtt-question-number{
+      text-align:center;
+      font-weight:900;
+      color:#991b1b;
+      margin-bottom:9px;
+    }
+
+    .thtt-select-wrap{
+      margin-bottom:10px;
+    }
+
+    .thtt-question-select{
+      width:100%;
+      padding:11px;
+      border:1px solid #ddd;
+      border-radius:11px;
+      background:#fff;
+      color:#333;
+      font-weight:800;
+    }
+
+    .thtt-sentence-nav{
+      display:grid;
+      grid-template-columns:1fr 1fr 1fr;
+      gap:7px;
+      margin-bottom:15px;
+    }
+
+    .thtt-nav-btn{
+      border:1px solid #ddd;
+      background:#fff;
+      color:#222;
+      border-radius:11px;
+      padding:10px 8px;
+      font-weight:800;
+      cursor:pointer;
+      min-width:0;
+    }
+
+    .thtt-unscramble-title{
+      font-size:21px;
+      font-weight:900;
+      color:#991b1b;
+      text-align:center;
+    }
+
+    .thtt-unscramble-hint{
+      text-align:center;
+      color:#777;
+      margin:8px 0 15px;
+    }
+
+    .thtt-answer{
+      min-height:60px;
+      padding:12px;
+      border:2px dashed #ddd;
+      border-radius:13px;
+      font-size:21px;
+      font-weight:900;
+      margin-bottom:15px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      word-break:break-word;
+      background:#fff;
+      color:#222;
+    }
+
+    .thtt-answer.empty{
+      color:#666;
+      font-size:14px;
+      font-weight:600;
+    }
+
+    .thtt-word-bank{
+      display:flex;
+      flex-wrap:wrap;
+      gap:9px;
+      justify-content:center;
+    }
+
+    .thtt-word{
+      border:1px solid #ddd;
+      background:#fff;
+      color:#222;
+      border-radius:11px;
+      padding:10px 13px;
+      font-size:18px;
+      font-weight:800;
+      cursor:pointer;
+      box-shadow:0 2px 6px rgba(0,0,0,.06);
+    }
+
+    .thtt-word:active{
+      transform:scale(.97);
+    }
+
+    .thtt-correct{
+      text-align:center;
+      margin-top:17px;
+      padding:16px;
+      background:#f0fdf4;
+      border:1px solid #bbf7d0;
+      border-radius:14px;
+      color:#166534;
+      font-weight:900;
+    }
+
+    .thtt-correct-sentence{
+      font-size:25px;
+      margin-top:9px;
+      line-height:1.6;
+    }
+
+    .thtt-next-big{
+      margin-top:13px;
+    }
+
+    .thtt-speaking{
+      text-align:center;
+    }
+
+    .thtt-speaking-sentence{
+      font-size:28px;
+      font-weight:900;
+      line-height:1.7;
+      margin:20px 0 7px;
+    }
+
+    .thtt-speaking-status{
+      margin:15px 0;
+      font-weight:800;
+    }
+
+    .thtt-empty-level{
+      text-align:center;
+      padding:35px 10px;
+    }
+
+    .thtt-empty-icon{
+      font-size:42px;
+      margin-bottom:10px;
+    }
+
+    .thtt-empty-title{
+      font-size:21px;
+      font-weight:900;
+      color:#991b1b;
+    }
+
+    /* =====================================================
+       🔒 V3.1 — KHÓA MÀU CHỮ + MÀU NỀN
+       Chống CSS từ index.html ghi đè
+    ===================================================== */
+
+    #thttGrammarOverlay .thtt-g-btn{
+      color:#fff !important;
+      -webkit-text-fill-color:#fff !important;
+      background:#991b1b !important;
+      border:0 !important;
+    }
+
+    #thttGrammarOverlay .thtt-g-btn.secondary{
+      color:#333 !important;
+      -webkit-text-fill-color:#333 !important;
+      background:#f3f3f3 !important;
+    }
+
+    #thttGrammarOverlay .thtt-g-btn.success{
+      color:#fff !important;
+      -webkit-text-fill-color:#fff !important;
+      background:#166534 !important;
+    }
+
+    #thttGrammarOverlay .thtt-nav-btn{
+      color:#222 !important;
+      -webkit-text-fill-color:#222 !important;
+      background:#fff !important;
+      border:1px solid #ddd !important;
+    }
+
+    #thttGrammarOverlay .thtt-question-select,
+    #thttGrammarOverlay .thtt-question-select option{
+      color:#222 !important;
+      -webkit-text-fill-color:#222 !important;
+      background:#fff !important;
+    }
+
+    #thttGrammarOverlay .thtt-word{
+      color:#222 !important;
+      -webkit-text-fill-color:#222 !important;
+      background:#fff !important;
+      border:1px solid #ddd !important;
+    }
+
+    #thttGrammarOverlay .thtt-answer{
+      color:#222 !important;
+      -webkit-text-fill-color:#222 !important;
+      background:#fff !important;
+    }
+
+    #thttGrammarOverlay .thtt-answer.empty{
+      color:#666 !important;
+      -webkit-text-fill-color:#666 !important;
+    }
+
+    #thttGrammarOverlay .thtt-correct,
+    #thttGrammarOverlay .thtt-correct-sentence{
+      color:#166534 !important;
+      -webkit-text-fill-color:#166534 !important;
+    }
+
+    #thttGrammarOverlay button{
+      font-family:inherit;
+    }
+
+    @media(max-width:600px){
+
+      #thttGrammarOverlay{
+        padding:8px;
+      }
+
+      #thttGrammarApp{
+        margin:8px auto;
+        border-radius:16px;
+      }
+
+      .thtt-g-body{
+        padding:11px;
+      }
+
+      .thtt-g-card{
+        padding:14px;
+      }
+
+      .thtt-g-example{
+        font-size:22px;
+      }
+
+      .thtt-speaking-sentence{
+        font-size:24px;
+      }
+
+      .thtt-sentence-nav{
+        grid-template-columns:1fr 1fr 1fr;
+      }
+
+      .thtt-nav-btn{
+        font-size:13px;
+        padding:9px 5px;
+      }
+
+    }
+
+  `;
+
+  document.head.appendChild(style);
+
+
+  /* =========================================================
+     LAUNCHER
+  ========================================================= */
+
+  const launcher =
+    document.createElement("button");
+
+  launcher.id =
+    "thttGrammarLauncher";
+
+  launcher.textContent =
+    "🧩 Ngữ pháp";
+
+  document.body.appendChild(
+    launcher
+  );
+
+
+  /* =========================================================
+     OVERLAY
+  ========================================================= */
+
+  const overlay =
+    document.createElement("div");
+
+  overlay.id =
+    "thttGrammarOverlay";
+
+  overlay.innerHTML = `
+
+    <div id="thttGrammarApp">
+
+      <div class="thtt-g-header">
+
+        <div class="thtt-g-header-top">
+
+          <div class="thtt-g-title">
+            🧩 Ngữ pháp tiếng Trung
+          </div>
+
+          <button
+            id="thttGrammarClose"
+            class="thtt-g-close">
+
+            ×
+
+          </button>
+
+        </div>
+
+        <div class="thtt-g-levels">
+
+          ${[1,2,3,4,5,6].map(level => `
+
+            <button
+              class="thtt-g-level ${level === 1 ? "active" : ""}"
+              data-level="${level}">
+
+              HSK ${level}
+
+            </button>
+
+          `).join("")}
+
+        </div>
+
+      </div>
+
+      <div class="thtt-g-progress">
+        <div id="thttGrammarProgress"></div>
+      </div>
+
+      <div
+        id="thttGrammarBody"
+        class="thtt-g-body">
+      </div>
+
+    </div>
+
+  `;
+
+  document.body.appendChild(
+    overlay
+  );
+
+
+  /* =========================================================
+     DOM
+  ========================================================= */
+
+  const body =
+    overlay.querySelector(
+      "#thttGrammarBody"
+    );
+
+  const progress =
+    overlay.querySelector(
+      "#thttGrammarProgress"
+    );
+
+
+  /* =========================================================
+     DATA
+  ========================================================= */
+
+  function getData(){
+
+    return grammarData[
+      currentLevel
+    ] || [];
+
+  }
+
+
+  function getCurrent(){
+
+    const data =
+      getData();
+
+    return data[
+      currentIndex
+    ] || null;
+
+  }
+
+
+  /* =========================================================
+     STOP MEDIA
+  ========================================================= */
+
+  function stopAllMedia(){
+
+    try{
+
+      speechSynthesis.cancel();
+
+    }catch(error){}
+
+    if(
+      recorder &&
+      recorder.state === "recording"
+    ){
+
+      try{
+        recorder.stop();
+      }catch(error){}
+
+    }
+
+    if(recordingStream){
+
+      recordingStream
+        .getTracks()
+        .forEach(
+          track => track.stop()
+        );
+
+      recordingStream =
+        null;
+
+    }
+
+  }
+
+
+  /* =========================================================
+     SPEAK
+  ========================================================= */
+
+  function speakChinese(text){
+
+    if(!text) return;
+
+    try{
+
+      speechSynthesis.cancel();
+
+      const utterance =
+        new SpeechSynthesisUtterance(
+          text
+        );
+
+      utterance.lang =
+        "zh-CN";
+
+      utterance.rate =
+        0.85;
+
+      utterance.pitch =
+        1;
+
+      speechSynthesis.speak(
+        utterance
+      );
+
+    }catch(error){
+
+      console.error(error);
+
+    }
+
+  }
+
+
+  /* =========================================================
+     QUESTION NAVIGATOR
+  ========================================================= */
+
+  function renderSentenceNavigator(){
+
+    const data =
+      getData();
+
+    if(!data.length){
+
+      return "";
+
+    }
+
+    return `
+
+      <div class="thtt-question-number">
+
+        Câu ${currentIndex + 1}
+        / ${data.length}
+
+      </div>
+
+      <div class="thtt-select-wrap">
+
+        <select
+          id="thttQuestionSelect"
+          class="thtt-question-select">
+
+          ${data.map(
+            (item,index)=>`
+
+              <option
+                value="${index}"
+                ${index === currentIndex ? "selected" : ""}>
+
+                Câu ${index + 1} — ${item.pattern}
+
+              </option>
+
+            `
+          ).join("")}
+
+        </select>
+
+      </div>
+
+            <div class="thtt-sentence-nav">
+
+        <button
+          class="thtt-nav-btn"
+          data-action="prevQuestion">
+
+          ← Trước
+
+        </button>
+
+        <button
+          class="thtt-nav-btn"
+          data-action="normal">
+
+          ↩️ Trở về
+
+        </button>
+
+        <button
+          class="thtt-nav-btn"
+          data-action="nextQuestion">
+
+          Sau →
+
+        </button>
+
+      </div>
+    `;
+
+  }
+
+
+  /* =========================================================
+     SELECT CÂU
+  ========================================================= */
+
+  function bindQuestionSelect(){
+
+    const select =
+      body.querySelector(
+        "#thttQuestionSelect"
+      );
+
+    if(!select) return;
+
+    select.onchange =
+      function(){
+
+        goToQuestion(
+          Number(this.value)
+        );
+
+      };
+
+  }
+
+
+  function goToQuestion(index){
+
+    const data =
+      getData();
+
+    if(!data.length) return;
+
+    stopAllMedia();
+
+    if(index < 0){
+      index = data.length - 1;
+    }
+
+    if(index >= data.length){
+      index = 0;
+    }
+
+    currentIndex =
+      index;
+
+    currentMode =
+      "normal";
+
+    renderNormal();
+
+  }
+
+
+  function nextQuestion(){
+
+  const data =
+    getData();
+
+  if(!data.length) return;
+
+  stopAllMedia();
+
+  currentIndex =
+    (currentIndex + 1)
+    % data.length;
+
+
+  if(currentMode === "listen"){
+
+    renderListen();
+
+    return;
+
+  }
+
+
+  if(currentMode === "unscramble"){
+
+    renderUnscramble();
+
+    return;
+
+  }
+
+
+  if(currentMode === "speaking"){
+
+    renderSpeaking();
+
+    return;
+
+  }
+
+
+  renderNormal();
+
+}
+
+  function prevQuestion(){
+
+  const data =
+    getData();
+
+  if(!data.length) return;
+
+  stopAllMedia();
+
+  currentIndex =
+    (currentIndex - 1 + data.length)
+    % data.length;
+
+
+  if(currentMode === "listen"){
+
+    renderListen();
+
+    return;
+
+  }
+
+
+  if(currentMode === "unscramble"){
+
+    renderUnscramble();
+
+    return;
+
+  }
+
+
+  if(currentMode === "speaking"){
+
+    renderSpeaking();
+
+    return;
+
+  }
+
+
+  renderNormal();
+
+}
+
+  /* =========================================================
+     RENDER NORMAL
+  ========================================================= */
+
+  function renderNormal(){
+
+    currentMode =
+      "normal";
+
+    const item =
+      getCurrent();
+
+    if(!item){
+
+      body.innerHTML = `
+
+        <div class="thtt-g-card">
+
+          <div class="thtt-empty-level">
+
+            <div class="thtt-empty-icon">
+              🚧
+            </div>
+
+            <div class="thtt-empty-title">
+              HSK ${currentLevel}
+            </div>
+
+            <p>
+              Dữ liệu ngữ pháp HSK ${currentLevel}
+              sẽ được nối vào cùng Grammar Engine này.
+            </p>
+
+          </div>
+
+        </div>
+
+      `;
+
+      updateProgress();
+
+      return;
+
+    }
+
+
+    body.innerHTML = `
+
+      ${renderSentenceNavigator()}
+
+      <div class="thtt-g-card">
+
+        <div class="thtt-g-label">
+          🧩 Mẫu ngữ pháp
+        </div>
+
+        <div class="thtt-g-pattern">
+          ${item.title}
+        </div>
+
+        <div class="thtt-g-label">
+          📐 Cấu trúc
+        </div>
+
+        <div class="thtt-g-structure">
+          ${item.structure}
+        </div>
+
+        <div class="thtt-g-label">
+          🇨🇳 Ví dụ
+        </div>
+
+        <div class="thtt-g-example">
+          ${item.example}
+        </div>
+
+        <div class="thtt-g-pinyin">
+          ${item.pinyin}
+        </div>
+
+        <div class="thtt-g-meaning">
+          🇻🇳 ${item.meaning}
+        </div>
+
+        <div class="thtt-g-info">
+          <b>💡 Giải thích:</b><br>
+          ${item.explanation}
+        </div>
+
+        <div class="thtt-g-info">
+          <b>⚠️ Lưu ý:</b><br>
+          ${item.note}
+        </div>
+
+        <div class="thtt-g-actions">
+
+          <button
+            class="thtt-g-btn"
+            data-action="listen">
+
+            🔊 Nghe câu
+
+          </button>
+
+          <button
+            class="thtt-g-btn"
+            data-action="unscramble">
+
+            🔀 Ghép câu
+
+          </button>
+
+          <button
+            class="thtt-g-btn"
+            data-action="speaking">
+
+            🎤 Đọc thành tiếng
+
+          </button>
+
+        </div>
+
+      </div>
+
+    `;
+
+    bindQuestionSelect();
+    updateProgress();
+
+  }
+
+
+  /* =========================================================
+     LISTEN MODE
+  ========================================================= */
+
+  function renderListen(){
+
+    stopAllMedia();
+
+    currentMode =
+      "listen";
+
+    const item =
+      getCurrent();
+
+    if(!item){
+
+      renderNormal();
+      return;
+
+    }
+
+    body.innerHTML = `
+
+      ${renderSentenceNavigator()}
+
+      <div class="thtt-g-card">
+
+        <div style="
+          text-align:center;
+          padding:15px 5px;
+        ">
+
+          <div style="
+            font-size:26px;
+            font-weight:900;
+            color:#991b1b;
+          ">
+
+            🔊 Nghe câu
+
+          </div>
+
+          <div
+            class="thtt-g-label"
+            style="margin-top:25px;">
+
+            Hãy nghe thật kỹ
+
+          </div>
+
+          <div class="thtt-g-example">
+            ${item.example}
+          </div>
+
+          <div class="thtt-g-pinyin">
+            ${item.pinyin}
+          </div>
+
+          <button
+            class="thtt-g-btn"
+            data-action="play"
+            style="max-width:300px;">
+
+            🔊 Nghe lại
+
+          </button>
+
+          <div
+            class="thtt-g-info"
+            style="text-align:left;">
+
+            <b>🎯 Mục tiêu:</b><br>
+
+            Nghe câu nhiều lần và chú ý đến
+            thanh điệu, nhịp câu và cách nối âm.
+
+          </div>
+
+        </div>
+
+      </div>
+
+    `;
+
+    bindQuestionSelect();
+    updateProgress();
+
+  }
+
+
+ /* =========================================================
+   TOKENIZE — GHÉP CÂU
+   Tách Hán tự thành từng cụm an toàn
+   Không dùng Intl.Segmenter
+========================================================= */
+
+function tokenizeChinese(sentence){
+
+  const text =
+    String(sentence || "").trim();
+
+  if(!text){
+    return [];
+  }
+
+  /*
+     Tách dấu câu thành token riêng trước
+  */
+  const parts =
+    text.match(
+      /[\u4e00-\u9fff]+|[，。！？；：、,.!?;:]/g
+    ) || [];
+
+  const result = [];
+
+  parts.forEach(function(part){
+
+    /*
+       Dấu câu → giữ nguyên thành 1 nút riêng
+    */
+    if(
+      /^[，。！？；：、,.!?;:]+$/.test(part)
+    ){
+
+      result.push(part);
+
+      return;
+    }
+
+    /*
+       Phần tiếng Trung:
+       tách từng Hán tự để chắc chắn
+       mỗi nút đều có thể bấm riêng.
+       
+       Ví dụ:
+       我在这里
+       ↓
+       我 | 在 | 这 | 里
+       
+       Quan trọng:
+       không còn tình trạng
+       我在这里 | 。
+       thành 1 nút duy nhất.
+    */
+
+    for(
+      let i = 0;
+      i < part.length;
+      i++
+    ){
+
+      result.push(
+        part.charAt(i)
+      );
+
+    }
+
+  });
+
+  return result;
+}
+  
+
+  /* =========================================================
+     SHUFFLE
+  ========================================================= */
+
+  function shuffleArray(array){
+
+    const result =
+      [...array];
+
+    for(
+      let i = result.length - 1;
+      i > 0;
+      i--
+    ){
+
+      const j =
+        Math.floor(
+          Math.random() * (i + 1)
+        );
+
+      [
+        result[i],
+        result[j]
+      ] =
+      [
+        result[j],
+        result[i]
+      ];
+
+    }
+
+    return result;
+
+  }
+
+
+  /* =========================================================
+     UNSCRAMBLE MODE
+  ========================================================= */
+
+  function renderUnscramble(){
+
+    stopAllMedia();
+
+    currentMode =
+      "unscramble";
+
+    const item =
+      getCurrent();
+
+    if(!item){
+
+      renderNormal();
+      return;
+
+    }
+
+    const tokens =
+      tokenizeChinese(
+        item.example
+      );
+
+    let shuffled =
+      shuffleArray(tokens);
+
+    let answerTokens =
+      [];
+
+    let solved =
+      false;
+
+    let revealed =
+      false;
+
+
+    function normalize(str){
+
+      return String(str)
+        .replace(/\s/g,"")
+        .replace(
+          /[，。！？；：、,.!?;:]/g,
+          ""
+        );
+
+    }
+
+
+    body.innerHTML = `
+
+      ${renderSentenceNavigator()}
+
+      <div class="thtt-g-card">
+
+        <div class="thtt-unscramble">
+
+          <div class="thtt-unscramble-title">
+            🔀 Hãy sắp xếp thành câu đúng
+          </div>
+
+          <div class="thtt-unscramble-hint">
+            Hãy tự suy nghĩ về trật tự câu.
+          </div>
+
+          <div
+            id="thttAnswerBank"
+            class="thtt-answer empty">
+
+            👆 Hãy chọn các từ bên dưới
+
+          </div>
+
+          <div
+            id="thttWordBank"
+            class="thtt-word-bank">
+          </div>
+
+          <div
+            id="thttUnscrambleResult">
+          </div>
+
+          <div class="thtt-g-actions">
+
+            <button
+              class="thtt-g-btn secondary"
+              data-action="shuffleWords">
+
+              🔀 Xáo trộn
+
+            </button>
+
+            <button
+              class="thtt-g-btn secondary"
+              data-action="clearUnscramble">
+
+              ↩ Xóa
+
+            </button>
+
+            <button
+              class="thtt-g-btn secondary"
+              data-action="showAnswer">
+
+              👁 Xem câu đúng
+
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    `;
+
+
+    bindQuestionSelect();
+
+
+    const wordBank =
+      body.querySelector(
+        "#thttWordBank"
+      );
+
+    const answerBank =
+      body.querySelector(
+        "#thttAnswerBank"
+      );
+
+    const result =
+      body.querySelector(
+        "#thttUnscrambleResult"
+      );
+
+
+    function renderWords(){
+
+      wordBank.innerHTML = "";
+
+      shuffled.forEach(
+        (word,index)=>{
+
+          if(word === null) return;
+
+          const button =
+            document.createElement(
+              "button"
+            );
+
+          button.className =
+            "thtt-word";
+
+          button.textContent =
+            word;
+
+          button.onclick =
+            function(){
+
+              if(
+                solved ||
+                revealed
+              ){
+                return;
+              }
+
+              answerTokens.push(
+                word
+              );
+
+              shuffled[index] =
+                null;
+
+              renderAnswer();
+              renderWords();
+              checkAnswer();
+
+            };
+
+          wordBank.appendChild(
+            button
+          );
+
+        }
+      );
+
+    }
+
+
+    function renderAnswer(){
+
+      if(!answerTokens.length){
+
+        answerBank.textContent =
+          "👆 Hãy chọn các từ bên dưới";
+
+        answerBank.classList.add(
+          "empty"
+        );
+
+        return;
+
+      }
+
+      answerBank.textContent =
+        answerTokens.join("");
+
+      answerBank.classList.remove(
+        "empty"
+      );
+
+    }
+
+
+    function showSolved(){
+
+      solved =
+        true;
+
+      result.innerHTML = `
+
+        <div class="thtt-correct">
+
+          <div>
+            ✅ Chính xác!
+          </div>
+
+          <div class="thtt-correct-sentence">
+            ${item.example}
+          </div>
+
+          <div style="
+            font-weight:500;
+            color:#555;
+            margin-top:5px;
+          ">
+            ${item.pinyin}
+          </div>
+
+          <div style="
+            margin-top:5px;
+            color:#222;
+          ">
+            🇻🇳 ${item.meaning}
+          </div>
+
+          <button
+            class="thtt-g-btn success"
+            data-action="speaking"
+            style="margin-top:13px;">
+
+            🎤 Đọc câu đúng
+
+          </button>
+
+          <button
+            class="thtt-g-btn"
+            data-action="nextQuestion"
+            style="margin-top:9px;">
+
+            ➡️ Câu tiếp theo
+
+          </button>
+
+        </div>
+
+      `;
+
+    }
+
+
+    function checkAnswer(){
+
+      const built =
+        answerTokens.join("");
+
+      if(
+        normalize(built) ===
+        normalize(item.example)
+      ){
+
+        showSolved();
+
+        speakChinese(
+          item.example
+        );
+
+      }
+
+    }
+
+
+    function clearAnswer(){
+
+      stopAllMedia();
+
+      answerTokens = [];
+
+      solved =
+        false;
+
+      revealed =
+        false;
+
+      result.innerHTML =
+        "";
+
+      shuffled =
+        shuffleArray(tokens);
+
+      renderAnswer();
+      renderWords();
+
+    }
+
+
+    function shuffleWords(){
+
+      stopAllMedia();
+
+      answerTokens = [];
+
+      solved =
+        false;
+
+      revealed =
+        false;
+
+      result.innerHTML =
+        "";
+
+      shuffled =
+        shuffleArray(tokens);
+
+      renderAnswer();
+      renderWords();
+
+    }
+
+
+    function revealAnswer(){
+
+      if(solved) return;
+
+      revealed =
+        true;
+
+      result.innerHTML = `
+
+        <div class="thtt-correct">
+
+          <div>
+            👁 Câu đúng:
+          </div>
+
+          <div class="thtt-correct-sentence">
+            ${item.example}
+          </div>
+
+          <div style="
+            font-weight:500;
+            color:#555;
+            margin-top:5px;
+          ">
+            ${item.pinyin}
+          </div>
+
+          <div style="
+            margin-top:5px;
+            color:#222;
+          ">
+            🇻🇳 ${item.meaning}
+          </div>
+
+          <button
+            class="thtt-g-btn success"
+            data-action="speaking"
+            style="margin-top:13px;">
+
+            🎤 Đọc câu đúng
+
+          </button>
+
+          <button
+            class="thtt-g-btn"
+            data-action="nextQuestion"
+            style="margin-top:9px;">
+
+            ➡️ Câu tiếp theo
+
+          </button>
+
+        </div>
+
+      `;
+
+    }
+
+
+    renderWords();
+    renderAnswer();
+
+
+    body.querySelector(
+      '[data-action="shuffleWords"]'
+    ).onclick =
+      shuffleWords;
+
+
+    body.querySelector(
+      '[data-action="clearUnscramble"]'
+    ).onclick =
+      clearAnswer;
+
+
+    body.querySelector(
+      '[data-action="showAnswer"]'
+    ).onclick =
+      revealAnswer;
+
+  }
+
+
+  /* =========================================================
+     SPEAKING MODE
+  ========================================================= */
+
+  function renderSpeaking(){
+
+    stopAllMedia();
+
+    currentMode =
+      "speaking";
+
+    const item =
+      getCurrent();
+
+    if(!item){
+
+      renderNormal();
+      return;
+
+    }
+
+    body.innerHTML = `
+
+      ${renderSentenceNavigator()}
+
+      <div class="thtt-g-card">
+
+        <div class="thtt-speaking">
+
+          <div style="
+            font-size:26px;
+            font-weight:900;
+            color:#991b1b;
+          ">
+
+            🎤 Đọc thành tiếng
+
+          </div>
+
+          <div
+            class="thtt-g-label"
+            style="margin-top:22px;">
+
+            Hãy đọc câu thật rõ
+
+          </div>
+
+          <div class="thtt-speaking-sentence">
+            ${item.example}
+          </div>
+
+          <div class="thtt-g-pinyin">
+            ${item.pinyin}
+          </div>
+
+          <button
+            class="thtt-g-btn secondary"
+            data-action="playModel"
+            style="max-width:280px;">
+
+            🔊 Nghe mẫu
+
+          </button>
+
+          <div
+            id="thttSpeakingStatus"
+            class="thtt-speaking-status">
+
+            🎤 Nhấn nút bên dưới để bắt đầu ghi âm.
+
+          </div>
+
+          <button
+            class="thtt-g-btn"
+            id="thttRecordButton"
+            data-action="record"
+            style="max-width:320px;">
+
+            🎤 Bắt đầu ghi âm
+
+          </button>
+
+          <div
+            id="thttRecordingResult"
+            style="margin-top:15px;">
+          </div>
+
+          <div
+            class="thtt-g-info"
+            style="
+              text-align:left;
+              margin-top:20px;
+            ">
+
+            <b>📌 Lưu ý:</b><br>
+
+            Hiện tại hệ thống đã có ghi âm và
+            phát lại giọng đọc của người học.
+
+            Phần chấm điểm AI sẽ được nối vào
+            bước tiếp theo.
+
+          </div>
+
+        </div>
+
+      </div>
+
+    `;
+
+
+    bindQuestionSelect();
+
+
+    const playModel =
+      body.querySelector(
+        '[data-action="playModel"]'
+      );
+
+    playModel.onclick =
+      function(){
+
+        speakChinese(
+          item.example
+        );
+
+      };
+
+
+    const recordButton =
+      body.querySelector(
+        "#thttRecordButton"
+      );
+
+    const status =
+      body.querySelector(
+        "#thttSpeakingStatus"
+      );
+
+    const recordingResult =
+      body.querySelector(
+        "#thttRecordingResult"
+      );
+
+
+    recordButton.onclick =
+      async function(){
+
+        if(
+          recorder &&
+          recorder.state === "recording"
+        ){
+
+          recorder.stop();
+
+          return;
+
+        }
+
+
+        if(
+          !navigator.mediaDevices ||
+          !navigator.mediaDevices.getUserMedia
+        ){
+
+          status.textContent =
+            "❌ Trình duyệt không hỗ trợ ghi âm.";
+
+          return;
+
+        }
+
+
+        try{
+
+          recordingStream =
+            await navigator.mediaDevices
+              .getUserMedia({
+                audio:true
+              });
+
+          recordingChunks =
+            [];
+
+          recorder =
+            new MediaRecorder(
+              recordingStream
+            );
+
+
+          recorder.ondataavailable =
+            function(event){
+
+              if(
+                event.data &&
+                event.data.size > 0
+              ){
+
+                recordingChunks.push(
+                  event.data
+                );
+
+              }
+
+            };
+
+
+          recorder.onstop =
+            function(){
+
+              const blob =
+                new Blob(
+                  recordingChunks,
+                  {
+                    type:"audio/webm"
+                  }
+                );
+
+              const url =
+                URL.createObjectURL(
+                  blob
+                );
+
+
+              recordingResult.innerHTML = `
+
+                <div class="thtt-g-info">
+
+                  <b>🎧 Bản ghi của bạn:</b>
+
+                  <audio
+                    controls
+                    src="${url}"
+                    style="
+                      width:100%;
+                      margin-top:10px;
+                    ">
+                  </audio>
+
+                  <button
+                    class="thtt-g-btn"
+                    id="thttRecordAgain"
+                    style="margin-top:10px;">
+
+                    🔄 Đọc lại
+
+                  </button>
+
+                </div>
+
+              `;
+
+
+              status.textContent =
+                "✅ Đã ghi âm. Hãy nghe lại giọng của bạn.";
+
+              recordButton.textContent =
+                "🎤 Ghi âm lại";
+
+
+              if(recordingStream){
+
+                recordingStream
+                  .getTracks()
+                  .forEach(
+                    track =>
+                      track.stop()
+                  );
+
+                recordingStream =
+                  null;
+
+              }
+
+            };
+
+
+          recorder.start();
+
+          status.textContent =
+            "🔴 Đang ghi âm... Hãy đọc câu thật rõ!";
+
+          recordButton.textContent =
+            "⏹ Dừng ghi âm";
+
+        }
+        catch(error){
+
+          console.error(error);
+
+          status.textContent =
+            "❌ Không thể truy cập micro. Hãy kiểm tra quyền microphone.";
+
+        }
+
+      };
+
+
+    /* =======================================================
+       ĐỌC LẠI
+    ======================================================= */
+
+    body.onclick =
+      function(event){
+
+        const button =
+          event.target.closest(
+            "#thttRecordAgain"
+          );
+
+        if(!button) return;
+
+        recordButton.click();
+
+      };
+
+  }
+
+
+  /* =========================================================
+     PROGRESS
+  ========================================================= */
+
+  function updateProgress(){
+
+    const data =
+      getData();
+
+    if(!data.length){
+
+      progress.style.width =
+        "0%";
+
+      return;
+
+    }
+
+    const percent =
+      (
+        (currentIndex + 1)
+        / data.length
+      ) * 100;
+
+    progress.style.width =
+      Math.min(
+        100,
+        percent
+      ) + "%";
+
+  }
+
+
+  /* =========================================================
+     CHỌN HSK
+  ========================================================= */
+
+  function selectLevel(level){
+
+    stopAllMedia();
+
+    currentLevel =
+      Number(level);
+
+    currentIndex =
+      0;
+
+    currentMode =
+      "normal";
+
+
+    overlay
+      .querySelectorAll(
+        ".thtt-g-level"
+      )
+      .forEach(
+        button => {
+
+          button.classList.toggle(
+            "active",
+            Number(
+              button.dataset.level
+            ) === currentLevel
+          );
+
+        }
+      );
+
+
+    renderNormal();
+
+  }
+
+
+  /* =========================================================
+     EVENT CHÍNH
+  ========================================================= */
+
+  overlay.addEventListener(
+    "click",
+    function(event){
+
+      const actionButton =
+        event.target.closest(
+          "[data-action]"
+        );
+
+      if(!actionButton) return;
+
+      const action =
+        actionButton.dataset.action;
+
+
+      /* -----------------------------------------------------
+         NGHE
+      ----------------------------------------------------- */
+
+      if(action === "listen"){
+
+        renderListen();
+
+        return;
+
+      }
+
+
+      /* -----------------------------------------------------
+         GHÉP CÂU
+      ----------------------------------------------------- */
+
+      if(action === "unscramble"){
+
+        renderUnscramble();
+
+        return;
+
+      }
+
+
+      /* -----------------------------------------------------
+         ĐỌC
+      ----------------------------------------------------- */
+
+      if(action === "speaking"){
+
+        renderSpeaking();
+
+        return;
+
+      }
+
+
+      /* -----------------------------------------------------
+         MẪU CÂU
+      ----------------------------------------------------- */
+
+      if(action === "normal"){
+
+        renderNormal();
+
+        return;
+
+      }
+
+
+      /* -----------------------------------------------------
+         NGHE LẠI
+      ----------------------------------------------------- */
+
+      if(action === "play"){
+
+        const item =
+          getCurrent();
+
+        if(item){
+
+          speakChinese(
+            item.example
+          );
+
+        }
+
+        return;
+
+      }
+
+
+      /* -----------------------------------------------------
+         NGHE MẪU
+      ----------------------------------------------------- */
+
+      if(action === "playModel"){
+
+        const item =
+          getCurrent();
+
+        if(item){
+
+          speakChinese(
+            item.example
+          );
+
+        }
+
+        return;
+
+      }
+
+
+      /* -----------------------------------------------------
+         CÂU TRƯỚC
+      ----------------------------------------------------- */
+
+      if(action === "prevQuestion"){
+
+        prevQuestion();
+
+        return;
+
+      }
+
+
+      /* -----------------------------------------------------
+         CÂU SAU
+      ----------------------------------------------------- */
+
+      if(action === "nextQuestion"){
+
+        nextQuestion();
+
+        return;
+
+      }
+
+
+      /* -----------------------------------------------------
+         GHI ÂM
+      ----------------------------------------------------- */
+
+      if(action === "record"){
+
+        const recordButton =
+          body.querySelector(
+            "#thttRecordButton"
+          );
+
+        if(recordButton){
+
+          recordButton.click();
+
+        }
+
+        return;
+
+      }
+
+    }
+  );
+
+
+  /* =========================================================
+     LEVEL EVENTS
+  ========================================================= */
+
+  overlay
+    .querySelectorAll(
+      ".thtt-g-level"
+    )
+    .forEach(
+      button => {
+
+        button.addEventListener(
+          "click",
+          function(){
+
+            selectLevel(
+              Number(
+                this.dataset.level
+              )
+            );
+
+          }
+        );
+
+      }
+    );
+
+
+  /* =========================================================
+     MỞ GRAMMAR
+  ========================================================= */
+
+  launcher.onclick =
+    function(){
+
+      overlay.style.display =
+        "block";
+
+      currentMode =
+        "normal";
+
+      renderNormal();
+
+    };
+
+
+  /* =========================================================
+     ĐÓNG GRAMMAR
+  ========================================================= */
+
+  overlay
+    .querySelector(
+      "#thttGrammarClose"
+    )
+    .onclick =
+    function(){
+
+      stopAllMedia();
+
+      overlay.style.display =
+        "none";
+
+    };
+
+
+  /* =========================================================
+     CLICK RA NGOÀI
+  ========================================================= */
+
+  overlay.addEventListener(
+    "click",
+    function(event){
+
+      if(
+        event.target === overlay
+      ){
+
+        overlay
+          .querySelector(
+            "#thttGrammarClose"
+          )
+          .click();
+
+      }
+
+    }
+  );
+
+
+  /* =========================================================
+     KHỞI ĐỘNG
+  ========================================================= */
+
+  console.log(
+    "🇨🇳 THÍCH TIẾNG TRUNG — Grammar Engine V3.1 loaded."
+  );
+
+})();
+
+</script>
 </body>
 </html>
