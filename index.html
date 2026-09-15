@@ -94126,5 +94126,438 @@ function renderUnscramble(){
 
 })();
 </script>
+<!-- =========================================================
+     🔐 THÍCH TIẾNG TRUNG
+     GRAMMAR ACCESS GUARD V2
+
+     ❌ Chưa đăng nhập → Không vào Grammar
+     🆓 Free           → Chỉ HSK1
+     💎 Premium        → HSK1 → HSK6
+
+     PATCH ĐỘC LẬP
+========================================================= -->
+
+<script>
+(function(){
+
+  "use strict";
+
+
+  /* =========================================================
+     🔒 CHỐNG DÁN TRÙNG
+  ========================================================= */
+
+  if(window.__THTT_GRAMMAR_ACCESS_GUARD_V2__){
+
+    return;
+
+  }
+
+  window.__THTT_GRAMMAR_ACCESS_GUARD_V2__ = true;
+
+
+  /* =========================================================
+     ⚙️ TRẠNG THÁI CHO PHÉP CLICK LẠI
+     
+     Khi Premium được xác nhận bằng async,
+     patch sẽ cho phép đúng 1 lần click đi qua
+     Grammar Engine gốc.
+  ========================================================= */
+
+  let allowNextLevelClick = false;
+
+  let checkingPremium = false;
+
+
+  /* =========================================================
+     💎 KIỂM TRA PREMIUM
+  ========================================================= */
+
+  async function isGrammarPremium(){
+
+    try{
+
+      if(
+        typeof hasActiveMembership ===
+        "function"
+      ){
+
+        return await hasActiveMembership();
+
+      }
+
+
+      if(
+        typeof window.hasActiveMembership ===
+        "function"
+      ){
+
+        return await window.hasActiveMembership();
+
+      }
+
+
+      console.error(
+        "❌ Không tìm thấy hasActiveMembership()"
+      );
+
+      return false;
+
+    }catch(error){
+
+      console.error(
+        "❌ Grammar Premium check error:",
+        error
+      );
+
+      return false;
+
+    }
+
+  }
+
+
+  /* =========================================================
+     🚪 1. CHẶN CỬA GRAMMAR KHI CHƯA ĐĂNG NHẬP
+     
+     Không cần async.
+     
+     Nếu có tài khoản → để nguyên onclick gốc chạy.
+  ========================================================= */
+
+  function installLauncherGuard(){
+
+    const launcher =
+      document.querySelector(
+        "#thttGrammarLauncher"
+      );
+
+    if(!launcher){
+
+      return false;
+
+    }
+
+
+    launcher.addEventListener(
+      "click",
+      function(event){
+
+        if(!window.currentUser){
+
+          event.preventDefault();
+
+          event.stopImmediatePropagation();
+
+
+          alert(
+            "🔒 Ngữ pháp yêu cầu tài khoản.\n\n" +
+            "Vui lòng đăng ký hoặc đăng nhập " +
+            "để bắt đầu học."
+          );
+
+
+          return;
+
+        }
+
+
+        /*
+         * Có tài khoản:
+         * Không làm gì cả.
+         *
+         * Click sẽ tiếp tục xuống
+         * launcher.onclick gốc của Grammar Engine.
+         */
+
+      },
+      true
+    );
+
+
+    return true;
+
+  }
+
+
+  /* =========================================================
+     🛡️ 2. CHẶN HSK2–6 NGAY Ở CAPTURE PHASE
+     
+     Đây là phần quan trọng nhất.
+     
+     Grammar Engine có:
+     
+       button.addEventListener("click", ...)
+     
+     nên ta chặn click ở CAPTURE PHASE
+     trước khi listener nội bộ nhận được.
+  ========================================================= */
+
+  function installLevelGuard(){
+
+    const overlay =
+      document.querySelector(
+        "#thttGrammarOverlay"
+      );
+
+    if(!overlay){
+
+      return false;
+
+    }
+
+
+    overlay.addEventListener(
+      "click",
+      async function(event){
+
+        const button =
+          event.target.closest(
+            ".thtt-g-level"
+          );
+
+
+        /*
+         * Không phải nút HSK
+         */
+
+        if(!button){
+
+          return;
+
+        }
+
+
+        const level =
+          Number(
+            button.dataset.level
+          );
+
+
+        /* =================================================
+           🔓 HSK1
+           
+           Ai đã đăng nhập đều được học.
+        ================================================= */
+
+        if(level === 1){
+
+          return;
+
+        }
+
+
+        /* =================================================
+           ❌ CHƯA ĐĂNG NHẬP
+        ================================================= */
+
+        if(!window.currentUser){
+
+          event.preventDefault();
+
+          event.stopImmediatePropagation();
+
+
+          alert(
+            "🔒 Vui lòng đăng ký hoặc đăng nhập " +
+            "tài khoản trước."
+          );
+
+
+          return;
+
+        }
+
+
+        /* =================================================
+           🔄 CLICK ĐƯỢC PATCH CHO PHÉP ĐI QUA
+           
+           Đây là lần click thứ hai sau khi Premium
+           đã được xác nhận.
+        ================================================= */
+
+        if(allowNextLevelClick){
+
+          allowNextLevelClick =
+            false;
+
+          return;
+
+        }
+
+
+        /* =================================================
+           🛑 CHẶN CLICK GỐC NGAY LẬP TỨC
+           
+           Vì kiểm tra Premium là async,
+           phải chặn trước.
+        ================================================= */
+
+        event.preventDefault();
+
+        event.stopImmediatePropagation();
+
+
+        /* =================================================
+           🔄 ĐANG KIỂM TRA
+           
+           Tránh người dùng bấm liên tục.
+        ================================================= */
+
+        if(checkingPremium){
+
+          return;
+
+        }
+
+
+        checkingPremium = true;
+
+
+        try{
+
+          const paid =
+            await isGrammarPremium();
+
+
+          /* ===============================================
+             💎 PREMIUM
+          =============================================== */
+
+          if(paid){
+
+            /*
+             * Cho phép đúng 1 click tiếp theo
+             * chạy vào Grammar Engine gốc.
+             */
+
+            allowNextLevelClick =
+              true;
+
+
+            /*
+             * Kích hoạt lại chính nút đó.
+             */
+
+            button.click();
+
+
+            return;
+
+          }
+
+
+          /* ===============================================
+             🆓 FREE
+          =============================================== */
+
+          alert(
+            "🔒 HSK " +
+            level +
+            " Ngữ pháp là nội dung Premium.\n\n" +
+
+            "🆓 Tài khoản Free hiện chỉ được " +
+            "học miễn phí Ngữ pháp HSK1.\n\n" +
+
+            "💎 Nâng cấp Premium để mở khóa " +
+            "Ngữ pháp HSK1 → HSK6."
+          );
+
+        }finally{
+
+          checkingPremium = false;
+
+        }
+
+      },
+      true
+    );
+
+
+    return true;
+
+  }
+
+
+  /* =========================================================
+     🚀 CÀI PATCH
+  ========================================================= */
+
+  function installGrammarGuard(){
+
+    const launcherOK =
+      installLauncherGuard();
+
+
+    const levelOK =
+      installLevelGuard();
+
+
+    if(
+      launcherOK &&
+      levelOK
+    ){
+
+      console.log(
+        "🔐 GRAMMAR ACCESS GUARD V2 — ACTIVE"
+      );
+
+      console.log(
+        "❌ No account → BLOCK"
+      );
+
+      console.log(
+        "🆓 Free → HSK1 ONLY"
+      );
+
+      console.log(
+        "💎 Premium → HSK1–HSK6"
+      );
+
+
+      return true;
+
+    }
+
+
+    return false;
+
+  }
+
+
+  /* =========================================================
+     ⏳ CHỜ GRAMMAR ENGINE NẾU CẦN
+  ========================================================= */
+
+  if(!installGrammarGuard()){
+
+    let attempts = 0;
+
+
+    const timer =
+      setInterval(
+        function(){
+
+          attempts++;
+
+
+          if(
+            installGrammarGuard() ||
+            attempts >= 30
+          ){
+
+            clearInterval(timer);
+
+          }
+
+        },
+        250
+      );
+
+  }
+
+
+})();
+</script>
 </body>
 </html>
