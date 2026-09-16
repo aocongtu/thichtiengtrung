@@ -94696,102 +94696,56 @@ function renderUnscramble(){
   }
 
 
-  /* =====================================================
-     📚 HSK
-  ===================================================== */
+ /* =====================================================
+   📚 HSK — NGUỒN CẤP ĐỘ ĐỘC LẬP
+   🛡️ KHÔNG LẤY TỪ sentences / 3000 CÂU
+   → HSK1 → HSK6 đều lấy cùng nguồn words
+===================================================== */
 
-  function whiteHatBuildHSK(level){
+function whiteHatBuildHSK(level){
 
-    let list = [];
+  const targetLevel =
+    Number(level);
 
-
-    if(
-      typeof sentences !==
-      "undefined" &&
-      Array.isArray(sentences)
-    ){
-
-      list =
-        sentences.filter(
-          function(item){
-
-            return (
-              item &&
-              Number(item.hsk) ===
-              Number(level) &&
-              item.answer
-            );
-
-          }
-        )
-
-        .map(function(item){
-
-          return {
-
-            meaning:
-              item.meaning || "",
-
-            answer:
-              item.answer || "",
-
-            hsk:
-              Number(item.hsk)
-
-          };
-
-        });
-
-    }
-
-
-    if(
-      !list.length &&
-      typeof words !==
-      "undefined" &&
-      Array.isArray(words)
-    ){
-
-      list =
-        words
-
-          .filter(function(word){
-
-            return (
-              word &&
-              Number(word.hsk) ===
-              Number(level) &&
-              word.example
-            );
-
-          })
-
-          .map(function(word){
-
-            return {
-
-              meaning:
-                word.exampleMeaning ||
-                word.m ||
-                "",
-
-              answer:
-                word.example,
-
-              hsk:
-                Number(word.hsk)
-
-            };
-
-          });
-
-    }
-
-
-    return list;
-
+  if(
+    typeof words === "undefined" ||
+    !Array.isArray(words)
+  ){
+    return [];
   }
 
+  return words
+
+    .filter(function(word){
+
+      return (
+        word &&
+        Number(word.hsk) === targetLevel &&
+        word.example
+      );
+
+    })
+
+    .map(function(word){
+
+      return {
+
+        meaning:
+          word.exampleMeaning ||
+          word.m ||
+          "",
+
+        answer:
+          word.example,
+
+        hsk:
+          Number(word.hsk)
+
+      };
+
+    });
+
+}
 
   /* =====================================================
      🔀 XÁO TRỘN
