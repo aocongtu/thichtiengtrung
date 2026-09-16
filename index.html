@@ -99793,47 +99793,30 @@ if(number){
 
 
   /* =========================================================
-     🔊 SỬA saySentence()
-     ---------------------------------------------------------
-     Khi bấm nút 🔊 Nghe trong Luyện câu
-     → dùng mobile audio patch.
-  ========================================================= */
+   🔊 SỬA saySentence()
+   ---------------------------------------------------------
+   🛡️ WHITE HAT:
+   → giữ nguyên hàm saySentence của WHITE HAT V2
+   → câu hiện tại do whiteHatCurrent() bên trong V2 xử lý
+   → không đụng sentences[]
+   → không đụng 3000 câu
+   → không đụng HSK1–6
+   ========================================================= */
 
-  const oldSaySentence =
-    window.saySentence;
+const oldSaySentence =
+  window.saySentence;
 
-  window.saySentence =
-    function(){
+window.saySentence =
+  function(){
+
+    if(
+      typeof oldSaySentence ===
+      "function"
+    ){
 
       try{
 
-        if(
-          typeof sentences !== "undefined" &&
-          Array.isArray(sentences)
-        ){
-
-          const index =
-            typeof window.sentenceIndex === "number"
-              ? window.sentenceIndex
-              : 0;
-
-          const item =
-            sentences[index];
-
-          if(
-            item &&
-            item.answer
-          ){
-
-            window.whiteHatMobileSpeak(
-              item.answer
-            );
-
-            return;
-
-          }
-
-        }
+        oldSaySentence();
 
       }catch(error){
 
@@ -99844,22 +99827,9 @@ if(number){
 
       }
 
-      /*
-       * Fallback về hàm cũ nếu có.
-       */
+    }
 
-      if(typeof oldSaySentence === "function"){
-
-        try{
-          oldSaySentence();
-        }catch(error){
-          console.log(error);
-        }
-
-      }
-
-    };
-
+  };
 
   /* =========================================================
      KHỞI ĐỘNG
