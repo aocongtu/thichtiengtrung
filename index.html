@@ -106327,5 +106327,1635 @@ if(
 <!-- =========================================================
  🛡️ END WHITE HAT HSK ENGINE V2
  ========================================================= -->
+<!-- =========================================================
+ 🛡️ WHITE HAT — TEST TỪ VỰNG V3
+ 🇨🇳 THÍCH TIẾNG TRUNG
+ ---------------------------------------------------------
+ ENTER 1 → KIỂM TRA + ĐỌC ĐÁP ÁN
+ ĐÚNG → HIỆN HÁN TỰ + PINYIN + NGHĨA + 🎉
+ ENTER 2 → CÂU TIẾP
+ SAI → BẮT NHẬP LẠI
+ CTRL → ĐỌC ĐÁP ÁN
+ SPACE → CÂU TIẾP KHI ĐÃ ĐÚNG
+ 🔀 XÁO TRỘN
+ 🏁 HOÀN THÀNH
+ ---------------------------------------------------------
+ Không sửa dữ liệu words[]
+ Không sửa Premium
+ Không sửa Flashcard
+ Không sửa Luyện câu
+ ========================================================= -->
+
+<style>
+
+#whiteHatTestExtra{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:9px;
+  margin-top:14px;
+}
+
+#whiteHatTestExtra button{
+  border:1px solid #ddd;
+  border-radius:10px;
+  padding:10px 15px;
+  background:#fff;
+  color:#222;
+  cursor:pointer;
+  font-weight:800;
+  transition:.2s ease;
+}
+
+#whiteHatTestExtra button:hover{
+  transform:translateY(-1px);
+  box-shadow:0 4px 12px rgba(0,0,0,.10);
+}
+
+#whiteHatTestShuffleButton{
+  border-color:#fecaca !important;
+  background:#fff5f5 !important;
+  color:#b91c1c !important;
+}
+
+#whiteHatTestNextButton{
+  border-color:#bbf7d0 !important;
+  background:#f0fdf4 !important;
+  color:#15803d !important;
+}
+
+#whiteHatTestAnswer{
+  display:none;
+  margin:20px auto 10px;
+  padding:20px 15px;
+  max-width:700px;
+  border-radius:20px;
+  background:#f0fff8;
+  border:2px solid #86efac;
+  box-shadow:
+    0 8px 25px rgba(22,163,74,.12);
+  text-align:center;
+}
+
+#whiteHatTestAnswer.show{
+  display:block;
+  animation:whiteHatTestPop .35s ease;
+}
+
+#whiteHatTestCelebration{
+  font-size:58px;
+  line-height:1;
+  margin-bottom:10px;
+}
+
+#whiteHatTestAnswerHanzi{
+  font-size:clamp(50px,10vw,82px);
+  line-height:1.2;
+  font-weight:900;
+  color:#166534;
+  margin-bottom:8px;
+}
+
+#whiteHatTestAnswerPinyin{
+  font-size:24px;
+  font-weight:800;
+  color:#2563eb;
+  margin-bottom:8px;
+}
+
+#whiteHatTestAnswerMeaning{
+  font-size:20px;
+  font-weight:700;
+  color:#334155;
+  line-height:1.5;
+}
+
+#whiteHatTestStatus{
+  min-height:28px;
+  margin-top:10px;
+  font-weight:800;
+}
+
+@keyframes whiteHatTestPop{
+  0%{
+    opacity:0;
+    transform:scale(.85);
+  }
+
+  70%{
+    transform:scale(1.04);
+  }
+
+  100%{
+    opacity:1;
+    transform:scale(1);
+  }
+}
+
+#whiteHatTestFinished{
+  display:none;
+  margin:20px auto;
+  padding:25px 15px;
+  border-radius:22px;
+  background:#fff;
+  border:2px solid #facc15;
+  text-align:center;
+  box-shadow:0 8px 28px rgba(0,0,0,.10);
+}
+
+#whiteHatTestFinished.show{
+  display:block;
+  animation:whiteHatTestPop .35s ease;
+}
+
+#whiteHatTestFinishedIcon{
+  font-size:70px;
+  line-height:1;
+}
+
+#whiteHatTestFinishedTitle{
+  font-size:28px;
+  font-weight:900;
+  margin:12px 0;
+  color:#166534;
+}
+
+#whiteHatTestFinishedScore{
+  font-size:24px;
+  font-weight:800;
+}
+
+</style>
+
+
+<script>
+(function(){
+
+  "use strict";
+
+  /* =====================================================
+     🛡️ CHỐNG CHẠY LẶP
+  ===================================================== */
+
+  if(window.__WHITE_HAT_TEST_V3__){
+    return;
+  }
+
+  window.__WHITE_HAT_TEST_V3__ = true;
+
+
+  /* =====================================================
+     🔧 TRẠNG THÁI RIÊNG CỦA WHITE HAT
+  ===================================================== */
+
+  let whiteHatTestStage = 0;
+  /*
+    0 = chưa kiểm tra
+    1 = đã đúng → Enter lần 2 sang câu
+  */
+
+  let whiteHatTestWrongSaved = false;
+
+
+  /* =====================================================
+     🧱 TẠO UI
+  ===================================================== */
+
+  function whiteHatBuildTestUI(){
+
+    const section =
+      document.getElementById("testSection");
+
+    if(!section){
+      return;
+    }
+
+
+    /* ---------------------------------------------
+       KHÔNG TẠO TRÙNG
+    --------------------------------------------- */
+
+    if(
+      document.getElementById(
+        "whiteHatTestExtra"
+      )
+    ){
+      return;
+    }
+
+
+    const input =
+      document.getElementById("testInput");
+
+    if(!input){
+      return;
+    }
+
+
+    /* ---------------------------------------------
+       KHU VỰC ĐÁP ÁN
+    --------------------------------------------- */
+
+    const answerBox =
+      document.createElement("div");
+
+    answerBox.id =
+      "whiteHatTestAnswer";
+
+    answerBox.innerHTML = `
+
+      <div id="whiteHatTestCelebration">
+        🎉
+      </div>
+
+      <div
+        id="whiteHatTestAnswerHanzi"
+      ></div>
+
+      <div
+        id="whiteHatTestAnswerPinyin"
+      ></div>
+
+      <div
+        id="whiteHatTestAnswerMeaning"
+      ></div>
+
+    `;
+
+
+    input.insertAdjacentElement(
+      "afterend",
+      answerBox
+    );
+
+
+    /* ---------------------------------------------
+       NÚT
+    --------------------------------------------- */
+
+    const actions =
+      document.createElement("div");
+
+    actions.id =
+      "whiteHatTestExtra";
+
+    actions.innerHTML = `
+
+      <button
+        type="button"
+        id="whiteHatTestNextButton"
+      >
+        ➡️ Câu tiếp
+      </button>
+
+      <button
+        type="button"
+        id="whiteHatTestShuffleButton"
+      >
+        🔀 Xáo trộn
+      </button>
+
+    `;
+
+
+    answerBox.insertAdjacentElement(
+      "afterend",
+      actions
+    );
+
+
+    /* ---------------------------------------------
+       SỰ KIỆN CÂU TIẾP
+    --------------------------------------------- */
+
+    const nextButton =
+      document.getElementById(
+        "whiteHatTestNextButton"
+      );
+
+    if(nextButton){
+
+      nextButton.addEventListener(
+        "click",
+        function(){
+
+          if(
+            whiteHatTestStage !== 1
+          ){
+
+            const result =
+              document.getElementById(
+                "testResult"
+              );
+
+            if(result){
+
+              result.textContent =
+                "👉 Hãy trả lời đúng câu này trước nhé!";
+
+              result.style.color =
+                "#d08a00";
+            }
+
+            return;
+          }
+
+
+          whiteHatTestGoNext();
+
+        }
+      );
+
+    }
+
+
+    /* ---------------------------------------------
+       🔀 XÁO TRỘN
+    --------------------------------------------- */
+
+    const shuffleButton =
+      document.getElementById(
+        "whiteHatTestShuffleButton"
+      );
+
+    if(shuffleButton){
+
+      shuffleButton.addEventListener(
+        "click",
+        function(){
+
+          whiteHatTestShuffle();
+
+        }
+      );
+
+    }
+
+
+    /* ---------------------------------------------
+       MÀN HÌNH HOÀN THÀNH
+    --------------------------------------------- */
+
+    const finished =
+      document.createElement("div");
+
+    finished.id =
+      "whiteHatTestFinished";
+
+    finished.innerHTML = `
+
+      <div id="whiteHatTestFinishedIcon">
+        🏆
+      </div>
+
+      <div id="whiteHatTestFinishedTitle">
+        🎉 HOÀN THÀNH BÀI TEST
+      </div>
+
+      <div id="whiteHatTestFinishedScore">
+      </div>
+
+    `;
+
+    actions.insertAdjacentElement(
+      "afterend",
+      finished
+    );
+
+  }
+
+
+  /* =====================================================
+     🧹 ẨN KẾT QUẢ CŨ
+  ===================================================== */
+
+  function whiteHatTestClearAnswer(){
+
+    const box =
+      document.getElementById(
+        "whiteHatTestAnswer"
+      );
+
+    if(box){
+      box.classList.remove("show");
+    }
+
+    const finished =
+      document.getElementById(
+        "whiteHatTestFinished"
+      );
+
+    if(finished){
+      finished.classList.remove("show");
+    }
+
+  }
+
+
+  /* =====================================================
+     🎉 HIỆN ĐÁP ÁN ĐẦY ĐỦ
+  ===================================================== */
+
+  function whiteHatTestShowAnswer(w){
+
+    const box =
+      document.getElementById(
+        "whiteHatTestAnswer"
+      );
+
+    if(!box){
+      return;
+    }
+
+
+    const hanzi =
+      document.getElementById(
+        "whiteHatTestAnswerHanzi"
+      );
+
+    const pinyin =
+      document.getElementById(
+        "whiteHatTestAnswerPinyin"
+      );
+
+    const meaning =
+      document.getElementById(
+        "whiteHatTestAnswerMeaning"
+      );
+
+
+    if(hanzi){
+      hanzi.textContent =
+        w.h || "";
+    }
+
+    if(pinyin){
+      pinyin.textContent =
+        w.p || "";
+    }
+
+    if(meaning){
+      meaning.textContent =
+        w.m || "";
+    }
+
+
+    box.classList.add("show");
+
+  }
+
+
+  /* =====================================================
+     🔊 ĐỌC ĐÁP ÁN
+  ===================================================== */
+
+  function whiteHatTestSpeak(w){
+
+    if(
+      !w ||
+      !w.h
+    ){
+      return;
+    }
+
+
+    try{
+
+      if(
+        typeof window.say ===
+        "function"
+      ){
+
+        window.say(w.h);
+        return;
+
+      }
+
+    }catch(error){
+
+      console.warn(
+        "WHITE HAT TEST SAY:",
+        error
+      );
+
+    }
+
+  }
+
+
+  /* =====================================================
+     🔀 XÁO TRỘN
+  ===================================================== */
+
+  function whiteHatTestShuffle(){
+
+    if(
+      !Array.isArray(testQuestions) ||
+      !testQuestions.length
+    ){
+      return;
+    }
+
+
+    for(
+      let i =
+        testQuestions.length - 1;
+
+      i > 0;
+
+      i--
+    ){
+
+      const j =
+        Math.floor(
+          Math.random() *
+          (i + 1)
+        );
+
+
+      [
+        testQuestions[i],
+        testQuestions[j]
+
+      ] = [
+
+        testQuestions[j],
+        testQuestions[i]
+
+      ];
+
+    }
+
+
+    /* ---------------------------------------------
+       RESET BÀI TEST
+    --------------------------------------------- */
+
+    testIndex = 0;
+
+    testScore = 0;
+
+    testAnswered = false;
+
+    testFinished = false;
+
+    whiteHatTestStage = 0;
+
+    whiteHatTestWrongSaved = false;
+
+
+    whiteHatTestClearAnswer();
+
+
+    const finished =
+      document.getElementById(
+        "whiteHatTestFinished"
+      );
+
+    if(finished){
+      finished.classList.remove("show");
+    }
+
+
+    /* ---------------------------------------------
+       HIỆN LẠI CÂU 1
+    --------------------------------------------- */
+
+    if(
+      typeof window.showTestQuestion ===
+      "function"
+    ){
+
+      window.showTestQuestion();
+
+    }
+
+
+    const result =
+      document.getElementById(
+        "testResult"
+      );
+
+    if(result){
+
+      result.textContent =
+        "🔀 Đã xáo trộn toàn bộ câu hỏi!";
+
+      result.style.color =
+        "#b91c1c";
+
+    }
+
+  }
+
+
+  /* =====================================================
+     ➡️ CÂU TIẾP
+  ===================================================== */
+
+  function whiteHatTestGoNext(){
+
+    if(
+      !Array.isArray(testQuestions) ||
+      !testQuestions.length
+    ){
+      return;
+    }
+
+
+    if(testFinished){
+      return;
+    }
+
+
+    /*
+      CHỈ CHO ĐI TIẾP KHI ĐÚNG
+    */
+
+    if(
+      whiteHatTestStage !== 1
+    ){
+
+      return;
+
+    }
+
+
+    testIndex++;
+
+
+    /*
+      HẾT BÀI
+    */
+
+    if(
+      testIndex >=
+      testQuestions.length
+    ){
+
+      whiteHatTestFinish();
+
+      return;
+
+    }
+
+
+    whiteHatTestStage = 0;
+
+    whiteHatTestWrongSaved = false;
+
+
+    whiteHatTestClearAnswer();
+
+
+    if(
+      typeof window.showTestQuestion ===
+      "function"
+    ){
+
+      window.showTestQuestion();
+
+    }
+
+
+    const input =
+      document.getElementById(
+        "testInput"
+      );
+
+    if(input){
+
+      setTimeout(
+        function(){
+
+          input.focus();
+
+        },
+        50
+      );
+
+    }
+
+  }
+
+
+  /* =====================================================
+     🏆 HOÀN THÀNH
+  ===================================================== */
+
+  function whiteHatTestFinish(){
+
+    testFinished = true;
+
+    testAnswered = true;
+
+    whiteHatTestStage = 0;
+
+
+    const total =
+      testQuestions.length;
+
+    const wrong =
+      total - testScore;
+
+
+    const percent =
+      total > 0
+        ? Math.round(
+            (
+              testScore /
+              total
+            ) * 100
+          )
+        : 0;
+
+
+    const number =
+      document.getElementById(
+        "testNumber"
+      );
+
+    const question =
+      document.getElementById(
+        "testQuestion"
+      );
+
+    const hint =
+      document.getElementById(
+        "testHint"
+      );
+
+    const input =
+      document.getElementById(
+        "testInput"
+      );
+
+    const result =
+      document.getElementById(
+        "testResult"
+      );
+
+    const score =
+      document.getElementById(
+        "score"
+      );
+
+
+    if(number){
+
+      number.textContent =
+        "🎉 HOÀN THÀNH BÀI TEST";
+
+    }
+
+
+    if(question){
+
+      question.textContent =
+        `🏆 ${percent} / 100`;
+
+    }
+
+
+    if(hint){
+
+      hint.textContent =
+        testScore === total
+          ? "🏆 Tuyệt vời! Hoàn thành toàn bộ không sai câu nào!"
+          : testScore >= total * .8
+            ? "👏 Rất tốt! Tiếp tục phát huy nhé!"
+            : "💪 Hãy ôn lại những từ còn sai nhé!";
+
+    }
+
+
+    if(input){
+
+      input.value = "";
+
+      input.disabled = true;
+
+    }
+
+
+    if(result){
+
+      result.innerHTML = `
+
+        <div
+          style="
+            font-size:18px;
+            line-height:1.8;
+          "
+        >
+          ✅ Đúng:
+          <strong>${testScore}</strong> câu
+          <br>
+
+          ❌ Sai:
+          <strong>${wrong}</strong> câu
+          <br>
+
+          🏆 Điểm:
+          <strong>${percent} / 100</strong>
+        </div>
+
+      `;
+
+      result.style.color =
+        "#333";
+
+    }
+
+
+    if(score){
+
+      score.textContent =
+        `🏆 ĐIỂM CUỐI: ${percent} / 100`;
+
+    }
+
+
+    whiteHatTestClearAnswer();
+
+
+    const finished =
+      document.getElementById(
+        "whiteHatTestFinished"
+      );
+
+    const finishedScore =
+      document.getElementById(
+        "whiteHatTestFinishedScore"
+      );
+
+    if(finishedScore){
+
+      finishedScore.innerHTML = `
+
+        ✅ Đúng: <strong>${testScore}</strong>
+        &nbsp;&nbsp;
+
+        ❌ Sai: <strong>${wrong}</strong>
+        <br><br>
+
+        🏆 Tổng điểm:
+        <strong>${percent} / 100</strong>
+
+      `;
+
+    }
+
+
+    if(finished){
+
+      finished.classList.add("show");
+
+    }
+
+
+    const nextButton =
+      document.getElementById(
+        "whiteHatTestNextButton"
+      );
+
+    if(nextButton){
+
+      nextButton.disabled = true;
+
+      nextButton.textContent =
+        "🏁 Đã hoàn thành";
+
+    }
+
+  }
+
+
+  /* =====================================================
+     🧠 CHECK TEST MỚI
+     ===================================================== */
+
+  function whiteHatCheckTest(){
+
+    if(testFinished){
+      return;
+    }
+
+
+    const inputElement =
+      document.getElementById(
+        "testInput"
+      );
+
+    const result =
+      document.getElementById(
+        "testResult"
+      );
+
+
+    const w =
+      testQuestions[testIndex];
+
+
+    if(
+      !inputElement ||
+      !w
+    ){
+      return;
+    }
+
+
+    const input =
+      inputElement.value.trim();
+
+
+    /*
+      CHƯA NHẬP
+    */
+
+    if(!input){
+
+      if(result){
+
+        result.textContent =
+          "⚠️ Anh hãy nhập Hán tự trước nhé!";
+
+        result.style.color =
+          "#d08a00";
+
+      }
+
+      return;
+
+    }
+
+
+    /*
+      ĐÃ ĐÚNG
+      Không kiểm tra lại.
+      Enter lần 2 sẽ đi câu tiếp.
+    */
+
+    if(
+      whiteHatTestStage === 1
+    ){
+
+      whiteHatTestGoNext();
+
+      return;
+
+    }
+
+
+    const cleanInput =
+      input.replace(
+        /\s+/g,
+        ""
+      );
+
+
+    const cleanAnswer =
+      String(w.h || "")
+        .trim()
+        .replace(
+          /\s+/g,
+          ""
+        );
+
+
+    const correct =
+      cleanInput ===
+      cleanAnswer;
+
+
+    /* =================================================
+       ✅ ĐÚNG
+    ================================================= */
+
+    if(correct){
+
+      testScore++;
+
+      testAnswered = true;
+
+      whiteHatTestStage = 1;
+
+      whiteHatTestWrongSaved = false;
+
+
+      /*
+        Hiện đáp án đầy đủ
+      */
+
+      whiteHatTestShowAnswer(w);
+
+
+      /*
+        Thông báo nổi bật
+      */
+
+      if(result){
+
+        result.innerHTML = `
+
+          <div
+            style="
+              font-size:26px;
+              font-weight:900;
+              color:#15803d;
+              margin:8px 0;
+            "
+          >
+            🎉 CHÍNH XÁC! 💪
+          </div>
+
+          <div
+            style="
+              font-size:18px;
+              color:#334155;
+            "
+          >
+            ${w.h}
+            · ${w.p || ""}
+            · ${w.m || ""}
+          </div>
+
+        `;
+
+        result.style.color =
+          "#15803d";
+
+      }
+
+
+      /*
+        Cập nhật điểm
+      */
+
+      if(
+        typeof window.getTestScorePercent ===
+        "function"
+      ){
+
+        const score =
+          document.getElementById(
+            "score"
+          );
+
+        if(score){
+
+          score.textContent =
+            `Điểm hiện tại: ${
+              window.getTestScorePercent()
+            } / 100`;
+
+        }
+
+      }
+
+
+      /*
+        🔊 ĐỌC NGAY
+      */
+
+      setTimeout(
+        function(){
+
+          whiteHatTestSpeak(w);
+
+        },
+        120
+      );
+
+
+      /*
+        MỞ NÚT CÂU TIẾP
+      */
+
+      const nextButton =
+        document.getElementById(
+          "whiteHatTestNextButton"
+        );
+
+      if(nextButton){
+
+        nextButton.disabled = false;
+
+        nextButton.textContent =
+          testIndex ===
+          testQuestions.length - 1
+            ? "🏁 Xem kết quả"
+            : "➡️ Câu tiếp";
+
+      }
+
+
+      return;
+
+    }
+
+
+    /* =================================================
+       ❌ SAI
+       → KHÔNG ĐƯỢC CHUYỂN CÂU
+    ================================================= */
+
+    testAnswered = false;
+
+    whiteHatTestStage = 0;
+
+
+    if(result){
+
+      result.innerHTML = `
+
+        <div
+          style="
+            font-size:21px;
+            font-weight:900;
+            color:#dc2626;
+            margin:8px 0;
+          "
+        >
+          ❌ CHƯA ĐÚNG!
+        </div>
+
+        <div
+          style="
+            font-size:16px;
+            color:#7f1d1d;
+          "
+        >
+          👉 Hãy nhập lại Hán tự rồi nhấn Enter.
+        </div>
+
+      `;
+
+      result.style.color =
+        "#dc2626";
+
+    }
+
+
+    /*
+      Lưu từ sai đúng 1 lần
+    */
+
+    if(
+      !whiteHatTestWrongSaved &&
+      typeof window.saveTestWrongWord ===
+      "function"
+    ){
+
+      try{
+
+        window.saveTestWrongWord(w);
+
+        whiteHatTestWrongSaved = true;
+
+      }catch(error){
+
+        console.warn(
+          "WHITE HAT SAVE WRONG:",
+          error
+        );
+
+      }
+
+    }
+
+
+    /*
+      🔊 Đọc đáp án đúng
+      nhưng KHÔNG hiện đáp án trên màn hình.
+      Người học phải tự nhập lại.
+    */
+
+    setTimeout(
+      function(){
+
+        whiteHatTestSpeak(w);
+
+      },
+      120
+    );
+
+
+    const nextButton =
+      document.getElementById(
+        "whiteHatTestNextButton"
+      );
+
+    if(nextButton){
+
+      nextButton.disabled = true;
+
+      nextButton.textContent =
+        "➡️ Câu tiếp";
+
+    }
+
+  }
+
+
+  /* =====================================================
+     🔊 NÚT NGHE
+  ===================================================== */
+
+  function whiteHatSayTestAnswer(){
+
+    const w =
+      testQuestions[testIndex];
+
+    if(!w){
+      return;
+    }
+
+    whiteHatTestSpeak(w);
+
+  }
+
+
+  /* =====================================================
+     📝 KHI HIỆN CÂU MỚI
+  ===================================================== */
+
+  function whiteHatPatchShowQuestion(){
+
+    whiteHatTestStage = 0;
+
+    whiteHatTestWrongSaved = false;
+
+    whiteHatTestClearAnswer();
+
+
+    const input =
+      document.getElementById(
+        "testInput"
+      );
+
+    if(input){
+
+      input.disabled = false;
+
+    }
+
+
+    const result =
+      document.getElementById(
+        "testResult"
+      );
+
+    if(result){
+
+      result.className =
+        "test-result";
+
+    }
+
+
+    const nextButton =
+      document.getElementById(
+        "whiteHatTestNextButton"
+      );
+
+    if(nextButton){
+
+      nextButton.disabled = true;
+
+      nextButton.textContent =
+        "➡️ Câu tiếp";
+
+    }
+
+  }
+
+
+  /* =====================================================
+     🔄 GHI ĐÈ HÀM CHECK TEST
+  ===================================================== */
+
+  window.checkTest =
+    whiteHatCheckTest;
+
+
+  window.sayTestAnswer =
+    whiteHatSayTestAnswer;
+
+
+  /* =====================================================
+     🔄 GHI ĐÈ CÂU TIẾP
+  ===================================================== */
+
+  window.nextTest =
+    function(){
+
+      if(
+        whiteHatTestStage === 1
+      ){
+
+        whiteHatTestGoNext();
+
+      }else{
+
+        const result =
+          document.getElementById(
+            "testResult"
+          );
+
+        if(result){
+
+          result.textContent =
+            "👉 Hãy trả lời đúng câu này trước nhé!";
+
+          result.style.color =
+            "#d08a00";
+
+        }
+
+      }
+
+    };
+
+
+  /* =====================================================
+     ⌨️ ENTER
+  ===================================================== */
+
+  document.addEventListener(
+    "keydown",
+    function(event){
+
+      const input =
+        document.getElementById(
+          "testInput"
+        );
+
+      if(!input){
+        return;
+      }
+
+
+      const section =
+        document.getElementById(
+          "testSection"
+        );
+
+      if(
+        !section ||
+        section.classList.contains(
+          "hidden"
+        )
+      ){
+        return;
+      }
+
+
+      /*
+        Chỉ xử lý khi đang ở ô TEST
+      */
+
+      if(
+        document.activeElement !== input
+      ){
+        return;
+      }
+
+
+      /* ---------------------------------------------
+         CTRL → ĐỌC
+      --------------------------------------------- */
+
+      if(
+        event.key === "Control"
+      ){
+
+        event.preventDefault();
+
+        event.stopPropagation();
+
+        whiteHatSayTestAnswer();
+
+        return;
+
+      }
+
+
+      /* ---------------------------------------------
+         ENTER
+      --------------------------------------------- */
+
+      if(
+        event.key === "Enter"
+      ){
+
+        event.preventDefault();
+
+        event.stopPropagation();
+
+        event.stopImmediatePropagation();
+
+
+        /*
+          Enter lần 1
+          → kiểm tra + đọc
+        */
+
+        if(
+          whiteHatTestStage === 0
+        ){
+
+          whiteHatCheckTest();
+
+          return;
+
+        }
+
+
+        /*
+          Enter lần 2
+          → câu tiếp
+        */
+
+        if(
+          whiteHatTestStage === 1
+        ){
+
+          whiteHatTestGoNext();
+
+          return;
+
+        }
+
+      }
+
+
+      /* ---------------------------------------------
+         SPACE
+         → CHỈ CHO ĐI TIẾP KHI ĐÃ ĐÚNG
+      --------------------------------------------- */
+
+      if(
+        event.code === "Space" &&
+        whiteHatTestStage === 1
+      ){
+
+        event.preventDefault();
+
+        event.stopPropagation();
+
+        whiteHatTestGoNext();
+
+        return;
+
+      }
+
+    },
+    true
+  );
+
+
+  /* =====================================================
+     ⌨️ CTRL / SPACE NGOÀI INPUT
+  ===================================================== */
+
+  document.addEventListener(
+    "keydown",
+    function(event){
+
+      const section =
+        document.getElementById(
+          "testSection"
+        );
+
+      if(
+        !section ||
+        section.classList.contains(
+          "hidden"
+        )
+      ){
+        return;
+      }
+
+
+      const input =
+        document.getElementById(
+          "testInput"
+        );
+
+
+      /*
+        CTRL
+      */
+
+      if(
+        event.key === "Control" &&
+        document.activeElement !== input
+      ){
+
+        event.preventDefault();
+
+        whiteHatSayTestAnswer();
+
+        return;
+
+      }
+
+
+      /*
+        SPACE
+        ngoài input
+      */
+
+      if(
+        event.code === "Space" &&
+        document.activeElement !== input
+      ){
+
+        if(
+          whiteHatTestStage === 1
+        ){
+
+          event.preventDefault();
+
+          whiteHatTestGoNext();
+
+        }
+
+      }
+
+    },
+    true
+  );
+
+
+  /* =====================================================
+     🧩 THEO DÕI KHI CÂU MỚI ĐƯỢC HIỂN THỊ
+  ===================================================== */
+
+  const originalShowTestQuestion =
+    window.showTestQuestion;
+
+
+  if(
+    typeof originalShowTestQuestion ===
+    "function"
+  ){
+
+    window.showTestQuestion =
+      function(){
+
+        const result =
+          originalShowTestQuestion.apply(
+            this,
+            arguments
+          );
+
+        whiteHatPatchShowQuestion();
+
+        return result;
+
+      };
+
+  }
+
+
+  /* =====================================================
+     🚀 KHỞI ĐỘNG
+  ===================================================== */
+
+  function whiteHatTestInit(){
+
+    whiteHatBuildTestUI();
+
+    whiteHatPatchShowQuestion();
+
+  }
+
+
+  if(
+    document.readyState ===
+    "loading"
+  ){
+
+    document.addEventListener(
+      "DOMContentLoaded",
+      whiteHatTestInit
+    );
+
+  }else{
+
+    whiteHatTestInit();
+
+  }
+
+
+})();
+</script>
+
+<!-- =========================================================
+ 🛡️ END WHITE HAT TEST V3
+ ========================================================= -->
 </body>
 </html>
