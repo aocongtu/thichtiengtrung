@@ -77650,7 +77650,7 @@ async function changeAutoLearningHSK(level){
   if(hsk >= 2){
 
     const paid =
-      await hasActiveMembership();
+         await hasPremiumAccess();
 
     if(!paid){
 
@@ -81487,23 +81487,21 @@ if(backCounter){
     if(level >= 2){
 
       if(
-        typeof hasActiveMembership !==
-        "function"
-      ){
+  typeof hasPremiumAccess !==
+  "function"
+){
 
-        alert(
-          "🔒 Không thể kiểm tra trạng thái Premium."
-        );
+  alert(
+    "🔒 Không thể kiểm tra trạng thái Premium."
+  );
 
-        return;
+  return;
 
-      }
-
-
-      const paid =
-        await hasActiveMembership();
+}
 
 
+const paid =
+  await hasPremiumAccess();
       /* ===================================================
          ❌ CHƯA CÓ PREMIUM
          =================================================== */
@@ -96278,47 +96276,37 @@ function renderUnscramble(){
 
   async function isGrammarPremium(){
 
-    try{
+  try{
 
-      if(
-        typeof hasActiveMembership ===
-        "function"
-      ){
-
-        return await hasActiveMembership();
-
-      }
-
-
-      if(
-        typeof window.hasActiveMembership ===
-        "function"
-      ){
-
-        return await window.hasActiveMembership();
-
-      }
-
+    if(
+      typeof hasPremiumAccess !==
+      "function"
+    ){
 
       console.error(
-        "❌ Không tìm thấy hasActiveMembership()"
-      );
-
-      return false;
-
-    }catch(error){
-
-      console.error(
-        "❌ Grammar Premium check error:",
-        error
+        "❌ Không tìm thấy hasPremiumAccess()"
       );
 
       return false;
 
     }
 
+
+    return await hasPremiumAccess();
+
+
+  }catch(error){
+
+    console.error(
+      "❌ Grammar Premium check error:",
+      error
+    );
+
+    return false;
+
   }
 
+}
 
   /* =========================================================
      🚪 1. CHẶN CỬA GRAMMAR KHI CHƯA ĐĂNG NHẬP
