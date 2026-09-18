@@ -72980,16 +72980,19 @@ if(typeof window.refreshAutoLearning === "function"){
 
 }
 
-
 /* =========================================================
-   💎 HỆ THỐNG PREMIUM + FREE TRIAL 5 GIỜ
+   🛡️ THÍCH TIẾNG TRUNG — WHITE HAT PREMIUM GATE V2
+   💎 PREMIUM THẬT + 🎁 FREE TRIAL 30 PHÚT
    ========================================================= */
 
 let premiumHeartbeat = null;
 
 
 /* =========================================================
-   1. KIỂM TRA MEMBERSHIP ĐANG HOẠT ĐỘNG
+   1. KIỂM TRA PREMIUM THẬT
+   ---------------------------------------------------------
+   Chỉ kiểm tra membership thật.
+   KHÔNG trộn Trial vào hàm này.
    ========================================================= */
 
 async function hasActiveMembership(){
@@ -73030,11 +73033,17 @@ async function hasActiveMembership(){
     data &&
     data.length > 0
   );
+
 }
 
 
 /* =========================================================
-   2. KIỂM TRA FREE TRIAL 5 GIỜ
+   2. KIỂM TRA FREE TRIAL
+   ---------------------------------------------------------
+   Supabase:
+   - Trial = 1800 giây
+   - bắt đầu từ lúc tạo tài khoản mới
+   - hết 1800 giây → expired
    ========================================================= */
 
 async function checkFreeTrial(){
@@ -73048,12 +73057,10 @@ async function checkFreeTrial(){
 
   }
 
-
   const { data, error } =
     await window.supabase.rpc(
       "update_free_trial"
     );
-
 
   if(error){
 
@@ -73069,21 +73076,17 @@ async function checkFreeTrial(){
 
   }
 
-
   const result =
     data || {};
-
 
   const remaining =
     Number(
       result.remaining_seconds || 0
     );
 
-
   const expired =
     result.is_expired === true ||
     remaining <= 0;
-
 
   return {
 
@@ -73099,15 +73102,90 @@ async function checkFreeTrial(){
 
 
 /* =========================================================
-   3. KIỂM TRA QUYỀN PREMIUM
+   3. 🛡️ CỔNG PREMIUM TRUNG TÂM
+   ---------------------------------------------------------
+   Premium thật → TRUE
+   Không có Premium → kiểm tra Trial
+   Trial còn → TRUE
+   Trial hết → FALSE
+   ========================================================= */
+
+async function hasPremiumAccess(){
+
+  if(!window.currentUser){
+
+    return false;
+
+  }
+
+
+  /* 💎 PREMIUM THẬT */
+
+  try{
+
+    const realPremium =
+      await hasActiveMembership();
+
+    if(realPremium){
+
+      return true;
+
+    }
+
+  }catch(error){
+
+    console.error(
+      "❌ Premium membership check error:",
+      error
+    );
+
+  }
+
+
+  /* 🎁 FREE TRIAL */
+
+  try{
+
+    const trial =
+      await checkFreeTrial();
+
+    return !!(
+      trial &&
+      trial.allowed &&
+      Number(trial.remaining) > 0
+    );
+
+  }catch(error){
+
+    console.error(
+      "❌ Premium Trial check error:",
+      error
+    );
+
+    return false;
+
+  }
+
+}
+
+
+/* =========================================================
+   4. KIỂM TRA QUYỀN HSK
+   ---------------------------------------------------------
+   Free:
+   HSK 1–2 → được xem
+
+   Trial còn:
+   HSK 1–9 → được xem
+
+   Premium thật:
+   HSK 1–9 → được xem
    ========================================================= */
 
 async function checkPremiumAccess(level){
 
-  /* =====================================================
-     🔒 CHƯA CÓ TÀI KHOẢN
-     Không được xem bất kỳ HSK nào
-     ===================================================== */
+  /* 🔒 CHƯA ĐĂNG NHẬP */
+
   if(!window.currentUser){
 
     alert(
@@ -73120,10 +73198,8 @@ async function checkPremiumAccess(level){
   }
 
 
-  /* =====================================================
-     🟢 HSK 1–2
-     Tài khoản thường được xem miễn phí
-     ===================================================== */
+  /* 🟢 FREE HSK 1–2 */
+
   if(level <= 2){
 
     return true;
@@ -73131,27 +73207,23 @@ async function checkPremiumAccess(level){
   }
 
 
-  /* =====================================================
-     💎 HSK 3–9
-     Chỉ Premium
-     ===================================================== */
-  const paid =
-    await hasActiveMembership();
+  /* 💎 HSK 3–9 */
 
+  const allowed =
+    await hasPremiumAccess();
 
-  if(paid){
+  if(allowed){
 
     return true;
 
   }
 
 
-  /* =====================================================
-     🔒 TÀI KHOẢN FREE
-     HSK 3–9 bị khóa
-     ===================================================== */
+  /* 🔒 FREE SAU KHI TRIAL HẾT */
+
   alert(
-    "🔒 HSK " + level + " là nội dung Premium.\n\n" +
+    "🔒 HSK " + level +
+    " là nội dung Premium.\n\n" +
     "Tài khoản Free chỉ được xem từ vựng HSK 1–2.\n\n" +
     "Vui lòng đăng ký gói Premium để tiếp tục học."
   );
@@ -73160,23 +73232,14 @@ async function checkPremiumAccess(level){
 
 }
 
-/* =========================================================
-   💎 KIỂM TRA QUYỀN PREMIUM CHO TEST / LUYỆN TẬP
-   Free:
-   - Chỉ xem từ vựng HSK 1–3
-   - Không được Test / Luyện câu
 
-   Premium:
-   - Được Test
-   - Được Luyện câu
-   - Được sử dụng các chức năng luyện tập
-========================================================= */
+/* =========================================================
+   5. KIỂM TRA QUYỀN TEST / LUYỆN TẬP
+   ========================================================= */
 
 async function checkPremiumFeature(){
 
-  /* ================================
-     CHƯA ĐĂNG NHẬP
-  ================================= */
+  /* 🔒 CHƯA ĐĂNG NHẬP */
 
   if(!window.currentUser){
 
@@ -73188,28 +73251,23 @@ async function checkPremiumFeature(){
     );
 
     return false;
+
   }
 
 
-  /* ================================
-     ĐÃ CÓ GÓI PREMIUM
-  ================================= */
+  /* 🛡️ DÙNG CỔNG TRUNG TÂM */
 
-  const paid =
-    await hasActiveMembership();
+  const allowed =
+    await hasPremiumAccess();
 
-  if(paid){
+  if(allowed){
 
     return true;
 
   }
 
 
-  /* ================================
-     KHÔNG CÓ PREMIUM
-     → GIỮ NGUYÊN HỆ THỐNG
-       FREE TRIAL 5 GIỜ
-  ================================= */
+  /* 🔒 FREE SAU KHI TRIAL HẾT */
 
   alert(
     "💎 Tính năng Premium\n\n" +
@@ -73224,7 +73282,10 @@ async function checkPremiumFeature(){
 
 
 /* =========================================================
-   4. HEARTBEAT — CẬP NHẬT THỜI GIAN SỬ DỤNG
+   6. HEARTBEAT
+   ---------------------------------------------------------
+   Chỉ cập nhật trạng thái Trial định kỳ.
+   Không biến Trial thành membership thật.
    ========================================================= */
 
 function startPremiumHeartbeat(){
@@ -73234,7 +73295,6 @@ function startPremiumHeartbeat(){
     return;
 
   }
-
 
   premiumHeartbeat =
     setInterval(
@@ -73248,28 +73308,35 @@ function startPremiumHeartbeat(){
 
         }
 
+        try{
 
-        const paid =
-          await hasActiveMembership();
+          const realPremium =
+            await hasActiveMembership();
 
+          if(realPremium){
 
-        if(paid){
+            return;
 
-          return;
+          }
 
-        }
+          const trial =
+            await checkFreeTrial();
 
+          if(!trial.allowed){
 
-        const trial =
-          await checkFreeTrial();
+            stopPremiumHeartbeat();
 
+            console.log(
+              "⏰ Free Trial Premium đã hết."
+            );
 
-        if(!trial.allowed){
+          }
 
-          stopPremiumHeartbeat();
+        }catch(error){
 
-          console.log(
-            "⏰ Free Trial Premium đã hết."
+          console.error(
+            "❌ Premium heartbeat error:",
+            error
           );
 
         }
@@ -73282,7 +73349,7 @@ function startPremiumHeartbeat(){
 
 
 /* =========================================================
-   5. DỪNG HEARTBEAT
+   7. DỪNG HEARTBEAT
    ========================================================= */
 
 function stopPremiumHeartbeat(){
@@ -73299,7 +73366,6 @@ function stopPremiumHeartbeat(){
   }
 
 }
-
 
 /* ==================================================
    CHỌN HSK
