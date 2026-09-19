@@ -106332,7 +106332,1306 @@ document.getElementById(
     startExam();
 
   };
+/* =========================================================
+   🛡️ WHITE HAT — HSK1 ĐỀ 01 PATCH
+   🇨🇳 THÍCH TIẾNG TRUNG
+   ---------------------------------------------------------
+   HSK1 — ĐỀ SỐ 01
+   🎧 Listening 1–20
+   📖 Reading 21–40
+   8 phần × 5 câu
+   ---------------------------------------------------------
+   PATCH AN TOÀN:
+   - Không xóa dữ liệu HSK cũ
+   - Không sửa Premium / Trial
+   - Không sửa Supabase
+   - Không sửa leaderboard
+   - Không sửa timer engine
+   - Chỉ thay nguồn MOCK HSK1 + renderer
+   ========================================================= */
 
+/* =========================================================
+   📦 FACTORY TẠO CÂU HSK1
+========================================================= */
+
+function WH_HSK1_Q(
+  q,
+  p,
+  m,
+  opts,
+  answer,
+  note
+){
+
+  const optionPinyin =
+    opts.map(function(){
+      return "";
+    });
+
+  const optionMeaning =
+    opts.map(function(){
+      return "";
+    });
+
+  const analysis =
+    opts.map(function(_,i){
+
+      if(i === answer){
+
+        return (
+          "Đáp án đúng: " +
+          opts[i] +
+          ". " +
+          note
+        );
+
+      }
+
+      return (
+        "Phương án này không phù hợp " +
+        "với nội dung câu hỏi."
+      );
+
+    });
+
+  return {
+
+    q:q,
+
+    qPinyin:p,
+
+    qMeaning:m,
+
+    options:opts,
+
+    optionPinyin:optionPinyin,
+
+    optionMeaning:optionMeaning,
+
+    answer:answer,
+
+    analysis:analysis
+
+  };
+
+}
+
+
+/* =========================================================
+   🇨🇳 HSK1 — ĐỀ SỐ 01
+   40 CÂU
+========================================================= */
+
+HSK_DATA[1].mock = [
+
+  /* =======================================================
+     🎧 LISTENING — PHẦN 1
+     1–5
+     Nghe câu nói → chọn hình phù hợp
+  ======================================================= */
+
+  WH_HSK1_Q(
+    "早上好。",
+    "Zǎoshang hǎo.",
+    "Chào buổi sáng.",
+    [
+      "🌞👋",
+      "🌙😴",
+      "🍚",
+      "⚽"
+    ],
+    0,
+    "Chọn hình thể hiện lời chào buổi sáng."
+  ),
+
+  WH_HSK1_Q(
+    "他在喝水。",
+    "Tā zài hē shuǐ.",
+    "Anh ấy đang uống nước.",
+    [
+      "👨‍💼🥤",
+      "👩‍🏫📖",
+      "🏃",
+      "😴"
+    ],
+    0,
+    "Nghe thấy hành động uống nước."
+  ),
+
+  WH_HSK1_Q(
+    "女孩在看书。",
+    "Nǚhái zài kàn shū.",
+    "Cô bé đang đọc sách.",
+    [
+      "👧📖",
+      "👧⚽",
+      "👧🍎",
+      "👧😴"
+    ],
+    0,
+    "Nghe thấy cô bé đang đọc sách."
+  ),
+
+  WH_HSK1_Q(
+    "今天下雨。",
+    "Jīntiān xiàyǔ.",
+    "Hôm nay trời mưa.",
+    [
+      "☀️",
+      "🌧️",
+      "❄️",
+      "🌙"
+    ],
+    1,
+    "Nghe thấy hôm nay trời mưa."
+  ),
+
+  WH_HSK1_Q(
+    "妈妈在家。",
+    "Māma zài jiā.",
+    "Mẹ ở nhà.",
+    [
+      "🏠👩",
+      "🏫👩",
+      "🏥👩",
+      "🏪👩"
+    ],
+    0,
+    "Nghe thấy mẹ đang ở nhà."
+  ),
+
+
+  /* =======================================================
+     🎧 LISTENING — PHẦN 2
+     6–10
+     Nghe câu → chọn hình / đáp án
+  ======================================================= */
+
+  WH_HSK1_Q(
+    "我每天早上喝牛奶。",
+    "Wǒ měitiān zǎoshang hē niúnǎi.",
+    "Mỗi sáng tôi uống sữa.",
+    [
+      "🥛",
+      "🍎",
+      "☕",
+      "💧"
+    ],
+    0,
+    "Nghe thấy đồ uống là sữa."
+  ),
+
+  WH_HSK1_Q(
+    "他是老师。",
+    "Tā shì lǎoshī.",
+    "Anh ấy là giáo viên.",
+    [
+      "👨‍🏫",
+      "👨‍⚕️",
+      "👨‍🍳",
+      "👨‍🎓"
+    ],
+    0,
+    "Nghe thấy người đó là giáo viên."
+  ),
+
+  WH_HSK1_Q(
+    "桌子上有一本书。",
+    "Zhuōzi shàng yǒu yì běn shū.",
+    "Trên bàn có một quyển sách.",
+    [
+      "📖",
+      "📱",
+      "🥤",
+      "🖊️"
+    ],
+    0,
+    "Nghe thấy trên bàn có một quyển sách."
+  ),
+
+  WH_HSK1_Q(
+    "妹妹今年十岁。",
+    "Mèimei jīnnián shí suì.",
+    "Em gái năm nay 10 tuổi.",
+    [
+      "8",
+      "9",
+      "10",
+      "12"
+    ],
+    2,
+    "Nghe thấy tuổi là 10."
+  ),
+
+  WH_HSK1_Q(
+    "我们晚上八点回家。",
+    "Wǒmen wǎnshang bā diǎn huí jiā.",
+    "Tối 8 giờ chúng tôi về nhà.",
+    [
+      "6:00",
+      "7:00",
+      "8:00",
+      "9:00"
+    ],
+    2,
+    "Nghe thấy thời gian về nhà là 8 giờ."
+  ),
+
+
+  /* =======================================================
+     🎧 LISTENING — PHẦN 3
+     11–15
+     Nghe hội thoại → chọn đáp án
+  ======================================================= */
+
+  WH_HSK1_Q(
+    "男：你去哪儿？女：我去商店。",
+    "Nán: Nǐ qù nǎr? Nǚ: Wǒ qù shāngdiàn.",
+    "Nam: Bạn đi đâu? Nữ: Tôi đi cửa hàng.",
+    [
+      "🏠",
+      "🏫",
+      "🏪",
+      "🏥"
+    ],
+    2,
+    "Địa điểm được nói đến là cửa hàng."
+  ),
+
+  WH_HSK1_Q(
+    "女：你喝茶吗？男：不，我喝水。",
+    "Nǚ: Nǐ hē chá ma? Nán: Bù, wǒ hē shuǐ.",
+    "Nữ: Bạn uống trà không? Nam: Không, tôi uống nước.",
+    [
+      "🍵",
+      "💧",
+      "🍎",
+      "🍚"
+    ],
+    1,
+    "Người nam không uống trà mà uống nước."
+  ),
+
+  WH_HSK1_Q(
+    "男：你家有几个人？女：五个人。",
+    "Nán: Nǐ jiā yǒu jǐ ge rén? Nǚ: Wǔ ge rén.",
+    "Nam: Nhà bạn có mấy người? Nữ: Năm người.",
+    [
+      "3",
+      "4",
+      "5",
+      "6"
+    ],
+    2,
+    "Số người được nói đến là năm."
+  ),
+
+  WH_HSK1_Q(
+    "女：今天星期几？男：星期六。",
+    "Nǚ: Jīntiān xīngqī jǐ? Nán: Xīngqīliù.",
+    "Nữ: Hôm nay thứ mấy? Nam: Thứ Bảy.",
+    [
+      "星期三",
+      "星期五",
+      "星期六",
+      "星期日"
+    ],
+    2,
+    "Ngày được nói đến là thứ Bảy."
+  ),
+
+  WH_HSK1_Q(
+    "男：妈妈在做什么？女：她在看电视。",
+    "Nán: Māma zài zuò shénme? Nǚ: Tā zài kàn diànshì.",
+    "Nam: Mẹ đang làm gì? Nữ: Bà ấy đang xem tivi.",
+    [
+      "📖",
+      "📺",
+      "🍚",
+      "🏃"
+    ],
+    1,
+    "Mẹ đang xem tivi."
+  ),
+
+
+  /* =======================================================
+     🎧 LISTENING — PHẦN 4
+     16–20
+     Nghe câu + câu hỏi → chọn đáp án
+  ======================================================= */
+
+  WH_HSK1_Q(
+    "男：小王今天不来。女：他为什么不来？男：他生病了。",
+    "Nán: Xiǎo Wáng jīntiān bù lái. Nǚ: Tā wèishénme bù lái? Nán: Tā shēngbìng le.",
+    "Tiểu Vương hôm nay không đến. Vì sao? Vì anh ấy bị ốm.",
+    [
+      "他很忙",
+      "他生病了",
+      "他在学校",
+      "他去商店"
+    ],
+    1,
+    "Lý do anh ấy không đến là vì bị ốm."
+  ),
+
+  WH_HSK1_Q(
+    "女：我买了三个苹果。男：你买了几个苹果？女：三个。",
+    "Nǚ: Wǒ mǎi le sān ge píngguǒ. Nán: Nǐ mǎi le jǐ ge píngguǒ? Nǚ: Sān ge.",
+    "Tôi mua 3 quả táo. Bạn mua mấy quả? Ba quả.",
+    [
+      "两个",
+      "三个",
+      "四个",
+      "五个"
+    ],
+    1,
+    "Số táo được mua là ba quả."
+  ),
+
+  WH_HSK1_Q(
+    "男：现在六点。女：现在几点？男：六点。",
+    "Nán: Xiànzài liù diǎn. Nǚ: Xiànzài jǐ diǎn? Nán: Liù diǎn.",
+    "Bây giờ 6 giờ.",
+    [
+      "五点",
+      "六点",
+      "七点",
+      "八点"
+    ],
+    1,
+    "Thời gian hiện tại là 6 giờ."
+  ),
+
+  WH_HSK1_Q(
+    "女：我明天去北京。男：你明天去哪儿？女：北京。",
+    "Nǚ: Wǒ míngtiān qù Běijīng. Nán: Nǐ míngtiān qù nǎr? Nǚ: Běijīng.",
+    "Ngày mai tôi đi Bắc Kinh.",
+    [
+      "上海",
+      "北京",
+      "学校",
+      "医院"
+    ],
+    1,
+    "Địa điểm ngày mai là Bắc Kinh."
+  ),
+
+  WH_HSK1_Q(
+    "男：这是你的杯子吗？女：是，是我的。",
+    "Nán: Zhè shì nǐ de bēizi ma? Nǚ: Shì, shì wǒ de.",
+    "Đây là cốc của bạn à? Đúng, của tôi.",
+    [
+      "他的",
+      "我的",
+      "老师的",
+      "朋友的"
+    ],
+    1,
+    "Chiếc cốc được xác nhận là của người nói."
+  ),
+
+
+  /* =======================================================
+     📖 READING — PHẦN 1
+     21–25
+     Đọc câu → chọn hình
+  ======================================================= */
+
+  WH_HSK1_Q(
+    "我喝水。",
+    "Wǒ hē shuǐ.",
+    "Tôi uống nước.",
+    [
+      "💧",
+      "📖",
+      "👟",
+      "🚌"
+    ],
+    0,
+    "Chọn hình thể hiện hành động uống nước."
+  ),
+
+  WH_HSK1_Q(
+    "她是学生。",
+    "Tā shì xuésheng.",
+    "Cô ấy là học sinh.",
+    [
+      "👩‍🎓",
+      "👩‍⚕️",
+      "👩‍🍳",
+      "👩‍💼"
+    ],
+    0,
+    "学生 tương ứng với hình học sinh."
+  ),
+
+  WH_HSK1_Q(
+    "今天很冷。",
+    "Jīntiān hěn lěng.",
+    "Hôm nay rất lạnh.",
+    [
+      "🥵",
+      "🥶",
+      "😴",
+      "😡"
+    ],
+    1,
+    "冷 tương ứng với hình lạnh."
+  ),
+
+  WH_HSK1_Q(
+    "爸爸在看电视。",
+    "Bàba zài kàn diànshì.",
+    "Bố đang xem tivi.",
+    [
+      "📺👨",
+      "📖👨",
+      "🏃👨",
+      "🍚👨"
+    ],
+    0,
+    "爸爸 đang xem tivi."
+  ),
+
+  WH_HSK1_Q(
+    "我有两只猫。",
+    "Wǒ yǒu liǎng zhī māo.",
+    "Tôi có hai con mèo.",
+    [
+      "🐶🐶",
+      "🐱🐱",
+      "🐦🐦",
+      "🐟🐟"
+    ],
+    1,
+    "猫 là mèo và có hai con."
+  ),
+
+
+  /* =======================================================
+     📖 READING — PHẦN 2
+     26–30
+     Đọc câu hỏi → chọn câu trả lời
+  ======================================================= */
+
+  WH_HSK1_Q(
+    "你叫什么名字？",
+    "Nǐ jiào shénme míngzi?",
+    "Bạn tên là gì?",
+    [
+      "我叫王明。",
+      "我是老师。",
+      "我在家。",
+      "我很好。"
+    ],
+    0,
+    "Câu hỏi về tên cần dùng 我叫 + tên."
+  ),
+
+  WH_HSK1_Q(
+    "你在哪儿？",
+    "Nǐ zài nǎr?",
+    "Bạn đang ở đâu?",
+    [
+      "我二十岁。",
+      "我在学校。",
+      "我叫小李。",
+      "我喜欢茶。"
+    ],
+    1,
+    "Câu hỏi về địa điểm cần dùng 在 + địa điểm."
+  ),
+
+  WH_HSK1_Q(
+    "你喜欢吃什么？",
+    "Nǐ xǐhuan chī shénme?",
+    "Bạn thích ăn gì?",
+    [
+      "我喜欢吃米饭。",
+      "我在北京。",
+      "我是学生。",
+      "我十岁。"
+    ],
+    0,
+    "Câu hỏi hỏi món ăn yêu thích."
+  ),
+
+  WH_HSK1_Q(
+    "今天星期几？",
+    "Jīntiān xīngqī jǐ?",
+    "Hôm nay thứ mấy?",
+    [
+      "今天星期二。",
+      "今天很热。",
+      "今天三个人。",
+      "今天在家。"
+    ],
+    0,
+    "Câu hỏi về thứ trong tuần."
+  ),
+
+  WH_HSK1_Q(
+    "你会说汉语吗？",
+    "Nǐ huì shuō Hànyǔ ma?",
+    "Bạn biết nói tiếng Trung không?",
+    [
+      "会，我会说汉语。",
+      "我是中国人。",
+      "我在学校。",
+      "我喝水。"
+    ],
+    0,
+    "Câu hỏi về khả năng nói tiếng Trung được trả lời bằng 会 / 不会."
+  ),
+
+
+  /* =======================================================
+     📖 READING — PHẦN 3
+     31–35
+     Chọn từ thích hợp
+  ======================================================= */
+
+  WH_HSK1_Q(
+    "我___学生。",
+    "Wǒ ___ xuésheng.",
+    "Tôi là học sinh.",
+    [
+      "是",
+      "在",
+      "有",
+      "叫"
+    ],
+    0,
+    "我 + 是 + danh từ chỉ thân phận."
+  ),
+
+  WH_HSK1_Q(
+    "他___北京。",
+    "Tā ___ Běijīng.",
+    "Anh ấy ở Bắc Kinh.",
+    [
+      "是",
+      "在",
+      "喝",
+      "吃"
+    ],
+    1,
+    "他 + 在 + địa điểm."
+  ),
+
+  WH_HSK1_Q(
+    "我每天___汉语。",
+    "Wǒ měitiān ___ Hànyǔ.",
+    "Mỗi ngày tôi học tiếng Trung.",
+    [
+      "学习",
+      "医生",
+      "苹果",
+      "岁"
+    ],
+    0,
+    "学习汉语 nghĩa là học tiếng Trung."
+  ),
+
+  WH_HSK1_Q(
+    "妈妈___饭。",
+    "Māma ___ fàn.",
+    "Mẹ ăn cơm.",
+    [
+      "喝",
+      "吃",
+      "看",
+      "叫"
+    ],
+    1,
+    "吃饭 nghĩa là ăn cơm."
+  ),
+
+  WH_HSK1_Q(
+    "你___岁？",
+    "Nǐ ___ suì?",
+    "Bạn bao nhiêu tuổi?",
+    [
+      "在",
+      "是",
+      "几",
+      "有"
+    ],
+    2,
+    "几岁 dùng để hỏi tuổi."
+  ),
+
+
+  /* =======================================================
+     📖 READING — PHẦN 4
+     36–40
+     Chọn câu đúng
+  ======================================================= */
+
+  WH_HSK1_Q(
+    "选择正确的句子：我叫李明。",
+    "Xuǎnzé zhèngquè de jùzi: Wǒ jiào Lǐ Míng.",
+    "Chọn câu đúng: Tôi tên là Lý Minh.",
+    [
+      "我叫李明。",
+      "我是李明。",
+      "我在李明。",
+      "我有李明。"
+    ],
+    0,
+    "Cấu trúc 我叫 + tên dùng để nói tên."
+  ),
+
+  WH_HSK1_Q(
+    "选择正确的句子：她是老师。",
+    "Xuǎnzé zhèngquè de jùzi: Tā shì lǎoshī.",
+    "Chọn câu đúng: Cô ấy là giáo viên.",
+    [
+      "她在老师。",
+      "她叫老师。",
+      "她是老师。",
+      "她有老师。"
+    ],
+    2,
+    "Cấu trúc 她是 + nghề nghiệp."
+  ),
+
+  WH_HSK1_Q(
+    "选择正确的句子：我不喝茶。",
+    "Xuǎnzé zhèngquè de jùzi: Wǒ bù hē chá.",
+    "Chọn câu đúng: Tôi không uống trà.",
+    [
+      "我不喝茶。",
+      "我喝不茶。",
+      "我没有茶喝。",
+      "我不是喝茶。"
+    ],
+    0,
+    "不 + động từ dùng để phủ định hành động."
+  ),
+
+  WH_HSK1_Q(
+    "选择正确的句子：我明天去学校。",
+    "Xuǎnzé zhèngquè de jùzi: Wǒ míngtiān qù xuéxiào.",
+    "Chọn câu đúng: Ngày mai tôi đi trường.",
+    [
+      "我明天去学校。",
+      "我昨天去学校。",
+      "我明天在学校吗。",
+      "我学校去明天。"
+    ],
+    0,
+    "明天 + 去 + địa điểm."
+  ),
+
+  WH_HSK1_Q(
+    "选择正确的句子：这是我的书。",
+    "Xuǎnzé zhèngquè de jùzi: Zhè shì wǒ de shū.",
+    "Chọn câu đúng: Đây là sách của tôi.",
+    [
+      "这是我书。",
+      "这是我的书。",
+      "这是书我的。",
+      "我这是的书。"
+    ],
+    1,
+    "这是 + 我的 + danh từ."
+  )
+
+];
+
+
+/* =========================================================
+   ⏱ HSK1 — THỜI GIAN THI
+   HSK chính thức: khoảng 35 phút nội dung thi
+========================================================= */
+
+MOCK_TIME[1] =
+  35 * 60;
+
+
+/* =========================================================
+   📝 RENDERER HSK1 ĐỀ 01
+   ---------------------------------------------------------
+   THI THỬ:
+   - Không pinyin
+   - Không nghĩa Việt
+   - Không lộ transcript
+   - Listening có nút 🔊
+   - Chia đúng 8 phần
+========================================================= */
+
+renderQuestions =
+  function(){
+
+    questionsBox.innerHTML =
+      "";
+
+    const sections =
+
+      currentMode === "mock"
+
+        ? [
+
+            [
+              "🎧 LISTENING — PHẦN 1",
+              "Nghe câu nói và chọn hình phù hợp."
+            ],
+
+            [
+              "🎧 LISTENING — PHẦN 2",
+              "Nghe câu và chọn đáp án phù hợp."
+            ],
+
+            [
+              "🎧 LISTENING — PHẦN 3",
+              "Nghe hội thoại và chọn đáp án phù hợp."
+            ],
+
+            [
+              "🎧 LISTENING — PHẦN 4",
+              "Nghe câu hỏi và chọn câu trả lời đúng."
+            ],
+
+            [
+              "📖 READING — PHẦN 1",
+              "Chọn hình phù hợp với câu."
+            ],
+
+            [
+              "📖 READING — PHẦN 2",
+              "Chọn câu trả lời phù hợp."
+            ],
+
+            [
+              "📖 READING — PHẦN 3",
+              "Chọn từ thích hợp để hoàn thành câu."
+            ],
+
+            [
+              "📖 READING — PHẦN 4",
+              "Chọn câu đúng."
+            ]
+
+          ]
+
+        : [];
+
+
+    currentQuestions.forEach(
+
+      function(item,index){
+
+        /* =================================================
+           TIÊU ĐỀ PHẦN
+        ================================================= */
+
+        if(
+          currentMode === "mock" &&
+          index % 5 === 0
+        ){
+
+          const section =
+            document.createElement(
+              "div"
+            );
+
+          section.className =
+            "wh-hsk-section-title";
+
+          const data =
+            sections[index / 5];
+
+          section.innerHTML =
+            "<strong>" +
+            data[0] +
+            "</strong>" +
+
+            "<span>" +
+            data[1] +
+            "</span>";
+
+          questionsBox.appendChild(
+            section
+          );
+
+        }
+
+
+        /* =================================================
+           CARD
+        ================================================= */
+
+        const card =
+          document.createElement(
+            "div"
+          );
+
+        card.className =
+          "wh-hsk-question";
+
+
+        /* =================================================
+           SỐ CÂU
+        ================================================= */
+
+        const number =
+          document.createElement(
+            "div"
+          );
+
+        number.className =
+          "wh-hsk-q-number";
+
+        number.textContent =
+          "Câu " +
+          (
+            index + 1
+          ) +
+          " / " +
+          currentQuestions.length;
+
+
+        /* =================================================
+           CÂU HỎI
+        ================================================= */
+
+        const q =
+          document.createElement(
+            "div"
+          );
+
+        q.className =
+          "wh-hsk-q-text";
+
+        q.textContent =
+          item.q;
+
+
+        /* =================================================
+           PINYIN
+        ================================================= */
+
+        const pinyin =
+          document.createElement(
+            "div"
+          );
+
+        pinyin.className =
+          "wh-hsk-q-pinyin";
+
+        pinyin.textContent =
+          item.qPinyin;
+
+
+        /* =================================================
+           NGHĨA
+        ================================================= */
+
+        const meaning =
+          document.createElement(
+            "div"
+          );
+
+        meaning.className =
+          "wh-hsk-q-meaning";
+
+        meaning.textContent =
+          "🇻🇳 " +
+          item.qMeaning;
+
+
+        /* =================================================
+           THI THỬ
+        ================================================= */
+
+        if(
+          currentMode ===
+          "mock"
+        ){
+
+          /*
+           * Listening:
+           * tuyệt đối không lộ transcript.
+           */
+
+          if(
+            index < 20
+          ){
+
+            q.style.display =
+              "none";
+
+            pinyin.style.display =
+              "none";
+
+            meaning.style.display =
+              "none";
+
+          }
+
+          /*
+           * Reading:
+           * không hiện pinyin / nghĩa.
+           */
+
+          else{
+
+            pinyin.style.display =
+              "none";
+
+            meaning.style.display =
+              "none";
+
+          }
+
+        }
+
+
+        /* =================================================
+           NÚT NGHE
+        ================================================= */
+
+        if(
+          currentMode ===
+          "mock" &&
+          index < 20
+        ){
+
+          const audio =
+            document.createElement(
+              "button"
+            );
+
+          audio.type =
+            "button";
+
+          audio.className =
+            "wh-hsk-listening-btn";
+
+          audio.textContent =
+            "🔊 Nghe 2 lần";
+
+
+          audio.onclick =
+            function(e){
+
+              e.stopPropagation();
+
+              /*
+               * Ưu tiên hệ thống TTS tiếng Trung
+               * hiện có của THÍCH TIẾNG TRUNG.
+               */
+
+              if(
+                typeof say ===
+                "function"
+              ){
+
+                say(
+                  item.q
+                );
+
+                setTimeout(
+                  function(){
+
+                    say(
+                      item.q
+                    );
+
+                  },
+                  1300
+                );
+
+                return;
+
+              }
+
+
+              /*
+               * Fallback
+               */
+
+              if(
+                window.speechSynthesis
+              ){
+
+                window.speechSynthesis
+                  .cancel();
+
+                const u =
+                  new SpeechSynthesisUtterance(
+                    item.q
+                  );
+
+                u.lang =
+                  "zh-CN";
+
+                window.speechSynthesis
+                  .speak(u);
+
+              }
+
+            };
+
+
+          card.appendChild(
+            audio
+          );
+
+        }
+
+
+        /* =================================================
+           OPTIONS
+        ================================================= */
+
+        const options =
+          document.createElement(
+            "div"
+          );
+
+        options.className =
+          "wh-hsk-options";
+
+
+        item.options.forEach(
+
+          function(
+            optionText,
+            optIndex
+          ){
+
+            const btn =
+              document.createElement(
+                "button"
+              );
+
+            btn.type =
+              "button";
+
+            btn.className =
+              "wh-hsk-option";
+
+
+            btn.textContent =
+
+              String.fromCharCode(
+                65 +
+                optIndex
+              ) +
+
+              ". " +
+
+              optionText;
+
+
+            if(
+              currentAnswers[index] ===
+              optIndex
+            ){
+
+              btn.classList.add(
+                "wh-picked"
+              );
+
+            }
+
+
+            btn.onclick =
+              function(){
+
+                currentAnswers[index] =
+                  optIndex;
+
+
+                options
+                  .querySelectorAll(
+                    ".wh-hsk-option"
+                  )
+                  .forEach(
+                    function(x){
+
+                      x.classList.remove(
+                        "wh-picked"
+                      );
+
+                    }
+                  );
+
+
+                btn.classList.add(
+                  "wh-picked"
+                );
+
+
+                /*
+                 * Chỉ luyện tập mới
+                 * hiện feedback ngay.
+                 */
+
+                if(
+                  currentMode ===
+                  "practice"
+                ){
+
+                  showPracticeFeedback(
+                    card,
+                    item,
+                    optIndex
+                  );
+
+                }
+
+
+                updateProgress();
+
+              };
+
+
+            options.appendChild(
+              btn
+            );
+
+          }
+
+        );
+
+
+        /* =================================================
+           APPEND
+        ================================================= */
+
+        card.appendChild(
+          number
+        );
+
+        card.appendChild(
+          q
+        );
+
+        card.appendChild(
+          pinyin
+        );
+
+        card.appendChild(
+          meaning
+        );
+
+        card.appendChild(
+          options
+        );
+
+
+        questionsBox.appendChild(
+          card
+        );
+
+
+        /*
+         * Khôi phục feedback nếu
+         * đang ở LUYỆN TẬP.
+         */
+
+        if(
+          currentMode ===
+          "practice" &&
+
+          currentAnswers[index] !==
+          null
+        ){
+
+          showPracticeFeedback(
+            card,
+            item,
+            currentAnswers[index]
+          );
+
+        }
+
+      }
+
+    );
+
+
+    updateProgress();
+
+  };
+
+
+/* =========================================================
+   🎨 CSS HSK1 ĐỀ 01
+========================================================= */
+
+if(
+  !document.getElementById(
+    "whHskExam01PatchStyle"
+  )
+){
+
+  const st =
+    document.createElement(
+      "style"
+    );
+
+  st.id =
+    "whHskExam01PatchStyle";
+
+
+  st.textContent = `
+
+    .wh-hsk-section-title{
+      margin:24px 0 12px;
+      padding:14px 16px;
+      border-left:5px solid #b40000;
+      background:#fff7f7;
+      border-radius:12px;
+      color:#222;
+    }
+
+    .wh-hsk-section-title strong{
+      display:block;
+      font-size:18px;
+      color:#b40000;
+      margin-bottom:4px;
+    }
+
+    .wh-hsk-section-title span{
+      display:block;
+      font-size:13px;
+      color:#666;
+    }
+
+    .wh-hsk-listening-btn{
+      display:block;
+      margin:0 0 12px;
+      padding:10px 15px;
+      border:1px solid #f1b4b4;
+      border-radius:10px;
+      background:#fff;
+      color:#b40000;
+      font-weight:800;
+      cursor:pointer;
+    }
+
+    .wh-hsk-listening-btn:hover{
+      background:#fff3f3;
+    }
+
+  `;
+
+
+  document.head.appendChild(
+    st
+  );
+
+}
+
+
+/* =========================================================
+   🛡️ END HSK1 ĐỀ 01 PATCH
+========================================================= */
 
 /* =========================================================
    🚀 INIT
