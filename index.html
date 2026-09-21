@@ -2425,22 +2425,184 @@ main{
 
 <body>
 
-<header>
+<!-- =========================================================
+     🛡️ WHITE HAT — HEADER FRAME
+     ⚠️ CHỈ CHỈNH BỐ CỤC
+========================================================= -->
 
-<h1>
-   THÍCH TIẾNG TRUNG
-<span style="font-size:18px"></span>
-</h1>
+<style>
 
-<div class="search">
-<input
- id="search"
- placeholder="🔎 Tìm Hán tự, Pinyin, nghĩa tiếng Việt..."
->
-<button onclick="searchWords()">Tìm</button>
-</div>
+.wh-header-frame{
+  width:100%;
+  max-width:1100px;
+  box-sizing:border-box;
+
+  margin:0 auto 22px;
+
+  padding:28px 24px 22px;
+
+  border:1px solid #d9d9d9;
+  border-radius:14px;
+
+  background:#fff;
+
+  text-align:center;
+}
+
+/* =========================================================
+   TIÊU ĐỀ
+========================================================= */
+
+.wh-header-frame h1{
+  margin:0;
+  padding:0;
+
+  text-align:center;
+
+  font-size:36px !important;
+  line-height:1.2;
+  font-weight:800;
+}
+
+
+/* =========================================================
+   TIÊU ĐỀ CHÍNH + DÒNG PHỤ
+========================================================= */
+
+.wh-header-frame .title-main{
+  font-size:36px !important;
+  line-height:1.2;
+  font-weight:800;
+}
+
+.wh-header-frame .title-sub{
+  display:block;
+
+  margin-top:8px;
+
+  font-size:20px !important;
+  line-height:1.4;
+  font-weight:600;
+}
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
+.wh-header-search{
+  display:flex;
+
+  justify-content:center;
+  align-items:center;
+
+  gap:8px;
+
+  width:100%;
+
+  margin-top:20px;
+}
+
+
+/* Giữ input hiện tại */
+
+.wh-header-search input{
+  width:min(560px, 100%);
+
+  box-sizing:border-box;
+
+  padding:11px 14px;
+
+  border:1px solid #ccc;
+  border-radius:9px;
+
+  font-size:16px;
+
+  outline:none;
+}
+
+
+/* =========================================================
+   PREMIUM + CHỌN GÓI
+========================================================= */
+
+.wh-header-premium{
+  width:100%;
+
+  display:flex;
+
+  justify-content:center;
+  align-items:center;
+
+  gap:55px;
+
+  margin-top:18px;
+}
+
+
+/* Mobile */
+
+@media(max-width:600px){
+
+  .wh-header-frame{
+    padding:22px 12px 18px;
+  }
+
+  .wh-header-search{
+    flex-direction:column;
+  }
+
+  .wh-header-search input{
+    width:100%;
+  }
+
+  .wh-header-premium{
+    gap:20px;
+  }
+
+}
+
+</style>
+
+
+<header class="wh-header-frame">
+
+  <h1>
+    THÍCH TIẾNG TRUNG
+  </h1>
+
+
+  <!-- =====================================================
+       TÌM KIẾM
+  ====================================================== -->
+
+  <div class="wh-header-search">
+
+    <!--
+      ⚠️ GIỮ NGUYÊN ID / onchange / onclick
+      CỦA INPUT VÀ NÚT SEARCH HIỆN TẠI CỦA ANH.
+      
+      Nếu input hiện tại có id="searchInput"
+      thì giữ nguyên như dưới.
+    -->
+
+    <input
+      id="searchInput"
+      type="text"
+      placeholder="🔎 Tìm kiếm Hán tự, Pinyin, tiếng Việt..."
+      autocomplete="off"
+    >
+
+    <button
+      type="button"
+      onclick="searchWord()"
+    >
+      Tìm kiếm
+    </button>
+
+  </div>
 
 </header>
+
 <!-- =========================================================
      🌈 TIÊU ĐỀ 7 MÀU + 💎 BẢNG GIÁ + 📱 QR
 ========================================================= -->
@@ -2782,134 +2944,116 @@ document.addEventListener("DOMContentLoaded",function(){
   "
 >
 
-  <!-- THANH PREMIUM NHỎ GỌN -->
+<!-- THANH PREMIUM NHỎ GỌN -->
+<div
+  style="
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+  "
+>
+
   <div
     style="
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
+      font-size:16px;
+      font-weight:bold;
     "
   >
-
-    <div
-      style="
-        font-size:16px;
-        font-weight:bold;
-      "
-    >
-      💎 Premium
-    </div>
-
-
-    <details>
-
-      <summary
-        style="
-          cursor:pointer;
-          padding:7px 12px;
-          border:1px solid #ccc;
-          border-radius:7px;
-          font-size:14px;
-          font-weight:bold;
-          list-style:none;
-        "
-      >
-        Chọn gói ▾
-      </summary>
-
-
-      <!-- =====================================================
-           💎 CÁC GÓI THÀNH VIÊN
-      ====================================================== -->
-
-      <div
-        class="price-list"
-        style="
-          margin-top:12px;
-          display:flex;
-          flex-wrap:wrap;
-          gap:8px;
-        "
-      >
-
-        <!-- 1 THÁNG -->
-        <div
-          class="price-card"
-          onclick="selectPlan('1month')"
-          style="
-            cursor:pointer;
-            flex:1;
-            min-width:150px;
-            padding:10px;
-            text-align:center;
-          "
-        >
-
-          <div class="price-time">
-            📅 1 THÁNG
-          </div>
-
-          <div class="price-money">
-            50.000 VNĐ
-          </div>
-
-        </div>
-
-
-        <!-- 6 THÁNG -->
-        <div
-          class="price-card"
-          onclick="selectPlan('6month')"
-          style="
-            cursor:pointer;
-            flex:1;
-            min-width:150px;
-            padding:10px;
-            text-align:center;
-          "
-        >
-
-          <div class="price-time">
-            📅 6 THÁNG
-          </div>
-
-          <div class="price-money">
-            290.000 VNĐ
-          </div>
-
-        </div>
-
-
-        <!-- 1 NĂM -->
-        <div
-          class="price-card"
-          onclick="selectPlan('1year')"
-          style="
-            cursor:pointer;
-            flex:1;
-            min-width:150px;
-            padding:10px;
-            text-align:center;
-          "
-        >
-
-          <div class="price-time">
-            📅 1 NĂM
-          </div>
-
-          <div class="price-money">
-            500.000 VNĐ
-          </div>
-
-        </div>
-
-      </div>
-
-    </details>
-
+    💎 Premium
   </div>
 
+  <details>
+
+    <summary
+      style="
+        cursor:pointer;
+        padding:7px 12px;
+        border:1px solid #ccc;
+        border-radius:7px;
+        font-size:14px;
+        font-weight:bold;
+        list-style:none;
+      "
+    >
+      Chọn gói ▾
+    </summary>
+
+    <div
+      class="price-list"
+      style="
+        margin-top:12px;
+        display:flex;
+        flex-wrap:wrap;
+        gap:8px;
+      "
+    >
+
+      <div
+        class="price-card"
+        onclick="selectPlan('1month')"
+        style="
+          cursor:pointer;
+          flex:1;
+          min-width:150px;
+          padding:10px;
+          text-align:center;
+        "
+      >
+        <div class="price-time">
+          📅 1 THÁNG
+        </div>
+
+        <div class="price-money">
+          50.000 VNĐ
+        </div>
+      </div>
+
+      <div
+        class="price-card"
+        onclick="selectPlan('6month')"
+        style="
+          cursor:pointer;
+          flex:1;
+          min-width:150px;
+          padding:10px;
+          text-align:center;
+        "
+      >
+        <div class="price-time">
+          📅 6 THÁNG
+        </div>
+
+        <div class="price-money">
+          290.000 VNĐ
+        </div>
+      </div>
+
+      <div
+        class="price-card"
+        onclick="selectPlan('1year')"
+        style="
+          cursor:pointer;
+          flex:1;
+          min-width:150px;
+          padding:10px;
+          text-align:center;
+        "
+      >
+        <div class="price-time">
+          📅 1 NĂM
+        </div>
+
+        <div class="price-money">
+          500.000 VNĐ
+        </div>
+      </div>
+
+    </div>
+
+  </details>
+
+</div>
 
   <!-- =====================================================
        💳 THÔNG TIN THANH TOÁN
@@ -3959,72 +4103,368 @@ window.sendPaymentRequest = async function(){
 
 <nav>
 
+<!-- =========================================================
+     🛡️ WHITE HAT — KHUNG ĐIỀU HƯỚNG CHÍNH
+     ⚠️ CHỈ THAY ĐỔI BỐ CỤC — GIỮ NGUYÊN LOGIC onclick
+========================================================= -->
 
-<button class="hsk-nav active" onclick="showHSK(1,this)">
-HSK 1
-</button>
+<style>
 
-<button class="hsk-nav" onclick="showHSK(2,this)">
-HSK 2
-</button>
+.wh-main-nav{
+  width:100%;
+  max-width:1100px;
+  margin:0 auto 22px;
+}
 
-<button class="hsk-nav" onclick="showHSK(3,this)">
-HSK 3
-</button>
+/* =========================================================
+   KHUNG 1 — HSK 1 → HSK 9
+========================================================= */
 
-<button class="hsk-nav" onclick="showHSK(4,this)">
-HSK 4
-</button>
+.wh-frame-hsk{
+  width:100%;
+  box-sizing:border-box;
+  border:1px solid #d9d9d9;
+  border-radius:14px;
+  background:#fff;
+  padding:12px;
+  margin-bottom:14px;
 
-<button class="hsk-nav" onclick="showHSK(5,this)">
-HSK 5
-</button>
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:8px;
+}
 
-<button class="hsk-nav" onclick="showHSK(6,this)">
-HSK 6
-</button>
+/* =========================================================
+   KHUNG 2 — LOẠI TỪ
+========================================================= */
 
-<button class="hsk-nav" onclick="showHSK(7,this)">
-HSK 7
-</button>
+.wh-frame-type{
+  width:100%;
+  box-sizing:border-box;
+  border:1px solid #d9d9d9;
+  border-radius:14px;
+  background:#fff;
+  padding:12px;
+  margin-bottom:14px;
 
-<button class="hsk-nav" onclick="showHSK(8,this)">
-HSK 8
-</button>
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:8px;
+}
 
-<button class="hsk-nav" onclick="showHSK(9,this)">
-HSK 9
-</button>
+/* =========================================================
+   KHUNG 3 — TEST + LUYỆN CÂU
+========================================================= */
 
-<br>
+.wh-frame-practice{
+  width:100%;
+  box-sizing:border-box;
+  border:1px solid #d9d9d9;
+  border-radius:14px;
+  background:#fff;
+  padding:22px 18px;
+  margin-bottom:24px;
 
-<button onclick="showType('Động từ',this)">
-Động từ
-</button>
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:70px;
+  flex-wrap:wrap;
+}
 
-<button onclick="showType('Danh từ',this)">
-Danh từ
-</button>
+/* Các nút trong 3 khung */
 
-<button onclick="showType('Tính từ',this)">
-Tính từ
-</button>
+.wh-frame-hsk button,
+.wh-frame-type button,
+.wh-frame-practice button{
+  margin:0 !important;
+}
 
-<button onclick="showType('Đại từ',this)">
-Đại từ
-</button>
+/* Mobile */
 
-<button onclick="showType('Số từ',this)">
-Số từ
-</button>
+@media(max-width:600px){
 
-<button onclick="startTest(this)">
-📝 Test từ vựng
-</button>
+  .wh-main-nav{
+    padding:0 8px;
+    box-sizing:border-box;
+  }
 
-<button onclick="openSentences(this)">
-✍️ Luyện câu
-</button>
+  .wh-frame-hsk,
+  .wh-frame-type{
+    gap:6px;
+    padding:10px 8px;
+  }
+
+  .wh-frame-practice{
+    gap:12px;
+    padding:18px 10px;
+  }
+
+}
+
+/* =========================================================
+   ✨ WHITE HAT — PREMIUM GLOW
+   🎨 ĐỎ RƯỢU + TÍM MẬN
+   🛡️ CHỈ CHỮ / NÚT PHÁT SÁNG
+   🛡️ KHÔNG PHÁT SÁNG KHUNG
+========================================================= */
+
+
+/* =========================================================
+   🏆 HSK 1 → HSK 9
+========================================================= */
+
+.wh-frame-hsk button{
+  position:relative !important;
+
+  color:#8e2f5f !important;
+
+  text-shadow:
+    0 0 2px rgba(142,47,95,.20),
+    0 0 5px rgba(142,47,95,.12) !important;
+
+  animation:
+    whPremiumHsk 3s ease-in-out infinite alternate !important;
+
+  transition:
+    color .3s ease,
+    transform .25s ease,
+    text-shadow .3s ease !important;
+}
+
+
+@keyframes whPremiumHsk{
+
+  0%{
+    color:#8e2f5f !important;
+
+    text-shadow:
+      0 0 2px rgba(142,47,95,.18),
+      0 0 4px rgba(142,47,95,.10) !important;
+  }
+
+  50%{
+    color:#a83d70 !important;
+
+    text-shadow:
+      0 0 3px rgba(168,61,112,.40),
+      0 0 7px rgba(168,61,112,.22),
+      0 0 12px rgba(190,100,150,.12) !important;
+  }
+
+  100%{
+    color:#73234e !important;
+
+    text-shadow:
+      0 0 2px rgba(115,35,78,.28),
+      0 0 6px rgba(115,35,78,.16) !important;
+  }
+
+}
+
+
+/* =========================================================
+   ✨ TEST TỪ VỰNG + LUYỆN CÂU
+========================================================= */
+
+.wh-frame-practice button{
+  position:relative !important;
+
+  color:#8e2f5f !important;
+
+  text-shadow:
+    0 0 2px rgba(142,47,95,.20),
+    0 0 5px rgba(142,47,95,.12) !important;
+
+  animation:
+    whPremiumPractice 3.2s ease-in-out infinite alternate !important;
+
+  transition:
+    color .3s ease,
+    transform .25s ease,
+    text-shadow .3s ease !important;
+}
+
+
+@keyframes whPremiumPractice{
+
+  0%{
+    color:#8e2f5f !important;
+
+    text-shadow:
+      0 0 2px rgba(142,47,95,.18),
+      0 0 4px rgba(142,47,95,.10) !important;
+  }
+
+  50%{
+    color:#a83d70 !important;
+
+    text-shadow:
+      0 0 4px rgba(168,61,112,.45),
+      0 0 8px rgba(168,61,112,.25),
+      0 0 14px rgba(190,100,150,.12) !important;
+  }
+
+  100%{
+    color:#73234e !important;
+
+    text-shadow:
+      0 0 2px rgba(115,35,78,.28),
+      0 0 6px rgba(115,35,78,.16) !important;
+  }
+
+}
+
+
+/* =========================================================
+   🖱️ HOVER
+========================================================= */
+
+.wh-frame-hsk button:hover,
+.wh-frame-practice button:hover{
+
+  color:#b52f6d !important;
+
+  transform:translateY(-1px) !important;
+
+  text-shadow:
+    0 0 4px rgba(181,47,109,.55),
+    0 0 9px rgba(181,47,109,.30) !important;
+}
+
+
+/* =========================================================
+   🛡️ KHUNG GIỮ NGUYÊN — KHÔNG GLOW
+========================================================= */
+
+.wh-frame-hsk,
+.wh-frame-practice{
+  box-shadow:none !important;
+}
+
+/* =========================================================
+   🛡️ WHITE HAT — ÉP HSK VỀ PHỐI MÀU TÍM MẬN
+   ⚠️ KHÔNG ĐỤNG LOGIC
+========================================================= */
+
+.wh-frame-hsk .hsk-nav,
+.wh-frame-hsk .hsk-nav.active{
+
+  background:#ffffff !important;
+  color:#8e2f5f !important;
+  border-color:#d9d9d9 !important;
+
+}
+
+
+/* HSK đang chọn */
+
+.wh-frame-hsk .hsk-nav.active{
+
+  background:#8e2f5f !important;
+  color:#ffffff !important;
+  border-color:#8e2f5f !important;
+
+}
+
+</style>
+
+
+<nav class="wh-main-nav">
+
+  <!-- =======================================================
+       KHUNG HSK 1 → HSK 9
+  ======================================================== -->
+
+  <div class="wh-frame-hsk">
+
+    <button class="hsk-nav active" onclick="showHSK(1,this)">
+      HSK 1
+    </button>
+
+    <button class="hsk-nav" onclick="showHSK(2,this)">
+      HSK 2
+    </button>
+
+    <button class="hsk-nav" onclick="showHSK(3,this)">
+      HSK 3
+    </button>
+
+    <button class="hsk-nav" onclick="showHSK(4,this)">
+      HSK 4
+    </button>
+
+    <button class="hsk-nav" onclick="showHSK(5,this)">
+      HSK 5
+    </button>
+
+    <button class="hsk-nav" onclick="showHSK(6,this)">
+      HSK 6
+    </button>
+
+    <button class="hsk-nav" onclick="showHSK(7,this)">
+      HSK 7
+    </button>
+
+    <button class="hsk-nav" onclick="showHSK(8,this)">
+      HSK 8
+    </button>
+
+    <button class="hsk-nav" onclick="showHSK(9,this)">
+      HSK 9
+    </button>
+
+  </div>
+
+
+  <!-- =======================================================
+       KHUNG LOẠI TỪ
+  ======================================================== -->
+
+  <div class="wh-frame-type">
+
+    <button onclick="showType('Động từ',this)">
+      Động từ
+    </button>
+
+    <button onclick="showType('Danh từ',this)">
+      Danh từ
+    </button>
+
+    <button onclick="showType('Tính từ',this)">
+      Tính từ
+    </button>
+
+    <button onclick="showType('Đại từ',this)">
+      Đại từ
+    </button>
+
+    <button onclick="showType('Số từ',this)">
+      Số từ
+    </button>
+
+  </div>
+
+
+  <!-- =======================================================
+       KHUNG TEST TỪ VỰNG + LUYỆN CÂU
+  ======================================================== -->
+
+  <div class="wh-frame-practice">
+
+    <button onclick="startTest(this)">
+      📝 Test từ vựng
+    </button>
+
+    <button onclick="openSentences(this)">
+      ✍️ Luyện câu
+    </button>
+
+  </div>
 
 </nav>
 
