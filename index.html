@@ -2425,184 +2425,22 @@ main{
 
 <body>
 
-<!-- =========================================================
-     🛡️ WHITE HAT — HEADER FRAME
-     ⚠️ CHỈ CHỈNH BỐ CỤC
-========================================================= -->
+<header>
 
-<style>
+<h1>
+   THÍCH TIẾNG TRUNG
+<span style="font-size:18px"></span>
+</h1>
 
-.wh-header-frame{
-  width:100%;
-  max-width:1100px;
-  box-sizing:border-box;
-
-  margin:0 auto 22px;
-
-  padding:28px 24px 22px;
-
-  border:1px solid #d9d9d9;
-  border-radius:14px;
-
-  background:#fff;
-
-  text-align:center;
-}
-
-/* =========================================================
-   TIÊU ĐỀ
-========================================================= */
-
-.wh-header-frame h1{
-  margin:0;
-  padding:0;
-
-  text-align:center;
-
-  font-size:36px !important;
-  line-height:1.2;
-  font-weight:800;
-}
-
-
-/* =========================================================
-   TIÊU ĐỀ CHÍNH + DÒNG PHỤ
-========================================================= */
-
-.wh-header-frame .title-main{
-  font-size:36px !important;
-  line-height:1.2;
-  font-weight:800;
-}
-
-.wh-header-frame .title-sub{
-  display:block;
-
-  margin-top:8px;
-
-  font-size:20px !important;
-  line-height:1.4;
-  font-weight:600;
-}
-
-/* =========================================================
-   SEARCH
-========================================================= */
-
-.wh-header-search{
-  display:flex;
-
-  justify-content:center;
-  align-items:center;
-
-  gap:8px;
-
-  width:100%;
-
-  margin-top:20px;
-}
-
-
-/* Giữ input hiện tại */
-
-.wh-header-search input{
-  width:min(560px, 100%);
-
-  box-sizing:border-box;
-
-  padding:11px 14px;
-
-  border:1px solid #ccc;
-  border-radius:9px;
-
-  font-size:16px;
-
-  outline:none;
-}
-
-
-/* =========================================================
-   PREMIUM + CHỌN GÓI
-========================================================= */
-
-.wh-header-premium{
-  width:100%;
-
-  display:flex;
-
-  justify-content:center;
-  align-items:center;
-
-  gap:55px;
-
-  margin-top:18px;
-}
-
-
-/* Mobile */
-
-@media(max-width:600px){
-
-  .wh-header-frame{
-    padding:22px 12px 18px;
-  }
-
-  .wh-header-search{
-    flex-direction:column;
-  }
-
-  .wh-header-search input{
-    width:100%;
-  }
-
-  .wh-header-premium{
-    gap:20px;
-  }
-
-}
-
-</style>
-
-
-<header class="wh-header-frame">
-
-  <h1>
-    THÍCH TIẾNG TRUNG
-  </h1>
-
-
-  <!-- =====================================================
-       TÌM KIẾM
-  ====================================================== -->
-
-  <div class="wh-header-search">
-
-    <!--
-      ⚠️ GIỮ NGUYÊN ID / onchange / onclick
-      CỦA INPUT VÀ NÚT SEARCH HIỆN TẠI CỦA ANH.
-      
-      Nếu input hiện tại có id="searchInput"
-      thì giữ nguyên như dưới.
-    -->
-
-    <input
-      id="searchInput"
-      type="text"
-      placeholder="🔎 Tìm kiếm Hán tự, Pinyin, tiếng Việt..."
-      autocomplete="off"
-    >
-
-    <button
-      type="button"
-      onclick="searchWord()"
-    >
-      Tìm kiếm
-    </button>
-
-  </div>
+<div class="search">
+<input
+ id="search"
+ placeholder="🔎 Tìm Hán tự, Pinyin, nghĩa tiếng Việt..."
+>
+<button onclick="searchWords()">Tìm</button>
+</div>
 
 </header>
-
 <!-- =========================================================
      🌈 TIÊU ĐỀ 7 MÀU + 💎 BẢNG GIÁ + 📱 QR
 ========================================================= -->
@@ -2944,116 +2782,134 @@ document.addEventListener("DOMContentLoaded",function(){
   "
 >
 
-<!-- THANH PREMIUM NHỎ GỌN -->
-<div
-  style="
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-  "
->
-
+  <!-- THANH PREMIUM NHỎ GỌN -->
   <div
     style="
-      font-size:16px;
-      font-weight:bold;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
     "
   >
-    💎 Premium
-  </div>
-
-  <details>
-
-    <summary
-      style="
-        cursor:pointer;
-        padding:7px 12px;
-        border:1px solid #ccc;
-        border-radius:7px;
-        font-size:14px;
-        font-weight:bold;
-        list-style:none;
-      "
-    >
-      Chọn gói ▾
-    </summary>
 
     <div
-      class="price-list"
       style="
-        margin-top:12px;
-        display:flex;
-        flex-wrap:wrap;
-        gap:8px;
+        font-size:16px;
+        font-weight:bold;
       "
     >
-
-      <div
-        class="price-card"
-        onclick="selectPlan('1month')"
-        style="
-          cursor:pointer;
-          flex:1;
-          min-width:150px;
-          padding:10px;
-          text-align:center;
-        "
-      >
-        <div class="price-time">
-          📅 1 THÁNG
-        </div>
-
-        <div class="price-money">
-          50.000 VNĐ
-        </div>
-      </div>
-
-      <div
-        class="price-card"
-        onclick="selectPlan('6month')"
-        style="
-          cursor:pointer;
-          flex:1;
-          min-width:150px;
-          padding:10px;
-          text-align:center;
-        "
-      >
-        <div class="price-time">
-          📅 6 THÁNG
-        </div>
-
-        <div class="price-money">
-          290.000 VNĐ
-        </div>
-      </div>
-
-      <div
-        class="price-card"
-        onclick="selectPlan('1year')"
-        style="
-          cursor:pointer;
-          flex:1;
-          min-width:150px;
-          padding:10px;
-          text-align:center;
-        "
-      >
-        <div class="price-time">
-          📅 1 NĂM
-        </div>
-
-        <div class="price-money">
-          500.000 VNĐ
-        </div>
-      </div>
-
+      💎 Premium
     </div>
 
-  </details>
 
-</div>
+    <details>
+
+      <summary
+        style="
+          cursor:pointer;
+          padding:7px 12px;
+          border:1px solid #ccc;
+          border-radius:7px;
+          font-size:14px;
+          font-weight:bold;
+          list-style:none;
+        "
+      >
+        Chọn gói ▾
+      </summary>
+
+
+      <!-- =====================================================
+           💎 CÁC GÓI THÀNH VIÊN
+      ====================================================== -->
+
+      <div
+        class="price-list"
+        style="
+          margin-top:12px;
+          display:flex;
+          flex-wrap:wrap;
+          gap:8px;
+        "
+      >
+
+        <!-- 1 THÁNG -->
+        <div
+          class="price-card"
+          onclick="selectPlan('1month')"
+          style="
+            cursor:pointer;
+            flex:1;
+            min-width:150px;
+            padding:10px;
+            text-align:center;
+          "
+        >
+
+          <div class="price-time">
+            📅 1 THÁNG
+          </div>
+
+          <div class="price-money">
+            50.000 VNĐ
+          </div>
+
+        </div>
+
+
+        <!-- 6 THÁNG -->
+        <div
+          class="price-card"
+          onclick="selectPlan('6month')"
+          style="
+            cursor:pointer;
+            flex:1;
+            min-width:150px;
+            padding:10px;
+            text-align:center;
+          "
+        >
+
+          <div class="price-time">
+            📅 6 THÁNG
+          </div>
+
+          <div class="price-money">
+            290.000 VNĐ
+          </div>
+
+        </div>
+
+
+        <!-- 1 NĂM -->
+        <div
+          class="price-card"
+          onclick="selectPlan('1year')"
+          style="
+            cursor:pointer;
+            flex:1;
+            min-width:150px;
+            padding:10px;
+            text-align:center;
+          "
+        >
+
+          <div class="price-time">
+            📅 1 NĂM
+          </div>
+
+          <div class="price-money">
+            500.000 VNĐ
+          </div>
+
+        </div>
+
+      </div>
+
+    </details>
+
+  </div>
+
 
   <!-- =====================================================
        💳 THÔNG TIN THANH TOÁN
@@ -4103,368 +3959,74 @@ window.sendPaymentRequest = async function(){
 
 <nav>
 
-<!-- =========================================================
-     🛡️ WHITE HAT — KHUNG ĐIỀU HƯỚNG CHÍNH
-     ⚠️ CHỈ THAY ĐỔI BỐ CỤC — GIỮ NGUYÊN LOGIC onclick
-========================================================= -->
-
-<style>
-
-.wh-main-nav{
-  width:100%;
-  max-width:1100px;
-  margin:0 auto 22px;
-}
-
-/* =========================================================
-   KHUNG 1 — HSK 1 → HSK 9
-========================================================= */
-
-.wh-frame-hsk{
-  width:100%;
-  box-sizing:border-box;
-  border:1px solid #d9d9d9;
-  border-radius:14px;
-  background:#fff;
-  padding:12px;
-  margin-bottom:14px;
-
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  flex-wrap:wrap;
-  gap:8px;
-}
-
-/* =========================================================
-   KHUNG 2 — LOẠI TỪ
-========================================================= */
-
-.wh-frame-type{
-  width:100%;
-  box-sizing:border-box;
-  border:1px solid #d9d9d9;
-  border-radius:14px;
-  background:#fff;
-  padding:12px;
-  margin-bottom:14px;
-
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  flex-wrap:wrap;
-  gap:8px;
-}
-
-/* =========================================================
-   KHUNG 3 — TEST + LUYỆN CÂU
-========================================================= */
-
-.wh-frame-practice{
-  width:100%;
-  box-sizing:border-box;
-  border:1px solid #d9d9d9;
-  border-radius:14px;
-  background:#fff;
-  padding:22px 18px;
-  margin-bottom:24px;
-
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  gap:70px;
-  flex-wrap:wrap;
-}
-
-/* Các nút trong 3 khung */
-
-.wh-frame-hsk button,
-.wh-frame-type button,
-.wh-frame-practice button{
-  margin:0 !important;
-}
-
-/* Mobile */
-
-@media(max-width:600px){
-
-  .wh-main-nav{
-    padding:0 8px;
-    box-sizing:border-box;
-  }
-
-  .wh-frame-hsk,
-  .wh-frame-type{
-    gap:6px;
-    padding:10px 8px;
-  }
-
-  .wh-frame-practice{
-    gap:12px;
-    padding:18px 10px;
-  }
-
-}
 
-/* =========================================================
-   ✨ WHITE HAT — PREMIUM GLOW
-   🎨 ĐỎ RƯỢU + TÍM MẬN
-   🛡️ CHỈ CHỮ / NÚT PHÁT SÁNG
-   🛡️ KHÔNG PHÁT SÁNG KHUNG
-========================================================= */
+<nav>
 
+<button class="hsk-nav active" onclick="showHSK(1,this)">
+HSK 1
+</button>
 
-/* =========================================================
-   🏆 HSK 1 → HSK 9
-========================================================= */
+<button class="hsk-nav" onclick="showHSK(2,this)">
+HSK 2
+</button>
 
-.wh-frame-hsk button{
-  position:relative !important;
+<button class="hsk-nav" onclick="showHSK(3,this)">
+HSK 3
+</button>
 
-  color:#8e2f5f !important;
+<button class="hsk-nav" onclick="showHSK(4,this)">
+HSK 4
+</button>
 
-  text-shadow:
-    0 0 2px rgba(142,47,95,.20),
-    0 0 5px rgba(142,47,95,.12) !important;
+<button class="hsk-nav" onclick="showHSK(5,this)">
+HSK 5
+</button>
 
-  animation:
-    whPremiumHsk 3s ease-in-out infinite alternate !important;
+<button class="hsk-nav" onclick="showHSK(6,this)">
+HSK 6
+</button>
 
-  transition:
-    color .3s ease,
-    transform .25s ease,
-    text-shadow .3s ease !important;
-}
+<button class="hsk-nav" onclick="showHSK(7,this)">
+HSK 7
+</button>
 
+<button class="hsk-nav" onclick="showHSK(8,this)">
+HSK 8
+</button>
 
-@keyframes whPremiumHsk{
+<button class="hsk-nav" onclick="showHSK(9,this)">
+HSK 9
+</button>
 
-  0%{
-    color:#8e2f5f !important;
+<br>
 
-    text-shadow:
-      0 0 2px rgba(142,47,95,.18),
-      0 0 4px rgba(142,47,95,.10) !important;
-  }
+<button onclick="showType('Động từ',this)">
+Động từ
+</button>
 
-  50%{
-    color:#a83d70 !important;
+<button onclick="showType('Danh từ',this)">
+Danh từ
+</button>
 
-    text-shadow:
-      0 0 3px rgba(168,61,112,.40),
-      0 0 7px rgba(168,61,112,.22),
-      0 0 12px rgba(190,100,150,.12) !important;
-  }
+<button onclick="showType('Tính từ',this)">
+Tính từ
+</button>
 
-  100%{
-    color:#73234e !important;
+<button onclick="showType('Đại từ',this)">
+Đại từ
+</button>
 
-    text-shadow:
-      0 0 2px rgba(115,35,78,.28),
-      0 0 6px rgba(115,35,78,.16) !important;
-  }
+<button onclick="showType('Số từ',this)">
+Số từ
+</button>
 
-}
+<button onclick="startTest(this)">
+📝 Test từ vựng
+</button>
 
-
-/* =========================================================
-   ✨ TEST TỪ VỰNG + LUYỆN CÂU
-========================================================= */
-
-.wh-frame-practice button{
-  position:relative !important;
-
-  color:#8e2f5f !important;
-
-  text-shadow:
-    0 0 2px rgba(142,47,95,.20),
-    0 0 5px rgba(142,47,95,.12) !important;
-
-  animation:
-    whPremiumPractice 3.2s ease-in-out infinite alternate !important;
-
-  transition:
-    color .3s ease,
-    transform .25s ease,
-    text-shadow .3s ease !important;
-}
-
-
-@keyframes whPremiumPractice{
-
-  0%{
-    color:#8e2f5f !important;
-
-    text-shadow:
-      0 0 2px rgba(142,47,95,.18),
-      0 0 4px rgba(142,47,95,.10) !important;
-  }
-
-  50%{
-    color:#a83d70 !important;
-
-    text-shadow:
-      0 0 4px rgba(168,61,112,.45),
-      0 0 8px rgba(168,61,112,.25),
-      0 0 14px rgba(190,100,150,.12) !important;
-  }
-
-  100%{
-    color:#73234e !important;
-
-    text-shadow:
-      0 0 2px rgba(115,35,78,.28),
-      0 0 6px rgba(115,35,78,.16) !important;
-  }
-
-}
-
-
-/* =========================================================
-   🖱️ HOVER
-========================================================= */
-
-.wh-frame-hsk button:hover,
-.wh-frame-practice button:hover{
-
-  color:#b52f6d !important;
-
-  transform:translateY(-1px) !important;
-
-  text-shadow:
-    0 0 4px rgba(181,47,109,.55),
-    0 0 9px rgba(181,47,109,.30) !important;
-}
-
-
-/* =========================================================
-   🛡️ KHUNG GIỮ NGUYÊN — KHÔNG GLOW
-========================================================= */
-
-.wh-frame-hsk,
-.wh-frame-practice{
-  box-shadow:none !important;
-}
-
-/* =========================================================
-   🛡️ WHITE HAT — ÉP HSK VỀ PHỐI MÀU TÍM MẬN
-   ⚠️ KHÔNG ĐỤNG LOGIC
-========================================================= */
-
-.wh-frame-hsk .hsk-nav,
-.wh-frame-hsk .hsk-nav.active{
-
-  background:#ffffff !important;
-  color:#8e2f5f !important;
-  border-color:#d9d9d9 !important;
-
-}
-
-
-/* HSK đang chọn */
-
-.wh-frame-hsk .hsk-nav.active{
-
-  background:#8e2f5f !important;
-  color:#ffffff !important;
-  border-color:#8e2f5f !important;
-
-}
-
-</style>
-
-
-<nav class="wh-main-nav">
-
-  <!-- =======================================================
-       KHUNG HSK 1 → HSK 9
-  ======================================================== -->
-
-  <div class="wh-frame-hsk">
-
-    <button class="hsk-nav active" onclick="showHSK(1,this)">
-      HSK 1
-    </button>
-
-    <button class="hsk-nav" onclick="showHSK(2,this)">
-      HSK 2
-    </button>
-
-    <button class="hsk-nav" onclick="showHSK(3,this)">
-      HSK 3
-    </button>
-
-    <button class="hsk-nav" onclick="showHSK(4,this)">
-      HSK 4
-    </button>
-
-    <button class="hsk-nav" onclick="showHSK(5,this)">
-      HSK 5
-    </button>
-
-    <button class="hsk-nav" onclick="showHSK(6,this)">
-      HSK 6
-    </button>
-
-    <button class="hsk-nav" onclick="showHSK(7,this)">
-      HSK 7
-    </button>
-
-    <button class="hsk-nav" onclick="showHSK(8,this)">
-      HSK 8
-    </button>
-
-    <button class="hsk-nav" onclick="showHSK(9,this)">
-      HSK 9
-    </button>
-
-  </div>
-
-
-  <!-- =======================================================
-       KHUNG LOẠI TỪ
-  ======================================================== -->
-
-  <div class="wh-frame-type">
-
-    <button onclick="showType('Động từ',this)">
-      Động từ
-    </button>
-
-    <button onclick="showType('Danh từ',this)">
-      Danh từ
-    </button>
-
-    <button onclick="showType('Tính từ',this)">
-      Tính từ
-    </button>
-
-    <button onclick="showType('Đại từ',this)">
-      Đại từ
-    </button>
-
-    <button onclick="showType('Số từ',this)">
-      Số từ
-    </button>
-
-  </div>
-
-
-  <!-- =======================================================
-       KHUNG TEST TỪ VỰNG + LUYỆN CÂU
-  ======================================================== -->
-
-  <div class="wh-frame-practice">
-
-    <button onclick="startTest(this)">
-      📝 Test từ vựng
-    </button>
-
-    <button onclick="openSentences(this)">
-      ✍️ Luyện câu
-    </button>
-
-  </div>
+<button onclick="openSentences(this)">
+✍️ Luyện câu
+</button>
 
 </nav>
 
@@ -102302,640 +101864,1041 @@ window.saySentence =
 <!-- =========================================================
  🇨🇳 END WHITE HAT — CHINESE VOICE V3
  ========================================================= -->
-
 <!-- =========================================================
- 🛡️ THÍCH TIẾNG TRUNG — WHITE HAT HSK ENGINE V3
+ 🛡️ THÍCH TIẾNG TRUNG — WHITE HAT HSK ENGINE V2
  🇨🇳 KHU LUYỆN THI HSK
- ---------------------------------------------------------
- V3 — XÂY LẠI ĐỘC LẬP
- - Không dùng HSK_DATA cũ
- - Không dùng patch HSK1/HSK2 cũ
- - Không ghi đè engine khác
- - HSK1 ĐỀ 01
- - HSK2 ĐỀ 01
- - HSK3–6: đang cập nhật
- - Luyện tập / Thi thử tách riêng
- - Thi thử có đồng hồ
- - Listening có nút 🔊
- - Không hiện Pinyin/nghĩa trong thi thử
- - Nộp bài + chấm điểm + xem lại
+
+ - LUYỆN TẬP / THI THỬ TÁCH RIÊNG
+ - GIẢI THÍCH CHI TIẾT
+ - PINYIN
+ - DỊCH TIẾNG VIỆT
+ - VÌ SAO ĐÚNG
+ - VÌ SAO TỪNG ĐÁP ÁN SAI
+ - THI THỬ CÓ ĐỒNG HỒ
+ - NỘP BÀI Ở VỊ TRÍ 6 GIỜ
+ - THÀNH TÍCH CHỈ DÀNH CHO THI THỬ
+ - MỖI ĐỀ MỘT BẢNG RIÊNG
+ - MỖI THÁNG MỘT MÙA RIÊNG
+ - SUPABASE LEADERBOARD
  ========================================================= -->
 
+
 <style>
+
 /* =========================================================
-   🛡️ WHITE HAT HSK V3 — STYLE
+   🔴 LAUNCHER
 ========================================================= */
 
-#whHskLauncherV3{
-  display:block;
-  width:min(430px,calc(100% - 24px));
-  margin:18px auto;
-  padding:14px 20px;
-  border:2px solid #a90000;
-  border-radius:15px;
-  background:#d40000;
-  color:#fff;
-  font-size:17px;
-  font-weight:900;
-  cursor:pointer;
-  box-shadow:0 5px 18px rgba(180,0,0,.18);
+#whHskLauncher{
+
+  display:block !important;
+
+  width:min(430px,calc(100% - 24px)) !important;
+
+  margin:18px auto !important;
+
+  padding:14px 20px !important;
+
+  border:2px solid #a90000 !important;
+
+  border-radius:15px !important;
+
+  background:#d40000 !important;
+
+  background-image:none !important;
+
+  color:#fff !important;
+
+  font-family:Arial,"Noto Sans",sans-serif !important;
+
+  font-size:17px !important;
+
+  font-weight:900 !important;
+
+  text-align:center !important;
+
+  cursor:pointer !important;
+
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.15) inset,
+    0 6px 20px rgba(212,0,0,.30) !important;
+
+  appearance:none !important;
+
+  -webkit-appearance:none !important;
+
+  position:relative !important;
+
+  z-index:9999 !important;
+
+  transition:.18s ease !important;
 }
 
-#whHskRootV3{
-  width:min(1000px,calc(100% - 20px));
-  margin:20px auto;
+
+#whHskLauncher:hover{
+
+  background:#ed1c24 !important;
+
+  transform:translateY(-2px) !important;
+
+  box-shadow:
+    0 0 22px rgba(212,0,0,.48) !important;
+}
+
+
+/* =========================================================
+   ROOT
+========================================================= */
+
+#whHskRoot{
+
+  display:none;
+
+  width:min(1050px,calc(100% - 24px));
+
+  margin:20px auto 35px;
+
   padding:20px;
-  box-sizing:border-box;
+
   background:#fff;
-  border:1px solid #eee;
-  border-radius:20px;
-  box-shadow:0 8px 30px rgba(0,0,0,.07);
+
+  border:1px solid #f0cccc;
+
+  border-radius:22px;
+
+  box-shadow:
+    0 8px 28px rgba(0,0,0,.08);
 }
 
-#whHskRootV3 .whv3-title{
-  margin:0;
-  text-align:center;
-  color:#a90000;
-  font-size:27px;
-  font-weight:950;
+
+#whHskRoot.wh-open{
+
+  display:block;
 }
 
-#whHskRootV3 .whv3-subtitle{
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.wh-hsk-title{
+
   text-align:center;
-  margin:8px 0 22px;
+
+  margin:0 0 5px;
+
+  color:#c40000;
+
+  font-size:25px;
+
+  font-weight:900;
+}
+
+
+.wh-hsk-subtitle{
+
+  text-align:center;
+
   color:#777;
-  font-weight:700;
+
+  font-size:14px;
+
+  margin-bottom:20px;
 }
 
-.whv3-screen{
+
+/* =========================================================
+   SCREEN
+========================================================= */
+
+.wh-hsk-screen{
+
   display:none;
 }
 
-.whv3-screen.whv3-active{
+
+.wh-hsk-screen.wh-active{
+
   display:block;
 }
 
-.whv3-levels{
+
+/* =========================================================
+   LEVEL
+========================================================= */
+
+.wh-hsk-level-grid{
+
   display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:12px;
-  margin-bottom:16px;
-}
 
-.whv3-level{
-  min-height:62px;
-  border:2px solid #ddd;
-  border-radius:14px;
-  background:#fff;
-  color:#222;
-  font-size:17px;
-  font-weight:900;
-  cursor:pointer;
-  transition:.2s;
-}
+  grid-template-columns:
+    repeat(6,1fr);
 
-.whv3-level:hover{
-  transform:translateY(-2px);
-  border-color:#d00000;
-}
+  gap:10px;
 
-.whv3-level.sel{
-  background:#d40000;
-  border-color:#a90000;
-  color:#fff;
-  box-shadow:0 5px 15px rgba(180,0,0,.2);
-}
-
-#whHskSelectedV3{
-  text-align:center;
-  margin:8px 0 18px;
-  color:#a90000;
-  font-weight:900;
-}
-
-.whv3-mode{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:14px;
-}
-
-.whv3-mode button{
-  padding:22px 16px;
-  border-radius:16px;
-  border:2px solid #ddd;
-  background:#fff;
-  cursor:pointer;
-  font-weight:900;
-  transition:.2s;
-}
-
-.whv3-mode button:hover{
-  transform:translateY(-2px);
-  border-color:#d00000;
-  box-shadow:0 6px 20px rgba(0,0,0,.08);
-}
-
-.whv3-mode strong{
-  display:block;
-  font-size:20px;
-  color:#b00000;
-  margin-bottom:8px;
-}
-
-.whv3-mode span{
-  display:block;
-  color:#666;
-  line-height:1.6;
+  margin-bottom:20px;
 }
 
 
-#whHskSelectTitleV3{
-  text-align:center;
-  color:#b00000;
-  font-size:22px;
-  font-weight:950;
-  margin-bottom:15px;
-}
+.wh-hsk-level{
 
-.whv3-back{
-  display:block !important;
-  margin:20px auto 0 !important;
-  padding:11px 20px !important;
-  min-height:46px !important;
-  border:1px solid #cccccc !important;
-  border-radius:10px !important;
-  background:#ffffff !important;
-  color:#222222 !important;
-  -webkit-text-fill-color:#222222 !important;
-  text-shadow:none !important;
-  cursor:pointer !important;
-  font-weight:900 !important;
+  min-height:70px;
+
+  border:2px solid #e3b0b0 !important;
+
+  border-radius:15px !important;
+
+  background:#fff !important;
+
+  color:#b40000 !important;
+
   font-size:16px !important;
-  line-height:1.4 !important;
-  opacity:1 !important;
-  visibility:visible !important;
-  position:relative !important;
-  z-index:9999 !important;
-  box-sizing:border-box !important;
+
+  font-weight:900 !important;
+
+  cursor:pointer !important;
+
+  transition:.18s ease !important;
 }
 
-#whHskTestListV3{
+
+.wh-hsk-level:hover{
+
+  background:#fff1f1 !important;
+
+  transform:translateY(-2px) !important;
+
+  box-shadow:
+    0 5px 15px rgba(190,0,0,.14) !important;
+}
+
+
+.wh-hsk-level.wh-selected{
+
+  background:#d40000 !important;
+
+  color:#fff !important;
+
+  border-color:#a90000 !important;
+
+  box-shadow:
+    0 0 18px rgba(212,0,0,.30) !important;
+}
+
+
+/* =========================================================
+   MODE
+========================================================= */
+
+.wh-hsk-mode-grid{
+
   display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:12px;
+
+  grid-template-columns:
+    repeat(2,1fr);
+
+  gap:15px;
+
+  margin:15px 0 20px;
 }
 
-.whv3-test{
-  padding:18px;
-  border:2px solid #ddd;
-  border-radius:15px;
-  background:#fff;
-  cursor:pointer;
-  text-align:left;
-  transition:.2s;
+
+.wh-hsk-mode{
+
+  padding:22px 15px;
+
+  border-radius:18px;
+
+  border:2px solid #e2b1b1 !important;
+
+  background:#fff !important;
+
+  cursor:pointer !important;
+
+  text-align:center;
+
+  color:#222 !important;
+
+  transition:.18s ease !important;
 }
 
-.whv3-test:hover{
-  border-color:#c40000;
+
+.wh-hsk-mode:hover{
+
   transform:translateY(-2px);
-  box-shadow:0 6px 20px rgba(0,0,0,.08);
+
+  border-color:#d40000 !important;
+
+  box-shadow:
+    0 7px 20px rgba(190,0,0,.13);
 }
 
-.whv3-test b{
+
+.wh-hsk-mode strong{
+
   display:block;
-  color:#a90000;
-  font-size:17px;
-  margin-bottom:6px;
+
+  color:#c40000;
+
+  font-size:20px;
+
+  margin-bottom:7px;
 }
 
-.whv3-test span{
+
+.wh-hsk-mode span{
+
   color:#777;
-  font-size:14px;
-}
 
-.whv3-empty{
-  text-align:center;
-  padding:30px 15px;
-  border:1px dashed #ccc;
-  border-radius:15px;
-  color:#777;
-  font-weight:800;
-}
-
-.whv3-exam-head{
-  position:sticky;
-  top:5px;
-  z-index:20;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:12px;
-  margin-bottom:18px;
-  padding:14px 16px;
-  border-radius:14px;
-  background:#fff;
-  border:1px solid #eee;
-  box-shadow:0 5px 18px rgba(0,0,0,.07);
-}
-
-#whHskExamNameV3{
-  font-weight:950;
-  color:#a90000;
-}
-
-#whHskTimerV3{
-  white-space:nowrap;
-  padding:8px 12px;
-  border-radius:10px;
-  background:#fff2f2;
-  color:#a90000;
-  font-weight:950;
-}
-
-#whHskProgressV3{
-  margin-bottom:14px;
-  text-align:center;
-  color:#777;
-  font-weight:800;
-}
-
-.whv3-section{
-  margin:24px 0 12px;
-  padding:13px 15px;
-  border-left:5px solid #b40000;
-  border-radius:12px;
-  background:#fff7f7;
-}
-
-.whv3-section b{
-  display:block;
-  color:#b40000;
-  font-size:17px;
-}
-
-.whv3-section span{
-  display:block;
-  color:#777;
   font-size:13px;
-  margin-top:4px;
 }
 
-.whv3-card{
-  margin-bottom:13px;
+
+/* =========================================================
+   TEST LIST
+========================================================= */
+
+.wh-hsk-test-list{
+
+  display:grid;
+
+  grid-template-columns:
+    repeat(3,1fr);
+
+  gap:12px;
+
+  margin-top:15px;
+}
+
+
+.wh-hsk-test{
+
   padding:17px;
-  border:1px solid #e6e6e6;
+
+  border:1px solid #e7c3c3;
+
   border-radius:15px;
+
+  background:#fff8f8;
+
+  cursor:pointer;
+
+  color:#a90000;
+
+  font-weight:900;
+
+  text-align:center;
+
+  transition:.18s ease;
+}
+
+
+.wh-hsk-test:hover{
+
+  background:#ffecec;
+
+  transform:translateY(-2px);
+}
+
+
+/* =========================================================
+   BUTTON
+========================================================= */
+
+.wh-hsk-btn{
+
+  border:0 !important;
+
+  border-radius:12px !important;
+
+  padding:11px 17px !important;
+
+  background:#d40000 !important;
+
+  color:#fff !important;
+
+  font-weight:900 !important;
+
+  cursor:pointer !important;
+
+  margin:4px !important;
+}
+
+
+.wh-hsk-btn:hover{
+
+  background:#ef2020 !important;
+}
+
+
+.wh-hsk-btn.wh-secondary{
+
+  background:#eee !important;
+
+  color:#333 !important;
+}
+
+
+.wh-hsk-btn.wh-secondary:hover{
+
+  background:#ddd !important;
+}
+
+
+/* =========================================================
+   EXAM HEADER
+========================================================= */
+
+.wh-hsk-exam-header{
+
+  display:flex;
+
+  justify-content:space-between;
+
+  align-items:center;
+
+  gap:10px;
+
+  flex-wrap:wrap;
+
+  margin-bottom:18px;
+
+  padding:13px 15px;
+
+  border-radius:15px;
+
+  background:#fff5f5;
+
+  border:1px solid #f0cccc;
+}
+
+
+.wh-hsk-exam-name{
+
+  color:#b40000;
+
+  font-weight:900;
+}
+
+
+.wh-hsk-timer{
+
+  min-width:90px;
+
+  padding:8px 13px;
+
+  border-radius:10px;
+
+  background:#222;
+
+  color:#fff;
+
+  text-align:center;
+
+  font-size:17px;
+
+  font-weight:900;
+
+  letter-spacing:1px;
+}
+
+
+/* =========================================================
+   QUESTION
+========================================================= */
+
+.wh-hsk-question{
+
+  padding:20px;
+
+  border:1px solid #e8dddd;
+
+  border-radius:17px;
+
+  margin-bottom:14px;
+
   background:#fff;
 }
 
-.whv3-q{
-  font-size:18px;
-  line-height:1.7;
+
+.wh-hsk-q-number{
+
+  color:#a40000;
+
+  font-size:13px;
+
   font-weight:900;
-  color:#222;
+
   margin-bottom:9px;
 }
 
-.whv3-meta{
-  margin-bottom:12px;
+
+.wh-hsk-q-text{
+
+  font-size:20px;
+
+  line-height:1.55;
+
+  font-weight:800;
+
+  color:#222;
+
+  margin-bottom:5px;
+}
+
+
+.wh-hsk-q-pinyin{
+
   color:#777;
-  line-height:1.7;
+
+  font-size:14px;
+
+  font-style:italic;
+
+  margin-bottom:5px;
 }
 
-.whv3-audio{
-  margin-bottom:12px;
-  padding:9px 14px;
-  border:1px solid #efb0b0;
-  border-radius:10px;
-  background:#fff7f7;
-  color:#a90000;
-  font-weight:900;
-  cursor:pointer;
+
+.wh-hsk-q-meaning{
+
+  color:#555;
+
+  font-size:14px;
+
+  margin-bottom:15px;
 }
 
-.whv3-options{
+
+.wh-hsk-options{
+
   display:grid;
-  grid-template-columns:repeat(2,1fr);
+
   gap:9px;
 }
 
-.whv3-opt{
-  padding:12px;
-  border:1px solid #ddd;
-  border-radius:11px;
-  background:#fff;
-  color:#222;
-  text-align:left;
-  cursor:pointer;
-  font-size:15px;
-  font-weight:700;
-  transition:.15s;
+
+.wh-hsk-option{
+
+  width:100%;
+
+  padding:13px 14px;
+
+  border:1px solid #ddd !important;
+
+  border-radius:12px !important;
+
+  background:#fff !important;
+
+  color:#222 !important;
+
+  text-align:left !important;
+
+  font-size:15px !important;
+
+  font-weight:700 !important;
+
+  cursor:pointer !important;
+
+  transition:.15s ease !important;
 }
 
-.whv3-opt:hover{
-  border-color:#d00000;
+
+.wh-hsk-option:hover{
+
+  background:#fff4f4 !important;
+
+  border-color:#d40000 !important;
 }
 
-.whv3-opt.picked{
-  border:2px solid #b40000;
-  background:#fff3f3;
-  color:#a00000;
+
+.wh-hsk-option.wh-picked{
+
+  background:#ffe0e0 !important;
+
+  border:2px solid #d40000 !important;
+
+  color:#a00000 !important;
 }
 
-.whv3-ok,
-.whv3-bad{
-  margin-top:10px;
-  padding:10px 12px;
-  border-radius:10px;
-  font-weight:800;
-}
 
-.whv3-ok{
-  background:#f0fff4;
-  color:#08752e;
-}
+/* =========================================================
+   PRACTICE FEEDBACK
+========================================================= */
 
-.whv3-bad{
-  background:#fff2f2;
-  color:#b00000;
-}
+.wh-hsk-feedback{
 
-.whv3-exam-actions{
-  display:flex;
-  justify-content:center;
-  gap:10px;
-  flex-wrap:wrap;
-  margin-top:20px;
-  padding:15px 0 80px;
-}
+  margin-top:14px;
 
-.whv3-btn{
-  min-width:140px;
-  min-height:46px;
-  padding:12px 20px;
-  border:0 !important;
-  border-radius:11px;
-  background:#c40000 !important;
-  color:#fff !important;
-  font-weight:950;
-  cursor:pointer;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  box-sizing:border-box;
-  opacity:1 !important;
-  visibility:visible !important;
-}
+  padding:16px;
 
-.whv3-btn.secondary{
-  background:#ffffff !important;
-  color:#333333 !important;
-  border:1px solid #cccccc !important;
-  opacity:1 !important;
-  visibility:visible !important;
-  position:relative !important;
-  z-index:50 !important;
-  display:inline-flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  min-height:46px !important;
-  box-sizing:border-box !important;
-}
+  border-radius:13px;
 
-.whv3-result-box{
-  padding:25px 15px;
-  border-radius:18px;
-  background:#fff7f7;
-  border:1px solid #f0cccc;
-  text-align:center;
-}
+  background:#fafafa;
 
-.whv3-score{
-  font-size:50px;
-  line-height:1;
-  font-weight:950;
-  color:#b00000;
-  margin-bottom:12px;
-}
+  border-left:5px solid #d40000;
 
-#whHskReviewV3{
-  margin-top:20px;
-}
+  font-size:14px;
 
-#whHskReviewV3 h3{
-  color:#a90000;
-}
-
-.whv3-review{
-  margin-bottom:10px;
-  padding:13px;
-  border-radius:12px;
   line-height:1.7;
 }
 
-.whv3-review.correct{
-  background:#f0fff4;
-  border:1px solid #b8e5c4;
+
+.wh-hsk-feedback.wh-correct{
+
+  border-left-color:#159447;
+
+  background:#effbf3;
 }
 
-.whv3-review.wrong{
-  background:#fff3f3;
-  border:1px solid #f1c0c0;
+
+.wh-hsk-feedback.wh-wrong{
+
+  border-left-color:#d40000;
+
+  background:#fff2f2;
 }
 
-@media(max-width:700px){
 
-  #whHskRootV3{
-    width:calc(100% - 12px);
-    padding:13px;
-  }
+.wh-hsk-feedback-title{
 
-  .whv3-levels{
-    grid-template-columns:repeat(2,1fr);
-  }
+  font-size:17px;
 
-  .whv3-mode{
-    grid-template-columns:1fr;
-  }
-
-  #whHskTestListV3{
-    grid-template-columns:1fr;
-  }
-
-  .whv3-options{
-    grid-template-columns:1fr;
-  }
-
-  .whv3-exam-head{
-    align-items:flex-start;
-    flex-direction:column;
-  }
-
-  #whHskTimerV3{
-    width:100%;
-    box-sizing:border-box;
-    text-align:center;
-  }
-
-}
-
-@media(max-width:450px){
-
-  .whv3-title{
-    font-size:23px !important;
-  }
-
-  .whv3-level{
-    min-height:55px;
-    font-size:15px;
-  }
-
-  .whv3-q{
-    font-size:17px;
-  }
-
-}
-
-/* =========================================================
-   🛡️ WHITE HAT HSK V3 — FIX VỊ TRÍ
-========================================================= */
-
-#whHskLauncherV3,
-#whHskRootV3{
-  position:relative !important;
-  float:none !important;
-  clear:both !important;
-}
-
-#whHskRootV3{
-  order:initial !important;
-  transform:none !important;
-}
-
-#whHskLauncherV3{
-  z-index:10 !important;
-}
-
-#whHskRootV3{
-  z-index:9 !important;
-}
-
-#whHskRootV3,
-#whHskRootV3 *{
-  box-sizing:border-box;
-}
-
-</style>
-
-<!-- =========================================================
-     🛡️ WHITE HAT — HSK V3 WRAPPER
-========================================================= -->
-
-<div id="whHskWrapV3">
-
-<style>
-/* =========================================================
-   🛡️ WHITE HAT HSK V3 — COLLAPSIBLE LAUNCHER
-   Chỉ điều khiển lớp ngoài, không đụng Engine
-========================================================= */
-
-#whHskWrapV3{
-  width:100%;
-  display:block;
-  clear:both;
-  margin:0;
-  padding:0;
-  position:relative;
-}
-
-/* =========================================================
-   🏆 NÚT MỞ / ĐÓNG
-========================================================= */
-
-#whHskWrapV3 #whHskLauncherV3{
-  display:block;
-  width:min(430px,calc(100% - 24px));
-  margin:10px auto 12px;
-  padding:10px 18px;
-
-  border:2px solid #a90000;
-  border-radius:14px;
-
-  background:#d40000;
-  color:#fff;
-
-  font-size:15px;
   font-weight:900;
 
-  cursor:pointer;
-
-  box-shadow:0 4px 14px rgba(180,0,0,.18);
-
-  transition:
-    transform .18s ease,
-    box-shadow .18s ease;
+  margin-bottom:10px;
 }
 
-#whHskWrapV3 #whHskLauncherV3:hover{
-  transform:translateY(-1px);
-  box-shadow:0 6px 18px rgba(180,0,0,.25);
+
+.wh-hsk-explanation-block{
+
+  margin-top:10px;
+
+  padding:10px 12px;
+
+  border-radius:9px;
+
+  background:rgba(255,255,255,.7);
 }
+
+
+.wh-hsk-wrong-option{
+
+  margin-top:8px;
+
+  padding:9px 11px;
+
+  border-radius:9px;
+
+  background:#fff;
+
+  border:1px solid #eee;
+}
+
 
 /* =========================================================
-   🔒 MẶC ĐỊNH: ĐÓNG
+   EXAM NAV
 ========================================================= */
 
-#whHskWrapV3 #whHskRootV3{
-  display:none;
+.wh-hsk-mock-nav{
+
+  position:relative;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:space-between;
+
+  gap:8px;
+
+  flex-wrap:wrap;
+
+  margin-top:25px;
+
+  padding:14px 4px 92px;
 }
 
-/* =========================================================
-   🔓 MỞ
-========================================================= */
 
-#whHskWrapV3.whv3-open #whHskRootV3{
-  display:block;
+.wh-hsk-progress{
+
+  flex:1;
+
+  min-width:160px;
+
+  height:8px;
+
+  background:#eee;
+
+  border-radius:99px;
+
+  overflow:hidden;
 }
 
+
+.wh-hsk-progress > div{
+
+  height:100%;
+
+  width:0%;
+
+  background:#d40000;
+
+  transition:.2s ease;
+}
+
+
 /* =========================================================
-   📱 PHONE
+   🔴 NỘP BÀI — VỊ TRÍ 6 GIỜ
 ========================================================= */
 
-@media(max-width:600px){
+#whHskSubmit{
 
-  #whHskWrapV3 #whHskLauncherV3{
-    width:calc(100% - 20px);
-    margin:8px auto 10px;
-    padding:10px 12px;
-    font-size:14px;
+  position:absolute !important;
+
+  left:50% !important;
+
+  bottom:10px !important;
+
+  transform:translateX(-50%) !important;
+
+  min-width:150px !important;
+
+  padding:13px 25px !important;
+
+  border-radius:999px !important;
+
+  background:#d40000 !important;
+
+  box-shadow:
+    0 5px 18px rgba(212,0,0,.28) !important;
+
+  z-index:5 !important;
+}
+
+
+#whHskSubmit:hover{
+
+  transform:
+    translateX(-50%)
+    translateY(-2px) !important;
+
+  background:#ed1c24 !important;
+
+  box-shadow:
+    0 0 22px rgba(212,0,0,.42) !important;
+}
+
+
+/* =========================================================
+   RESULT
+========================================================= */
+
+.wh-hsk-result{
+
+  text-align:center;
+
+  padding:25px 15px;
+
+  background:#fff8f8;
+
+  border:2px solid #efcccc;
+
+  border-radius:18px;
+
+  margin-bottom:20px;
+}
+
+
+.wh-hsk-result-score{
+
+  font-size:38px;
+
+  font-weight:900;
+
+  color:#c40000;
+
+  margin:8px 0;
+}
+
+
+.wh-hsk-result-detail{
+
+  color:#555;
+
+  line-height:1.7;
+}
+
+
+/* =========================================================
+   🏆 LEADERBOARD
+========================================================= */
+
+.wh-hsk-leaderboard{
+
+  margin-top:20px;
+
+  padding:18px;
+
+  border-radius:17px;
+
+  background:#fff;
+
+  border:1px solid #efd0d0;
+
+  box-shadow:
+    0 4px 15px rgba(0,0,0,.04);
+}
+
+
+.wh-hsk-leaderboard h3{
+
+  margin:0 0 5px;
+
+  text-align:center;
+
+  color:#b40000;
+
+  font-size:20px;
+}
+
+
+.wh-hsk-leaderboard-season{
+
+  text-align:center;
+
+  color:#777;
+
+  font-size:13px;
+
+  margin-bottom:15px;
+}
+
+
+.wh-hsk-rank-row{
+
+  display:grid;
+
+  grid-template-columns:
+    55px
+    1fr
+    100px
+    100px;
+
+  align-items:center;
+
+  gap:8px;
+
+  padding:11px 8px;
+
+  border-bottom:1px solid #eee;
+
+  font-size:14px;
+}
+
+
+.wh-hsk-rank-row:last-child{
+
+  border-bottom:0;
+}
+
+
+.wh-hsk-rank{
+
+  font-size:18px;
+
+  font-weight:900;
+
+  text-align:center;
+}
+
+
+.wh-hsk-rank-name{
+
+  font-weight:900;
+
+  color:#222;
+}
+
+
+.wh-hsk-rank-score{
+
+  color:#b40000;
+
+  font-weight:900;
+
+  text-align:right;
+}
+
+
+.wh-hsk-rank-time{
+
+  color:#666;
+
+  text-align:right;
+
+  font-size:13px;
+}
+
+
+.wh-hsk-empty{
+
+  text-align:center;
+
+  color:#888;
+
+  padding:18px 5px;
+}
+
+
+/* =========================================================
+   REVIEW
+========================================================= */
+
+.wh-hsk-review-box{
+
+  padding:15px;
+
+  margin-bottom:11px;
+
+  border-radius:14px;
+
+  border:1px solid #eee;
+
+  line-height:1.7;
+}
+
+
+.wh-hsk-review-box.wh-review-correct{
+
+  background:#f1fbf4;
+}
+
+
+.wh-hsk-review-box.wh-review-wrong{
+
+  background:#fff4f4;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media(max-width:800px){
+
+  .wh-hsk-level-grid{
+
+    grid-template-columns:
+      repeat(3,1fr);
+  }
+
+
+  .wh-hsk-test-list{
+
+    grid-template-columns:
+      repeat(2,1fr);
+  }
+
+
+  .wh-hsk-rank-row{
+
+    grid-template-columns:
+      45px
+      1fr
+      80px
+      80px;
   }
 
 }
+
+
+@media(max-width:550px){
+
+  #whHskRoot{
+
+    padding:13px;
+
+    width:calc(100% - 14px);
+  }
+
+
+  .wh-hsk-level-grid{
+
+    grid-template-columns:
+      repeat(2,1fr);
+  }
+
+
+  .wh-hsk-mode-grid{
+
+    grid-template-columns:1fr;
+  }
+
+
+  .wh-hsk-test-list{
+
+    grid-template-columns:1fr;
+  }
+
+
+  .wh-hsk-q-text{
+
+    font-size:18px;
+  }
+
+
+  .wh-hsk-mock-nav{
+
+    padding-bottom:92px;
+  }
+
+
+  #whHskSubmit{
+
+    min-width:145px !important;
+  }
+
+
+  .wh-hsk-rank-row{
+
+    grid-template-columns:
+      42px
+      1fr
+      75px;
+
+    gap:5px;
+  }
+
+
+  .wh-hsk-rank-time{
+
+    grid-column:2 / 4;
+
+    text-align:left;
+
+    font-size:12px;
+
+    margin-top:-5px;
+  }
+
+}
+
 </style>
 
-<!-- =========================================================
-     🚀 LAUNCHER
-========================================================= -->
-
-<button
-  id="whHskLauncherV3"
-  type="button"
->
-  🏆 KHU LUYỆN THI HSK
-</button>
 
 <!-- =========================================================
-     🏆 HSK ROOT V3
+   ROOT
 ========================================================= -->
 
-<div id="whHskRootV3">
+<div id="whHskRoot">
 
-  <h2 class="whv3-title">
+  <h2 class="wh-hsk-title">
     🏆 KHU LUYỆN THI HSK
   </h2>
 
-  <div class="whv3-subtitle">
-    Luyện tập riêng · Thi thử riêng · Chấm điểm sau khi nộp bài
+
+  <div class="wh-hsk-subtitle">
+    Luyện tập riêng · Thi thử riêng · Thành tích theo từng đề
   </div>
 
 
@@ -102944,56 +102907,50 @@ window.saySentence =
   ======================================================== -->
 
   <section
-    id="whHskHomeV3"
-    class="whv3-screen whv3-active"
+    id="whHskHome"
+    class="wh-hsk-screen wh-active"
   >
 
-    <div class="whv3-levels">
+    <div class="wh-hsk-level-grid">
 
       <button
-        class="whv3-level sel"
-        data-level="1"
-        type="button"
+        class="wh-hsk-level wh-selected"
+        data-hsk="1"
       >
         HSK 1
       </button>
 
       <button
-        class="whv3-level"
-        data-level="2"
-        type="button"
+        class="wh-hsk-level"
+        data-hsk="2"
       >
         HSK 2
       </button>
 
       <button
-        class="whv3-level"
-        data-level="3"
-        type="button"
+        class="wh-hsk-level"
+        data-hsk="3"
       >
         HSK 3
       </button>
 
       <button
-        class="whv3-level"
-        data-level="4"
-        type="button"
+        class="wh-hsk-level"
+        data-hsk="4"
       >
         HSK 4
       </button>
 
       <button
-        class="whv3-level"
-        data-level="5"
-        type="button"
+        class="wh-hsk-level"
+        data-hsk="5"
       >
         HSK 5
       </button>
 
       <button
-        class="whv3-level"
-        data-level="6"
-        type="button"
+        class="wh-hsk-level"
+        data-hsk="6"
       >
         HSK 6
       </button>
@@ -103001,34 +102958,52 @@ window.saySentence =
     </div>
 
 
-    <div id="whHskSelectedV3">
+    <div
+      id="whHskSelectedInfo"
+      style="
+        text-align:center;
+        margin-bottom:12px;
+        color:#555;
+        font-weight:700;
+      "
+    >
       Đang chọn HSK 1
     </div>
 
 
-    <div class="whv3-mode">
+    <div class="wh-hsk-mode-grid">
 
       <button
-        id="whHskPracticeV3"
-        type="button"
+        class="wh-hsk-mode"
+        id="whHskPracticeBtn"
       >
-        <strong>📚 LUYỆN TẬP</strong>
+
+        <strong>
+          📚 LUYỆN TẬP
+        </strong>
+
         <span>
-          Có Pinyin + nghĩa + đáp án<br>
-          Không giới hạn thời gian
+          Có đáp án + Pinyin + giải thích<br>
+          Không tính giờ · Không tính thành tích
         </span>
+
       </button>
 
 
       <button
-        id="whHskMockV3"
-        type="button"
+        class="wh-hsk-mode"
+        id="whHskMockBtn"
       >
-        <strong>🏆 THI THỬ</strong>
+
+        <strong>
+          🏆 THI THỬ
+        </strong>
+
         <span>
-          Có đồng hồ · Không xem đáp án<br>
-          Nộp bài · Chấm điểm · Xem lại
+          Có thời gian · Không xem đáp án<br>
+          Chấm điểm + bảng thành tích
         </span>
+
       </button>
 
     </div>
@@ -103041,21 +103016,49 @@ window.saySentence =
   ======================================================== -->
 
   <section
-    id="whHskSelectV3"
-    class="whv3-screen"
+    id="whHskTestSelect"
+    class="wh-hsk-screen"
   >
 
-    <div id="whHskSelectTitleV3"></div>
-
-    <div id="whHskTestListV3"></div>
-
-    <button
-      id="whHskBackV3"
-      class="whv3-back"
-      type="button"
+    <div
+      style="
+        text-align:center;
+        color:#b40000;
+        font-size:20px;
+        font-weight:900;
+        margin-bottom:15px;
+      "
+      id="whHskTestSelectTitle"
     >
-      ← Quay lại
-    </button>
+    </div>
+
+
+    <div
+      class="wh-hsk-test-list"
+      id="whHskTestList"
+    ></div>
+
+
+    <div
+      id="whHskSelectLeaderboard"
+    ></div>
+
+
+    <div
+      style="
+        text-align:center;
+        margin-top:18px;
+      "
+    >
+
+      <button
+        class="wh-hsk-btn wh-secondary"
+        id="whHskBackHome1"
+      >
+        ← Quay lại
+      </button>
+
+    </div>
 
   </section>
 
@@ -103065,42 +103068,57 @@ window.saySentence =
   ======================================================== -->
 
   <section
-    id="whHskExamV3"
-    class="whv3-screen"
+    id="whHskExam"
+    class="wh-hsk-screen"
   >
 
-    <div class="whv3-exam-head">
+    <div class="wh-hsk-exam-header">
 
-      <div id="whHskExamNameV3"></div>
+      <div
+        class="wh-hsk-exam-name"
+        id="whHskExamName"
+      ></div>
 
-      <div id="whHskTimerV3">
+
+      <div
+        class="wh-hsk-timer"
+        id="whHskTimer"
+      >
         —
       </div>
 
     </div>
 
 
-    <div id="whHskProgressV3"></div>
+    <div
+      id="whHskQuestions"
+    ></div>
 
-    <div id="whHskQuestionsV3"></div>
 
+    <div class="wh-hsk-mock-nav">
 
-    <div class="whv3-exam-actions">
+      <div class="wh-hsk-progress">
+
+        <div
+          id="whHskProgressBar"
+        ></div>
+
+      </div>
+
 
       <button
-        id="whHskBackExamV3"
-        class="whv3-btn secondary"
-        type="button"
+        class="wh-hsk-btn wh-secondary"
+        id="whHskBackExam"
       >
         ← Thoát
       </button>
 
+
       <button
-        id="whHskSubmitV3"
-        class="whv3-btn"
-        type="button"
+        class="wh-hsk-btn"
+        id="whHskSubmit"
       >
-        📝 NỘP BÀI
+        NỘP BÀI
       </button>
 
     </div>
@@ -103113,32 +103131,44 @@ window.saySentence =
   ======================================================== -->
 
   <section
-    id="whHskResultV3"
-    class="whv3-screen"
+    id="whHskResult"
+    class="wh-hsk-screen"
   >
 
     <div
-      id="whHskScoreV3"
-      class="whv3-result-box"
+      class="wh-hsk-result"
+      id="whHskResultBox"
     ></div>
 
-    <div id="whHskReviewV3"></div>
+
+    <div
+      id="whHskLeaderboardResult"
+    ></div>
 
 
-    <div class="whv3-exam-actions">
+    <div
+      id="whHskAnswerReview"
+    ></div>
+
+
+    <div
+      style="
+        text-align:center;
+        margin-top:20px;
+      "
+    >
 
       <button
-        id="whHskAgainV3"
-        class="whv3-btn"
-        type="button"
+        class="wh-hsk-btn"
+        id="whHskAgain"
       >
         🔄 Làm lại đề
       </button>
 
+
       <button
-        id="whHskHomeV3Btn"
-        class="whv3-btn secondary"
-        type="button"
+        class="wh-hsk-btn wh-secondary"
+        id="whHskHomeResult"
       >
         🏠 Về Khu HSK
       </button>
@@ -103149,9 +103179,9 @@ window.saySentence =
 
 </div>
 
-</div>
 
 <script>
+
 (function(){
 
 "use strict";
@@ -103162,1267 +103192,1613 @@ window.saySentence =
 ========================================================= */
 
 if(
-  window.__WHITE_HAT_HSK_ENGINE_V3__
+  window.__WHITE_HAT_HSK_ENGINE_V2__
 ){
+
   return;
+
 }
 
-window.__WHITE_HAT_HSK_ENGINE_V3__ = true;
+
+window.__WHITE_HAT_HSK_ENGINE_V2__ =
+  true;
 
 
 /* =========================================================
-   🔎 HELPER
+   📦 DỮ LIỆU HSK1
 ========================================================= */
 
-function $(id){
-  return document.getElementById(id);
-}
+const HSK_DATA = {
 
+  1: {
 
-const root =
-  $("whHskRootV3");
+    practice: [
 
-
-if(!root){
-  return;
-}
-
-
-/* =========================================================
-   📦 DATA ENGINE
-========================================================= */
-
-const DATA = {
-
-  1:{
-    time:35 * 60,
-
-    tests:[
       {
-        name:"HSK 1 — ĐỀ SỐ 01",
-        questions:[]
-      }
-    ]
-  },
+        q:"你好！你叫什么名字？",
+        qPinyin:"Nǐ hǎo! Nǐ jiào shénme míngzi?",
+        qMeaning:"Xin chào! Bạn tên là gì?",
+
+        options:[
+          "我叫王明。",
+          "我是中国。",
+          "我很好。",
+          "我二十岁。"
+        ],
+
+        optionPinyin:[
+          "Wǒ jiào Wáng Míng.",
+          "Wǒ shì Zhōngguó.",
+          "Wǒ hěn hǎo.",
+          "Wǒ èrshí suì."
+        ],
+
+        optionMeaning:[
+          "Tôi tên là Vương Minh.",
+          "Tôi là Trung Quốc.",
+          "Tôi rất khỏe.",
+          "Tôi 20 tuổi."
+        ],
+
+        answer:0,
+
+        analysis:[
+          "ĐÚNG: 我叫王明 = Tôi tên là Vương Minh. Cấu trúc 我叫 + tên dùng để giới thiệu tên của mình.",
+          "SAI: 我是中国 = Tôi là Trung Quốc. Câu này không phù hợp vì 中国 là tên quốc gia; muốn nói quốc tịch phải nói 我是中国人.",
+          "SAI: 我很好 = Tôi rất khỏe. Câu này trả lời cho câu hỏi về tình trạng/sức khỏe, không trả lời tên.",
+          "SAI: 我二十岁 = Tôi 20 tuổi. Câu này trả lời tuổi, không trả lời tên."
+        ]
+      },
 
 
-  2:{
-    time:50 * 60,
-
-    tests:[
       {
-        name:"HSK 2 — ĐỀ SỐ 01",
-        questions:[]
+        q:"你是哪国人？",
+        qPinyin:"Nǐ shì nǎ guó rén?",
+        qMeaning:"Bạn là người nước nào?",
+
+        options:[
+          "我叫李明。",
+          "我是越南人。",
+          "我很好。",
+          "我二十五岁。"
+        ],
+
+        optionPinyin:[
+          "Wǒ jiào Lǐ Míng.",
+          "Wǒ shì Yuènán rén.",
+          "Wǒ hěn hǎo.",
+          "Wǒ èrshíwǔ suì."
+        ],
+
+        optionMeaning:[
+          "Tôi tên là Lý Minh.",
+          "Tôi là người Việt Nam.",
+          "Tôi rất khỏe.",
+          "Tôi 25 tuổi."
+        ],
+
+        answer:1,
+
+        analysis:[
+          "SAI: 我叫李明 = Tôi tên là Lý Minh. Câu này chỉ nói tên, không trả lời quốc tịch.",
+          "ĐÚNG: 我是越南人 = Tôi là người Việt Nam. Cấu trúc 是 + quốc gia + 人 dùng để nói mình là người nước nào.",
+          "SAI: 我很好 = Tôi rất khỏe. Câu này nói tình trạng của người nói, không nói quốc tịch.",
+          "SAI: 我二十五岁 = Tôi 25 tuổi. Câu này trả lời tuổi."
+        ]
+      },
+
+
+      {
+        q:"你几岁？",
+        qPinyin:"Nǐ jǐ suì?",
+        qMeaning:"Bạn bao nhiêu tuổi?",
+
+        options:[
+          "我很好。",
+          "我是学生。",
+          "我二十岁。",
+          "我叫小明。"
+        ],
+
+        optionPinyin:[
+          "Wǒ hěn hǎo.",
+          "Wǒ shì xuésheng.",
+          "Wǒ èrshí suì.",
+          "Wǒ jiào Xiǎomíng."
+        ],
+
+        optionMeaning:[
+          "Tôi rất khỏe.",
+          "Tôi là học sinh.",
+          "Tôi 20 tuổi.",
+          "Tôi tên là Tiểu Minh."
+        ],
+
+        answer:2,
+
+        analysis:[
+          "SAI: 我很好 = Tôi rất khỏe. Đây là câu nói về tình trạng, không nói tuổi.",
+          "SAI: 我是学生 = Tôi là học sinh. Đây là nghề/vai trò, không phải tuổi.",
+          "ĐÚNG: 我二十岁 = Tôi 20 tuổi. 几岁 dùng để hỏi tuổi.",
+          "SAI: 我叫小明 = Tôi tên là Tiểu Minh. Đây là câu trả lời cho câu hỏi tên."
+        ]
+      },
+
+
+      {
+        q:"你吃什么？",
+        qPinyin:"Nǐ chī shénme?",
+        qMeaning:"Bạn ăn gì?",
+
+        options:[
+          "我吃米饭。",
+          "我喝水。",
+          "我叫王老师。",
+          "我在学校。"
+        ],
+
+        optionPinyin:[
+          "Wǒ chī mǐfàn.",
+          "Wǒ hē shuǐ.",
+          "Wǒ jiào Wáng lǎoshī.",
+          "Wǒ zài xuéxiào."
+        ],
+
+        optionMeaning:[
+          "Tôi ăn cơm.",
+          "Tôi uống nước.",
+          "Tôi tên là thầy/cô giáo Vương.",
+          "Tôi ở trường."
+        ],
+
+        answer:0,
+
+        analysis:[
+          "ĐÚNG: 我吃米饭 = Tôi ăn cơm. 吃 nghĩa là ăn, phù hợp trực tiếp với câu hỏi 吃什么.",
+          "SAI: 我喝水 = Tôi uống nước. 喝 là uống, không phải 吃 là ăn.",
+          "SAI: 我叫王老师 = Tôi tên là giáo viên Vương. Câu này nói tên.",
+          "SAI: 我在学校 = Tôi ở trường. Câu này nói địa điểm."
+        ]
+      },
+
+
+      {
+        q:"你喝水吗？",
+        qPinyin:"Nǐ hē shuǐ ma?",
+        qMeaning:"Bạn có uống nước không?",
+
+        options:[
+          "我喝水。",
+          "我是老师。",
+          "我看书。",
+          "我叫小王。"
+        ],
+
+        optionPinyin:[
+          "Wǒ hē shuǐ.",
+          "Wǒ shì lǎoshī.",
+          "Wǒ kàn shū.",
+          "Wǒ jiào Xiǎo Wáng."
+        ],
+
+        optionMeaning:[
+          "Tôi uống nước.",
+          "Tôi là giáo viên.",
+          "Tôi đọc sách.",
+          "Tôi tên là Tiểu Vương."
+        ],
+
+        answer:0,
+
+        analysis:[
+          "ĐÚNG: 我喝水 = Tôi uống nước. Đây là câu trả lời trực tiếp cho 喝水吗？.",
+          "SAI: 我是老师 = Tôi là giáo viên. Không trả lời việc có uống nước hay không.",
+          "SAI: 我看书 = Tôi đọc sách. Nói về hành động khác.",
+          "SAI: 我叫小王 = Tôi tên là Tiểu Vương. Nói về tên."
+        ]
+      },
+
+
+      {
+        q:"今天星期几？",
+        qPinyin:"Jīntiān xīngqī jǐ?",
+        qMeaning:"Hôm nay là thứ mấy?",
+
+        options:[
+          "今天星期一。",
+          "今天八点。",
+          "今天很好。",
+          "今天三个人。"
+        ],
+
+        optionPinyin:[
+          "Jīntiān xīngqī yī.",
+          "Jīntiān bā diǎn.",
+          "Jīntiān hěn hǎo.",
+          "Jīntiān sān ge rén."
+        ],
+
+        optionMeaning:[
+          "Hôm nay là thứ Hai.",
+          "Hôm nay 8 giờ.",
+          "Hôm nay rất tốt.",
+          "Hôm nay có ba người."
+        ],
+
+        answer:0,
+
+        analysis:[
+          "ĐÚNG: 今天星期一 = Hôm nay là thứ Hai. 星期几 hỏi thứ trong tuần.",
+          "SAI: 今天八点 = Hôm nay 8 giờ. Đây là cách nói về thời gian, không phải thứ.",
+          "SAI: 今天很好 = Hôm nay rất tốt. Không trả lời thứ.",
+          "SAI: 今天三个人 = Hôm nay có ba người. Không phù hợp với câu hỏi."
+        ]
+      },
+
+
+      {
+        q:"你在哪儿学习？",
+        qPinyin:"Nǐ zài nǎr xuéxí?",
+        qMeaning:"Bạn học ở đâu?",
+
+        options:[
+          "我学习汉语。",
+          "我在学校学习。",
+          "我叫小李。",
+          "我喝茶。"
+        ],
+
+        optionPinyin:[
+          "Wǒ xuéxí Hànyǔ.",
+          "Wǒ zài xuéxiào xuéxí.",
+          "Wǒ jiào Xiǎo Lǐ.",
+          "Wǒ hē chá."
+        ],
+
+        optionMeaning:[
+          "Tôi học tiếng Trung.",
+          "Tôi học ở trường.",
+          "Tôi tên là Tiểu Lý.",
+          "Tôi uống trà."
+        ],
+
+        answer:1,
+
+        analysis:[
+          "SAI: 我学习汉语 = Tôi học tiếng Trung. Câu này nói học cái gì, chưa trả lời địa điểm.",
+          "ĐÚNG: 我在学校学习 = Tôi học ở trường. 在哪儿 hỏi địa điểm.",
+          "SAI: 我叫小李 = Tôi tên là Tiểu Lý. Không liên quan địa điểm.",
+          "SAI: 我喝茶 = Tôi uống trà. Nói về hành động uống."
+        ]
+      },
+
+
+      {
+        q:"这是你的书吗？",
+        qPinyin:"Zhè shì nǐ de shū ma?",
+        qMeaning:"Đây có phải là sách của bạn không?",
+
+        options:[
+          "是我的。",
+          "我叫小明。",
+          "我很好。",
+          "我二十岁。"
+        ],
+
+        optionPinyin:[
+          "Shì wǒ de.",
+          "Wǒ jiào Xiǎomíng.",
+          "Wǒ hěn hǎo.",
+          "Wǒ èrshí suì."
+        ],
+
+        optionMeaning:[
+          "Đúng, là của tôi.",
+          "Tôi tên là Tiểu Minh.",
+          "Tôi rất khỏe.",
+          "Tôi 20 tuổi."
+        ],
+
+        answer:0,
+
+        analysis:[
+          "ĐÚNG: 是我的 = Đúng, là của tôi. Đây là câu trả lời trực tiếp cho 这是你的书吗？.",
+          "SAI: 我叫小明 = Tôi tên là Tiểu Minh. Không trả lời quyền sở hữu cuốn sách.",
+          "SAI: 我很好 = Tôi rất khỏe. Không liên quan.",
+          "SAI: 我二十岁 = Tôi 20 tuổi. Không liên quan."
+        ]
+      },
+
+
+      {
+        q:"妈妈在做什么？",
+        qPinyin:"Māma zài zuò shénme?",
+        qMeaning:"Mẹ đang làm gì?",
+
+        options:[
+          "她在看电视。",
+          "她是老师。",
+          "她叫王老师。",
+          "她三十岁。"
+        ],
+
+        optionPinyin:[
+          "Tā zài kàn diànshì.",
+          "Tā shì lǎoshī.",
+          "Tā jiào Wáng lǎoshī.",
+          "Tā sānshí suì."
+        ],
+
+        optionMeaning:[
+          "Cô ấy đang xem tivi.",
+          "Cô ấy là giáo viên.",
+          "Cô ấy tên là cô giáo Vương.",
+          "Cô ấy 30 tuổi."
+        ],
+
+        answer:0,
+
+        analysis:[
+          "ĐÚNG: 她在看电视 = Cô ấy đang xem tivi. 在 + động từ diễn tả hành động đang diễn ra.",
+          "SAI: 她是老师 = Cô ấy là giáo viên. Nói nghề, không nói đang làm gì.",
+          "SAI: 她叫王老师 = Cô ấy tên là cô giáo Vương. Nói tên.",
+          "SAI: 她三十岁 = Cô ấy 30 tuổi. Nói tuổi."
+        ]
+      },
+
+
+      {
+        q:"你喜欢喝茶吗？",
+        qPinyin:"Nǐ xǐhuan hē chá ma?",
+        qMeaning:"Bạn có thích uống trà không?",
+
+        options:[
+          "喜欢，我喜欢喝茶。",
+          "我在北京。",
+          "我是中国人。",
+          "我二十岁。"
+        ],
+
+        optionPinyin:[
+          "Xǐhuan, wǒ xǐhuan hē chá.",
+          "Wǒ zài Běijīng.",
+          "Wǒ shì Zhōngguó rén.",
+          "Wǒ èrshí suì."
+        ],
+
+        optionMeaning:[
+          "Có, tôi thích uống trà.",
+          "Tôi ở Bắc Kinh.",
+          "Tôi là người Trung Quốc.",
+          "Tôi 20 tuổi."
+        ],
+
+        answer:0,
+
+        analysis:[
+          "ĐÚNG: 喜欢，我喜欢喝茶 = Có, tôi thích uống trà. Trả lời trực tiếp câu hỏi 喜欢吗？.",
+          "SAI: 我在北京 = Tôi ở Bắc Kinh. Đây là địa điểm.",
+          "SAI: 我是中国人 = Tôi là người Trung Quốc. Đây là quốc tịch.",
+          "SAI: 我二十岁 = Tôi 20 tuổi. Đây là tuổi."
+        ]
+      },
+
+
+      {
+        q:"明天你去北京吗？",
+        qPinyin:"Míngtiān nǐ qù Běijīng ma?",
+        qMeaning:"Ngày mai bạn có đi Bắc Kinh không?",
+
+        options:[
+          "去。",
+          "昨天。",
+          "八点。",
+          "三个人。"
+        ],
+
+        optionPinyin:[
+          "Qù.",
+          "Zuótiān.",
+          "Bā diǎn.",
+          "Sān ge rén."
+        ],
+
+        optionMeaning:[
+          "Đi.",
+          "Hôm qua.",
+          "8 giờ.",
+          "Ba người."
+        ],
+
+        answer:0,
+
+        analysis:[
+          "ĐÚNG: 去 = Đi. Câu hỏi có dạng 去……吗？ nên có thể trả lời ngắn gọn 去.",
+          "SAI: 昨天 = Hôm qua. Đây là thời gian, không phải câu trả lời cho việc có đi hay không.",
+          "SAI: 八点 = 8 giờ. Đây là thời gian.",
+          "SAI: 三个人 = Ba người. Đây là số lượng người."
+        ]
+      },
+
+
+      {
+        q:"你家有几个人？",
+        qPinyin:"Nǐ jiā yǒu jǐ ge rén?",
+        qMeaning:"Gia đình bạn có bao nhiêu người?",
+
+        options:[
+          "我家有四个人。",
+          "我家很好。",
+          "我在家。",
+          "我叫小王。"
+        ],
+
+        optionPinyin:[
+          "Wǒ jiā yǒu sì ge rén.",
+          "Wǒ jiā hěn hǎo.",
+          "Wǒ zài jiā.",
+          "Wǒ jiào Xiǎo Wáng."
+        ],
+
+        optionMeaning:[
+          "Gia đình tôi có bốn người.",
+          "Gia đình tôi rất tốt.",
+          "Tôi ở nhà.",
+          "Tôi tên là Tiểu Vương."
+        ],
+
+        answer:0,
+
+        analysis:[
+          "ĐÚNG: 我家有四个人 = Gia đình tôi có bốn người. 有几个人 hỏi số lượng người.",
+          "SAI: 我家很好 = Gia đình tôi rất tốt. Không nói số lượng.",
+          "SAI: 我在家 = Tôi ở nhà. Nói địa điểm.",
+          "SAI: 我叫小王 = Tôi tên là Tiểu Vương. Nói tên."
+        ]
       }
+
+    ],
+
+
+    /* =====================================================
+       🏆 MOCK — KHÁC HOÀN TOÀN PRACTICE
+    ===================================================== */
+
+    mock: [
+
+      {
+        q:"你叫什么名字？",
+        qPinyin:"Nǐ jiào shénme míngzi?",
+        qMeaning:"Bạn tên là gì?",
+
+        options:[
+          "我叫张文。",
+          "我是北京。",
+          "我很好。",
+          "我喝水。"
+        ],
+
+        optionPinyin:[
+          "Wǒ jiào Zhāng Wén.",
+          "Wǒ shì Běijīng.",
+          "Wǒ hěn hǎo.",
+          "Wǒ hē shuǐ."
+        ],
+
+        optionMeaning:[
+          "Tôi tên là Trương Văn.",
+          "Tôi là Bắc Kinh.",
+          "Tôi rất khỏe.",
+          "Tôi uống nước."
+        ],
+
+        answer:0,
+
+        analysis:[
+          "ĐÚNG: 我叫张文 = Tôi tên là Trương Văn. 叫什么名字 hỏi tên.",
+          "SAI: 我是北京 = Tôi là Bắc Kinh. 北京 là địa danh; không thể dùng để trả lời tên người.",
+          "SAI: 我很好 = Tôi rất khỏe. Không trả lời tên.",
+          "SAI: 我喝水 = Tôi uống nước. Không trả lời tên."
+        ]
+      },
+
+
+      {
+        q:"他是哪国人？",
+        qPinyin:"Tā shì nǎ guó rén?",
+        qMeaning:"Anh ấy là người nước nào?",
+
+        options:[
+          "他叫李老师。",
+          "他是中国人。",
+          "他很好。",
+          "他二十岁。"
+        ],
+
+        optionPinyin:[
+          "Tā jiào Lǐ lǎoshī.",
+          "Tā shì Zhōngguó rén.",
+          "Tā hěn hǎo.",
+          "Tā èrshí suì."
+        ],
+
+        optionMeaning:[
+          "Anh ấy tên là thầy/cô giáo Lý.",
+          "Anh ấy là người Trung Quốc.",
+          "Anh ấy rất khỏe.",
+          "Anh ấy 20 tuổi."
+        ],
+
+        answer:1,
+
+        analysis:[
+          "SAI: 他叫李老师 = Anh ấy tên là giáo viên Lý. Đây là tên.",
+          "ĐÚNG: 他是中国人 = Anh ấy là người Trung Quốc. 哪国人 hỏi quốc tịch.",
+          "SAI: 他很好 = Anh ấy rất khỏe. Không nói quốc tịch.",
+          "SAI: 他二十岁 = Anh ấy 20 tuổi. Nói tuổi."
+        ]
+      },
+
+
+      {
+        q:"你会说汉语吗？",
+        qPinyin:"Nǐ huì shuō Hànyǔ ma?",
+        qMeaning:"Bạn có biết nói tiếng Trung không?",
+
+        options:[
+          "会，我会说汉语。",
+          "我是学生。",
+          "我在中国。",
+          "我看书。"
+        ],
+
+        optionPinyin:[
+          "Huì, wǒ huì shuō Hànyǔ.",
+          "Wǒ shì xuésheng.",
+          "Wǒ zài Zhōngguó.",
+          "Wǒ kàn shū."
+        ],
+
+        optionMeaning:[
+          "Có, tôi biết nói tiếng Trung.",
+          "Tôi là học sinh.",
+          "Tôi ở Trung Quốc.",
+          "Tôi đọc sách."
+        ],
+
+        answer:0,
+
+        analysis:[
+          "ĐÚNG: 会，我会说汉语 = Có, tôi biết nói tiếng Trung. 会 diễn tả khả năng.",
+          "SAI: 我是学生 = Tôi là học sinh. Không trả lời khả năng nói tiếng Trung.",
+          "SAI: 我在中国 = Tôi ở Trung Quốc. Nói địa điểm.",
+          "SAI: 我看书 = Tôi đọc sách. Nói hành động khác."
+        ]
+      },
+
+
+      {
+        q:"现在几点？",
+        qPinyin:"Xiànzài jǐ diǎn?",
+        qMeaning:"Bây giờ là mấy giờ?",
+
+        options:[
+          "现在三点。",
+          "今天星期三。",
+          "我三个人。",
+          "我很好。"
+        ],
+
+        optionPinyin:[
+          "Xiànzài sān diǎn.",
+          "Jīntiān xīngqī sān.",
+          "Wǒ sān ge rén.",
+          "Wǒ hěn hǎo."
+        ],
+
+        optionMeaning:[
+          "Bây giờ là 3 giờ.",
+          "Hôm nay là thứ Tư.",
+          "Tôi ba người.",
+          "Tôi rất khỏe."
+        ],
+
+        answer:0,
+
+        analysis:[
+          "ĐÚNG: 现在三点 = Bây giờ là 3 giờ. 几点 hỏi giờ.",
+          "SAI: 今天星期三 = Hôm nay là thứ Tư. Đây là thứ trong tuần.",
+          "SAI: 我三个人 = Tôi ba người. Cấu trúc không phù hợp.",
+          "SAI: 我很好 = Tôi rất khỏe. Không nói giờ."
+        ]
+      },
+
+
+      {
+        q:"你家在哪儿？",
+        qPinyin:"Nǐ jiā zài nǎr?",
+        qMeaning:"Nhà bạn ở đâu?",
+
+        options:[
+          "我家在北京。",
+          "我家有四个人。",
+          "我家很好。",
+          "我叫王明。"
+        ],
+
+        optionPinyin:[
+          "Wǒ jiā zài Běijīng.",
+          "Wǒ jiā yǒu sì ge rén.",
+          "Wǒ jiā hěn hǎo.",
+          "Wǒ jiào Wáng Míng."
+        ],
+
+        optionMeaning:[
+          "Nhà tôi ở Bắc Kinh.",
+          "Nhà tôi có bốn người.",
+          "Nhà tôi rất tốt.",
+          "Tôi tên là Vương Minh."
+        ],
+
+        answer:0,
+
+        analysis:[
+          "ĐÚNG: 我家在北京 = Nhà tôi ở Bắc Kinh. 在哪儿 hỏi địa điểm.",
+          "SAI: 我家有四个人 = Nhà tôi có bốn người. Trả lời số lượng.",
+          "SAI: 我家很好 = Nhà tôi rất tốt. Không chỉ địa điểm.",
+          "SAI: 我叫王明 = Tôi tên là Vương Minh. Nói tên."
+        ]
+      },
+
+
+      {
+        q:"你喜欢什么？",
+        qPinyin:"Nǐ xǐhuan shénme?",
+        qMeaning:"Bạn thích gì?",
+
+        options:[
+          "我喜欢苹果。",
+          "我在学校。",
+          "我二十岁。",
+          "我是老师。"
+        ],
+
+        optionPinyin:[
+          "Wǒ xǐhuan píngguǒ.",
+          "Wǒ zài xuéxiào.",
+          "Wǒ èrshí suì.",
+          "Wǒ shì lǎoshī."
+        ],
+
+        optionMeaning:[
+          "Tôi thích táo.",
+          "Tôi ở trường.",
+          "Tôi 20 tuổi.",
+          "Tôi là giáo viên."
+        ],
+
+        answer:0,
+
+        analysis:[
+          "ĐÚNG: 我喜欢苹果 = Tôi thích táo. Trả lời trực tiếp 喜欢什么.",
+          "SAI: 我在学校 = Tôi ở trường. Đây là địa điểm.",
+          "SAI: 我二十岁 = Tôi 20 tuổi. Đây là tuổi.",
+          "SAI: 我是老师 = Tôi là giáo viên. Đây là nghề."
+        ]
+      },
+
+
+      {
+        q:"老师，我可以进来吗？",
+        qPinyin:"Lǎoshī, wǒ kěyǐ jìnlái ma?",
+        qMeaning:"Thưa thầy/cô, em có thể vào được không?",
+
+        options:[
+          "可以，请进。",
+          "我叫老师。",
+          "我喝茶。",
+          "我二十岁。"
+        ],
+
+        optionPinyin:[
+          "Kěyǐ, qǐng jìn.",
+          "Wǒ jiào lǎoshī.",
+          "Wǒ hē chá.",
+          "Wǒ èrshí suì."
+        ],
+
+        optionMeaning:[
+          "Được, mời vào.",
+          "Tôi tên là giáo viên.",
+          "Tôi uống trà.",
+          "Tôi 20 tuổi."
+        ],
+
+        answer:0,
+
+        analysis:[
+          "ĐÚNG: 可以，请进 = Được, mời vào. Đây là câu trả lời phù hợp cho lời xin phép.",
+          "SAI: 我叫老师 = Tôi tên là giáo viên. Không phù hợp ngữ cảnh.",
+          "SAI: 我喝茶 = Tôi uống trà. Không trả lời lời xin phép.",
+          "SAI: 我二十岁 = Tôi 20 tuổi. Không liên quan."
+        ]
+      },
+
+
+      {
+        q:"你今天忙吗？",
+        qPinyin:"Nǐ jīntiān máng ma?",
+        qMeaning:"Hôm nay bạn có bận không?",
+
+        options:[
+          "不忙。",
+          "我在北京。",
+          "我喝水。",
+          "我叫小明。"
+        ],
+
+        optionPinyin:[
+          "Bù máng.",
+          "Wǒ zài Běijīng.",
+          "Wǒ hē shuǐ.",
+          "Wǒ jiào Xiǎomíng."
+        ],
+
+        optionMeaning:[
+          "Không bận.",
+          "Tôi ở Bắc Kinh.",
+          "Tôi uống nước.",
+          "Tôi tên là Tiểu Minh."
+        ],
+
+        answer:0,
+
+        analysis:[
+          "ĐÚNG: 不忙 = Không bận. Đây là câu trả lời trực tiếp cho 忙吗？.",
+          "SAI: 我在北京 = Tôi ở Bắc Kinh. Nói địa điểm.",
+          "SAI: 我喝水 = Tôi uống nước. Nói hành động.",
+          "SAI: 我叫小明 = Tôi tên là Tiểu Minh. Nói tên."
+        ]
+      },
+
+
+      {
+        q:"这是什么？",
+        qPinyin:"Zhè shì shénme?",
+        qMeaning:"Đây là cái gì?",
+
+        options:[
+          "这是我的电脑。",
+          "我在学校。",
+          "我很好。",
+          "我叫小王。"
+        ],
+
+        optionPinyin:[
+          "Zhè shì wǒ de diànnǎo.",
+          "Wǒ zài xuéxiào.",
+          "Wǒ hěn hǎo.",
+          "Wǒ jiào Xiǎo Wáng."
+        ],
+
+        optionMeaning:[
+          "Đây là máy tính của tôi.",
+          "Tôi ở trường.",
+          "Tôi rất khỏe.",
+          "Tôi tên là Tiểu Vương."
+        ],
+
+        answer:0,
+
+        analysis:[
+          "ĐÚNG: 这是我的电脑 = Đây là máy tính của tôi. Trả lời đúng câu hỏi 这是什么？.",
+          "SAI: 我在学校 = Tôi ở trường. Nói địa điểm.",
+          "SAI: 我很好 = Tôi rất khỏe. Nói tình trạng.",
+          "SAI: 我叫小王 = Tôi tên là Tiểu Vương. Nói tên."
+        ]
+      },
+
+
+      {
+        q:"你去哪儿？",
+        qPinyin:"Nǐ qù nǎr?",
+        qMeaning:"Bạn đi đâu?",
+
+        options:[
+          "我去商店。",
+          "我叫李明。",
+          "我二十二岁。",
+          "我很好。"
+        ],
+
+        optionPinyin:[
+          "Wǒ qù shāngdiàn.",
+          "Wǒ jiào Lǐ Míng.",
+          "Wǒ èrshí'èr suì.",
+          "Wǒ hěn hǎo."
+        ],
+
+        optionMeaning:[
+          "Tôi đi cửa hàng.",
+          "Tôi tên là Lý Minh.",
+          "Tôi 22 tuổi.",
+          "Tôi rất khỏe."
+        ],
+
+        answer:0,
+
+        analysis:[
+          "ĐÚNG: 我去商店 = Tôi đi cửa hàng. 去哪儿 hỏi đi đâu.",
+          "SAI: 我叫李明 = Tôi tên là Lý Minh. Nói tên.",
+          "SAI: 我二十二岁 = Tôi 22 tuổi. Nói tuổi.",
+          "SAI: 我很好 = Tôi rất khỏe. Nói tình trạng."
+        ]
+      },
+
+
+      {
+        q:"你有哥哥吗？",
+        qPinyin:"Nǐ yǒu gēge ma?",
+        qMeaning:"Bạn có anh trai không?",
+
+        options:[
+          "有，我有一个哥哥。",
+          "我哥哥很好。",
+          "我在家。",
+          "我喝水。"
+        ],
+
+        optionPinyin:[
+          "Yǒu, wǒ yǒu yí ge gēge.",
+          "Wǒ gēge hěn hǎo.",
+          "Wǒ zài jiā.",
+          "Wǒ hē shuǐ."
+        ],
+
+        optionMeaning:[
+          "Có, tôi có một anh trai.",
+          "Anh trai tôi rất tốt.",
+          "Tôi ở nhà.",
+          "Tôi uống nước."
+        ],
+
+        answer:0,
+
+        analysis:[
+          "ĐÚNG: 有，我有一个哥哥 = Có, tôi có một anh trai. Trả lời trực tiếp 有吗？.",
+          "SAI: 我哥哥很好 = Anh trai tôi rất tốt. Câu này mô tả anh trai, không trả lời rõ có hay không.",
+          "SAI: 我在家 = Tôi ở nhà. Nói địa điểm.",
+          "SAI: 我喝水 = Tôi uống nước. Nói hành động."
+        ]
+      },
+
+
+      {
+        q:"你吃饭了吗？",
+        qPinyin:"Nǐ chīfàn le ma?",
+        qMeaning:"Bạn ăn cơm chưa?",
+
+        options:[
+          "吃了。",
+          "我叫王明。",
+          "我在北京。",
+          "我二十岁。"
+        ],
+
+        optionPinyin:[
+          "Chī le.",
+          "Wǒ jiào Wáng Míng.",
+          "Wǒ zài Běijīng.",
+          "Wǒ èrshí suì."
+        ],
+
+        optionMeaning:[
+          "Ăn rồi.",
+          "Tôi tên là Vương Minh.",
+          "Tôi ở Bắc Kinh.",
+          "Tôi 20 tuổi."
+        ],
+
+        answer:0,
+
+        analysis:[
+          "ĐÚNG: 吃了 = Ăn rồi. 了吗？ hỏi một hành động đã xảy ra hay chưa.",
+          "SAI: 我叫王明 = Tôi tên là Vương Minh. Không trả lời việc ăn cơm.",
+          "SAI: 我在北京 = Tôi ở Bắc Kinh. Nói địa điểm.",
+          "SAI: 我二十岁 = Tôi 20 tuổi. Nói tuổi."
+        ]
+      }
+
     ]
-  },
 
-
-  3:null,
-  4:null,
-  5:null,
-  6:null
+  }
 
 };
 
 
 /* =========================================================
-   🧩 QUESTION FACTORY
+   ⚙️ STATE
 ========================================================= */
 
-function make(rows){
+let currentHsk = 1;
 
-  return rows.map(function(r){
+let currentMode = null;
 
-    return {
+let currentExamNumber = 1;
 
-      q:r[0],
-      p:r[1],
-      m:r[2],
-      o:r[3],
-      a:r[4],
-      part:r[5]
+let currentQuestions = [];
 
-    };
+let currentAnswers = [];
+
+let timerInterval = null;
+
+let remainingSeconds = 0;
+
+let examStartedAt = null;
+
+
+/* =========================================================
+   ⏱ THỜI GIAN
+========================================================= */
+
+const MOCK_TIME = {
+
+  1:15 * 60,
+
+  2:20 * 60,
+
+  3:30 * 60,
+
+  4:40 * 60,
+
+  5:50 * 60,
+
+  6:60 * 60
+
+};
+
+
+/* =========================================================
+   🔎 DOM
+========================================================= */
+
+const root =
+  document.getElementById(
+    "whHskRoot"
+  );
+
+const home =
+  document.getElementById(
+    "whHskHome"
+  );
+
+const testSelect =
+  document.getElementById(
+    "whHskTestSelect"
+  );
+
+const exam =
+  document.getElementById(
+    "whHskExam"
+  );
+
+const result =
+  document.getElementById(
+    "whHskResult"
+  );
+
+const practiceBtn =
+  document.getElementById(
+    "whHskPracticeBtn"
+  );
+
+const mockBtn =
+  document.getElementById(
+    "whHskMockBtn"
+  );
+
+const testList =
+  document.getElementById(
+    "whHskTestList"
+  );
+
+const testTitle =
+  document.getElementById(
+    "whHskTestSelectTitle"
+  );
+
+const questionsBox =
+  document.getElementById(
+    "whHskQuestions"
+  );
+
+const examName =
+  document.getElementById(
+    "whHskExamName"
+  );
+
+const timer =
+  document.getElementById(
+    "whHskTimer"
+  );
+
+const progressBar =
+  document.getElementById(
+    "whHskProgressBar"
+  );
+
+const submitBtn =
+  document.getElementById(
+    "whHskSubmit"
+  );
+
+const selectLeaderboard =
+  document.getElementById(
+    "whHskSelectLeaderboard"
+  );
+
+const resultLeaderboard =
+  document.getElementById(
+    "whHskLeaderboardResult"
+  );
+
+
+/* =========================================================
+   🧭 SCREEN
+========================================================= */
+
+function showScreen(screen){
+
+  [
+    home,
+    testSelect,
+    exam,
+    result
+
+  ].forEach(function(el){
+
+    if(el){
+
+      el.classList.remove(
+        "wh-active"
+      );
+
+    }
 
   });
 
-}
 
+  if(screen){
 
-/* =========================================================
-   🇨🇳 HSK1 — ĐỀ 01
-   40 CÂU
-   1–20 LISTENING
-   21–40 READING
-========================================================= */
-
-DATA[1].tests[0].questions = make([
-
-  [
-    "早上好。",
-    "Zǎoshang hǎo.",
-    "Chào buổi sáng.",
-    ["🌞👋","🌙😴","🍚","⚽"],
-    0,
-    1
-  ],
-
-  [
-    "他在喝水。",
-    "Tā zài hē shuǐ.",
-    "Anh ấy đang uống nước.",
-    ["👨🥤","👩📖","🏃","😴"],
-    0,
-    1
-  ],
-
-  [
-    "女孩在看书。",
-    "Nǚhái zài kàn shū.",
-    "Cô bé đang đọc sách.",
-    ["👧📖","👧⚽","👧🍎","👧😴"],
-    0,
-    1
-  ],
-
-  [
-    "今天下雨。",
-    "Jīntiān xiàyǔ.",
-    "Hôm nay trời mưa.",
-    ["☀️","🌧️","❄️","🌙"],
-    1,
-    1
-  ],
-
-  [
-    "他是老师。",
-    "Tā shì lǎoshī.",
-    "Anh ấy là giáo viên.",
-    ["👨‍🏫","👨‍🍳","👨‍⚕️","👨‍🎨"],
-    0,
-    1
-  ],
-
-  [
-    "你叫什么名字？",
-    "Nǐ jiào shénme míngzi?",
-    "Bạn tên gì?",
-    ["我叫王明。","我是学生。","我很好。","我二十岁。"],
-    0,
-    2
-  ],
-
-  [
-    "你是哪国人？",
-    "Nǐ shì nǎ guó rén?",
-    "Bạn là người nước nào?",
-    ["我叫李明。","我是越南人。","我很好。","我二十五岁。"],
-    1,
-    2
-  ],
-
-  [
-    "你吃什么？",
-    "Nǐ chī shénme?",
-    "Bạn ăn gì?",
-    ["我吃米饭。","我在学校。","我很好。","我叫小明。"],
-    0,
-    2
-  ],
-
-  [
-    "现在几点？",
-    "Xiànzài jǐ diǎn?",
-    "Bây giờ mấy giờ?",
-    ["现在三点。","今天星期三。","我三个人。","我很好。"],
-    0,
-    2
-  ],
-
-  [
-    "你会说汉语吗？",
-    "Nǐ huì shuō Hànyǔ ma?",
-    "Bạn biết nói tiếng Trung không?",
-    ["会，我会说汉语。","我是老师。","我在北京。","我喝水。"],
-    0,
-    2
-  ],
-
-  [
-    "你几岁？",
-    "Nǐ jǐ suì?",
-    "Bạn bao nhiêu tuổi?",
-    ["我很好。","我是学生。","我二十岁。","我叫小明。"],
-    2,
-    3
-  ],
-
-  [
-    "他去哪儿？",
-    "Tā qù nǎr?",
-    "Anh ấy đi đâu?",
-    ["他去学校。","他很好。","他二十岁。","他是老师。"],
-    0,
-    3
-  ],
-
-  [
-    "你家有几个人？",
-    "Nǐ jiā yǒu jǐ ge rén?",
-    "Gia đình bạn có mấy người?",
-    ["我家有四个人。","我家很好。","我在家。","我叫小王。"],
-    0,
-    3
-  ],
-
-  [
-    "妈妈在做什么？",
-    "Māma zài zuò shénme?",
-    "Mẹ đang làm gì?",
-    ["妈妈在做饭。","妈妈是学生。","妈妈很好吗？","妈妈二十岁。"],
-    0,
-    3
-  ],
-
-  [
-    "你喜欢喝茶吗？",
-    "Nǐ xǐhuan hē chá ma?",
-    "Bạn thích uống trà không?",
-    ["喜欢，我喜欢喝茶。","我是茶。","我在茶。","我三杯。"],
-    0,
-    3
-  ],
-
-  [
-    "我昨天买了一个苹果。",
-    "Wǒ zuótiān mǎi le yí ge píngguǒ.",
-    "Hôm qua tôi mua một quả táo.",
-    ["昨天","明天","现在","星期日"],
-    0,
-    4
-  ],
-
-  [
-    "他在学校学习。",
-    "Tā zài xuéxiào xuéxí.",
-    "Anh ấy học ở trường.",
-    ["学校","医院","商店","家"],
-    0,
-    4
-  ],
-
-  [
-    "这是谁的书？",
-    "Zhè shì shéi de shū?",
-    "Đây là sách của ai?",
-    ["这是我的书。","我有三本。","书很好。","我在学校。"],
-    0,
-    4
-  ],
-
-  [
-    "你想买什么？",
-    "Nǐ xiǎng mǎi shénme?",
-    "Bạn muốn mua gì?",
-    ["我想买衣服。","我在商店。","我很好。","我叫小李。"],
-    0,
-    4
-  ],
-
-  [
-    "明天是星期几？",
-    "Míngtiān shì xīngqī jǐ?",
-    "Ngày mai là thứ mấy?",
-    ["明天是星期三。","明天八个人。","明天很好。","明天吃饭。"],
-    0,
-    4
-  ],
-
-
-  [
-    "选择正确的词：我___学生。",
-    "Xuǎnzé zhèngquè de cí.",
-    "Chọn từ đúng: Tôi là học sinh.",
-    ["是","有","在","叫"],
-    0,
-    5
-  ],
-
-  [
-    "他___北京。",
-    "Tā ___ Běijīng.",
-    "Anh ấy ở Bắc Kinh.",
-    ["是","在","叫","有"],
-    1,
-    5
-  ],
-
-  [
-    "我___三本书。",
-    "Wǒ ___ sān běn shū.",
-    "Tôi có ba quyển sách.",
-    ["是","在","有","叫"],
-    2,
-    5
-  ],
-
-  [
-    "她___中国人。",
-    "Tā ___ Zhōngguó rén.",
-    "Cô ấy là người Trung Quốc.",
-    ["是","在","有","看"],
-    0,
-    5
-  ],
-
-  [
-    "我们___看电视。",
-    "Wǒmen ___ kàn diànshì.",
-    "Chúng tôi đang xem TV.",
-    ["在","是","有","叫"],
-    0,
-    5
-  ],
-
-  [
-    "这是___老师。",
-    "Zhè shì ___ lǎoshī.",
-    "Đây là giáo viên của tôi.",
-    ["我","我的","我在","我有"],
-    1,
-    6
-  ],
-
-  [
-    "我喜欢___中国菜。",
-    "Wǒ xǐhuan ___ Zhōngguó cài.",
-    "Tôi thích món ăn Trung Quốc.",
-    ["吃","吃的","吃了","吃人"],
-    0,
-    6
-  ],
-
-  [
-    "他每天___学校。",
-    "Tā měitiān ___ xuéxiào.",
-    "Mỗi ngày anh ấy đi trường.",
-    ["去","是","有","叫"],
-    0,
-    6
-  ],
-
-  [
-    "请___这儿坐。",
-    "Qǐng ___ zhèr zuò.",
-    "Mời ngồi ở đây.",
-    ["在","到","从","给"],
-    1,
-    6
-  ],
-
-  [
-    "我不___咖啡。",
-    "Wǒ bù ___ kāfēi.",
-    "Tôi không uống cà phê.",
-    ["喝","是","有","看"],
-    0,
-    6
-  ],
-
-  [
-    "哪个句子正确？",
-    "Nǎge jùzi zhèngquè?",
-    "Câu nào đúng?",
-    ["我叫是小王。","我叫小王。","我小王叫。","叫我小王是。"],
-    1,
-    7
-  ],
-
-  [
-    "哪个句子正确？",
-    "Nǎge jùzi zhèngquè?",
-    "Câu nào đúng?",
-    ["这是我的书。","这是我书的。","这是书我的。","我这是的书。"],
-    0,
-    7
-  ],
-
-  [
-    "哪个句子正确？",
-    "Nǎge jùzi zhèngquè?",
-    "Câu nào đúng?",
-    ["他在家。","他家在。","在他家。","家他在。"],
-    0,
-    7
-  ],
-
-  [
-    "哪个句子正确？",
-    "Nǎge jùzi zhèngquè?",
-    "Câu nào đúng?",
-    ["我很喜欢中国。","我喜欢很中国。","很我喜欢中国。","中国我很喜欢是。"],
-    0,
-    7
-  ],
-
-  [
-    "哪个句子正确？",
-    "Nǎge jùzi zhèngquè?",
-    "Câu nào đúng?",
-    ["她是我的朋友。","她我的朋友是。","我的她是朋友。","朋友她我的。"],
-    0,
-    7
-  ]
-
-]);
-
-
-/* =========================================================
-   🇨🇳 HSK2 — ĐỀ 01
-   40 CÂU
-   1–20 LISTENING
-   21–40 READING
-========================================================= */
-
-DATA[2].tests[0].questions = make([
-
-  [
-    "男：你吃饭了吗？女：还没有。",
-    "Nán: Nǐ chīfàn le ma? Nǚ: Hái méiyǒu.",
-    "Bạn ăn cơm chưa? Chưa.",
-    ["她已经吃了。","她还没吃。","她不喜欢吃饭。","她正在做饭。"],
-    1,
-    1
-  ],
-
-  [
-    "女：明天你去北京吗？男：不去，我星期五去。",
-    "Nǚ: Míngtiān nǐ qù Běijīng ma?",
-    "Ngày mai bạn đi Bắc Kinh không? Không, thứ Sáu tôi đi.",
-    ["明天去","星期四去","星期五去","今天去"],
-    2,
-    1
-  ],
-
-  [
-    "男：你的衣服多少钱？女：一百二十块。",
-    "Nán: Nǐ de yīfu duōshao qián?",
-    "Quần áo của bạn bao nhiêu tiền?",
-    ["20","100","120","200"],
-    2,
-    1
-  ],
-
-  [
-    "女：你为什么不喝水？男：因为我不渴。",
-    "Nǚ: Nǐ wèishénme bù hē shuǐ?",
-    "Tại sao bạn không uống nước? Vì không khát.",
-    ["因为不渴","因为生病","因为很忙","因为没水"],
-    0,
-    1
-  ],
-
-  [
-    "男：你家离学校远吗？女：不远，走路十分钟。",
-    "Nán: Nǐ jiā lí xuéxiào yuǎn ma?",
-    "Nhà bạn cách trường xa không? Đi bộ 10 phút.",
-    ["很远","十分钟","一小时","坐车"],
-    1,
-    1
-  ],
-
-  [
-    "男：昨天谁给你打电话？女：我的老师。",
-    "Nán: Zuótiān shéi gěi nǐ dǎ diànhuà?",
-    "Hôm qua ai gọi điện cho bạn?",
-    ["朋友","妈妈","老师","同学"],
-    2,
-    2
-  ],
-
-  [
-    "女：今天怎么这么冷？男：因为下雪了。",
-    "Nǚ: Jīntiān zěnme zhème lěng?",
-    "Hôm nay sao lạnh thế? Vì tuyết rơi.",
-    ["下雨","下雪","刮风","天晴"],
-    1,
-    2
-  ],
-
-  [
-    "男：你买了几本书？女：五本。",
-    "Nán: Nǐ mǎi le jǐ běn shū?",
-    "Bạn mua mấy quyển sách?",
-    ["2","3","5","8"],
-    2,
-    2
-  ],
-
-  [
-    "女：你会开车吗？男：会，但是开得不快。",
-    "Nǚ: Nǐ huì kāichē ma?",
-    "Bạn biết lái xe không? Biết nhưng không nhanh.",
-    ["不会","会而且很快","会但不快","没有车"],
-    2,
-    2
-  ],
-
-  [
-    "男：周末你有什么计划？女：在家休息。",
-    "Nán: Zhōumò nǐ yǒu shénme jìhuà?",
-    "Cuối tuần bạn có kế hoạch gì?",
-    ["去旅游","在家休息","去上班","买东西"],
-    1,
-    2
-  ],
-
-  [
-    "男：请问，银行怎么走？女：一直走，然后右转。",
-    "Nán: Qǐngwèn, yínháng zěnme zǒu?",
-    "Đến ngân hàng đi thế nào?",
-    ["左转","右转","回家","坐飞机"],
-    1,
-    3
-  ],
-
-  [
-    "女：你什么时候回来？男：晚上八点左右。",
-    "Nǚ: Nǐ shénme shíhou huílái?",
-    "Bạn khi nào về?",
-    ["早上","中午","晚上八点左右","明天早上"],
-    2,
-    3
-  ],
-
-  [
-    "男：你怎么了？女：我头疼。",
-    "Nán: Nǐ zěnme le?",
-    "Bạn sao vậy? Tôi đau đầu.",
-    ["肚子疼","头疼","牙疼","不饿"],
-    1,
-    3
-  ],
-
-  [
-    "女：这件衣服太贵了。男：那件便宜一点。",
-    "Nǚ: Zhè jiàn yīfu tài guì le.",
-    "Bộ này quá đắt. Bộ kia rẻ hơn.",
-    ["都很贵","那件便宜","这件便宜","没有衣服"],
-    1,
-    3
-  ],
-
-  [
-    "男：你学汉语多长时间了？女：两年了。",
-    "Nán: Nǐ xué Hànyǔ duō cháng shíjiān le?",
-    "Bạn học tiếng Trung bao lâu rồi?",
-    ["两个月","一年","两年","五年"],
-    2,
-    3
-  ],
-
-  [
-    "女：你昨天为什么没来？男：因为我生病了。",
-    "Nǚ: Nǐ zuótiān wèishénme méi lái?",
-    "Hôm qua tại sao bạn không đến?",
-    ["因为很忙","因为生病","因为下雨","因为旅行"],
-    1,
-    4
-  ],
-
-  [
-    "男：你的手机在哪儿？女：在桌子上。",
-    "Nán: Nǐ de shǒujī zài nǎr?",
-    "Điện thoại của bạn ở đâu?",
-    ["桌子上","书包里","床下面","学校里"],
-    0,
-    4
-  ],
-
-  [
-    "女：你喜欢红色还是蓝色？男：我喜欢蓝色。",
-    "Nǚ: Nǐ xǐhuan hóngsè háishi lánsè?",
-    "Bạn thích màu đỏ hay xanh?",
-    ["红色","蓝色","黑色","白色"],
-    1,
-    4
-  ],
-
-  [
-    "男：电影几点开始？女：七点半。",
-    "Nán: Diànyǐng jǐ diǎn kāishǐ?",
-    "Phim bắt đầu lúc mấy giờ?",
-    ["六点","七点","七点半","八点"],
-    2,
-    4
-  ],
-
-  [
-    "女：你今天为什么这么高兴？男：因为考试通过了。",
-    "Nǚ: Nǐ jīntiān wèishénme zhème gāoxìng?",
-    "Tại sao hôm nay bạn vui thế?",
-    ["考试通过了","买了衣服","下雨了","没吃饭"],
-    0,
-    4
-  ],
-
-
-  [
-    "我昨天___朋友一起吃饭。",
-    "Wǒ zuótiān ___ péngyou yìqǐ chīfàn.",
-    "Hôm qua tôi ăn cơm cùng bạn.",
-    ["和","给","从","比"],
-    0,
-    5
-  ],
-
-  [
-    "他比我___。",
-    "Tā bǐ wǒ ___.",
-    "Anh ấy cao hơn tôi.",
-    ["高","很高吗","是高","高的"],
-    0,
-    5
-  ],
-
-  [
-    "因为下雨，___我没有出去。",
-    "Yīnwèi xiàyǔ, ___ wǒ méiyǒu chūqù.",
-    "Vì trời mưa nên tôi không ra ngoài.",
-    ["所以","但是","还是","或者"],
-    0,
-    5
-  ],
-
-  [
-    "我已经看___这本书了。",
-    "Wǒ yǐjīng kàn ___ zhè běn shū le.",
-    "Tôi đã đọc quyển sách này rồi.",
-    ["过","了","着","在"],
-    1,
-    5
-  ],
-
-  [
-    "他正在房间___作业。",
-    "Tā zhèngzài fángjiān ___ zuòyè.",
-    "Anh ấy đang làm bài tập.",
-    ["做","吃","买","去"],
-    0,
-    5
-  ],
-
-  [
-    "昨天是星期一，今天是星期___。",
-    "Zuótiān shì xīngqīyī, jīntiān shì xīngqī ___.",
-    "Hôm qua thứ Hai, hôm nay thứ mấy?",
-    ["二","三","日","五"],
-    0,
-    6
-  ],
-
-  [
-    "我每天早上七点___床。",
-    "Wǒ měitiān zǎoshang qī diǎn ___ chuáng.",
-    "Mỗi sáng 7 giờ tôi dậy.",
-    ["起","起床","睡","休息"],
-    1,
-    6
-  ],
-
-  [
-    "这本书是谁___你的？",
-    "Zhè běn shū shì shéi ___ nǐ de?",
-    "Quyển sách này ai đưa cho bạn?",
-    ["给","在","从","比"],
-    0,
-    6
-  ],
-
-  [
-    "我觉得今天___昨天热。",
-    "Wǒ juéde jīntiān ___ zuótiān rè.",
-    "Tôi thấy hôm nay nóng hơn hôm qua.",
-    ["比","和","从","给"],
-    0,
-    6
-  ],
-
-  [
-    "你说得太快，我听___。",
-    "Nǐ shuō de tài kuài, wǒ tīng ___.",
-    "Bạn nói nhanh quá, tôi nghe không hiểu.",
-    ["懂","完","见","到"],
-    0,
-    6
-  ],
-
-  [
-    "选择正确的句子。",
-    "Xuǎnzé zhèngquè de jùzi.",
-    "Chọn câu đúng.",
-    ["我昨天去了商店。","我去了昨天商店。","昨天我商店去了。","去了我昨天商店。"],
-    0,
-    7
-  ],
-
-  [
-    "选择正确的句子。",
-    "Xuǎnzé zhèngquè de jùzi.",
-    "Chọn câu đúng.",
-    ["虽然很累，但是我还要学习。","虽然很累，我还要但是学习。","很累虽然，但是学习我。","但是虽然很累我要学习。"],
-    0,
-    7
-  ],
-
-  [
-    "选择正确的句子。",
-    "Xuǎnzé zhèngquè de jùzi.",
-    "Chọn câu đúng.",
-    ["她正在给妈妈打电话。","她给正在妈妈打电话。","正在她电话打妈妈。","妈妈她正在给电话。"],
-    0,
-    7
-  ],
-
-  [
-    "选择正确的句子。",
-    "Xuǎnzé zhèngquè de jùzi.",
-    "Chọn câu đúng.",
-    ["我已经吃过饭了。","我吃已经过饭了。","已经我饭吃过了。","过饭我已经吃了。"],
-    0,
-    7
-  ],
-
-  [
-    "选择正确的句子。",
-    "Xuǎnzé zhèngquè de jùzi.",
-    "Chọn câu đúng.",
-    ["明天如果有时间，我就去看你。","如果明天我去有时间看你。","明天有时间如果就我看你。","我就明天如果去有时间你。"],
-    0,
-    7
-  ],
-
-  [
-    "小王每天六点半起床，七点吃早饭，然后坐公交车去上班。问：小王几点吃早饭？",
-    "Xiǎo Wáng měitiān liù diǎn bàn qǐchuáng, qī diǎn chī zǎofàn.",
-    "Tiểu Vương dậy 6:30, 7 giờ ăn sáng. Hỏi: mấy giờ ăn sáng?",
-    ["六点","六点半","七点","八点"],
-    2,
-    8
-  ],
-
-  [
-    "今天是星期六，天气很好。小李和朋友去公园，他们在那里打了两个小时的篮球。问：他们去了哪里？",
-    "Jīntiān shì xīngqīliù, tiānqì hěn hǎo.",
-    "Tiểu Lý và bạn đi đâu?",
-    ["学校","公园","医院","商店"],
-    1,
-    8
-  ],
-
-  [
-    "妈妈买了苹果、香蕉和牛奶。她没有买面包，因为家里还有。问：妈妈没有买什么？",
-    "Māma mǎi le píngguǒ, xiāngjiāo hé niúnǎi.",
-    "Mẹ không mua gì?",
-    ["苹果","香蕉","牛奶","面包"],
-    3,
-    8
-  ],
-
-  [
-    "小张昨天生病了，所以没有去上班。今天他觉得好多了，准备下午去公司。问：小张昨天为什么没有上班？",
-    "Xiǎo Zhāng zuótiān shēngbìng le.",
-    "Tại sao hôm qua Tiểu Trương không đi làm?",
-    ["因为很忙","因为生病","因为下雨","因为旅行"],
-    1,
-    8
-  ],
-
-  [
-    "我家离地铁站不远，走路大约五分钟。每天我坐地铁去学校。问：从我家到地铁站要多久？",
-    "Wǒ jiā lí dìtiě zhàn bù yuǎn.",
-    "Từ nhà tôi đến ga tàu điện ngầm mất bao lâu?",
-    ["两分钟","五分钟","十分钟","半小时"],
-    1,
-    8
-  ]
-
-]);
-
-
-/* =========================================================
-   🔐 KIỂM TRA DATA
-========================================================= */
-
-[1,2].forEach(function(lv){
-
-  const qs =
-    DATA[lv].tests[0].questions;
-
-  if(qs.length !== 40){
-
-    console.error(
-      "HSK V3 DATA ERROR:",
-      lv,
-      qs.length
+    screen.classList.add(
+      "wh-active"
     );
 
   }
 
-});
-
-
-/* =========================================================
-   🎛️ SCREEN
-========================================================= */
-
-const screens = {
-
-  home:$("whHskHomeV3"),
-
-  select:$("whHskSelectV3"),
-
-  exam:$("whHskExamV3"),
-
-  result:$("whHskResultV3")
-
-};
-
-
-function show(screen){
-
-  Object.values(screens).forEach(
-    function(x){
-
-      x.classList.remove(
-        "whv3-active"
-      );
-
-    }
-  );
-
-  screen.classList.add(
-    "whv3-active"
-  );
-
 }
 
 
 /* =========================================================
-   🎯 STATE
+   🔴 LAUNCHER
 ========================================================= */
 
-let level = 1;
+function createLauncher(){
 
-let mode = "mock";
-
-let testIndex = 0;
-
-let questions = [];
-
-let answers = [];
-
-let timer = null;
-
-let left = 0;
-
-let submitted = false;
-
-
-/* =========================================================
-   📋 TEST LIST
-========================================================= */
-
-function renderTestList(){
-
-  const box =
-    $("whHskTestListV3");
-
-  box.innerHTML = "";
-
-  const data =
-    DATA[level];
-
-  $("whHskSelectTitleV3").textContent =
-    "HSK " +
-    level +
-    " — " +
-    (
-      mode === "mock"
-        ? "THI THỬ"
-        : "LUYỆN TẬP"
-    );
-
-
-  if(!data){
-
-    box.innerHTML =
-      '<div class="whv3-empty">' +
-      "🚧 HSK này đang được cập nhật." +
-      "</div>";
+  if(
+    document.getElementById(
+      "whHskLauncher"
+    )
+  ){
 
     return;
 
   }
 
 
-  data.tests.forEach(
-    function(test,index){
-
-      const button =
-        document.createElement(
-          "button"
-        );
-
-      button.type =
-        "button";
-
-      button.className =
-        "whv3-test";
-
-
-      button.innerHTML =
-
-        "<b>" +
-        test.name +
-        "</b>" +
-
-        "<span>" +
-
-        test.questions.length +
-        " câu · " +
-
-        (
-          mode === "mock"
-            ? data.time / 60 +
-              " phút"
-            : "Không giới hạn thời gian"
-        ) +
-
-        "</span>";
-
-
-      button.onclick =
-        function(){
-
-          startExam(index);
-
-        };
-
-
-      box.appendChild(
-        button
-      );
-
-    }
-  );
-
-}
-
-
-/* =========================================================
-   🎨 RENDER QUESTIONS
-========================================================= */
-
-function renderQuestions(){
-
-  const box =
-    $("whHskQuestionsV3");
-
-  box.innerHTML = "";
-
-
-  let lastPart = -1;
-
-
-  questions.forEach(
-    function(item,index){
-
-      if(
-        item.part !== lastPart
-      ){
-
-        lastPart =
-          item.part;
-
-
-        const section =
-          document.createElement(
-            "div"
-          );
-
-        section.className =
-          "whv3-section";
-
-
-        section.innerHTML =
-
-          "<b>" +
-
-          (
-            item.part <= 4
-              ? "🎧 LISTENING"
-              : "📖 READING"
-          ) +
-
-          " — PHẦN " +
-
-          item.part +
-
-          "</b>" +
-
-          "<span>" +
-
-          (
-            item.part <= 4
-              ? "Nghe và chọn đáp án phù hợp."
-              : "Đọc và chọn đáp án đúng."
-          ) +
-
-          "</span>";
-
-
-        box.appendChild(
-          section
-        );
-
-      }
-
-
-      const card =
-        document.createElement(
-          "div"
-        );
-
-      card.className =
-        "whv3-card";
-
-
-     const question =
-  document.createElement(
-    "div"
-  );
-
-question.className =
-  "whv3-q";
-
-
-/* =========================================================
-   📖 WHITE HAT — FORMAT CÂU HỎI
-   - Hội thoại 男 / 女 xuống dòng
-   - 问： tách riêng
-   - Không sửa DATA gốc
-========================================================= */
-
-const questionText =
-  String(item.q || "");
-
-
-/* Có hội thoại */
-if(
-  /(?:^|\s)(男|女)：/.test(
-    questionText
-  )
-){
-
-  const parts =
-    questionText
-      .split(
-        /(?=(?:男|女)：)/
-      )
-      .map(function(x){
-        return x.trim();
-      })
-      .filter(Boolean);
-
-
-  parts.forEach(
-    function(part){
-
-      const line =
-        document.createElement(
-          "div"
-        );
-
-      line.className =
-        "whv3-q-line";
-
-
-      /* Tách câu hỏi 问： */
-      if(
-        part.indexOf("问：") === 0
-      ){
-
-        line.classList.add(
-          "whv3-q-ask"
-        );
-
-      }
-
-
-      line.textContent =
-        part;
-
-
-      question.appendChild(
-        line
-      );
-
-    }
-  );
-
-}
-
-
-/* Đoạn văn + câu hỏi */
-else{
-
-  const askIndex =
-    questionText.indexOf(
-      "问："
+  const btn =
+    document.createElement(
+      "button"
     );
 
 
-  if(
-    askIndex >= 0
-  ){
-
-    const passage =
-      questionText
-        .slice(
-          0,
-          askIndex
-        )
-        .trim();
+  btn.id =
+    "whHskLauncher";
 
 
-    const ask =
-      questionText
-        .slice(
-          askIndex
-        )
-        .trim();
+  btn.type =
+    "button";
 
 
-    const passageBox =
-      document.createElement(
-        "div"
+  btn.textContent =
+    "KHU LUYỆN THI HSK";
+
+
+  btn.onclick =
+    function(){
+
+      root.classList.add(
+        "wh-open"
       );
 
-    passageBox.className =
-      "whv3-q-passage";
+
+      root.scrollIntoView({
+        behavior:"smooth",
+        block:"start"
+      });
+
+    };
 
 
-    passageBox.textContent =
-      passage;
-
-
-    const askBox =
-      document.createElement(
-        "div"
-      );
-
-    askBox.className =
-      "whv3-q-ask";
-
-
-    askBox.textContent =
-      ask;
-
-
-    question.appendChild(
-      passageBox
+  const header =
+    document.querySelector(
+      "header"
     );
 
-    question.appendChild(
-      askBox
+
+  const nav =
+    document.querySelector(
+      "nav"
+    );
+
+
+  const main =
+    document.querySelector(
+      "main"
+    );
+
+
+  if(header){
+
+    header.insertAdjacentElement(
+      "afterend",
+      btn
+    );
+
+  }else if(nav){
+
+    nav.insertAdjacentElement(
+      "afterend",
+      btn
+    );
+
+  }else if(main){
+
+    main.insertBefore(
+      btn,
+      main.firstChild
     );
 
   }else{
 
-    question.textContent =
-      questionText;
+    document.body.insertBefore(
+      btn,
+      document.body.firstChild
+    );
 
   }
 
 }
 
 
-card.appendChild(
-  question
-);
+/* =========================================================
+   🏠 LEVEL
+========================================================= */
 
-      /*
-       * LUYỆN TẬP:
-       * Hiện Pinyin + nghĩa.
-       */
+document
+  .querySelectorAll(
+    ".wh-hsk-level"
+  )
+  .forEach(function(btn){
 
-      if(
-        mode === "practice"
-      ){
+    btn.addEventListener(
+      "click",
+      function(){
 
-        const meta =
-          document.createElement(
-            "div"
-          );
+        document
+          .querySelectorAll(
+            ".wh-hsk-level"
+          )
+          .forEach(function(x){
 
-        meta.className =
-          "whv3-meta";
-
-        meta.textContent =
-          item.p +
-          " · " +
-          item.m;
-
-        card.appendChild(
-          meta
-        );
-
-      }
-
-
-      /*
-       * THI THỬ:
-       * Listening có audio.
-       * Không hiện Pinyin/ nghĩa.
-       */
-
-      if(
-        mode === "mock" &&
-        item.part <= 4
-      ){
-
-        const audio =
-          document.createElement(
-            "button"
-          );
-
-        audio.type =
-          "button";
-
-        audio.className =
-          "whv3-audio";
-
-        audio.textContent =
-          "🔊 Nghe";
-
-
-        audio.onclick =
-          function(){
-
-            speak(
-              item.q
+            x.classList.remove(
+              "wh-selected"
             );
 
-          };
+          });
 
 
-        card.appendChild(
-          audio
+        btn.classList.add(
+          "wh-selected"
         );
 
+
+        currentHsk =
+          Number(
+            btn.dataset.hsk
+          );
+
+
+        document.getElementById(
+          "whHskSelectedInfo"
+        ).textContent =
+          "Đang chọn HSK " +
+          currentHsk;
+
       }
+    );
+
+  });
+
+
+/* =========================================================
+   📚 MODE
+========================================================= */
+
+practiceBtn.onclick =
+  function(){
+
+    currentMode =
+      "practice";
+
+    openTestList();
+
+  };
+
+
+mockBtn.onclick =
+  function(){
+
+    currentMode =
+      "mock";
+
+    openTestList();
+
+  };
+
+
+/* =========================================================
+   📝 TEST LIST
+========================================================= */
+
+function openTestList(){
+
+  const modeText =
+    currentMode === "practice"
+      ? "LUYỆN TẬP"
+      : "THI THỬ";
+
+
+  testTitle.textContent =
+    "HSK " +
+    currentHsk +
+    " — " +
+    modeText;
+
+
+  testList.innerHTML =
+    "";
+
+
+  selectLeaderboard.innerHTML =
+    "";
+
+
+  if(
+    currentHsk === 1
+  ){
+
+    const btn =
+      document.createElement(
+        "button"
+      );
+
+
+    btn.className =
+      "wh-hsk-test";
+
+
+    btn.textContent =
+      "📝 ĐỀ SỐ 01";
+
+
+    btn.onclick =
+      function(){
+
+        currentExamNumber =
+          1;
+
+        startExam();
+
+      };
+
+
+    testList.appendChild(
+      btn
+    );
+
+
+    /*
+    ---------------------------------------------------------
+    Bảng thành tích chỉ xuất hiện ở THI THỬ
+    ---------------------------------------------------------
+    */
+
+    if(
+      currentMode ===
+      "mock"
+    ){
+
+      renderLeaderboard(
+        selectLeaderboard,
+        currentHsk,
+        currentExamNumber
+      );
+
+    }
+
+  }else{
+
+    const btn =
+      document.createElement(
+        "button"
+      );
+
+
+    btn.className =
+      "wh-hsk-test";
+
+
+    btn.textContent =
+      "🔒 Đề HSK " +
+      currentHsk +
+      " đang chuẩn bị";
+
+
+    btn.onclick =
+      function(){
+
+        alert(
+          "Đề HSK " +
+          currentHsk +
+          " sẽ được bổ sung sau."
+        );
+
+      };
+
+
+    testList.appendChild(
+      btn
+    );
+
+  }
+
+
+  showScreen(
+    testSelect
+  );
+
+}
+
+
+/* =========================================================
+   🚀 START
+========================================================= */
+
+function startExam(){
+
+  stopTimer();
+
+
+  const source =
+    HSK_DATA[currentHsk] &&
+    HSK_DATA[currentHsk][currentMode];
+
+
+  if(
+    !source ||
+    !source.length
+  ){
+
+    alert(
+      "Chưa có dữ liệu cho đề này."
+    );
+
+    return;
+
+  }
+
+
+  currentQuestions =
+    source.map(function(item){
+
+      return {
+
+        q:
+          item.q,
+
+        qPinyin:
+          item.qPinyin,
+
+        qMeaning:
+          item.qMeaning,
+
+        options:
+          item.options.slice(),
+
+        optionPinyin:
+          item.optionPinyin.slice(),
+
+        optionMeaning:
+          item.optionMeaning.slice(),
+
+        answer:
+          item.answer,
+
+        analysis:
+          item.analysis.slice()
+
+      };
+
+    });
+
+
+  currentAnswers =
+    new Array(
+      currentQuestions.length
+    ).fill(null);
+
+
+  examName.textContent =
+    "HSK " +
+    currentHsk +
+    " — Đề số " +
+    String(
+      currentExamNumber
+    ).padStart(
+      2,
+      "0"
+    ) +
+    " — " +
+    (
+      currentMode ===
+      "practice"
+        ? "LUYỆN TẬP"
+        : "THI THỬ"
+    );
+
+
+  submitBtn.textContent =
+    currentMode ===
+    "practice"
+      ? "HOÀN THÀNH LUYỆN TẬP"
+      : "NỘP BÀI";
+
+
+  renderQuestions();
+
+
+  showScreen(
+    exam
+  );
+
+
+  if(
+    currentMode ===
+    "mock"
+  ){
+
+    remainingSeconds =
+      MOCK_TIME[currentHsk] ||
+      15 * 60;
+
+
+    examStartedAt =
+      Date.now();
+
+
+    startTimer();
+
+  }else{
+
+    timer.textContent =
+      "Không tính giờ";
+
+  }
+
+
+  window.scrollTo({
+    top:
+      exam.offsetTop - 15,
+    behavior:"smooth"
+  });
+
+}
+
+
+/* =========================================================
+   📝 QUESTIONS
+========================================================= */
+
+function renderQuestions(){
+
+  questionsBox.innerHTML =
+    "";
+
+
+  currentQuestions.forEach(
+    function(item,index){
+
+      const card =
+        document.createElement(
+          "div"
+        );
+
+
+      card.className =
+        "wh-hsk-question";
+
+
+      const number =
+        document.createElement(
+          "div"
+        );
+
+
+      number.className =
+        "wh-hsk-q-number";
+
+
+      number.textContent =
+        "Câu " +
+        (
+          index + 1
+        ) +
+        " / " +
+        currentQuestions.length;
+
+
+      const q =
+        document.createElement(
+          "div"
+        );
+
+
+      q.className =
+        "wh-hsk-q-text";
+
+
+      q.textContent =
+        item.q;
+
+
+      const pinyin =
+        document.createElement(
+          "div"
+        );
+
+
+      pinyin.className =
+        "wh-hsk-q-pinyin";
+
+
+      pinyin.textContent =
+        item.qPinyin;
+
+
+      const meaning =
+        document.createElement(
+          "div"
+        );
+
+
+      meaning.className =
+        "wh-hsk-q-meaning";
+
+
+      meaning.textContent =
+        "🇻🇳 " +
+        item.qMeaning;
 
 
       const options =
@@ -104430,65 +104806,125 @@ card.appendChild(
           "div"
         );
 
+
       options.className =
-        "whv3-options";
+        "wh-hsk-options";
 
 
-      item.o.forEach(
+      item.options.forEach(
         function(optionText,optIndex){
 
-          const button =
+          const btn =
             document.createElement(
               "button"
             );
 
-          button.type =
+
+          btn.type =
             "button";
 
-          button.className =
-            "whv3-opt";
+
+          btn.className =
+            "wh-hsk-option";
 
 
-          button.textContent =
-
+          btn.textContent =
             String.fromCharCode(
               65 + optIndex
             ) +
-
             ". " +
-
             optionText;
 
 
           if(
-            answers[index] ===
+            currentAnswers[index] ===
             optIndex
           ){
 
-            button.classList.add(
-              "picked"
+            btn.classList.add(
+              "wh-picked"
             );
 
           }
 
 
-          button.onclick =
+          btn.onclick =
             function(){
 
-              answers[index] =
+              currentAnswers[index] =
                 optIndex;
 
 
-              renderQuestions();
+              options
+                .querySelectorAll(
+                  ".wh-hsk-option"
+                )
+                .forEach(function(x){
+
+                  x.classList.remove(
+                    "wh-picked"
+                  );
+
+                });
+
+
+              btn.classList.add(
+                "wh-picked"
+              );
+
+
+              if(
+                currentMode ===
+                "practice"
+              ){
+
+                showPracticeFeedback(
+                  card,
+                  item,
+                  optIndex
+                );
+
+              }
+
+
+              updateProgress();
 
             };
 
 
           options.appendChild(
-            button
+            btn
           );
 
         }
+      );
+
+
+      card.appendChild(
+        number
+      );
+
+
+      card.appendChild(
+        q
+      );
+
+
+      /*
+      -------------------------------------------------------
+      Trong THI THỬ chỉ hiện câu hỏi.
+      Pinyin câu hỏi vẫn được phép nhìn thấy,
+      nhưng tuyệt đối không có đáp án/giải thích.
+      -------------------------------------------------------
+      */
+
+      card.appendChild(
+        pinyin
+      );
+
+
+      card.appendChild(
+        meaning
       );
 
 
@@ -104497,199 +104933,275 @@ card.appendChild(
       );
 
 
-      /*
-       * LUYỆN TẬP FEEDBACK
-       */
+      questionsBox.appendChild(
+        card
+      );
+
 
       if(
-        mode === "practice" &&
-        answers[index] !== null
+        currentMode ===
+        "practice" &&
+        currentAnswers[index] !== null
       ){
 
-        const feedback =
-          document.createElement(
-            "div"
-          );
-
-
-        if(
-          answers[index] ===
-          item.a
-        ){
-
-          feedback.className =
-            "whv3-ok";
-
-          feedback.textContent =
-            "✅ Chính xác!";
-
-        }else{
-
-          feedback.className =
-            "whv3-bad";
-
-          feedback.textContent =
-            "❌ Chưa đúng. Đáp án đúng: " +
-            item.o[item.a];
-
-        }
-
-
-        card.appendChild(
-          feedback
+        showPracticeFeedback(
+          card,
+          item,
+          currentAnswers[index]
         );
 
       }
-
-
-      box.appendChild(
-        card
-      );
 
     }
   );
 
 
-  $("whHskProgressV3").textContent =
-
-    "Đã chọn " +
-
-    answers.filter(
-      function(x){
-        return x !== null;
-      }
-    ).length +
-
-    "/" +
-
-    questions.length;
+  updateProgress();
 
 }
 
 
 /* =========================================================
-   🔊 SPEECH
+   📚 GIẢI THÍCH CHI TIẾT
 ========================================================= */
 
-function speak(text){
+function showPracticeFeedback(
+  card,
+  item,
+  selected
+){
 
-  if(
-    !window.speechSynthesis
-  ){
+  const old =
+    card.querySelector(
+      ".wh-hsk-feedback"
+    );
 
-    return;
+
+  if(old){
+
+    old.remove();
 
   }
 
 
-  window.speechSynthesis.cancel();
-
-
-  const utterance =
-    new SpeechSynthesisUtterance(
-      text
+  const feedback =
+    document.createElement(
+      "div"
     );
 
 
-  utterance.lang =
-    "zh-CN";
-
-  utterance.rate =
-    .88;
+  feedback.className =
+    "wh-hsk-feedback";
 
 
-  window.speechSynthesis.speak(
-    utterance
-  );
-
-}
+  const isCorrect =
+    selected ===
+    item.answer;
 
 
-/* =========================================================
-   🚀 START EXAM
-========================================================= */
+  if(isCorrect){
 
-function startExam(index){
-
-  testIndex =
-    index;
-
-
-  const data =
-    DATA[level];
-
-
-  questions =
-    data.tests[
-      index
-    ].questions.slice();
-
-
-  answers =
-    Array(
-      questions.length
-    ).fill(null);
-
-
-  submitted =
-    false;
-
-
-  $("whHskExamNameV3")
-    .textContent =
-    data.tests[index].name;
-
-
-  renderQuestions();
-
-
-  show(
-    screens.exam
-  );
-
-
-  if(
-    mode === "mock"
-  ){
-
-    startTimer(
-      data.time
+    feedback.classList.add(
+      "wh-correct"
     );
 
   }else{
 
-    stopTimer();
-
-    $("whHskTimerV3")
-      .textContent =
-      "📚 LUYỆN TẬP";
+    feedback.classList.add(
+      "wh-wrong"
+    );
 
   }
+
+
+  let html = "";
+
+
+  html +=
+    "<div class='wh-hsk-feedback-title'>" +
+    (
+      isCorrect
+        ? "🎉 Chính xác!"
+        : "❌ Chưa chính xác"
+    ) +
+    "</div>";
+
+
+  html +=
+    "<div>" +
+    "<strong>🇨🇳 Câu hỏi:</strong><br>" +
+    item.q +
+    "<br>" +
+    "<span style='color:#777;font-style:italic'>" +
+    item.qPinyin +
+    "</span><br>" +
+    "<span>🇻🇳 " +
+    item.qMeaning +
+    "</span>" +
+    "</div>";
+
+
+  html +=
+    "<div class='wh-hsk-explanation-block'>" +
+
+    "<strong>✅ ĐÁP ÁN ĐÚNG</strong><br>" +
+
+    item.options[item.answer] +
+
+    "<br>" +
+
+    "<span style='color:#777;font-style:italic'>" +
+    item.optionPinyin[item.answer] +
+    "</span><br>" +
+
+    "🇻🇳 " +
+    item.optionMeaning[item.answer] +
+
+    "<br><br>" +
+
+    "<strong>💡 Vì sao đúng?</strong><br>" +
+
+    item.analysis[item.answer] +
+
+    "</div>";
+
+
+  html +=
+    "<div class='wh-hsk-explanation-block'>" +
+
+    "<strong>🔎 PHÂN TÍCH CÁC ĐÁP ÁN</strong>" +
+
+    "</div>";
+
+
+  item.options.forEach(
+    function(optionText,index){
+
+      if(
+        index ===
+        item.answer
+      ){
+
+        return;
+
+      }
+
+
+      html +=
+        "<div class='wh-hsk-wrong-option'>" +
+
+        "<strong>❌ " +
+        String.fromCharCode(
+          65 + index
+        ) +
+        ". " +
+        optionText +
+        "</strong><br>" +
+
+        "<span style='color:#777;font-style:italic'>" +
+        item.optionPinyin[index] +
+        "</span><br>" +
+
+        "🇻🇳 " +
+        item.optionMeaning[index] +
+
+        "<br>" +
+
+        "<span>" +
+        item.analysis[index] +
+        "</span>" +
+
+        "</div>";
+
+    }
+  );
+
+
+  feedback.innerHTML =
+    html;
+
+
+  card.appendChild(
+    feedback
+  );
 
 }
 
 
 /* =========================================================
-   ⏱️ TIMER
+   📊 PROGRESS
 ========================================================= */
 
-function startTimer(seconds){
+function updateProgress(){
+
+  const answered =
+    currentAnswers.filter(
+      function(x){
+
+        return x !== null;
+
+      }
+    ).length;
+
+
+  const total =
+    currentQuestions.length;
+
+
+  const percent =
+    total
+      ? (
+          answered /
+          total *
+          100
+        )
+      : 0;
+
+
+  progressBar.style.width =
+    percent +
+    "%";
+
+}
+
+
+/* =========================================================
+   ⏱ TIMER
+========================================================= */
+
+function startTimer(){
 
   stopTimer();
-
-
-  left =
-    seconds;
-
 
   updateTimer();
 
 
-  timer =
+  timerInterval =
     setInterval(
       function(){
 
+        remainingSeconds--;
+
         updateTimer();
+
+
+        if(
+          remainingSeconds <= 0
+        ){
+
+          stopTimer();
+
+
+          alert(
+            "⏰ Hết giờ! Bài thi sẽ được nộp tự động."
+          );
+
+
+          finishExam(
+            true
+          );
+
+        }
 
       },
       1000
@@ -104698,61 +105210,17 @@ function startTimer(seconds){
 }
 
 
-function updateTimer(){
-
-  const minutes =
-    Math.floor(
-      left / 60
-    );
-
-
-  const seconds =
-    left % 60;
-
-
-  $("whHskTimerV3")
-    .textContent =
-
-    "⏱ " +
-
-    String(minutes)
-      .padStart(2,"0") +
-
-    ":" +
-
-    String(seconds)
-      .padStart(2,"0");
-
-
-  if(
-    left <= 0
-  ){
-
-    stopTimer();
-
-    submitExam(
-      true
-    );
-
-    return;
-
-  }
-
-
-  left--;
-
-}
-
-
 function stopTimer(){
 
-  if(timer){
+  if(
+    timerInterval
+  ){
 
     clearInterval(
-      timer
+      timerInterval
     );
 
-    timer =
+    timerInterval =
       null;
 
   }
@@ -104760,41 +105228,110 @@ function stopTimer(){
 }
 
 
+function updateTimer(){
+
+  const min =
+    Math.floor(
+      remainingSeconds /
+      60
+    );
+
+
+  const sec =
+    remainingSeconds %
+    60;
+
+
+  timer.textContent =
+    String(min).padStart(
+      2,
+      "0"
+    ) +
+    ":" +
+    String(sec).padStart(
+      2,
+      "0"
+    );
+
+
+  timer.style.background =
+    remainingSeconds <= 60
+      ? "#b40000"
+      : "#222";
+
+}
+
+
 /* =========================================================
-   📝 SUBMIT
+   📤 SUBMIT
 ========================================================= */
 
-function submitExam(
+submitBtn.onclick =
+  function(){
+
+    const unanswered =
+      currentAnswers.filter(
+        function(x){
+
+          return x === null;
+
+        }
+      ).length;
+
+
+    if(
+      unanswered > 0
+    ){
+
+      const ok =
+        confirm(
+          "Anh còn " +
+          unanswered +
+          " câu chưa trả lời.\n\n" +
+          "Vẫn nộp bài chứ?"
+        );
+
+
+      if(!ok){
+
+        return;
+
+      }
+
+    }
+
+
+    finishExam(
+      false
+    );
+
+  };
+
+
+/* =========================================================
+   🏆 FINISH
+========================================================= */
+
+async function finishExam(
   autoSubmit
 ){
-
-  if(submitted){
-
-    return;
-
-  }
-
-
-  submitted =
-    true;
-
 
   stopTimer();
 
 
-  let score =
+  let correct =
     0;
 
 
-  questions.forEach(
+  currentQuestions.forEach(
     function(item,index){
 
       if(
-        answers[index] ===
-        item.a
+        currentAnswers[index] ===
+        item.answer
       ){
 
-        score++;
+        correct++;
 
       }
 
@@ -104802,54 +105339,835 @@ function submitExam(
   );
 
 
-  $("whHskScoreV3")
-    .innerHTML =
+  const total =
+    currentQuestions.length;
 
-    '<div class="whv3-score">' +
 
-    score +
+  const score =
+    Math.round(
+      correct /
+      total *
+      100
+    );
 
-    " / " +
 
-    questions.length +
+  const usedSeconds =
+    currentMode ===
+    "mock"
+
+      ? Math.max(
+          0,
+          Math.floor(
+            (
+              Date.now() -
+              examStartedAt
+            ) /
+            1000
+          )
+        )
+
+      : 0;
+
+
+  /*
+  ---------------------------------------------------------
+  LUYỆN TẬP
+  Không lưu thành tích.
+  ---------------------------------------------------------
+  */
+
+  if(
+    currentMode ===
+    "practice"
+  ){
+
+    renderResult(
+      correct,
+      total,
+      score,
+      usedSeconds,
+      autoSubmit
+    );
+
+
+    showScreen(
+      result
+    );
+
+
+    window.scrollTo({
+      top:
+        result.offsetTop - 15,
+      behavior:"smooth"
+    });
+
+
+    return;
+
+  }
+
+
+  /*
+  ---------------------------------------------------------
+  THI THỬ
+  Ghi Supabase
+  ---------------------------------------------------------
+  */
+
+  await saveMockAchievement(
+    score,
+    total,
+    usedSeconds
+  );
+
+
+  renderResult(
+    correct,
+    total,
+    score,
+    usedSeconds,
+    autoSubmit
+  );
+
+
+  showScreen(
+    result
+  );
+
+
+  window.scrollTo({
+    top:
+      result.offsetTop - 15,
+    behavior:"smooth"
+  });
+
+
+  renderLeaderboard(
+    resultLeaderboard,
+    currentHsk,
+    currentExamNumber
+  );
+
+}
+
+
+/* =========================================================
+   🔐 SUPABASE CLIENT
+========================================================= */
+
+function getSupabaseClient(){
+
+  /*
+  ---------------------------------------------------------
+  Hỗ trợ nhiều kiểu tên client thường gặp.
+  ---------------------------------------------------------
+  */
+
+  try{
+
+    if(
+      typeof supabaseClient !==
+      "undefined"
+    ){
+
+      return supabaseClient;
+
+    }
+
+  }catch(e){}
+
+
+  try{
+
+    if(
+      typeof supabase !==
+      "undefined"
+      &&
+      supabase
+      &&
+      typeof supabase.rpc ===
+      "function"
+    ){
+
+      return supabase;
+
+    }
+
+  }catch(e){}
+
+
+  if(
+    window.supabaseClient
+  ){
+
+    return window.supabaseClient;
+
+  }
+
+
+  if(
+    window.sb
+  ){
+
+    return window.sb;
+
+  }
+
+
+  return null;
+
+}
+
+
+/* =========================================================
+   👤 LẤY USER
+========================================================= */
+
+async function getCurrentUser(){
+
+  const client =
+    getSupabaseClient();
+
+
+  if(!client){
+
+    return null;
+
+  }
+
+
+  try{
+
+    const result =
+      await client.auth.getUser();
+
+
+    if(
+      result &&
+      result.data &&
+      result.data.user
+    ){
+
+      return result.data.user;
+
+    }
+
+  }catch(e){
+
+    console.warn(
+      "HSK auth error:",
+      e
+    );
+
+  }
+
+
+  return null;
+
+}
+
+
+/* =========================================================
+   🏆 SAVE MOCK
+========================================================= */
+
+async function saveMockAchievement(
+  score,
+  total,
+  seconds
+){
+
+  const client =
+    getSupabaseClient();
+
+
+  if(!client){
+
+    console.warn(
+      "🛡️ HSK: Không tìm thấy Supabase client."
+    );
+
+    alert(
+      "Bài thi đã chấm điểm, nhưng chưa kết nối được bảng thành tích online."
+    );
+
+    return false;
+
+  }
+
+
+  const user =
+    await getCurrentUser();
+
+
+  if(!user){
+
+    alert(
+      "Anh cần đăng nhập tài khoản trước khi thi thử để lưu thành tích."
+    );
+
+    return false;
+
+  }
+
+
+  try{
+
+    const result =
+      await client.rpc(
+        "submit_hsk_mock_result",
+        {
+          p_hsk_level:
+            currentHsk,
+
+          p_exam_number:
+            currentExamNumber,
+
+          p_score:
+            score,
+
+          p_total_questions:
+            total,
+
+          p_time_seconds:
+            seconds
+        }
+      );
+
+
+    if(
+      result.error
+    ){
+
+      console.error(
+        "HSK leaderboard error:",
+        result.error
+      );
+
+
+      alert(
+        "Không thể lưu thành tích online.\n\n" +
+        result.error.message
+      );
+
+
+      return false;
+
+    }
+
+
+    return true;
+
+  }catch(error){
+
+    console.error(
+      error
+    );
+
+
+    alert(
+      "Có lỗi khi lưu thành tích."
+    );
+
+
+    return false;
+
+  }
+
+}
+
+
+/* =========================================================
+   📅 THÁNG HIỆN TẠI
+========================================================= */
+
+function getCurrentSeason(){
+
+  const now =
+    new Date();
+
+
+  return (
+    now.getFullYear() +
+    "-" +
+    String(
+      now.getMonth() + 1
+    ).padStart(
+      2,
+      "0"
+    )
+  );
+
+}
+
+
+/* =========================================================
+   ⏱ FORMAT TIME
+========================================================= */
+
+function formatSeconds(
+  totalSeconds
+){
+
+  const seconds =
+    Number(
+      totalSeconds
+    ) || 0;
+
+
+  const min =
+    Math.floor(
+      seconds /
+      60
+    );
+
+
+  const sec =
+    seconds %
+    60;
+
+
+  return (
+    String(min).padStart(
+      2,
+      "0"
+    ) +
+    ":" +
+    String(sec).padStart(
+      2,
+      "0"
+    )
+  );
+
+}
+
+
+/* =========================================================
+   🏆 LOAD LEADERBOARD
+========================================================= */
+
+async function loadLeaderboard(
+  hsk,
+  examNumber
+){
+
+  const client =
+    getSupabaseClient();
+
+
+  if(!client){
+
+    return [];
+
+  }
+
+
+  try{
+
+    const season =
+      getCurrentSeason();
+
+
+    const result =
+      await client
+        .from(
+          "hsk_mock_results"
+        )
+        .select(
+          "id,user_id,display_name,hsk_level,exam_number,score,total_questions,time_seconds,season_month,submitted_at"
+        )
+        .eq(
+          "hsk_level",
+          hsk
+        )
+        .eq(
+          "exam_number",
+          examNumber
+        )
+        .eq(
+          "season_month",
+          season
+        )
+        .order(
+          "score",
+          {
+            ascending:false
+          }
+        )
+        .order(
+          "time_seconds",
+          {
+            ascending:true
+          }
+        )
+        .order(
+          "submitted_at",
+          {
+            ascending:true
+          }
+        )
+        .limit(
+          100
+        );
+
+
+    if(
+      result.error
+    ){
+
+      console.error(
+        "Leaderboard load error:",
+        result.error
+      );
+
+      return [];
+
+    }
+
+
+    return result.data || [];
+
+  }catch(error){
+
+    console.error(
+      error
+    );
+
+    return [];
+
+  }
+
+}
+
+
+/* =========================================================
+   🏆 RENDER LEADERBOARD
+========================================================= */
+
+async function renderLeaderboard(
+  container,
+  hsk,
+  examNumber
+){
+
+  if(!container){
+
+    return;
+
+  }
+
+
+  container.innerHTML =
+
+    "<div class='wh-hsk-leaderboard'>" +
+
+      "<h3>🏆 THÀNH TÍCH THI THỬ</h3>" +
+
+      "<div class='wh-hsk-leaderboard-season'>" +
+
+        "HSK " +
+        hsk +
+        " · Đề số " +
+        String(
+          examNumber
+        ).padStart(
+          2,
+          "0"
+        ) +
+        " · Tháng " +
+        getCurrentSeason() +
+
+      "</div>" +
+
+      "<div class='wh-hsk-empty'>" +
+        "⏳ Đang tải bảng thành tích..." +
+      "</div>" +
+
+    "</div>";
+
+
+  const data =
+    await loadLeaderboard(
+      hsk,
+      examNumber
+    );
+
+
+  const box =
+    container.querySelector(
+      ".wh-hsk-leaderboard"
+    );
+
+
+  if(!box){
+
+    return;
+
+  }
+
+
+  if(!data.length){
+
+    box.innerHTML =
+
+      "<h3>🏆 THÀNH TÍCH THI THỬ</h3>" +
+
+      "<div class='wh-hsk-leaderboard-season'>" +
+
+        "HSK " +
+        hsk +
+        " · Đề số " +
+        String(
+          examNumber
+        ).padStart(
+          2,
+          "0"
+        ) +
+        " · Tháng " +
+        getCurrentSeason() +
+
+      "</div>" +
+
+      "<div class='wh-hsk-empty'>" +
+
+        "Chưa có ai thi đề này trong tháng này.<br>" +
+        "<strong>Hãy trở thành người đầu tiên! 🥇</strong>" +
+
+      "</div>";
+
+    return;
+
+  }
+
+
+  let html =
+
+    "<h3>🏆 THÀNH TÍCH THI THỬ</h3>" +
+
+    "<div class='wh-hsk-leaderboard-season'>" +
+
+      "HSK " +
+      hsk +
+      " · Đề số " +
+      String(
+        examNumber
+      ).padStart(
+        2,
+        "0"
+      ) +
+      " · Tháng " +
+      getCurrentSeason() +
+
+    "</div>";
+
+
+  data.forEach(
+    function(item,index){
+
+      let medal =
+        "";
+
+
+      if(
+        index === 0
+      ){
+
+        medal = "🥇";
+
+      }else if(
+        index === 1
+      ){
+
+        medal = "🥈";
+
+      }else if(
+        index === 2
+      ){
+
+        medal = "🥉";
+
+      }else{
+
+        medal =
+          String(
+            index + 1
+          ) +
+          "️⃣";
+
+      }
+
+
+      html +=
+
+        "<div class='wh-hsk-rank-row'>" +
+
+          "<div class='wh-hsk-rank'>" +
+            medal +
+          "</div>" +
+
+          "<div class='wh-hsk-rank-name'>" +
+            escapeHtml(
+              item.display_name ||
+              "User"
+            ) +
+          "</div>" +
+
+          "<div class='wh-hsk-rank-score'>" +
+            item.score +
+            " điểm" +
+          "</div>" +
+
+          "<div class='wh-hsk-rank-time'>" +
+            formatSeconds(
+              item.time_seconds
+            ) +
+          "</div>" +
+
+        "</div>";
+
+    }
+  );
+
+
+  box.innerHTML =
+    html;
+
+}
+
+
+/* =========================================================
+   🛡️ ESCAPE HTML
+========================================================= */
+
+function escapeHtml(
+  text
+){
+
+  const div =
+    document.createElement(
+      "div"
+    );
+
+
+  div.textContent =
+    String(
+      text
+    );
+
+
+  return div.innerHTML;
+
+}
+
+
+/* =========================================================
+   📖 RESULT
+========================================================= */
+
+function renderResult(
+  correct,
+  total,
+  score,
+  seconds,
+  autoSubmit
+){
+
+  const title =
+    autoSubmit
+      ? "⏰ HẾT GIỜ — ĐÃ NỘP BÀI"
+      : "🎉 HOÀN THÀNH BÀI!";
+
+
+  const timeText =
+    currentMode ===
+    "mock"
+
+      ? formatSeconds(
+          seconds
+        )
+
+      : "Không tính giờ";
+
+
+  document.getElementById(
+    "whHskResultBox"
+  ).innerHTML =
+
+    "<div style='font-size:22px;font-weight:900;color:#b40000'>" +
+
+      title +
 
     "</div>" +
 
-    "<b>" +
+    "<div class='wh-hsk-result-score'>" +
 
-    (
-      autoSubmit
-        ? "⏰ HẾT GIỜ"
-        : "📊 KẾT QUẢ BÀI THI"
-    ) +
+      score +
 
-    "</b>" +
+      " điểm" +
 
-    "<p>" +
+    "</div>" +
 
-    "Đúng " +
-    score +
-    " câu · Sai " +
-    (
-      questions.length -
-      score
-    ) +
+    "<div class='wh-hsk-result-detail'>" +
 
-    " câu." +
+      "HSK " +
+      currentHsk +
+      " · Đề số " +
+      String(
+        currentExamNumber
+      ).padStart(
+        2,
+        "0"
+      ) +
 
-    "</p>";
+      "<br>" +
 
+      "Đúng: <strong>" +
+      correct +
+      "/" +
+      total +
+      "</strong>" +
+
+      "<br>" +
+
+      "Thời gian: <strong>" +
+      timeText +
+      "</strong>" +
+
+    "</div>";
+
+
+  /*
+  ---------------------------------------------------------
+  Luyện tập và Thi thử đều xem đáp án SAU KHI KẾT THÚC.
+  ---------------------------------------------------------
+  */
 
   const review =
-    $("whHskReviewV3");
+    document.getElementById(
+      "whHskAnswerReview"
+    );
 
 
   review.innerHTML =
-    "<h3>📋 XEM LẠI ĐÁP ÁN</h3>";
+
+    "<h3 style='color:#b40000;margin-top:20px'>" +
+
+      "📖 ĐÁP ÁN & GIẢI THÍCH" +
+
+    "</h3>";
 
 
-  questions.forEach(
+  currentQuestions.forEach(
     function(item,index){
+
+      const selected =
+        currentAnswers[index];
+
+
+      const isCorrect =
+        selected ===
+        item.answer;
+
 
       const box =
         document.createElement(
@@ -104858,47 +106176,83 @@ function submitExam(
 
 
       box.className =
-
-        "whv3-review " +
-
+        "wh-hsk-review-box " +
         (
-          answers[index] ===
-          item.a
-            ? "correct"
-            : "wrong"
+          isCorrect
+            ? "wh-review-correct"
+            : "wh-review-wrong"
         );
 
 
-      box.innerHTML =
+      const selectedText =
+        selected === null
+          ? "Chưa trả lời"
+          : item.options[selected];
 
-        "<b>Câu " +
-        (index + 1) +
-        "</b> — " +
 
+      let html =
+
+        "<strong>Câu " +
         (
-          answers[index] === null
-            ? "Chưa trả lời"
-            : (
-              answers[index] ===
-              item.a
-                ? "Đúng"
-                : "Sai"
-            )
+          index + 1
         ) +
+        ":</strong><br><br>" +
+
+        "🇨🇳 " +
+        item.q +
 
         "<br>" +
 
-        "Đáp án: <strong>" +
+        "<span style='color:#777;font-style:italic'>" +
+        item.qPinyin +
+        "</span>" +
 
-        String.fromCharCode(
-          65 + item.a
+        "<br>" +
+
+        "🇻🇳 " +
+        item.qMeaning +
+
+        "<br><br>" +
+
+        (
+          selected === null
+            ? "Bạn chọn: <strong>Chưa trả lời</strong>"
+            : "Bạn chọn: <strong>" +
+              selectedText +
+              "</strong><br>" +
+              "<span style='color:#777;font-style:italic'>" +
+              item.optionPinyin[selected] +
+              "</span><br>" +
+              "🇻🇳 " +
+              item.optionMeaning[selected]
         ) +
 
-        ". " +
+        "<br><br>" +
 
-        item.o[item.a] +
+        "✅ Đáp án đúng: <strong>" +
+        item.options[item.answer] +
+        "</strong>" +
 
-        "</strong>";
+        "<br>" +
+
+        "<span style='color:#777;font-style:italic'>" +
+        item.optionPinyin[item.answer] +
+        "</span>" +
+
+        "<br>" +
+
+        "🇻🇳 " +
+        item.optionMeaning[item.answer] +
+
+        "<br><br>" +
+
+        "<strong>💡 Giải thích:</strong><br>" +
+
+        item.analysis[item.answer];
+
+
+      box.innerHTML =
+        html;
 
 
       review.appendChild(
@@ -104908,172 +106262,30 @@ function submitExam(
     }
   );
 
-
-  show(
-    screens.result
-  );
-
 }
 
 
 /* =========================================================
-   🎛️ EVENTS — HSK LAUNCHER
+   🔙 BACK
 ========================================================= */
 
-const hskWrap =
-  $("whHskWrapV3");
-
-const hskLauncher =
-  $("whHskLauncherV3");
-
-/* =========================================================
-   📍 WHITE HAT — ĐƯA KHU HSK NGAY DƯỚI TIÊU ĐỀ
-   Không scroll — không reload — không đụng Engine
-========================================================= */
-
-function placeHskUnderTitle(){
-
-  const pageTitle =
-    document.querySelector("h1");
-
-  if(
-    pageTitle &&
-    hskWrap
-  ){
-
-    pageTitle.parentNode.insertBefore(
-      hskWrap,
-      pageTitle.nextSibling
-    );
-
-  }
-
-}
-
-
-if(
-  document.readyState === "loading"
-){
-
-  document.addEventListener(
-    "DOMContentLoaded",
-    placeHskUnderTitle
-  );
-
-}else{
-
-  placeHskUnderTitle();
-
-}
-
-if(
-  hskWrap &&
-  hskLauncher
-){
-
-  hskLauncher.onclick =
-    function(){
-
-      hskWrap.classList.toggle(
-        "whv3-open"
-      );
-
-    };
-
-}
-
-document
-  .querySelectorAll(
-    "#whHskHomeV3 [data-level]"
-  )
-  .forEach(
-    function(button){
-
-      button.onclick =
-        function(){
-
-          level =
-            Number(
-              button.dataset.level
-            );
-
-
-          document
-            .querySelectorAll(
-              "#whHskHomeV3 [data-level]"
-            )
-            .forEach(
-              function(x){
-
-                x.classList.remove(
-                  "sel"
-                );
-
-              }
-            );
-
-
-          button.classList.add(
-            "sel"
-          );
-
-
-          $("whHskSelectedV3")
-            .textContent =
-            "Đang chọn HSK " +
-            level;
-
-        };
-
-    }
-  );
-
-
-$("whHskPracticeV3")
-  .onclick =
+document.getElementById(
+  "whHskBackHome1"
+).onclick =
   function(){
 
-    mode =
-      "practice";
+    stopTimer();
 
-    renderTestList();
-
-    show(
-      screens.select
+    showScreen(
+      home
     );
 
   };
 
 
-$("whHskMockV3")
-  .onclick =
-  function(){
-
-    mode =
-      "mock";
-
-    renderTestList();
-
-    show(
-      screens.select
-    );
-
-  };
-
-
-$("whHskBackV3")
-  .onclick =
-  function(){
-
-    show(
-      screens.home
-    );
-
-  };
-
-
-$("whHskBackExamV3")
-  .onclick =
+document.getElementById(
+  "whHskBackExam"
+).onclick =
   function(){
 
     const ok =
@@ -105093,66 +106305,1377 @@ $("whHskBackExamV3")
     stopTimer();
 
 
-    show(
-      screens.select
+    showScreen(
+      testSelect
     );
 
   };
 
 
-$("whHskSubmitV3")
-  .onclick =
+document.getElementById(
+  "whHskHomeResult"
+).onclick =
   function(){
 
-    submitExam(
-      false
+    showScreen(
+      home
     );
 
   };
 
 
-$("whHskAgainV3")
-  .onclick =
+document.getElementById(
+  "whHskAgain"
+).onclick =
   function(){
 
-    startExam(
-      testIndex
-    );
+    startExam();
+
+  };
+/* =========================================================
+   🛡️ WHITE HAT — HSK1 ĐỀ 01 PATCH
+   🇨🇳 THÍCH TIẾNG TRUNG
+   ---------------------------------------------------------
+   HSK1 — ĐỀ SỐ 01
+   🎧 Listening 1–20
+   📖 Reading 21–40
+   8 phần × 5 câu
+   ---------------------------------------------------------
+   PATCH AN TOÀN:
+   - Không xóa dữ liệu HSK cũ
+   - Không sửa Premium / Trial
+   - Không sửa Supabase
+   - Không sửa leaderboard
+   - Không sửa timer engine
+   - Chỉ thay nguồn MOCK HSK1 + renderer
+   ========================================================= */
+
+/* =========================================================
+   📦 FACTORY TẠO CÂU HSK1
+========================================================= */
+
+function WH_HSK1_Q(
+  q,
+  p,
+  m,
+  opts,
+  answer,
+  note
+){
+
+  const optionPinyin =
+    opts.map(function(){
+      return "";
+    });
+
+  const optionMeaning =
+    opts.map(function(){
+      return "";
+    });
+
+  const analysis =
+    opts.map(function(_,i){
+
+      if(i === answer){
+
+        return (
+          "Đáp án đúng: " +
+          opts[i] +
+          ". " +
+          note
+        );
+
+      }
+
+      return (
+        "Phương án này không phù hợp " +
+        "với nội dung câu hỏi."
+      );
+
+    });
+
+  return {
+
+    q:q,
+
+    qPinyin:p,
+
+    qMeaning:m,
+
+    options:opts,
+
+    optionPinyin:optionPinyin,
+
+    optionMeaning:optionMeaning,
+
+    answer:answer,
+
+    analysis:analysis
 
   };
 
+}
 
-$("whHskHomeV3Btn")
-  .onclick =
+
+/* =========================================================
+   🇨🇳 HSK1 — ĐỀ SỐ 01
+   40 CÂU
+========================================================= */
+
+HSK_DATA[1].mock = [
+
+  /* =======================================================
+     🎧 LISTENING — PHẦN 1
+     1–5
+     Nghe câu nói → chọn hình phù hợp
+  ======================================================= */
+
+  WH_HSK1_Q(
+    "早上好。",
+    "Zǎoshang hǎo.",
+    "Chào buổi sáng.",
+    [
+      "🌞👋",
+      "🌙😴",
+      "🍚",
+      "⚽"
+    ],
+    0,
+    "Chọn hình thể hiện lời chào buổi sáng."
+  ),
+
+  WH_HSK1_Q(
+    "他在喝水。",
+    "Tā zài hē shuǐ.",
+    "Anh ấy đang uống nước.",
+    [
+      "👨‍💼🥤",
+      "👩‍🏫📖",
+      "🏃",
+      "😴"
+    ],
+    0,
+    "Nghe thấy hành động uống nước."
+  ),
+
+  WH_HSK1_Q(
+    "女孩在看书。",
+    "Nǚhái zài kàn shū.",
+    "Cô bé đang đọc sách.",
+    [
+      "👧📖",
+      "👧⚽",
+      "👧🍎",
+      "👧😴"
+    ],
+    0,
+    "Nghe thấy cô bé đang đọc sách."
+  ),
+
+  WH_HSK1_Q(
+    "今天下雨。",
+    "Jīntiān xiàyǔ.",
+    "Hôm nay trời mưa.",
+    [
+      "☀️",
+      "🌧️",
+      "❄️",
+      "🌙"
+    ],
+    1,
+    "Nghe thấy hôm nay trời mưa."
+  ),
+
+  WH_HSK1_Q(
+    "妈妈在家。",
+    "Māma zài jiā.",
+    "Mẹ ở nhà.",
+    [
+      "🏠👩",
+      "🏫👩",
+      "🏥👩",
+      "🏪👩"
+    ],
+    0,
+    "Nghe thấy mẹ đang ở nhà."
+  ),
+
+
+  /* =======================================================
+     🎧 LISTENING — PHẦN 2
+     6–10
+     Nghe câu → chọn hình / đáp án
+  ======================================================= */
+
+  WH_HSK1_Q(
+    "我每天早上喝牛奶。",
+    "Wǒ měitiān zǎoshang hē niúnǎi.",
+    "Mỗi sáng tôi uống sữa.",
+    [
+      "🥛",
+      "🍎",
+      "☕",
+      "💧"
+    ],
+    0,
+    "Nghe thấy đồ uống là sữa."
+  ),
+
+  WH_HSK1_Q(
+    "他是老师。",
+    "Tā shì lǎoshī.",
+    "Anh ấy là giáo viên.",
+    [
+      "👨‍🏫",
+      "👨‍⚕️",
+      "👨‍🍳",
+      "👨‍🎓"
+    ],
+    0,
+    "Nghe thấy người đó là giáo viên."
+  ),
+
+  WH_HSK1_Q(
+    "桌子上有一本书。",
+    "Zhuōzi shàng yǒu yì běn shū.",
+    "Trên bàn có một quyển sách.",
+    [
+      "📖",
+      "📱",
+      "🥤",
+      "🖊️"
+    ],
+    0,
+    "Nghe thấy trên bàn có một quyển sách."
+  ),
+
+  WH_HSK1_Q(
+    "妹妹今年十岁。",
+    "Mèimei jīnnián shí suì.",
+    "Em gái năm nay 10 tuổi.",
+    [
+      "8",
+      "9",
+      "10",
+      "12"
+    ],
+    2,
+    "Nghe thấy tuổi là 10."
+  ),
+
+  WH_HSK1_Q(
+    "我们晚上八点回家。",
+    "Wǒmen wǎnshang bā diǎn huí jiā.",
+    "Tối 8 giờ chúng tôi về nhà.",
+    [
+      "6:00",
+      "7:00",
+      "8:00",
+      "9:00"
+    ],
+    2,
+    "Nghe thấy thời gian về nhà là 8 giờ."
+  ),
+
+
+  /* =======================================================
+     🎧 LISTENING — PHẦN 3
+     11–15
+     Nghe hội thoại → chọn đáp án
+  ======================================================= */
+
+  WH_HSK1_Q(
+    "男：你去哪儿？女：我去商店。",
+    "Nán: Nǐ qù nǎr? Nǚ: Wǒ qù shāngdiàn.",
+    "Nam: Bạn đi đâu? Nữ: Tôi đi cửa hàng.",
+    [
+      "🏠",
+      "🏫",
+      "🏪",
+      "🏥"
+    ],
+    2,
+    "Địa điểm được nói đến là cửa hàng."
+  ),
+
+  WH_HSK1_Q(
+    "女：你喝茶吗？男：不，我喝水。",
+    "Nǚ: Nǐ hē chá ma? Nán: Bù, wǒ hē shuǐ.",
+    "Nữ: Bạn uống trà không? Nam: Không, tôi uống nước.",
+    [
+      "🍵",
+      "💧",
+      "🍎",
+      "🍚"
+    ],
+    1,
+    "Người nam không uống trà mà uống nước."
+  ),
+
+  WH_HSK1_Q(
+    "男：你家有几个人？女：五个人。",
+    "Nán: Nǐ jiā yǒu jǐ ge rén? Nǚ: Wǔ ge rén.",
+    "Nam: Nhà bạn có mấy người? Nữ: Năm người.",
+    [
+      "3",
+      "4",
+      "5",
+      "6"
+    ],
+    2,
+    "Số người được nói đến là năm."
+  ),
+
+  WH_HSK1_Q(
+    "女：今天星期几？男：星期六。",
+    "Nǚ: Jīntiān xīngqī jǐ? Nán: Xīngqīliù.",
+    "Nữ: Hôm nay thứ mấy? Nam: Thứ Bảy.",
+    [
+      "星期三",
+      "星期五",
+      "星期六",
+      "星期日"
+    ],
+    2,
+    "Ngày được nói đến là thứ Bảy."
+  ),
+
+  WH_HSK1_Q(
+    "男：妈妈在做什么？女：她在看电视。",
+    "Nán: Māma zài zuò shénme? Nǚ: Tā zài kàn diànshì.",
+    "Nam: Mẹ đang làm gì? Nữ: Bà ấy đang xem tivi.",
+    [
+      "📖",
+      "📺",
+      "🍚",
+      "🏃"
+    ],
+    1,
+    "Mẹ đang xem tivi."
+  ),
+
+
+  /* =======================================================
+     🎧 LISTENING — PHẦN 4
+     16–20
+     Nghe câu + câu hỏi → chọn đáp án
+  ======================================================= */
+
+  WH_HSK1_Q(
+    "男：小王今天不来。女：他为什么不来？男：他生病了。",
+    "Nán: Xiǎo Wáng jīntiān bù lái. Nǚ: Tā wèishénme bù lái? Nán: Tā shēngbìng le.",
+    "Tiểu Vương hôm nay không đến. Vì sao? Vì anh ấy bị ốm.",
+    [
+      "他很忙",
+      "他生病了",
+      "他在学校",
+      "他去商店"
+    ],
+    1,
+    "Lý do anh ấy không đến là vì bị ốm."
+  ),
+
+  WH_HSK1_Q(
+    "女：我买了三个苹果。男：你买了几个苹果？女：三个。",
+    "Nǚ: Wǒ mǎi le sān ge píngguǒ. Nán: Nǐ mǎi le jǐ ge píngguǒ? Nǚ: Sān ge.",
+    "Tôi mua 3 quả táo. Bạn mua mấy quả? Ba quả.",
+    [
+      "两个",
+      "三个",
+      "四个",
+      "五个"
+    ],
+    1,
+    "Số táo được mua là ba quả."
+  ),
+
+  WH_HSK1_Q(
+    "男：现在六点。女：现在几点？男：六点。",
+    "Nán: Xiànzài liù diǎn. Nǚ: Xiànzài jǐ diǎn? Nán: Liù diǎn.",
+    "Bây giờ 6 giờ.",
+    [
+      "五点",
+      "六点",
+      "七点",
+      "八点"
+    ],
+    1,
+    "Thời gian hiện tại là 6 giờ."
+  ),
+
+  WH_HSK1_Q(
+    "女：我明天去北京。男：你明天去哪儿？女：北京。",
+    "Nǚ: Wǒ míngtiān qù Běijīng. Nán: Nǐ míngtiān qù nǎr? Nǚ: Běijīng.",
+    "Ngày mai tôi đi Bắc Kinh.",
+    [
+      "上海",
+      "北京",
+      "学校",
+      "医院"
+    ],
+    1,
+    "Địa điểm ngày mai là Bắc Kinh."
+  ),
+
+  WH_HSK1_Q(
+    "男：这是你的杯子吗？女：是，是我的。",
+    "Nán: Zhè shì nǐ de bēizi ma? Nǚ: Shì, shì wǒ de.",
+    "Đây là cốc của bạn à? Đúng, của tôi.",
+    [
+      "他的",
+      "我的",
+      "老师的",
+      "朋友的"
+    ],
+    1,
+    "Chiếc cốc được xác nhận là của người nói."
+  ),
+
+
+  /* =======================================================
+     📖 READING — PHẦN 1
+     21–25
+     Đọc câu → chọn hình
+  ======================================================= */
+
+  WH_HSK1_Q(
+    "我喝水。",
+    "Wǒ hē shuǐ.",
+    "Tôi uống nước.",
+    [
+      "💧",
+      "📖",
+      "👟",
+      "🚌"
+    ],
+    0,
+    "Chọn hình thể hiện hành động uống nước."
+  ),
+
+  WH_HSK1_Q(
+    "她是学生。",
+    "Tā shì xuésheng.",
+    "Cô ấy là học sinh.",
+    [
+      "👩‍🎓",
+      "👩‍⚕️",
+      "👩‍🍳",
+      "👩‍💼"
+    ],
+    0,
+    "学生 tương ứng với hình học sinh."
+  ),
+
+  WH_HSK1_Q(
+    "今天很冷。",
+    "Jīntiān hěn lěng.",
+    "Hôm nay rất lạnh.",
+    [
+      "🥵",
+      "🥶",
+      "😴",
+      "😡"
+    ],
+    1,
+    "冷 tương ứng với hình lạnh."
+  ),
+
+  WH_HSK1_Q(
+    "爸爸在看电视。",
+    "Bàba zài kàn diànshì.",
+    "Bố đang xem tivi.",
+    [
+      "📺👨",
+      "📖👨",
+      "🏃👨",
+      "🍚👨"
+    ],
+    0,
+    "爸爸 đang xem tivi."
+  ),
+
+  WH_HSK1_Q(
+    "我有两只猫。",
+    "Wǒ yǒu liǎng zhī māo.",
+    "Tôi có hai con mèo.",
+    [
+      "🐶🐶",
+      "🐱🐱",
+      "🐦🐦",
+      "🐟🐟"
+    ],
+    1,
+    "猫 là mèo và có hai con."
+  ),
+
+
+  /* =======================================================
+     📖 READING — PHẦN 2
+     26–30
+     Đọc câu hỏi → chọn câu trả lời
+  ======================================================= */
+
+  WH_HSK1_Q(
+    "你叫什么名字？",
+    "Nǐ jiào shénme míngzi?",
+    "Bạn tên là gì?",
+    [
+      "我叫王明。",
+      "我是老师。",
+      "我在家。",
+      "我很好。"
+    ],
+    0,
+    "Câu hỏi về tên cần dùng 我叫 + tên."
+  ),
+
+  WH_HSK1_Q(
+    "你在哪儿？",
+    "Nǐ zài nǎr?",
+    "Bạn đang ở đâu?",
+    [
+      "我二十岁。",
+      "我在学校。",
+      "我叫小李。",
+      "我喜欢茶。"
+    ],
+    1,
+    "Câu hỏi về địa điểm cần dùng 在 + địa điểm."
+  ),
+
+  WH_HSK1_Q(
+    "你喜欢吃什么？",
+    "Nǐ xǐhuan chī shénme?",
+    "Bạn thích ăn gì?",
+    [
+      "我喜欢吃米饭。",
+      "我在北京。",
+      "我是学生。",
+      "我十岁。"
+    ],
+    0,
+    "Câu hỏi hỏi món ăn yêu thích."
+  ),
+
+  WH_HSK1_Q(
+    "今天星期几？",
+    "Jīntiān xīngqī jǐ?",
+    "Hôm nay thứ mấy?",
+    [
+      "今天星期二。",
+      "今天很热。",
+      "今天三个人。",
+      "今天在家。"
+    ],
+    0,
+    "Câu hỏi về thứ trong tuần."
+  ),
+
+  WH_HSK1_Q(
+    "你会说汉语吗？",
+    "Nǐ huì shuō Hànyǔ ma?",
+    "Bạn biết nói tiếng Trung không?",
+    [
+      "会，我会说汉语。",
+      "我是中国人。",
+      "我在学校。",
+      "我喝水。"
+    ],
+    0,
+    "Câu hỏi về khả năng nói tiếng Trung được trả lời bằng 会 / 不会."
+  ),
+
+
+  /* =======================================================
+     📖 READING — PHẦN 3
+     31–35
+     Chọn từ thích hợp
+  ======================================================= */
+
+  WH_HSK1_Q(
+    "我___学生。",
+    "Wǒ ___ xuésheng.",
+    "Tôi là học sinh.",
+    [
+      "是",
+      "在",
+      "有",
+      "叫"
+    ],
+    0,
+    "我 + 是 + danh từ chỉ thân phận."
+  ),
+
+  WH_HSK1_Q(
+    "他___北京。",
+    "Tā ___ Běijīng.",
+    "Anh ấy ở Bắc Kinh.",
+    [
+      "是",
+      "在",
+      "喝",
+      "吃"
+    ],
+    1,
+    "他 + 在 + địa điểm."
+  ),
+
+  WH_HSK1_Q(
+    "我每天___汉语。",
+    "Wǒ měitiān ___ Hànyǔ.",
+    "Mỗi ngày tôi học tiếng Trung.",
+    [
+      "学习",
+      "医生",
+      "苹果",
+      "岁"
+    ],
+    0,
+    "学习汉语 nghĩa là học tiếng Trung."
+  ),
+
+  WH_HSK1_Q(
+    "妈妈___饭。",
+    "Māma ___ fàn.",
+    "Mẹ ăn cơm.",
+    [
+      "喝",
+      "吃",
+      "看",
+      "叫"
+    ],
+    1,
+    "吃饭 nghĩa là ăn cơm."
+  ),
+
+  WH_HSK1_Q(
+    "你___岁？",
+    "Nǐ ___ suì?",
+    "Bạn bao nhiêu tuổi?",
+    [
+      "在",
+      "是",
+      "几",
+      "有"
+    ],
+    2,
+    "几岁 dùng để hỏi tuổi."
+  ),
+
+
+  /* =======================================================
+     📖 READING — PHẦN 4
+     36–40
+     Chọn câu đúng
+  ======================================================= */
+
+  WH_HSK1_Q(
+    "选择正确的句子：我叫李明。",
+    "Xuǎnzé zhèngquè de jùzi: Wǒ jiào Lǐ Míng.",
+    "Chọn câu đúng: Tôi tên là Lý Minh.",
+    [
+      "我叫李明。",
+      "我是李明。",
+      "我在李明。",
+      "我有李明。"
+    ],
+    0,
+    "Cấu trúc 我叫 + tên dùng để nói tên."
+  ),
+
+  WH_HSK1_Q(
+    "选择正确的句子：她是老师。",
+    "Xuǎnzé zhèngquè de jùzi: Tā shì lǎoshī.",
+    "Chọn câu đúng: Cô ấy là giáo viên.",
+    [
+      "她在老师。",
+      "她叫老师。",
+      "她是老师。",
+      "她有老师。"
+    ],
+    2,
+    "Cấu trúc 她是 + nghề nghiệp."
+  ),
+
+  WH_HSK1_Q(
+    "选择正确的句子：我不喝茶。",
+    "Xuǎnzé zhèngquè de jùzi: Wǒ bù hē chá.",
+    "Chọn câu đúng: Tôi không uống trà.",
+    [
+      "我不喝茶。",
+      "我喝不茶。",
+      "我没有茶喝。",
+      "我不是喝茶。"
+    ],
+    0,
+    "不 + động từ dùng để phủ định hành động."
+  ),
+
+  WH_HSK1_Q(
+    "选择正确的句子：我明天去学校。",
+    "Xuǎnzé zhèngquè de jùzi: Wǒ míngtiān qù xuéxiào.",
+    "Chọn câu đúng: Ngày mai tôi đi trường.",
+    [
+      "我明天去学校。",
+      "我昨天去学校。",
+      "我明天在学校吗。",
+      "我学校去明天。"
+    ],
+    0,
+    "明天 + 去 + địa điểm."
+  ),
+
+  WH_HSK1_Q(
+    "选择正确的句子：这是我的书。",
+    "Xuǎnzé zhèngquè de jùzi: Zhè shì wǒ de shū.",
+    "Chọn câu đúng: Đây là sách của tôi.",
+    [
+      "这是我书。",
+      "这是我的书。",
+      "这是书我的。",
+      "我这是的书。"
+    ],
+    1,
+    "这是 + 我的 + danh từ."
+  )
+
+];
+
+
+/* =========================================================
+   ⏱ HSK1 — THỜI GIAN THI
+   HSK chính thức: khoảng 35 phút nội dung thi
+========================================================= */
+
+MOCK_TIME[1] =
+  35 * 60;
+
+
+/* =========================================================
+   📝 RENDERER HSK1 ĐỀ 01
+   ---------------------------------------------------------
+   THI THỬ:
+   - Không pinyin
+   - Không nghĩa Việt
+   - Không lộ transcript
+   - Listening có nút 🔊
+   - Chia đúng 8 phần
+========================================================= */
+
+renderQuestions =
   function(){
 
-    show(
-      screens.home
+    questionsBox.innerHTML =
+      "";
+
+    const sections =
+
+      currentMode === "mock"
+
+        ? [
+
+            [
+              "🎧 LISTENING — PHẦN 1",
+              "Nghe câu nói và chọn hình phù hợp."
+            ],
+
+            [
+              "🎧 LISTENING — PHẦN 2",
+              "Nghe câu và chọn đáp án phù hợp."
+            ],
+
+            [
+              "🎧 LISTENING — PHẦN 3",
+              "Nghe hội thoại và chọn đáp án phù hợp."
+            ],
+
+            [
+              "🎧 LISTENING — PHẦN 4",
+              "Nghe câu hỏi và chọn câu trả lời đúng."
+            ],
+
+            [
+              "📖 READING — PHẦN 1",
+              "Chọn hình phù hợp với câu."
+            ],
+
+            [
+              "📖 READING — PHẦN 2",
+              "Chọn câu trả lời phù hợp."
+            ],
+
+            [
+              "📖 READING — PHẦN 3",
+              "Chọn từ thích hợp để hoàn thành câu."
+            ],
+
+            [
+              "📖 READING — PHẦN 4",
+              "Chọn câu đúng."
+            ]
+
+          ]
+
+        : [];
+
+
+    currentQuestions.forEach(
+
+      function(item,index){
+
+        /* =================================================
+           TIÊU ĐỀ PHẦN
+        ================================================= */
+
+        if(
+          currentMode === "mock" &&
+          index % 5 === 0
+        ){
+
+          const section =
+            document.createElement(
+              "div"
+            );
+
+          section.className =
+            "wh-hsk-section-title";
+
+          const data =
+            sections[index / 5];
+
+          section.innerHTML =
+            "<strong>" +
+            data[0] +
+            "</strong>" +
+
+            "<span>" +
+            data[1] +
+            "</span>";
+
+          questionsBox.appendChild(
+            section
+          );
+
+        }
+
+
+        /* =================================================
+           CARD
+        ================================================= */
+
+        const card =
+          document.createElement(
+            "div"
+          );
+
+        card.className =
+          "wh-hsk-question";
+
+
+        /* =================================================
+           SỐ CÂU
+        ================================================= */
+
+        const number =
+          document.createElement(
+            "div"
+          );
+
+        number.className =
+          "wh-hsk-q-number";
+
+        number.textContent =
+          "Câu " +
+          (
+            index + 1
+          ) +
+          " / " +
+          currentQuestions.length;
+
+
+        /* =================================================
+           CÂU HỎI
+        ================================================= */
+
+        const q =
+          document.createElement(
+            "div"
+          );
+
+        q.className =
+          "wh-hsk-q-text";
+
+        q.textContent =
+          item.q;
+
+
+        /* =================================================
+           PINYIN
+        ================================================= */
+
+        const pinyin =
+          document.createElement(
+            "div"
+          );
+
+        pinyin.className =
+          "wh-hsk-q-pinyin";
+
+        pinyin.textContent =
+          item.qPinyin;
+
+
+        /* =================================================
+           NGHĨA
+        ================================================= */
+
+        const meaning =
+          document.createElement(
+            "div"
+          );
+
+        meaning.className =
+          "wh-hsk-q-meaning";
+
+        meaning.textContent =
+          "🇻🇳 " +
+          item.qMeaning;
+
+
+        /* =================================================
+           THI THỬ
+        ================================================= */
+
+        if(
+          currentMode ===
+          "mock"
+        ){
+
+          /*
+           * Listening:
+           * tuyệt đối không lộ transcript.
+           */
+
+          if(
+            index < 20
+          ){
+
+            q.style.display =
+              "none";
+
+            pinyin.style.display =
+              "none";
+
+            meaning.style.display =
+              "none";
+
+          }
+
+          /*
+           * Reading:
+           * không hiện pinyin / nghĩa.
+           */
+
+          else{
+
+            pinyin.style.display =
+              "none";
+
+            meaning.style.display =
+              "none";
+
+          }
+
+        }
+
+
+        /* =================================================
+           NÚT NGHE
+        ================================================= */
+
+        if(
+          currentMode ===
+          "mock" &&
+          index < 20
+        ){
+
+          const audio =
+            document.createElement(
+              "button"
+            );
+
+          audio.type =
+            "button";
+
+          audio.className =
+            "wh-hsk-listening-btn";
+
+          audio.textContent =
+            "🔊 Nghe 2 lần";
+
+
+          audio.onclick =
+            function(e){
+
+              e.stopPropagation();
+
+              /*
+               * Ưu tiên hệ thống TTS tiếng Trung
+               * hiện có của THÍCH TIẾNG TRUNG.
+               */
+
+              if(
+                typeof say ===
+                "function"
+              ){
+
+                say(
+                  item.q
+                );
+
+                setTimeout(
+                  function(){
+
+                    say(
+                      item.q
+                    );
+
+                  },
+                  1300
+                );
+
+                return;
+
+              }
+
+
+              /*
+               * Fallback
+               */
+
+              if(
+                window.speechSynthesis
+              ){
+
+                window.speechSynthesis
+                  .cancel();
+
+                const u =
+                  new SpeechSynthesisUtterance(
+                    item.q
+                  );
+
+                u.lang =
+                  "zh-CN";
+
+                window.speechSynthesis
+                  .speak(u);
+
+              }
+
+            };
+
+
+          card.appendChild(
+            audio
+          );
+
+        }
+
+
+        /* =================================================
+           OPTIONS
+        ================================================= */
+
+        const options =
+          document.createElement(
+            "div"
+          );
+
+        options.className =
+          "wh-hsk-options";
+
+
+        item.options.forEach(
+
+          function(
+            optionText,
+            optIndex
+          ){
+
+            const btn =
+              document.createElement(
+                "button"
+              );
+
+            btn.type =
+              "button";
+
+            btn.className =
+              "wh-hsk-option";
+
+
+            btn.textContent =
+
+              String.fromCharCode(
+                65 +
+                optIndex
+              ) +
+
+              ". " +
+
+              optionText;
+
+
+            if(
+              currentAnswers[index] ===
+              optIndex
+            ){
+
+              btn.classList.add(
+                "wh-picked"
+              );
+
+            }
+
+
+            btn.onclick =
+              function(){
+
+                currentAnswers[index] =
+                  optIndex;
+
+
+                options
+                  .querySelectorAll(
+                    ".wh-hsk-option"
+                  )
+                  .forEach(
+                    function(x){
+
+                      x.classList.remove(
+                        "wh-picked"
+                      );
+
+                    }
+                  );
+
+
+                btn.classList.add(
+                  "wh-picked"
+                );
+
+
+                /*
+                 * Chỉ luyện tập mới
+                 * hiện feedback ngay.
+                 */
+
+                if(
+                  currentMode ===
+                  "practice"
+                ){
+
+                  showPracticeFeedback(
+                    card,
+                    item,
+                    optIndex
+                  );
+
+                }
+
+
+                updateProgress();
+
+              };
+
+
+            options.appendChild(
+              btn
+            );
+
+          }
+
+        );
+
+
+        /* =================================================
+           APPEND
+        ================================================= */
+
+        card.appendChild(
+          number
+        );
+
+        card.appendChild(
+          q
+        );
+
+        card.appendChild(
+          pinyin
+        );
+
+        card.appendChild(
+          meaning
+        );
+
+        card.appendChild(
+          options
+        );
+
+
+        questionsBox.appendChild(
+          card
+        );
+
+
+        /*
+         * Khôi phục feedback nếu
+         * đang ở LUYỆN TẬP.
+         */
+
+        if(
+          currentMode ===
+          "practice" &&
+
+          currentAnswers[index] !==
+          null
+        ){
+
+          showPracticeFeedback(
+            card,
+            item,
+            currentAnswers[index]
+          );
+
+        }
+
+      }
+
     );
+
+
+    updateProgress();
 
   };
 
 
 /* =========================================================
+   🎨 CSS HSK1 ĐỀ 01
+========================================================= */
+
+if(
+  !document.getElementById(
+    "whHskExam01PatchStyle"
+  )
+){
+
+  const st =
+    document.createElement(
+      "style"
+    );
+
+  st.id =
+    "whHskExam01PatchStyle";
+
+
+  st.textContent = `
+
+    .wh-hsk-section-title{
+      margin:24px 0 12px;
+      padding:14px 16px;
+      border-left:5px solid #b40000;
+      background:#fff7f7;
+      border-radius:12px;
+      color:#222;
+    }
+
+    .wh-hsk-section-title strong{
+      display:block;
+      font-size:18px;
+      color:#b40000;
+      margin-bottom:4px;
+    }
+
+    .wh-hsk-section-title span{
+      display:block;
+      font-size:13px;
+      color:#666;
+    }
+
+    .wh-hsk-listening-btn{
+      display:block;
+      margin:0 0 12px;
+      padding:10px 15px;
+      border:1px solid #f1b4b4;
+      border-radius:10px;
+      background:#fff;
+      color:#b40000;
+      font-weight:800;
+      cursor:pointer;
+    }
+
+    .wh-hsk-listening-btn:hover{
+      background:#fff3f3;
+    }
+
+  `;
+
+
+  document.head.appendChild(
+    st
+  );
+
+}
+
+
+/* =========================================================
+   🛡️ END HSK1 ĐỀ 01 PATCH
+========================================================= */
+
+/* =========================================================
    🚀 INIT
 ========================================================= */
 
-show(
-  screens.home
-);
+function init(){
+
+  if(!root){
+
+    return;
+
+  }
 
 
-console.log(
-  "🛡️ WHITE HAT HSK ENGINE V3 — READY 🇨🇳"
-);
+  createLauncher();
+
+
+  console.log(
+    "🛡️ WHITE HAT HSK ENGINE V2 — READY"
+  );
+
+}
+
+
+if(
+  document.readyState ===
+  "loading"
+){
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    init
+  );
+
+}else{
+
+  init();
+
+}
 
 
 })();
-</script>
 
-<!-- =========================================================
- 🛡️ END WHITE HAT HSK ENGINE V3
- ========================================================= -->
+</script>
 
 <!-- =========================================================
  🛡️ END WHITE HAT HSK ENGINE V2
