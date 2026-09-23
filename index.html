@@ -73764,6 +73764,229 @@ function stopPremiumHeartbeat(){
    CHỌN HSK
 ================================================== */
 
+/* =========================================================
+   🛡️ WHITE HAT — TYPE FILTER V1
+   🇨🇳 THÍCH TIẾNG TRUNG
+   ---------------------------------------------------------
+   SỬA RIÊNG 5 NÚT:
+   Động từ / Danh từ / Tính từ / Đại từ / Số từ
+
+   NGUYÊN TẮC:
+   - Giữ nguyên dữ liệu words
+   - Giữ nguyên HSK
+   - Không đụng Flashcard
+   - Không đụng Auto Learning
+   - Không đụng Test
+   - Không đụng Khu Luyện Thi HSK
+   - Lọc theo HSK hiện tại + loại từ
+   ========================================================= */
+
+function showType(type, btn){
+
+  /* =======================================================
+     1️⃣ XÓA TRẠNG THÁI TÌM KIẾM
+     ======================================================= */
+
+  const search =
+    document.getElementById("search");
+
+  if(search){
+
+    search.value = "";
+
+  }
+
+
+  /* =======================================================
+     2️⃣ LẤY DANH SÁCH THEO HSK HIỆN TẠI
+     ======================================================= */
+
+  const hskList =
+    words.filter(function(word){
+
+      return Number(word.hsk) ===
+             Number(currentHSK);
+
+    });
+
+
+  /* =======================================================
+     3️⃣ LỌC ĐÚNG LOẠI TỪ
+     
+     Ví dụ:
+     "Động từ / Tính từ"
+     → xuất hiện ở cả 2 nút.
+
+     "Danh từ"
+     → chỉ xuất hiện ở nút Danh từ.
+     ======================================================= */
+
+  currentList =
+    hskList.filter(function(word){
+
+      const rawType =
+        String(word.t || "")
+          .trim();
+
+      if(!rawType){
+
+        return false;
+
+      }
+
+
+      const types =
+        rawType
+          .split(/[\/,;|]+/)
+          .map(function(item){
+
+            return item.trim();
+
+          })
+          .filter(Boolean);
+
+
+      return types.includes(type);
+
+    });
+
+
+  /* =======================================================
+     4️⃣ ĐÁNH DẤU NÚT ĐANG CHỌN
+     ======================================================= */
+
+  document
+    .querySelectorAll(
+      "#ttcTypeFrame button"
+    )
+    .forEach(function(button){
+
+      button.classList.remove(
+        "active"
+      );
+
+    });
+
+
+  if(btn){
+
+    btn.classList.add(
+      "active"
+    );
+
+  }
+
+
+  /* =======================================================
+     5️⃣ HIỆN KHU TỪ VỰNG
+     ======================================================= */
+
+  const vocabularySection =
+    document.getElementById(
+      "vocabularySection"
+    );
+
+  if(vocabularySection){
+
+    vocabularySection
+      .classList
+      .remove("hidden");
+
+  }
+
+
+  const testSection =
+    document.getElementById(
+      "testSection"
+    );
+
+  if(testSection){
+
+    testSection
+      .classList
+      .add("hidden");
+
+  }
+
+
+  const sentenceSection =
+    document.getElementById(
+      "sentenceSection"
+    );
+
+  if(sentenceSection){
+
+    sentenceSection
+      .classList
+      .add("hidden");
+
+  }
+
+
+  /* =======================================================
+     6️⃣ HIỂN THỊ TIÊU ĐỀ
+     ======================================================= */
+
+  const title =
+    document.getElementById(
+      "title"
+    );
+
+  if(title){
+
+    title.textContent =
+      `HSK ${currentHSK} — ${type} — ${currentList.length} từ`;
+
+  }
+
+
+  /* =======================================================
+     7️⃣ RENDER
+     ======================================================= */
+
+  render(
+    currentList
+  );
+
+
+  /* =======================================================
+     8️⃣ ĐỒNG BỘ CORE
+     ======================================================= */
+
+  if(
+    typeof syncVocabularyCore ===
+    "function"
+  ){
+
+    syncVocabularyCore();
+
+  }
+
+
+  /* =======================================================
+     9️⃣ AUTO LEARNING
+     ======================================================= */
+
+  if(
+    typeof window.refreshAutoLearning ===
+    "function"
+  ){
+
+    window.refreshAutoLearning(true);
+
+  }
+
+
+  console.log(
+    "🛡️ TYPE FILTER:",
+    type,
+    "→",
+    currentList.length,
+    "từ"
+  );
+
+}
+
 async function showHSK(level,btn){
 
   /* =================================================
