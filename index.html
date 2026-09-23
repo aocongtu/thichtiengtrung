@@ -4627,9 +4627,19 @@ body > .price-box{
       🔊 Tiếng Trung
     </button>
 
-    <button type="button"
+        <button type="button"
             onclick="autoSpeakVietnamese()">
       🇻🇳 Nghĩa
+    </button>
+
+    <button type="button"
+            onclick="resetAutoLearningForCurrentHSK()"
+            style="
+              background:#fff3f3;
+              color:#c62828;
+              border:1px solid #ffcaca;
+            ">
+      🔄 Học lại từ đầu
     </button>
 
   </div>
@@ -86582,7 +86592,7 @@ async function changeAutoLearningHSK(level){
      ▶️ CHUYỂN HSK AUTO
      ================================================= */
 
-  stopAutoLearning();
+    stopAutoLearning();
 
   autoLearningHSK =
     hsk;
@@ -86590,8 +86600,17 @@ async function changeAutoLearningHSK(level){
   autoLearningList =
     list;
 
+  /*
+     🛡️ WHITE HAT — KHÔI PHỤC TIẾN ĐỘ
+
+     Không reset về câu 1 nữa.
+     Đọc vị trí đã lưu riêng của HSK này.
+  */
+
   autoLearningIndex =
     0;
+
+  loadAutoLearningPosition();
 
   renderAutoLearningWord();
 }
@@ -86611,9 +86630,8 @@ function getAutoLearningStorageKey(){
 
   }
 
-  return "ttc_auto_hsk_" + currentHSK;
+  return "ttc_auto_hsk_" + autoLearningHSK;
 }
-
 
 function saveAutoLearningPosition(){
 
@@ -87440,10 +87458,32 @@ function changeAutoInterval(value){
 /* =========================================================
    15. RESET KHI ĐỔI HSK / DANH SÁCH
    ========================================================= */
-
 function resetAutoLearningForCurrentHSK(){
 
+  /*
+     🛡️ WHITE HAT — RESET AUTO LEARNING
+
+     Chỉ xóa tiến độ của HSK hiện tại.
+     Không ảnh hưởng các HSK khác.
+  */
+
   stopAutoLearning();
+
+
+  try{
+
+    localStorage.removeItem(
+      "ttc_auto_hsk_" + autoLearningHSK
+    );
+
+  }catch(e){
+
+    console.warn(
+      "Auto Learning reset error:",
+      e
+    );
+
+  }
 
 
   autoLearningIndex =
@@ -87456,8 +87496,6 @@ function resetAutoLearningForCurrentHSK(){
   TTC.vocabulary.currentWord =
     null;
 
-
-  loadAutoLearningPosition();
 
   renderAutoLearningWord();
 
