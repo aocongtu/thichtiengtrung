@@ -3962,72 +3962,465 @@ window.sendPaymentRequest = async function(){
 
 <nav>
 
-<button class="hsk-nav active" onclick="showHSK(1,this)">
-HSK 1
-</button>
+<!-- =========================================================
+ 🛡️ WHITE HAT — KHUNG GIAO DIỆN V2
+ 🇨🇳 THÍCH TIẾNG TRUNG
+ ---------------------------------------------------------
+ AN TOÀN:
+ - Không JavaScript
+ - Không di chuyển DOM
+ - Không ẩn container cũ
+ - Không đụng MAIN
+ - Không đụng các engine phía dưới
+ ========================================================= -->
 
-<button class="hsk-nav" onclick="showHSK(2,this)">
-HSK 2
-</button>
+<style id="TTC_FRAME_V2_STYLE">
 
-<button class="hsk-nav" onclick="showHSK(3,this)">
-HSK 3
-</button>
+/* =========================================================
+   🌐 KHUNG CHUNG
+   ========================================================= */
 
-<button class="hsk-nav" onclick="showHSK(4,this)">
-HSK 4
-</button>
+.ttc-frame-v2{
+  width:min(1150px,calc(100% - 30px));
 
-<button class="hsk-nav" onclick="showHSK(5,this)">
-HSK 5
-</button>
+  margin:0 auto 14px;
 
-<button class="hsk-nav" onclick="showHSK(6,this)">
-HSK 6
-</button>
+  background:#fff;
 
-<button class="hsk-nav" onclick="showHSK(7,this)">
-HSK 7
-</button>
+  border:1px solid #d9e3ec;
 
-<button class="hsk-nav" onclick="showHSK(8,this)">
-HSK 8
-</button>
+  border-radius:16px;
 
-<button class="hsk-nav" onclick="showHSK(9,this)">
-HSK 9
-</button>
+  box-shadow:
+    0 4px 15px rgba(30,80,120,.08);
 
-<br>
+  overflow:hidden;
+}
 
-<button onclick="showType('Động từ',this)">
-Động từ
-</button>
 
-<button onclick="showType('Danh từ',this)">
-Danh từ
-</button>
+/* =========================================================
+   🏠 KHUNG HEADER
+   ========================================================= */
 
-<button onclick="showType('Tính từ',this)">
-Tính từ
-</button>
+body > header{
 
-<button onclick="showType('Đại từ',this)">
-Đại từ
-</button>
+  width:min(1150px,calc(100% - 30px));
 
-<button onclick="showType('Số từ',this)">
-Số từ
-</button>
+  margin:18px auto 0;
 
-<button onclick="startTest(this)">
-📝 Test từ vựng
-</button>
+  padding:22px 20px 16px;
 
-<button onclick="openSentences(this)">
-✍️ Luyện câu
-</button>
+  background:#fff;
 
+  border:1px solid #d9e3ec;
+
+  border-bottom-left-radius:0;
+  border-bottom-right-radius:0;
+
+  box-shadow:
+    0 4px 15px rgba(30,80,120,.08);
+
+}
+
+
+/* =========================================================
+   💎 PREMIUM NỐI LIỀN HEADER
+   ========================================================= */
+
+body > .price-box{
+
+  width:min(1150px,calc(100% - 30px));
+
+  max-width:none !important;
+
+  margin:0 auto 14px !important;
+
+  padding:10px 18px !important;
+
+  background:#fff !important;
+
+  border:1px solid #d9e3ec !important;
+
+  border-top:0 !important;
+
+  border-radius:0 0 16px 16px !important;
+
+  box-shadow:
+    0 4px 15px rgba(30,80,120,.08) !important;
+
+}
+
+
+/* =========================================================
+   📚 KHUNG HSK
+   ========================================================= */
+
+.ttc-hsk-frame{
+
+  padding:10px 12px;
+
+}
+
+
+.ttc-hsk-buttons{
+
+  display:flex;
+
+  justify-content:center;
+
+  align-items:center;
+
+  flex-wrap:wrap;
+
+  gap:8px;
+
+}
+
+
+.ttc-hsk-buttons button{
+
+  min-width:72px;
+
+  padding:10px 13px;
+
+  border-radius:10px;
+
+  font-weight:800;
+
+}
+
+
+/* =========================================================
+   🏷️ KHUNG LOẠI TỪ
+   ========================================================= */
+
+.ttc-type-frame{
+
+  padding:10px 12px;
+
+}
+
+
+.ttc-type-buttons{
+
+  display:flex;
+
+  justify-content:center;
+
+  align-items:center;
+
+  flex-wrap:wrap;
+
+  gap:8px;
+
+}
+
+
+.ttc-type-buttons button{
+
+  min-width:90px;
+
+  padding:10px 14px;
+
+  border-radius:10px;
+
+  font-weight:700;
+
+}
+
+
+/* =========================================================
+   📝 KHUNG TEST + LUYỆN CÂU
+   ========================================================= */
+
+.ttc-action-frame{
+
+  padding:10px 12px;
+
+}
+
+
+.ttc-action-buttons{
+
+  display:flex;
+
+  justify-content:center;
+
+  align-items:center;
+
+  flex-wrap:wrap;
+
+  gap:10px;
+
+}
+
+
+.ttc-action-buttons button{
+
+  min-width:180px;
+
+  padding:11px 18px;
+
+  border-radius:11px;
+
+  font-weight:800;
+
+}
+
+
+/* =========================================================
+   📱 MOBILE
+   ========================================================= */
+
+@media(max-width:600px){
+
+  body > header{
+
+    width:calc(100% - 16px);
+
+    margin-top:8px;
+
+    padding:16px 10px 12px;
+
+  }
+
+
+  body > .price-box{
+
+    width:calc(100% - 16px);
+
+    padding:8px !important;
+
+  }
+
+
+  .ttc-frame-v2{
+
+    width:calc(100% - 16px);
+
+    border-radius:14px;
+
+  }
+
+
+  .ttc-hsk-buttons{
+
+    gap:6px;
+
+  }
+
+
+  .ttc-hsk-buttons button{
+
+    min-width:58px;
+
+    padding:8px 9px;
+
+    font-size:13px;
+
+  }
+
+
+  .ttc-type-buttons{
+
+    gap:6px;
+
+  }
+
+
+  .ttc-type-buttons button{
+
+    min-width:72px;
+
+    padding:8px 9px;
+
+    font-size:13px;
+
+  }
+
+
+  .ttc-action-buttons{
+
+    flex-direction:column;
+
+  }
+
+
+  .ttc-action-buttons button{
+
+    width:100%;
+
+    min-width:0;
+
+  }
+
+}
+
+</style>
+
+
+<!-- =========================================================
+ 📚 KHUNG HSK 1 → 9
+ ========================================================= -->
+
+<div
+  class="ttc-frame-v2 ttc-hsk-frame"
+  id="ttcHskFrame"
+>
+
+  <div
+    class="ttc-hsk-buttons"
+  >
+
+    <button
+      class="hsk-nav active"
+      onclick="showHSK(1,this)"
+    >
+      HSK 1
+    </button>
+
+    <button
+      class="hsk-nav"
+      onclick="showHSK(2,this)"
+    >
+      HSK 2
+    </button>
+
+    <button
+      class="hsk-nav"
+      onclick="showHSK(3,this)"
+    >
+      HSK 3
+    </button>
+
+    <button
+      class="hsk-nav"
+      onclick="showHSK(4,this)"
+    >
+      HSK 4
+    </button>
+
+    <button
+      class="hsk-nav"
+      onclick="showHSK(5,this)"
+    >
+      HSK 5
+    </button>
+
+    <button
+      class="hsk-nav"
+      onclick="showHSK(6,this)"
+    >
+      HSK 6
+    </button>
+
+    <button
+      class="hsk-nav"
+      onclick="showHSK(7,this)"
+    >
+      HSK 7
+    </button>
+
+    <button
+      class="hsk-nav"
+      onclick="showHSK(8,this)"
+    >
+      HSK 8
+    </button>
+
+    <button
+      class="hsk-nav"
+      onclick="showHSK(9,this)"
+    >
+      HSK 9
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- =========================================================
+ 🏷️ KHUNG LOẠI TỪ
+ ========================================================= -->
+
+<div
+  class="ttc-frame-v2 ttc-type-frame"
+  id="ttcTypeFrame"
+>
+
+  <div
+    class="ttc-type-buttons"
+  >
+
+    <button
+      onclick="showType('Động từ',this)"
+    >
+      Động từ
+    </button>
+
+    <button
+      onclick="showType('Danh từ',this)"
+    >
+      Danh từ
+    </button>
+
+    <button
+      onclick="showType('Tính từ',this)"
+    >
+      Tính từ
+    </button>
+
+    <button
+      onclick="showType('Đại từ',this)"
+    >
+      Đại từ
+    </button>
+
+    <button
+      onclick="showType('Số từ',this)"
+    >
+      Số từ
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- =========================================================
+ 📝 KHUNG TEST + LUYỆN CÂU
+ ========================================================= -->
+
+<div
+  class="ttc-frame-v2 ttc-action-frame"
+  id="ttcActionFrame"
+>
+
+  <div
+    class="ttc-action-buttons"
+  >
+
+    <button
+      onclick="startTest(this)"
+    >
+      📝 Test từ vựng
+    </button>
+
+    <button
+      onclick="openSentences(this)"
+    >
+      ✍️ Luyện câu
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- =========================================================
+ 🏆 KẾT THÚC KHUNG ĐIỀU HƯỚNG
+ ========================================================= -->
 </nav>
 
 <main>
