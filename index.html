@@ -118482,7 +118482,6 @@ if(
  🛡️ END WHITE HAT TEST V3
  ========================================================= -->
 
-```html
 <!-- =========================================================
  🛡️ WHITE HAT — VOICE SYSTEM V6
  🇨🇳🇻🇳 THÍCH TIẾNG TRUNG
@@ -118528,7 +118527,6 @@ if(
 ========================================================= */
 
 #whiteHatVoiceToggleV6{
-
   width:100%;
 
   display:flex;
@@ -118628,7 +118626,6 @@ if(
   font-size:12px;
 
   outline:none;
-
   box-sizing:border-box;
 }
 
@@ -118639,7 +118636,6 @@ if(
 
 /* =========================================================
    🚫 VOICE LAB CŨ
-   GỠ KHỎI GIAO DIỆN
 ========================================================= */
 
 #thttVoiceLabV3,
@@ -118764,7 +118760,7 @@ if(
 
   /* =========================================================
      🇨🇳 GIỌNG TRUNG
-========================================================= */
+  ========================================================= */
 
   function chineseVoices(){
 
@@ -118782,8 +118778,11 @@ if(
             lang.startsWith("zh-")
           )
         ){
+
           return false;
+
         }
+
 
         /*
          * Không lấy:
@@ -118800,8 +118799,11 @@ if(
           lang === "zh-mo" ||
           lang.startsWith("zh-mo-")
         ){
+
           return false;
+
         }
+
 
         return true;
 
@@ -118813,7 +118815,7 @@ if(
 
   /* =========================================================
      🇻🇳 GIỌNG VIỆT
-========================================================= */
+  ========================================================= */
 
   function vietnameseVoices(){
 
@@ -118870,12 +118872,6 @@ if(
       }
     );
 
-
-    /*
-     * Xóa Voice Lab nếu V3/V4
-     * được tạo lại sau này.
-     */
-
   }
 
 
@@ -118917,7 +118913,9 @@ if(
         "whiteHatVoiceSystemV6"
       )
     ){
+
       return;
+
     }
 
 
@@ -118999,23 +118997,43 @@ if(
           >
 
             <option value="0.5">
-              0.5×
+              0.5× — Rất chậm
             </option>
 
             <option value="0.65">
-              0.65×
-            </option>
-
-            <option value="0.75">
-              0.75×
+              0.65× — Chậm
             </option>
 
             <option value="0.85">
-              0.85×
+              0.85× — Hơi chậm
             </option>
 
             <option value="1">
-              1.0×
+              1.0× — Bình thường
+            </option>
+
+            <option value="1.5">
+              1.5× — Nhanh nhẹ
+            </option>
+
+            <option value="1.65">
+              1.65× — Nhanh vừa
+            </option>
+
+            <option value="1.85">
+              1.85× — Siêu nhanh
+            </option>
+
+            <option value="2">
+              2.0× — Cực nhanh
+            </option>
+
+            <option value="2.5">
+              2.5× — Siêu tốc
+            </option>
+
+            <option value="3">
+              3.0× — Cực đại 😆
             </option>
 
           </select>
@@ -119277,8 +119295,28 @@ if(
         ) || "0.65";
 
 
+      /*
+       * Nếu tốc độ cũ không còn
+       * trong danh sách mới,
+       * quay về 0.65×.
+       */
+
+      const valid =
+        Array.from(
+          rate.options
+        ).some(
+          function(option){
+
+            return (
+              option.value === saved
+            );
+
+          }
+        );
+
+
       rate.value =
-        saved;
+        valid ? saved : "0.65";
 
     }
 
@@ -119361,7 +119399,6 @@ if(
         ? savedRate
         : 0.65;
 
-
     utterance.pitch = 1;
     utterance.volume = 1;
 
@@ -119405,7 +119442,9 @@ if(
       !select ||
       select.dataset.bound === "1"
     ){
+
       return;
+
     }
 
 
@@ -119486,7 +119525,9 @@ if(
       !select ||
       select.dataset.bound === "1"
     ){
+
       return;
+
     }
 
 
@@ -119562,7 +119603,9 @@ if(
       !select ||
       select.dataset.bound === "1"
     ){
+
       return;
+
     }
 
 
@@ -119637,15 +119680,18 @@ if(
 
   init();
 
+
   setTimeout(
     init,
     300
   );
 
+
   setTimeout(
     init,
     1000
   );
+
 
   setTimeout(
     init,
@@ -119661,10 +119707,9 @@ if(
 })();
 </script>
 
+
 <!-- =========================================================
  🛡️ END WHITE HAT — VOICE SYSTEM V6
- ========================================================= -->
-```
-
+========================================================= -->
 </body>
 </html>
