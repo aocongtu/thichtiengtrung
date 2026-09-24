@@ -84176,7 +84176,7 @@ function createTestButtons(){
       <button
         type="button"
         id="resetTestButton">
-        🔄 Làm lại từ đầu
+        🔄 Học lại từ đầu
       </button>
 <button
   type="button"
@@ -106159,6 +106159,234 @@ function renderUnscramble(){
 
   let whiteHatMode = "";
 
+/* =====================================================
+   💾 WHITE HAT — LƯU TIẾN ĐỘ LUYỆN CÂU
+   -----------------------------------------------------
+   - Lưu vị trí hiện tại
+   - Lưu luôn thứ tự câu đã xáo trộn
+   - Mỗi HSK có tiến độ riêng
+   - Không đụng MEMORY / REVIEW / FLASHCARD
+===================================================== */
+
+const WHITE_HAT_SENTENCE_PROGRESS_PREFIX =
+  "ttc_sentence_progress_v1_";
+
+
+function whiteHatSentenceStorageKey(){
+
+  if(whiteHatMode === "hsk"){
+
+    const item =
+      whiteHatSentenceList[
+        whiteHatSentenceIndex
+      ];
+
+    const level =
+      item &&
+      Number(item.hsk);
+
+    if(level){
+      return (
+        WHITE_HAT_SENTENCE_PROGRESS_PREFIX +
+        "hsk_" +
+        level
+      );
+    }
+
+  }
+
+  return (
+    WHITE_HAT_SENTENCE_PROGRESS_PREFIX +
+    "basic"
+  );
+
+}
+
+
+/* =====================================================
+   💾 LƯU
+===================================================== */
+
+function whiteHatSaveSentenceProgress(){
+
+  try{
+
+    const key =
+      whiteHatSentenceStorageKey();
+
+    localStorage.setItem(
+      key,
+      JSON.stringify({
+
+        index:
+          whiteHatSentenceIndex,
+
+        list:
+          whiteHatSentenceList
+
+      })
+    );
+
+  }catch(error){
+
+    console.warn(
+      "White Hat sentence save error:",
+      error
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   📥 TẢI
+===================================================== */
+
+function whiteHatLoadSentenceProgress(
+  mode,
+  level
+){
+
+  try{
+
+    let key;
+
+    if(mode === "hsk"){
+
+      key =
+        WHITE_HAT_SENTENCE_PROGRESS_PREFIX +
+        "hsk_" +
+        Number(level);
+
+    }else{
+
+      key =
+        WHITE_HAT_SENTENCE_PROGRESS_PREFIX +
+        "basic";
+
+    }
+
+
+    const saved =
+      localStorage.getItem(key);
+
+    if(!saved){
+
+      return false;
+
+    }
+
+
+    const data =
+      JSON.parse(saved);
+
+
+    if(
+      !data ||
+      !Array.isArray(data.list) ||
+      !data.list.length
+    ){
+
+      return false;
+
+    }
+
+
+    whiteHatSentenceList =
+      data.list;
+
+
+    let index =
+      Number(data.index);
+
+
+    if(
+      !Number.isInteger(index) ||
+      index < 0
+    ){
+
+      index = 0;
+
+    }
+
+
+    if(
+      index >=
+      whiteHatSentenceList.length
+    ){
+
+      index =
+        whiteHatSentenceList.length - 1;
+
+    }
+
+
+    whiteHatSentenceIndex =
+      index;
+
+
+    return true;
+
+  }catch(error){
+
+    console.warn(
+      "White Hat sentence load error:",
+      error
+    );
+
+    return false;
+
+  }
+
+}
+
+
+/* =====================================================
+   🔄 HỌC LẠI TỪ ĐẦU
+===================================================== */
+
+function whiteHatResetSentenceLearning(){
+
+  if(
+    !whiteHatSentenceList.length
+  ){
+
+    return;
+
+  }
+
+
+  const ok =
+    confirm(
+      "🔄 Học lại từ đầu?\n\n" +
+      "Tiến độ của phần Luyện câu hiện tại sẽ được xóa."
+    );
+
+
+  if(!ok){
+
+    return;
+
+  }
+
+
+  whiteHatSentenceIndex =
+    0;
+
+
+  /*
+     Giữ nguyên danh sách câu hiện tại.
+     Không xáo trộn lại.
+     → Học lại đúng bộ câu đang học.
+  */
+
+  whiteHatSaveSentenceProgress();
+
+  whiteHatRender();
+
+}
+
   let whiteHatEnterStage = 0;
 
   let whiteHatLastTyped = "";
@@ -106686,45 +106914,65 @@ if(number){
 
   function whiteHatLoadHSK(level){
 
-    whiteHatSetMode(
-      "hsk"
+  whiteHatSetMode(
+    "hsk"
+  );
+
+
+  /*
+     💾 THỬ KHÔI PHỤC TIẾN ĐỘ
+  */
+
+  const restored =
+    whiteHatLoadSentenceProgress(
+      "hsk",
+      level
     );
 
+
+  /*
+     Nếu chưa có tiến độ:
+     tạo bộ câu mới + xáo trộn 1 lần
+  */
+
+  if(!restored){
 
     whiteHatSentenceList =
       whiteHatShuffle(
         whiteHatBuildHSK(level)
       );
 
-
     whiteHatSentenceIndex =
       0;
 
-
-    document
-      .querySelectorAll(
-        "#whiteHatHSKButtons button"
-      )
-      .forEach(function(button){
-
-        button.classList.toggle(
-
-          "active",
-
-          Number(
-            button.dataset.level
-          ) ===
-          Number(level)
-
-        );
-
-      });
-
-
-    whiteHatRender();
+    whiteHatSaveSentenceProgress();
 
   }
 
+
+  document
+    .querySelectorAll(
+      "#whiteHatHSKButtons button"
+    )
+    .forEach(function(button){
+
+      button.classList.toggle(
+
+        "active",
+
+        Number(
+          button.dataset.level
+        ) ===
+        Number(level)
+
+      );
+
+    });
+
+
+  whiteHatRender();
+
+}
 
   /* =====================================================
      🔀 XÁO TRỘN
@@ -106763,33 +107011,48 @@ if(number){
 
   function whiteHatNext(){
 
-    if(
-      !whiteHatSentenceList.length
-    ){
+  if(
+    !whiteHatSentenceList.length
+  ){
 
-      return;
-
-    }
-
-
-    whiteHatSentenceIndex++;
-
-
-    if(
-      whiteHatSentenceIndex >=
-      whiteHatSentenceList.length
-    ){
-
-      whiteHatSentenceIndex =
-        0;
-
-    }
-
-
-    whiteHatRender();
+    return;
 
   }
 
+
+  whiteHatSentenceIndex++;
+
+
+  if(
+    whiteHatSentenceIndex >=
+    whiteHatSentenceList.length
+  ){
+
+    /*
+       Hết toàn bộ danh sách.
+       Quay lại câu 1 nhưng vẫn giữ
+       bộ câu hiện tại.
+    */
+
+    whiteHatSentenceIndex =
+      0;
+
+  }
+
+
+  /*
+     💾 LƯU NGAY VỊ TRÍ MỚI
+     Ví dụ:
+     câu 200 → bấm tiếp → index 200
+     → lần sau mở = câu 201
+  */
+
+  whiteHatSaveSentenceProgress();
+
+
+  whiteHatRender();
+
+}
 
   /* =====================================================
      👁️ XEM ĐÁP ÁN ĐÚNG
@@ -107722,7 +107985,15 @@ if(number){
         id="whiteHatShuffleAgainButton"
       >
         🔀 Xáo trộn lại
+
       </button>
+
+<button
+  type="button"
+  id="whiteHatResetProgressButton"
+>
+  🔄 Học lại từ đầu
+</button>
 
     `;
 
@@ -107806,17 +108077,48 @@ if(number){
             "hsk"
           ){
 
-            whiteHatSentenceList =
-              whiteHatShuffle(
-                whiteHatSentenceList
-              );
+           whiteHatSentenceList =
+  whiteHatShuffle(
+    whiteHatSentenceList
+  );
 
-            whiteHatSentenceIndex =
-              0;
+whiteHatSentenceIndex =
+  0;
 
-            whiteHatRender();
 
-            return;
+/*
+   💾 Xáo trộn mới = một bộ học mới
+*/
+
+whiteHatSaveSentenceProgress();
+
+
+whiteHatRender();
+
+return;
+
+/* =====================================================
+   🔄 HỌC LẠI TỪ ĐẦU
+===================================================== */
+
+const resetProgress =
+  document.getElementById(
+    "whiteHatResetProgressButton"
+  );
+
+
+if(resetProgress){
+
+  resetProgress.addEventListener(
+    "click",
+    function(){
+
+      whiteHatResetSentenceLearning();
+
+    }
+  );
+
+}
 
           }
 
