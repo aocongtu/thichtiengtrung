@@ -113547,55 +113547,8 @@ function createLauncher(){
 
     };
 
-
-  const header =
-    document.querySelector(
-      "header"
-    );
-
-
-  const nav =
-    document.querySelector(
-      "nav"
-    );
-
-
-  const main =
-    document.querySelector(
-      "main"
-    );
-
-
-  if(header){
-
-    header.insertAdjacentElement(
-      "afterend",
-      btn
-    );
-
-  }else if(nav){
-
-    nav.insertAdjacentElement(
-      "afterend",
-      btn
-    );
-
-  }else if(main){
-
-    main.insertBefore(
-      btn,
-      main.firstChild
-    );
-
-  }else{
-
-    document.body.insertBefore(
-      btn,
-      document.body.firstChild
-    );
-
-  }
-
+document.body.appendChild(btn);
+  
 }
 
 
