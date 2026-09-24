@@ -118481,5 +118481,1190 @@ if(
 <!-- =========================================================
  🛡️ END WHITE HAT TEST V3
  ========================================================= -->
+
+```html
+<!-- =========================================================
+ 🛡️ WHITE HAT — VOICE SYSTEM V6
+ 🇨🇳🇻🇳 THÍCH TIẾNG TRUNG
+ ---------------------------------------------------------
+ CHỈ GIỮ:
+ 🔊 Hệ thống giọng đọc
+ 🇨🇳 Nhiều giọng Trung
+ 🇻🇳 Nhiều giọng Việt
+ ⚡ Tốc độ đọc
+ 🎙️ Chọn giọng → tự đọc mẫu
+
+ XÓA:
+ ❌ Voice Lab
+ ❌ Phòng thử giọng
+ ❌ Nghe thử
+ ❌ Nút test riêng
+ ❌ Hộp voice cũ
+
+ KHÔNG ĐỤNG:
+ 🛡️ Mobile TTS
+ 🛡️ speech engine
+ 🛡️ Auto Learning
+ 🛡️ Luyện câu
+ 🛡️ HSK
+ ========================================================= -->
+
+<style>
+
+/* =========================================================
+   🔊 VOICE SYSTEM V6
+========================================================= */
+
+#whiteHatVoiceSystemV6{
+  width:100%;
+  max-width:100%;
+  margin:8px 0;
+  box-sizing:border-box;
+}
+
+
+/* =========================================================
+   🔊 NÚT DUY NHẤT
+========================================================= */
+
+#whiteHatVoiceToggleV6{
+
+  width:100%;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  padding:8px 11px;
+
+  border:1px solid #e2e2e2;
+  border-radius:9px;
+
+  background:#fff;
+  color:#222;
+
+  font-size:13px;
+  font-weight:700;
+
+  cursor:pointer;
+
+  box-sizing:border-box;
+
+  transition:.15s ease;
+}
+
+#whiteHatVoiceToggleV6:hover{
+  border-color:#d40000;
+}
+
+#whiteHatVoiceToggleV6:active{
+  transform:scale(.99);
+}
+
+
+/* =========================================================
+   📦 PANEL
+========================================================= */
+
+#whiteHatVoicePanelV6{
+
+  display:none;
+
+  margin-top:5px;
+  padding:9px;
+
+  border:1px solid #eeeeee;
+  border-radius:9px;
+
+  background:#fff;
+
+  box-sizing:border-box;
+}
+
+#whiteHatVoicePanelV6.open{
+  display:block;
+}
+
+
+/* =========================================================
+   🧩 ROW
+========================================================= */
+
+.whiteHatVoiceRowV6{
+
+  margin-bottom:7px;
+}
+
+.whiteHatVoiceRowV6:last-child{
+  margin-bottom:0;
+}
+
+
+.whiteHatVoiceLabelV6{
+
+  display:block;
+
+  margin-bottom:3px;
+
+  font-size:11px;
+  font-weight:700;
+
+  color:#444;
+}
+
+
+.whiteHatVoiceSelectV6{
+
+  width:100%;
+
+  padding:7px 8px;
+
+  border:1px solid #d8d8d8;
+  border-radius:7px;
+
+  background:#fff;
+  color:#222;
+
+  font-size:12px;
+
+  outline:none;
+
+  box-sizing:border-box;
+}
+
+.whiteHatVoiceSelectV6:focus{
+  border-color:#d40000;
+}
+
+
+/* =========================================================
+   🚫 VOICE LAB CŨ
+   GỠ KHỎI GIAO DIỆN
+========================================================= */
+
+#thttVoiceLabV3,
+#thttVoiceLabToggleV4{
+
+  display:none !important;
+
+}
+
+
+/* =========================================================
+   🚫 VOICE BOX CŨ
+========================================================= */
+
+#voiceSettingsAuto,
+#whiteHatVietnameseVoiceBox,
+#whiteHatChineseVoiceV3{
+
+  display:none !important;
+
+}
+
+
+/* =========================================================
+   🚫 TẤT CẢ NÚT NGHE THỬ CŨ
+========================================================= */
+
+#testVoiceAuto,
+#whiteHatVietnameseTest,
+#whiteHatChineseVoiceV3Test{
+
+  display:none !important;
+
+}
+
+
+/* =========================================================
+   📱 MOBILE
+========================================================= */
+
+@media(max-width:600px){
+
+  #whiteHatVoiceToggleV6{
+    padding:8px 10px;
+    font-size:13px;
+  }
+
+  #whiteHatVoicePanelV6{
+    padding:8px;
+  }
+
+  .whiteHatVoiceSelectV6{
+    font-size:12px;
+  }
+
+}
+
+</style>
+
+
+<script>
+(function(){
+
+  "use strict";
+
+
+  /* =========================================================
+     🛡️ CHỐNG CHẠY TRÙNG
+  ========================================================= */
+
+  if(window.__WHITE_HAT_VOICE_SYSTEM_V6__){
+    return;
+  }
+
+  window.__WHITE_HAT_VOICE_SYSTEM_V6__ = true;
+
+
+  /* =========================================================
+     🔊 SPEECH ENGINE
+  ========================================================= */
+
+  if(!("speechSynthesis" in window)){
+    return;
+  }
+
+  const synth =
+    window.speechSynthesis;
+
+
+  /* =========================================================
+     💾 STORAGE
+  ========================================================= */
+
+  const CHINESE_KEY =
+    "ttsVoiceName";
+
+  const VIETNAMESE_KEY =
+    "thichTiengTrung_vietnameseVoiceName";
+
+  const RATE_KEY =
+    "ttsRate";
+
+
+  /* =========================================================
+     🎙️ VOICE LIST
+  ========================================================= */
+
+  function voices(){
+
+    try{
+
+      return synth.getVoices() || [];
+
+    }catch(error){
+
+      return [];
+
+    }
+
+  }
+
+
+  /* =========================================================
+     🇨🇳 GIỌNG TRUNG
+========================================================= */
+
+  function chineseVoices(){
+
+    return voices().filter(
+      function(v){
+
+        const lang =
+          String(v.lang || "")
+            .toLowerCase()
+            .replace(/_/g,"-");
+
+        if(
+          !(
+            lang === "zh" ||
+            lang.startsWith("zh-")
+          )
+        ){
+          return false;
+        }
+
+        /*
+         * Không lấy:
+         * zh-TW
+         * zh-HK
+         * zh-MO
+         */
+
+        if(
+          lang === "zh-tw" ||
+          lang.startsWith("zh-tw-") ||
+          lang === "zh-hk" ||
+          lang.startsWith("zh-hk-") ||
+          lang === "zh-mo" ||
+          lang.startsWith("zh-mo-")
+        ){
+          return false;
+        }
+
+        return true;
+
+      }
+    );
+
+  }
+
+
+  /* =========================================================
+     🇻🇳 GIỌNG VIỆT
+========================================================= */
+
+  function vietnameseVoices(){
+
+    return voices().filter(
+      function(v){
+
+        const lang =
+          String(v.lang || "")
+            .toLowerCase()
+            .replace(/_/g,"-");
+
+        return (
+          lang === "vi" ||
+          lang === "vi-vn" ||
+          lang.startsWith("vi-")
+        );
+
+      }
+    );
+
+  }
+
+
+  /* =========================================================
+     🧹 GỠ HẲN VOICE LAB KHỎI DOM
+  ========================================================= */
+
+  function removeOldVoiceUI(){
+
+    const ids = [
+
+      "thttVoiceLabV3",
+      "thttVoiceLabToggleV4",
+
+      "testVoiceAuto",
+      "whiteHatVietnameseTest",
+      "whiteHatChineseVoiceV3Test"
+
+    ];
+
+
+    ids.forEach(
+      function(id){
+
+        const el =
+          document.getElementById(id);
+
+        if(el){
+
+          el.remove();
+
+        }
+
+      }
+    );
+
+
+    /*
+     * Xóa Voice Lab nếu V3/V4
+     * được tạo lại sau này.
+     */
+
+  }
+
+
+  /* =========================================================
+     🛡️ OBSERVER
+  ========================================================= */
+
+  const observer =
+    new MutationObserver(
+      function(){
+
+        removeOldVoiceUI();
+
+      }
+    );
+
+
+  try{
+
+    observer.observe(
+      document.body,
+      {
+        childList:true,
+        subtree:true
+      }
+    );
+
+  }catch(error){}
+
+
+  /* =========================================================
+     🏗️ TẠO GIAO DIỆN
+  ========================================================= */
+
+  function createUI(){
+
+    if(
+      document.getElementById(
+        "whiteHatVoiceSystemV6"
+      )
+    ){
+      return;
+    }
+
+
+    const box =
+      document.createElement("div");
+
+    box.id =
+      "whiteHatVoiceSystemV6";
+
+
+    box.innerHTML = `
+
+      <button
+        type="button"
+        id="whiteHatVoiceToggleV6"
+        aria-expanded="false"
+      >
+
+        <span>
+          🔊 Hệ thống giọng đọc
+        </span>
+
+        <span
+          id="whiteHatVoiceArrowV6"
+        >
+          ▾
+        </span>
+
+      </button>
+
+
+      <div
+        id="whiteHatVoicePanelV6"
+      >
+
+        <div class="whiteHatVoiceRowV6">
+
+          <label
+            class="whiteHatVoiceLabelV6"
+          >
+            🇨🇳 Giọng tiếng Trung
+          </label>
+
+          <select
+            id="whiteHatChineseSelectV6"
+            class="whiteHatVoiceSelectV6"
+          ></select>
+
+        </div>
+
+
+        <div class="whiteHatVoiceRowV6">
+
+          <label
+            class="whiteHatVoiceLabelV6"
+          >
+            🇻🇳 Giọng tiếng Việt
+          </label>
+
+          <select
+            id="whiteHatVietnameseSelectV6"
+            class="whiteHatVoiceSelectV6"
+          ></select>
+
+        </div>
+
+
+        <div class="whiteHatVoiceRowV6">
+
+          <label
+            class="whiteHatVoiceLabelV6"
+          >
+            ⚡ Tốc độ đọc
+          </label>
+
+          <select
+            id="whiteHatRateSelectV6"
+            class="whiteHatVoiceSelectV6"
+          >
+
+            <option value="0.5">
+              0.5×
+            </option>
+
+            <option value="0.65">
+              0.65×
+            </option>
+
+            <option value="0.75">
+              0.75×
+            </option>
+
+            <option value="0.85">
+              0.85×
+            </option>
+
+            <option value="1">
+              1.0×
+            </option>
+
+          </select>
+
+        </div>
+
+      </div>
+
+    `;
+
+
+    /*
+     * Đặt ngay sau header.
+     */
+
+    const header =
+      document.querySelector("header");
+
+
+    if(header){
+
+      header.insertAdjacentElement(
+        "afterend",
+        box
+      );
+
+    }
+
+    else{
+
+      document.body.prepend(box);
+
+    }
+
+
+    /* =====================================================
+       🔽 MỞ / ĐÓNG
+    ===================================================== */
+
+    const toggle =
+      document.getElementById(
+        "whiteHatVoiceToggleV6"
+      );
+
+    const panel =
+      document.getElementById(
+        "whiteHatVoicePanelV6"
+      );
+
+    const arrow =
+      document.getElementById(
+        "whiteHatVoiceArrowV6"
+      );
+
+
+    if(toggle){
+
+      toggle.addEventListener(
+        "click",
+        function(){
+
+          const opened =
+            panel.classList.toggle(
+              "open"
+            );
+
+
+          toggle.setAttribute(
+            "aria-expanded",
+            opened ? "true" : "false"
+          );
+
+
+          if(arrow){
+
+            arrow.textContent =
+              opened ? "▴" : "▾";
+
+          }
+
+        }
+      );
+
+    }
+
+  }
+
+
+  /* =========================================================
+     📝 ĐỔ DANH SÁCH VOICE
+  ========================================================= */
+
+  function fillSelect(
+    select,
+    list,
+    saved,
+    flag
+  ){
+
+    if(!select){
+      return;
+    }
+
+
+    const old =
+      select.value;
+
+
+    select.innerHTML = "";
+
+
+    if(!list.length){
+
+      const option =
+        document.createElement(
+          "option"
+        );
+
+      option.value = "";
+
+      option.textContent =
+        "⚠️ Thiết bị chưa cung cấp giọng này";
+
+      select.appendChild(
+        option
+      );
+
+      return;
+
+    }
+
+
+    list.forEach(
+      function(v){
+
+        const option =
+          document.createElement(
+            "option"
+          );
+
+        option.value =
+          v.name;
+
+        option.textContent =
+          flag +
+          " " +
+          v.name +
+          " · " +
+          v.lang;
+
+        select.appendChild(
+          option
+        );
+
+      }
+    );
+
+
+    const savedExists =
+      list.some(
+        function(v){
+
+          return (
+            v.name === saved
+          );
+
+        }
+      );
+
+
+    if(savedExists){
+
+      select.value =
+        saved;
+
+    }
+
+    else{
+
+      const oldExists =
+        list.some(
+          function(v){
+
+            return (
+              v.name === old
+            );
+
+          }
+        );
+
+
+      if(oldExists){
+
+        select.value =
+          old;
+
+      }
+
+      else{
+
+        select.value =
+          list[0].name;
+
+      }
+
+    }
+
+  }
+
+
+  /* =========================================================
+     🔄 REFRESH VOICES
+  ========================================================= */
+
+  function refreshVoiceLists(){
+
+    const chinese =
+      document.getElementById(
+        "whiteHatChineseSelectV6"
+      );
+
+    const vietnamese =
+      document.getElementById(
+        "whiteHatVietnameseSelectV6"
+      );
+
+
+    fillSelect(
+      chinese,
+      chineseVoices(),
+      localStorage.getItem(
+        CHINESE_KEY
+      ),
+      "🇨🇳"
+    );
+
+
+    fillSelect(
+      vietnamese,
+      vietnameseVoices(),
+      localStorage.getItem(
+        VIETNAMESE_KEY
+      ),
+      "🇻🇳"
+    );
+
+
+    const rate =
+      document.getElementById(
+        "whiteHatRateSelectV6"
+      );
+
+
+    if(rate){
+
+      const saved =
+        localStorage.getItem(
+          RATE_KEY
+        ) || "0.65";
+
+
+      rate.value =
+        saved;
+
+    }
+
+  }
+
+
+  /* =========================================================
+     🔎 TÌM VOICE
+  ========================================================= */
+
+  function findVoice(name){
+
+    return voices().find(
+      function(v){
+
+        return v.name === name;
+
+      }
+    ) || null;
+
+  }
+
+
+  /* =========================================================
+     🛑 DỪNG GIỌNG CŨ
+  ========================================================= */
+
+  function stopSpeech(){
+
+    try{
+
+      synth.cancel();
+
+    }catch(error){}
+
+  }
+
+
+  /* =========================================================
+     🎙️ ĐỌC MẪU
+  ========================================================= */
+
+  function speakSample(
+    text,
+    voice
+  ){
+
+    if(!voice){
+      return;
+    }
+
+
+    stopSpeech();
+
+
+    const utterance =
+      new SpeechSynthesisUtterance(
+        text
+      );
+
+
+    utterance.voice =
+      voice;
+
+    utterance.lang =
+      voice.lang ||
+      "zh-CN";
+
+
+    const savedRate =
+      parseFloat(
+        localStorage.getItem(
+          RATE_KEY
+        ) || "0.65"
+      );
+
+
+    utterance.rate =
+      Number.isFinite(savedRate)
+        ? savedRate
+        : 0.65;
+
+
+    utterance.pitch = 1;
+    utterance.volume = 1;
+
+
+    /*
+     * Delay nhỏ giúp iPhone/Safari
+     * nhận lệnh sau cancel().
+     */
+
+    setTimeout(
+      function(){
+
+        try{
+
+          synth.speak(
+            utterance
+          );
+
+        }catch(error){}
+
+      },
+      80
+    );
+
+  }
+
+
+  /* =========================================================
+     🇨🇳 CHỌN GIỌNG TRUNG
+  ========================================================= */
+
+  function bindChinese(){
+
+    const select =
+      document.getElementById(
+        "whiteHatChineseSelectV6"
+      );
+
+
+    if(
+      !select ||
+      select.dataset.bound === "1"
+    ){
+      return;
+    }
+
+
+    select.dataset.bound =
+      "1";
+
+
+    select.addEventListener(
+      "change",
+      function(){
+
+        const name =
+          select.value;
+
+
+        if(!name){
+          return;
+        }
+
+
+        localStorage.setItem(
+          CHINESE_KEY,
+          name
+        );
+
+
+        /*
+         * Đồng bộ selector cũ.
+         * Không dispatch change.
+         */
+
+        const old =
+          document.getElementById(
+            "voiceSelectAuto"
+          );
+
+
+        if(old){
+
+          old.value =
+            name;
+
+        }
+
+
+        const voice =
+          findVoice(name);
+
+
+        /*
+         * Chọn xong → tự phát mẫu.
+         */
+
+        speakSample(
+          "你好，很高兴认识你。",
+          voice
+        );
+
+      }
+    );
+
+  }
+
+
+  /* =========================================================
+     🇻🇳 CHỌN GIỌNG VIỆT
+  ========================================================= */
+
+  function bindVietnamese(){
+
+    const select =
+      document.getElementById(
+        "whiteHatVietnameseSelectV6"
+      );
+
+
+    if(
+      !select ||
+      select.dataset.bound === "1"
+    ){
+      return;
+    }
+
+
+    select.dataset.bound =
+      "1";
+
+
+    select.addEventListener(
+      "change",
+      function(){
+
+        const name =
+          select.value;
+
+
+        if(!name){
+          return;
+        }
+
+
+        localStorage.setItem(
+          VIETNAMESE_KEY,
+          name
+        );
+
+
+        const old =
+          document.getElementById(
+            "whiteHatVietnameseVoiceSelect"
+          );
+
+
+        if(old){
+
+          old.value =
+            name;
+
+        }
+
+
+        const voice =
+          findVoice(name);
+
+
+        /*
+         * Chọn xong → tự phát mẫu.
+         */
+
+        speakSample(
+          "Xin chào, rất vui được làm quen với bạn.",
+          voice
+        );
+
+      }
+    );
+
+  }
+
+
+  /* =========================================================
+     ⚡ TỐC ĐỘ
+  ========================================================= */
+
+  function bindRate(){
+
+    const select =
+      document.getElementById(
+        "whiteHatRateSelectV6"
+      );
+
+
+    if(
+      !select ||
+      select.dataset.bound === "1"
+    ){
+      return;
+    }
+
+
+    select.dataset.bound =
+      "1";
+
+
+    select.addEventListener(
+      "change",
+      function(){
+
+        localStorage.setItem(
+          RATE_KEY,
+          select.value
+        );
+
+      }
+    );
+
+  }
+
+
+  /* =========================================================
+     🚀 INIT
+  ========================================================= */
+
+  function init(){
+
+    removeOldVoiceUI();
+
+    createUI();
+
+    refreshVoiceLists();
+
+    bindChinese();
+
+    bindVietnamese();
+
+    bindRate();
+
+  }
+
+
+  /* =========================================================
+     🎙️ VOICE LOAD MUỘN
+  ========================================================= */
+
+  try{
+
+    synth.addEventListener(
+      "voiceschanged",
+      function(){
+
+        setTimeout(
+          function(){
+
+            init();
+
+          },
+          100
+        );
+
+      }
+    );
+
+  }catch(error){}
+
+
+  /* =========================================================
+     📱 iPHONE / SAFARI
+  ========================================================= */
+
+  init();
+
+  setTimeout(
+    init,
+    300
+  );
+
+  setTimeout(
+    init,
+    1000
+  );
+
+  setTimeout(
+    init,
+    2000
+  );
+
+
+  console.log(
+    "🛡️ WHITE HAT VOICE SYSTEM V6 — CLEAN 🇨🇳🇻🇳"
+  );
+
+
+})();
+</script>
+
+<!-- =========================================================
+ 🛡️ END WHITE HAT — VOICE SYSTEM V6
+ ========================================================= -->
+```
+
 </body>
 </html>
