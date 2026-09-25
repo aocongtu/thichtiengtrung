@@ -86805,33 +86805,151 @@ function createVoiceSettings(){
 
   if(voiceSelect){
 
-    voiceSelect.addEventListener(
-      "change",
-      function(){
+  voiceSelect.addEventListener(
+    "change",
+    function(){
 
-        selectedVoiceName =
-          voiceSelect.value;
+      const selectedName =
+        voiceSelect.value;
+
+      if(!selectedName){
+        return;
+      }
+
+
+      selectedVoiceName =
+        selectedName;
+
+
+      try{
 
         localStorage.setItem(
           "ttsVoiceName",
-          selectedVoiceName
+          selectedName
         );
 
+      }catch(error){}
 
-        loadChineseVoice();
 
+      /*
+       * 🎤 LẤY ĐÚNG VOICE VỪA CHỌN
+       */
+      let selectedVoice = null;
 
-        /* 🔊 Nghe thử ngay */
+      try{
 
-        say(
-          "你好，很高兴认识你。"
+        const voices =
+          window.speechSynthesis.getVoices() || [];
+
+        selectedVoice =
+          voices.find(
+            function(voice){
+
+              return (
+                voice.name ===
+                selectedName
+              );
+
+            }
+          ) || null;
+
+      }catch(error){
+
+        console.warn(
+          "Không tìm được voice vừa chọn:",
+          error
         );
 
       }
-    );
 
-  }
 
+      /*
+       * 🔒 ĐỒNG BỘ VOICE CHUNG
+       */
+      if(selectedVoice){
+
+        try{
+          chineseVoice =
+            selectedVoice;
+        }catch(error){}
+
+      }
+
+
+      /*
+       * 🔊 PREVIEW NGAY
+       *
+       * Không đi vòng qua say()
+       * để tránh mobile/iPhone bỏ mất
+       * thao tác phát âm vừa chọn.
+       */
+      try{
+
+        const synth =
+          window.speechSynthesis;
+
+        synth.cancel();
+
+        if(
+          typeof synth.resume ===
+          "function"
+        ){
+
+          synth.resume();
+
+        }
+
+
+        const utterance =
+          new SpeechSynthesisUtterance(
+            "你好，很高兴认识你。"
+          );
+
+
+        utterance.lang =
+          selectedVoice &&
+          selectedVoice.lang
+            ? selectedVoice.lang
+            : "zh-CN";
+
+
+        if(selectedVoice){
+
+          utterance.voice =
+            selectedVoice;
+
+        }
+
+
+        utterance.rate =
+          typeof selectedRate ===
+          "number"
+            ? selectedRate
+            : 0.65;
+
+
+        utterance.pitch = 1;
+        utterance.volume = 1;
+
+
+        synth.speak(
+          utterance
+        );
+
+
+      }catch(error){
+
+        console.warn(
+          "Voice preview mobile:",
+          error
+        );
+
+      }
+
+    }
+  );
+
+}
 
   /* =================================================
      🎚️ ĐỔI TỐC ĐỘ
@@ -96080,7 +96198,7 @@ setupFlashcardMobile();
 
 <!-- =========================================================
       THÍCH TIẾNG TRUNG
-🧩 GRAMMAR ENGINE HSK 1 → HSK 6
+🧩 GRAMMAR ENGINE HSK 1 → HSK 9
 BẢN HOÀN CHỈNH V3.1
 ========================================================= -->
 
@@ -96098,7 +96216,7 @@ BẢN HOÀN CHỈNH V3.1
 
 
   /* =========================================================
-     DỮ LIỆU NGỮ PHÁP HSK 1 → HSK 6
+     DỮ LIỆU NGỮ PHÁP HSK 1 → HSK 9
   ========================================================= */
 
   const grammarData = {
@@ -109775,7 +109893,7 @@ function renderUnscramble(){
     display:grid;
 
     grid-template-columns:
-      repeat(6,minmax(0,1fr));
+      repeat(9,minmax(0,1fr));
 
     gap:8px;
 
@@ -111526,7 +111644,7 @@ if(number){
         class="whiteHatModeSub"
         style="color:#666 !important;"
       >
-        HSK 1 → HSK 6
+        HSK 1 → HSK 9
       </div>
 
     `;
@@ -111663,6 +111781,27 @@ if(number){
         >
           HSK 6
         </button>
+
+              <button
+  type="button"
+  data-level="7"
+>
+  HSK 7
+</button>
+
+<button
+  type="button"
+  data-level="8"
+>
+  HSK 8
+</button>
+
+<button
+  type="button"
+  data-level="9"
+>
+  HSK 9
+</button>
 
       </div>
 
@@ -123647,5 +123786,306 @@ if(
 <!-- =========================================================
  🛡️ END WHITE HAT — VOICE SYSTEM V6
 ========================================================= -->
+
+<!-- =========================================================
+ 🛡️ WHITE HAT — 3 SÂU CUỐI NGÀY 24/09/2026
+ Patch an toàn: dán toàn bộ khối này ngay trước </body>
+ Không thay root/index.html.
+========================================================= -->
+<style id="whiteHatFinal3Patch">
+/* =========================================================
+   🃏 FLASHCARD — MẶT TRƯỚC
+   Chỉ: 📍 số → Hán tự → 🔊 loa
+========================================================= */
+#flashcardSection .flashcard-front .flashcard-label{
+  font-size:14px !important;
+  font-weight:800 !important;
+  margin-bottom:18px !important;
+  padding:7px 13px !important;
+}
+
+#flashcardSection .flashcard-front .flashcard-name,
+#flashcardSection .flashcard-front .flashcard-pinyin,
+#flashcardSection .flashcard-front .flashcard-meaning{
+  display:none !important;
+}
+
+/* Hán tự dài tự co theo số ký tự */
+#flashcardSection .flashcard-front .flashcard-hanzi{
+  width:100%;
+  max-width:100%;
+  text-align:center;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+  line-height:1.04;
+  margin-bottom:16px;
+  font-size:clamp(64px,18vw,170px) !important;
+}
+
+#flashcardSection .flashcard-front .flashcard-hanzi[data-length="1"]{
+  font-size:clamp(105px,22vw,190px) !important;
+}
+#flashcardSection .flashcard-front .flashcard-hanzi[data-length="2"]{
+  font-size:clamp(90px,20vw,165px) !important;
+}
+#flashcardSection .flashcard-front .flashcard-hanzi[data-length="3"]{
+  font-size:clamp(78px,18vw,145px) !important;
+}
+#flashcardSection .flashcard-front .flashcard-hanzi[data-length="4"]{
+  font-size:clamp(68px,16vw,125px) !important;
+}
+#flashcardSection .flashcard-front .flashcard-hanzi[data-length="5"]{
+  font-size:clamp(60px,14vw,108px) !important;
+}
+#flashcardSection .flashcard-front .flashcard-hanzi[data-length="6"],
+#flashcardSection .flashcard-front .flashcard-hanzi[data-length="7"],
+#flashcardSection .flashcard-front .flashcard-hanzi[data-length="8"]{
+  font-size:clamp(52px,12vw,94px) !important;
+}
+
+/* =========================================================
+   🃏 FLASHCARD — MẶT SAU
+   Hán tự → Pinyin → Nghĩa Việt thật to
+   Phần chi tiết phía dưới vẫn giữ nguyên.
+========================================================= */
+#flashcardSection .flashcard-back .flashcard-info-item:has(#flashcardBackType),
+#flashcardSection .flashcard-back .flashcard-info-item:has(#flashcardBackHSK){
+  display:none !important;
+}
+
+#flashcardSection .flashcard-back .flashcard-info-grid{
+  display:block !important;
+  margin:14px 0 16px !important;
+}
+
+#flashcardSection .flashcard-back .flashcard-info-item:has(#flashcardBackMeaning){
+  display:block !important;
+  width:100%;
+  padding:16px 18px !important;
+  text-align:center;
+}
+
+#flashcardSection #flashcardBackMeaning{
+  display:block;
+  margin-top:5px;
+  font-size:clamp(28px,6vw,42px) !important;
+  line-height:1.35 !important;
+  font-weight:900 !important;
+  color:#172033 !important;
+}
+
+@media(max-width:600px){
+  #flashcardSection .flashcard-front .flashcard-hanzi{
+    max-width:100%;
+    font-size:clamp(55px,18vw,105px) !important;
+  }
+
+  #flashcardSection .flashcard-front .flashcard-hanzi[data-length="1"]{
+    font-size:clamp(90px,28vw,150px) !important;
+  }
+  #flashcardSection .flashcard-front .flashcard-hanzi[data-length="2"]{
+    font-size:clamp(78px,25vw,132px) !important;
+  }
+  #flashcardSection .flashcard-front .flashcard-hanzi[data-length="3"]{
+    font-size:clamp(68px,22vw,116px) !important;
+  }
+  #flashcardSection .flashcard-front .flashcard-hanzi[data-length="4"]{
+    font-size:clamp(58px,19vw,100px) !important;
+  }
+  #flashcardSection .flashcard-front .flashcard-hanzi[data-length="5"]{
+    font-size:clamp(52px,17vw,88px) !important;
+  }
+  #flashcardSection .flashcard-front .flashcard-hanzi[data-length="6"],
+  #flashcardSection .flashcard-front .flashcard-hanzi[data-length="7"],
+  #flashcardSection .flashcard-front .flashcard-hanzi[data-length="8"]{
+    font-size:clamp(46px,15vw,78px) !important;
+  }
+
+  #flashcardSection #flashcardBackMeaning{
+    font-size:clamp(26px,7vw,36px) !important;
+  }
+}
+</style>
+
+<script>
+(function(){
+  "use strict";
+
+  /* =========================================================
+     🃏 FLASHCARD — số thứ tự trên mặt trước
+  ========================================================= */
+  function whiteHatFinalFlashcardNumber(){
+    var label = document.querySelector(
+      "#flashcardSection .flashcard-front .flashcard-label"
+    );
+    var counter = document.getElementById("flashcardCounter");
+
+    if(!label || !counter) return;
+
+    var match = String(counter.textContent || "").match(/(\d+)\s*\/\s*(\d+)/);
+    if(match){
+      label.textContent = "📍 " + match[1];
+    }
+  }
+
+  /* Theo dõi mỗi lần đổi card */
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", function(){
+      whiteHatFinalFlashcardNumber();
+      setTimeout(whiteHatFinalFlashcardNumber, 50);
+    });
+  }else{
+    whiteHatFinalFlashcardNumber();
+    setTimeout(whiteHatFinalFlashcardNumber, 50);
+  }
+
+  var flashcardCounter = document.getElementById("flashcardCounter");
+  if(flashcardCounter){
+    new MutationObserver(whiteHatFinalFlashcardNumber)
+      .observe(flashcardCounter, {childList:true, characterData:true, subtree:true});
+  }
+
+  /* =========================================================
+     ✍️ LUYỆN CÂU — bổ sung HSK 7, 8, 9
+     Engine whiteHatBuildHSK() đã dùng word.hsk nên không xây lại.
+  ========================================================= */
+  function whiteHatFinalAddHSK789(){
+    var box = document.getElementById("whiteHatHSKButtons");
+    if(!box) return false;
+
+    [7,8,9].forEach(function(level){
+      if(box.querySelector('button[data-level="' + level + '"]')) return;
+
+      var button = document.createElement("button");
+      button.type = "button";
+      button.dataset.level = String(level);
+      button.textContent = "HSK " + level;
+      button.addEventListener("click", function(event){
+        event.stopPropagation();
+
+        /*
+          whiteHatLoadHSK() đang nằm trong IIFE nên không nằm trên window.
+          Ta tái sử dụng listener gốc của một nút HSK hiện có,
+          chỉ đổi dataset.level trong đúng thời điểm click.
+        */
+        var proxy = box.querySelector("button[data-level=\"1\"]");
+        if(!proxy) return;
+
+        var oldLevel = proxy.dataset.level;
+        proxy.dataset.level = String(level);
+        try{
+          proxy.click();
+        }finally{
+          proxy.dataset.level = oldLevel;
+        }
+      });
+      box.appendChild(button);
+    });
+
+    return true;
+  }
+
+  function whiteHatFinalWatchHSK(){
+    if(whiteHatFinalAddHSK789()) return;
+
+    var observer = new MutationObserver(function(){
+      if(whiteHatFinalAddHSK789()) observer.disconnect();
+    });
+    observer.observe(document.body, {childList:true, subtree:true});
+
+    setTimeout(function(){
+      whiteHatFinalAddHSK789();
+      observer.disconnect();
+    }, 3000);
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", whiteHatFinalWatchHSK);
+  }else{
+    whiteHatFinalWatchHSK();
+  }
+
+  /* =========================================================
+     🎙️ VOICE MOBILE — chọn giọng là đọc ngay
+     Không thay say(), không thay engine Flashcard/Auto/Luyện câu.
+     Dùng speak() trực tiếp trong event change để giữ user gesture
+     trên iPhone/Safari.
+  ========================================================= */
+  function whiteHatFinalPreviewSelectedVoice(select){
+    if(!select || !select.value) return;
+    if(!("speechSynthesis" in window)) return;
+
+    var voices = window.speechSynthesis.getVoices() || [];
+    var selected = voices.find(function(v){
+      return v.name === select.value;
+    });
+
+    if(!selected){
+      return;
+    }
+
+    try{
+      window.speechSynthesis.cancel();
+
+      var utterance = new SpeechSynthesisUtterance(
+        "你好，很高兴认识你。"
+      );
+
+      utterance.voice = selected;
+      utterance.lang = selected.lang || "zh-CN";
+      utterance.rate =
+        (typeof window.selectedRate === "number")
+          ? window.selectedRate
+          : 0.85;
+      utterance.pitch = 1;
+      utterance.volume = 1;
+
+      /* Quan trọng: speak trực tiếp, không setTimeout trên mobile. */
+      window.speechSynthesis.speak(utterance);
+    }catch(error){
+      console.log("WHITE HAT FINAL VOICE PREVIEW:", error);
+    }
+  }
+
+  function whiteHatFinalBindVoice(){
+    var select = document.getElementById("voiceSelectAuto");
+    if(!select || select.dataset.whiteHatFinalBound === "1") return;
+
+    select.dataset.whiteHatFinalBound = "1";
+
+    select.addEventListener("change", function(){
+      /* Cho handler gốc lưu selectedVoiceName trước. */
+      setTimeout(function(){
+        whiteHatFinalPreviewSelectedVoice(select);
+      }, 0);
+    });
+  }
+
+  function whiteHatFinalWatchVoice(){
+    whiteHatFinalBindVoice();
+
+    var observer = new MutationObserver(function(){
+      whiteHatFinalBindVoice();
+    });
+    observer.observe(document.body, {childList:true, subtree:true});
+
+    setTimeout(function(){
+      whiteHatFinalBindVoice();
+      observer.disconnect();
+    }, 5000);
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", whiteHatFinalWatchVoice);
+  }else{
+    whiteHatFinalWatchVoice();
+  }
+
+})();
+</script>
+<!-- =========================================================
+ 🛡️ END WHITE HAT — 3 SÂU CUỐI NGÀY
+========================================================= -->
+
 </body>
 </html>
