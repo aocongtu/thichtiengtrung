@@ -132704,5 +132704,1188 @@ if(
 })();
 </script>
 
+<style>
+/* =========================================================
+   🔊 TTC — PHẢN XẠ ĐOÁN NGHĨA V1
+   Riêng biệt, không đụng engine Nối từ đúng
+========================================================= */
+
+#ttcListenLauncher{
+  position:relative;
+  background:#fffdf5 !important;
+  color:#d88900 !important;
+  border:2px solid #ffb300 !important;
+  box-shadow:0 0 0 2px rgba(255,179,0,.15),
+             0 0 18px rgba(255,179,0,.55),
+             0 5px 20px rgba(255,179,0,.22) !important;
+}
+
+#ttcListenOverlay{
+  position:fixed;
+  inset:0;
+  z-index:100001;
+  background:rgba(15,23,42,.45);
+  display:none;
+  padding:18px;
+  overflow:auto;
+}
+
+#ttcListenOverlay.ttc-listen-open{
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+}
+
+#ttcListenApp{
+  width:min(1050px,100%);
+  margin:25px auto;
+  background:#fff;
+  border-radius:22px;
+  box-shadow:0 20px 60px rgba(0,0,0,.25);
+  overflow:hidden;
+}
+
+.ttc-listen-head{
+  padding:18px 20px 14px;
+  border-bottom:1px solid #e8edf3;
+  background:#fff;
+}
+
+.ttc-listen-head-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.ttc-listen-title{
+  font-size:24px;
+  font-weight:900;
+  color:#17324d;
+}
+
+.ttc-listen-close{
+  width:42px;
+  height:42px;
+  padding:0;
+  border-radius:12px;
+  background:#f3f6f9;
+  color:#334155;
+  font-size:24px;
+}
+
+.ttc-listen-levels{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:8px;
+  margin-top:14px;
+}
+
+.ttc-listen-level{
+  background:#fff !important;
+  color:#333 !important;
+  border:2px solid #e3e3e3 !important;
+  border-radius:10px !important;
+  padding:9px 13px !important;
+  font-weight:800 !important;
+}
+
+.ttc-listen-level.active{
+  background:#fffdf5 !important;
+  color:#d88900 !important;
+  border-color:#ffb300 !important;
+  box-shadow:0 0 14px rgba(255,179,0,.5) !important;
+}
+
+.ttc-listen-progress{
+  margin:14px 20px 0;
+  height:10px;
+  background:#e8edf3;
+  border-radius:99px;
+  overflow:hidden;
+}
+
+.ttc-listen-progress>div{
+  height:100%;
+  width:0;
+  background:#20b58a;
+  transition:.25s;
+}
+
+.ttc-listen-status{
+  text-align:center;
+  min-height:28px;
+  padding:12px 18px 4px;
+  font-weight:800;
+  color:#64748b;
+}
+
+/* Hai cột luôn bằng nhau */
+.ttc-listen-board{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:18px;
+  padding:18px 20px 20px;
+  width:100%;
+  box-sizing:border-box;
+}
+
+.ttc-listen-column{
+  width:100%;
+  min-width:0;
+  box-sizing:border-box;
+  background:#f8fafc;
+  border:1px solid #e6ebf2;
+  border-radius:18px;
+  padding:14px;
+}
+
+.ttc-listen-column h3{
+  text-align:center;
+  margin:0 0 10px;
+  color:#475569;
+  font-size:15px;
+}
+
+.ttc-listen-list{
+  display:grid;
+  gap:9px;
+  width:100%;
+}
+
+.ttc-listen-item{
+  width:100%;
+  min-width:0;
+  min-height:76px;
+  box-sizing:border-box;
+  padding:10px;
+  border:2px solid #e2e8f0;
+  border-radius:13px;
+  background:#fff;
+  color:#172033;
+  cursor:pointer;
+  transition:.18s;
+}
+
+/* Ô nghe */
+.ttc-listen-audio{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  font-size:27px;
+  font-weight:900;
+}
+
+.ttc-listen-number{
+  font-size:18px;
+  color:#64748b;
+  min-width:24px;
+}
+
+.ttc-listen-play{
+  font-size:32px;
+  line-height:1;
+}
+
+.ttc-listen-audio:hover{
+  border-color:#ffb300;
+  box-shadow:0 4px 12px rgba(255,179,0,.18);
+  transform:translateY(-1px);
+}
+
+.ttc-listen-audio.selected{
+  background:#fffdf5;
+  border-color:#ffb300;
+  color:#b86f00;
+  box-shadow:0 0 0 2px rgba(255,179,0,.12),
+             0 0 14px rgba(255,179,0,.35);
+}
+
+/* Ô nghĩa */
+.ttc-listen-meaning{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  font-size:26px;
+  line-height:1.25;
+  font-weight:900;
+}
+
+.ttc-listen-meaning:hover{
+  border-color:#ffb300;
+  box-shadow:0 4px 12px rgba(255,179,0,.18);
+  transform:translateY(-1px);
+}
+
+.ttc-listen-meaning.selected{
+  background:#fffdf5;
+  border-color:#ffb300;
+  color:#b86f00;
+}
+
+.ttc-listen-item.wrong{
+  animation:ttcListenWrong .35s ease;
+  border-color:#ef4444;
+  background:#fff1f2;
+  color:#b91c1c;
+}
+
+@keyframes ttcListenWrong{
+  0%,100%{transform:translateX(0)}
+  25%{transform:translateX(-5px)}
+  75%{transform:translateX(5px)}
+}
+
+/* Đúng → biến mất */
+.ttc-listen-item.ttc-listen-vanish{
+  opacity:0;
+  transform:scale(.72);
+  transition:.12s ease;
+  pointer-events:none;
+}
+
+.ttc-listen-footer{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  flex-wrap:wrap;
+  padding:0 20px 22px;
+}
+
+.ttc-listen-footer button{
+  min-width:150px;
+}
+
+.ttc-listen-replay{
+  background:#fff3f3 !important;
+  color:#c62828 !important;
+  border:1px solid #ffcaca !important;
+}
+
+.ttc-listen-next{
+  background:#20b58a !important;
+  color:#fff !important;
+}
+
+/* Chúc mừng */
+.ttc-listen-finish{
+  text-align:center;
+  padding:45px 20px 55px;
+}
+
+.ttc-listen-finish-big{
+  font-size:38px;
+  font-weight:1000;
+  color:#d88900;
+  margin-bottom:12px;
+}
+
+.ttc-listen-finish-text{
+  font-size:22px;
+  font-weight:800;
+  color:#475569;
+}
+
+/* Mobile */
+@media(max-width:650px){
+
+  #ttcListenOverlay{
+    padding:8px;
+  }
+
+  #ttcListenApp{
+    margin:8px auto;
+    border-radius:16px;
+  }
+
+  .ttc-listen-title{
+    font-size:20px;
+  }
+
+  .ttc-listen-board{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:8px;
+    padding:12px 8px 14px;
+  }
+
+  .ttc-listen-column{
+    padding:8px 6px;
+  }
+
+  .ttc-listen-column h3{
+    font-size:13px;
+  }
+
+  .ttc-listen-item{
+    min-height:72px;
+    padding:7px 4px;
+  }
+
+  .ttc-listen-audio{
+    font-size:23px;
+    gap:5px;
+  }
+
+  .ttc-listen-number{
+    font-size:15px;
+    min-width:18px;
+  }
+
+  .ttc-listen-play{
+    font-size:29px;
+  }
+
+  .ttc-listen-meaning{
+    font-size:22px;
+    line-height:1.25;
+  }
+
+  .ttc-listen-finish-big{
+    font-size:30px;
+  }
+
+  .ttc-listen-finish-text{
+    font-size:18px;
+  }
+}
+</style>
+
+<script>
+(function(){
+  "use strict";
+
+  if(window.__TTC_LISTEN_MEANING_V1__) return;
+  window.__TTC_LISTEN_MEANING_V1__=true;
+
+  const KEY="ttc_listen_meaning_v1";
+  const LEVELS=[1,2,3,4,5,6,7,8,9];
+
+  let level=1;
+  let order=[];
+  let cursor=0;
+  let leftSelected=null;
+  let rightSelected=null;
+  let matched=new Set();
+  let wrongTimer=null;
+
+  let overlay;
+  let boardLeft;
+  let boardRight;
+  let statusBox;
+  let progressBar;
+
+  function getWords(){
+    if(Array.isArray(window.words)) return window.words;
+    if(Array.isArray(window.WORDS)) return window.WORDS;
+    if(Array.isArray(window.vocabulary)) return window.vocabulary;
+    return [];
+  }
+
+  function esc(v){
+    return String(v??"").replace(
+      /[&<>"']/g,
+      s=>({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#39;"
+      }[s])
+    );
+  }
+
+  function shuffle(a){
+    const x=a.slice();
+
+    for(let i=x.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [x[i],x[j]]=[x[j],x[i]];
+    }
+
+    return x;
+  }
+
+  function save(){
+    try{
+      const all=JSON.parse(
+        localStorage.getItem(KEY)||"{}"
+      );
+
+      all[level]={
+        order,
+        cursor,
+        matched:Array.from(matched)
+      };
+
+      localStorage.setItem(
+        KEY,
+        JSON.stringify(all)
+      );
+    }catch(e){
+      console.warn("TTC LISTEN save",e);
+    }
+  }
+
+  function load(lv){
+    const source=getWords();
+
+    const pool=source
+      .map((w,i)=>({w,i}))
+      .filter(x=>Number(x.w?.hsk)===lv);
+
+    const valid=new Set(
+      pool.map(x=>x.i)
+    );
+
+    let saved=null;
+
+    try{
+      saved=(
+        JSON.parse(
+          localStorage.getItem(KEY)||"{}"
+        )[lv]||null
+      );
+    }catch(e){}
+
+    if(
+      saved &&
+      Array.isArray(saved.order) &&
+      saved.order.length===pool.length &&
+      saved.order.every(i=>valid.has(i))
+    ){
+      order=saved.order.slice();
+
+      cursor=Math.min(
+        Math.max(Number(saved.cursor)||0,0),
+        order.length
+      );
+
+      matched=new Set(
+        Array.isArray(saved.matched)
+          ? saved.matched.filter(i=>valid.has(i))
+          : []
+      );
+
+      return;
+    }
+
+    order=shuffle(
+      pool.map(x=>x.i)
+    );
+
+    cursor=0;
+    matched=new Set();
+
+    save();
+  }
+
+  function batch(){
+    return order
+      .slice(cursor,cursor+10)
+      .map(i=>({
+        w:getWords()[i],
+        i
+      }))
+      .filter(x=>x.w);
+  }
+
+  function setStatus(text,kind){
+    statusBox.textContent=text;
+
+    statusBox.style.color=
+      kind==="ok"
+        ? "#087443"
+        : kind==="bad"
+          ? "#b91c1c"
+          : "#64748b";
+  }
+
+  function renderLevels(){
+    overlay
+      .querySelectorAll(".ttc-listen-level")
+      .forEach(b=>{
+        b.classList.toggle(
+          "active",
+          Number(b.dataset.level)===level
+        );
+      });
+  }
+
+  function render(){
+
+    renderLevels();
+
+    leftSelected=null;
+    rightSelected=null;
+
+    const data=batch();
+
+    if(!data.length){
+
+      boardLeft.innerHTML="";
+      boardRight.innerHTML="";
+
+      progressBar.style.width="100%";
+
+      boardLeft.innerHTML=`
+        <div class="ttc-listen-finish">
+          <div class="ttc-listen-finish-big">
+            🎉 CHÚC MỪNG ANH! 🎉
+          </div>
+
+          <div class="ttc-listen-finish-text">
+            Anh đã hoàn thành toàn bộ HSK ${level}!<br>
+            🔊 Phản xạ đoán nghĩa — HSK ${level}
+          </div>
+        </div>
+      `;
+
+      boardRight.innerHTML="";
+
+      setStatus(
+        `🏆 Đã hoàn thành toàn bộ HSK ${level}!`,
+        "ok"
+      );
+
+      return;
+    }
+
+    const left=shuffle(data);
+    const right=shuffle(data);
+
+    /*
+      Bên trái:
+      chỉ có số + nút nghe.
+      Tuyệt đối không hiện Hán tự/Pinyin.
+    */
+    boardLeft.innerHTML=left
+      .filter(x=>!matched.has(x.i))
+      .map(x=>`
+        <button
+          type="button"
+          class="ttc-listen-item ttc-listen-audio"
+          data-side="left"
+          data-index="${x.i}"
+          aria-label="Nghe từ số ${x.i}"
+        >
+          <span class="ttc-listen-number">
+            ${left.indexOf(x)+1}
+          </span>
+
+          <span class="ttc-listen-play">
+            🔊 ▶️
+          </span>
+        </button>
+      `)
+      .join("");
+
+    /*
+      Bên phải:
+      chỉ hiện nghĩa tiếng Việt.
+    */
+    boardRight.innerHTML=right
+      .filter(x=>!matched.has(x.i))
+      .map(x=>`
+        <button
+          type="button"
+          class="ttc-listen-item ttc-listen-meaning"
+          data-side="right"
+          data-index="${x.i}"
+        >
+          ${esc(x.w.m||"")}
+        </button>
+      `)
+      .join("");
+
+    const done=Math.min(
+      cursor,
+      order.length
+    );
+
+    progressBar.style.width=
+      (
+        order.length
+          ? Math.round(done/order.length*100)
+          : 0
+      )+"%";
+
+    setStatus(
+      `HSK ${level} · ${Math.min(cursor+10,order.length)} / ${order.length} · Lượt này ${matched.size}/${data.length}`,
+      "normal"
+    );
+  }
+
+  /*
+    Phát âm:
+    Không thay đổi hệ thống voice hiện tại.
+    Chỉ gọi SpeechSynthesis riêng khi người học bấm 🔊.
+  */
+  function speakChinese(text){
+
+    if(!text) return;
+
+    try{
+      window.speechSynthesis.cancel();
+
+      const u=
+        new SpeechSynthesisUtterance(
+          String(text)
+        );
+
+      u.lang="zh-CN";
+      u.rate=.9;
+      u.pitch=1;
+
+      window.speechSynthesis.speak(u);
+
+    }catch(e){
+      console.warn(
+        "TTC LISTEN audio error",
+        e
+      );
+    }
+  }
+
+  function select(btn){
+
+    if(
+      btn.classList.contains(
+        "ttc-listen-vanish"
+      )
+    ) return;
+
+    const side=btn.dataset.side;
+    const idx=Number(
+      btn.dataset.index
+    );
+
+    /*
+      Bấm ô nghe:
+      phát âm từ tương ứng.
+    */
+    if(side==="left"){
+
+      overlay
+        .querySelectorAll(
+          '[data-side="left"].selected'
+        )
+        .forEach(b=>
+          b.classList.remove("selected")
+        );
+
+      leftSelected=idx;
+
+      btn.classList.add("selected");
+
+      const word=getWords()[idx];
+
+      /*
+        Chỉ dùng Hán tự nội bộ để phát âm.
+        KHÔNG render ra màn hình.
+      */
+      speakChinese(
+        word?.h || ""
+      );
+
+    }else{
+
+      overlay
+        .querySelectorAll(
+          '[data-side="right"].selected'
+        )
+        .forEach(b=>
+          b.classList.remove("selected")
+        );
+
+      rightSelected=idx;
+
+      btn.classList.add("selected");
+    }
+
+    if(
+      leftSelected!==null &&
+      rightSelected!==null
+    ){
+      checkPair();
+    }
+  }
+
+  function checkPair(){
+
+    const a=leftSelected;
+    const b=rightSelected;
+
+    const left=overlay.querySelector(
+      `[data-side="left"][data-index="${a}"]`
+    );
+
+    const right=overlay.querySelector(
+      `[data-side="right"][data-index="${b}"]`
+    );
+
+    if(a===b){
+
+      matched.add(a);
+
+      left?.classList.remove("selected");
+      right?.classList.remove("selected");
+
+      left?.classList.add(
+        "ttc-listen-vanish"
+      );
+
+      right?.classList.add(
+        "ttc-listen-vanish"
+      );
+
+      leftSelected=null;
+      rightSelected=null;
+
+      save();
+
+      setStatus(
+        "✅ Chính xác! Nghe tiếp nhé 🥰",
+        "ok"
+      );
+
+      setTimeout(()=>{
+
+        left?.remove();
+        right?.remove();
+
+        if(
+          matched.size===
+          batch().length
+        ){
+
+          cursor+=batch().length;
+
+          matched=new Set();
+
+          save();
+
+          if(
+            cursor>=order.length
+          ){
+
+            progressBar.style.width="100%";
+
+            boardLeft.innerHTML=`
+              <div class="ttc-listen-finish">
+                <div class="ttc-listen-finish-big">
+                  🎉 CHÚC MỪNG ANH! 🎉
+                </div>
+
+                <div class="ttc-listen-finish-text">
+                  Anh đã hoàn thành toàn bộ HSK ${level}!<br><br>
+                  🔊 PHẢN XẠ ĐOÁN NGHĨA
+                </div>
+              </div>
+            `;
+
+            boardRight.innerHTML="";
+
+            setStatus(
+              `🏆 Hoàn thành HSK ${level}!`,
+              "ok"
+            );
+
+          }else{
+
+            render();
+
+          }
+
+        }else{
+
+          const total=batch().length;
+
+          setStatus(
+            `HSK ${level} · Lượt này ${matched.size}/${total}`,
+            "ok"
+          );
+        }
+
+      },120);
+
+    }else{
+
+      left?.classList.add("wrong");
+      right?.classList.add("wrong");
+
+      setStatus(
+        "❌ Chưa đúng — nghe và chọn lại nhé 🥰",
+        "bad"
+      );
+
+      clearTimeout(wrongTimer);
+
+      wrongTimer=setTimeout(()=>{
+
+        left?.classList.remove(
+          "wrong",
+          "selected"
+        );
+
+        right?.classList.remove(
+          "wrong",
+          "selected"
+        );
+
+        leftSelected=null;
+        rightSelected=null;
+
+      },450);
+    }
+  }
+
+  function replay(){
+
+    const source=getWords();
+
+    order=shuffle(
+      Array.from(
+        {length:source.length},
+        (_,i)=>i
+      ).filter(
+        i=>Number(source[i]?.hsk)===level
+      )
+    );
+
+    cursor=0;
+    matched=new Set();
+
+    save();
+    render();
+
+    setStatus(
+      `🔄 HSK ${level} đã được xáo trộn lại!`,
+      "ok"
+    );
+  }
+
+  function changeLevel(lv){
+
+    lv=Number(lv);
+
+    if(
+      !LEVELS.includes(lv)
+    ) return;
+
+    /*
+      Giữ đúng nguyên tắc Premium của hệ thống:
+      HSK3 trở lên kiểm tra Premium nếu engine hiện tại có hàm.
+    */
+    if(
+      lv>=3 &&
+      typeof hasPremiumAccess==="function"
+    ){
+
+      Promise.resolve(
+        hasPremiumAccess()
+      ).then(ok=>{
+
+        if(!ok){
+
+          alert(
+            `💎 HSK ${lv} của Phản xạ đoán nghĩa là nội dung Premium.\n\nVui lòng đăng ký Premium để tiếp tục học.`
+          );
+
+          return;
+        }
+
+        level=lv;
+        load(level);
+        render();
+
+      });
+
+      return;
+    }
+
+    level=lv;
+
+    load(level);
+    render();
+  }
+
+  function open(){
+
+    if(!window.currentUser){
+
+      alert(
+        "🔒 Vui lòng đăng ký hoặc đăng nhập tài khoản trước.\n\nPhản xạ đoán nghĩa là khu học tập dành cho thành viên."
+      );
+
+      return;
+    }
+
+    overlay.classList.add(
+      "ttc-listen-open"
+    );
+
+    load(level);
+    render();
+  }
+
+  function close(){
+
+    overlay.classList.remove(
+      "ttc-listen-open"
+    );
+
+    try{
+      window.speechSynthesis.cancel();
+    }catch(e){}
+  }
+
+  function build(){
+
+    /*
+      Tạo nút cạnh các chức năng hiện tại.
+    */
+    const btn=
+      document.createElement("button");
+
+    btn.id="ttcListenLauncher";
+    btn.type="button";
+    btn.textContent="🔊 Phản xạ đoán nghĩa";
+    btn.className="active";
+
+    const action=
+      document.querySelector(
+        ".ttc-action-buttons"
+      );
+
+    if(action){
+      action.appendChild(btn);
+    }else{
+      document.body.appendChild(btn);
+    }
+
+    /*
+      Overlay riêng.
+    */
+    overlay=
+      document.createElement("div");
+
+    overlay.id="ttcListenOverlay";
+
+    overlay.innerHTML=`
+
+      <div id="ttcListenApp">
+
+        <div class="ttc-listen-head">
+
+          <div class="ttc-listen-head-top">
+
+            <div class="ttc-listen-title">
+              🔊 PHẢN XẠ ĐOÁN NGHĨA
+            </div>
+
+            <button
+              type="button"
+              class="ttc-listen-close"
+              aria-label="Đóng"
+            >
+              ×
+            </button>
+
+          </div>
+
+          <div class="ttc-listen-levels">
+
+            ${LEVELS.map(x=>`
+              <button
+                type="button"
+                class="ttc-listen-level ${x===1?"active":""}"
+                data-level="${x}"
+              >
+                HSK ${x}
+              </button>
+            `).join("")}
+
+          </div>
+
+          <div class="ttc-listen-progress">
+            <div></div>
+          </div>
+
+          <div class="ttc-listen-status"></div>
+
+        </div>
+
+        <div class="ttc-listen-board">
+
+          <div class="ttc-listen-column">
+
+            <h3>
+              🔊 NGHE
+            </h3>
+
+            <div
+              id="ttcListenLeft"
+              class="ttc-listen-list"
+            ></div>
+
+          </div>
+
+          <div class="ttc-listen-column">
+
+            <h3>
+              🇻🇳 NGHĨA
+            </h3>
+
+            <div
+              id="ttcListenRight"
+              class="ttc-listen-list"
+            ></div>
+
+          </div>
+
+        </div>
+
+        <div class="ttc-listen-footer">
+
+          <button
+            type="button"
+            class="ttc-listen-replay"
+          >
+            🔄 Xáo trộn lại
+          </button>
+
+          <button
+            type="button"
+            class="ttc-listen-close ttc-listen-next"
+          >
+            ✓ Đóng
+          </button>
+
+        </div>
+
+      </div>
+    `;
+
+    document.body.appendChild(
+      overlay
+    );
+
+    boardLeft=
+      overlay.querySelector(
+        "#ttcListenLeft"
+      );
+
+    boardRight=
+      overlay.querySelector(
+        "#ttcListenRight"
+      );
+
+    statusBox=
+      overlay.querySelector(
+        ".ttc-listen-status"
+      );
+
+    progressBar=
+      overlay.querySelector(
+        ".ttc-listen-progress>div"
+      );
+
+    btn.addEventListener(
+      "click",
+      open
+    );
+
+    overlay
+      .querySelectorAll(
+        ".ttc-listen-close"
+      )
+      .forEach(x=>
+        x.addEventListener(
+          "click",
+          close
+        )
+      );
+
+    overlay
+      .querySelector(
+        ".ttc-listen-replay"
+      )
+      .addEventListener(
+        "click",
+        replay
+      );
+
+    overlay
+      .querySelectorAll(
+        ".ttc-listen-level"
+      )
+      .forEach(x=>
+        x.addEventListener(
+          "click",
+          ()=>{
+            changeLevel(
+              x.dataset.level
+            );
+          }
+        )
+      );
+
+    overlay.addEventListener(
+      "click",
+      e=>{
+
+        const b=
+          e.target.closest(
+            ".ttc-listen-item"
+          );
+
+        if(b){
+          select(b);
+        }
+
+        if(e.target===overlay){
+          close();
+        }
+
+      }
+    );
+
+    document.addEventListener(
+      "keydown",
+      e=>{
+
+        if(
+          e.key==="Escape" &&
+          overlay.classList.contains(
+            "ttc-listen-open"
+          )
+        ){
+          close();
+        }
+
+      }
+    );
+  }
+
+  if(
+    document.readyState==="loading"
+  ){
+
+    document.addEventListener(
+      "DOMContentLoaded",
+      build
+    );
+
+  }else{
+
+    build();
+
+  }
+
+})();
+</script>
 </body>
 </html>
