@@ -132160,7 +132160,10 @@ if(
         if(a)a.classList.add("matched"); if(b)b.classList.add("matched");
       }
     });
+    scheduleMatchAutoFit();
+
   }
+
   function select(btn){
     if(btn.classList.contains("matched")) return;
     const side=btn.dataset.side, idx=Number(btn.dataset.index);
@@ -132214,6 +132217,7 @@ if(
 
       left?.remove();
       right?.remove();
+           scheduleMatchAutoFit();
 
       if(matched.size===batch().length){
 
@@ -132298,6 +132302,36 @@ if(
     }
     level=lv;load(level);render();
   }
+
+function autoFitMatchText(){
+  if(!overlay) return;
+
+  overlay.querySelectorAll(".ttc-match-item").forEach(el=>{
+    el.style.fontSize="";
+
+    const isLeft=el.dataset.side==="left";
+    const maxSize=isLeft ? 56 : 32;
+    const minSize=isLeft ? 28 : 16;
+
+    el.style.fontSize=maxSize+"px";
+
+    let size=maxSize;
+
+    while(
+      size>minSize &&
+      (el.scrollWidth>el.clientWidth+2 || el.scrollHeight>el.clientHeight+2)
+    ){
+      size-=2;
+      el.style.fontSize=size+"px";
+    }
+  });
+}
+
+function scheduleMatchAutoFit(){
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(autoFitMatchText);
+  });
+}
   function build(){
     const btn=document.createElement("button");btn.id="ttcMatchLauncher";btn.type="button";btn.textContent="🧩 Nối từ đúng";btn.className="active";
     const action=document.querySelector(".ttc-action-buttons");if(action)action.appendChild(btn);else document.body.appendChild(btn);
