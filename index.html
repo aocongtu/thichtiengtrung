@@ -97326,6 +97326,148 @@ function createAccountSystem(){
 
   }
 
+  /* =======================================================
+     📱 TTC — GIỚI HẠN 3 THIẾT BỊ
+     ======================================================= */
+
+  const TTC_DEVICE_STORAGE_KEY =
+    "ttc_device_id_v1";
+
+
+  function getTtcDeviceId(){
+
+    let deviceId =
+      localStorage.getItem(
+        TTC_DEVICE_STORAGE_KEY
+      );
+
+
+    if(!deviceId){
+
+      deviceId =
+        crypto.randomUUID();
+
+      localStorage.setItem(
+        TTC_DEVICE_STORAGE_KEY,
+        deviceId
+      );
+
+    }
+
+
+    return deviceId;
+
+  }
+
+
+  function getTtcDeviceName(){
+
+    const ua =
+      navigator.userAgent || "";
+
+
+    if(/iPhone/i.test(ua))
+      return "iPhone";
+
+    if(/iPad/i.test(ua))
+      return "iPad";
+
+    if(/Android/i.test(ua))
+      return "Android";
+
+    if(/Windows/i.test(ua))
+      return "Windows";
+
+    if(/Macintosh|Mac OS/i.test(ua))
+      return "Mac";
+
+    return "Thiết bị khác";
+
+  }
+
+
+  async function registerTtcDevice(){
+
+    const deviceId =
+      getTtcDeviceId();
+
+
+    const deviceName =
+      getTtcDeviceName();
+
+
+    const {
+      data,
+      error
+    } =
+      await window.supabase.rpc(
+        "register_user_device",
+        {
+          p_device_id:deviceId,
+          p_device_name:deviceName
+        }
+      );
+
+
+    if(error){
+
+      console.error(
+        "❌ TTC DEVICE REGISTER ERROR:",
+        error
+      );
+
+      return {
+        ok:false,
+        reason:"rpc_error"
+      };
+
+    }
+
+
+    return data || {
+      ok:false,
+      reason:"unknown"
+    };
+
+  }
+
+
+  async function unregisterTtcDevice(){
+
+    const deviceId =
+      localStorage.getItem(
+        TTC_DEVICE_STORAGE_KEY
+      );
+
+
+    if(!deviceId){
+      return;
+    }
+
+
+    const {
+      error
+    } =
+      await window.supabase.rpc(
+        "unregister_user_device",
+        {
+          p_device_id:deviceId
+        }
+      );
+
+
+    if(error){
+
+      console.error(
+        "❌ TTC DEVICE UNREGISTER ERROR:",
+        error
+      );
+
+    }
+
+  }
+
+
 
   /* =======================================================
      ĐĂNG NHẬP
@@ -97409,6 +97551,56 @@ function createAccountSystem(){
     }
 
 
+        /* =================================================
+       📱 KIỂM TRA GIỚI HẠN 3 THIẾT BỊ
+       ================================================= */
+
+    const deviceResult =
+      await registerTtcDevice();
+
+
+    if(!deviceResult?.ok){
+
+      /*
+        Chỉ đăng xuất phiên hiện tại.
+        Không làm ảnh hưởng các thiết bị khác.
+      */
+      await window.supabase.auth.signOut({
+        scope:"local"
+      });
+
+
+      window.currentUser =
+        null;
+
+
+      if(
+        deviceResult?.reason ===
+        "device_limit"
+      ){
+
+        showAccountMessage(
+          "🚫 Tài khoản đã sử dụng đủ 3 thiết bị.<br>" +
+          "Vui lòng đăng xuất một thiết bị cũ trước khi đăng nhập thiết bị này.",
+          "error"
+        );
+
+      }else{
+
+        showAccountMessage(
+          "⚠️ Không thể kiểm tra thiết bị.<br>" +
+          "Vui lòng thử đăng nhập lại.",
+          "error"
+        );
+
+      }
+
+
+      return;
+
+    }
+
+
     window.currentUser =
       data.user;
 
@@ -97422,9 +97614,6 @@ function createAccountSystem(){
     updateAccountUI(
       data.user
     );
-
-  }
-
 
   /* =======================================================
      👤 BẤM VÀO TÊN → MỞ MENU
@@ -97636,11 +97825,14 @@ function createAccountSystem(){
       "click",
       async function(){
 
-        await window.supabase.auth.signOut();
+                await unregisterTtcDevice();
+
+        await window.supabase.auth.signOut({
+          scope:"local"
+        });
 
         window.currentUser =
           null;
-
         document
           .getElementById(
             "accountUser"
@@ -98240,58 +98432,101 @@ function startAccountTrialCountdown(
 
 }
 
+  /* =========================================================
+     8. KIỂM TRA SESSION + GIỚI HẠN 3 THIẾT BỊ
+     ========================================================= */
 
-/* =========================================================
-   8. KIỂM TRA SESSION
-   ========================================================= */
-
-async function checkCurrentSession(){
-
-  const {
-    data
-  } =
-    await window.supabase.auth.getSession();
+  let ttcDeviceCheckRunning = false;
 
 
-  if(
-    data &&
-    data.session
-  ){
+  async function handleTtcSession(session){
 
-    window.currentUser =
-      data.session.user;
+    if(ttcDeviceCheckRunning){
+      return;
+    }
 
 
-    updateAccountUI(
-      data.session.user
-    );
+    if(!session){
 
-  }else{
+      window.currentUser =
+        null;
 
-    window.currentUser =
-      null;
+      updateAccountUI(null);
 
+      return;
 
-    updateAccountUI(
-      null
-    );
-
-  }
-
-}
+    }
 
 
-/* =========================================================
-   9. THEO DÕI LOGIN / LOGOUT
-   ========================================================= */
+    /*
+       🔒 KIỂM TRA THIẾT BỊ
 
-window.supabase.auth.onAuthStateChange(
-  function(
-    event,
-    session
-  ){
+       Nếu thiết bị này đã đăng ký:
+       → cập nhật last_seen
+       → cho đăng nhập bình thường.
 
-    if(session){
+       Nếu đã đủ 3 thiết bị:
+       → chỉ đăng xuất phiên hiện tại.
+    */
+
+    ttcDeviceCheckRunning = true;
+
+
+    try{
+
+      const deviceResult =
+        await registerTtcDevice();
+
+
+      if(!deviceResult?.ok){
+
+        console.warn(
+          "🚫 TTC DEVICE ACCESS BLOCKED:",
+          deviceResult
+        );
+
+
+        await window.supabase.auth.signOut({
+          scope:"local"
+        });
+
+
+        window.currentUser =
+          null;
+
+
+        if(
+          deviceResult?.reason ===
+          "device_limit"
+        ){
+
+          showAccountMessage(
+            "🚫 Tài khoản đã sử dụng đủ 3 thiết bị.<br>" +
+            "Vui lòng đăng xuất một thiết bị cũ trước khi đăng nhập thiết bị này.",
+            "error"
+          );
+
+        }else{
+
+          showAccountMessage(
+            "⚠️ Không thể kiểm tra thiết bị.<br>" +
+            "Vui lòng thử đăng nhập lại.",
+            "error"
+          );
+
+        }
+
+
+        updateAccountUI(null);
+
+        return;
+
+      }
+
+
+      /*
+         ✅ THIẾT BỊ HỢP LỆ
+      */
 
       window.currentUser =
         session.user;
@@ -98299,6 +98534,78 @@ window.supabase.auth.onAuthStateChange(
 
       updateAccountUI(
         session.user
+      );
+
+
+    }catch(error){
+
+      console.error(
+        "❌ TTC DEVICE CHECK ERROR:",
+        error
+      );
+
+
+      /*
+         Không cho phiên hoạt động
+         nếu hệ thống không kiểm tra
+         được giới hạn thiết bị.
+      */
+
+      try{
+
+        await window.supabase.auth.signOut({
+          scope:"local"
+        });
+
+      }catch(signOutError){
+
+        console.error(
+          "❌ TTC LOCAL SIGNOUT ERROR:",
+          signOutError
+        );
+
+      }
+
+
+      window.currentUser =
+        null;
+
+
+      updateAccountUI(null);
+
+
+      showAccountMessage(
+        "⚠️ Không thể kiểm tra thiết bị.<br>" +
+        "Vui lòng thử đăng nhập lại.",
+        "error"
+      );
+
+
+    }finally{
+
+      ttcDeviceCheckRunning =
+        false;
+
+    }
+
+  }
+
+
+  async function checkCurrentSession(){
+
+    const {
+      data
+    } =
+      await window.supabase.auth.getSession();
+
+
+    if(
+      data &&
+      data.session
+    ){
+
+      await handleTtcSession(
+        data.session
       );
 
     }else{
@@ -98314,7 +98621,54 @@ window.supabase.auth.onAuthStateChange(
     }
 
   }
-);
+
+
+  /* =========================================================
+     9. THEO DÕI LOGIN / LOGOUT
+     ========================================================= */
+
+  window.supabase.auth.onAuthStateChange(
+    function(
+      event,
+      session
+    ){
+
+      /*
+         SIGNED_IN / INITIAL_SESSION
+         đều phải kiểm tra thiết bị.
+
+         Dùng setTimeout để không thực hiện
+         các Supabase call lồng trực tiếp trong
+         callback auth.
+      */
+
+      if(session){
+
+        setTimeout(
+          function(){
+
+            handleTtcSession(
+              session
+            );
+
+          },
+          0
+        );
+
+      }else{
+
+        window.currentUser =
+          null;
+
+
+        updateAccountUI(
+          null
+        );
+
+      }
+
+    }
+  );
 
 /* =========================================================
    🔊 THÍCH TIẾNG TRUNG — AUTO LEARNING ENGINE
