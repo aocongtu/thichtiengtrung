@@ -7,9 +7,10 @@ export default async function handler(req, res) {
   const origin = req.headers.origin || "";
 
   const allowedOrigins = [
-    "https://aocongtu.github.io",
-    "https://thichtiengtrung.vercel.app"
-  ];
+  "https://aocongtu.github.io",
+  "https://thichtiengtrung.vercel.app",
+  "https://thichtiengtrung.io.vn"
+];
 
   if (allowedOrigins.includes(origin)) {
     res.setHeader(
