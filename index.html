@@ -132035,25 +132035,40 @@ if(
   .ttc-match-board{
     grid-template-columns:repeat(2,minmax(0,1fr));
     gap:8px;
-    padding:12px 10px 14px;
+    padding:12px 8px 14px;
+    width:100%;
+    box-sizing:border-box;
   }
 
   .ttc-match-column{
     width:100%;
-    padding:8px;
+    min-width:0;
+    padding:8px 6px;
+    box-sizing:border-box;
+  }
+
+  .ttc-match-column h3{
+    font-size:13px;
+    margin-bottom:8px;
   }
 
   .ttc-match-item{
-    min-height:68px;
-    padding:7px 4px;
-
-    /* 🔠 MOBILE */
-    font-size:50px;
+    width:100%;
+    min-width:0;
+    min-height:72px;
+    padding:6px 3px;
+    box-sizing:border-box;
+    font-size:48px !important;
+    line-height:1.15;
+    font-weight:900;
   }
 
   .ttc-match-meaning{
-    font-size:16px;
+    font-size:22px !important;
+    line-height:1.25 !important;
+    font-weight:900 !important;
   }
+
 }
 
 .ttc-match-item:hover{transform:translateY(-1px);border-color:#ffb300;box-shadow:0 4px 12px rgba(255,179,0,.18)}
