@@ -135579,32 +135579,60 @@ async function createMessageElement(message,name){
   content.appendChild(meta);
   content.appendChild(bubble);
 
-  const actions =
-    document.createElement("div");
+/* =======================================================
+   💬 TTC CHAT — ACTIONS / REACTION
+   ======================================================= */
 
-  actions.className =
-    "ttc-chat-actions";
+const actions =
+  document.createElement("div");
 
-  const reactionList =
-    TTC_CHAT.reactionCache[message.id] || [];
+actions.className =
+  "ttc-chat-actions";
 
-  const reactionTypes = [
 
-    ["like","👍"],
-    ["dislike","👎"],
-    ["heart","❤️"],
-    ["haha","😂"],
-    ["wow","😮"],
-    ["thanks","🙏"]
+const reactionList =
+  TTC_CHAT.reactionCache[message.id] || [];
 
-  ];
 
-  reactionTypes.forEach(([type,emoji]) => {
+const reactionTypes = [
+  ["like","👍"],
+  ["dislike","👎"],
+  ["heart","❤️"],
+  ["haha","😂"],
+  ["wow","😮"],
+  ["thanks","🙏"]
+];
+
+
+/* =======================================================
+   📊 CHỈ HIỆN REACTION ĐÃ CÓ NGƯỜI DÙNG
+   ======================================================= */
+
+const activeReactions =
+  reactionTypes.filter(
+    ([type]) =>
+      reactionList.some(
+        r => r.reaction === type
+      )
+  );
+
+
+const reactionSummary =
+  document.createElement("div");
+
+reactionSummary.className =
+  "ttc-reaction-summary";
+
+
+activeReactions.forEach(
+  ([type,emoji]) => {
 
     const count =
       reactionList.filter(
-        r => r.reaction === type
+        r =>
+          r.reaction === type
       ).length;
+
 
     const mineReaction =
       reactionList.some(
@@ -135613,72 +135641,263 @@ async function createMessageElement(message,name){
           r.reaction === type
       );
 
+
     const btn =
       document.createElement("button");
 
-    btn.type = "button";
+    btn.type =
+      "button";
 
     btn.className =
       "ttc-reaction" +
-      (mineReaction ? " active" : "");
+      (
+        mineReaction
+          ? " active"
+          : ""
+      );
+
 
     btn.innerHTML =
       emoji +
-      (count
-        ? `<span class="ttc-reaction-count">${count}</span>`
-        : "");
+      `<span class="ttc-reaction-count">${count}</span>`;
+
+
+    btn.title =
+      mineReaction
+        ? "Bỏ reaction"
+        : "Thả reaction";
+
+
+    btn.onclick = async function(event){
+
+      event.stopPropagation();
+
+      await toggleReaction(
+        message.id,
+        type
+      );
+
+      wrapper.classList.remove(
+        "ttc-message-selected"
+      );
+
+    };
+
+
+    reactionSummary.appendChild(btn);
+
+  }
+);
+
+
+/* =======================================================
+   😊 THANH CHỌN 6 REACTION
+   ======================================================= */
+
+const reactionPicker =
+  document.createElement("div");
+
+reactionPicker.className =
+  "ttc-reaction-picker";
+
+
+reactionTypes.forEach(
+  ([type,emoji]) => {
+
+    const count =
+      reactionList.filter(
+        r =>
+          r.reaction === type
+      ).length;
+
+
+    const mineReaction =
+      reactionList.some(
+        r =>
+          r.user_id === TTC_CHAT.user.id &&
+          r.reaction === type
+      );
+
+
+    const btn =
+      document.createElement("button");
+
+    btn.type =
+      "button";
+
+    btn.className =
+      "ttc-reaction" +
+      (
+        mineReaction
+          ? " active"
+          : ""
+      );
+
+
+    btn.innerHTML =
+      emoji +
+      (
+        count
+          ? `<span class="ttc-reaction-count">${count}</span>`
+          : ""
+      );
+
 
     btn.title =
       mineReaction
         ? "Bỏ reaction"
         : "Reaction";
 
-    btn.onclick = () =>
-      toggleReaction(message.id,type);
 
-    actions.appendChild(btn);
+    btn.onclick = async function(event){
 
-  });
+      event.stopPropagation();
 
+      await toggleReaction(
+        message.id,
+        type
+      );
 
-  const replyBtn =
-    document.createElement("button");
+      wrapper.classList.remove(
+        "ttc-message-selected"
+      );
 
-  replyBtn.type = "button";
-
-  replyBtn.className =
-    "ttc-message-tool";
-
-  replyBtn.textContent = "↩️ Trả lời";
-
-  replyBtn.onclick = () =>
-    startReply(message);
-
-  actions.appendChild(replyBtn);
+    };
 
 
-  if(mine){
-
-    const deleteBtn =
-      document.createElement("button");
-
-    deleteBtn.type = "button";
-
-    deleteBtn.className =
-      "ttc-message-tool";
-
-    deleteBtn.textContent =
-      "🗑️ Xóa";
-
-    deleteBtn.onclick = () =>
-      deleteMessage(message);
-
-    actions.appendChild(deleteBtn);
+    reactionPicker.appendChild(btn);
 
   }
+);
 
 
-  content.appendChild(actions);
+/* =======================================================
+   ↩️ TRẢ LỜI
+   ======================================================= */
+
+const replyBtn =
+  document.createElement("button");
+
+replyBtn.type =
+  "button";
+
+replyBtn.className =
+  "ttc-message-tool";
+
+replyBtn.textContent =
+  "↩️ Trả lời";
+
+replyBtn.onclick =
+  function(event){
+
+    event.stopPropagation();
+
+    startReply(message);
+
+    wrapper.classList.remove(
+      "ttc-message-selected"
+    );
+
+  };
+
+
+/* =======================================================
+   📦 GHÉP ACTIONS
+   ======================================================= */
+
+actions.appendChild(
+  reactionSummary
+);
+
+actions.appendChild(
+  reactionPicker
+);
+
+actions.appendChild(
+  replyBtn
+);
+
+
+/* =======================================================
+   🗑️ XÓA — CHỈ TIN CỦA MÌNH
+   ======================================================= */
+
+if(mine){
+
+  const deleteBtn =
+    document.createElement("button");
+
+  deleteBtn.type =
+    "button";
+
+  deleteBtn.className =
+    "ttc-message-tool";
+
+  deleteBtn.textContent =
+    "🗑️ Xóa";
+
+  deleteBtn.onclick =
+    function(event){
+
+      event.stopPropagation();
+
+      deleteMessage(message);
+
+      wrapper.classList.remove(
+        "ttc-message-selected"
+      );
+
+    };
+
+
+  actions.appendChild(
+    deleteBtn
+  );
+
+}
+
+
+content.appendChild(
+  actions
+);
+
+
+/* =======================================================
+   👆 NHẤN VÀO TIN NHẮN → HIỆN ACTIONS
+   ======================================================= */
+
+bubble.addEventListener(
+  "click",
+  function(event){
+
+    event.stopPropagation();
+
+
+    document
+      .querySelectorAll(
+        "#ttcChatMessages .ttc-message-selected"
+      )
+      .forEach(
+        el => {
+
+          if(el !== wrapper){
+
+            el.classList.remove(
+              "ttc-message-selected"
+            );
+
+          }
+
+        }
+      );
+
+
+    wrapper.classList.toggle(
+      "ttc-message-selected"
+    );
+
+  }
+);
 
   wrapper.appendChild(avatar);
   wrapper.appendChild(content);
@@ -135687,6 +135906,31 @@ async function createMessageElement(message,name){
 
 }
 
+document.addEventListener(
+  "click",
+  function(event){
+
+    if(
+      !event.target.closest(
+        "#ttcChatMessages .ttc-chat-bubble"
+      )
+    ){
+
+      document
+        .querySelectorAll(
+          "#ttcChatMessages .ttc-message-selected"
+        )
+        .forEach(
+          el =>
+            el.classList.remove(
+              "ttc-message-selected"
+            )
+        );
+
+    }
+
+  }
+);
 
 /* ============================================================
    FILE RENDER
@@ -137846,6 +138090,117 @@ if(
     border-radius:0 !important;
   }
 }
+
+/* =======================================================
+   💬 TTC CHAT — REACTION HIỂN THỊ KHI NHẤN TIN NHẮN
+   ======================================================= */
+
+.ttc-chat-actions{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  flex-wrap:wrap;
+  margin-top:5px;
+}
+
+/* Chỉ ẩn phần chọn reaction + nút thao tác */
+.ttc-chat-actions .ttc-reaction-picker,
+.ttc-chat-actions .ttc-message-tool{
+  display:none;
+}
+
+/* Khi nhấn vào tin nhắn → hiện picker + Trả lời/Xóa */
+.ttc-chat-message.ttc-message-selected
+.ttc-chat-actions
+.ttc-reaction-picker,
+.ttc-chat-message.ttc-message-selected
+.ttc-chat-actions
+.ttc-message-tool{
+  display:flex;
+}
+
+/* Nếu chưa có reaction thì summary không chiếm chỗ */
+.ttc-reaction-summary:empty{
+  display:none;
+}
+
+/* Các reaction đã có người dùng */
+
+.ttc-reaction-summary{
+  display:flex;
+  align-items:center;
+  gap:3px;
+}
+
+.ttc-reaction-summary .ttc-reaction{
+  border:1px solid var(--ttc-border);
+  background:#fff;
+  border-radius:999px;
+  min-height:27px;
+  padding:2px 7px;
+  cursor:pointer;
+  font-size:14px;
+}
+
+.ttc-reaction-summary .ttc-reaction.active{
+  background:#fff0f1;
+  border-color:#ffd1d4;
+}
+
+.ttc-reaction-count{
+  font-size:10px;
+  margin-left:2px;
+  font-weight:700;
+}
+
+
+/* Thanh 6 reaction */
+
+.ttc-reaction-picker{
+  display:flex;
+  align-items:center;
+  gap:2px;
+  padding:3px 5px;
+  background:#fff;
+  border:1px solid var(--ttc-border);
+  border-radius:999px;
+  box-shadow:0 4px 16px rgba(0,0,0,.10);
+}
+
+.ttc-reaction-picker .ttc-reaction{
+  border:0;
+  background:transparent;
+  min-width:32px;
+  height:30px;
+  padding:0 5px;
+  border-radius:999px;
+  cursor:pointer;
+  font-size:16px;
+}
+
+.ttc-reaction-picker .ttc-reaction:hover{
+  background:#f3f4f6;
+}
+
+.ttc-reaction-picker .ttc-reaction.active{
+  background:#fff0f1;
+  outline:2px solid #ffd1d4;
+}
+
+
+@media(max-width:720px){
+
+  .ttc-reaction-picker .ttc-reaction{
+    min-width:30px;
+    padding:0 4px;
+  }
+
+  .ttc-reaction-summary .ttc-reaction{
+    padding:2px 6px;
+  }
+
+}
 </style>
+
 </body>
 </html>
