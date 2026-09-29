@@ -97275,31 +97275,129 @@ function createAccountSystem(){
       "⏳ ĐANG TẠO TÀI KHOẢN...";
 
 
-    const {
-      data,
-      error
-    } =
-      await window.supabase.auth.signUp({
+    const nickname =
+  name.trim();
 
-        email:email,
+const nicknameKey =
+  nickname.toLowerCase();
 
-        password:password,
+const { data: nicknameExists, error: nicknameCheckError } =
+  await window.supabase
+    .from("community_nicknames")
+    .select("user_id")
+    .eq("nickname_key", nicknameKey)
+    .limit(1);
 
-        options:{
+if(nicknameCheckError){
 
-  data:{
+  button.disabled = false;
+  button.textContent =
+    "📝 TẠO TÀI KHOẢN";
 
-    display_name:name,
+  showAccountMessage(
+    "❌ Không thể kiểm tra nickname. Vui lòng thử lại.",
+    "error"
+  );
 
-    full_name:name,
+  return;
+}
 
-    phone:phone
+if(
+  nicknameExists &&
+  nicknameExists.length > 0
+){
 
+  button.disabled = false;
+  button.textContent =
+    "📝 TẠO TÀI KHOẢN";
+
+  showAccountMessage(
+    "⚠️ Nickname này đã được sử dụng.<br>" +
+    "Vui lòng chọn tên khác nhé!",
+    "error"
+  );
+
+  return;
+}
+
+
+/* =====================================================
+   👤 NICKNAME CHƯA CÓ → TIẾN HÀNH ĐĂNG KÝ
+   ===================================================== */
+
+const { data, error } =
+  await window.supabase.auth.signUp({
+
+    email:email,
+
+    password:password,
+
+    options:{
+      data:{
+        display_name:nickname,
+        full_name:nickname,
+        phone:phone
+      }
+    }
+
+  });
+
+
+if(error){
+
+  button.disabled = false;
+  button.textContent =
+    "📝 TẠO TÀI KHOẢN";
+
+  showAccountMessage(
+    "❌ " + error.message,
+    "error"
+  );
+
+  return;
+}
+
+
+/* =====================================================
+   🔒 GHI NICKNAME VÀO SỔ KHÓA
+   ===================================================== */
+
+if(data && data.user){
+
+  const { error: nicknameInsertError } =
+    await window.supabase
+      .from("community_nicknames")
+      .insert({
+        user_id:data.user.id,
+        display_name:nickname
+      });
+
+  if(nicknameInsertError){
+
+    console.error(
+      "Nickname insert error:",
+      nicknameInsertError
+    );
+
+    /*
+     * Tài khoản đã được tạo thành công.
+     * Không báo signup thất bại để tránh người dùng
+     * tạo lại tài khoản lần nữa.
+     */
   }
 
 }
-      });
 
+button.disabled = false;
+
+button.textContent =
+  "📝 TẠO TÀI KHOẢN";
+
+showAccountMessage(
+  "✅ Tạo tài khoản thành công!<br>" +
+  "📧 Hãy kiểm tra email nếu Supabase yêu cầu xác nhận.",
+  "success"
+);
 
     button.disabled = false;
 
