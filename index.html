@@ -135721,19 +135721,41 @@ async function renderFile(message){
 
   if(message.message_type === "image"){
 
-    return `
-      <div class="ttc-chat-file">
-        <img
-          src="${escapeHTML(url)}"
-          alt="${escapeHTML(message.file_name || "Ảnh")}"
-          loading="lazy"
-          onclick="window.open('${escapeHTML(url)}','_blank')"
-        >
-      </div>
-    `;
+  return `
+    <div
+      class="ttc-chat-file ttc-chat-image-wrap"
+      style="
+        width:100%;
+        max-width:280px;
+        max-height:300px;
+        overflow:hidden;
+        border-radius:10px;
+        margin-top:6px;
+      "
+    >
 
-  }
+      <img
+        src="${escapeHTML(url)}"
+        alt="${escapeHTML(message.file_name || "Ảnh")}"
+        loading="lazy"
+        decoding="async"
+        style="
+          display:block;
+          width:auto;
+          max-width:100%;
+          max-height:300px;
+          height:auto;
+          object-fit:contain;
+          border-radius:10px;
+          cursor:pointer;
+        "
+        onclick="window.open('${escapeHTML(url)}','_blank')"
+      >
 
+    </div>
+  `;
+
+}
   if(message.message_type === "audio"){
 
     return `
@@ -137396,5 +137418,388 @@ if(
 
 })();
 </script>
+
+<!-- =========================================================
+     🖼️ CHAT V1 — GIỚI HẠN ẢNH ĐỂ KHÔNG CHE KHUNG CHAT
+     ========================================================= -->
+
+<style>
+
+#ttc-chat-v1 img,
+#ttc-chat-modal img,
+[id*="chat"] img{
+
+  max-width:100% !important;
+
+  width:auto !important;
+
+  height:auto !important;
+
+  max-height:320px !important;
+
+  object-fit:contain !important;
+
+  display:block !important;
+
+  margin:6px 0 !important;
+
+  border-radius:10px !important;
+
+}
+
+
+/* Ảnh quá dài vẫn không được phá layout */
+
+#ttc-chat-v1,
+#ttc-chat-modal{
+
+  overflow:hidden !important;
+
+}
+
+
+/* Khu vực tin nhắn được phép cuộn */
+
+#ttc-chat-v1 [class*="message"],
+#ttc-chat-modal [class*="message"]{
+
+  min-height:0 !important;
+
+}
+
+
+/* Không để nội dung dài ép khung chat */
+
+#ttc-chat-v1 *,
+#ttc-chat-modal *{
+
+  min-width:0;
+
+  box-sizing:border-box;
+
+}
+/* ============================================================
+   TTC CHAT V1 — FIX IMAGE + CHAT SCROLL
+   ============================================================ */
+
+/* Khung Chat chính phải là flex column */
+#ttcChatV1 .ttc-chat-shell {
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 0 !important;
+  max-height: 90vh !important;
+}
+
+/* Phần thân chia thành ROOM + MAIN */
+#ttcChatV1 .ttc-chat-body {
+  display: flex !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Khu vực chính */
+#ttcChatV1 .ttc-chat-main {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
+/* ============================================================
+   MESSAGE AREA — CHỈ KHU VỰC NÀY ĐƯỢC SCROLL
+   ============================================================ */
+
+#ttcChatV1 #ttcChatMessages {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+
+  /* Không cho nội dung dài đẩy vỡ layout */
+  width: 100% !important;
+  box-sizing: border-box !important;
+
+  /* tạo khoảng thở cuối danh sách */
+  padding-bottom: 12px !important;
+}
+
+/* ============================================================
+   MESSAGE CONTENT
+   ============================================================ */
+
+#ttcChatV1 .ttc-chat-message {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+#ttcChatV1 .ttc-chat-message-content {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+#ttcChatV1 .ttc-chat-bubble {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow-wrap: anywhere !important;
+  word-break: break-word !important;
+  box-sizing: border-box !important;
+}
+
+/* ============================================================
+   FILE CONTAINER
+   ============================================================ */
+
+#ttcChatV1 .ttc-chat-file {
+  display: block !important;
+  max-width: 100% !important;
+  width: fit-content !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+/* ============================================================
+   ẢNH — KHÔNG BAO GIỜ ĐƯỢC PHÉP ĐẨY KHUNG CHAT
+   ============================================================ */
+
+#ttcChatV1 .ttc-chat-file img {
+  display: block !important;
+
+  width: auto !important;
+  height: auto !important;
+
+  max-width: min(100%, 360px) !important;
+  max-height: 320px !important;
+
+  object-fit: contain !important;
+
+  box-sizing: border-box !important;
+
+  border-radius: 10px !important;
+
+  cursor: pointer !important;
+}
+
+/* ============================================================
+   AUDIO
+   ============================================================ */
+
+#ttcChatV1 .ttc-chat-file audio {
+  display: block !important;
+  width: min(280px, 100%) !important;
+  max-width: 100% !important;
+}
+
+/* ============================================================
+   COMPOSER — LUÔN Ở DƯỚI
+   ============================================================ */
+
+#ttcChatV1 .ttc-chat-composer-wrap {
+  flex: 0 0 auto !important;
+  min-height: 0 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
+@media (max-width: 700px) {
+
+  #ttcChatV1 .ttc-chat-shell {
+    max-height: 92vh !important;
+  }
+
+  #ttcChatV1 .ttc-chat-body {
+    min-height: 0 !important;
+  }
+
+  #ttcChatV1 .ttc-chat-main {
+    min-height: 0 !important;
+  }
+
+  #ttcChatV1 #ttcChatMessages {
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+
+  #ttcChatV1 .ttc-chat-file img {
+    max-width: min(100%, 300px) !important;
+    max-height: 260px !important;
+  }
+
+}
+
+/* ============================================================
+   🔧 CHAT V1 — FIX MESSAGE SCROLLER / ẢNH DÀI
+   ============================================================ */
+
+/*
+ * Khóa chiều cao của toàn bộ cửa sổ Chat.
+ * Tin nhắn không được phép đẩy Composer xuống.
+ */
+
+.ttc-chat-shell{
+  min-height:0 !important;
+  overflow:hidden !important;
+}
+
+.ttc-chat-body{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  height:0 !important;
+  overflow:hidden !important;
+}
+
+.ttc-chat-main{
+  flex:1 1 auto !important;
+  min-width:0 !important;
+  min-height:0 !important;
+  height:100% !important;
+  overflow:hidden !important;
+}
+
+.ttc-chat-messages{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  height:0 !important;
+
+  /*
+   * CHỈ vùng tin nhắn được cuộn.
+   */
+  overflow-x:hidden !important;
+  overflow-y:auto !important;
+
+  /*
+   * Không để nội dung bên trong làm tăng
+   * chiều cao của vùng Chat.
+   */
+  overscroll-behavior:contain !important;
+}
+
+/*
+ * Composer luôn nằm dưới cùng,
+ * không bị ảnh hoặc tin nhắn đẩy xuống.
+ */
+
+.ttc-chat-composer-wrap{
+  flex:0 0 auto !important;
+  min-height:0 !important;
+  position:relative !important;
+  z-index:10 !important;
+}
+
+/*
+ * Tin nhắn không được phép tạo chiều rộng/chiều cao
+ * bất thường cho flex container.
+ */
+
+.ttc-chat-message{
+  min-width:0 !important;
+  max-width:100% !important;
+}
+
+.ttc-chat-message-content{
+  min-width:0 !important;
+  max-width:min(75%,680px) !important;
+  overflow:hidden !important;
+}
+
+.ttc-chat-bubble{
+  min-width:0 !important;
+  max-width:100% !important;
+  overflow:hidden !important;
+}
+
+/*
+ * QUAN TRỌNG:
+ * ảnh chỉ được chiếm không gian trong bubble,
+ * không được làm vỡ layout.
+ */
+
+.ttc-chat-file{
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  overflow:hidden !important;
+}
+
+.ttc-chat-file img{
+  display:block !important;
+
+  /*
+   * Không cho ảnh vượt quá bubble.
+   */
+  width:auto !important;
+  max-width:100% !important;
+
+  /*
+   * Ảnh dài chỉ chiếm tối đa 300px.
+   */
+  max-height:300px !important;
+
+  height:auto !important;
+
+  object-fit:contain !important;
+}
+
+/*
+ * Trên điện thoại:
+ * toàn bộ Chat là một màn hình,
+ * chỉ messages được cuộn.
+ */
+
+@media(max-width:720px){
+
+  .ttc-chat-shell{
+    width:100vw !important;
+    height:100vh !important;
+    max-height:none !important;
+
+    /*
+     * Safari/iPhone đôi khi xử lý 100vh
+     * không ổn khi thanh địa chỉ thay đổi.
+     */
+    height:100dvh !important;
+  }
+
+  .ttc-chat-body{
+    height:0 !important;
+    min-height:0 !important;
+  }
+
+  .ttc-chat-main{
+    height:100% !important;
+    min-height:0 !important;
+  }
+
+  .ttc-chat-messages{
+    height:0 !important;
+    min-height:0 !important;
+    flex:1 1 auto !important;
+  }
+
+  .ttc-chat-composer-wrap{
+    flex-shrink:0 !important;
+  }
+
+  .ttc-chat-message-content{
+    max-width:82% !important;
+  }
+
+  .ttc-chat-file img{
+    max-width:100% !important;
+    max-height:280px !important;
+  }
+
+}
+
+</style>
 </body>
 </html>
