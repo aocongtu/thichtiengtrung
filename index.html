@@ -134195,5 +134195,3161 @@ if(
 
 })();
 </script>
+
+<!-- ============================================================
+ 🇨🇳 THÍCH TIẾNG TRUNG
+ 💬 COMMUNITY CHAT V1 PACK
+ DÁN NGUYÊN KHỐI NÀY NGAY TRƯỚC </body>
+ ============================================================ -->
+
+<style>
+/* ============================================================
+   CHAT V1 — UI
+   ============================================================ */
+
+#ttcChatV1{
+  --ttc-red:#d71920;
+  --ttc-red2:#b51218;
+  --ttc-bg:#f6f7f9;
+  --ttc-card:#ffffff;
+  --ttc-text:#202124;
+  --ttc-muted:#6b7280;
+  --ttc-border:#e5e7eb;
+
+  position:fixed;
+  inset:0;
+  z-index:999999;
+  display:none;
+  background:rgba(0,0,0,.45);
+  font-family:inherit;
+}
+
+#ttcChatV1.ttc-chat-open{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+#ttcChatV1 *{
+  box-sizing:border-box;
+}
+
+.ttc-chat-shell{
+  width:min(1100px,96vw);
+  height:min(850px,94vh);
+  background:var(--ttc-bg);
+  border-radius:20px;
+  overflow:hidden;
+  box-shadow:0 20px 70px rgba(0,0,0,.28);
+  display:flex;
+  flex-direction:column;
+}
+
+.ttc-chat-head{
+  background:#fff;
+  border-bottom:1px solid var(--ttc-border);
+  min-height:70px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:12px 16px;
+}
+
+.ttc-chat-title{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-width:0;
+}
+
+.ttc-chat-title-icon{
+  width:42px;
+  height:42px;
+  border-radius:13px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#fff0f1;
+  font-size:23px;
+}
+
+.ttc-chat-title-main{
+  min-width:0;
+}
+
+.ttc-chat-title-main strong{
+  display:block;
+  font-size:17px;
+  line-height:1.2;
+}
+
+.ttc-chat-room-name{
+  color:var(--ttc-muted);
+  font-size:13px;
+  margin-top:3px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.ttc-chat-head-actions{
+  display:flex;
+  align-items:center;
+  gap:7px;
+}
+
+.ttc-chat-btn{
+  border:1px solid var(--ttc-border);
+  background:#fff;
+  color:var(--ttc-text);
+  border-radius:10px;
+  min-height:38px;
+  padding:0 11px;
+  cursor:pointer;
+  font:inherit;
+  transition:.15s ease;
+}
+
+.ttc-chat-btn:hover{
+  border-color:#cbd5e1;
+  transform:translateY(-1px);
+}
+
+.ttc-chat-btn.ttc-primary{
+  background:var(--ttc-red);
+  color:#fff;
+  border-color:var(--ttc-red);
+}
+
+.ttc-chat-close{
+  font-size:20px;
+  width:38px;
+  padding:0;
+}
+
+.ttc-chat-body{
+  flex:1;
+  min-height:0;
+  display:flex;
+}
+
+.ttc-chat-rooms{
+  width:230px;
+  flex:0 0 230px;
+  background:#fff;
+  border-right:1px solid var(--ttc-border);
+  padding:12px;
+  overflow:auto;
+}
+
+.ttc-chat-room-label{
+  font-size:11px;
+  font-weight:800;
+  color:#9ca3af;
+  letter-spacing:.05em;
+  padding:4px 8px 9px;
+}
+
+.ttc-chat-room{
+  width:100%;
+  border:0;
+  background:transparent;
+  text-align:left;
+  padding:10px 11px;
+  border-radius:11px;
+  cursor:pointer;
+  font:inherit;
+  color:var(--ttc-text);
+  margin-bottom:3px;
+}
+
+.ttc-chat-room:hover{
+  background:#f5f5f5;
+}
+
+.ttc-chat-room.active{
+  background:#fff0f1;
+  color:var(--ttc-red);
+  font-weight:800;
+}
+
+.ttc-chat-room small{
+  display:block;
+  color:var(--ttc-muted);
+  font-size:11px;
+  margin-top:2px;
+}
+
+.ttc-chat-main{
+  flex:1;
+  min-width:0;
+  min-height:0;
+  display:flex;
+  flex-direction:column;
+}
+
+.ttc-chat-online{
+  min-height:40px;
+  padding:8px 14px;
+  background:#fff;
+  border-bottom:1px solid var(--ttc-border);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  color:var(--ttc-muted);
+  font-size:12px;
+}
+
+.ttc-chat-online-left{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+
+.ttc-online-dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#22c55e;
+  box-shadow:0 0 0 3px #dcfce7;
+}
+
+.ttc-chat-messages{
+  flex:1;
+  min-height:0;
+  overflow:auto;
+  padding:15px;
+  scroll-behavior:smooth;
+}
+
+.ttc-chat-empty{
+  min-height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  color:var(--ttc-muted);
+  padding:30px;
+}
+
+.ttc-chat-message{
+  display:flex;
+  gap:9px;
+  margin-bottom:13px;
+  align-items:flex-start;
+}
+
+.ttc-chat-message.mine{
+  flex-direction:row-reverse;
+}
+
+.ttc-chat-avatar{
+  width:34px;
+  height:34px;
+  flex:0 0 34px;
+  border-radius:50%;
+  background:#fff;
+  border:1px solid var(--ttc-border);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:16px;
+}
+
+.ttc-chat-message-content{
+  max-width:min(75%,680px);
+  min-width:0;
+}
+
+.ttc-chat-message.mine .ttc-chat-message-content{
+  text-align:right;
+}
+
+.ttc-chat-meta{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  margin:0 3px 4px;
+  font-size:11px;
+  color:var(--ttc-muted);
+}
+
+.ttc-chat-message.mine .ttc-chat-meta{
+  justify-content:flex-end;
+}
+
+.ttc-chat-name{
+  font-weight:800;
+  color:#4b5563;
+}
+
+.ttc-chat-bubble{
+  display:inline-block;
+  text-align:left;
+  background:#fff;
+  border:1px solid var(--ttc-border);
+  border-radius:14px;
+  padding:9px 11px;
+  color:var(--ttc-text);
+  white-space:pre-wrap;
+  word-break:break-word;
+  line-height:1.5;
+}
+
+.ttc-chat-message.mine .ttc-chat-bubble{
+  background:#fff0f1;
+  border-color:#ffd1d4;
+}
+
+.ttc-chat-reply{
+  border-left:3px solid #cbd5e1;
+  background:#f8fafc;
+  padding:5px 8px;
+  margin-bottom:7px;
+  border-radius:6px;
+  font-size:11px;
+  color:#64748b;
+}
+
+.ttc-chat-file{
+  margin-top:7px;
+}
+
+.ttc-chat-file img{
+  max-width:min(360px,70vw);
+  max-height:330px;
+  border-radius:10px;
+  display:block;
+  cursor:pointer;
+}
+
+.ttc-chat-file-link{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  padding:8px 10px;
+  background:#f8fafc;
+  border:1px solid var(--ttc-border);
+  border-radius:9px;
+  color:#374151;
+  text-decoration:none;
+  font-size:13px;
+}
+
+.ttc-chat-file-link:hover{
+  background:#f1f5f9;
+}
+
+.ttc-chat-actions{
+  display:flex;
+  align-items:center;
+  gap:4px;
+  margin-top:5px;
+  flex-wrap:wrap;
+}
+
+.ttc-chat-message.mine .ttc-chat-actions{
+  justify-content:flex-end;
+}
+
+.ttc-reaction{
+  border:1px solid transparent;
+  background:transparent;
+  border-radius:8px;
+  padding:3px 6px;
+  cursor:pointer;
+  font-size:13px;
+}
+
+.ttc-reaction:hover{
+  background:#fff;
+  border-color:var(--ttc-border);
+}
+
+.ttc-reaction.active{
+  background:#fff;
+  border-color:#f3a3a8;
+}
+
+.ttc-reaction-count{
+  font-size:10px;
+  color:#6b7280;
+  margin-left:2px;
+}
+
+.ttc-message-tool{
+  border:0;
+  background:transparent;
+  color:#9ca3af;
+  cursor:pointer;
+  font-size:11px;
+  padding:3px 5px;
+}
+
+.ttc-message-tool:hover{
+  color:var(--ttc-red);
+}
+
+.ttc-chat-composer-wrap{
+  background:#fff;
+  border-top:1px solid var(--ttc-border);
+  padding:9px 12px 11px;
+}
+
+.ttc-chat-replying{
+  display:none;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  background:#f8fafc;
+  border:1px solid var(--ttc-border);
+  border-radius:9px;
+  padding:7px 9px;
+  margin-bottom:7px;
+  font-size:12px;
+  color:#64748b;
+}
+
+.ttc-chat-replying.show{
+  display:flex;
+}
+
+.ttc-chat-replying button{
+  border:0;
+  background:transparent;
+  cursor:pointer;
+  font-size:16px;
+}
+
+.ttc-chat-composer{
+  display:flex;
+  align-items:flex-end;
+  gap:7px;
+}
+
+.ttc-chat-input{
+  flex:1;
+  min-width:0;
+  max-height:130px;
+  resize:none;
+  border:1px solid var(--ttc-border);
+  border-radius:12px;
+  padding:10px 11px;
+  outline:none;
+  font:inherit;
+  line-height:1.4;
+  background:#fff;
+}
+
+.ttc-chat-input:focus{
+  border-color:#f1a0a5;
+  box-shadow:0 0 0 3px #fff0f1;
+}
+
+.ttc-chat-icon-btn{
+  width:40px;
+  height:40px;
+  flex:0 0 40px;
+  border:1px solid var(--ttc-border);
+  background:#fff;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:18px;
+}
+
+.ttc-chat-icon-btn:hover{
+  background:#f8fafc;
+}
+
+.ttc-chat-send{
+  background:var(--ttc-red);
+  color:#fff;
+  border-color:var(--ttc-red);
+}
+
+.ttc-chat-new{
+  display:none;
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  bottom:82px;
+  z-index:5;
+  background:var(--ttc-red);
+  color:#fff;
+  border:0;
+  border-radius:999px;
+  padding:7px 13px;
+  cursor:pointer;
+  box-shadow:0 5px 18px rgba(215,25,32,.3);
+  font:inherit;
+  font-size:12px;
+  font-weight:700;
+}
+
+.ttc-chat-new.show{
+  display:block;
+}
+
+.ttc-chat-status{
+  min-height:18px;
+  font-size:11px;
+  color:var(--ttc-muted);
+  padding:2px 4px 0;
+}
+
+.ttc-chat-status.error{
+  color:#dc2626;
+}
+
+.ttc-chat-status.ok{
+  color:#16a34a;
+}
+
+.ttc-chat-login{
+  padding:35px;
+  text-align:center;
+}
+
+.ttc-chat-login strong{
+  display:block;
+  font-size:18px;
+  margin-bottom:7px;
+}
+
+.ttc-chat-drop{
+  display:none;
+}
+
+@media(max-width:720px){
+  .ttc-chat-shell{
+    width:100vw;
+    height:100vh;
+    max-height:none;
+    border-radius:0;
+  }
+
+  .ttc-chat-rooms{
+    width:92px;
+    flex-basis:92px;
+    padding:8px 5px;
+  }
+
+  .ttc-chat-room{
+    padding:9px 5px;
+    text-align:center;
+    font-size:12px;
+  }
+
+  .ttc-chat-room small{
+    display:none;
+  }
+
+  .ttc-chat-room-label{
+    text-align:center;
+    padding-left:2px;
+    padding-right:2px;
+  }
+
+  .ttc-chat-title-main strong{
+    font-size:15px;
+  }
+
+  .ttc-chat-head{
+    padding:9px;
+  }
+
+  .ttc-chat-message-content{
+    max-width:82%;
+  }
+
+  .ttc-chat-messages{
+    padding:11px 8px;
+  }
+
+  .ttc-chat-file img{
+    max-width:65vw;
+  }
+
+  .ttc-chat-head-actions .ttc-chat-btn:not(.ttc-chat-close){
+    display:none;
+  }
+}
+</style>
+
+
+<!-- ============================================================
+     CHAT WINDOW
+     ============================================================ -->
+
+<div id="ttcChatV1" aria-hidden="true">
+
+  <div class="ttc-chat-shell">
+
+    <div class="ttc-chat-head">
+
+      <div class="ttc-chat-title">
+
+        <div class="ttc-chat-title-icon">💬</div>
+
+        <div class="ttc-chat-title-main">
+          <strong>CHAT ONLINE</strong>
+          <div id="ttcChatRoomName" class="ttc-chat-room-name">
+            🌏 Phòng chung
+          </div>
+        </div>
+
+      </div>
+
+      <div class="ttc-chat-head-actions">
+        <button id="ttcChatShareRoom"
+                class="ttc-chat-btn"
+                type="button">
+          🔗 Mời
+        </button>
+
+        <button id="ttcChatClose"
+                class="ttc-chat-btn ttc-chat-close"
+                type="button">
+          ×
+        </button>
+      </div>
+
+    </div>
+
+
+    <div class="ttc-chat-body">
+
+      <!-- ROOMS -->
+
+      <aside class="ttc-chat-rooms">
+
+        <div class="ttc-chat-room-label">
+          PHÒNG CHAT
+        </div>
+
+        <div id="ttcChatRoomList"></div>
+
+      </aside>
+
+
+      <!-- MAIN -->
+
+      <main class="ttc-chat-main">
+
+        <div class="ttc-chat-online">
+
+          <div class="ttc-chat-online-left">
+            <span class="ttc-online-dot"></span>
+            <span id="ttcChatOnlineText">
+              Đang kết nối...
+            </span>
+          </div>
+
+          <span id="ttcChatRoomLinkText"></span>
+
+        </div>
+
+
+        <div id="ttcChatMessages"
+             class="ttc-chat-messages">
+
+          <div class="ttc-chat-empty">
+            Đang tải phòng chat... 💬
+          </div>
+
+        </div>
+
+
+        <button id="ttcChatNewMessages"
+                class="ttc-chat-new"
+                type="button">
+          ↓ Tin nhắn mới
+        </button>
+
+
+        <!-- COMPOSER -->
+
+        <div class="ttc-chat-composer-wrap">
+
+          <div id="ttcChatReplying"
+               class="ttc-chat-replying">
+
+            <span id="ttcChatReplyText">
+              Đang trả lời...
+            </span>
+
+            <button id="ttcChatCancelReply"
+                    type="button">
+              ×
+            </button>
+
+          </div>
+
+
+          <div class="ttc-chat-composer">
+
+            <input id="ttcChatFile"
+                   class="ttc-chat-drop"
+                   type="file"
+                   accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.ppt,.pptx">
+
+            <button id="ttcChatAttach"
+                    class="ttc-chat-icon-btn"
+                    type="button"
+                    title="Gửi ảnh hoặc tài liệu">
+              📎
+            </button>
+
+            <button id="ttcChatAudio"
+                    class="ttc-chat-icon-btn"
+                    type="button"
+                    title="Ghi âm">
+              🎙️
+            </button>
+
+            <textarea id="ttcChatInput"
+                      class="ttc-chat-input"
+                      rows="1"
+                      maxlength="3000"
+                      placeholder="Nhập tin nhắn..."></textarea>
+
+            <button id="ttcChatSend"
+                    class="ttc-chat-icon-btn ttc-chat-send"
+                    type="button"
+                    title="Gửi">
+              ➤
+            </button>
+
+          </div>
+
+          <div id="ttcChatStatus"
+               class="ttc-chat-status">
+          </div>
+
+        </div>
+
+      </main>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<script>
+(function(){
+
+"use strict";
+
+/* ============================================================
+   TTC CHAT V1
+   ============================================================ */
+
+const TTC_CHAT = {
+
+  rooms: [],
+
+  currentRoom: null,
+
+  user: null,
+
+  messages: [],
+
+  nameCache: {},
+
+  reactionCache: {},
+
+  realtimeChannel: null,
+
+  presenceChannel: null,
+
+  presenceUsers: {},
+
+  replyTo: null,
+
+  mediaRecorder: null,
+
+  audioChunks: [],
+
+  recording: false,
+
+  unread: 0,
+
+  initialized: false,
+
+  client: null
+
+};
+
+
+/* ============================================================
+   SUPABASE CLIENT DETECTION
+   ============================================================ */
+
+function findSupabaseClient() {
+
+  const candidates = [
+    window.supabase,
+    window.supabaseClient,
+    window.sb,
+    window.supabaseDb,
+    window.ttcSupabase,
+    window.ttcSupabaseClient
+  ];
+
+  for (const client of candidates) {
+
+    if (
+      client &&
+      typeof client.from === "function" &&
+      client.auth &&
+      typeof client.auth.getUser === "function"
+    ) {
+      return client;
+    }
+
+  }
+
+  return null;
+}
+
+/* ============================================================
+   ELEMENTS
+   ============================================================ */
+
+const $ = id => document.getElementById(id);
+
+const chat = $("ttcChatV1");
+const roomList = $("ttcChatRoomList");
+const messagesBox = $("ttcChatMessages");
+const input = $("ttcChatInput");
+const statusBox = $("ttcChatStatus");
+const roomName = $("ttcChatRoomName");
+const onlineText = $("ttcChatOnlineText");
+const replyingBox = $("ttcChatReplying");
+const replyText = $("ttcChatReplyText");
+const newMessagesBtn = $("ttcChatNewMessages");
+
+
+/* ============================================================
+   STATUS
+   ============================================================ */
+
+function setStatus(text="", type=""){
+
+  statusBox.textContent = text;
+
+  statusBox.className =
+    "ttc-chat-status" +
+    (type ? " " + type : "");
+
+}
+
+
+/* ============================================================
+   ESCAPE HTML
+   ============================================================ */
+
+function escapeHTML(value){
+
+  return String(value ?? "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+
+}
+
+
+/* ============================================================
+   DATE
+   ============================================================ */
+
+function formatTime(date){
+
+  try{
+
+    return new Intl.DateTimeFormat(
+      "ja-JP",
+      {
+        hour:"2-digit",
+        minute:"2-digit"
+      }
+    ).format(new Date(date));
+
+  }catch{
+
+    return "";
+
+  }
+
+}
+
+
+/* ============================================================
+   DISPLAY NAME
+   ============================================================ */
+
+async function getDisplayName(uid){
+
+  if(TTC_CHAT.nameCache[uid]){
+    return TTC_CHAT.nameCache[uid];
+  }
+
+  if(uid === TTC_CHAT.user?.id){
+
+    const metadata =
+      TTC_CHAT.user.user_metadata || {};
+
+    const name =
+      metadata.display_name ||
+      metadata.full_name ||
+      metadata.name ||
+      (TTC_CHAT.user.email
+        ? TTC_CHAT.user.email.split("@")[0]
+        : "Thành viên");
+
+    TTC_CHAT.nameCache[uid] = name;
+
+    return name;
+  }
+
+  try{
+
+    const {data,error} =
+      await TTC_CHAT.client.rpc(
+        "get_chat_display_name",
+        {uid}
+      );
+
+    if(!error && data){
+
+      TTC_CHAT.nameCache[uid] =
+        String(data);
+
+      return String(data);
+
+    }
+
+  }catch(e){}
+
+  TTC_CHAT.nameCache[uid] = "Thành viên";
+
+  return "Thành viên";
+
+}
+
+
+/* ============================================================
+   OPEN / CLOSE
+   ============================================================ */
+
+async function openChat(){
+
+  TTC_CHAT.client = findSupabaseClient();
+
+  if(!TTC_CHAT.client){
+
+    alert(
+      "Chat V1 chưa tìm thấy kết nối Supabase hiện tại của website."
+    );
+
+    return;
+
+  }
+
+  try{
+
+    const {data,error} =
+      await TTC_CHAT.client.auth.getUser();
+
+    if(error || !data?.user){
+
+      alert("Anh cần đăng nhập trước khi vào Chat Online nhé 🥰");
+
+      return;
+
+    }
+
+    TTC_CHAT.user = data.user;
+
+  }catch(e){
+
+    alert("Không thể kiểm tra tài khoản đăng nhập.");
+
+    return;
+
+  }
+
+  chat.classList.add("ttc-chat-open");
+  chat.setAttribute("aria-hidden","false");
+
+  await initializeChat();
+
+}
+
+
+function closeChat(){
+
+  chat.classList.remove("ttc-chat-open");
+  chat.setAttribute("aria-hidden","true");
+
+}
+
+
+/* ============================================================
+   INIT
+   ============================================================ */
+
+async function initializeChat(){
+
+  if(TTC_CHAT.initialized){
+
+    if(!TTC_CHAT.currentRoom && TTC_CHAT.rooms.length){
+      await selectRoom(TTC_CHAT.rooms[0]);
+    }
+
+    return;
+
+  }
+
+  TTC_CHAT.initialized = true;
+
+  setStatus("Đang kết nối...");
+
+  try{
+
+    const {data,error} =
+      await TTC_CHAT.client
+        .from("community_rooms")
+        .select("*")
+        .eq("active",true)
+        .order("room_order",{ascending:true});
+
+    if(error) throw error;
+
+    TTC_CHAT.rooms = data || [];
+
+    renderRooms();
+
+    if(!TTC_CHAT.rooms.length){
+
+      throw new Error("Chưa có phòng Chat.");
+
+    }
+
+    const defaultSlug =
+      getRoomFromURL() || "chung";
+
+    const room =
+      TTC_CHAT.rooms.find(r => r.slug === defaultSlug)
+      || TTC_CHAT.rooms[0];
+
+    await selectRoom(room);
+
+    setStatus("Đã kết nối realtime.", "ok");
+
+  }catch(error){
+
+    console.error("[TTC CHAT]",error);
+
+    setStatus(
+      "Không thể tải Chat: " +
+      (error.message || error),
+      "error"
+    );
+
+  }
+
+}
+
+
+/* ============================================================
+   ROOMS
+   ============================================================ */
+
+function renderRooms(){
+
+  roomList.innerHTML = "";
+
+  TTC_CHAT.rooms.forEach(room => {
+
+    const button =
+      document.createElement("button");
+
+    button.type = "button";
+
+    button.className =
+      "ttc-chat-room" +
+      (TTC_CHAT.currentRoom?.id === room.id
+        ? " active"
+        : "");
+
+    button.dataset.roomId = room.id;
+
+    button.innerHTML =
+      escapeHTML(room.name);
+
+    button.onclick = () =>
+      selectRoom(room);
+
+    roomList.appendChild(button);
+
+  });
+
+}
+
+
+async function selectRoom(room){
+
+  if(!room) return;
+
+  if(TTC_CHAT.currentRoom?.id === room.id){
+
+    await loadMessages();
+
+    return;
+
+  }
+
+  await cleanupRoomChannels();
+
+  TTC_CHAT.currentRoom = room;
+
+  roomName.textContent = room.name;
+
+  renderRooms();
+
+  updateRoomURL(room.slug);
+
+  replyingBox.classList.remove("show");
+
+  TTC_CHAT.replyTo = null;
+
+  messagesBox.innerHTML =
+    '<div class="ttc-chat-empty">Đang tải tin nhắn... 💬</div>';
+
+  await loadMessages();
+
+  await subscribeRealtime();
+
+  await subscribePresence();
+
+}
+
+
+/* ============================================================
+   LOAD MESSAGES
+   ============================================================ */
+
+async function loadMessages(){
+
+  if(!TTC_CHAT.currentRoom) return;
+
+  try{
+
+    const {data,error} =
+      await TTC_CHAT.client
+        .from("community_messages")
+        .select("*")
+        .eq("room_id",TTC_CHAT.currentRoom.id)
+        .order("created_at",{ascending:false})
+        .limit(100);
+
+    if(error) throw error;
+
+    TTC_CHAT.messages =
+      (data || []).reverse();
+
+    await loadReactions();
+
+    await renderMessages();
+
+    scrollToBottom();
+
+  }catch(error){
+
+    console.error("[TTC CHAT LOAD]",error);
+
+    messagesBox.innerHTML =
+      '<div class="ttc-chat-empty">Không tải được tin nhắn.</div>';
+
+  }
+
+}
+
+
+/* ============================================================
+   REACTIONS
+   ============================================================ */
+
+async function loadReactions(){
+
+  TTC_CHAT.reactionCache = {};
+
+  const ids =
+    TTC_CHAT.messages.map(m => m.id);
+
+  if(!ids.length) return;
+
+  try{
+
+    const {data,error} =
+      await TTC_CHAT.client
+        .from("community_message_reactions")
+        .select("message_id,user_id,reaction")
+        .in("message_id",ids);
+
+    if(error) throw error;
+
+    (data || []).forEach(row => {
+
+      if(!TTC_CHAT.reactionCache[row.message_id]){
+        TTC_CHAT.reactionCache[row.message_id] = [];
+      }
+
+      TTC_CHAT.reactionCache[row.message_id].push(row);
+
+    });
+
+  }catch(error){
+
+    console.error("[TTC CHAT REACTIONS]",error);
+
+  }
+
+}
+
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+
+async function renderMessages(){
+
+  if(!TTC_CHAT.messages.length){
+
+    messagesBox.innerHTML = `
+      <div class="ttc-chat-empty">
+        <div>
+          <div style="font-size:34px;margin-bottom:8px;">💬</div>
+          <strong>Chưa có tin nhắn</strong>
+          <div style="margin-top:5px;">
+            Hãy là người đầu tiên bắt chuyện nhé 😍
+          </div>
+        </div>
+      </div>
+    `;
+
+    return;
+
+  }
+
+  const names = {};
+
+  for(const message of TTC_CHAT.messages){
+
+    names[message.user_id] =
+      await getDisplayName(message.user_id);
+
+  }
+
+  messagesBox.innerHTML = "";
+
+  for(const message of TTC_CHAT.messages){
+
+    messagesBox.appendChild(
+      await createMessageElement(message,names[message.user_id])
+    );
+
+  }
+
+}
+
+
+/* ============================================================
+   MESSAGE ELEMENT
+   ============================================================ */
+
+async function createMessageElement(message,name){
+
+  const mine =
+    message.user_id === TTC_CHAT.user.id;
+
+  const wrapper =
+    document.createElement("div");
+
+  wrapper.className =
+    "ttc-chat-message" +
+    (mine ? " mine" : "");
+
+  const avatar =
+    document.createElement("div");
+
+  avatar.className =
+    "ttc-chat-avatar";
+
+  avatar.textContent = "👤";
+
+  const content =
+    document.createElement("div");
+
+  content.className =
+    "ttc-chat-message-content";
+
+  const meta =
+    document.createElement("div");
+
+  meta.className =
+    "ttc-chat-meta";
+
+  meta.innerHTML = `
+    <span class="ttc-chat-name">
+      ${escapeHTML(name)}
+    </span>
+    <span>${formatTime(message.created_at)}</span>
+  `;
+
+  const bubble =
+    document.createElement("div");
+
+  bubble.className =
+    "ttc-chat-bubble";
+
+  let html = "";
+
+  if(message.reply_to_id){
+
+    const replied =
+      TTC_CHAT.messages.find(
+        m => m.id === message.reply_to_id
+      );
+
+    if(replied){
+
+      const repliedName =
+        await getDisplayName(replied.user_id);
+
+      html += `
+        <div class="ttc-chat-reply">
+          ↩️ <strong>${escapeHTML(repliedName)}</strong><br>
+          ${escapeHTML(
+            replied.content ||
+            replied.file_name ||
+            "Nội dung đính kèm"
+          ).slice(0,180)}
+        </div>
+      `;
+
+    }
+
+  }
+
+
+  if(message.content){
+
+    let safe =
+      escapeHTML(message.content);
+
+    safe =
+      safe.replace(
+        /(https?:\/\/[^\s]+)/g,
+        '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>'
+      );
+
+    html += safe;
+
+  }
+
+
+  if(message.file_url){
+
+    html +=
+      await renderFile(message);
+
+  }
+
+  bubble.innerHTML = html;
+
+  content.appendChild(meta);
+  content.appendChild(bubble);
+
+  const actions =
+    document.createElement("div");
+
+  actions.className =
+    "ttc-chat-actions";
+
+  const reactionList =
+    TTC_CHAT.reactionCache[message.id] || [];
+
+  const reactionTypes = [
+
+    ["like","👍"],
+    ["dislike","👎"],
+    ["heart","❤️"],
+    ["haha","😂"],
+    ["wow","😮"],
+    ["thanks","🙏"]
+
+  ];
+
+  reactionTypes.forEach(([type,emoji]) => {
+
+    const count =
+      reactionList.filter(
+        r => r.reaction === type
+      ).length;
+
+    const mineReaction =
+      reactionList.some(
+        r =>
+          r.user_id === TTC_CHAT.user.id &&
+          r.reaction === type
+      );
+
+    const btn =
+      document.createElement("button");
+
+    btn.type = "button";
+
+    btn.className =
+      "ttc-reaction" +
+      (mineReaction ? " active" : "");
+
+    btn.innerHTML =
+      emoji +
+      (count
+        ? `<span class="ttc-reaction-count">${count}</span>`
+        : "");
+
+    btn.title =
+      mineReaction
+        ? "Bỏ reaction"
+        : "Reaction";
+
+    btn.onclick = () =>
+      toggleReaction(message.id,type);
+
+    actions.appendChild(btn);
+
+  });
+
+
+  const replyBtn =
+    document.createElement("button");
+
+  replyBtn.type = "button";
+
+  replyBtn.className =
+    "ttc-message-tool";
+
+  replyBtn.textContent = "↩️ Trả lời";
+
+  replyBtn.onclick = () =>
+    startReply(message);
+
+  actions.appendChild(replyBtn);
+
+
+  if(mine){
+
+    const deleteBtn =
+      document.createElement("button");
+
+    deleteBtn.type = "button";
+
+    deleteBtn.className =
+      "ttc-message-tool";
+
+    deleteBtn.textContent =
+      "🗑️ Xóa";
+
+    deleteBtn.onclick = () =>
+      deleteMessage(message);
+
+    actions.appendChild(deleteBtn);
+
+  }
+
+
+  content.appendChild(actions);
+
+  wrapper.appendChild(avatar);
+  wrapper.appendChild(content);
+
+  return wrapper;
+
+}
+
+
+/* ============================================================
+   FILE RENDER
+   ============================================================ */
+
+async function renderFile(message){
+
+  let url = "";
+
+  try{
+
+    const {data,error} =
+      await TTC_CHAT.client.storage
+        .from("community-chat")
+        .createSignedUrl(
+          message.file_url,
+          3600
+        );
+
+    if(error) throw error;
+
+    url = data?.signedUrl || "";
+
+  }catch(e){
+
+    return `
+      <div class="ttc-chat-file">
+        📎 ${escapeHTML(message.file_name || "Tệp")}
+      </div>
+    `;
+
+  }
+
+  if(message.message_type === "image"){
+
+    return `
+      <div class="ttc-chat-file">
+        <img
+          src="${escapeHTML(url)}"
+          alt="${escapeHTML(message.file_name || "Ảnh")}"
+          loading="lazy"
+          onclick="window.open('${escapeHTML(url)}','_blank')"
+        >
+      </div>
+    `;
+
+  }
+
+  if(message.message_type === "audio"){
+
+    return `
+      <div class="ttc-chat-file">
+        <audio
+          controls
+          preload="metadata"
+          src="${escapeHTML(url)}"
+          style="max-width:280px;width:100%;"
+        ></audio>
+      </div>
+    `;
+
+  }
+
+  return `
+    <div class="ttc-chat-file">
+      <a
+        class="ttc-chat-file-link"
+        href="${escapeHTML(url)}"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        📎
+        ${escapeHTML(
+          message.file_name || "Tài liệu"
+        )}
+      </a>
+    </div>
+  `;
+
+}
+
+
+/* ============================================================
+   SEND TEXT
+   ============================================================ */
+
+async function sendText(){
+
+  const text =
+    input.value.trim();
+
+  if(!text) return;
+
+  if(text.length > 3000){
+
+    setStatus(
+      "Tin nhắn tối đa 3000 ký tự.",
+      "error"
+    );
+
+    return;
+
+  }
+
+  if(!TTC_CHAT.currentRoom){
+
+    setStatus(
+      "Chưa chọn phòng.",
+      "error"
+    );
+
+    return;
+
+  }
+
+  const now = Date.now();
+
+  if(
+    TTC_CHAT._lastSend &&
+    now - TTC_CHAT._lastSend < 700
+  ){
+
+    return;
+
+  }
+
+  TTC_CHAT._lastSend = now;
+
+  input.value = "";
+
+  autoResizeInput();
+
+  try{
+
+    const {error} =
+      await TTC_CHAT.client
+        .from("community_messages")
+        .insert({
+
+          room_id:
+            TTC_CHAT.currentRoom.id,
+
+          user_id:
+            TTC_CHAT.user.id,
+
+          content:text,
+
+          message_type:"text",
+
+          reply_to_id:
+            TTC_CHAT.replyTo?.id || null
+
+        });
+
+    if(error) throw error;
+
+    cancelReply();
+
+  }catch(error){
+
+    console.error(error);
+
+    input.value = text;
+
+    setStatus(
+      "Không gửi được tin nhắn: " +
+      (error.message || error),
+      "error"
+    );
+
+  }
+
+}
+
+
+/* ============================================================
+   UPLOAD FILE
+   ============================================================ */
+
+async function uploadFile(file){
+
+  if(!file || !TTC_CHAT.currentRoom) return;
+
+  const maxSize =
+    15 * 1024 * 1024;
+
+  if(file.size > maxSize){
+
+    setStatus(
+      "Tệp tối đa 15MB.",
+      "error"
+    );
+
+    return;
+
+  }
+
+  setStatus(
+    "Đang tải " + file.name + "...",
+    ""
+  );
+
+  try{
+
+    const extension =
+      file.name.includes(".")
+        ? "." + file.name.split(".").pop()
+        : "";
+
+    const path =
+      TTC_CHAT.user.id +
+      "/" +
+      TTC_CHAT.currentRoom.slug +
+      "/" +
+      crypto.randomUUID() +
+      extension;
+
+    const {error:uploadError} =
+      await TTC_CHAT.client.storage
+        .from("community-chat")
+        .upload(
+          path,
+          file,
+          {
+            cacheControl:"3600",
+            upsert:false,
+            contentType:file.type || undefined
+          }
+        );
+
+    if(uploadError) throw uploadError;
+
+    let type = "file";
+
+    if(file.type.startsWith("image/")){
+      type = "image";
+    }
+
+    const {error:messageError} =
+      await TTC_CHAT.client
+        .from("community_messages")
+        .insert({
+
+          room_id:
+            TTC_CHAT.currentRoom.id,
+
+          user_id:
+            TTC_CHAT.user.id,
+
+          content:
+            type === "image"
+              ? "🖼️ Ảnh"
+              : "📎 " + file.name,
+
+          message_type:type,
+
+          file_url:path,
+
+          file_name:file.name,
+
+          file_type:file.type || null,
+
+          reply_to_id:
+            TTC_CHAT.replyTo?.id || null
+
+        });
+
+    if(messageError) throw messageError;
+
+    cancelReply();
+
+    setStatus(
+      "Đã gửi " + file.name,
+      "ok"
+    );
+
+  }catch(error){
+
+    console.error("[TTC UPLOAD]",error);
+
+    setStatus(
+      "Không tải được tệp: " +
+      (error.message || error),
+      "error"
+    );
+
+  }
+
+}
+
+
+/* ============================================================
+   AUDIO
+   ============================================================ */
+
+async function toggleRecording(){
+
+  if(TTC_CHAT.recording){
+
+    stopRecording();
+
+    return;
+
+  }
+
+  if(!navigator.mediaDevices?.getUserMedia){
+
+    setStatus(
+      "Trình duyệt không hỗ trợ ghi âm.",
+      "error"
+    );
+
+    return;
+
+  }
+
+  try{
+
+    const stream =
+      await navigator.mediaDevices.getUserMedia({
+        audio:true
+      });
+
+    const mimeTypes = [
+
+      "audio/webm;codecs=opus",
+      "audio/webm",
+      "audio/mp4",
+      "audio/ogg;codecs=opus"
+
+    ];
+
+    let mimeType = "";
+
+    for(const type of mimeTypes){
+
+      if(
+        window.MediaRecorder &&
+        MediaRecorder.isTypeSupported(type)
+      ){
+
+        mimeType = type;
+        break;
+
+      }
+
+    }
+
+    TTC_CHAT.mediaRecorder =
+      new MediaRecorder(
+        stream,
+        mimeType ? {mimeType} : undefined
+      );
+
+    TTC_CHAT.audioChunks = [];
+
+    TTC_CHAT.mediaRecorder.ondataavailable =
+      event => {
+
+        if(event.data?.size){
+          TTC_CHAT.audioChunks.push(event.data);
+        }
+
+      };
+
+
+    TTC_CHAT.mediaRecorder.onstop =
+      async () => {
+
+        stream.getTracks().forEach(
+          track => track.stop()
+        );
+
+        const blob =
+          new Blob(
+            TTC_CHAT.audioChunks,
+            {
+              type:
+                TTC_CHAT.mediaRecorder.mimeType ||
+                "audio/webm"
+            }
+          );
+
+        await uploadAudio(blob);
+
+      };
+
+
+    TTC_CHAT.mediaRecorder.start();
+
+    TTC_CHAT.recording = true;
+
+    $("ttcChatAudio").textContent = "⏹️";
+
+    setStatus(
+      "Đang ghi âm... bấm ⏹️ để gửi.",
+      ""
+    );
+
+  }catch(error){
+
+    console.error(error);
+
+    setStatus(
+      "Không thể dùng micro. Hãy cấp quyền microphone.",
+      "error"
+    );
+
+  }
+
+}
+
+
+function stopRecording(){
+
+  if(
+    TTC_CHAT.mediaRecorder &&
+    TTC_CHAT.recording
+  ){
+
+    TTC_CHAT.mediaRecorder.stop();
+
+  }
+
+  TTC_CHAT.recording = false;
+
+  $("ttcChatAudio").textContent = "🎙️";
+
+}
+
+
+async function uploadAudio(blob){
+
+  if(!TTC_CHAT.currentRoom) return;
+
+  try{
+
+    setStatus(
+      "Đang tải voice...",
+      ""
+    );
+
+    const extension =
+      blob.type.includes("mp4")
+        ? ".mp4"
+        : ".webm";
+
+    const path =
+      TTC_CHAT.user.id +
+      "/" +
+      TTC_CHAT.currentRoom.slug +
+      "/" +
+      crypto.randomUUID() +
+      extension;
+
+    const {error:uploadError} =
+      await TTC_CHAT.client.storage
+        .from("community-chat")
+        .upload(
+          path,
+          blob,
+          {
+            cacheControl:"3600",
+            upsert:false,
+            contentType:blob.type
+          }
+        );
+
+    if(uploadError) throw uploadError;
+
+    const {error:messageError} =
+      await TTC_CHAT.client
+        .from("community_messages")
+        .insert({
+
+          room_id:
+            TTC_CHAT.currentRoom.id,
+
+          user_id:
+            TTC_CHAT.user.id,
+
+          content:"🎙️ Voice",
+
+          message_type:"audio",
+
+          file_url:path,
+
+          file_name:"Voice",
+
+          file_type:blob.type
+
+        });
+
+    if(messageError) throw messageError;
+
+    setStatus(
+      "Đã gửi voice 🎙️",
+      "ok"
+    );
+
+  }catch(error){
+
+    console.error(error);
+
+    setStatus(
+      "Không gửi được voice: " +
+      (error.message || error),
+      "error"
+    );
+
+  }
+
+}
+
+
+/* ============================================================
+   REACTION
+   ============================================================ */
+
+async function toggleReaction(messageId,reaction){
+
+  try{
+
+    const {data,error} =
+      await TTC_CHAT.client
+        .from("community_message_reactions")
+        .select("id,reaction")
+        .eq("message_id",messageId)
+        .eq("user_id",TTC_CHAT.user.id)
+        .maybeSingle();
+
+    if(error) throw error;
+
+    if(data){
+
+      if(data.reaction === reaction){
+
+        const {error:deleteError} =
+          await TTC_CHAT.client
+            .from("community_message_reactions")
+            .delete()
+            .eq("id",data.id);
+
+        if(deleteError) throw deleteError;
+
+      }else{
+
+        const {error:updateError} =
+          await TTC_CHAT.client
+            .from("community_message_reactions")
+            .update({
+              reaction
+            })
+            .eq("id",data.id);
+
+        if(updateError) throw updateError;
+
+      }
+
+    }else{
+
+      const {error:insertError} =
+        await TTC_CHAT.client
+          .from("community_message_reactions")
+          .insert({
+
+            message_id:messageId,
+
+            user_id:TTC_CHAT.user.id,
+
+            reaction
+
+          });
+
+      if(insertError) throw insertError;
+
+    }
+
+    await loadReactions();
+
+    await renderMessages();
+
+  }catch(error){
+
+    console.error("[REACTION]",error);
+
+  }
+
+}
+
+
+/* ============================================================
+   DELETE MESSAGE
+   ============================================================ */
+
+async function deleteMessage(message){
+
+  if(message.user_id !== TTC_CHAT.user.id){
+    return;
+  }
+
+  if(
+    !confirm("Xóa tin nhắn này nhé?")
+  ){
+    return;
+  }
+
+  try{
+
+    const {error} =
+      await TTC_CHAT.client
+        .from("community_messages")
+        .delete()
+        .eq("id",message.id)
+        .eq("user_id",TTC_CHAT.user.id);
+
+    if(error) throw error;
+
+  }catch(error){
+
+    console.error(error);
+
+    setStatus(
+      "Không xóa được tin nhắn.",
+      "error"
+    );
+
+  }
+
+}
+
+
+/* ============================================================
+   REPLY
+   ============================================================ */
+
+function startReply(message){
+
+  TTC_CHAT.replyTo = message;
+
+  const shortText =
+    message.content ||
+    message.file_name ||
+    "Nội dung đính kèm";
+
+  replyText.textContent =
+    "↩️ Trả lời: " +
+    shortText.slice(0,140);
+
+  replyingBox.classList.add("show");
+
+  input.focus();
+
+}
+
+
+function cancelReply(){
+
+  TTC_CHAT.replyTo = null;
+
+  replyingBox.classList.remove("show");
+
+  replyText.textContent = "";
+
+}
+
+
+/* ============================================================
+   REALTIME
+   ============================================================ */
+
+async function subscribeRealtime(){
+
+  if(!TTC_CHAT.currentRoom) return;
+
+  if(TTC_CHAT.realtimeChannel){
+
+    try{
+
+      await TTC_CHAT.client.removeChannel(
+        TTC_CHAT.realtimeChannel
+      );
+
+    }catch(e){}
+
+    TTC_CHAT.realtimeChannel = null;
+
+  }
+
+  const roomId =
+    TTC_CHAT.currentRoom.id;
+
+  TTC_CHAT.realtimeChannel =
+    TTC_CHAT.client
+      .channel(
+        "ttc-chat-room-" + roomId
+      )
+
+      .on(
+
+        "postgres_changes",
+
+        {
+          event:"*",
+          schema:"public",
+          table:"community_messages",
+          filter:"room_id=eq." + roomId
+        },
+
+        async payload => {
+
+          if(payload.eventType === "INSERT"){
+
+            const exists =
+              TTC_CHAT.messages.some(
+                m => m.id === payload.new.id
+              );
+
+            if(!exists){
+
+              TTC_CHAT.messages.push(
+                payload.new
+              );
+
+              const nearBottom =
+                isNearBottom();
+
+              await loadReactions();
+
+              await renderMessages();
+
+              if(nearBottom){
+
+                scrollToBottom();
+
+              }else{
+
+                TTC_CHAT.unread++;
+
+                newMessagesBtn.textContent =
+                  "↓ " +
+                  TTC_CHAT.unread +
+                  " tin nhắn mới";
+
+                newMessagesBtn.classList.add("show");
+
+              }
+
+            }
+
+          }
+
+
+          if(payload.eventType === "DELETE"){
+
+            TTC_CHAT.messages =
+              TTC_CHAT.messages.filter(
+                m => m.id !== payload.old.id
+              );
+
+            await loadReactions();
+
+            await renderMessages();
+
+          }
+
+
+          if(payload.eventType === "UPDATE"){
+
+            const index =
+              TTC_CHAT.messages.findIndex(
+                m => m.id === payload.new.id
+              );
+
+            if(index >= 0){
+
+              TTC_CHAT.messages[index] =
+                payload.new;
+
+              await renderMessages();
+
+            }
+
+          }
+
+        }
+
+      )
+
+      .on(
+
+        "postgres_changes",
+
+        {
+          event:"*",
+          schema:"public",
+          table:"community_message_reactions"
+        },
+
+        async payload => {
+
+          const affectedId =
+            payload.new?.message_id ||
+            payload.old?.message_id;
+
+          if(
+            affectedId &&
+            TTC_CHAT.messages.some(
+              m => m.id === affectedId
+            )
+          ){
+
+            await loadReactions();
+
+            await renderMessages();
+
+          }
+
+        }
+
+      )
+
+      .subscribe();
+
+
+}
+
+
+/* ============================================================
+   PRESENCE
+   ============================================================ */
+
+async function subscribePresence(){
+
+  if(!TTC_CHAT.currentRoom) return;
+
+  if(TTC_CHAT.presenceChannel){
+
+    try{
+
+      await TTC_CHAT.client.removeChannel(
+        TTC_CHAT.presenceChannel
+      );
+
+    }catch(e){}
+
+  }
+
+  TTC_CHAT.presenceUsers = {};
+
+  const roomId =
+    TTC_CHAT.currentRoom.id;
+
+  TTC_CHAT.presenceChannel =
+    TTC_CHAT.client.channel(
+      "ttc-presence-" + roomId,
+      {
+        config:{
+          presence:{
+            key:TTC_CHAT.user.id
+          }
+        }
+      }
+    );
+
+
+  TTC_CHAT.presenceChannel
+
+    .on(
+      "presence",
+      {
+        event:"sync"
+      },
+      () => {
+
+        const state =
+          TTC_CHAT.presenceChannel.presenceState();
+
+        const users = {};
+
+        Object.keys(state).forEach(key => {
+
+          users[key] = true;
+
+        });
+
+        TTC_CHAT.presenceUsers = users;
+
+        updateOnlineCount();
+
+      }
+    )
+
+    .subscribe(
+      async status => {
+
+        if(status === "SUBSCRIBED"){
+
+          await TTC_CHAT.presenceChannel.track({
+
+            user_id:TTC_CHAT.user.id,
+
+            online_at:
+              new Date().toISOString()
+
+          });
+
+        }
+
+      }
+    );
+
+}
+
+
+/* ============================================================
+   ONLINE
+   ============================================================ */
+
+function updateOnlineCount(){
+
+  const count =
+    Object.keys(
+      TTC_CHAT.presenceUsers || {}
+    ).length;
+
+  onlineText.textContent =
+    count +
+    " người đang online";
+
+}
+
+
+/* ============================================================
+   CHANNEL CLEANUP
+   ============================================================ */
+
+async function cleanupRoomChannels(){
+
+  if(TTC_CHAT.realtimeChannel){
+
+    try{
+
+      await TTC_CHAT.client.removeChannel(
+        TTC_CHAT.realtimeChannel
+      );
+
+    }catch(e){}
+
+    TTC_CHAT.realtimeChannel = null;
+
+  }
+
+  if(TTC_CHAT.presenceChannel){
+
+    try{
+
+      await TTC_CHAT.client.removeChannel(
+        TTC_CHAT.presenceChannel
+      );
+
+    }catch(e){}
+
+    TTC_CHAT.presenceChannel = null;
+
+  }
+
+}
+
+
+/* ============================================================
+   ROOM LINK
+   ============================================================ */
+
+function updateRoomURL(slug){
+
+  try{
+
+    const url =
+      new URL(window.location.href);
+
+    url.searchParams.set(
+      "chat",
+      slug
+    );
+
+    history.replaceState(
+      null,
+      "",
+      url.toString()
+    );
+
+  }catch(e){}
+
+}
+
+
+function getRoomFromURL(){
+
+  try{
+
+    return new URLSearchParams(
+      window.location.search
+    ).get("chat");
+
+  }catch(e){
+
+    return null;
+
+  }
+
+}
+
+
+/* ============================================================
+   SHARE ROOM
+   ============================================================ */
+
+async function shareRoom(){
+
+  if(!TTC_CHAT.currentRoom) return;
+
+  const url =
+    new URL(window.location.href);
+
+  url.searchParams.set(
+    "chat",
+    TTC_CHAT.currentRoom.slug
+  );
+
+  const link =
+    url.toString();
+
+  try{
+
+    if(navigator.share){
+
+      await navigator.share({
+
+        title:
+          "THÍCH TIẾNG TRUNG — Chat",
+
+        text:
+          "Mời bạn vào " +
+          TTC_CHAT.currentRoom.name,
+
+        url:link
+
+      });
+
+    }else if(navigator.clipboard){
+
+      await navigator.clipboard.writeText(link);
+
+      setStatus(
+        "Đã copy link phòng chat 🔗",
+        "ok"
+      );
+
+    }else{
+
+      prompt(
+        "Copy link phòng:",
+        link
+      );
+
+    }
+
+  }catch(e){}
+
+}
+
+
+/* ============================================================
+   SCROLL
+   ============================================================ */
+
+function isNearBottom(){
+
+  return (
+    messagesBox.scrollHeight -
+    messagesBox.scrollTop -
+    messagesBox.clientHeight
+  ) < 180;
+
+}
+
+
+function scrollToBottom(){
+
+  requestAnimationFrame(() => {
+
+    messagesBox.scrollTop =
+      messagesBox.scrollHeight;
+
+  });
+
+}
+
+
+/* ============================================================
+   INPUT
+   ============================================================ */
+
+function autoResizeInput(){
+
+  input.style.height = "auto";
+
+  input.style.height =
+    Math.min(
+      input.scrollHeight,
+      130
+    ) + "px";
+
+}
+
+
+/* ============================================================
+   EVENTS
+   ============================================================ */
+
+$("ttcChatClose").addEventListener(
+  "click",
+  closeChat
+);
+
+$("ttcChatSend").addEventListener(
+  "click",
+  sendText
+);
+
+$("ttcChatAudio").addEventListener(
+  "click",
+  toggleRecording
+);
+
+$("ttcChatAttach").addEventListener(
+  "click",
+  () => $("ttcChatFile").click()
+);
+
+$("ttcChatFile").addEventListener(
+  "change",
+  async event => {
+
+    const file =
+      event.target.files?.[0];
+
+    if(file){
+
+      await uploadFile(file);
+
+    }
+
+    event.target.value = "";
+
+  }
+);
+
+$("ttcChatShareRoom").addEventListener(
+  "click",
+  shareRoom
+);
+
+$("ttcChatCancelReply").addEventListener(
+  "click",
+  cancelReply
+);
+
+newMessagesBtn.addEventListener(
+  "click",
+  () => {
+
+    TTC_CHAT.unread = 0;
+
+    newMessagesBtn.classList.remove("show");
+
+    scrollToBottom();
+
+  }
+);
+
+input.addEventListener(
+  "input",
+  autoResizeInput
+);
+
+input.addEventListener(
+  "keydown",
+  event => {
+
+    if(
+      event.key === "Enter" &&
+      !event.shiftKey
+    ){
+
+      event.preventDefault();
+
+      sendText();
+
+    }
+
+  }
+);
+
+
+/* ============================================================
+   CLICK OUTSIDE
+   ============================================================ */
+
+chat.addEventListener(
+  "click",
+  event => {
+
+    if(event.target === chat){
+
+      closeChat();
+
+    }
+
+  }
+);
+
+
+/* ============================================================
+   EXPOSE OPEN FUNCTION
+   ============================================================ */
+
+window.openTtcChatV1 = openChat;
+
+window.closeTtcChatV1 = closeChat;
+
+
+/* ============================================================
+   AUTO OPEN WHEN URL HAS ?chat=
+   ============================================================ */
+
+setTimeout(
+  () => {
+
+    if(getRoomFromURL()){
+
+      openChat();
+
+    }
+
+  },
+  700
+);
+
+
+/* ============================================================
+   OPTIONAL BUTTON AUTO-DETECTION
+   ============================================================ */
+
+function installChatButton(){
+
+  const possibleButtons = [
+
+    "#ttcChatButton",
+    "#chatOnlineBtn",
+    "[data-ttc-chat]",
+    "[data-open-chat]"
+
+  ];
+
+  for(const selector of possibleButtons){
+
+    document
+      .querySelectorAll(selector)
+      .forEach(button => {
+
+        button.addEventListener(
+          "click",
+          event => {
+
+            event.preventDefault();
+
+            openChat();
+
+          }
+        );
+
+      });
+
+  }
+
+}
+
+
+/* ============================================================
+   CREATE FLOATING CHAT BUTTON
+   ============================================================ */
+
+function createFloatingButton(){
+
+  if(document.getElementById("ttcFloatingChatBtn")){
+    return;
+  }
+
+  const button =
+    document.createElement("button");
+
+  button.id =
+    "ttcFloatingChatBtn";
+
+  button.type = "button";
+
+  button.innerHTML =
+    "💬 CHAT ONLINE";
+
+  Object.assign(
+    button.style,
+    {
+      position:"fixed",
+      right:"18px",
+      bottom:"18px",
+      zIndex:"99998",
+      border:"0",
+      borderRadius:"999px",
+      padding:"11px 16px",
+      background:"#d71920",
+      color:"#fff",
+      font:"inherit",
+      fontWeight:"800",
+      fontSize:"13px",
+      cursor:"pointer",
+      boxShadow:"0 8px 25px rgba(0,0,0,.18)"
+    }
+  );
+
+  button.addEventListener(
+    "click",
+    openChat
+  );
+
+  document.body.appendChild(button);
+
+}
+
+
+/* ============================================================
+   START
+   ============================================================ */
+
+if(
+  document.readyState === "loading"
+){
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+      installChatButton();
+      createFloatingButton();
+
+    }
+  );
+
+}else{
+
+  installChatButton();
+  createFloatingButton();
+
+}
+
+})();
+</script>
+
+<!-- =========================
+     END CHAT V1 PACK
+     ========================= -->
+<!-- =========================================================
+     💬 CHAT ONLINE — KÉO THẢ TỰ DO
+     ========================================================= -->
+
+<style>
+.ttc-chat-draggable{
+  cursor:grab !important;
+  touch-action:none !important;
+  user-select:none !important;
+  -webkit-user-select:none !important;
+}
+
+.ttc-chat-draggable.ttc-dragging{
+  cursor:grabbing !important;
+}
+</style>
+
+<script>
+(function(){
+
+  let readyButton = null;
+
+  function findChatButton(){
+
+    const all = document.querySelectorAll("button, a, div");
+
+    for(const el of all){
+
+      const text = (el.innerText || "").trim();
+
+      if(
+        text.includes("CHAT ONLINE") ||
+        text.includes("💬 CHAT ONLINE")
+      ){
+
+        /*
+         * Ưu tiên phần tử nhỏ nhất có thể bấm
+         */
+        if(
+          el.offsetWidth > 0 &&
+          el.offsetHeight > 0
+        ){
+          return el;
+        }
+      }
+    }
+
+    return null;
+  }
+
+
+  function setup(){
+
+    const btn = findChatButton();
+
+    if(!btn) return;
+
+    if(btn === readyButton) return;
+
+    readyButton = btn;
+
+    btn.classList.add("ttc-chat-draggable");
+
+    let dragging = false;
+    let moved = false;
+
+    let startX = 0;
+    let startY = 0;
+
+    let startLeft = 0;
+    let startTop = 0;
+
+
+    function point(e){
+
+      if(e.touches && e.touches.length){
+
+        return {
+          x:e.touches[0].clientX,
+          y:e.touches[0].clientY
+        };
+
+      }
+
+      if(e.changedTouches && e.changedTouches.length){
+
+        return {
+          x:e.changedTouches[0].clientX,
+          y:e.changedTouches[0].clientY
+        };
+
+      }
+
+      return {
+        x:e.clientX,
+        y:e.clientY
+      };
+    }
+
+
+    function start(e){
+
+      const p = point(e);
+      const rect = btn.getBoundingClientRect();
+
+      startX = p.x;
+      startY = p.y;
+
+      startLeft = rect.left;
+      startTop = rect.top;
+
+      dragging = true;
+      moved = false;
+
+      /*
+       * Chuyển sang tọa độ fixed ngay khi bắt đầu kéo
+       */
+      btn.style.position = "fixed";
+      btn.style.left = rect.left + "px";
+      btn.style.top = rect.top + "px";
+      btn.style.right = "auto";
+      btn.style.bottom = "auto";
+
+      btn.classList.add("ttc-dragging");
+
+      e.preventDefault();
+
+    }
+
+
+    function move(e){
+
+      if(!dragging) return;
+
+      const p = point(e);
+
+      const dx = p.x - startX;
+      const dy = p.y - startY;
+
+      if(
+        Math.abs(dx) > 5 ||
+        Math.abs(dy) > 5
+      ){
+        moved = true;
+      }
+
+      const rect = btn.getBoundingClientRect();
+
+      let left = startLeft + dx;
+      let top = startTop + dy;
+
+      const maxLeft =
+        window.innerWidth - rect.width;
+
+      const maxTop =
+        window.innerHeight - rect.height;
+
+      left = Math.max(
+        0,
+        Math.min(left, maxLeft)
+      );
+
+      top = Math.max(
+        0,
+        Math.min(top, maxTop)
+      );
+
+      btn.style.left = left + "px";
+      btn.style.top = top + "px";
+
+      e.preventDefault();
+
+    }
+
+
+    function end(e){
+
+      if(!dragging) return;
+
+      dragging = false;
+
+      btn.classList.remove("ttc-dragging");
+
+      if(moved){
+
+        btn.dataset.ttcDragged = "1";
+
+        setTimeout(function(){
+
+          btn.dataset.ttcDragged = "0";
+
+        },150);
+
+      }
+
+      if(e){
+        e.preventDefault();
+      }
+
+    }
+
+
+    /* 🖱️ Máy tính */
+
+    btn.addEventListener(
+      "mousedown",
+      start,
+      {passive:false}
+    );
+
+    document.addEventListener(
+      "mousemove",
+      move,
+      {passive:false}
+    );
+
+    document.addEventListener(
+      "mouseup",
+      end,
+      {passive:false}
+    );
+
+
+    /* 📱 Điện thoại */
+
+    btn.addEventListener(
+      "touchstart",
+      start,
+      {passive:false}
+    );
+
+    document.addEventListener(
+      "touchmove",
+      move,
+      {passive:false}
+    );
+
+    document.addEventListener(
+      "touchend",
+      end,
+      {passive:false}
+    );
+
+
+    /*
+     * Nếu vừa kéo thì không mở Chat.
+     * Chạm bình thường vẫn mở Chat.
+     */
+
+    btn.addEventListener(
+      "click",
+      function(e){
+
+        if(btn.dataset.ttcDragged === "1"){
+
+          e.preventDefault();
+          e.stopImmediatePropagation();
+
+        }
+
+      },
+      true
+    );
+
+  }
+
+
+  /*
+   * Chat V1 có thể tạo nút sau khi trang tải.
+   * Kiểm tra liên tục nhưng rất nhẹ.
+   */
+
+  setup();
+
+  const observer =
+    new MutationObserver(function(){
+
+      setup();
+
+    });
+
+  observer.observe(
+    document.body,
+    {
+      childList:true,
+      subtree:true
+    }
+  );
+
+
+})();
+</script>
+
 </body>
 </html>
