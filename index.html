@@ -137059,7 +137059,7 @@ if(
      END CHAT V1 PACK
      ========================= -->
 <!-- =========================================================
-     💬 CHAT ONLINE — KÉO THẢ TỰ DO
+     💬 CHAT ONLINE — KÉO THẢ TỰ DO — SAFE VERSION
      ========================================================= -->
 
 <style>
@@ -137082,27 +137082,29 @@ if(
 
   function findChatButton(){
 
-    const all = document.querySelectorAll("button, a, div");
+    const elements = document.querySelectorAll(
+      "button, a, div"
+    );
 
-    for(const el of all){
+    for(const el of elements){
 
-      const text = (el.innerText || "").trim();
+      const text =
+        (el.innerText || "").trim();
 
       if(
-        text.includes("CHAT ONLINE") ||
-        text.includes("💬 CHAT ONLINE")
+        text.includes("💬 CHAT ONLINE") ||
+        text === "CHAT ONLINE"
       ){
 
-        /*
-         * Ưu tiên phần tử nhỏ nhất có thể bấm
-         */
         if(
           el.offsetWidth > 0 &&
           el.offsetHeight > 0
         ){
           return el;
         }
+
       }
+
     }
 
     return null;
@@ -137119,7 +137121,9 @@ if(
 
     readyButton = btn;
 
-    btn.classList.add("ttc-chat-draggable");
+    btn.classList.add(
+      "ttc-chat-draggable"
+    );
 
     let dragging = false;
     let moved = false;
@@ -137131,9 +137135,12 @@ if(
     let startTop = 0;
 
 
-    function point(e){
+    function getPoint(e){
 
-      if(e.touches && e.touches.length){
+      if(
+        e.touches &&
+        e.touches.length
+      ){
 
         return {
           x:e.touches[0].clientX,
@@ -137142,26 +137149,20 @@ if(
 
       }
 
-      if(e.changedTouches && e.changedTouches.length){
-
-        return {
-          x:e.changedTouches[0].clientX,
-          y:e.changedTouches[0].clientY
-        };
-
-      }
-
       return {
         x:e.clientX,
         y:e.clientY
       };
+
     }
 
 
     function start(e){
 
-      const p = point(e);
-      const rect = btn.getBoundingClientRect();
+      const p = getPoint(e);
+
+      const rect =
+        btn.getBoundingClientRect();
 
       startX = p.x;
       startY = p.y;
@@ -137172,18 +137173,22 @@ if(
       dragging = true;
       moved = false;
 
-      /*
-       * Chuyển sang tọa độ fixed ngay khi bắt đầu kéo
-       */
       btn.style.position = "fixed";
-      btn.style.left = rect.left + "px";
-      btn.style.top = rect.top + "px";
+      btn.style.left =
+        rect.left + "px";
+      btn.style.top =
+        rect.top + "px";
       btn.style.right = "auto";
       btn.style.bottom = "auto";
 
-      btn.classList.add("ttc-dragging");
+      btn.classList.add(
+        "ttc-dragging"
+      );
 
-      e.preventDefault();
+      /*
+       * ⚠️ Không preventDefault ở đây.
+       * Cho phép điện thoại tạo click bình thường.
+       */
 
     }
 
@@ -137192,28 +137197,51 @@ if(
 
       if(!dragging) return;
 
-      const p = point(e);
+      const p = getPoint(e);
 
-      const dx = p.x - startX;
-      const dy = p.y - startY;
+      const dx =
+        p.x - startX;
+
+      const dy =
+        p.y - startY;
+
 
       if(
-        Math.abs(dx) > 5 ||
-        Math.abs(dy) > 5
+        Math.abs(dx) > 6 ||
+        Math.abs(dy) > 6
       ){
+
         moved = true;
+
       }
 
-      const rect = btn.getBoundingClientRect();
 
-      let left = startLeft + dx;
-      let top = startTop + dy;
+      /*
+       * Nếu chưa di chuyển thật sự,
+       * không can thiệp vào thao tác click.
+       */
+
+      if(!moved) return;
+
+
+      const rect =
+        btn.getBoundingClientRect();
+
+      let left =
+        startLeft + dx;
+
+      let top =
+        startTop + dy;
+
 
       const maxLeft =
-        window.innerWidth - rect.width;
+        window.innerWidth -
+        rect.width;
 
       const maxTop =
-        window.innerHeight - rect.height;
+        window.innerHeight -
+        rect.height;
+
 
       left = Math.max(
         0,
@@ -137225,47 +137253,63 @@ if(
         Math.min(top, maxTop)
       );
 
-      btn.style.left = left + "px";
-      btn.style.top = top + "px";
+
+      btn.style.left =
+        left + "px";
+
+      btn.style.top =
+        top + "px";
+
+
+      /*
+       * Chỉ chặn scroll/click khi
+       * người dùng thực sự đang kéo.
+       */
 
       e.preventDefault();
 
     }
 
 
-    function end(e){
+    function end(){
 
       if(!dragging) return;
 
       dragging = false;
 
-      btn.classList.remove("ttc-dragging");
+      btn.classList.remove(
+        "ttc-dragging"
+      );
+
 
       if(moved){
 
-        btn.dataset.ttcDragged = "1";
+        /*
+         * Đánh dấu vừa kéo để click
+         * ngay sau đó không mở Chat.
+         */
+
+        btn.dataset.ttcDragged =
+          "1";
+
 
         setTimeout(function(){
 
-          btn.dataset.ttcDragged = "0";
+          btn.dataset.ttcDragged =
+            "0";
 
         },150);
 
       }
 
-      if(e){
-        e.preventDefault();
-      }
-
     }
 
 
-    /* 🖱️ Máy tính */
+    /* 🖱️ MÁY TÍNH */
 
     btn.addEventListener(
       "mousedown",
-      start,
-      {passive:false}
+      start
     );
 
     document.addEventListener(
@@ -137276,17 +137320,16 @@ if(
 
     document.addEventListener(
       "mouseup",
-      end,
-      {passive:false}
+      end
     );
 
 
-    /* 📱 Điện thoại */
+    /* 📱 ĐIỆN THOẠI */
 
     btn.addEventListener(
       "touchstart",
       start,
-      {passive:false}
+      {passive:true}
     );
 
     document.addEventListener(
@@ -137298,20 +137341,22 @@ if(
     document.addEventListener(
       "touchend",
       end,
-      {passive:false}
+      {passive:true}
     );
 
 
     /*
-     * Nếu vừa kéo thì không mở Chat.
-     * Chạm bình thường vẫn mở Chat.
+     * Chỉ ngăn click nếu vừa kéo.
+     * Tap bình thường hoàn toàn không đụng vào.
      */
 
     btn.addEventListener(
       "click",
       function(e){
 
-        if(btn.dataset.ttcDragged === "1"){
+        if(
+          btn.dataset.ttcDragged === "1"
+        ){
 
           e.preventDefault();
           e.stopImmediatePropagation();
@@ -137325,12 +137370,13 @@ if(
   }
 
 
-  /*
-   * Chat V1 có thể tạo nút sau khi trang tải.
-   * Kiểm tra liên tục nhưng rất nhẹ.
-   */
-
   setup();
+
+
+  /*
+   * Chat V1 tạo nút sau khi trang chạy,
+   * nên tự động bắt lại.
+   */
 
   const observer =
     new MutationObserver(function(){
@@ -137338,6 +137384,7 @@ if(
       setup();
 
     });
+
 
   observer.observe(
     document.body,
@@ -137347,9 +137394,7 @@ if(
     }
   );
 
-
 })();
 </script>
-
 </body>
 </html>
