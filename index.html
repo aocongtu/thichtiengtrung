@@ -135536,14 +135536,119 @@ async function createMessageElement(message,name){
 
     <span
   class="ttc-chat-name"
-  data-user-id="${escapeHTML(message.user_id)}"
+  data-user-id="${message.user_id}"
   data-user-name="${escapeHTML(name)}"
+  style="cursor:pointer; text-decoration:underline;"
 >
   ${escapeHTML(name)}
 </span>
 
     <span>${formatTime(message.created_at)}</span>
   `;
+
+  /* =======================================================
+   🎮 GAME SHOW — TÊN NGƯỜI DÙNG
+   ======================================================= */
+
+const nameEl =
+  meta.querySelector(".ttc-chat-name");
+
+if(nameEl){
+
+  const gameNameButton =
+    document.createElement("button");
+
+  gameNameButton.type =
+    "button";
+
+  gameNameButton.className =
+    "ttc-chat-name";
+
+  gameNameButton.textContent =
+    name;
+
+  gameNameButton.style.cursor =
+    "pointer";
+
+  gameNameButton.style.pointerEvents =
+    "auto";
+
+  gameNameButton.style.position =
+    "relative";
+
+  gameNameButton.style.zIndex =
+    "20";
+
+  gameNameButton.style.border =
+    "0";
+
+  gameNameButton.style.padding =
+    "0";
+
+  gameNameButton.style.margin =
+    "0";
+
+  gameNameButton.style.background =
+    "transparent";
+
+  gameNameButton.style.font =
+    "inherit";
+
+  gameNameButton.style.color =
+    "inherit";
+
+  gameNameButton.style.textDecoration =
+    "underline";
+
+  gameNameButton.onclick =
+    async function(event){
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      /* Không mở Game Show với chính mình */
+      if(
+        message.user_id ===
+        TTC_CHAT.user.id
+      ){
+        return;
+      }
+
+      console.log(
+        "🎮 GAME SHOW CLICK:",
+        message.user_id,
+        name
+      );
+
+      const api =
+        window.TTC_GAME_SHOW_V1;
+
+      if(
+        !api ||
+        typeof api.openInvite !== "function"
+      ){
+
+        console.error(
+          "🎮 TTC_GAME_SHOW_V1 chưa sẵn sàng."
+        );
+
+        return;
+      }
+
+      await api.openInvite(
+        message.user_id,
+        name,
+        event.clientX || 20,
+        event.clientY || 100
+      );
+
+    };
+
+  nameEl.replaceWith(
+    gameNameButton
+  );
+
+}
 
   const bubble =
     document.createElement("div");
@@ -140059,16 +140164,34 @@ if(
      🌐 API
      ========================================================== */
 
-  window.TTC_GAME_SHOW_V1 = {
+ window.TTC_GAME_SHOW_V1 = {
 
-    openInvite:
-      openInviteMenu,
+  openInvite: async function(
+    userId,
+    userName,
+    x,
+    y
+  ){
 
-    refresh:
-      pollGames
+    const user =
+      await loadUser();
 
-  };
+    if(!user){
+      return;
+    }
 
+    openInviteMenu(
+      userId,
+      userName,
+      x || 20,
+      y || 100
+    );
+
+  },
+
+  refresh: pollGames
+
+};
 
 })();
 </script>
