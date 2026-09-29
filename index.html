@@ -134925,15 +134925,23 @@ if(
                     title="Gửi ảnh hoặc tài liệu">
               📎
             </button>
+<button id="ttcChatAudio"
+        class="ttc-chat-icon-btn"
+        type="button"
+        title="Ghi âm">
+  🎙️
+</button>
 
-            <button id="ttcChatAudio"
-                    class="ttc-chat-icon-btn"
-                    type="button"
-                    title="Ghi âm">
-              🎙️
-            </button>
+<button id="ttcDiceButton"
+        class="ttc-chat-icon-btn"
+        type="button"
+        title="Ném xúc sắc"
+        aria-label="Ném xúc sắc">
+  🎲
+</button>
 
-            <textarea id="ttcChatInput"
+<textarea id="ttcChatInput"
+            
                       class="ttc-chat-input"
                       rows="1"
                       maxlength="3000"
@@ -135622,319 +135630,6 @@ if(
   return wrapper;
 
 }
-
-
-/* =======================================================
-   🎲 TTC GAME SHOW — DICE PRIVATE TABLE
-   ======================================================= */
-
-if(
-  message.game_event === "playing" &&
-  message.game_id
-){
-
-  const gameCard =
-    document.createElement("div");
-
-  gameCard.className =
-    "ttc-game-playing-card";
-
-  gameCard.dataset.gameId =
-    message.game_id;
-
-  gameCard.innerHTML = `
-    <div class="ttc-game-playing-public">
-      ${escapeHTML(
-        message.content ||
-        "🎲 Hai người đang đấu xúc sắc..."
-      )}
-    </div>
-
-    <div class="ttc-game-private-area"></div>
-  `;
-
-  bubble.appendChild(gameCard);
-
-  content.appendChild(meta);
-  content.appendChild(bubble);
-
-  wrapper.appendChild(avatar);
-  wrapper.appendChild(content);
-
-
-  /* -------------------------------------------------------
-     🎯 HIỂN THỊ BÀN RIÊNG CHO NGƯỜI CHƠI
-     ------------------------------------------------------- */
-
-  try{
-
-    const {data,error} =
-      await TTC_CHAT.client.rpc(
-        "ttc_get_game_state",
-        {
-          p_game_id:message.game_id
-        }
-      );
-
-    /*
-      Người ngoài sẽ không lấy được game state.
-      Đây là bình thường vì RPC chỉ cho 2 người chơi.
-    */
-
-    if(error){
-
-      gameCard.remove();
-
-      bubble.innerHTML =
-        escapeHTML(
-          message.content ||
-          "🎲 Hai người đang đấu xúc sắc..."
-        );
-
-      return wrapper;
-    }
-
-    if(!data){
-      return wrapper;
-    }
-
-
-    const myUserId =
-      TTC_CHAT.user.id;
-
-
-    const isPlayer =
-      data.challenger_id === myUserId ||
-      data.opponent_id === myUserId;
-
-
-    /*
-      Nếu không phải người chơi:
-      chỉ giữ thông báo công khai.
-    */
-
-    if(!isPlayer){
-
-      gameCard.remove();
-
-      bubble.innerHTML =
-        escapeHTML(
-          message.content ||
-          "🎲 Hai người đang đấu xúc sắc..."
-        );
-
-      return wrapper;
-    }
-
-
-    const area =
-      gameCard.querySelector(
-        ".ttc-game-private-area"
-      );
-
-
-    if(!area){
-      return wrapper;
-    }
-
-
-    /* ---------------------------------------------------
-       🎯 RENDER BÀN RIÊNG
-       --------------------------------------------------- */
-
-    const renderDiceState =
-      function(state){
-
-        if(!area){
-          return;
-        }
-
-
-        if(state.status === "finished"){
-
-          area.innerHTML = `
-            <div class="ttc-game-compact">
-              <div class="ttc-game-compact-line">
-                🏁 Trận đấu đã kết thúc
-              </div>
-            </div>
-          `;
-
-          return;
-        }
-
-
-        if(state.my_move_submitted){
-
-          area.innerHTML = `
-            <div class="ttc-game-compact">
-              <div class="ttc-game-compact-line">
-                🎲 Xúc sắc · Vòng
-                ${state.current_round}/${state.rounds}
-              </div>
-
-              <div class="ttc-game-compact-line">
-                ⏳ Đã đổ · Chờ đối phương
-              </div>
-            </div>
-          `;
-
-          return;
-        }
-
-
-        area.innerHTML = `
-          <div class="ttc-game-compact">
-
-            <div class="ttc-game-compact-line">
-              🎲 Xúc sắc · Vòng
-              ${state.current_round}/${state.rounds}
-            </div>
-
-            <button
-              type="button"
-              class="ttc-game-dice-button"
-              data-game-id="${escapeHTML(message.game_id)}"
-            >
-              🎲 ĐỔ XÚC SẮC
-            </button>
-
-          </div>
-        `;
-      };
-
-
-    /* ---------------------------------------------------
-       🎲 RENDER LẦN ĐẦU
-       --------------------------------------------------- */
-
-    renderDiceState(data);
-
-
-    /* ---------------------------------------------------
-       🔄 POLLING RIÊNG CHO NGƯỜI CHƠI
-       --------------------------------------------------- */
-
-    window.ttcGameDicePollers =
-      window.ttcGameDicePollers || {};
-
-
-    if(
-      !window.ttcGameDicePollers[
-        message.game_id
-      ]
-    ){
-
-      window.ttcGameDicePollers[
-        message.game_id
-      ] =
-        setInterval(
-          async function(){
-
-            try{
-
-              const {data:state,error} =
-                await TTC_CHAT.client.rpc(
-                  "ttc_get_game_state",
-                  {
-                    p_game_id:
-                      message.game_id
-                  }
-                );
-
-
-              if(error || !state){
-                return;
-              }
-
-
-              const card =
-                document.querySelector(
-                  `.ttc-game-playing-card[data-game-id="${message.game_id}"]`
-                );
-
-
-              if(!card){
-                return;
-              }
-
-
-              const privateArea =
-                card.querySelector(
-                  ".ttc-game-private-area"
-                );
-
-
-              if(!privateArea){
-                return;
-              }
-
-
-              renderDiceState(state);
-
-
-              if(
-                state.status === "finished"
-              ){
-
-                clearInterval(
-                  window.ttcGameDicePollers[
-                    message.game_id
-                  ]
-                );
-
-                delete
-                  window.ttcGameDicePollers[
-                    message.game_id
-                  ];
-
-              }
-
-            }catch(e){
-
-              console.warn(
-                "[TTC GAME POLL]",
-                e
-              );
-
-            }
-
-          },
-          1500
-        );
-
-    }
-
-
-    return wrapper;
-
-
-  }catch(error){
-
-    console.warn(
-      "[TTC GAME STATE]",
-      error
-    );
-
-    /*
-      Người ngoài không có quyền đọc game state.
-      Vì vậy chỉ hiện thông báo công khai.
-    */
-
-    gameCard.remove();
-
-    bubble.innerHTML =
-      escapeHTML(
-        message.content ||
-        "🎲 Hai người đang đấu xúc sắc..."
-      );
-
-    return wrapper;
-
-  }
-
-}
-
   if(message.reply_to_id){
 
     const replied =
@@ -139668,6 +139363,505 @@ console.log(
   "🎮 TTC GAME SHOW V1 — INVITE MENU READY"
 );
 
+
+})();
+</script>
+
+<style>
+/* =========================================================
+   TTC DICE V4 — JAVASCRIPT 3D ROTATION
+   ========================================================= */
+
+.ttc-dice-chat-event{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  width:max-content;
+  max-width:90%;
+  margin:6px 0;
+  padding:5px 9px;
+  border-radius:12px;
+  background:rgba(255,255,255,.95);
+  box-shadow:0 2px 8px rgba(0,0,0,.10);
+}
+
+.ttc-dice-chat-name{
+  font-size:12px;
+  font-weight:700;
+  white-space:nowrap;
+}
+
+/* Khung nhìn 3D */
+.ttc-dice-box{
+  width:38px;
+  height:38px;
+  position:relative;
+  flex:none;
+
+  perspective:180px;
+  perspective-origin:50% 50%;
+}
+
+/* Cube */
+.ttc-dice-cube{
+  position:absolute;
+
+  left:3px;
+  top:3px;
+
+  width:32px;
+  height:32px;
+
+  transform-style:preserve-3d;
+  transform-origin:50% 50%;
+
+  will-change:transform;
+}
+
+/* 6 mặt */
+.ttc-dice-face{
+  position:absolute;
+
+  width:32px;
+  height:32px;
+
+  box-sizing:border-box;
+
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  grid-template-rows:repeat(3,1fr);
+
+  padding:5px;
+
+  background:#fff;
+
+  border:1px solid #bdbdbd;
+  border-radius:6px;
+
+  box-shadow:
+    inset 0 0 3px rgba(0,0,0,.12),
+    0 1px 3px rgba(0,0,0,.18);
+
+  backface-visibility:visible;
+}
+
+/* Đúng cấu trúc cube 3D */
+.ttc-dice-face.front{
+  transform:translateZ(16px);
+}
+
+.ttc-dice-face.back{
+  transform:rotateY(180deg) translateZ(16px);
+}
+
+.ttc-dice-face.right{
+  transform:rotateY(90deg) translateZ(16px);
+}
+
+.ttc-dice-face.left{
+  transform:rotateY(-90deg) translateZ(16px);
+}
+
+.ttc-dice-face.top{
+  transform:rotateX(90deg) translateZ(16px);
+}
+
+.ttc-dice-face.bottom{
+  transform:rotateX(-90deg) translateZ(16px);
+}
+
+/* Chấm */
+.ttc-dice-dot{
+  width:5px;
+  height:5px;
+
+  border-radius:50%;
+
+  background:#222;
+
+  align-self:center;
+  justify-self:center;
+}
+</style>
+
+<script>
+(function(){
+
+  "use strict";
+
+  const button =
+    document.getElementById("ttcDiceButton");
+
+  const messagesBox =
+    document.getElementById("ttcChatMessages");
+
+  if(!button || !messagesBox){
+
+    console.warn(
+      "[TTC DICE V4] Chat elements not found."
+    );
+
+    return;
+  }
+
+  let rolling = false;
+
+
+  /* =========================================================
+     TẠO MỘT MẶT
+     ========================================================= */
+
+  function createFace(className, number){
+
+    const face =
+      document.createElement("span");
+
+    face.className =
+      "ttc-dice-face " + className;
+
+    const positions = {
+
+      1:[5],
+
+      2:[1,9],
+
+      3:[1,5,9],
+
+      4:[1,3,7,9],
+
+      5:[1,3,5,7,9],
+
+      6:[1,3,4,6,7,9]
+
+    };
+
+    for(let i=1;i<=9;i++){
+
+      const dot =
+        document.createElement("span");
+
+      if(
+        positions[number].includes(i)
+      ){
+
+        dot.className =
+          "ttc-dice-dot";
+
+      }
+
+      face.appendChild(dot);
+    }
+
+    return face;
+  }
+
+
+  /* =========================================================
+     TẠO CUBE
+     ========================================================= */
+
+  function createDiceMessage(result){
+
+    const event =
+      document.createElement("div");
+
+    event.className =
+      "ttc-dice-chat-event";
+
+
+    /* Tên người ném */
+
+    const name =
+      document.createElement("span");
+
+    name.className =
+      "ttc-dice-chat-name";
+
+    let displayName = "Bạn";
+
+    try{
+
+      if(
+        window.TTC_CHAT &&
+        TTC_CHAT.user &&
+        TTC_CHAT.user.user_metadata
+      ){
+
+        displayName =
+          TTC_CHAT.user.user_metadata.display_name ||
+          TTC_CHAT.user.user_metadata.full_name ||
+          "Bạn";
+
+      }
+
+    }catch(e){}
+
+    name.textContent =
+      displayName;
+
+
+    /* Khung 3D */
+
+    const box =
+      document.createElement("span");
+
+    box.className =
+      "ttc-dice-box";
+
+
+    /* Cube */
+
+    const cube =
+      document.createElement("span");
+
+    cube.className =
+      "ttc-dice-cube";
+
+
+    /*
+       QUAN TRỌNG:
+
+       Số kết quả luôn được đặt ở FRONT.
+
+       Sau khi xoay xong,
+       FRONT quay trở lại phía người nhìn.
+
+       Như vậy số cuối cùng luôn chính xác.
+    */
+
+    const remaining =
+      [1,2,3,4,5,6].filter(
+        n => n !== result
+      );
+
+    cube.appendChild(
+      createFace("front",result)
+    );
+
+    cube.appendChild(
+      createFace("back",remaining[0])
+    );
+
+    cube.appendChild(
+      createFace("right",remaining[1])
+    );
+
+    cube.appendChild(
+      createFace("left",remaining[2])
+    );
+
+    cube.appendChild(
+      createFace("top",remaining[3])
+    );
+
+    cube.appendChild(
+      createFace("bottom",remaining[4])
+    );
+
+
+    box.appendChild(cube);
+
+    event.appendChild(name);
+    event.appendChild(box);
+
+
+    return {
+      event:event,
+      cube:cube
+    };
+
+  }
+
+
+  /* =========================================================
+     EASING
+     ========================================================= */
+
+  function easeOutCubic(t){
+
+    return 1 -
+      Math.pow(1 - t,3);
+
+  }
+
+
+  /* =========================================================
+     XOAY 3D THẬT BẰNG REQUESTANIMATIONFRAME
+     ========================================================= */
+
+  function animateDice(cube,done){
+
+    const duration =
+      1500;
+
+    const start =
+      performance.now();
+
+
+    /*
+       Số vòng xoay lớn để mắt nhìn
+       chắc chắn thấy cube đổi mặt.
+
+       X: lăn về phía trước
+       Y: xoay trái/phải
+       Z: lắc nghiêng
+    */
+
+    const startX =
+      -18;
+
+    const startY =
+      25;
+
+    const startZ =
+      -8;
+
+
+    const totalX =
+      720 + 180;
+
+    const totalY =
+      1080 + 180;
+
+    const totalZ =
+      360 + 25;
+
+
+    function frame(now){
+
+      const elapsed =
+        now - start;
+
+      const raw =
+        Math.min(
+          elapsed / duration,
+          1
+        );
+
+      const progress =
+        easeOutCubic(raw);
+
+
+      const rx =
+        startX +
+        totalX * progress;
+
+      const ry =
+        startY +
+        totalY * progress;
+
+      const rz =
+        startZ +
+        totalZ * progress;
+
+
+      /*
+         Đây là điểm quan trọng:
+         mỗi frame trực tiếp thay đổi
+         transform 3D của cube.
+      */
+
+      cube.style.transform =
+        "rotateX(" + rx + "deg) " +
+        "rotateY(" + ry + "deg) " +
+        "rotateZ(" + rz + "deg)";
+
+
+      if(raw < 1){
+
+        requestAnimationFrame(frame);
+
+      }else{
+
+        /*
+           Sau khi xoay xong,
+           đưa mặt FRONT về đúng hướng.
+
+           Front chính là số kết quả.
+        */
+
+        cube.style.transform =
+          "rotateX(0deg) " +
+          "rotateY(0deg) " +
+          "rotateZ(0deg)";
+
+
+        if(done){
+          done();
+        }
+
+      }
+
+    }
+
+
+    requestAnimationFrame(frame);
+
+  }
+
+
+  /* =========================================================
+     NÚT 🎲
+     ========================================================= */
+
+  button.addEventListener(
+    "click",
+    function(){
+
+      if(rolling){
+        return;
+      }
+
+      rolling = true;
+
+      button.disabled = true;
+
+
+      /* Random 1 → 6 */
+
+      const result =
+        Math.floor(
+          Math.random() * 6
+        ) + 1;
+
+
+      /* Tạo tin nhắn */
+
+      const dice =
+        createDiceMessage(result);
+
+
+      messagesBox.appendChild(
+        dice.event
+      );
+
+
+      /*
+         Cuộn xuống cuối chat
+         để thấy viên xúc sắc.
+      */
+
+      messagesBox.scrollTop =
+        messagesBox.scrollHeight;
+
+
+      /*
+         Bắt đầu xoay thật.
+      */
+
+      animateDice(
+        dice.cube,
+        function(){
+
+          rolling = false;
+
+          button.disabled = false;
+
+        }
+      );
+
+    }
+  );
 
 })();
 </script>
