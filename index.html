@@ -139026,6 +139026,42 @@ if(
 
   }
 
+/* ==========================================================
+   🎮 TTC GAME SHOW API
+   ========================================================== */
+
+window.TTC_GAME_SHOW_V1 = {
+
+  openInvite: async function(
+    userId,
+    userName,
+    x,
+    y
+  ){
+
+    const user =
+      await loadUser();
+
+    if(!user){
+      return;
+    }
+
+    openInviteMenu(
+      userId,
+      userName,
+      x || 20,
+      y || 100
+    );
+
+  },
+
+  refresh: function(){
+
+    return pollGames();
+
+  }
+
+};
 
   /* ==========================================================
      🎮 CHỌN GAME
@@ -140160,39 +140196,7 @@ if(
   );
 
 
-  /* ==========================================================
-     🌐 API
-     ========================================================== */
-
- window.TTC_GAME_SHOW_V1 = {
-
-  openInvite: async function(
-    userId,
-    userName,
-    x,
-    y
-  ){
-
-    const user =
-      await loadUser();
-
-    if(!user){
-      return;
-    }
-
-    openInviteMenu(
-      userId,
-      userName,
-      x || 20,
-      y || 100
-    );
-
-  },
-
-  refresh: pollGames
-
-};
-
+  
 })();
 </script>
 
