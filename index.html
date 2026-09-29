@@ -97281,44 +97281,6 @@ function createAccountSystem(){
 const nicknameKey =
   nickname.toLowerCase();
 
-const { data: nicknameExists, error: nicknameCheckError } =
-  await window.supabase
-    .from("community_nicknames")
-    .select("user_id")
-    .eq("nickname_key", nicknameKey)
-    .limit(1);
-
-if(nicknameCheckError){
-
-  button.disabled = false;
-  button.textContent =
-    "📝 TẠO TÀI KHOẢN";
-
-  showAccountMessage(
-    "❌ Không thể kiểm tra nickname. Vui lòng thử lại.",
-    "error"
-  );
-
-  return;
-}
-
-if(
-  nicknameExists &&
-  nicknameExists.length > 0
-){
-
-  button.disabled = false;
-  button.textContent =
-    "📝 TẠO TÀI KHOẢN";
-
-  showAccountMessage(
-    "⚠️ Nickname này đã được sử dụng.<br>" +
-    "Vui lòng chọn tên khác nhé!",
-    "error"
-  );
-
-  return;
-}
 
 
 /* =====================================================
@@ -97349,43 +97311,30 @@ if(error){
   button.textContent =
     "📝 TẠO TÀI KHOẢN";
 
-  showAccountMessage(
-    "❌ " + error.message,
-    "error"
-  );
+  const errorText =
+    String(error.message || "").toLowerCase();
 
-  return;
-}
+  if(
+    errorText.includes("ttc_nickname_taken") ||
+    errorText.includes("database error saving new user")
+  ){
 
-
-/* =====================================================
-   🔒 GHI NICKNAME VÀO SỔ KHÓA
-   ===================================================== */
-
-if(data && data.user){
-
-  const { error: nicknameInsertError } =
-    await window.supabase
-      .from("community_nicknames")
-      .insert({
-        user_id:data.user.id,
-        display_name:nickname
-      });
-
-  if(nicknameInsertError){
-
-    console.error(
-      "Nickname insert error:",
-      nicknameInsertError
+    showAccountMessage(
+      "⚠️ Nickname này đã được sử dụng.<br>" +
+      "Vui lòng chọn một tên khác nhé!",
+      "error"
     );
 
-    /*
-     * Tài khoản đã được tạo thành công.
-     * Không báo signup thất bại để tránh người dùng
-     * tạo lại tài khoản lần nữa.
-     */
+  }else{
+
+    showAccountMessage(
+      "❌ " + error.message,
+      "error"
+    );
+
   }
 
+  return;
 }
 
 button.disabled = false;
@@ -97398,30 +97347,6 @@ showAccountMessage(
   "📧 Hãy kiểm tra email nếu Supabase yêu cầu xác nhận.",
   "success"
 );
-
-    button.disabled = false;
-
-    button.textContent =
-      "📝 TẠO TÀI KHOẢN";
-
-
-    if(error){
-
-      showAccountMessage(
-        "❌ " + error.message,
-        "error"
-      );
-
-      return;
-
-    }
-
-
-    showAccountMessage(
-      "✅ Tạo tài khoản thành công!<br>" +
-      "📧 Hãy kiểm tra email nếu Supabase yêu cầu xác nhận.",
-      "success"
-    );
 
   }
 
