@@ -135623,6 +135623,561 @@ if(
 
 }
 
+/* =======================================================
+   🎲 TTC GAME SHOW — DICE PRIVATE TABLE
+   ======================================================= */
+
+if(
+  message.game_event === "playing" &&
+  message.game_id
+){
+
+  const gameCard =
+    document.createElement("div");
+
+  gameCard.className =
+    "ttc-game-playing-card";
+
+  gameCard.dataset.gameId =
+    message.game_id;
+
+  gameCard.innerHTML = `
+    <div class="ttc-game-playing-title">
+      🎲 XÚC SẮC
+    </div>
+
+    <div class="ttc-game-playing-public">
+      ${escapeHTML(
+        message.content ||
+        "🟢 Trận đấu đã bắt đầu!"
+      )}
+    </div>
+
+    <div class="ttc-game-private-area">
+      ⏳ Đang tải bàn chơi...
+    </div>
+  `;
+
+  bubble.appendChild(gameCard);
+
+  content.appendChild(meta);
+  content.appendChild(bubble);
+
+  wrapper.appendChild(avatar);
+  wrapper.appendChild(content);
+
+
+  /* -------------------------------------------------------
+     🔐 CHỈ NGƯỜI THAM GIA GAME MỚI ĐƯỢC XEM BÀN RIÊNG
+     ------------------------------------------------------- */
+
+  try{
+
+    const {data,error} =
+      await TTC_CHAT.client.rpc(
+        "ttc_get_game_state",
+        {
+          p_game_id:message.game_id
+        }
+      );
+
+    if(error){
+      throw error;
+    }
+
+    if(!data){
+      return wrapper;
+    }
+
+
+    const myUserId =
+      TTC_CHAT.user.id;
+
+    const isPlayer =
+      data.challenger_id === myUserId ||
+      data.opponent_id === myUserId;
+
+
+    /* ---------------------------------------------------
+       👀 NGƯỜI NGOÀI CHỈ THẤY THÔNG BÁO CÔNG KHAI
+       --------------------------------------------------- */
+
+    if(!isPlayer){
+
+      gameCard
+        .querySelector(
+          ".ttc-game-private-area"
+        )
+        .innerHTML = "";
+
+      return wrapper;
+
+    }
+
+
+    /* ---------------------------------------------------
+       🎯 RENDER BÀN RIÊNG
+       --------------------------------------------------- */
+
+    const renderDiceState =
+      async function(state){
+
+        const area =
+          gameCard.querySelector(
+            ".ttc-game-private-area"
+          );
+
+        if(!area){
+          return;
+        }
+
+
+        const myName =
+  data.challenger_id === myUserId
+    ? await awaitSafeDisplayName(
+        data.challenger_id
+      )
+    : await awaitSafeDisplayName(
+        data.opponent_id
+      );
+
+const opponentName =
+  data.challenger_id === myUserId
+    ? await awaitSafeDisplayName(
+        data.opponent_id
+      )
+    : await awaitSafeDisplayName(
+        data.challenger_id
+      );
+
+        const myScore =
+          data.challenger_id === myUserId
+            ? state.challenger_score
+            : state.opponent_score;
+
+
+        const opponentScore =
+          data.challenger_id === myUserId
+            ? state.opponent_score
+            : state.challenger_score;
+
+
+        let buttonHTML = "";
+
+
+        if(state.status === "finished"){
+
+          buttonHTML = `
+            <div class="ttc-game-finished">
+              🏁 Ván đấu đã kết thúc!
+            </div>
+          `;
+
+        }else if(state.my_move_submitted){
+
+          buttonHTML = `
+            <div class="ttc-game-waiting">
+              🎲 Anh đã đổ xúc sắc.<br>
+              ⏳ Đang chờ đối phương...
+            </div>
+          `;
+
+        }else{
+
+          buttonHTML = `
+            <button
+              type="button"
+              class="ttc-game-dice-button"
+              data-game-id="${escapeHTML(message.game_id)}"
+            >
+              🎲 ĐỔ XÚC SẮC
+            </button>
+          `;
+
+        }
+
+
+        area.innerHTML = `
+          <div class="ttc-game-round">
+            VÒNG
+            ${state.current_round}
+            /
+            ${state.rounds}
+          </div>
+
+          <div class="ttc-game-scoreboard">
+
+            <div class="ttc-game-player">
+              <strong>
+                ${escapeHTML(myName)}
+              </strong>
+              <span>
+                ${state.my_move_submitted
+                  ? "🎲 Đã đổ"
+                  : "⏳ Chưa đổ"}
+              </span>
+              <b>${myScore}</b>
+            </div>
+
+            <div class="ttc-game-vs">
+              VS
+            </div>
+
+            <div class="ttc-game-player">
+              <strong>
+                ${escapeHTML(opponentName)}
+              </strong>
+              <span>
+                ⏳ Chờ đối phương
+              </span>
+              <b>${opponentScore}</b>
+            </div>
+
+          </div>
+
+          ${buttonHTML}
+        `;
+
+
+        const diceButton =
+          area.querySelector(
+            ".ttc-game-dice-button"
+          );
+
+
+        if(diceButton){
+
+          diceButton.addEventListener(
+            "click",
+            async function(event){
+
+              event.stopPropagation();
+
+              diceButton.disabled =
+                true;
+
+              diceButton.textContent =
+                "🎲 ĐANG ĐỔ...";
+
+
+              try{
+
+                const {data:moveData,error} =
+                  await TTC_CHAT.client.rpc(
+                    "ttc_submit_game_move",
+                    {
+                      p_game_id:
+                        message.game_id,
+
+                      p_choice:
+                        null
+                    }
+                  );
+
+
+                if(error){
+                  throw error;
+                }
+
+
+                console.log(
+                  "🎲 TTC DICE MOVE:",
+                  moveData
+                );
+
+
+                const {data:newState,error:stateError} =
+                  await TTC_CHAT.client.rpc(
+                    "ttc_get_game_state",
+                    {
+                      p_game_id:
+                        message.game_id
+                    }
+                  );
+
+
+                if(stateError){
+                  throw stateError;
+                }
+
+
+                renderDiceState(
+                  newState
+                );
+
+
+              }catch(error){
+
+                console.error(
+                  "[TTC DICE]",
+                  error
+                );
+
+                diceButton.disabled =
+                  false;
+
+                diceButton.textContent =
+                  "🎲 ĐỔ XÚC SẮC";
+
+                setStatus(
+                  "Không thể đổ xúc sắc: " +
+                  (
+                    error.message ||
+                    error
+                  ),
+                  "error"
+                );
+
+              }
+
+            }
+          );
+
+        }
+
+      };
+
+
+    /* ---------------------------------------------------
+       🏷️ DISPLAY NAME HELPER
+       --------------------------------------------------- */
+
+    async function awaitSafeDisplayName(
+      uid
+    ){
+
+      try{
+
+        return await getDisplayName(uid);
+
+      }catch(e){
+
+        return "Thành viên";
+
+      }
+
+    }
+
+
+    /* ---------------------------------------------------
+       🎲 RENDER LẦN ĐẦU
+       --------------------------------------------------- */
+
+   await renderDiceState(
+  data
+);
+
+    /* ---------------------------------------------------
+       🔄 POLLING RIÊNG CHO 2 NGƯỜI CHƠI
+       --------------------------------------------------- */
+
+    window.ttcGameDicePollers =
+      window.ttcGameDicePollers ||
+      {};
+
+
+    if(
+      !window.ttcGameDicePollers[
+        message.game_id
+      ]
+    ){
+
+      window.ttcGameDicePollers[
+        message.game_id
+      ] =
+        setInterval(
+          async function(){
+
+            try{
+
+              const {data:state,error} =
+                await TTC_CHAT.client.rpc(
+                  "ttc_get_game_state",
+                  {
+                    p_game_id:
+                      message.game_id
+                  }
+                );
+
+
+              if(error){
+                return;
+              }
+
+
+              const card =
+                document.querySelector(
+                  `.ttc-game-playing-card[data-game-id="${message.game_id}"]`
+                );
+
+
+              if(!card){
+                return;
+              }
+
+
+              const area =
+                card.querySelector(
+                  ".ttc-game-private-area"
+                );
+
+
+              if(!area){
+                return;
+              }
+
+
+              const currentUserId =
+                TTC_CHAT.user.id;
+
+
+              if(
+                state.status === "finished"
+              ){
+
+                clearInterval(
+                  window.ttcGameDicePollers[
+                    message.game_id
+                  ]
+                );
+
+                delete
+                  window.ttcGameDicePollers[
+                    message.game_id
+                  ];
+
+              }
+
+
+              /* Cập nhật trạng thái hiện tại */
+
+              const myScore =
+                state.challenger_id === currentUserId
+                  ? state.challenger_score
+                  : state.opponent_score;
+
+
+              const opponentScore =
+                state.challenger_id === currentUserId
+                  ? state.opponent_score
+                  : state.challenger_score;
+
+
+              const roundElement =
+                card.querySelector(
+                  ".ttc-game-round"
+                );
+
+
+              if(roundElement){
+
+                roundElement.textContent =
+                  "VÒNG " +
+                  state.current_round +
+                  " / " +
+                  state.rounds;
+
+              }
+
+
+              const scoreElements =
+                card.querySelectorAll(
+                  ".ttc-game-player b"
+                );
+
+
+              if(scoreElements.length >= 2){
+
+                scoreElements[0]
+                  .textContent =
+                  myScore;
+
+                scoreElements[1]
+                  .textContent =
+                  opponentScore;
+
+              }
+
+
+              const newButton =
+                card.querySelector(
+                  ".ttc-game-dice-button"
+                );
+
+
+              if(
+                state.my_move_submitted &&
+                newButton
+              ){
+
+             await renderDiceState(
+                  state
+                );
+
+              }
+
+
+              if(
+                !state.my_move_submitted &&
+                state.status === "playing" &&
+                !newButton
+              ){
+
+                renderDiceState(
+                  state
+                );
+
+              }
+
+
+              if(
+                state.status === "finished"
+              ){
+
+                renderDiceState(
+                  state
+                );
+
+              }
+
+            }catch(e){
+
+              console.warn(
+                "[TTC GAME POLL]",
+                e
+              );
+
+            }
+
+          },
+          1500
+        );
+
+    }
+
+
+    return wrapper;
+
+  }catch(error){
+
+    console.error(
+      "[TTC GAME STATE]",
+      error
+    );
+
+    gameCard
+      .querySelector(
+        ".ttc-game-private-area"
+      )
+      .innerHTML =
+      "";
+
+    return wrapper;
+
+  }
+
+}
+
   if(message.reply_to_id){
 
     const replied =
@@ -138492,6 +139047,140 @@ if(
   padding:9px;
   background:#fff;
   cursor:pointer;
+}
+
+
+/* =======================================================
+   🎲 TTC GAME SHOW — DICE PRIVATE TABLE
+   ======================================================= */
+
+.ttc-game-playing-card{
+  width:min(360px,100%);
+  margin-top:4px;
+  padding:14px;
+  border:1px solid #e2e2e2;
+  border-radius:16px;
+  background:#fff;
+  box-sizing:border-box;
+}
+
+.ttc-game-playing-title{
+  font-size:17px;
+  font-weight:800;
+  text-align:center;
+  margin-bottom:6px;
+}
+
+.ttc-game-playing-public{
+  font-size:13px;
+  color:#666;
+  text-align:center;
+  line-height:1.45;
+  margin-bottom:12px;
+}
+
+.ttc-game-private-area{
+  width:100%;
+}
+
+.ttc-game-round{
+  text-align:center;
+  font-size:14px;
+  font-weight:800;
+  margin-bottom:10px;
+}
+
+.ttc-game-scoreboard{
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:center;
+  gap:8px;
+  margin-bottom:12px;
+}
+
+.ttc-game-player{
+  min-width:0;
+  padding:10px 7px;
+  border:1px solid #eee;
+  border-radius:12px;
+  text-align:center;
+  background:#fafafa;
+}
+
+.ttc-game-player strong{
+  display:block;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:14px;
+}
+
+.ttc-game-player span{
+  display:block;
+  margin-top:4px;
+  font-size:12px;
+  color:#777;
+}
+
+.ttc-game-player b{
+  display:block;
+  margin-top:4px;
+  font-size:20px;
+}
+
+.ttc-game-vs{
+  font-size:12px;
+  font-weight:800;
+  color:#999;
+}
+
+.ttc-game-dice-button{
+  display:block;
+  width:100%;
+  min-height:46px;
+  border:0;
+  border-radius:12px;
+  background:#111;
+  color:#fff;
+  font-size:15px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.ttc-game-dice-button:disabled{
+  opacity:.55;
+  cursor:wait;
+}
+
+.ttc-game-waiting,
+.ttc-game-finished{
+  padding:11px;
+  border-radius:12px;
+  background:#f7f7f7;
+  text-align:center;
+  font-size:13px;
+  line-height:1.5;
+}
+
+@media(max-width:520px){
+
+  .ttc-game-playing-card{
+    width:100%;
+    padding:12px;
+  }
+
+  .ttc-game-scoreboard{
+    gap:5px;
+  }
+
+  .ttc-game-player{
+    padding:9px 5px;
+  }
+
+  .ttc-game-player strong{
+    font-size:13px;
+  }
+
 }
 
 </style>
