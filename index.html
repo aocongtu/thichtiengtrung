@@ -97385,8 +97385,7 @@ function createAccountSystem(){
 
   }
 
-
-  async function registerTtcDevice(){
+ window.registerTtcDevice = async function(){
 
     const deviceId =
       getTtcDeviceId();
@@ -97432,7 +97431,7 @@ function createAccountSystem(){
   }
 
 
-  async function unregisterTtcDevice(){
+  window.unregisterTtcDevice = async function(){
 
     const deviceId =
       localStorage.getItem(
