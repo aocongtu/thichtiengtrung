@@ -137800,6 +137800,51 @@ if(
 
 }
 
+/* ===== CHAT V1 — DESKTOP FULL SCREEN ===== */
+
+#ttcChatV1.ttc-chat-open{
+  align-items:stretch !important;
+  justify-content:stretch !important;
+}
+
+#ttcChatV1 .ttc-chat-shell{
+  width:100% !important;
+  height:100% !important;
+  max-width:none !important;
+  max-height:none !important;
+  border-radius:0 !important;
+}
+
+/* Giữ vùng chat co giãn đúng */
+#ttcChatV1 .ttc-chat-body{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  height:0 !important;
+}
+
+#ttcChatV1 .ttc-chat-main{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  height:100% !important;
+}
+
+#ttcChatV1 .ttc-chat-messages{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  height:0 !important;
+  overflow-x:hidden !important;
+  overflow-y:auto !important;
+}
+
+/* Điện thoại vẫn full màn hình */
+@media(max-width:720px){
+  #ttcChatV1 .ttc-chat-shell{
+    width:100vw !important;
+    height:100vh !important;
+    height:100dvh !important;
+    border-radius:0 !important;
+  }
+}
 </style>
 </body>
 </html>
