@@ -135502,22 +135502,63 @@ async function renderMessages(){
 
 }
 
-
 /* ============================================================
    MESSAGE ELEMENT
    ============================================================ */
 
 async function createMessageElement(message,name){
 
+  /* ==========================================================
+     🎲 TTC DICE V4 — TIN NHẮN XÚC SẮC REALTIME
+     ========================================================== */
+
+  if(
+    message.dice_value !== null &&
+    message.dice_value !== undefined
+  ){
+
+    const dice =
+      createDiceMessage(
+        Number(message.dice_value)
+      );
+
+    dice.event.dataset.diceMessageId =
+      message.id || "";
+
+    /*
+      Chờ DOM gắn xong rồi mới chạy animation.
+      Như vậy cả người gửi và tất cả người nhận
+      Realtime đều chạy cùng một animation.
+    */
+
+    setTimeout(
+      function(){
+
+        animateDice(
+          dice.cube,
+          function(){}
+        );
+
+      },
+      0
+    );
+
+    return dice.event;
+  }
+
+
   const mine =
     message.user_id === TTC_CHAT.user.id;
+
 
   const wrapper =
     document.createElement("div");
 
+
   wrapper.className =
     "ttc-chat-message" +
     (mine ? " mine" : "");
+
 
   const avatar =
     document.createElement("div");
@@ -135525,7 +135566,9 @@ async function createMessageElement(message,name){
   avatar.className =
     "ttc-chat-avatar";
 
-  avatar.textContent = "👤";
+  avatar.textContent =
+    "👤";
+
 
   const content =
     document.createElement("div");
@@ -135533,118 +135576,157 @@ async function createMessageElement(message,name){
   content.className =
     "ttc-chat-message-content";
 
+
   const meta =
     document.createElement("div");
 
   meta.className =
     "ttc-chat-meta";
 
- meta.innerHTML = `
-  <span
-    class="ttc-chat-name"
-    data-user-id="${escapeHTML(message.user_id)}"
-    data-user-name="${escapeHTML(name)}"
-    style="cursor:pointer;"
-  >
-    ${escapeHTML(name)}
-  </span>
-  <span>${formatTime(message.created_at)}</span>
-`;
 
- const bubble =
-  document.createElement("div");
+  meta.innerHTML = `
+    <span
+      class="ttc-chat-name"
+      data-user-id="${escapeHTML(message.user_id)}"
+      data-user-name="${escapeHTML(name)}"
+      style="cursor:pointer;"
+    >
+      ${escapeHTML(name)}
+    </span>
 
-bubble.className =
-  "ttc-chat-bubble";
-
-let html = "";
-
-
-/* =======================================================
-   🎮 TTC GAME SHOW — INVITATION
-   ======================================================= */
-
-if(
-  message.game_event === "invite" &&
-  message.game_id
-){
-
-  const gameCard =
-    document.createElement("div");
-
-  gameCard.className =
-    "ttc-game-invite-card";
-
-  const gameText =
-    message.content ||
-    "🎮 Bạn được mời chơi game!";
-
-  gameCard.innerHTML = `
-    <div class="ttc-game-invite-title">
-      🎮 LỜI MỜI CHƠI GAME
-    </div>
-
-    <div class="ttc-game-invite-text">
-      ${escapeHTML(gameText)}
-    </div>
-
-    ${
-      message.user_id !== TTC_CHAT.user.id
-        ? `
-          <div class="ttc-game-invite-actions">
-
-            <button
-              type="button"
-              class="ttc-game-accept"
-              data-game-id="${escapeHTML(message.game_id)}"
-            >
-              🟢 CHẤP NHẬN
-            </button>
-
-            <button
-              type="button"
-              class="ttc-game-decline"
-              data-game-id="${escapeHTML(message.game_id)}"
-            >
-              🔴 TỪ CHỐI
-            </button>
-
-          </div>
-        `
-        : `
-          <div class="ttc-game-invite-waiting">
-            ⏳ Đang chờ đối phương trả lời...
-          </div>
-        `
-    }
+    <span>
+      ${formatTime(message.created_at)}
+    </span>
   `;
 
-  bubble.appendChild(gameCard);
 
-  content.appendChild(meta);
-  content.appendChild(bubble);
+  const bubble =
+    document.createElement("div");
 
-  wrapper.appendChild(avatar);
-  wrapper.appendChild(content);
+  bubble.className =
+    "ttc-chat-bubble";
 
-  return wrapper;
 
-}
+  let html = "";
+
+
+  /* =======================================================
+     🎮 TTC GAME SHOW — INVITATION
+     ======================================================= */
+
+  if(
+    message.game_event === "invite" &&
+    message.game_id
+  ){
+
+    const gameCard =
+      document.createElement("div");
+
+    gameCard.className =
+      "ttc-game-invite-card";
+
+
+    const gameText =
+      message.content ||
+      "🎮 Bạn được mời chơi game!";
+
+
+    gameCard.innerHTML = `
+      <div class="ttc-game-invite-title">
+        🎮 LỜI MỜI CHƠI GAME
+      </div>
+
+      <div class="ttc-game-invite-text">
+        ${escapeHTML(gameText)}
+      </div>
+
+      ${
+        message.user_id !== TTC_CHAT.user.id
+          ? `
+            <div class="ttc-game-invite-actions">
+
+              <button
+                type="button"
+                class="ttc-game-accept"
+                data-game-id="${escapeHTML(message.game_id)}"
+              >
+                🟢 CHẤP NHẬN
+              </button>
+
+              <button
+                type="button"
+                class="ttc-game-decline"
+                data-game-id="${escapeHTML(message.game_id)}"
+              >
+                🔴 TỪ CHỐI
+              </button>
+
+            </div>
+          `
+          : `
+            <div class="ttc-game-invite-waiting">
+              ⏳ Đang chờ đối phương trả lời...
+            </div>
+          `
+      }
+    `;
+
+
+    bubble.appendChild(
+      gameCard
+    );
+
+
+    content.appendChild(
+      meta
+    );
+
+    content.appendChild(
+      bubble
+    );
+
+
+    wrapper.appendChild(
+      avatar
+    );
+
+    wrapper.appendChild(
+      content
+    );
+
+
+    return wrapper;
+
+  }
+
+
+  /* =======================================================
+     ↩️ REPLY PREVIEW
+     ======================================================= */
+
   if(message.reply_to_id){
 
     const replied =
       TTC_CHAT.messages.find(
-        m => m.id === message.reply_to_id
+        m =>
+          m.id === message.reply_to_id
       );
+
 
     if(replied){
 
       const repliedName =
-        await getDisplayName(replied.user_id);
+        await getDisplayName(
+          replied.user_id
+        );
+
 
       html += `
         <div class="ttc-chat-reply">
-          ↩️ <strong>${escapeHTML(repliedName)}</strong><br>
+          ↩️ <strong>
+            ${escapeHTML(repliedName)}
+          </strong>
+          <br>
           ${escapeHTML(
             replied.content ||
             replied.file_name ||
@@ -135658,10 +135740,17 @@ if(
   }
 
 
+  /* =======================================================
+     💬 TEXT
+     ======================================================= */
+
   if(message.content){
 
     let safe =
-      escapeHTML(message.content);
+      escapeHTML(
+        message.content
+      );
+
 
     safe =
       safe.replace(
@@ -135669,286 +135758,273 @@ if(
         '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>'
       );
 
+
     html += safe;
 
   }
 
 
+  /* =======================================================
+     📎 FILE
+     ======================================================= */
+
   if(message.file_url){
 
     html +=
-      await renderFile(message);
+      await renderFile(
+        message
+      );
 
   }
 
-  bubble.innerHTML = html;
 
-  content.appendChild(meta);
-  content.appendChild(bubble);
-
-/* =======================================================
-   💬 TTC CHAT — ACTIONS / REACTION
-   ======================================================= */
-
-const actions =
-  document.createElement("div");
-
-actions.className =
-  "ttc-chat-actions";
+  bubble.innerHTML =
+    html;
 
 
-const reactionList =
-  TTC_CHAT.reactionCache[message.id] || [];
+  content.appendChild(
+    meta
+  );
 
-
-const reactionTypes = [
-  ["like","👍"],
-  ["dislike","👎"],
-  ["heart","❤️"],
-  ["haha","😂"],
-  ["wow","😮"],
-  ["thanks","🙏"]
-];
-
-
-/* =======================================================
-   📊 CHỈ HIỆN REACTION ĐÃ CÓ NGƯỜI DÙNG
-   ======================================================= */
-
-const activeReactions =
-  reactionTypes.filter(
-    ([type]) =>
-      reactionList.some(
-        r => r.reaction === type
-      )
+  content.appendChild(
+    bubble
   );
 
 
-const reactionSummary =
-  document.createElement("div");
+  /* =======================================================
+     💬 TTC CHAT — ACTIONS / REACTION
+     ======================================================= */
 
-reactionSummary.className =
-  "ttc-reaction-summary";
+  const actions =
+    document.createElement("div");
 
-
-activeReactions.forEach(
-  ([type,emoji]) => {
-
-    const count =
-      reactionList.filter(
-        r =>
-          r.reaction === type
-      ).length;
+  actions.className =
+    "ttc-chat-actions";
 
 
-    const mineReaction =
-      reactionList.some(
-        r =>
-          r.user_id === TTC_CHAT.user.id &&
-          r.reaction === type
-      );
+  const reactionList =
+    TTC_CHAT.reactionCache[message.id] || [];
 
 
-    const btn =
-      document.createElement("button");
-
-    btn.type =
-      "button";
-
-    btn.className =
-      "ttc-reaction" +
-      (
-        mineReaction
-          ? " active"
-          : ""
-      );
+  const reactionTypes = [
+    ["like","👍"],
+    ["dislike","👎"],
+    ["heart","❤️"],
+    ["haha","😂"],
+    ["wow","😮"],
+    ["thanks","🙏"]
+  ];
 
 
-    btn.innerHTML =
-      emoji +
-      `<span class="ttc-reaction-count">${count}</span>`;
+  /* =======================================================
+     📊 CHỈ HIỆN REACTION ĐÃ CÓ NGƯỜI DÙNG
+     ======================================================= */
 
-
-    btn.title =
-      mineReaction
-        ? "Bỏ reaction"
-        : "Thả reaction";
-
-
-    btn.onclick = async function(event){
-
-      event.stopPropagation();
-
-      await toggleReaction(
-        message.id,
-        type
-      );
-
-      wrapper.classList.remove(
-        "ttc-message-selected"
-      );
-
-    };
-
-
-    reactionSummary.appendChild(btn);
-
-  }
-);
-
-
-/* =======================================================
-   😊 THANH CHỌN 6 REACTION
-   ======================================================= */
-
-const reactionPicker =
-  document.createElement("div");
-
-reactionPicker.className =
-  "ttc-reaction-picker";
-
-
-reactionTypes.forEach(
-  ([type,emoji]) => {
-
-    const count =
-      reactionList.filter(
-        r =>
-          r.reaction === type
-      ).length;
-
-
-    const mineReaction =
-      reactionList.some(
-        r =>
-          r.user_id === TTC_CHAT.user.id &&
-          r.reaction === type
-      );
-
-
-    const btn =
-      document.createElement("button");
-
-    btn.type =
-      "button";
-
-    btn.className =
-      "ttc-reaction" +
-      (
-        mineReaction
-          ? " active"
-          : ""
-      );
-
-
-    btn.innerHTML =
-      emoji +
-      (
-        count
-          ? `<span class="ttc-reaction-count">${count}</span>`
-          : ""
-      );
-
-
-    btn.title =
-      mineReaction
-        ? "Bỏ reaction"
-        : "Reaction";
-
-
-    btn.onclick = async function(event){
-
-      event.stopPropagation();
-
-      await toggleReaction(
-        message.id,
-        type
-      );
-
-      wrapper.classList.remove(
-        "ttc-message-selected"
-      );
-
-    };
-
-
-    reactionPicker.appendChild(btn);
-
-  }
-);
-
-
-/* =======================================================
-   ↩️ TRẢ LỜI
-   ======================================================= */
-
-const replyBtn =
-  document.createElement("button");
-
-replyBtn.type =
-  "button";
-
-replyBtn.className =
-  "ttc-message-tool";
-
-replyBtn.textContent =
-  "↩️ Trả lời";
-
-replyBtn.onclick =
-  function(event){
-
-    event.stopPropagation();
-
-    startReply(message);
-
-    wrapper.classList.remove(
-      "ttc-message-selected"
+  const activeReactions =
+    reactionTypes.filter(
+      ([type]) =>
+        reactionList.some(
+          r =>
+            r.reaction === type
+        )
     );
 
-  };
+
+  const reactionSummary =
+    document.createElement("div");
+
+  reactionSummary.className =
+    "ttc-reaction-summary";
 
 
-/* =======================================================
-   📦 GHÉP ACTIONS
-   ======================================================= */
+  activeReactions.forEach(
+    ([type,emoji]) => {
 
-actions.appendChild(
-  reactionSummary
-);
-
-actions.appendChild(
-  reactionPicker
-);
-
-actions.appendChild(
-  replyBtn
-);
+      const count =
+        reactionList.filter(
+          r =>
+            r.reaction === type
+        ).length;
 
 
-/* =======================================================
-   🗑️ XÓA — CHỈ TIN CỦA MÌNH
-   ======================================================= */
+      const mineReaction =
+        reactionList.some(
+          r =>
+            r.user_id === TTC_CHAT.user.id &&
+            r.reaction === type
+        );
 
-if(mine){
 
-  const deleteBtn =
+      const btn =
+        document.createElement("button");
+
+      btn.type =
+        "button";
+
+
+      btn.className =
+        "ttc-reaction" +
+        (
+          mineReaction
+            ? " active"
+            : ""
+        );
+
+
+      btn.innerHTML =
+        emoji +
+        `<span class="ttc-reaction-count">${count}</span>`;
+
+
+      btn.title =
+        mineReaction
+          ? "Bỏ reaction"
+          : "Thả reaction";
+
+
+      btn.onclick =
+        async function(event){
+
+          event.stopPropagation();
+
+
+          await toggleReaction(
+            message.id,
+            type
+          );
+
+
+          wrapper.classList.remove(
+            "ttc-message-selected"
+          );
+
+        };
+
+
+      reactionSummary.appendChild(
+        btn
+      );
+
+    }
+  );
+
+
+  /* =======================================================
+     😊 THANH CHỌN 6 REACTION
+     ======================================================= */
+
+  const reactionPicker =
+    document.createElement("div");
+
+  reactionPicker.className =
+    "ttc-reaction-picker";
+
+
+  reactionTypes.forEach(
+    ([type,emoji]) => {
+
+      const count =
+        reactionList.filter(
+          r =>
+            r.reaction === type
+        ).length;
+
+
+      const mineReaction =
+        reactionList.some(
+          r =>
+            r.user_id === TTC_CHAT.user.id &&
+            r.reaction === type
+        );
+
+
+      const btn =
+        document.createElement("button");
+
+      btn.type =
+        "button";
+
+
+      btn.className =
+        "ttc-reaction" +
+        (
+          mineReaction
+            ? " active"
+            : ""
+        );
+
+
+      btn.innerHTML =
+        emoji +
+        (
+          count
+            ? `<span class="ttc-reaction-count">${count}</span>`
+            : ""
+        );
+
+
+      btn.title =
+        mineReaction
+          ? "Bỏ reaction"
+          : "Reaction";
+
+
+      btn.onclick =
+        async function(event){
+
+          event.stopPropagation();
+
+
+          await toggleReaction(
+            message.id,
+            type
+          );
+
+
+          wrapper.classList.remove(
+            "ttc-message-selected"
+          );
+
+        };
+
+
+      reactionPicker.appendChild(
+        btn
+      );
+
+    }
+  );
+
+
+  /* =======================================================
+     ↩️ TRẢ LỜI
+     ======================================================= */
+
+  const replyBtn =
     document.createElement("button");
 
-  deleteBtn.type =
+  replyBtn.type =
     "button";
 
-  deleteBtn.className =
+
+  replyBtn.className =
     "ttc-message-tool";
 
-  deleteBtn.textContent =
-    "🗑️ Xóa";
 
-  deleteBtn.onclick =
+  replyBtn.textContent =
+    "↩️ Trả lời";
+
+
+  replyBtn.onclick =
     function(event){
 
       event.stopPropagation();
 
-      deleteMessage(message);
+
+      startReply(
+        message
+      );
+
 
       wrapper.classList.remove(
         "ttc-message-selected"
@@ -135957,57 +136033,124 @@ if(mine){
     };
 
 
+  /* =======================================================
+     📦 GHÉP ACTIONS
+     ======================================================= */
+
   actions.appendChild(
-    deleteBtn
+    reactionSummary
   );
 
-}
+
+  actions.appendChild(
+    reactionPicker
+  );
 
 
-content.appendChild(
-  actions
-);
+  actions.appendChild(
+    replyBtn
+  );
 
 
-/* =======================================================
-   👆 NHẤN VÀO TIN NHẮN → HIỆN ACTIONS
-   ======================================================= */
+  /* =======================================================
+     🗑️ XÓA — CHỈ TIN CỦA MÌNH
+     ======================================================= */
 
-bubble.addEventListener(
-  "click",
-  function(event){
+  if(mine){
 
-    event.stopPropagation();
-
-
-    document
-      .querySelectorAll(
-        "#ttcChatMessages .ttc-message-selected"
-      )
-      .forEach(
-        el => {
-
-          if(el !== wrapper){
-
-            el.classList.remove(
-              "ttc-message-selected"
-            );
-
-          }
-
-        }
-      );
+    const deleteBtn =
+      document.createElement("button");
 
 
-    wrapper.classList.toggle(
-      "ttc-message-selected"
+    deleteBtn.type =
+      "button";
+
+
+    deleteBtn.className =
+      "ttc-message-tool";
+
+
+    deleteBtn.textContent =
+      "🗑️ Xóa";
+
+
+    deleteBtn.onclick =
+      function(event){
+
+        event.stopPropagation();
+
+
+        deleteMessage(
+          message
+        );
+
+
+        wrapper.classList.remove(
+          "ttc-message-selected"
+        );
+
+      };
+
+
+    actions.appendChild(
+      deleteBtn
     );
 
   }
-);
 
-  wrapper.appendChild(avatar);
-  wrapper.appendChild(content);
+
+  content.appendChild(
+    actions
+  );
+
+
+  /* =======================================================
+     👆 NHẤN VÀO TIN NHẮN → HIỆN ACTIONS
+     ======================================================= */
+
+  bubble.addEventListener(
+    "click",
+    function(event){
+
+      event.stopPropagation();
+
+
+      document
+        .querySelectorAll(
+          "#ttcChatMessages .ttc-message-selected"
+        )
+        .forEach(
+          el => {
+
+            if(el !== wrapper){
+
+              el.classList.remove(
+                "ttc-message-selected"
+              );
+
+            }
+
+          }
+        );
+
+
+      wrapper.classList.toggle(
+        "ttc-message-selected"
+      );
+
+    }
+  );
+
+
+  wrapper.appendChild(
+    avatar
+  );
+
+
+  wrapper.appendChild(
+    content
+  );
+
 
   return wrapper;
 
@@ -138400,972 +138543,6 @@ if(
   }
 
 }
-</style>
-
-<!-- ============================================================
-     🎮 TTC GAME SHOW V1 — INVITE MENU
-     ĐỘC LẬP VỚI CHAT
-     ============================================================ -->
-
-<style>
-
-#ttcGameInviteMenu{
-  position:fixed;
-  z-index:999999;
-  width:min(300px,calc(100vw - 24px));
-  background:#fff;
-  border:1px solid #ddd;
-  border-radius:16px;
-  box-shadow:0 12px 35px rgba(0,0,0,.20);
-  padding:14px;
-  display:none;
-  font-family:inherit;
-}
-
-#ttcGameInviteMenu.ttc-open{
-  display:block;
-}
-
-.ttc-game-title{
-  font-size:18px;
-  font-weight:700;
-  margin-bottom:4px;
-}
-
-.ttc-game-target{
-  font-size:13px;
-  color:#777;
-  margin-bottom:12px;
-}
-
-.ttc-game-section{
-  margin-top:10px;
-}
-
-.ttc-game-label{
-  font-size:13px;
-  font-weight:600;
-  margin-bottom:6px;
-}
-
-.ttc-game-options{
-  display:flex;
-  gap:7px;
-  flex-wrap:wrap;
-}
-
-.ttc-game-option{
-  border:1px solid #ddd;
-  background:#fff;
-  border-radius:10px;
-  padding:9px 12px;
-  cursor:pointer;
-  font-size:14px;
-}
-
-.ttc-game-option:hover{
-  border-color:#e53935;
-}
-
-.ttc-game-option.active{
-  background:#fff3f3;
-  border-color:#e53935;
-  color:#d62828;
-  font-weight:700;
-}
-
-.ttc-game-send{
-  width:100%;
-  margin-top:14px;
-  border:0;
-  border-radius:11px;
-  padding:11px;
-  background:#d62828;
-  color:#fff;
-  font-weight:700;
-  cursor:pointer;
-}
-
-.ttc-game-send:disabled{
-  opacity:.55;
-  cursor:not-allowed;
-}
-
-.ttc-game-cancel{
-  width:100%;
-  margin-top:7px;
-  border:1px solid #ddd;
-  border-radius:11px;
-  padding:9px;
-  background:#fff;
-  cursor:pointer;
-}
-
-/* =======================================================
-   🎲 TTC GAME SHOW — DICE COMPACT
-   ======================================================= */
-
-.ttc-game-playing-card{
-  width:auto !important;
-  max-width:260px !important;
-  margin-top:3px !important;
-  padding:7px 9px !important;
-  border:1px solid #e2e2e2 !important;
-  border-radius:10px !important;
-  background:#fff !important;
-  box-sizing:border-box !important;
-}
-
-.ttc-game-playing-title{
-  display:none !important;
-}
-
-.ttc-game-playing-public{
-  display:none !important;
-}
-
-.ttc-game-private-area{
-  width:auto !important;
-}
-
-.ttc-game-compact{
-  display:flex;
-  flex-direction:column;
-  gap:5px;
-}
-
-.ttc-game-compact-line{
-  font-size:13px;
-  line-height:1.3;
-  white-space:nowrap;
-}
-
-.ttc-game-dice-button{
-  min-height:34px !important;
-  padding:5px 10px !important;
-  font-size:13px !important;
-  border-radius:8px !important;
-}
-
-</style>
-
-
-<div id="ttcGameInviteMenu">
-
-  <div class="ttc-game-title">
-    🎮 MỜI CHƠI GAME
-  </div>
-
-  <div
-    id="ttcGameTarget"
-    class="ttc-game-target"
-  >
-    Đang chọn người chơi...
-  </div>
-
-
-  <div class="ttc-game-section">
-
-    <div class="ttc-game-label">
-      🎲 Chọn game
-    </div>
-
-    <div class="ttc-game-options">
-
-      <button
-        type="button"
-        class="ttc-game-option active"
-        data-game-type="dice"
-      >
-        🎲 Xúc sắc
-      </button>
-
-      <button
-        type="button"
-        class="ttc-game-option"
-        data-game-type="rps"
-      >
-        ✊✋✌️ Oẳn tù tì
-      </button>
-
-    </div>
-
-  </div>
-
-
-  <div class="ttc-game-section">
-
-    <div class="ttc-game-label">
-      🔢 Số vòng
-    </div>
-
-    <div class="ttc-game-options">
-
-      <button
-        type="button"
-        class="ttc-game-option active"
-        data-rounds="3"
-      >
-        3 vòng
-      </button>
-
-      <button
-        type="button"
-        class="ttc-game-option"
-        data-rounds="5"
-      >
-        5 vòng
-      </button>
-
-    </div>
-
-  </div>
-
-
-  <button
-    type="button"
-    id="ttcGameInviteSend"
-    class="ttc-game-send"
-  >
-    📩 GỬI LỜI MỜI
-  </button>
-
-  <button
-    type="button"
-    id="ttcGameInviteCancel"
-    class="ttc-game-cancel"
-  >
-    ❌ HỦY
-  </button>
-
-</div>
-
-
-<script>
-
-(function(){
-
-"use strict";
-
-
-/* ============================================================
-   🎮 TTC GAME SHOW V1
-   ============================================================ */
-
-const menu =
-  document.getElementById(
-    "ttcGameInviteMenu"
-  );
-
-const targetBox =
-  document.getElementById(
-    "ttcGameTarget"
-  );
-
-const sendButton =
-  document.getElementById(
-    "ttcGameInviteSend"
-  );
-
-const cancelButton =
-  document.getElementById(
-    "ttcGameInviteCancel"
-  );
-
-
-if(!menu || !targetBox || !sendButton){
-  return;
-}
-
-
-/* ============================================================
-   STATE
-   ============================================================ */
-
-const GAME_STATE = {
-
-  opponentId:null,
-
-  opponentName:"",
-
-  gameType:"dice",
-
-  rounds:3
-
-};
-
-
-/* ============================================================
-   SUPABASE
-   ============================================================ */
-
-function getSupabase(){
-
-  const candidates = [
-
-    window.supabase,
-    window.supabaseClient,
-    window.sb,
-    window.supabaseDb,
-    window.ttcSupabase,
-    window.ttcSupabaseClient
-
-  ];
-
-  for(const client of candidates){
-
-    if(
-      client &&
-      client.auth &&
-      client.from
-    ){
-
-      return client;
-
-    }
-
-  }
-
-  return null;
-
-}
-
-
-/* ============================================================
-   CURRENT USER
-   ============================================================ */
-
-async function getCurrentUser(){
-
-  const supabase =
-    getSupabase();
-
-  if(!supabase){
-    return null;
-  }
-
-  try{
-
-    const {data,error} =
-      await supabase.auth.getUser();
-
-    if(error){
-      return null;
-    }
-
-    return data?.user || null;
-
-  }catch(error){
-
-    console.error(
-      "[TTC GAME USER]",
-      error
-    );
-
-    return null;
-
-  }
-
-}
-
-
-/* ============================================================
-   CURRENT ROOM
-   ============================================================ */
-
-function getCurrentRoomId(){
-
-  const activeRoom =
-    document.querySelector(
-      "#ttcChatV1 .ttc-chat-room.active"
-    );
-
-  if(
-    activeRoom &&
-    activeRoom.dataset.roomId
-  ){
-
-    return activeRoom.dataset.roomId;
-
-  }
-
-
-  const anyActiveRoom =
-    document.querySelector(
-      ".ttc-chat-room.active"
-    );
-
-  if(
-    anyActiveRoom &&
-    anyActiveRoom.dataset.roomId
-  ){
-
-    return anyActiveRoom.dataset.roomId;
-
-  }
-
-
-  return null;
-
-}
-
-
-/* ============================================================
-   POSITION MENU
-   ============================================================ */
-
-function positionMenu(x,y){
-
-  const width =
-    Math.min(
-      300,
-      window.innerWidth - 24
-    );
-
-  const height =
-    menu.offsetHeight || 330;
-
-  let left =
-    Number(x) || 20;
-
-  let top =
-    Number(y) || 100;
-
-
-  if(
-    left + width >
-    window.innerWidth - 12
-  ){
-
-    left =
-      window.innerWidth -
-      width -
-      12;
-
-  }
-
-
-  if(
-    top + height >
-    window.innerHeight - 12
-  ){
-
-    top =
-      window.innerHeight -
-      height -
-      12;
-
-  }
-
-
-  left =
-    Math.max(12,left);
-
-  top =
-    Math.max(12,top);
-
-
-  menu.style.left =
-    left + "px";
-
-  menu.style.top =
-    top + "px";
-
-}
-
-
-/* ============================================================
-   OPEN
-   ============================================================ */
-
-function openInvite(
-  userId,
-  userName,
-  x,
-  y
-){
-
-  if(!userId){
-    return;
-  }
-
-
-  GAME_STATE.opponentId =
-    userId;
-
-  GAME_STATE.opponentName =
-    userName ||
-    "Thành viên";
-
-
-  targetBox.textContent =
-    "👤 " +
-    GAME_STATE.opponentName;
-
-
-  menu.classList.add(
-    "ttc-open"
-  );
-
-
-  requestAnimationFrame(
-    function(){
-
-      positionMenu(x,y);
-
-    }
-  );
-
-}
-
-
-/* ============================================================
-   CLOSE
-   ============================================================ */
-
-function closeInvite(){
-
-  menu.classList.remove(
-    "ttc-open"
-  );
-
-  GAME_STATE.opponentId =
-    null;
-
-  GAME_STATE.opponentName =
-    "";
-
-}
-
-
-/* ============================================================
-   GAME SELECT
-   ============================================================ */
-
-menu
-  .querySelectorAll(
-    "[data-game-type]"
-  )
-  .forEach(
-    button => {
-
-      button.addEventListener(
-        "click",
-        function(event){
-
-          event.stopPropagation();
-
-          menu
-            .querySelectorAll(
-              "[data-game-type]"
-            )
-            .forEach(
-              el =>
-                el.classList.remove(
-                  "active"
-                )
-            );
-
-          button.classList.add(
-            "active"
-          );
-
-          GAME_STATE.gameType =
-            button.dataset.gameType;
-
-        }
-      );
-
-    }
-  );
-
-
-/* ============================================================
-   ROUND SELECT
-   ============================================================ */
-
-menu
-  .querySelectorAll(
-    "[data-rounds]"
-  )
-  .forEach(
-    button => {
-
-      button.addEventListener(
-        "click",
-        function(event){
-
-          event.stopPropagation();
-
-          menu
-            .querySelectorAll(
-              "[data-rounds]"
-            )
-            .forEach(
-              el =>
-                el.classList.remove(
-                  "active"
-                )
-            );
-
-          button.classList.add(
-            "active"
-          );
-
-          GAME_STATE.rounds =
-            Number(
-              button.dataset.rounds
-            ) === 5
-              ? 5
-              : 3;
-
-        }
-      );
-
-    }
-  );
-
-
-/* ============================================================
-   SEND INVITE
-   ============================================================ */
-
-sendButton.addEventListener(
-  "click",
-  async function(event){
-
-    event.stopPropagation();
-
-
-    const user =
-      await getCurrentUser();
-
-
-    if(!user){
-
-      alert(
-        "⚠️ Anh/chị cần đăng nhập để chơi game."
-      );
-
-      return;
-
-    }
-
-
-    if(
-      !GAME_STATE.opponentId
-    ){
-
-      return;
-
-    }
-
-
-    const roomId =
-      getCurrentRoomId();
-
-
-    if(!roomId){
-
-      alert(
-        "⚠️ Chưa xác định được phòng Chat."
-      );
-
-      return;
-
-    }
-
-
-    if(
-      GAME_STATE.opponentId ===
-      user.id
-    ){
-
-      return;
-
-    }
-
-
-    sendButton.disabled =
-      true;
-
-    sendButton.textContent =
-      "⏳ ĐANG GỬI...";
-
-
-    try{
-
-      const supabase =
-        getSupabase();
-
-
-      if(!supabase){
-
-        throw new Error(
-          "Không tìm thấy kết nối Supabase."
-        );
-
-      }
-
-
-      const {data,error} =
-        await supabase.rpc(
-          "ttc_create_game",
-          {
-            p_room_id:
-              roomId,
-
-            p_opponent_id:
-              GAME_STATE.opponentId,
-
-            p_game_type:
-              GAME_STATE.gameType,
-
-            p_rounds:
-              GAME_STATE.rounds
-          }
-        );
-
-
-      if(error){
-
-        throw error;
-
-      }
-
-
-      console.log(
-        "[TTC GAME INVITE]",
-        data
-      );
-
-
-      closeInvite();
-
-
-    }catch(error){
-
-      console.error(
-        "[TTC GAME INVITE]",
-        error
-      );
-
-
-      const message =
-        String(
-          error?.message ||
-          error ||
-          ""
-        );
-
-
-      if(
-        message.includes(
-          "another active game"
-        )
-      ){
-
-        alert(
-          "⚠️ Một trong hai người đang chơi game khác."
-        );
-
-      }else{
-
-        alert(
-          "❌ Không gửi được lời mời.\n\n" +
-          message
-        );
-
-      }
-
-    }finally{
-
-      sendButton.disabled =
-        false;
-
-      sendButton.textContent =
-        "📩 GỬI LỜI MỜI";
-
-    }
-
-  }
-);
-
-
-/* ============================================================
-   CANCEL
-   ============================================================ */
-
-cancelButton.addEventListener(
-  "click",
-  function(event){
-
-    event.stopPropagation();
-
-    closeInvite();
-
-  }
-);
-
-
-/* ============================================================
-   CLICK TÊN NGƯỜI CHAT
-   ============================================================ */
-
-document.addEventListener(
-  "click",
-  async function(event){
-
-    const nameElement =
-      event.target.closest(
-        "#ttcChatMessages .ttc-chat-name"
-      );
-
-
-    if(!nameElement){
-      return;
-    }
-
-
-    const userId =
-      nameElement.dataset.userId;
-
-
-    if(!userId){
-      return;
-    }
-
-
-    const user =
-      await getCurrentUser();
-
-
-    if(!user){
-      return;
-    }
-
-
-    if(
-      userId ===
-      user.id
-    ){
-
-      return;
-
-    }
-
-
-    event.preventDefault();
-
-    event.stopPropagation();
-
-
-    const userName =
-      nameElement.dataset.userName ||
-      nameElement.textContent.trim() ||
-      "Thành viên";
-
-
-    openInvite(
-      userId,
-      userName,
-      event.clientX || 20,
-      event.clientY || 100
-    );
-
-  },
-  true
-);
-
-
-/* ============================================================
-   CLICK RA NGOÀI
-   ============================================================ */
-
-document.addEventListener(
-  "click",
-  function(event){
-
-    if(
-      !event.target.closest(
-        "#ttcGameInviteMenu"
-      ) &&
-      !event.target.closest(
-        "#ttcChatMessages .ttc-chat-name"
-      )
-    ){
-
-      closeInvite();
-
-    }
-
-  }
-);
-
-
-/* ============================================================
-   RESIZE
-   ============================================================ */
-
-window.addEventListener(
-  "resize",
-  function(){
-
-    if(
-      menu.classList.contains(
-        "ttc-open"
-      )
-    ){
-
-      positionMenu(
-        parseInt(menu.style.left || "20",10),
-        parseInt(menu.style.top || "100",10)
-      );
-
-    }
-
-  }
-);
-
-
-/* ============================================================
-   PUBLIC API
-   ============================================================ */
-
-window.TTC_GAME_SHOW_V1 = {
-
-  openInvite:function(
-    userId,
-    userName,
-    x,
-    y
-  ){
-
-    openInvite(
-      userId,
-      userName,
-      x,
-      y
-    );
-
-  },
-
-  closeInvite:function(){
-
-    closeInvite();
-
-  }
-
-};
-
-
-console.log(
-  "🎮 TTC GAME SHOW V1 — INVITE MENU READY"
-);
-
-
-})();
-</script>
 
 <style>
 /* =========================================================
@@ -139803,66 +138980,112 @@ console.log(
   /* =========================================================
      NÚT 🎲
      ========================================================= */
+button.addEventListener(
+  "click",
+  function(){
 
-  button.addEventListener(
-    "click",
-    function(){
+    if(rolling){
+      return;
+    }
 
-      if(rolling){
-        return;
+    rolling = true;
+    button.disabled = true;
+
+    /* =========================
+       V4 CŨ — GIỮ NGUYÊN
+    ========================= */
+
+    const result =
+      Math.floor(
+        Math.random() * 6
+      ) + 1;
+
+    const dice =
+      createDiceMessage(result);
+
+    messagesBox.appendChild(
+      dice.event
+    );
+
+    messagesBox.scrollTop =
+      messagesBox.scrollHeight;
+
+    animateDice(
+      dice.cube,
+      function(){
+
+        rolling = false;
+        button.disabled = false;
+
+      }
+    );
+
+
+    /* =========================
+       GỬI KẾT QUẢ CHO MỌI NGƯỜI
+       KHÔNG CHỜ SUPABASE
+    ========================= */
+
+    try{
+
+      const supabase =
+        window.supabase;
+
+      const roomId =
+        TTC_CHAT &&
+        TTC_CHAT.currentRoom
+          ? TTC_CHAT.currentRoom.id
+          : null;
+
+      const userId =
+        TTC_CHAT &&
+        TTC_CHAT.user
+          ? TTC_CHAT.user.id
+          : null;
+
+      if(
+        supabase &&
+        roomId &&
+        userId
+      ){
+
+        supabase
+          .from("community_messages")
+          .insert({
+            room_id: roomId,
+            user_id: userId,
+            content: "🎲",
+            message_type: "text",
+            dice_value: result
+          })
+          .then(function(res){
+
+            if(res.error){
+
+              console.warn(
+                "[TTC DICE] Không gửi được realtime:",
+                res.error
+              );
+
+            }
+
+          });
+
       }
 
-      rolling = true;
+    }catch(error){
 
-      button.disabled = true;
-
-
-      /* Random 1 → 6 */
-
-      const result =
-        Math.floor(
-          Math.random() * 6
-        ) + 1;
-
-
-      /* Tạo tin nhắn */
-
-      const dice =
-        createDiceMessage(result);
-
-
-      messagesBox.appendChild(
-        dice.event
-      );
-
-
-      /*
-         Cuộn xuống cuối chat
-         để thấy viên xúc sắc.
-      */
-
-      messagesBox.scrollTop =
-        messagesBox.scrollHeight;
-
-
-      /*
-         Bắt đầu xoay thật.
-      */
-
-      animateDice(
-        dice.cube,
-        function(){
-
-          rolling = false;
-
-          button.disabled = false;
-
-        }
+      console.warn(
+        "[TTC DICE] Realtime error:",
+        error
       );
 
     }
-  );
 
+  }
+
+);
+ 
 })();
 </script>
 </body>
