@@ -125111,6 +125111,8 @@ async function getDisplayName(uid){
 
 async function openChat(){
 
+hideChatNotification();
+
   TTC_CHAT.client = findSupabaseClient();
 
   if(!TTC_CHAT.client){
@@ -127576,6 +127578,19 @@ function createFloatingButton(){
   button.innerHTML =
     "💬 CHAT ONLINE";
 
+/* CHAT NOTIFICATION DOT */
+const notificationDot =
+  document.createElement("span");
+
+notificationDot.id =
+  "ttcChatNotificationDot";
+
+notificationDot.textContent = "!";
+
+button.style.position = "fixed";
+
+button.appendChild(notificationDot);
+
   Object.assign(
     button.style,
     {
@@ -127605,6 +127620,201 @@ function createFloatingButton(){
 
 }
 
+/* ============================================================
+   CHAT OUTSIDE NOTIFICATION
+   CHUNG + HSK1 → HSK9
+   ============================================================ */
+
+let ttcChatNotificationChannel = null;
+
+let ttcChatNotificationRooms = new Set();
+
+
+function showChatNotification(){
+
+  const dot =
+    document.getElementById(
+      "ttcChatNotificationDot"
+    );
+
+  if(!dot) return;
+
+  dot.classList.add("show");
+
+}
+
+
+function hideChatNotification(){
+
+  const dot =
+    document.getElementById(
+      "ttcChatNotificationDot"
+    );
+
+  if(!dot) return;
+
+  dot.classList.remove("show");
+
+}
+
+
+async function startChatNotificationWatcher(){
+
+  try{
+
+    const client =
+      findSupabaseClient();
+
+    if(!client) return;
+
+    const {
+      data:userData,
+      error:userError
+    } =
+      await client.auth.getUser();
+
+    if(
+      userError ||
+      !userData?.user
+    ){
+
+      return;
+
+    }
+
+
+    /* Lấy toàn bộ phòng Chat đang hoạt động */
+
+    const {
+      data:rooms,
+      error:roomError
+    } =
+      await client
+        .from("community_rooms")
+        .select("id,slug")
+        .eq("active",true);
+
+    if(roomError){
+
+      console.error(
+        "[TTC CHAT NOTIFY]",
+        roomError
+      );
+
+      return;
+
+    }
+
+
+    ttcChatNotificationRooms =
+      new Set(
+        (rooms || []).map(
+          room => String(room.id)
+        )
+      );
+
+
+    if(!ttcChatNotificationRooms.size){
+
+      return;
+
+    }
+
+
+    /* Nếu watcher cũ tồn tại thì tháo ra */
+
+    if(ttcChatNotificationChannel){
+
+      try{
+
+        await client.removeChannel(
+          ttcChatNotificationChannel
+        );
+
+      }catch(e){}
+
+      ttcChatNotificationChannel =
+        null;
+
+    }
+
+
+    /*
+     * Theo dõi community_messages
+     * KHÔNG filter room_id ở Supabase,
+     * vì cần nghe CHUNG + HSK1 → HSK9.
+     */
+
+    ttcChatNotificationChannel =
+      client
+        .channel(
+          "ttc-chat-outside-notification"
+        )
+
+        .on(
+          "postgres_changes",
+          {
+            event:"INSERT",
+            schema:"public",
+            table:"community_messages"
+          },
+          payload => {
+
+            const message =
+              payload.new;
+
+            if(!message) return;
+
+
+            /*
+             * Chỉ nhận các phòng Chat
+             * hiện đang active.
+             */
+
+            if(
+              !ttcChatNotificationRooms.has(
+                String(message.room_id)
+              )
+            ){
+
+              return;
+
+            }
+
+
+            /*
+             * Không báo notification
+             * cho chính tin nhắn mình gửi.
+             */
+
+            if(
+              TTC_CHAT.user?.id &&
+              String(message.user_id) ===
+              String(TTC_CHAT.user.id)
+            ){
+
+              return;
+
+            }
+
+
+            showChatNotification();
+
+          }
+        )
+
+        .subscribe();
+
+  }catch(error){
+
+    console.error(
+      "[TTC CHAT NOTIFY]",
+      error
+    );
+
+  }
+
+}
 
 /* ============================================================
    START
@@ -127621,6 +127831,11 @@ if(
       installChatButton();
       createFloatingButton();
 
+      setTimeout(
+        startChatNotificationWatcher,
+        1200
+      );
+
     }
   );
 
@@ -127628,6 +127843,11 @@ if(
 
   installChatButton();
   createFloatingButton();
+
+  setTimeout(
+    startChatNotificationWatcher,
+    1200
+  );
 
 }
 
@@ -127653,6 +127873,33 @@ if(
   touch-action:manipulation !important;
   -webkit-user-select:none;
   user-select:none;
+}
+
+/* ============================================================
+   CHAT NOTIFICATION DOT
+   ============================================================ */
+
+#ttcChatNotificationDot{
+  position:absolute;
+  top:-5px;
+  right:-5px;
+  width:20px;
+  height:20px;
+  border-radius:50%;
+  background:#d71920;
+  color:#fff;
+  font-size:13px;
+  font-weight:900;
+  line-height:20px;
+  text-align:center;
+  display:none;
+  box-shadow:0 2px 8px rgba(0,0,0,.25);
+  pointer-events:none;
+  z-index:999999;
+}
+
+#ttcChatNotificationDot.show{
+  display:block;
 }
 </style>
 
