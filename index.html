@@ -129306,5 +129306,2057 @@ button.addEventListener(
  
 })();
 </script>
+
+<!-- =========================================================
+     🟢 AUTO LEARNING CÂU VÍ DỤ V2 — ĐỘC LẬP
+     DÁN NGUYÊN KHỐI NGAY TRƯỚC </body>
+
+     ✔ Không đụng Auto Learning từ vựng
+     ✔ Không gọi initAutoLearning()
+     ✔ Không sửa Flashcard / Test / Luyện câu / Tài khoản
+     ✔ Dùng trực tiếp window.words hiện tại
+     ✔ HSK1 miễn phí — HSK2 → HSK9 Premium
+     ✔ localStorage riêng
+     ========================================================= -->
+
+<style>
+/* =========================================================
+   🟢 TTC EXAMPLE AUTO V2
+   Khóa CSS riêng để tránh giao diện chính ghi đè
+   ========================================================= */
+
+#ttcExampleAutoV2{
+  --ea2-green:#16a34a;
+  --ea2-green-dark:#15803d;
+  --ea2-green-light:#dcfce7;
+  --ea2-green-soft:#f0fdf4;
+  --ea2-border:#86efac;
+  --ea2-text:#172016;
+  --ea2-muted:#64748b;
+
+  display:block !important;
+  width:min(920px,calc(100% - 24px)) !important;
+
+  margin:28px auto !important;
+  padding:22px !important;
+
+  background:#ffffff !important;
+  color:var(--ea2-text) !important;
+
+  border:2px solid var(--ea2-border) !important;
+  border-radius:22px !important;
+
+  box-shadow:
+    0 8px 28px rgba(22,163,74,.12) !important;
+
+  text-align:center !important;
+
+  box-sizing:border-box !important;
+
+  font-family:inherit !important;
+
+  position:relative !important;
+  z-index:10 !important;
+}
+
+#ttcExampleAutoV2 *,
+#ttcExampleAutoV2 *::before,
+#ttcExampleAutoV2 *::after{
+  box-sizing:border-box !important;
+}
+
+/* =========================================================
+   TIÊU ĐỀ
+   ========================================================= */
+
+#ttcExampleAutoV2 .ea2-title{
+  display:block !important;
+
+  margin:0 0 16px !important;
+
+  color:var(--ea2-green-dark) !important;
+
+  font-size:21px !important;
+  line-height:1.35 !important;
+
+  font-weight:900 !important;
+
+  text-align:center !important;
+}
+
+/* =========================================================
+   HSK
+   ========================================================= */
+
+#ttcExampleAutoV2 .ea2-hsk-row{
+  display:flex !important;
+
+  flex-wrap:wrap !important;
+
+  justify-content:center !important;
+
+  gap:7px !important;
+
+  margin:0 0 18px !important;
+}
+
+#ttcExampleAutoV2 .ea2-hsk{
+  appearance:none !important;
+
+  border:1px solid #bbf7d0 !important;
+
+  background:#ffffff !important;
+
+  color:#166534 !important;
+
+  border-radius:10px !important;
+
+  padding:7px 11px !important;
+
+  min-height:36px !important;
+
+  cursor:pointer !important;
+
+  font:inherit !important;
+
+  font-size:14px !important;
+
+  font-weight:800 !important;
+
+  line-height:1 !important;
+}
+
+#ttcExampleAutoV2 .ea2-hsk:hover{
+  background:#f0fdf4 !important;
+}
+
+#ttcExampleAutoV2 .ea2-hsk.active{
+  background:var(--ea2-green) !important;
+
+  color:#ffffff !important;
+
+  border-color:var(--ea2-green) !important;
+
+  box-shadow:
+    0 4px 12px rgba(22,163,74,.25) !important;
+}
+
+/* =========================================================
+   CARD CÂU VÍ DỤ
+   ========================================================= */
+
+#ttcExampleAutoV2 .ea2-card{
+  display:flex !important;
+
+  flex-direction:column !important;
+
+  justify-content:center !important;
+
+  align-items:center !important;
+
+  width:100% !important;
+
+  min-height:245px !important;
+
+  padding:25px 16px !important;
+
+  background:var(--ea2-green-soft) !important;
+
+  border:1px solid var(--ea2-border) !important;
+
+  border-radius:18px !important;
+
+  text-align:center !important;
+}
+
+#ttcExampleAutoV2 .ea2-hanzi{
+  display:block !important;
+
+  width:100% !important;
+
+  color:#166534 !important;
+
+  font-size:clamp(31px,7vw,54px) !important;
+
+  line-height:1.35 !important;
+
+  font-weight:900 !important;
+
+  text-align:center !important;
+
+  word-break:break-word !important;
+}
+
+#ttcExampleAutoV2 .ea2-pinyin{
+  display:block !important;
+
+  width:100% !important;
+
+  margin-top:9px !important;
+
+  color:#15803d !important;
+
+  font-size:clamp(17px,4vw,23px) !important;
+
+  line-height:1.5 !important;
+
+  font-weight:600 !important;
+
+  text-align:center !important;
+}
+
+#ttcExampleAutoV2 .ea2-meaning{
+  display:block !important;
+
+  width:100% !important;
+
+  min-height:29px !important;
+
+  margin-top:8px !important;
+
+  color:#166534 !important;
+
+  font-size:clamp(17px,4vw,22px) !important;
+
+  line-height:1.5 !important;
+
+  font-weight:800 !important;
+
+  text-align:center !important;
+}
+
+#ttcExampleAutoV2 .ea2-counter{
+  display:block !important;
+
+  margin-top:15px !important;
+
+  color:#4d7c5d !important;
+
+  font-size:14px !important;
+
+  font-weight:800 !important;
+
+  text-align:center !important;
+}
+
+/* =========================================================
+   BUTTON
+   ========================================================= */
+
+#ttcExampleAutoV2 .ea2-buttons{
+  display:flex !important;
+
+  flex-wrap:wrap !important;
+
+  justify-content:center !important;
+
+  gap:8px !important;
+
+  margin-top:14px !important;
+}
+
+#ttcExampleAutoV2 .ea2-btn{
+  appearance:none !important;
+
+  border:1px solid #bbf7d0 !important;
+
+  background:#ffffff !important;
+
+  color:#166534 !important;
+
+  border-radius:11px !important;
+
+  min-height:43px !important;
+
+  padding:0 14px !important;
+
+  cursor:pointer !important;
+
+  font:inherit !important;
+
+  font-size:14px !important;
+
+  font-weight:800 !important;
+
+  line-height:1.2 !important;
+}
+
+#ttcExampleAutoV2 .ea2-btn:hover{
+  background:#f0fdf4 !important;
+}
+
+#ttcExampleAutoV2 .ea2-btn.green{
+  background:var(--ea2-green) !important;
+
+  border-color:var(--ea2-green) !important;
+
+  color:#ffffff !important;
+}
+
+#ttcExampleAutoV2 .ea2-btn.green:hover{
+  background:#15803d !important;
+}
+
+#ttcExampleAutoV2 .ea2-btn.reset{
+  color:#b91c1c !important;
+
+  border-color:#fecaca !important;
+
+  background:#fffafa !important;
+}
+
+/* =========================================================
+   DELAY
+   ========================================================= */
+
+#ttcExampleAutoV2 .ea2-delay{
+  display:flex !important;
+
+  flex-wrap:wrap !important;
+
+  justify-content:center !important;
+
+  align-items:center !important;
+
+  gap:10px !important;
+
+  margin-top:15px !important;
+
+  color:#475569 !important;
+
+  font-size:14px !important;
+
+  font-weight:800 !important;
+}
+
+#ttcExampleAutoV2 .ea2-delay input{
+  width:min(260px,55vw) !important;
+
+  accent-color:var(--ea2-green) !important;
+
+  cursor:pointer !important;
+}
+
+#ttcExampleAutoV2 .ea2-status{
+  display:block !important;
+
+  min-height:20px !important;
+
+  margin-top:9px !important;
+
+  color:#64748b !important;
+
+  font-size:12px !important;
+
+  text-align:center !important;
+}
+
+#ttcExampleAutoV2 .ea2-status.locked{
+  color:#b45309 !important;
+
+  font-weight:800 !important;
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media(max-width:600px){
+
+  #ttcExampleAutoV2{
+    width:calc(100% - 16px) !important;
+
+    margin:18px auto !important;
+
+    padding:15px !important;
+
+    border-radius:18px !important;
+  }
+
+  #ttcExampleAutoV2 .ea2-card{
+    min-height:225px !important;
+
+    padding:20px 10px !important;
+  }
+
+  #ttcExampleAutoV2 .ea2-buttons .ea2-btn{
+    flex:1 1 130px !important;
+  }
+
+}
+</style>
+
+
+<section
+  id="ttcExampleAutoV2"
+  aria-label="Auto Learning câu ví dụ"
+>
+
+  <div class="ea2-title">
+    🟢 AUTO LEARNING CÂU VÍ DỤ
+  </div>
+
+  <div
+    class="ea2-hsk-row"
+    id="ttcEA2HskRow"
+  ></div>
+
+
+  <div class="ea2-card">
+
+    <div
+      class="ea2-hanzi"
+      id="ttcEA2Hanzi"
+    >
+      Đang tải…
+    </div>
+
+    <div
+      class="ea2-pinyin"
+      id="ttcEA2Pinyin"
+    ></div>
+
+    <div
+      class="ea2-meaning"
+      id="ttcEA2Meaning"
+    ></div>
+
+    <div
+      class="ea2-counter"
+      id="ttcEA2Counter"
+    >
+      0 / 0
+    </div>
+
+  </div>
+
+
+  <div class="ea2-buttons">
+
+    <button
+      type="button"
+      class="ea2-btn"
+      id="ttcEA2Prev"
+    >
+      ⬅️ Trước
+    </button>
+
+    <button
+      type="button"
+      class="ea2-btn green"
+      id="ttcEA2Auto"
+    >
+      ▶️ Tự động
+    </button>
+
+    <button
+      type="button"
+      class="ea2-btn"
+      id="ttcEA2Next"
+    >
+      Sau ➡️
+    </button>
+
+  </div>
+
+
+  <div class="ea2-buttons">
+
+    <button
+      type="button"
+      class="ea2-btn"
+      id="ttcEA2Loop"
+    >
+      🔁 Lặp: Tắt
+    </button>
+
+    <button
+      type="button"
+      class="ea2-btn"
+      id="ttcEA2Zh"
+    >
+      🔊 中文
+    </button>
+
+    <button
+      type="button"
+      class="ea2-btn"
+      id="ttcEA2Vi"
+    >
+      🇻🇳 Nghĩa
+    </button>
+
+  </div>
+
+
+  <div class="ea2-delay">
+
+    <span>
+      ⏱️ Khoảng nghỉ:
+      <strong id="ttcEA2DelayValue">3</strong>
+      giây
+    </span>
+
+    <input
+      id="ttcEA2Delay"
+      type="range"
+      min="0"
+      max="7"
+      step="1"
+      value="3"
+    >
+
+  </div>
+
+
+  <div class="ea2-buttons">
+
+    <button
+      type="button"
+      class="ea2-btn reset"
+      id="ttcEA2Reset"
+    >
+      🔄 Học lại từ đầu
+    </button>
+
+  </div>
+
+
+  <div
+    class="ea2-status"
+    id="ttcEA2Status"
+  ></div>
+
+</section>
+
+
+<script>
+(function(){
+
+  "use strict";
+
+
+  /* =========================================================
+     🛡️ CHỐNG KHỞI TẠO TRÙNG
+     ========================================================= */
+
+  if(window.__TTC_EXAMPLE_AUTO_V2__){
+
+    return;
+
+  }
+
+  window.__TTC_EXAMPLE_AUTO_V2__ = true;
+
+
+  /* =========================================================
+     🚀 START
+     ========================================================= */
+
+  function start(){
+
+    const root =
+      document.getElementById(
+        "ttcExampleAutoV2"
+      );
+
+    if(!root){
+
+      return;
+
+    }
+
+
+    const $ =
+      id =>
+        document.getElementById(id);
+
+
+    const hskRow =
+      $("ttcEA2HskRow");
+
+    const hanzi =
+      $("ttcEA2Hanzi");
+
+    const pinyin =
+      $("ttcEA2Pinyin");
+
+    const meaning =
+      $("ttcEA2Meaning");
+
+    const counter =
+      $("ttcEA2Counter");
+
+    const status =
+      $("ttcEA2Status");
+
+    const delay =
+      $("ttcEA2Delay");
+
+    const delayValue =
+      $("ttcEA2DelayValue");
+
+    const prev =
+      $("ttcEA2Prev");
+
+    const next =
+      $("ttcEA2Next");
+
+    const auto =
+      $("ttcEA2Auto");
+
+    const loop =
+      $("ttcEA2Loop");
+
+    const zh =
+      $("ttcEA2Zh");
+
+    const vi =
+      $("ttcEA2Vi");
+
+    const reset =
+      $("ttcEA2Reset");
+
+
+    /* =======================================================
+       💾 STORAGE RIÊNG
+       ======================================================= */
+
+    const KEY_HSK =
+      "ttc_example_auto_v2_hsk";
+
+    const KEY_LOOP =
+      "ttc_example_auto_v2_loop";
+
+    const KEY_DELAY =
+      "ttc_example_auto_v2_delay";
+
+
+    function indexKey(hsk){
+
+      return (
+        "ttc_example_auto_v2_index_" +
+        hsk
+      );
+
+    }
+
+
+    let currentHSK =
+      Number(
+        localStorage.getItem(KEY_HSK) || 1
+      );
+
+
+    if(
+      !Number.isFinite(currentHSK) ||
+      currentHSK < 1 ||
+      currentHSK > 9
+    ){
+
+      currentHSK = 1;
+
+    }
+
+
+    let index =
+      Number(
+        localStorage.getItem(
+          indexKey(currentHSK)
+        ) || 0
+      );
+
+
+    let list = [];
+
+    let timer = null;
+
+    let running = false;
+
+    let looping =
+      localStorage.getItem(KEY_LOOP) === "1";
+
+    let showMeaning = true;
+
+
+    let gap =
+      Number(
+        localStorage.getItem(KEY_DELAY) || 3
+      );
+
+
+    if(
+      !Number.isFinite(gap) ||
+      gap < 0 ||
+      gap > 7
+    ){
+
+      gap = 3;
+
+    }
+
+
+    delay.value = gap;
+
+    delayValue.textContent = gap;
+
+
+    /* =======================================================
+       📚 LẤY WORDS HIỆN TẠI
+       ======================================================= */
+
+    function getWords(){
+
+      if(
+        Array.isArray(window.words)
+      ){
+
+        return window.words;
+
+      }
+
+      try{
+
+        if(
+          typeof words !== "undefined" &&
+          Array.isArray(words)
+        ){
+
+          return words;
+
+        }
+
+      }catch(e){}
+
+
+      return [];
+
+    }
+
+
+    /* =======================================================
+       🔒 PREMIUM
+       ======================================================= */
+
+    async function premiumOK(){
+
+      try{
+
+        if(
+          typeof window.hasPremiumAccess ===
+          "function"
+        ){
+
+          return !!(
+            await window.hasPremiumAccess()
+          );
+
+        }
+
+      }catch(e){}
+
+
+      try{
+
+        if(
+          typeof hasPremiumAccess ===
+          "function"
+        ){
+
+          return !!(
+            await hasPremiumAccess()
+          );
+
+        }
+
+      }catch(e){}
+
+
+      return false;
+
+    }
+
+
+    /* =======================================================
+       💾 SAVE
+       ======================================================= */
+
+    function save(){
+
+      try{
+
+        localStorage.setItem(
+          KEY_HSK,
+          String(currentHSK)
+        );
+
+        localStorage.setItem(
+          indexKey(currentHSK),
+          String(index)
+        );
+
+        localStorage.setItem(
+          KEY_LOOP,
+          looping ? "1" : "0"
+        );
+
+        localStorage.setItem(
+          KEY_DELAY,
+          String(gap)
+        );
+
+      }catch(e){}
+
+    }
+
+
+    /* =======================================================
+       📚 BUILD LIST
+       ======================================================= */
+
+    function buildList(){
+
+      const source =
+        getWords();
+
+
+      list =
+        source.filter(function(w){
+
+          if(!w){
+
+            return false;
+
+          }
+
+
+          const level =
+            Number(w.hsk);
+
+
+          const example =
+            String(
+              w.example || ""
+            ).trim();
+
+
+          return (
+            level === currentHSK &&
+            example.length > 0
+          );
+
+        });
+
+
+      if(
+        index < 0 ||
+        index >= list.length
+      ){
+
+        index = 0;
+
+      }
+
+    }
+
+
+    /* =======================================================
+       🖥️ RENDER
+       ======================================================= */
+
+    function render(){
+
+      if(!list.length){
+
+        hanzi.textContent =
+          "Đang chờ dữ liệu…";
+
+        pinyin.textContent = "";
+
+        meaning.textContent = "";
+
+        counter.textContent =
+          "0 / 0";
+
+        return;
+
+      }
+
+
+      const w =
+        list[index];
+
+
+      hanzi.textContent =
+        String(
+          w.example || ""
+        );
+
+
+      pinyin.textContent =
+        String(
+          w.examplePinyin || ""
+        );
+
+
+      meaning.textContent =
+        showMeaning
+          ? String(
+              w.exampleMeaning || ""
+            )
+          : "";
+
+
+      counter.textContent =
+        (index + 1) +
+        " / " +
+        list.length;
+
+
+      save();
+
+    }
+
+
+    /* =======================================================
+       🔊 TÌM VOICE
+       ======================================================= */
+
+    function getVoice(language){
+
+      if(
+        !("speechSynthesis" in window)
+      ){
+
+        return null;
+
+      }
+
+
+      const voices =
+        speechSynthesis.getVoices() || [];
+
+
+      if(!voices.length){
+
+        return null;
+
+      }
+
+
+      const wanted =
+        language.toLowerCase();
+
+
+      /* Ưu tiên chính xác */
+
+      let voice =
+        voices.find(function(v){
+
+          return (
+            String(v.lang || "")
+              .toLowerCase() === wanted
+          );
+
+        });
+
+
+      if(voice){
+
+        return voice;
+
+      }
+
+
+      /* Sau đó tìm cùng ngôn ngữ */
+
+      const base =
+        wanted.split("-")[0];
+
+
+      voice =
+        voices.find(function(v){
+
+          return String(v.lang || "")
+            .toLowerCase()
+            .split("-")[0] === base;
+
+        });
+
+
+      if(voice){
+
+        return voice;
+
+      }
+
+
+      /* Cuối cùng tìm tên voice */
+
+      if(base === "vi"){
+
+        voice =
+          voices.find(function(v){
+
+            return /viet|vietnam|việt/i
+              .test(
+                String(v.name || "")
+              );
+
+          });
+
+        if(voice){
+
+          return voice;
+
+        }
+
+      }
+
+
+      if(base === "zh"){
+
+        voice =
+          voices.find(function(v){
+
+            return /chinese|mandarin|中文|普通话/i
+              .test(
+                String(v.name || "")
+              );
+
+          });
+
+        if(voice){
+
+          return voice;
+
+        }
+
+      }
+
+
+      return null;
+
+    }
+
+
+    /* =======================================================
+       🔊 ĐỌC
+       ======================================================= */
+
+    function speak(text,language){
+
+      if(
+        !text ||
+        !("speechSynthesis" in window)
+      ){
+
+        status.textContent =
+          "⚠️ Trình duyệt không hỗ trợ đọc âm thanh.";
+
+        return;
+
+      }
+
+
+      try{
+
+        speechSynthesis.cancel();
+
+        speechSynthesis.resume();
+
+
+        const utterance =
+          new SpeechSynthesisUtterance(
+            String(text)
+          );
+
+
+        utterance.lang =
+          language;
+
+
+        utterance.rate =
+          language === "vi-VN"
+            ? 0.95
+            : 0.9;
+
+
+        const voice =
+          getVoice(language);
+
+
+        if(voice){
+
+          utterance.voice =
+            voice;
+
+        }
+
+
+        utterance.onstart =
+          function(){
+
+            status.textContent =
+              "🔊 Đang phát âm…";
+
+          };
+
+
+        utterance.onend =
+          function(){
+
+            if(!running){
+
+              status.textContent = "";
+
+            }
+
+          };
+
+
+        utterance.onerror =
+          function(){
+
+            status.textContent =
+              language === "vi-VN"
+                ? "⚠️ Không tìm thấy giọng Việt trên thiết bị."
+                : "⚠️ Không phát được âm thanh.";
+
+          };
+
+
+        speechSynthesis.speak(
+          utterance
+        );
+
+
+      }catch(error){
+
+        console.warn(
+          "TTC Example Auto V2 TTS:",
+          error
+        );
+
+      }
+
+    }
+
+
+    /* =======================================================
+       🔊 CHỜ VOICE TẢI
+       ======================================================= */
+
+    if(
+      "speechSynthesis" in window &&
+      typeof speechSynthesis.addEventListener ===
+      "function"
+    ){
+
+      speechSynthesis.addEventListener(
+        "voiceschanged",
+        function(){
+
+          /*
+           * Không tự phát âm.
+           * Chỉ giúp trình duyệt nạp danh sách voice
+           * trước khi anh bấm nút 🇻🇳 / 🇨🇳.
+           */
+
+          getVoice("vi-VN");
+
+          getVoice("zh-CN");
+
+        }
+      );
+
+    }
+
+
+    /* =======================================================
+       ⏹️ STOP
+       ======================================================= */
+
+    function stop(){
+
+      running = false;
+
+
+      if(timer){
+
+        clearTimeout(timer);
+
+        timer = null;
+
+      }
+
+
+      auto.textContent =
+        "▶️ Tự động";
+
+    }
+
+
+    /* =======================================================
+       ⏱️ AUTO SCHEDULE
+       ======================================================= */
+
+    function schedule(){
+
+  if(
+    !running ||
+    !list.length
+  ){
+
+    return;
+
+  }
+
+
+  if(timer){
+
+    clearTimeout(timer);
+
+  }
+
+
+  /*
+   * 🟢 AUTO LEARNING CÂU VÍ DỤ
+   *
+   * 1. Đọc câu tiếng Trung
+   * 2. Chờ đúng khoảng nghỉ anh chọn
+   * 3. Đọc nghĩa tiếng Việt
+   * 4. Chờ tiếp
+   * 5. Sang câu tiếp theo
+   */
+
+
+  timer =
+    setTimeout(
+      function(){
+
+        timer = null;
+
+
+        if(!running){
+
+          return;
+
+        }
+
+
+        const current =
+          list[index];
+
+
+        if(!current){
+
+          stop();
+
+          return;
+
+        }
+
+
+        /*
+         * 🇻🇳 Đọc nghĩa tiếng Việt
+         */
+
+        const vietnamese =
+          String(
+            current.exampleMeaning || ""
+          ).trim();
+
+
+        if(vietnamese){
+
+          speak(
+            vietnamese,
+            "vi-VN"
+          );
+
+        }
+
+
+        /*
+         * Sau khi đọc nghĩa Việt xong,
+         * mới chuyển sang câu tiếp theo.
+         */
+
+        const nextDelay =
+          Math.max(
+            gap * 1000,
+            1200
+          );
+
+
+        timer =
+          setTimeout(
+            function(){
+
+              timer = null;
+
+
+              if(!running){
+
+                return;
+
+              }
+
+
+              /*
+               * ➡️ Sang câu tiếp theo
+               */
+
+              if(
+                index <
+                list.length - 1
+              ){
+
+                index++;
+
+              }else if(looping){
+
+                index = 0;
+
+              }else{
+
+                stop();
+
+                return;
+
+              }
+
+
+              render();
+
+
+              /*
+               * 🇨🇳 Đọc câu Trung mới
+               */
+
+              speak(
+                String(
+                  list[index].example || ""
+                ),
+                "zh-CN"
+              );
+
+
+              /*
+               * Tiếp tục vòng Auto
+               */
+
+              schedule();
+
+
+            },
+            nextDelay
+          );
+
+
+      },
+      gap * 1000
+    );
+
+}
+
+    /* =======================================================
+       ⬅️ / ➡️
+       ======================================================= */
+
+    function move(step){
+
+      stop();
+
+      if(!list.length){
+
+        return;
+
+      }
+
+
+      index += step;
+
+
+      if(index < 0){
+
+        index = 0;
+
+      }
+
+
+      if(
+        index >= list.length
+      ){
+
+        if(looping){
+
+          index = 0;
+
+        }else{
+
+          index =
+            list.length - 1;
+
+        }
+
+      }
+
+
+      render();
+
+    }
+
+
+    /* =======================================================
+       🟢 HSK BUTTONS
+       ======================================================= */
+
+    function renderHSKButtons(){
+
+      hskRow.innerHTML = "";
+
+
+      for(
+        let n = 1;
+        n <= 9;
+        n++
+      ){
+
+        const button =
+          document.createElement(
+            "button"
+          );
+
+
+        button.type =
+          "button";
+
+
+        button.className =
+          "ea2-hsk";
+
+
+        button.textContent =
+          "HSK " + n;
+
+
+        if(
+          n === currentHSK
+        ){
+
+          button.classList.add(
+            "active"
+          );
+
+        }
+
+
+        button.addEventListener(
+          "click",
+          async function(){
+
+            if(n >= 2){
+
+              const ok =
+                await premiumOK();
+
+
+              if(!ok){
+
+                status.className =
+                  "ea2-status locked";
+
+
+                status.textContent =
+                  "🔒 HSK " +
+                  n +
+                  " dành cho Premium.";
+
+
+                return;
+
+              }
+
+            }
+
+
+            stop();
+
+
+            currentHSK = n;
+
+
+            index =
+              Number(
+                localStorage.getItem(
+                  indexKey(n)
+                ) || 0
+              );
+
+
+            buildList();
+
+
+            renderHSKButtons();
+
+            render();
+
+
+            status.className =
+              "ea2-status";
+
+
+            status.textContent = "";
+
+          }
+        );
+
+
+        hskRow.appendChild(
+          button
+        );
+
+      }
+
+    }
+
+
+    /* =======================================================
+       ⬅️ TRƯỚC
+       ======================================================= */
+
+    prev.addEventListener(
+      "click",
+      function(){
+
+        move(-1);
+
+      }
+    );
+
+
+    /* =======================================================
+       ➡️ SAU
+       ======================================================= */
+
+    next.addEventListener(
+      "click",
+      function(){
+
+        move(1);
+
+      }
+    );
+
+
+    /* =======================================================
+       ▶️ AUTO
+       ======================================================= */
+
+    auto.addEventListener(
+      "click",
+      function(){
+
+        if(!list.length){
+
+          return;
+
+        }
+
+
+        running =
+          !running;
+
+
+        if(running){
+
+          auto.textContent =
+            "⏸️ Dừng tự động";
+
+
+          speak(
+            String(
+              list[index].example || ""
+            ),
+            "zh-CN"
+          );
+
+
+          schedule();
+
+        }else{
+
+          stop();
+
+        }
+
+      }
+    );
+
+
+    /* =======================================================
+       🔁 LOOP
+       ======================================================= */
+
+    loop.addEventListener(
+      "click",
+      function(){
+
+        looping =
+          !looping;
+
+
+        loop.textContent =
+          looping
+            ? "🔁 Lặp: Bật"
+            : "🔁 Lặp: Tắt";
+
+
+        save();
+
+      }
+    );
+
+
+    /* =======================================================
+       🇨🇳 CHINESE
+       ======================================================= */
+
+    zh.addEventListener(
+      "click",
+      function(){
+
+        if(!list.length){
+
+          return;
+
+        }
+
+
+        speak(
+          String(
+            list[index].example || ""
+          ),
+          "zh-CN"
+        );
+
+      }
+    );
+
+
+    /* =======================================================
+       🇻🇳 VIETNAMESE
+       ======================================================= */
+
+    vi.addEventListener(
+      "click",
+      function(){
+
+        if(!list.length){
+
+          return;
+
+        }
+
+
+        const text =
+          String(
+            list[index].exampleMeaning || ""
+          ).trim();
+
+
+        if(!text){
+
+          status.className =
+            "ea2-status locked";
+
+
+          status.textContent =
+            "⚠️ Câu này chưa có nghĩa tiếng Việt.";
+
+          return;
+
+        }
+
+
+        showMeaning = true;
+
+        render();
+
+
+        /*
+         * Đọc tiếng Việt.
+         * Nếu voice chưa sẵn sàng, đợi một chút
+         * rồi thử lại.
+         */
+
+        let voice =
+          getVoice("vi-VN");
+
+
+        if(voice){
+
+          speak(
+            text,
+            "vi-VN"
+          );
+
+          return;
+
+        }
+
+
+        status.className =
+          "ea2-status";
+
+
+        status.textContent =
+          "🔊 Đang tìm giọng Việt…";
+
+
+        setTimeout(
+          function(){
+
+            speak(
+              text,
+              "vi-VN"
+            );
+
+          },
+          350
+        );
+
+      }
+    );
+
+
+    /* =======================================================
+       🔄 RESET
+       ======================================================= */
+
+    reset.addEventListener(
+      "click",
+      function(){
+
+        stop();
+
+        index = 0;
+
+        render();
+
+        status.className =
+          "ea2-status";
+
+        status.textContent =
+          "Đã học lại từ đầu 🔄";
+
+      }
+    );
+
+
+    /* =======================================================
+       ⏱️ DELAY
+       ======================================================= */
+
+    delay.addEventListener(
+      "input",
+      function(){
+
+        gap =
+          Number(
+            delay.value
+          );
+
+
+        delayValue.textContent =
+          gap;
+
+
+        save();
+
+
+        if(running){
+
+          schedule();
+
+        }
+
+      }
+    );
+
+
+    /* =======================================================
+       🔁 LOOP TEXT
+       ======================================================= */
+
+    loop.textContent =
+      looping
+        ? "🔁 Lặp: Bật"
+        : "🔁 Lặp: Tắt";
+
+
+    /* =======================================================
+       📚 INIT
+       ======================================================= */
+
+    renderHSKButtons();
+
+    buildList();
+
+    render();
+
+
+    /* =======================================================
+       ⏳ NẾU WORDS CHƯA LOAD KỊP
+       thử lại mà KHÔNG đụng engine chính
+       ======================================================= */
+
+    if(!list.length){
+
+      let attempts = 0;
+
+
+      const waitForWords =
+        setInterval(
+          function(){
+
+            attempts++;
+
+
+            buildList();
+
+
+            if(list.length){
+
+              clearInterval(
+                waitForWords
+              );
+
+
+              render();
+
+              status.className =
+                "ea2-status";
+
+              status.textContent = "";
+
+              return;
+
+            }
+
+
+            if(attempts >= 20){
+
+              clearInterval(
+                waitForWords
+              );
+
+
+              status.className =
+                "ea2-status";
+
+              status.textContent =
+                "⚠️ Chưa tìm thấy câu ví dụ.";
+
+            }
+
+          },
+          500
+        );
+
+    }
+
+
+    /* =======================================================
+       📍 ĐƯA MODULE VÀO KHU VỰC NỘI DUNG CHÍNH
+       ======================================================= */
+
+    function moveToMainArea(){
+
+      /*
+       * Tìm các khu vực thường nằm ở trung tâm
+       * của giao diện TTC.
+       *
+       * Không xóa hoặc sửa nội dung nào.
+       * Chỉ thay đổi vị trí của chính section này.
+       */
+
+      const candidates = [
+
+        document.querySelector(
+          "main"
+        ),
+
+        document.querySelector(
+          "#mainContent"
+        ),
+
+        document.querySelector(
+          ".main-content"
+        ),
+
+        document.querySelector(
+          ".content"
+        ),
+
+        document.querySelector(
+          "#content"
+        ),
+
+        document.querySelector(
+          ".container"
+        )
+
+      ];
+
+
+      let target = null;
+
+
+      for(
+        const item of candidates
+      ){
+
+        if(
+          item &&
+          item !== root &&
+          !root.contains(item)
+        ){
+
+          target = item;
+
+          break;
+
+        }
+
+      }
+
+
+      if(!target){
+
+        /*
+         * Nếu trang không có container chuẩn,
+         * giữ nguyên vị trí.
+         */
+
+        return;
+
+      }
+
+
+      /*
+       * Chèn ở giữa phần nội dung hiện tại.
+       */
+
+      const children =
+        Array.from(
+          target.children
+        );
+
+
+      const usable =
+        children.filter(
+          child =>
+            child !== root
+        );
+
+
+      if(
+        usable.length >= 2
+      ){
+
+        const middle =
+          Math.ceil(
+            usable.length / 2
+          );
+
+
+        target.insertBefore(
+          root,
+          usable[middle]
+        );
+
+      }else{
+
+        target.appendChild(
+          root
+        );
+
+      }
+
+    }
+
+
+    /*
+     * Đợi DOM ổn định một chút rồi mới di chuyển.
+     * Không tác động vào engine hiện tại.
+     */
+
+    setTimeout(
+      moveToMainArea,
+      100
+    );
+
+
+  }
+
+
+  /* =========================================================
+     🚀 KHỞI ĐỘNG
+     ========================================================= */
+
+  if(
+    document.readyState ===
+    "loading"
+  ){
+
+    document.addEventListener(
+      "DOMContentLoaded",
+      start,
+      {once:true}
+    );
+
+  }else{
+
+    start();
+
+  }
+
+})();
+</script>
+
+<!-- ===================== HẾT V2 ===================== -->
+
+<!-- 🤍 DẤU ẤN HACKER MŨ TRẮNG -->
+<div id="ttcWhiteHatSignature">
+  <span>⚪</span>
+  <strong>Hacker mũ trắng tạo</strong>
+  <span>🤍</span>
+</div>
+
+<style>
+#ttcWhiteHatSignature{
+  text-align:center !important;
+  margin:28px auto 18px !important;
+  padding:8px !important;
+  font-size:13px !important;
+  font-weight:800 !important;
+  letter-spacing:.3px !important;
+  color:#16a34a !important;
+  opacity:.9 !important;
+  animation:ttcWhiteHatBlink 1.8s ease-in-out infinite !important;
+}
+
+@keyframes ttcWhiteHatBlink{
+  0%,100%{
+    opacity:.45;
+  }
+  50%{
+    opacity:1;
+  }
+}
+</style>
 </body>
 </html>
