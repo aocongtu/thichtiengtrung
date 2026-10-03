@@ -125488,6 +125488,9 @@ async function createMessageElement(message,name){
     "ttc-chat-message" +
     (mine ? " mine" : "");
 
+  /* Giữ định danh để reaction chỉ refresh đúng 1 tin nhắn */
+  wrapper.dataset.ttcMessageId = String(message.id || "");
+
 
   const avatar =
     document.createElement("div");
@@ -126744,6 +126747,37 @@ async function uploadAudio(blob){
    REACTION
    ============================================================ */
 
+async function refreshSingleReactionMessage(messageId){
+
+  if(!messagesBox) return;
+
+  const oldElement =
+    Array.from(messagesBox.children).find(
+      el =>
+        el.dataset &&
+        el.dataset.ttcMessageId === String(messageId)
+    );
+
+  if(!oldElement) return;
+
+  const message =
+    TTC_CHAT.messages.find(
+      m => String(m.id) === String(messageId)
+    );
+
+  if(!message) return;
+
+  const name =
+    await getDisplayName(message.user_id);
+
+  const newElement =
+    await createMessageElement(message,name);
+
+  oldElement.replaceWith(newElement);
+
+}
+
+
 async function toggleReaction(messageId,reaction){
 
   try{
@@ -126805,7 +126839,13 @@ async function toggleReaction(messageId,reaction){
 
     await loadReactions();
 
-    await renderMessages();
+    /*
+       KHÔNG renderMessages() ở đây.
+       Reaction trước đây dựng lại toàn bộ danh sách tin nhắn,
+       khiến mobile nhảy lên đầu / nhìn như chat bị load lại.
+       Chỉ thay đúng message vừa đổi reaction.
+    */
+    await refreshSingleReactionMessage(messageId);
 
   }catch(error){
 
@@ -127039,7 +127079,8 @@ async function subscribeRealtime(){
 
             await loadReactions();
 
-            await renderMessages();
+            /* Chỉ cập nhật message bị reaction, không reload toàn bộ chat */
+            await refreshSingleReactionMessage(affectedId);
 
           }
 
@@ -127363,7 +127404,14 @@ $("ttcChatAudio").addEventListener(
 
 $("ttcChatAttach").addEventListener(
   "click",
-  () => $("ttcChatFile").click()
+  function(event){
+    event.preventDefault();
+    event.stopPropagation();
+    const fileInput = $("ttcChatFile");
+    if(fileInput){
+      fileInput.click();
+    }
+  }
 );
 
 $("ttcChatFile").addEventListener(
@@ -127462,18 +127510,10 @@ window.closeTtcChatV1 = closeChat;
    AUTO OPEN WHEN URL HAS ?chat=
    ============================================================ */
 
-setTimeout(
-  () => {
-
-    if(getRoomFromURL()){
-
-      openChat();
-
-    }
-
-  },
-  700
-);
+/*
+ * CHAT V1 — KHÔNG TỰ ĐỘNG MỞ CHAT KHI ĐĂNG NHẬP / TẢI TRANG.
+ * Chat chỉ mở khi người dùng chủ động nhấn nút Chat Online.
+ */
 
 
 /* ============================================================
@@ -127541,7 +127581,7 @@ function createFloatingButton(){
     {
       position:"fixed",
       right:"18px",
-      bottom:"18px",
+      top:"18px",
       zIndex:"99998",
       border:"0",
       borderRadius:"999px",
@@ -127597,20 +127637,22 @@ if(
 <!-- =========================
      END CHAT V1 PACK
      ========================= -->
-<!-- =========================================================
-     💬 CHAT ONLINE — KÉO THẢ TỰ DO — SAFE VERSION
-     ========================================================= -->
 
+
+<!-- CHAT ONLINE V1 — FINAL FIX -->
 <style>
-.ttc-chat-draggable{
-  cursor:grab !important;
-  touch-action:none !important;
-  user-select:none !important;
-  -webkit-user-select:none !important;
-}
+#ttcFloatingChatBtn{top:18px !important;bottom:auto !important;}
+#ttcChatV1 .ttc-chat-composer button,
+#ttcChatV1 .ttc-chat-composer textarea,
+#ttcChatV1 .ttc-chat-composer input{touch-action:auto !important;}
 
-.ttc-chat-draggable.ttc-dragging{
-  cursor:grabbing !important;
+/* Reaction/icon buttons must never become a page-scroll gesture */
+#ttcChatV1 .ttc-reaction,
+#ttcChatV1 .ttc-message-tool,
+#ttcChatV1 .ttc-chat-actions button{
+  touch-action:manipulation !important;
+  -webkit-user-select:none;
+  user-select:none;
 }
 </style>
 
