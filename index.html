@@ -129317,6 +129317,10 @@ button.addEventListener(
      ✔ Dùng trực tiếp window.words hiện tại
      ✔ HSK1 miễn phí — HSK2 → HSK9 Premium
      ✔ localStorage riêng
+     ✔ 🆕 Có đảo chiều Auto:
+          🇨🇳 Trung → 🇻🇳 Việt
+          🇻🇳 Việt → 🇨🇳 Trung
+     ✔ 🆕 Nhớ chiều học riêng bằng localStorage
      ========================================================= -->
 
 <style>
@@ -129773,6 +129777,19 @@ button.addEventListener(
     <button
       type="button"
       class="ea2-btn"
+      id="ttcEA2Direction"
+    >
+      🔄 Chiều: 🇨🇳 Trung → 🇻🇳 Việt
+    </button>
+
+  </div>
+
+
+  <div class="ea2-buttons">
+
+    <button
+      type="button"
+      class="ea2-btn"
       id="ttcEA2Zh"
     >
       🔊 中文
@@ -129908,6 +129925,9 @@ button.addEventListener(
     const loop =
       $("ttcEA2Loop");
 
+    const direction =
+      $("ttcEA2Direction");
+
     const zh =
       $("ttcEA2Zh");
 
@@ -129930,6 +129950,9 @@ button.addEventListener(
 
     const KEY_DELAY =
       "ttc_example_auto_v2_delay";
+
+    const KEY_DIRECTION =
+      "ttc_example_auto_v2_direction";
 
 
     function indexKey(hsk){
@@ -129977,6 +130000,21 @@ button.addEventListener(
       localStorage.getItem(KEY_LOOP) === "1";
 
     let showMeaning = true;
+
+
+    /*
+     * 🆕 Hướng Auto Learning
+     *
+     * zh-vi = 中文 → Tiếng Việt
+     * vi-zh = Tiếng Việt → 中文
+     */
+
+    let directionMode =
+      localStorage.getItem(
+        KEY_DIRECTION
+      ) === "vi-zh"
+        ? "vi-zh"
+        : "zh-vi";
 
 
     let gap =
@@ -130105,6 +130143,11 @@ button.addEventListener(
           String(gap)
         );
 
+        localStorage.setItem(
+          KEY_DIRECTION,
+          directionMode
+        );
+
       }catch(e){}
 
     }
@@ -130214,6 +130257,20 @@ button.addEventListener(
 
 
       save();
+
+    }
+
+
+    /* =======================================================
+       🔄 CẬP NHẬT NÚT ĐẢO CHIỀU
+       ======================================================= */
+
+    function updateDirectionButton(){
+
+      direction.textContent =
+        directionMode === "vi-zh"
+          ? "🔄 Chiều: 🇻🇳 Việt → 🇨🇳 Trung"
+          : "🔄 Chiều: 🇨🇳 Trung → 🇻🇳 Việt";
 
     }
 
@@ -130457,12 +130514,6 @@ button.addEventListener(
         "voiceschanged",
         function(){
 
-          /*
-           * Không tự phát âm.
-           * Chỉ giúp trình duyệt nạp danh sách voice
-           * trước khi anh bấm nút 🇻🇳 / 🇨🇳.
-           */
-
           getVoice("vi-VN");
 
           getVoice("zh-CN");
@@ -130491,8 +130542,232 @@ button.addEventListener(
       }
 
 
+      /*
+       * Hủy luôn âm thanh đang phát.
+       * Giúp đổi hướng / đổi HSK không bị
+       * câu cũ tiếp tục đọc.
+       */
+
+      if(
+        "speechSynthesis" in window
+      ){
+
+        try{
+
+          speechSynthesis.cancel();
+
+        }catch(e){}
+
+      }
+
+
       auto.textContent =
         "▶️ Tự động";
+
+    }
+
+
+    /* =======================================================
+       ⏭️ SANG CÂU TIẾP THEO
+       ======================================================= */
+
+    function advance(){
+
+      if(!running){
+
+        return;
+
+      }
+
+
+      if(
+        index <
+        list.length - 1
+      ){
+
+        index++;
+
+      }else if(looping){
+
+        index = 0;
+
+      }else{
+
+        stop();
+
+        return;
+
+      }
+
+
+      render();
+
+
+      startAutoSequence();
+
+    }
+
+
+    /* =======================================================
+       🟢 AUTO — BẮT ĐẦU 1 CHU KỲ
+       ======================================================= */
+
+    function startAutoSequence(){
+
+      if(
+        !running ||
+        !list.length
+      ){
+
+        return;
+
+      }
+
+
+      const w =
+        list[index];
+
+
+      const zhText =
+        String(
+          w.example || ""
+        ).trim();
+
+
+      const viText =
+        String(
+          w.exampleMeaning || ""
+        ).trim();
+
+
+      /*
+       * 🇨🇳 → 🇻🇳
+       *
+       * Giữ nguyên hành vi cũ:
+       * đọc tiếng Trung
+       * → chờ gap
+       * → sang câu tiếp theo.
+       */
+
+      if(
+        directionMode === "zh-vi"
+      ){
+
+        if(!zhText){
+
+          advance();
+
+          return;
+
+        }
+
+
+        speak(
+          zhText,
+          "zh-CN"
+        );
+
+
+        timer =
+          setTimeout(
+            function(){
+
+              timer = null;
+
+              advance();
+
+            },
+            gap * 1000
+          );
+
+
+        return;
+
+      }
+
+
+      /*
+       * 🇻🇳 → 🇨🇳
+       *
+       * Nghĩa Việt
+       * → chờ gap
+       * → câu Trung
+       * → chờ gap
+       * → câu tiếp theo.
+       */
+
+      if(!viText){
+
+        status.className =
+          "ea2-status locked";
+
+        status.textContent =
+          "⚠️ Câu này chưa có nghĩa tiếng Việt — đang bỏ qua.";
+
+
+        timer =
+          setTimeout(
+            function(){
+
+              timer = null;
+
+              advance();
+
+            },
+            gap * 1000
+          );
+
+
+        return;
+
+      }
+
+
+      speak(
+        viText,
+        "vi-VN"
+      );
+
+
+      timer =
+        setTimeout(
+          function(){
+
+            timer = null;
+
+
+            if(!running){
+
+              return;
+
+            }
+
+
+            /*
+             * Đọc tiếng Trung của CÙNG câu.
+             */
+
+            speak(
+              zhText,
+              "zh-CN"
+            );
+
+
+            timer =
+              setTimeout(
+                function(){
+
+                  timer = null;
+
+                  advance();
+
+                },
+                gap * 1000
+              );
+
+          },
+          gap * 1000
+        );
 
     }
 
@@ -130503,163 +130778,28 @@ button.addEventListener(
 
     function schedule(){
 
-  if(
-    !running ||
-    !list.length
-  ){
+      /*
+       * Giữ tên schedule() để cấu trúc V2
+       * quen thuộc và dễ bảo trì.
+       *
+       * Thực tế toàn bộ chu kỳ được điều khiển
+       * bởi startAutoSequence().
+       */
 
-    return;
+      if(
+        !running ||
+        !list.length
+      ){
 
-  }
+        return;
 
-
-  if(timer){
-
-    clearTimeout(timer);
-
-  }
-
-
-  /*
-   * 🟢 AUTO LEARNING CÂU VÍ DỤ
-   *
-   * 1. Đọc câu tiếng Trung
-   * 2. Chờ đúng khoảng nghỉ anh chọn
-   * 3. Đọc nghĩa tiếng Việt
-   * 4. Chờ tiếp
-   * 5. Sang câu tiếp theo
-   */
+      }
 
 
-  timer =
-    setTimeout(
-      function(){
+      startAutoSequence();
 
-        timer = null;
+    }
 
-
-        if(!running){
-
-          return;
-
-        }
-
-
-        const current =
-          list[index];
-
-
-        if(!current){
-
-          stop();
-
-          return;
-
-        }
-
-
-        /*
-         * 🇻🇳 Đọc nghĩa tiếng Việt
-         */
-
-        const vietnamese =
-          String(
-            current.exampleMeaning || ""
-          ).trim();
-
-
-        if(vietnamese){
-
-          speak(
-            vietnamese,
-            "vi-VN"
-          );
-
-        }
-
-
-        /*
-         * Sau khi đọc nghĩa Việt xong,
-         * mới chuyển sang câu tiếp theo.
-         */
-
-        const nextDelay =
-          Math.max(
-            gap * 1000,
-            1200
-          );
-
-
-        timer =
-          setTimeout(
-            function(){
-
-              timer = null;
-
-
-              if(!running){
-
-                return;
-
-              }
-
-
-              /*
-               * ➡️ Sang câu tiếp theo
-               */
-
-              if(
-                index <
-                list.length - 1
-              ){
-
-                index++;
-
-              }else if(looping){
-
-                index = 0;
-
-              }else{
-
-                stop();
-
-                return;
-
-              }
-
-
-              render();
-
-
-              /*
-               * 🇨🇳 Đọc câu Trung mới
-               */
-
-              speak(
-                String(
-                  list[index].example || ""
-                ),
-                "zh-CN"
-              );
-
-
-              /*
-               * Tiếp tục vòng Auto
-               */
-
-              schedule();
-
-
-            },
-            nextDelay
-          );
-
-
-      },
-      gap * 1000
-    );
-
-}
 
     /* =======================================================
        ⬅️ / ➡️
@@ -130866,31 +131006,23 @@ button.addEventListener(
         }
 
 
-        running =
-          !running;
-
-
         if(running){
-
-          auto.textContent =
-            "⏸️ Dừng tự động";
-
-
-          speak(
-            String(
-              list[index].example || ""
-            ),
-            "zh-CN"
-          );
-
-
-          schedule();
-
-        }else{
 
           stop();
 
+          return;
+
         }
+
+
+        running = true;
+
+
+        auto.textContent =
+          "⏸️ Dừng tự động";
+
+
+        schedule();
 
       }
     );
@@ -130915,6 +131047,47 @@ button.addEventListener(
 
 
         save();
+
+      }
+    );
+
+
+    /* =======================================================
+       🔄 ĐẢO CHIỀU AUTO
+       ======================================================= */
+
+    direction.addEventListener(
+      "click",
+      function(){
+
+        /*
+         * Nếu đang Auto thì dừng trước.
+         * Tránh câu Việt cũ / Trung cũ
+         * bị chồng với hướng mới.
+         */
+
+        stop();
+
+
+        directionMode =
+          directionMode === "zh-vi"
+            ? "vi-zh"
+            : "zh-vi";
+
+
+        updateDirectionButton();
+
+        save();
+
+
+        status.className =
+          "ea2-status";
+
+
+        status.textContent =
+          directionMode === "vi-zh"
+            ? "🔄 Đã chuyển: 🇻🇳 Việt → 🇨🇳 Trung"
+            : "🔄 Đã chuyển: 🇨🇳 Trung → 🇻🇳 Việt";
 
       }
     );
@@ -131077,9 +131250,24 @@ button.addEventListener(
         save();
 
 
+        /*
+         * Nếu đang chạy:
+         * hủy timer cũ rồi bắt đầu lại chu kỳ
+         * theo khoảng nghỉ mới.
+         */
+
         if(running){
 
-          schedule();
+          if(timer){
+
+            clearTimeout(timer);
+
+            timer = null;
+
+          }
+
+
+          startAutoSequence();
 
         }
 
@@ -131095,6 +131283,13 @@ button.addEventListener(
       looping
         ? "🔁 Lặp: Bật"
         : "🔁 Lặp: Tắt";
+
+
+    /* =======================================================
+       🔄 DIRECTION TEXT
+       ======================================================= */
+
+    updateDirectionButton();
 
 
     /* =======================================================
@@ -131328,7 +131523,6 @@ button.addEventListener(
 </script>
 
 <!-- ===================== HẾT V2 ===================== -->
-
 <!-- 🤍 DẤU ẤN HACKER MŨ TRẮNG -->
 <div id="ttcWhiteHatSignature">
   <span>⚪</span>
