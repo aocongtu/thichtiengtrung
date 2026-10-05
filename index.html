@@ -79905,12 +79905,14 @@ const words = [
   window.__TTC_GUSHI_HSK789_LOADER__ = true;
 
   const SOURCE_URLS = {
+    6:"https://gushi-chinese.online/hsk-3.0/downloads/hsk-3.0-words-6.json",
     7:"https://gushi-chinese.online/hsk-3.0/downloads/hsk-3.0-words-7.json",
     8:"https://gushi-chinese.online/hsk-3.0/downloads/hsk-3.0-words-8.json",
     9:"https://gushi-chinese.online/hsk-3.0/downloads/hsk-3.0-words-9.json"
   };
 
   const expected = {
+    6:1800,
     7:1867,
     8:1867,
     9:1866
@@ -79926,8 +79928,16 @@ const words = [
     const map = new Map();
 
     for(const word of words){
-      if(Number(word.hsk) >= 7 && word.h){
-        map.set(String(word.h), word);
+      if(Number(word.hsk) >= 6 && word.h){
+        const key =
+          String(word.h) + "|" +
+          String(word.p || "");
+        if(!map.has(key)){
+          map.set(key, word);
+        }
+        if(!map.has(String(word.h))){
+          map.set(String(word.h), word);
+        }
       }
     }
 
@@ -79976,7 +79986,10 @@ const words = [
           old?.exampleMeaning ||
           exampleMeaning ||
           ""
-        ).trim()
+        ).trim(),
+
+      __ttcVietnamese:
+        !!old?.m
     };
   }
 
@@ -80025,6 +80038,7 @@ const words = [
 
       const results =
         await Promise.all([
+          loadLevel(6),
           loadLevel(7),
           loadLevel(8),
           loadLevel(9)
@@ -80043,6 +80057,10 @@ const words = [
             convert(
               source,
               old.get(
+                String(source.hanzi || "") + "|" +
+                String(source.pinyin || "")
+              ) ||
+              old.get(
                 String(source.hanzi || "")
               )
             );
@@ -80052,14 +80070,19 @@ const words = [
           }
 
           /*
-             HSK7–9 phải có đúng một bản ghi
-             cho mỗi Hán tự trong nguồn.
+             Mỗi cặp Hán tự + Pinyin là một mục từ.
+             Cho phép homograph hợp lệ như 重 chóng / 重 zhòng,
+             nhưng loại bản ghi trùng hoàn toàn.
           */
-          if(seenWords.has(item.h)){
+          const wordKey =
+            String(item.h) + "|" +
+            String(item.p || "");
+
+          if(seenWords.has(wordKey)){
             continue;
           }
 
-          seenWords.add(item.h);
+          seenWords.add(wordKey);
 
           /*
              Không để câu ví dụ mới bị trùng trong
@@ -80093,7 +80116,7 @@ const words = [
       */
       for(let i=words.length-1;i>=0;i--){
 
-        if(Number(words[i].hsk) >= 7){
+        if(Number(words[i].hsk) >= 6){
           words.splice(i,1);
         }
 
@@ -80102,18 +80125,20 @@ const words = [
       words.push(...incoming);
 
       window.TTC_GUSHI_HSK789_READY = true;
+      window.TTC_GUSHI_HSK6_READY = true;
       window.TTC_GUSHI_HSK789_COUNTS = {
+        6:incoming.filter(x=>x.hsk===6).length,
         7:incoming.filter(x=>x.hsk===7).length,
         8:incoming.filter(x=>x.hsk===8).length,
         9:incoming.filter(x=>x.hsk===9).length
       };
 
       /*
-         Đồng bộ giao diện nếu người học đang ở HSK7–9.
+         Đồng bộ giao diện nếu người học đang ở HSK6–9.
       */
       if(
         typeof currentHSK !== "undefined" &&
-        currentHSK >= 7
+        currentHSK >= 6
       ){
 
         currentList =
@@ -80151,7 +80176,7 @@ const words = [
       }
 
       console.log(
-        "🇨🇳 Gushi HSK7–9 synced:",
+        "🇨🇳 Gushi HSK6–9 synced:",
         window.TTC_GUSHI_HSK789_COUNTS
       );
 
@@ -80171,7 +80196,7 @@ const words = [
           words.filter(function(w){
 
             return (
-              Number(w.hsk) >= 7 &&
+              Number(w.hsk) >= 6 &&
               w.m &&
               !w.__ttcVietnamese
             );
@@ -80188,7 +80213,7 @@ const words = [
           cache =
             JSON.parse(
               localStorage.getItem(
-                "ttc_gushi789_vi_meanings_v1"
+                "ttc_gushi_vi_meanings_v2"
               ) || "{}"
             ) || {};
         }catch(e){}
@@ -80302,7 +80327,7 @@ const words = [
 
               try{
                 localStorage.setItem(
-                  "ttc_gushi789_vi_meanings_v1",
+                  "ttc_gushi_vi_meanings_v2",
                   JSON.stringify(cache)
                 );
               }catch(e){}
@@ -80335,7 +80360,7 @@ const words = [
         */
         if(
           typeof currentHSK !== "undefined" &&
-          currentHSK >= 7 &&
+          currentHSK >= 6 &&
           typeof render === "function"
         ){
 
@@ -80360,7 +80385,7 @@ const words = [
     }catch(error){
 
       console.warn(
-        "⚠️ Gushi HSK7–9 chưa đồng bộ:",
+        "⚠️ Gushi HSK6–9 chưa đồng bộ:",
         error
       );
 
@@ -113940,6 +113965,24 @@ window.saySentence =
   display:block;
 }
 
+@media(max-width:900px){
+  .wh-hsk-level-grid{
+    grid-template-columns:repeat(5,1fr);
+  }
+}
+
+@media(max-width:600px){
+  .wh-hsk-level-grid{
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+  }
+
+  .wh-hsk-level{
+    min-height:56px;
+    font-size:14px !important;
+  }
+}
+
 
 /* =========================================================
    HEADER
@@ -113996,7 +114039,7 @@ window.saySentence =
   display:grid;
 
   grid-template-columns:
-    repeat(6,1fr);
+    repeat(9,1fr);
 
   gap:10px;
 
@@ -114917,6 +114960,27 @@ window.saySentence =
         data-hsk="6"
       >
         HSK 6
+      </button>
+
+      <button
+        class="wh-hsk-level"
+        data-hsk="7"
+      >
+        HSK 7
+      </button>
+
+      <button
+        class="wh-hsk-level"
+        data-hsk="8"
+      >
+        HSK 8
+      </button>
+
+      <button
+        class="wh-hsk-level"
+        data-hsk="9"
+      >
+        HSK 9
       </button>
 
     </div>
@@ -116385,118 +116449,146 @@ function openTestList(){
       ? "LUYỆN TẬP"
       : "THI THỬ";
 
-
   testTitle.textContent =
     "HSK " +
     currentHsk +
     " — " +
     modeText;
 
+  testList.innerHTML = "";
+  selectLeaderboard.innerHTML = "";
 
-  testList.innerHTML =
-    "";
+  /*
+     🇨🇳 NGUỒN ĐỀ CHÍNH THỨC
+     Không sao chép nguyên văn đề có bản quyền vào HTML.
+     Người học mở trực tiếp PDF chính thức từ Chinese Test.
+  */
+  const OFFICIAL = {
+    1:{
+      pdf:"https://admin.chinesetest.cn/userfiles/file/HSK/level1/H10901.pdf",
+      label:"HSK 1 · H10901 · 40 câu"
+    },
+    2:{
+      pdf:"https://admin.chinesetest.cn/userfiles/file/HSK/level2/H20901.pdf",
+      label:"HSK 2 · H20901 · 60 câu"
+    },
+    3:{
+      pdf:"https://admin.chinesetest.cn/userfiles/file/HSK/level3/H31001.pdf",
+      label:"HSK 3 · H31001"
+    },
+    4:{
+      pdf:"https://admin.chinesetest.cn/userfiles/file/HSK/level4/H41001.pdf",
+      label:"HSK 4 · H41001"
+    },
+    5:{
+      pdf:"https://admin.chinesetest.cn/userfiles/file/HSK/level5/H51001.pdf",
+      label:"HSK 5 · H51001"
+    },
+    6:{
+      pdf:"https://admin.chinesetest.cn/userfiles/file/HSK/level6/H61001.pdf",
+      label:"HSK 6 · H61001"
+    },
+    7:{
+      pdf:"https://admin.chinesetest.cn/userfiles/file/HSK/level7-9/HSK7-9.pdf",
+      label:"HSK 7–9 · Bộ mẫu chính thức"
+    },
+    8:{
+      pdf:"https://admin.chinesetest.cn/userfiles/file/HSK/level7-9/HSK7-9.pdf",
+      label:"HSK 7–9 · Bộ mẫu chính thức"
+    },
+    9:{
+      pdf:"https://admin.chinesetest.cn/userfiles/file/HSK/level7-9/HSK7-9.pdf",
+      label:"HSK 7–9 · Bộ mẫu chính thức"
+    }
+  };
 
+  const source = OFFICIAL[currentHsk];
 
-  selectLeaderboard.innerHTML =
-    "";
-
-
-  if(
-    currentHsk === 1
-  ){
+  if(currentHsk === 1){
 
     const btn =
-      document.createElement(
-        "button"
-      );
+      document.createElement("button");
 
+    btn.className = "wh-hsk-test";
+    btn.textContent = "📝 ĐỀ NỘI BỘ TTC · ĐỀ 01";
 
-    btn.className =
-      "wh-hsk-test";
+    btn.onclick = function(){
+      currentExamNumber = 1;
+      startExam();
+    };
 
+    testList.appendChild(btn);
 
-    btn.textContent =
-      "📝 ĐỀ SỐ 01";
-
-
-    btn.onclick =
-      function(){
-
-        currentExamNumber =
-          1;
-
-        startExam();
-
-      };
-
-
-    testList.appendChild(
-      btn
-    );
-
-
-    /*
-    ---------------------------------------------------------
-    Bảng thành tích chỉ xuất hiện ở THI THỬ
-    ---------------------------------------------------------
-    */
-
-    if(
-      currentMode ===
-      "mock"
-    ){
-
+    if(currentMode === "mock"){
       renderLeaderboard(
         selectLeaderboard,
         currentHsk,
         currentExamNumber
       );
-
     }
-
-  }else{
-
-    const btn =
-      document.createElement(
-        "button"
-      );
-
-
-    btn.className =
-      "wh-hsk-test";
-
-
-    btn.textContent =
-      "🔒 Đề HSK " +
-      currentHsk +
-      " đang chuẩn bị";
-
-
-    btn.onclick =
-      function(){
-
-        alert(
-          "Đề HSK " +
-          currentHsk +
-          " sẽ được bổ sung sau."
-        );
-
-      };
-
-
-    testList.appendChild(
-      btn
-    );
 
   }
 
+  if(source){
 
-  showScreen(
-    testSelect
-  );
+    const officialBtn =
+      document.createElement("button");
+
+    officialBtn.className =
+      "wh-hsk-test wh-hsk-official-test";
+
+    officialBtn.type = "button";
+    officialBtn.textContent =
+      "🇨🇳 MỞ " + source.label;
+
+    officialBtn.onclick = function(){
+      window.open(
+        source.pdf,
+        "_blank",
+        "noopener,noreferrer"
+      );
+    };
+
+    testList.appendChild(officialBtn);
+
+    const audioBtn =
+      document.createElement("button");
+
+    audioBtn.className =
+      "wh-hsk-test wh-hsk-official-test";
+
+    audioBtn.type = "button";
+    audioBtn.textContent =
+      "🎧 AUDIO / TÀI LIỆU CHÍNH THỨC";
+
+    audioBtn.onclick = function(){
+      window.open(
+        "https://admin.chinesetest.cn/audio.do",
+        "_blank",
+        "noopener,noreferrer"
+      );
+    };
+
+    testList.appendChild(audioBtn);
+
+    const note =
+      document.createElement("div");
+
+    note.className =
+      "wh-hsk-official-note";
+
+    note.innerHTML =
+      "Nguồn đề: <strong>Chinese Test</strong> · " +
+      "mở trực tiếp tài liệu chính thức để giữ nguyên " +
+      "cấu trúc đề, đáp án và phần nghe.";
+
+    testList.appendChild(note);
+
+  }
+
+  showScreen(testSelect);
 
 }
-
 
 /* =========================================================
    🚀 START
@@ -127189,12 +127281,16 @@ async function sendText(){
   TTC_CHAT._lastSend = now;
 
   input.value = "";
-
   autoResizeInput();
 
   try{
 
-    const {error} =
+    /*
+       🚀 OPTIMISTIC CHAT
+       Lấy ngay bản ghi vừa insert và append đúng 1 tin nhắn.
+       Không render lại toàn bộ khung chat → không cuộn về đầu.
+    */
+    const result =
       await TTC_CHAT.client
         .from("community_messages")
         .insert({
@@ -127212,17 +127308,62 @@ async function sendText(){
           reply_to_id:
             TTC_CHAT.replyTo?.id || null
 
-        });
+        })
+        .select("*")
+        .single();
 
-    if(error) throw error;
+    if(result.error) throw result.error;
+
+    const inserted =
+      result.data;
+
+    if(inserted){
+
+      const exists =
+        TTC_CHAT.messages.some(
+          m => m.id === inserted.id
+        );
+
+      if(!exists){
+
+        TTC_CHAT.messages.push(
+          inserted
+        );
+
+        await loadReactions();
+
+        const name =
+          await getDisplayName(
+            inserted.user_id
+          );
+
+        const element =
+          await createMessageElement(
+            inserted,
+            name
+          );
+
+        messagesBox.appendChild(
+          element
+        );
+
+        scrollToBottom();
+
+      }
+
+    }
 
     cancelReply();
 
   }catch(error){
 
-    console.error(error);
+    console.error(
+      "[TTC CHAT SEND]",
+      error
+    );
 
     input.value = text;
+    autoResizeInput();
 
     setStatus(
       "Không gửi được tin nhắn: " +
@@ -127233,7 +127374,6 @@ async function sendText(){
   }
 
 }
-
 
 /* ============================================================
    UPLOAD FILE
@@ -127820,6 +127960,40 @@ async function subscribeRealtime(){
               TTC_CHAT.messages.push(
                 payload.new
               );
+
+              /*
+                 🚀 Tin nhắn của chính người gửi:
+                 không dựng lại toàn bộ DOM.
+                 Chỉ append đúng bubble mới → không cuộn ngược.
+              */
+              if(
+                TTC_CHAT.user &&
+                payload.new.user_id ===
+                TTC_CHAT.user.id
+              ){
+
+                await loadReactions();
+
+                const ownName =
+                  await getDisplayName(
+                    payload.new.user_id
+                  );
+
+                const ownElement =
+                  await createMessageElement(
+                    payload.new,
+                    ownName
+                  );
+
+                messagesBox.appendChild(
+                  ownElement
+                );
+
+                scrollToBottom();
+
+                return;
+
+              }
 
               const nearBottom =
                 isNearBottom();
@@ -132632,7 +132806,17 @@ button.addEventListener(
       }
 
       if(audioContext.state === "suspended"){
-        audioContext.resume().catch(function(){});
+        try{
+          const resumeResult =
+            audioContext.resume();
+
+          if(
+            resumeResult &&
+            typeof resumeResult.catch === "function"
+          ){
+            resumeResult.catch(function(){});
+          }
+        }catch(e){}
       }
 
       return audioContext;
@@ -133035,6 +133219,477 @@ body > #accountSystem{
 })();
 </script>
 
+
+
+<!-- =========================================================
+ 🛡️ TTC WHITE HAT — GUSHI HSK1–5 AUDIT V1
+ - Nguồn chuẩn: Gushi HSK 3.0 downloads
+ - Chỉ thay HSK1–5 sau khi tải đủ đúng số lượng.
+ - Pinyin + câu ví dụ lấy theo Gushi.
+ - Nghĩa tiếng Việt / radical / components / explanation cũ
+   được giữ lại nếu cùng Hán tự.
+ - Không làm gì nếu tải nguồn thất bại.
+========================================================= -->
+<script>
+(function(){
+  "use strict";
+
+  if(window.__TTC_GUSHI_HSK15_AUDIT_V1__) return;
+  window.__TTC_GUSHI_HSK15_AUDIT_V1__ = true;
+
+  const SOURCE_URLS = {
+    1:"https://gushi-chinese.online/hsk-3.0/downloads/hsk-3.0-words-1.json",
+    2:"https://gushi-chinese.online/hsk-3.0/downloads/hsk-3.0-words-2.json",
+    3:"https://gushi-chinese.online/hsk-3.0/downloads/hsk-3.0-words-3.json",
+    4:"https://gushi-chinese.online/hsk-3.0/downloads/hsk-3.0-words-4.json",
+    5:"https://gushi-chinese.online/hsk-3.0/downloads/hsk-3.0-words-5.json"
+  };
+
+  const EXPECTED = {
+    1:300,
+    2:200,
+    3:500,
+    4:1000,
+    5:1600
+  };
+
+  function oldMap(){
+    const map = new Map();
+
+    for(const word of words){
+      const level = Number(word.hsk);
+      if(level < 1 || level > 5 || !word.h) continue;
+
+      const key =
+        String(word.h) + "|" +
+        String(word.p || "");
+
+      if(!map.has(key)){
+        map.set(key,word);
+      }
+
+      if(!map.has(String(word.h))){
+        map.set(String(word.h),word);
+      }
+    }
+
+    return map;
+  }
+
+  function convert(source,old){
+    const h = String(source.hanzi || "").trim();
+    if(!h) return null;
+
+    return {
+      h:h,
+      p:String(source.pinyin || "").trim(),
+      m:String(
+        old?.m ||
+        source.meaning ||
+        ""
+      ).trim(),
+      t:String(old?.t || "Từ vựng").trim(),
+      hsk:Number(source.level || 0),
+      radical:String(old?.radical || "").trim(),
+      components:String(old?.components || "").trim(),
+      explanation:String(old?.explanation || "").trim(),
+      example:String(source.exampleChinese || old?.example || "").trim(),
+      examplePinyin:String(source.examplePinyin || old?.examplePinyin || "").trim(),
+      exampleMeaning:String(old?.exampleMeaning || "").trim(),
+
+      __ttcVietnamese:
+        !!old?.m
+    };
+  }
+
+  async function load(level){
+    const response = await fetch(
+      SOURCE_URLS[level],
+      {cache:"no-store"}
+    );
+
+    if(!response.ok){
+      throw new Error(
+        "Gushi HSK " + level +
+        " HTTP " + response.status
+      );
+    }
+
+    const json = await response.json();
+    const data =
+      Array.isArray(json.data) ? json.data : [];
+
+    if(data.length !== EXPECTED[level]){
+      throw new Error(
+        "HSK " + level +
+        ": nhận " + data.length +
+        "/" + EXPECTED[level]
+      );
+    }
+
+    return data;
+  }
+
+  async function translateMissing(items){
+    const pending =
+      items.filter(w =>
+        w &&
+        w.m &&
+        !w.__ttcVietnamese
+      );
+
+    if(!pending.length) return;
+
+    let cache = {};
+    try{
+      cache = JSON.parse(
+        localStorage.getItem(
+          "ttc_gushi_hsk15_vi_v1"
+        ) || "{}"
+      ) || {};
+    }catch(e){}
+
+    for(const word of pending){
+      const key =
+        String(word.h) + "|" +
+        String(word.m);
+
+      if(cache[key]){
+        word.m = cache[key];
+        word.__ttcVietnamese = true;
+      }
+    }
+
+    const left =
+      pending.filter(w => !w.__ttcVietnamese);
+
+    for(let i=0;i<left.length;i+=8){
+
+      const batch = left.slice(i,i+8);
+
+      const payload =
+        batch.map(w =>
+          String(w.m).replace(/[|\n\r]+/g," ")
+        ).join("\n");
+
+      try{
+        const url =
+          "https://translate.googleapis.com/" +
+          "translate_a/single?client=gtx&sl=en&tl=vi" +
+          "&dt=t&q=" +
+          encodeURIComponent(payload);
+
+        const response =
+          await fetch(url,{cache:"no-store"});
+
+        if(!response.ok) break;
+
+        const data = await response.json();
+
+        const translated =
+          Array.isArray(data?.[0])
+            ? data[0].map(x=>x?.[0] || "").join("")
+            : "";
+
+        const parts = translated.split("\n");
+
+        if(parts.length !== batch.length) break;
+
+        batch.forEach(function(word,index){
+          const vi =
+            String(parts[index] || "").trim();
+
+          if(!vi) return;
+
+          const key =
+            String(word.h) + "|" +
+            String(word.m);
+
+          cache[key] = vi;
+          word.m = vi;
+          word.__ttcVietnamese = true;
+        });
+
+        try{
+          localStorage.setItem(
+            "ttc_gushi_hsk15_vi_v1",
+            JSON.stringify(cache)
+          );
+        }catch(e){}
+
+      }catch(error){
+        console.warn(
+          "Gushi HSK1–5 translation stopped:",
+          error
+        );
+        break;
+      }
+
+      await new Promise(
+        resolve => setTimeout(resolve,120)
+      );
+    }
+  }
+
+  async function sync(){
+    try{
+      if(!Array.isArray(window.words || words)){
+        return;
+      }
+
+      const old = oldMap();
+
+      const results =
+        await Promise.all([
+          load(1),
+          load(2),
+          load(3),
+          load(4),
+          load(5)
+        ]);
+
+      const incoming = [];
+
+      results.forEach(function(data){
+
+        const seen = new Set();
+
+        data.forEach(function(source){
+
+          const h =
+            String(source.hanzi || "").trim();
+
+          const p =
+            String(source.pinyin || "").trim();
+
+          const key = h + "|" + p;
+
+          if(!h || seen.has(key)) return;
+
+          seen.add(key);
+
+          const item =
+            convert(
+              source,
+              old.get(key) ||
+              old.get(h)
+            );
+
+          if(item){
+            incoming.push(item);
+          }
+        });
+
+      });
+
+      const actual =
+        [1,2,3,4,5].map(
+          level =>
+            incoming.filter(
+              w => Number(w.hsk) === level
+            ).length
+        );
+
+      const expected =
+        [1,2,3,4,5].map(level => EXPECTED[level]);
+
+      if(
+        actual.some(
+          (count,index) =>
+            count !== expected[index]
+        )
+      ){
+        throw new Error(
+          "HSK1–5 count mismatch: " +
+          actual.join("/") +
+          " != " +
+          expected.join("/")
+        );
+      }
+
+      for(let i=words.length-1;i>=0;i--){
+        const level = Number(words[i].hsk);
+        if(level >= 1 && level <= 5){
+          words.splice(i,1);
+        }
+      }
+
+      words.push(...incoming);
+
+      window.TTC_GUSHI_HSK15_READY = true;
+
+      if(
+        typeof currentHSK !== "undefined" &&
+        currentHSK <= 5 &&
+        typeof render === "function"
+      ){
+        currentList =
+          words.filter(
+            w =>
+              Number(w.hsk) ===
+              Number(currentHSK)
+          );
+
+        render(currentList);
+      }
+
+      if(
+        typeof window.refreshFlashcardAfterVocabularySync ===
+        "function"
+      ){
+        window.refreshFlashcardAfterVocabularySync();
+      }
+
+      await translateMissing(incoming);
+
+      if(
+        typeof currentHSK !== "undefined" &&
+        currentHSK <= 5 &&
+        typeof render === "function"
+      ){
+        currentList =
+          words.filter(
+            w =>
+              Number(w.hsk) ===
+              Number(currentHSK)
+          );
+
+        render(currentList);
+      }
+
+      console.log(
+        "🇨🇳 Gushi HSK1–5 audit OK:",
+        actual
+      );
+
+    }catch(error){
+      console.warn(
+        "⚠️ Gushi HSK1–5 audit skipped safely:",
+        error
+      );
+      window.TTC_GUSHI_HSK15_READY = false;
+    }
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener(
+      "DOMContentLoaded",
+      sync,
+      {once:true}
+    );
+  }else{
+    setTimeout(sync,0);
+  }
+
+})();
+</script>
+
+
+
+<style id="ttcOfficialHskResourcesCSS">
+.wh-hsk-official-test{
+  background:#fff !important;
+  border:2px solid #d40000 !important;
+  color:#a90000 !important;
+}
+.wh-hsk-official-test:hover{
+  background:#fff1f1 !important;
+}
+.wh-hsk-official-note{
+  grid-column:1/-1;
+  margin-top:2px;
+  padding:12px 14px;
+  border-radius:12px;
+  background:#fff8f8;
+  border:1px solid #f0d0d0;
+  color:#666;
+  font-size:13px;
+  line-height:1.6;
+  text-align:center;
+}
+@media(max-width:600px){
+  .wh-hsk-test-list{
+    grid-template-columns:1fr;
+  }
+}
+</style>
+
+
+<style id="ttcWhiteHatFinalUiV1">
+/* =========================================================
+   🏠 HEADER — RỘNG HƠN + HẠ XUỐNG NHẸ
+========================================================= */
+body > header{
+  width:min(1320px,calc(100% - 24px)) !important;
+  margin:58px auto 0 !important;
+  padding:22px 20px 16px !important;
+}
+
+body > header h1{
+  width:min(1080px,calc(100% - 10px)) !important;
+  min-width:min(92%,760px);
+}
+
+@media(max-width:600px){
+  body > header{
+    width:calc(100% - 14px) !important;
+    margin:54px auto 0 !important;
+    padding:16px 10px 12px !important;
+  }
+
+  body > header h1{
+    width:100% !important;
+    min-width:0;
+  }
+}
+
+/* =========================================================
+   💎 PREMIUM — THU NHỎ ~50% + GIỮA + NHẤP NHÁY
+========================================================= */
+body > .price-box{
+  width:min(575px,50%) !important;
+  min-width:360px !important;
+  margin:0 auto 14px !important;
+  animation:ttcPremiumPulse 1.8s ease-in-out infinite;
+}
+
+body > .price-box > div:first-child > div:first-child{
+  font-size:13px !important;
+  font-weight:900 !important;
+}
+
+body > .price-box summary{
+  padding:5px 9px !important;
+  font-size:12px !important;
+}
+
+@keyframes ttcPremiumPulse{
+  0%,100%{
+    transform:scale(1);
+    box-shadow:0 4px 15px rgba(30,80,120,.08);
+  }
+  50%{
+    transform:scale(1.025);
+    box-shadow:0 0 18px rgba(212,0,0,.20);
+  }
+}
+
+@media(max-width:600px){
+  body > .price-box{
+    width:calc(100% - 28px) !important;
+    min-width:0 !important;
+    margin:0 auto 12px !important;
+  }
+}
+
+/* =========================================================
+   💬 CHAT — GIỮ VÙNG TIN NHẮN ỔN ĐỊNH
+========================================================= */
+#ttcChatV1 .ttc-chat-messages{
+  overflow-anchor:auto !important;
+  overscroll-behavior:contain !important;
+}
+</style>
 
 <style id="ttcFinalLastFixCSS">
 html,body{background:#fff !important;}
