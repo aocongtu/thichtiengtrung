@@ -4634,6 +4634,13 @@ body > .price-box{
     </button>
 
     <button type="button"
+            id="autoLearningDirectionButton"
+            onclick="toggleAutoLearningDirection()"
+            title="Đổi chiều đọc Auto Learning">
+      🔄 🇨🇳 → 🇻🇳
+    </button>
+
+    <button type="button"
             onclick="resetAutoLearningForCurrentHSK()"
             style="
               background:#fff3f3;
@@ -79876,8 +79883,511 @@ const words = [
 },
 
 
-];
+]
+;
+/* =========================================================
+   📚 GUSHI HSK 7–9 — SOURCE SYNC V1
+   HSK 7 = 1,867 | HSK 8 = 1,867 | HSK 9 = 1,866
+   Nguồn: Gushi HSK 3.0 downloads
+   https://gushi-chinese.online/hsk-3.0/downloads
 
+   Giữ bản dịch/cấu trúc TTC đã có khi trùng Hán tự.
+   Các mục mới lấy đúng thứ tự, Hán tự, pinyin và ví dụ
+   từ Gushi. Nghĩa tiếng Anh của Gushi được dùng làm
+   fallback cho mục mới chưa có bản dịch TTC.
+   ========================================================= */
+(function(){
+
+  if(window.__TTC_GUSHI_HSK789_LOADER__){
+    return;
+  }
+
+  window.__TTC_GUSHI_HSK789_LOADER__ = true;
+
+  const SOURCE_URLS = {
+    7:"https://gushi-chinese.online/hsk-3.0/downloads/hsk-3.0-words-7.json",
+    8:"https://gushi-chinese.online/hsk-3.0/downloads/hsk-3.0-words-8.json",
+    9:"https://gushi-chinese.online/hsk-3.0/downloads/hsk-3.0-words-9.json"
+  };
+
+  const expected = {
+    7:1867,
+    8:1867,
+    9:1866
+  };
+
+  function normalizeExample(value){
+    return String(value || "")
+      .replace(/[。！？；]$/,"")
+      .trim();
+  }
+
+  function oldMap(){
+    const map = new Map();
+
+    for(const word of words){
+      if(Number(word.hsk) >= 7 && word.h){
+        map.set(String(word.h), word);
+      }
+    }
+
+    return map;
+  }
+
+  function convert(source, old){
+
+    const h = String(source.hanzi || "").trim();
+
+    if(!h){
+      return null;
+    }
+
+    const example =
+      String(source.exampleChinese || "").trim();
+
+    const examplePinyin =
+      String(source.examplePinyin || "").trim();
+
+    const exampleMeaning =
+      String(source.exampleEnglish || "").trim();
+
+    return {
+      h:h,
+      p:String(source.pinyin || "").trim(),
+      m:String(
+        old?.m ||
+        old?.v ||
+        source.meaning ||
+        ""
+      ).trim(),
+      t:String(old?.t || "Từ vựng").trim(),
+      hsk:Number(source.level || 0),
+      radical:String(old?.radical || "").trim(),
+      components:String(old?.components || "").trim(),
+      explanation:String(old?.explanation || "").trim(),
+      example:
+        example ||
+        String(old?.example || "").trim(),
+      examplePinyin:
+        examplePinyin ||
+        String(old?.examplePinyin || "").trim(),
+      exampleMeaning:
+        String(
+          old?.exampleMeaning ||
+          exampleMeaning ||
+          ""
+        ).trim()
+    };
+  }
+
+  async function loadLevel(level){
+
+    const response =
+      await fetch(
+        SOURCE_URLS[level],
+        {
+          cache:"no-store"
+        }
+      );
+
+    if(!response.ok){
+      throw new Error(
+        "Gushi HSK " + level +
+        " HTTP " + response.status
+      );
+    }
+
+    const json =
+      await response.json();
+
+    const data =
+      Array.isArray(json.data)
+        ? json.data
+        : [];
+
+    if(data.length !== expected[level]){
+      throw new Error(
+        "HSK " + level +
+        " nhận " + data.length +
+        "/" + expected[level]
+      );
+    }
+
+    return data;
+  }
+
+  async function sync(){
+
+    try{
+
+      const old =
+        oldMap();
+
+      const results =
+        await Promise.all([
+          loadLevel(7),
+          loadLevel(8),
+          loadLevel(9)
+        ]);
+
+      const incoming = [];
+
+      for(const data of results){
+
+        const seenWords = new Set();
+        const seenExamples = new Set();
+
+        for(const source of data){
+
+          const item =
+            convert(
+              source,
+              old.get(
+                String(source.hanzi || "")
+              )
+            );
+
+          if(!item){
+            continue;
+          }
+
+          /*
+             HSK7–9 phải có đúng một bản ghi
+             cho mỗi Hán tự trong nguồn.
+          */
+          if(seenWords.has(item.h)){
+            continue;
+          }
+
+          seenWords.add(item.h);
+
+          /*
+             Không để câu ví dụ mới bị trùng trong
+             cùng cấp độ. Nếu Gushi không có ví dụ,
+             giữ rỗng thay vì tự bịa câu.
+          */
+          const ex =
+            normalizeExample(item.example);
+
+          if(ex){
+
+            if(seenExamples.has(ex)){
+              item.example = "";
+              item.examplePinyin = "";
+              item.exampleMeaning = "";
+            }else{
+              seenExamples.add(ex);
+            }
+
+          }
+
+          incoming.push(item);
+
+        }
+
+      }
+
+      /*
+         Xóa toàn bộ HSK7–9 cũ rồi đưa đúng nguồn mới vào.
+         HSK1–6 không bị đụng.
+      */
+      for(let i=words.length-1;i>=0;i--){
+
+        if(Number(words[i].hsk) >= 7){
+          words.splice(i,1);
+        }
+
+      }
+
+      words.push(...incoming);
+
+      window.TTC_GUSHI_HSK789_READY = true;
+      window.TTC_GUSHI_HSK789_COUNTS = {
+        7:incoming.filter(x=>x.hsk===7).length,
+        8:incoming.filter(x=>x.hsk===8).length,
+        9:incoming.filter(x=>x.hsk===9).length
+      };
+
+      /*
+         Đồng bộ giao diện nếu người học đang ở HSK7–9.
+      */
+      if(
+        typeof currentHSK !== "undefined" &&
+        currentHSK >= 7
+      ){
+
+        currentList =
+          words.filter(
+            w => Number(w.hsk) === Number(currentHSK)
+          );
+
+        const title =
+          document.getElementById("title");
+
+        if(title){
+          title.textContent =
+            "HSK " + currentHSK +
+            " — " + currentList.length + " từ";
+        }
+
+        if(typeof render === "function"){
+          render(currentList);
+        }
+
+        if(typeof refreshAutoLearning === "function"){
+          refreshAutoLearning(true);
+        }
+
+      }
+
+      /*
+         Flashcard cũng đồng bộ nếu đã khởi tạo.
+      */
+      if(
+        typeof window.refreshFlashcardAfterVocabularySync ===
+        "function"
+      ){
+        window.refreshFlashcardAfterVocabularySync();
+      }
+
+      console.log(
+        "🇨🇳 Gushi HSK7–9 synced:",
+        window.TTC_GUSHI_HSK789_COUNTS
+      );
+
+      /*
+         🇻🇳 Dịch nghĩa mới sang tiếng Việt theo lô.
+         - Giữ nguyên bản dịch TTC đã có.
+         - Chỉ dịch mục mới còn nghĩa tiếng Anh.
+         - Cache localStorage để không dịch lại mỗi lần mở.
+         - Nếu dịch vụ không sẵn sàng, dữ liệu Gushi vẫn dùng
+           được với nghĩa gốc thay vì làm hỏng toàn bộ danh sách.
+      */
+      translateNewMeaningsToVietnamese();
+
+      async function translateNewMeaningsToVietnamese(){
+
+        const candidates =
+          words.filter(function(w){
+
+            return (
+              Number(w.hsk) >= 7 &&
+              w.m &&
+              !w.__ttcVietnamese
+            );
+
+          });
+
+        if(!candidates.length){
+          return;
+        }
+
+        let cache = {};
+
+        try{
+          cache =
+            JSON.parse(
+              localStorage.getItem(
+                "ttc_gushi789_vi_meanings_v1"
+              ) || "{}"
+            ) || {};
+        }catch(e){}
+
+        for(const word of candidates){
+
+          const key =
+            String(word.h) + "|" +
+            String(word.m);
+
+          if(cache[key]){
+            word.m = cache[key];
+            word.__ttcVietnamese = true;
+          }
+
+        }
+
+        /*
+           Dịch tối đa từng nhóm nhỏ để URL không quá dài.
+        */
+        const pending =
+          candidates.filter(
+            w => !w.__ttcVietnamese
+          );
+
+        const batchSize = 8;
+
+        for(
+          let i=0;
+          i<pending.length;
+          i+=batchSize
+        ){
+
+          const batch =
+            pending.slice(
+              i,
+              i+batchSize
+            );
+
+          const payload =
+            batch.map(
+              w => String(w.m).replace(
+                /[|\n\r]+/g,
+                " "
+              )
+            ).join("\n");
+
+          try{
+
+            const url =
+              "https://translate.googleapis.com/" +
+              "translate_a/single?client=gtx&sl=en&tl=vi" +
+              "&dt=t&q=" +
+              encodeURIComponent(payload);
+
+            const response =
+              await fetch(
+                url,
+                {
+                  cache:"no-store"
+                }
+              );
+
+            if(!response.ok){
+              break;
+            }
+
+            const data =
+              await response.json();
+
+            const translated =
+              Array.isArray(data?.[0])
+                ? data[0]
+                    .map(
+                      x => x?.[0] || ""
+                    )
+                    .join("")
+                : "";
+
+            const parts =
+              translated.split("\n");
+
+            /*
+               Nếu dịch vụ trả đúng số dòng,
+               cập nhật an toàn.
+            */
+            if(parts.length === batch.length){
+
+              batch.forEach(
+                function(word,index){
+
+                  const vi =
+                    String(
+                      parts[index] || ""
+                    ).trim();
+
+                  if(vi){
+
+                    const key =
+                      String(word.h) + "|" +
+                      String(word.m);
+
+                    cache[key] = vi;
+                    word.m = vi;
+                    word.__ttcVietnamese = true;
+
+                  }
+
+                }
+              );
+
+              try{
+                localStorage.setItem(
+                  "ttc_gushi789_vi_meanings_v1",
+                  JSON.stringify(cache)
+                );
+              }catch(e){}
+
+            }
+
+          }catch(error){
+
+            console.warn(
+              "Gushi Vietnamese translation stopped:",
+              error
+            );
+
+            break;
+
+          }
+
+          /*
+             Không khóa UI bằng hàng nghìn request liên tiếp.
+          */
+          await new Promise(
+            resolve => setTimeout(resolve,120)
+          );
+
+        }
+
+        /*
+           Nếu người học đang ở HSK7–9,
+           vẽ lại sau khi nghĩa đã dịch được.
+        */
+        if(
+          typeof currentHSK !== "undefined" &&
+          currentHSK >= 7 &&
+          typeof render === "function"
+        ){
+
+          currentList =
+            words.filter(
+              w =>
+                Number(w.hsk) ===
+                Number(currentHSK)
+            );
+
+          render(currentList);
+
+        }
+
+        console.log(
+          "🇻🇳 TTC Gushi: đã xử lý nghĩa tiếng Việt.",
+          candidates.length
+        );
+
+      }
+
+    }catch(error){
+
+      console.warn(
+        "⚠️ Gushi HSK7–9 chưa đồng bộ:",
+        error
+      );
+
+      window.TTC_GUSHI_HSK789_READY = false;
+
+    }
+
+  }
+
+  /*
+     Chạy sau khi DOM bắt đầu ổn định.
+  */
+  if(document.readyState === "loading"){
+
+    document.addEventListener(
+      "DOMContentLoaded",
+      sync,
+      {once:true}
+    );
+
+  }else{
+
+    setTimeout(sync, 0);
+
+  }
+
+})();
 
 /* ==================================================
    CÂU LUYỆN TẬP
@@ -83251,6 +83761,24 @@ if(typeof window.refreshAutoLearning === "function"){
   document.getElementById("title").textContent =
     `🔎 Tìm thấy ${result.length} từ`;
 
+  /* ==================================================
+     🚀 UX: ĐƯA KẾT QUẢ TRA TỪ LÊN NGAY MÀN HÌNH
+     Không bắt người học phải tự kéo xuống.
+  ================================================== */
+  requestAnimationFrame(function(){
+
+    const vocabularySection =
+      document.getElementById("vocabularySection");
+
+    if(vocabularySection){
+      vocabularySection.scrollIntoView({
+        behavior:"smooth",
+        block:"start"
+      });
+    }
+
+  });
+
 
   /* ==================================================
      KHÔNG TÌM THẤY
@@ -83944,7 +84472,25 @@ async function showHSK(level,btn){
     `HSK ${level} — ${currentList.length} từ`;
 
   render(currentList);
+
+  /* =================================================
+     🚀 UX: CHỌN HSK → HIỆN NGAY KHU HỌC
+     ================================================= */
+  requestAnimationFrame(function(){
+
+    const vocabularySection =
+      document.getElementById("vocabularySection");
+
+    if(vocabularySection){
+      vocabularySection.scrollIntoView({
+        behavior:"smooth",
+        block:"start"
+      });
+    }
+
+  });
 }
+
 
 
 /* =====================================================
@@ -88589,6 +89135,14 @@ let autoLearningPaused = false;
 let autoLearningSpeaking = false;
 
 /* =========================================================
+   🔄 AUTO LEARNING TỪ VỰNG — CHIỀU ĐỌC
+   zh-vi = Hán tự → Tiếng Việt
+   vi-zh = Tiếng Việt → Hán tự
+   ========================================================= */
+let autoLearningDirection =
+  localStorage.getItem("ttc_auto_learning_direction") || "zh-vi";
+
+/* =========================================================
    1. LẤY DANH SÁCH HIỆN TẠI
    ========================================================= */
 
@@ -89038,172 +89592,171 @@ function autoSpeakCurrentWord(){
     return;
   }
 
-
   const chinese =
     word.h ||
     word.word ||
     "";
 
   const vietnamese =
-  word.m ||
-  word.v ||
-  word.meaning ||
-  "";
+    word.m ||
+    word.v ||
+    word.meaning ||
+    "";
 
   if(!chinese && !vietnamese){
     scheduleAutoNext();
     return;
   }
 
-
   if(!("speechSynthesis" in window)){
     scheduleAutoNext();
     return;
   }
 
-
   autoLearningSpeaking = true;
   TTC.audio.playing = true;
 
-
-  /*
-     Hủy âm thanh cũ trước khi bắt đầu từ mới
-  */
-
   speechSynthesis.cancel();
 
+  function finishWord(){
 
-  /*
-     ==============================
-     🇨🇳 ĐỌC TIẾNG TRUNG
-     ==============================
-  */
+    if(!autoLearningRunning || autoLearningPaused){
+      return;
+    }
 
-  const chineseUtterance =
-    new SpeechSynthesisUtterance(
-      String(chinese)
-    );
+    scheduleAutoNext();
 
-  chineseUtterance.lang =
-    "zh-CN";
-
-
-  /*
-     Dùng đúng tốc độ
-     và giọng Trung mà hệ thống
-     hiện tại của anh đã chọn
-  */
-
-  chineseUtterance.rate =
-    selectedRate;
-
-  chineseUtterance.pitch =
-    1;
-
-
-  if(chineseVoice){
-    chineseUtterance.voice =
-      chineseVoice;
   }
 
+  function speakVietnameseThenChinese(){
 
-  chineseUtterance.onend =
-    function(){
+    if(!vietnamese){
+      speakChineseOnly();
+      return;
+    }
 
-      if(!autoLearningRunning){
-        return;
-      }
-
-      if(autoLearningPaused){
-        return;
-      }
-
-
-      /*
-         ==============================
-         🇻🇳 ĐỌC NGHĨA
-         ==============================
-      */
-
-      if(!vietnamese){
-
-        scheduleAutoNext();
-        return;
-
-      }
-
-
-      const vietnameseUtterance =
-        new SpeechSynthesisUtterance(
-          String(vietnamese)
-        );
-
-      vietnameseUtterance.lang =
-        "vi-VN";
-
-      vietnameseUtterance.rate =
-        0.95;
-
-
-      vietnameseUtterance.onend =
-        function(){
-
-          if(!autoLearningRunning){
-            return;
-          }
-
-          if(autoLearningPaused){
-            return;
-          }
-
-          scheduleAutoNext();
-
-        };
-
-
-      vietnameseUtterance.onerror =
-        function(){
-
-          if(
-            autoLearningRunning &&
-            !autoLearningPaused
-          ){
-
-            scheduleAutoNext();
-
-          }
-
-        };
-
-
-      speechSynthesis.speak(
-        vietnameseUtterance
+    const utter =
+      new SpeechSynthesisUtterance(
+        String(vietnamese)
       );
 
-    };
+    utter.lang = "vi-VN";
+    utter.rate = 0.95;
 
+    utter.onend =
+      function(){
 
-  chineseUtterance.onerror =
-    function(){
+        if(!autoLearningRunning || autoLearningPaused){
+          return;
+        }
 
-      if(
-        autoLearningRunning &&
-        !autoLearningPaused
-      ){
+        speakChineseOnly();
 
-        scheduleAutoNext();
+      };
 
-      }
+    utter.onerror = finishWord;
 
-    };
+    speechSynthesis.speak(utter);
 
+  }
 
-  speechSynthesis.speak(
-    chineseUtterance
-  );
+  function speakChineseOnly(){
+
+    if(!chinese){
+      finishWord();
+      return;
+    }
+
+    loadChineseVoice();
+
+    const utter =
+      new SpeechSynthesisUtterance(
+        String(chinese)
+      );
+
+    utter.lang = "zh-CN";
+    utter.rate = selectedRate;
+    utter.pitch = 1;
+
+    if(chineseVoice){
+      utter.voice = chineseVoice;
+    }
+
+    utter.onend = finishWord;
+    utter.onerror = finishWord;
+
+    speechSynthesis.speak(utter);
+
+  }
+
+  function speakChineseThenVietnamese(){
+
+    if(!chinese){
+      speakVietnameseOnly();
+      return;
+    }
+
+    loadChineseVoice();
+
+    const utter =
+      new SpeechSynthesisUtterance(
+        String(chinese)
+      );
+
+    utter.lang = "zh-CN";
+    utter.rate = selectedRate;
+    utter.pitch = 1;
+
+    if(chineseVoice){
+      utter.voice = chineseVoice;
+    }
+
+    utter.onend =
+      function(){
+
+        if(!autoLearningRunning || autoLearningPaused){
+          return;
+        }
+
+        speakVietnameseOnly();
+
+      };
+
+    utter.onerror = finishWord;
+
+    speechSynthesis.speak(utter);
+
+  }
+
+  function speakVietnameseOnly(){
+
+    if(!vietnamese){
+      finishWord();
+      return;
+    }
+
+    const utter =
+      new SpeechSynthesisUtterance(
+        String(vietnamese)
+      );
+
+    utter.lang = "vi-VN";
+    utter.rate = 0.95;
+
+    utter.onend = finishWord;
+    utter.onerror = finishWord;
+
+    speechSynthesis.speak(utter);
+
+  }
+
+  if(autoLearningDirection === "vi-zh"){
+    speakVietnameseThenChinese();
+  }else{
+    speakChineseThenVietnamese();
+  }
 
 }
-
 
 /* =========================================================
    8. TỰ ĐỘNG SANG TỪ TIẾP
@@ -89675,6 +90228,59 @@ window.autoSpeakChinese =
 window.autoSpeakVietnamese =
   autoSpeakVietnamese;
 
+function toggleAutoLearningDirection(){
+
+  autoLearningDirection =
+    autoLearningDirection === "zh-vi"
+      ? "vi-zh"
+      : "zh-vi";
+
+  try{
+    localStorage.setItem(
+      "ttc_auto_learning_direction",
+      autoLearningDirection
+    );
+  }catch(e){}
+
+  updateAutoLearningDirectionButton();
+
+  if(autoLearningRunning){
+    speechSynthesis.cancel();
+    clearAutoLearningTimer();
+    autoSpeakCurrentWord();
+  }
+
+}
+
+function updateAutoLearningDirectionButton(){
+
+  const button =
+    document.getElementById(
+      "autoLearningDirectionButton"
+    );
+
+  if(!button){
+    return;
+  }
+
+  button.textContent =
+    autoLearningDirection === "zh-vi"
+      ? "🔄 🇨🇳 → 🇻🇳"
+      : "🔄 🇻🇳 → 🇨🇳";
+
+  button.title =
+    autoLearningDirection === "zh-vi"
+      ? "Đang đọc Hán tự → Tiếng Việt. Bấm để đảo chiều."
+      : "Đang đọc Tiếng Việt → Hán tự. Bấm để đảo chiều.";
+
+}
+
+window.toggleAutoLearningDirection =
+  toggleAutoLearningDirection;
+
+window.updateAutoLearningDirectionButton =
+  updateAutoLearningDirectionButton;
+
 window.changeAutoInterval =
   changeAutoInterval;
 
@@ -89714,6 +90320,7 @@ function initAutoLearning(){
 
   loadAutoLearningPosition();
   renderAutoLearningWord();
+  updateAutoLearningDirectionButton();
 }
 
 initAutoLearning();
@@ -121818,8 +122425,340 @@ if(
 ========================================================= -->
 
 <!-- =========================================================
- 🛡️ WHITE HAT — 3 SÂU CUỐI NGÀY 24/09/2026
- Patch an toàn: dán toàn bộ khối này ngay trước </body>
+ 🛡️ WHITE HAT — LIGHT FALL / FIREWORK DUST
+     =========================================================
+     ✨ TTC — TOÀN TRANG LIGHT FALL / FIREWORK DUST
+     Không bắt pointer, không che nội dung.
+     ========================================================= -->
+<style>
+#ttcLightFallCanvas{
+  position:fixed;
+  inset:0;
+  width:100vw;
+  height:100vh;
+  pointer-events:none !important;
+  z-index:9990;
+  opacity:.82;
+}
+body.ttc-light-effect-off #ttcLightFallCanvas{
+  display:none !important;
+}
+@media (prefers-reduced-motion:reduce){
+  #ttcLightFallCanvas{
+    display:none !important;
+  }
+}
+</style>
+<script>
+(function(){
+
+  if(window.__TTC_LIGHT_FALL_V1__){
+    return;
+  }
+
+  window.__TTC_LIGHT_FALL_V1__ = true;
+
+  const canvas =
+    document.createElement("canvas");
+
+  canvas.id =
+    "ttcLightFallCanvas";
+
+  document.body.appendChild(canvas);
+
+  const ctx =
+    canvas.getContext("2d");
+
+  if(!ctx){
+    return;
+  }
+
+  let width = 0;
+  let height = 0;
+  let dpr = 1;
+  let particles = [];
+  let fireworks = [];
+  let last = performance.now();
+
+  function resize(){
+
+    dpr =
+      Math.min(
+        window.devicePixelRatio || 1,
+        1.75
+      );
+
+    width =
+      window.innerWidth;
+
+    height =
+      window.innerHeight;
+
+    canvas.width =
+      Math.floor(width * dpr);
+
+    canvas.height =
+      Math.floor(height * dpr);
+
+    canvas.style.width =
+      width + "px";
+
+    canvas.style.height =
+      height + "px";
+
+    ctx.setTransform(
+      dpr,0,0,dpr,0,0
+    );
+
+  }
+
+  function random(min,max){
+    return Math.random()*(max-min)+min;
+  }
+
+  function makeParticle(){
+
+    return {
+      x:random(0,width),
+      y:random(-height,0),
+      speed:random(16,42),
+      size:random(1.0,2.8),
+      alpha:random(.42,.92),
+      hue:random(35,330),
+      drift:random(-8,8),
+      phase:random(0,Math.PI*2),
+      life:random(.7,1.5)
+    };
+
+  }
+
+  function makeFirework(){
+
+    const x =
+      random(width*.12,width*.88);
+
+    const y =
+      random(height*.12,height*.52);
+
+    const hue =
+      random(0,360);
+
+    const sparks = [];
+
+    const count =
+      Math.floor(random(18,30));
+
+    for(let i=0;i<count;i++){
+
+      const angle =
+        Math.PI*2*i/count;
+
+      const speed =
+        random(28,75);
+
+      sparks.push({
+        x:x,
+        y:y,
+        vx:Math.cos(angle)*speed,
+        vy:Math.sin(angle)*speed,
+        life:1,
+        hue:hue
+      });
+
+    }
+
+    return sparks;
+
+  }
+
+  function seed(){
+
+    const count =
+      Math.min(
+        95,
+        Math.max(
+          35,
+          Math.floor(width/14)
+        )
+      );
+
+    particles =
+      Array.from(
+        {length:count},
+        makeParticle
+      );
+
+  }
+
+  function frame(now){
+
+    const dt =
+      Math.min(
+        .035,
+        (now-last)/1000
+      );
+
+    last = now;
+
+    ctx.clearRect(
+      0,0,width,height
+    );
+
+    /*
+       Ánh sáng rơi nhẹ từ trên xuống.
+    */
+    for(const p of particles){
+
+      p.y += p.speed*dt;
+      p.x +=
+        Math.sin(
+          now*.0007+p.phase
+        ) *
+        p.drift *
+        dt;
+
+      if(p.y > height+10){
+        Object.assign(
+          p,
+          makeParticle(),
+          {y:-5}
+        );
+      }
+
+      ctx.beginPath();
+
+      ctx.globalAlpha =
+        p.alpha *
+        (0.72 + 0.28*Math.sin(now*.002+p.phase));
+
+      ctx.fillStyle =
+        "hsla(" + p.hue + ",100%,72%,1)";
+
+      ctx.shadowBlur = 18;
+      ctx.shadowColor =
+        "hsla(" + p.hue + ",100%,70%,.95)";
+
+      ctx.arc(
+        p.x,
+        p.y,
+        p.size,
+        0,
+        Math.PI*2
+      );
+
+      ctx.fill();
+
+    }
+
+    /*
+       Một tia pháo hoa nhỏ thỉnh thoảng nở ra,
+       sau đó tắt rất nhanh.
+    */
+    if(
+      Math.random() <
+      dt * 0.22
+    ){
+
+      fireworks.push(
+        makeFirework()
+      );
+
+    }
+
+    for(let f=fireworks.length-1;f>=0;f--){
+
+      const sparks =
+        fireworks[f];
+
+      let alive = false;
+
+      for(const spark of sparks){
+
+        if(spark.life <= 0){
+          continue;
+        }
+
+        alive = true;
+
+        spark.x +=
+          spark.vx*dt;
+
+        spark.y +=
+          spark.vy*dt;
+
+        spark.vx *=
+          Math.pow(.035,dt);
+
+        spark.vy =
+          spark.vy*.965 +
+          24*dt;
+
+        spark.life -=
+          dt*1.35;
+
+        ctx.beginPath();
+
+        ctx.globalAlpha =
+          Math.max(
+            0,
+            spark.life*.78
+          );
+
+        ctx.fillStyle =
+          "hsla(" +
+          spark.hue +
+          ",100%,78%,1)";
+
+        ctx.shadowBlur = 12;
+        ctx.shadowColor =
+          "hsla(" +
+          spark.hue +
+          ",100%,70%,.9)";
+
+        ctx.arc(
+          spark.x,
+          spark.y,
+          1.25,
+          0,
+          Math.PI*2
+        );
+
+        ctx.fill();
+
+      }
+
+      if(!alive){
+        fireworks.splice(f,1);
+      }
+
+    }
+
+    ctx.globalAlpha = 1;
+    ctx.shadowBlur = 0;
+
+    requestAnimationFrame(frame);
+
+  }
+
+  resize();
+  seed();
+
+  window.addEventListener(
+    "resize",
+    function(){
+      resize();
+      seed();
+    },
+    {passive:true}
+  );
+
+  requestAnimationFrame(frame);
+
+})();
+</script>
+
+<div style="text-align:center;font-size:11px;color:#8a98a8;padding:8px 12px 20px;opacity:.85;">HSK 3.0 syllabus data by Gushi, CC BY-SA 4.0</div>
+
  Không thay root/index.html.
 ========================================================= -->
 <style id="whiteHatFinal3Patch">
@@ -122588,7 +123527,7 @@ if(
 </script>
 
 <!-- 🛠️ FIX V2 — NỐI TỪ ĐÚNG
-     Dán NGAY SAU patch Nối từ đúng V1, trước </body>
+     Dán NGAY SAU patch Nối từ đúng V1, trước 
      Lỗi V1: dữ liệu thật là const words, không phải window.words.
      Fix: đưa words lên window để engine V1 đọc được nguồn từ vựng hiện tại.
 -->
@@ -122609,7 +123548,7 @@ if(
      🔊 NỐI TỪ ĐÚNG — LOA PHÁT ÂM HÁN TỰ
      V3
      
-     Dán NGAY SAU V2, trước </body>
+     Dán NGAY SAU V2, trước 
      Không đụng Flashcard / Auto Learning / Luyện câu / Test.
 ========================================================= -->
 
@@ -124152,7 +125091,7 @@ if(
 <!-- ============================================================
  🇨🇳 THÍCH TIẾNG TRUNG
  💬 COMMUNITY CHAT V1 PACK
- DÁN NGUYÊN KHỐI NÀY NGAY TRƯỚC </body>
+ DÁN NGUYÊN KHỐI NÀY NGAY TRƯỚC 
  ============================================================ -->
 
 <style>
@@ -124178,9 +125117,38 @@ if(
 }
 
 #ttcChatV1.ttc-chat-open{
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  display:block;
+}
+
+#ttcChatV1 .ttc-chat-shell{
+  position:fixed;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  margin:0;
+  touch-action:auto;
+}
+
+#ttcChatV1 .ttc-chat-head{
+  cursor:grab;
+  touch-action:none;
+  user-select:none;
+  -webkit-user-select:none;
+}
+
+#ttcChatV1 .ttc-chat-head button,
+#ttcChatV1 .ttc-chat-head input,
+#ttcChatV1 .ttc-chat-head select{
+  cursor:pointer;
+}
+
+#ttcChatV1 .ttc-chat-shell.ttc-chat-dragging{
+  cursor:grabbing;
+  transition:none !important;
+}
+
+#ttcChatV1 .ttc-chat-shell.ttc-chat-dragging .ttc-chat-head{
+  cursor:grabbing;
 }
 
 #ttcChatV1 *{
@@ -124676,6 +125644,17 @@ if(
 }
 
 @media(max-width:720px){
+  #ttcChatV1 .ttc-chat-shell{
+    left:0 !important;
+    top:0 !important;
+    transform:none !important;
+  }
+
+  #ttcChatV1 .ttc-chat-head{
+    cursor:default;
+    touch-action:auto;
+  }
+
   .ttc-chat-shell{
     width:100vw;
     height:100vh;
@@ -127396,7 +128375,19 @@ $("ttcChatClose").addEventListener(
 
 $("ttcChatSend").addEventListener(
   "click",
-  sendText
+  function(event){
+
+    /*
+      🛡️ CHAT: tuyệt đối không cho click gửi tin
+      làm submit / điều hướng / reload trang.
+    */
+    event.preventDefault();
+    event.stopPropagation();
+
+    sendText();
+
+  },
+  false
 );
 
 $("ttcChatAudio").addEventListener(
@@ -127859,6 +128850,442 @@ if(
      ========================= -->
 
 
+</style>
+<!-- =========================================================
+     💬 CHAT WINDOW — FREE DRAG V2
+     Desktop: kéo khung chat tự do bằng thanh tiêu đề.
+     Mobile: giữ full-screen để không phá thao tác chat.
+     ========================================================= -->
+<script>
+(function(){
+
+  if(window.__TTC_CHAT_WINDOW_DRAG_V2__){
+    return;
+  }
+
+  window.__TTC_CHAT_WINDOW_DRAG_V2__ = true;
+
+  const KEY =
+    "ttc_chat_window_position_v2";
+
+  let shell = null;
+  let head = null;
+  let dragging = false;
+  let moved = false;
+  let pointerId = null;
+  let startX = 0;
+  let startY = 0;
+  let startLeft = 0;
+  let startTop = 0;
+  let suppress = false;
+
+  function desktop(){
+    return window.innerWidth > 720;
+  }
+
+  function clamp(left,top){
+
+    if(!shell){
+      return {left,top};
+    }
+
+    const rect =
+      shell.getBoundingClientRect();
+
+    const maxLeft =
+      Math.max(
+        0,
+        window.innerWidth - rect.width
+      );
+
+    const maxTop =
+      Math.max(
+        0,
+        window.innerHeight - rect.height
+      );
+
+    return {
+      left:Math.max(
+        0,
+        Math.min(left,maxLeft)
+      ),
+      top:Math.max(
+        0,
+        Math.min(top,maxTop)
+      )
+    };
+
+  }
+
+  function save(){
+
+    if(!shell || !desktop()){
+      return;
+    }
+
+    const rect =
+      shell.getBoundingClientRect();
+
+    try{
+
+      localStorage.setItem(
+        KEY,
+        JSON.stringify({
+          left:rect.left,
+          top:rect.top
+        })
+      );
+
+    }catch(e){}
+
+  }
+
+  function center(){
+
+    if(!shell || !desktop()){
+      return;
+    }
+
+    const rect =
+      shell.getBoundingClientRect();
+
+    const left =
+      (window.innerWidth-rect.width)/2;
+
+    const top =
+      (window.innerHeight-rect.height)/2;
+
+    shell.style.left =
+      Math.max(0,left)+"px";
+
+    shell.style.top =
+      Math.max(0,top)+"px";
+
+    shell.style.transform =
+      "none";
+
+  }
+
+  function restore(){
+
+    if(!shell){
+      return;
+    }
+
+    if(!desktop()){
+      shell.style.left = "0px";
+      shell.style.top = "0px";
+      shell.style.transform = "none";
+      return;
+    }
+
+    let saved = null;
+
+    try{
+      saved =
+        JSON.parse(
+          localStorage.getItem(KEY) || "null"
+        );
+    }catch(e){}
+
+    if(
+      saved &&
+      Number.isFinite(saved.left) &&
+      Number.isFinite(saved.top)
+    ){
+
+      const p =
+        clamp(
+          saved.left,
+          saved.top
+        );
+
+      shell.style.left =
+        p.left+"px";
+
+      shell.style.top =
+        p.top+"px";
+
+      shell.style.transform =
+        "none";
+
+    }else{
+
+      center();
+
+    }
+
+  }
+
+  function setup(){
+
+    const next =
+      document.querySelector(
+        "#ttcChatV1 .ttc-chat-shell"
+      );
+
+    const nextHead =
+      next?.querySelector(
+        ".ttc-chat-head"
+      );
+
+    if(
+      !next ||
+      !nextHead
+    ){
+      return;
+    }
+
+    if(
+      next.dataset.ttcWindowDragReady === "1"
+    ){
+      shell = next;
+      head = nextHead;
+      return;
+    }
+
+    shell = next;
+    head = nextHead;
+
+    shell.dataset.ttcWindowDragReady = "1";
+
+    restore();
+
+    head.addEventListener(
+      "pointerdown",
+      function(e){
+
+        if(!desktop()){
+          return;
+        }
+
+        if(
+          e.target.closest(
+            "button,input,select,textarea,a"
+          )
+        ){
+          return;
+        }
+
+        if(
+          e.pointerType === "mouse" &&
+          e.button !== 0
+        ){
+          return;
+        }
+
+        const rect =
+          shell.getBoundingClientRect();
+
+        startX = e.clientX;
+        startY = e.clientY;
+        startLeft = rect.left;
+        startTop = rect.top;
+
+        dragging = true;
+        moved = false;
+        pointerId = e.pointerId;
+
+        shell.style.left =
+          rect.left+"px";
+
+        shell.style.top =
+          rect.top+"px";
+
+        shell.style.transform =
+          "none";
+
+        shell.classList.add(
+          "ttc-chat-dragging"
+        );
+
+        try{
+          head.setPointerCapture(
+            pointerId
+          );
+        }catch(err){}
+
+        e.preventDefault();
+
+      },
+      {passive:false}
+    );
+
+    head.addEventListener(
+      "pointermove",
+      function(e){
+
+        if(
+          !dragging ||
+          e.pointerId !== pointerId
+        ){
+          return;
+        }
+
+        const dx =
+          e.clientX-startX;
+
+        const dy =
+          e.clientY-startY;
+
+        if(
+          Math.abs(dx)>4 ||
+          Math.abs(dy)>4
+        ){
+          moved = true;
+        }
+
+        const p =
+          clamp(
+            startLeft+dx,
+            startTop+dy
+          );
+
+        shell.style.left =
+          p.left+"px";
+
+        shell.style.top =
+          p.top+"px";
+
+        if(moved){
+          e.preventDefault();
+        }
+
+      },
+      {passive:false}
+    );
+
+    function finish(e){
+
+      if(
+        !dragging ||
+        e.pointerId !== pointerId
+      ){
+        return;
+      }
+
+      dragging = false;
+
+      shell.classList.remove(
+        "ttc-chat-dragging"
+      );
+
+      try{
+        head.releasePointerCapture(
+          pointerId
+        );
+      }catch(err){}
+
+      if(moved){
+
+        save();
+
+        suppress = true;
+
+        setTimeout(
+          function(){
+            suppress = false;
+          },
+          180
+        );
+
+      }
+
+      pointerId = null;
+
+    }
+
+    head.addEventListener(
+      "pointerup",
+      finish
+    );
+
+    head.addEventListener(
+      "pointercancel",
+      finish
+    );
+
+    head.addEventListener(
+      "click",
+      function(e){
+
+        if(suppress){
+
+          e.preventDefault();
+          e.stopImmediatePropagation();
+
+        }
+
+      },
+      true
+    );
+
+  }
+
+  setup();
+
+  new MutationObserver(
+    setup
+  ).observe(
+    document.documentElement,
+    {
+      childList:true,
+      subtree:true
+    }
+  );
+
+  window.addEventListener(
+    "resize",
+    function(){
+
+      if(
+        !shell ||
+        !desktop()
+      ){
+        return;
+      }
+
+      const rect =
+        shell.getBoundingClientRect();
+
+      const p =
+        clamp(
+          rect.left,
+          rect.top
+        );
+
+      shell.style.left =
+        p.left+"px";
+
+      shell.style.top =
+        p.top+"px";
+
+    },
+    {passive:true}
+  );
+
+})();
+</script>
+
+<!-- TTC OUTSIDE CHAT CONTROL — không kéo khung từ bên trong -->
+<style id="ttcChatOutsideControlFinal">
+#ttcChatV1 .ttc-chat-shell{position:fixed !important;margin:0 !important;transform:none !important;transition:none !important;width:min(1100px,96vw) !important;height:min(850px,94vh) !important;max-width:96vw !important;max-height:94vh !important;border-radius:20px !important;touch-action:auto !important;}
+#ttcChatV1 .ttc-chat-head{cursor:default !important;touch-action:auto !important;}
+@media(max-width:720px){#ttcChatV1 .ttc-chat-shell{width:94vw !important;height:86dvh !important;max-width:94vw !important;max-height:86dvh !important;border-radius:18px !important;}}
+</style>
+<script>
+(function(){
+ if(window.__TTC_CHAT_OUTSIDE_CONTROL_FINAL__)return; window.__TTC_CHAT_OUTSIDE_CONTROL_FINAL__=true;
+ function btn(){return document.getElementById("ttcFloatingChatBtn")} function shell(){return document.querySelector("#ttcChatV1 .ttc-chat-shell")}
+ function place(){const b=btn(),s=shell();if(!b||!s)return;const r=b.getBoundingClientRect(),sw=s.offsetWidth||Math.min(1100,innerWidth*.96),sh=s.offsetHeight||Math.min(850,innerHeight*.94),g=10;let l=r.left,t=r.bottom+g;if(l+sw>innerWidth-8)l=innerWidth-sw-8;if(l<8)l=8;if(t+sh>innerHeight-8)t=r.top-sh-g;if(t<8)t=8;s.style.left=l+"px";s.style.top=t+"px";s.style.right="auto";s.style.bottom="auto";s.style.transform="none";}
+ let pending=false;
+ document.addEventListener("click",function(e){if(e.target.closest&&e.target.closest("#ttcFloatingChatBtn"))pending=true},true);
+ new MutationObserver(function(){const c=document.getElementById("ttcChatV1");if(c&&pending&&c.classList.contains("ttc-chat-open")){pending=false;requestAnimationFrame(()=>requestAnimationFrame(place));}}).observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:["class"]});
+ window.addEventListener("resize",function(){const c=document.getElementById("ttcChatV1");if(c&&c.classList.contains("ttc-chat-open"))place()},{passive:true});
+ document.addEventListener("pointerdown",function(e){const h=e.target.closest&&e.target.closest("#ttcChatV1 .ttc-chat-head");if(!h||e.target.closest("button,input,select,textarea,a"))return;e.stopPropagation()},true);
+})();
+</script>
+
 <!-- CHAT ONLINE V1 — DRAG FIX
      Kéo thả tự do: Pointer Events — không chồng listener
      Giữ nguyên nút, notification và chức năng mở Chat.
@@ -127942,6 +129369,7 @@ if(
     applySavedPosition();
 
     btn.addEventListener("pointerdown", function(e){
+      e.stopPropagation();
       if(e.button !== undefined && e.button !== 0) return;
       const rect = btn.getBoundingClientRect();
       startX = e.clientX; startY = e.clientY;
@@ -128381,52 +129809,6 @@ if(
     max-height:280px !important;
   }
 
-}
-
-/* ===== CHAT V1 — DESKTOP FULL SCREEN ===== */
-
-#ttcChatV1.ttc-chat-open{
-  align-items:stretch !important;
-  justify-content:stretch !important;
-}
-
-#ttcChatV1 .ttc-chat-shell{
-  width:100% !important;
-  height:100% !important;
-  max-width:none !important;
-  max-height:none !important;
-  border-radius:0 !important;
-}
-
-/* Giữ vùng chat co giãn đúng */
-#ttcChatV1 .ttc-chat-body{
-  flex:1 1 auto !important;
-  min-height:0 !important;
-  height:0 !important;
-}
-
-#ttcChatV1 .ttc-chat-main{
-  flex:1 1 auto !important;
-  min-height:0 !important;
-  height:100% !important;
-}
-
-#ttcChatV1 .ttc-chat-messages{
-  flex:1 1 auto !important;
-  min-height:0 !important;
-  height:0 !important;
-  overflow-x:hidden !important;
-  overflow-y:auto !important;
-}
-
-/* Điện thoại vẫn full màn hình */
-@media(max-width:720px){
-  #ttcChatV1 .ttc-chat-shell{
-    width:100vw !important;
-    height:100vh !important;
-    height:100dvh !important;
-    border-radius:0 !important;
-  }
 }
 
 /* =======================================================
@@ -129086,7 +130468,7 @@ button.addEventListener(
 
 <!-- =========================================================
      🟢 AUTO LEARNING CÂU VÍ DỤ V2 — ĐỘC LẬP
-     DÁN NGUYÊN KHỐI NGAY TRƯỚC </body>
+     DÁN NGUYÊN KHỐI NGAY TRƯỚC 
 
      ✔ Không đụng Auto Learning từ vựng
      ✔ Không gọi initAutoLearning()
@@ -131328,6 +132710,655 @@ button.addEventListener(
     opacity:1;
   }
 }
+</style>
+
+
+<!-- TTC FINAL — CHAT KÉO NGOÀI WEB + PHÁO HOA -->
+<style id="ttcFinalChatEffect">
+#ttcFloatingChatBtn{touch-action:none !important;cursor:grab !important;z-index:1000000 !important}#ttcFloatingChatBtn.ttc-dragging{cursor:grabbing !important}
+#ttcLightFallCanvas{position:fixed !important;inset:0 !important;width:100vw !important;height:100vh !important;pointer-events:none !important;z-index:9990 !important;opacity:1 !important}
+</style>
+<script>
+(function(){
+ if(window.__TTC_FINAL_CHAT_EFFECT_PATCH__)return;window.__TTC_FINAL_CHAT_EFFECT_PATCH__=true;
+ const KEY="ttc_chat_button_position_final";let b=null,d=false,m=false,sx=0,sy=0,sl=0,st=0,sup=false;
+ function clamp(l,t){if(!b)return{left:l,top:t};const r=b.getBoundingClientRect();return{left:Math.max(0,Math.min(l,innerWidth-r.width)),top:Math.max(0,Math.min(t,innerHeight-r.height))}}
+ function save(){try{const r=b.getBoundingClientRect();localStorage.setItem(KEY,JSON.stringify({left:r.left,top:r.top}))}catch(e){}}
+ function setup(){const x=document.getElementById("ttcFloatingChatBtn");if(!x||x.dataset.ttcFinalOutsideDrag==="1")return;b=x;b.dataset.ttcFinalOutsideDrag="1";try{const p=JSON.parse(localStorage.getItem(KEY)||"null");if(p){const q=clamp(p.left,p.top);b.style.position="fixed";b.style.left=q.left+"px";b.style.top=q.top+"px";b.style.right="auto";b.style.bottom="auto"}}catch(e){}
+ b.addEventListener("pointerdown",function(e){if(e.button!==undefined&&e.button!==0)return;const r=b.getBoundingClientRect();sx=e.clientX;sy=e.clientY;sl=r.left;st=r.top;d=true;m=false;b.classList.add("ttc-dragging");try{b.setPointerCapture(e.pointerId)}catch(x){}});
+ b.addEventListener("pointermove",function(e){if(!d)return;const dx=e.clientX-sx,dy=e.clientY-sy;if(Math.abs(dx)>4||Math.abs(dy)>4)m=true;if(!m)return;const q=clamp(sl+dx,st+dy);b.style.position="fixed";b.style.left=q.left+"px";b.style.top=q.top+"px";b.style.right="auto";b.style.bottom="auto";e.preventDefault();e.stopPropagation()},{passive:false});
+ function end(e){if(!d)return;d=false;b.classList.remove("ttc-dragging");try{b.releasePointerCapture(e.pointerId)}catch(x){}if(m){save();sup=true;setTimeout(()=>sup=false,180)}}
+ b.addEventListener("pointerup",end);b.addEventListener("pointercancel",end);b.addEventListener("click",function(e){if(sup){e.preventDefault();e.stopImmediatePropagation()}},true);
+ }
+ setup();new MutationObserver(setup).observe(document.documentElement,{childList:true,subtree:true});
+})();
+</script>
+
+
+<!-- =========================================================
+     🛡️ THÍCH TIẾNG TRUNG — UX POLISH V1
+     MỤC TIÊU:
+     1. Chọn HSK / tra từ → đưa khu kết quả lên ngay.
+     2. Âm thanh UI nhẹ, khác nhau theo HSK / loại nút.
+     3. Chat không được submit / reload trang khi gửi.
+     4. Không đụng engine dữ liệu, Premium, Flashcard, Test.
+     ========================================================= -->
+<script>
+(function(){
+
+  "use strict";
+
+  if(window.__TTC_UX_POLISH_V1__){
+    return;
+  }
+  window.__TTC_UX_POLISH_V1__ = true;
+
+  /* =========================================================
+     🔊 UI SOUND ENGINE — WebAudio, không cần file âm thanh ngoài
+     ========================================================= */
+  let audioContext = null;
+  let uiSoundEnabled =
+    localStorage.getItem("ttc_ui_sound_enabled") !== "0";
+
+  function getAudioContext(){
+    if(!uiSoundEnabled){
+      return null;
+    }
+
+    try{
+      if(!audioContext){
+        const Ctx =
+          window.AudioContext ||
+          window.webkitAudioContext;
+
+        if(!Ctx){
+          return null;
+        }
+
+        audioContext = new Ctx();
+      }
+
+      if(audioContext.state === "suspended"){
+        audioContext.resume().catch(function(){});
+      }
+
+      return audioContext;
+    }catch(error){
+      return null;
+    }
+  }
+
+  function playUiTone(type, level){
+
+    if(!uiSoundEnabled){
+      return;
+    }
+
+    const ctx = getAudioContext();
+    if(!ctx){
+      return;
+    }
+
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    let base = 520;
+    let duration = 0.075;
+    let endGain = 0.0001;
+
+    const hsk = Number(level);
+
+    if(type === "hsk"){
+      /* HSK1 thấp → HSK9 cao, tạo cảm giác mỗi cấp có màu riêng. */
+      base = 390 + Math.max(1, Math.min(9, hsk || 1)) * 42;
+      duration = 0.105;
+    }
+    else if(type === "search"){
+      base = 720;
+      duration = 0.09;
+    }
+    else if(type === "success"){
+      base = 660;
+      duration = 0.14;
+    }
+    else if(type === "next"){
+      base = 580;
+      duration = 0.055;
+    }
+    else if(type === "click"){
+      base = 500;
+      duration = 0.045;
+    }
+
+    osc.type = type === "success" ? "sine" : "triangle";
+    osc.frequency.setValueAtTime(base, now);
+
+    if(type === "success"){
+      osc.frequency.linearRampToValueAtTime(base * 1.32, now + duration);
+    }
+
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.035, now + 0.008);
+    gain.gain.exponentialRampToValueAtTime(endGain, now + duration);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(now);
+    osc.stop(now + duration + 0.015);
+  }
+
+  window.ttcPlayUiSound = playUiTone;
+
+  /* Chat Enter bridge: gọi đúng engine sendText() đang có sẵn. */
+  window.ttcChatSendFromUx = function(){
+    const sendButton = document.getElementById("ttcChatSend");
+    if(sendButton){
+      sendButton.click();
+    }
+  };
+
+  /* =========================================================
+     🔊 Bắt click trên HSK / nút học / tra từ
+     ========================================================= */
+  document.addEventListener("click", function(event){
+
+    const target = event.target.closest("button");
+    if(!target){
+      return;
+    }
+
+    const hskButton =
+      target.closest(".ttc-hsk-buttons button, nav button.hsk-nav");
+
+    if(hskButton){
+      const match =
+        String(hskButton.textContent || "").match(/HSK\s*(\d+)/i);
+
+      playUiTone(
+        "hsk",
+        match ? Number(match[1]) : 1
+      );
+      return;
+    }
+
+    const label =
+      String(target.textContent || "").trim();
+
+    if(
+      target.matches(".search button") ||
+      /^Tìm$/i.test(label) ||
+      /tra từ/i.test(label)
+    ){
+      playUiTone("search", 1);
+      return;
+    }
+
+    if(
+      target.closest("#autoLearning") ||
+      target.closest("#flashcard") ||
+      target.closest("#testSection")
+    ){
+      playUiTone("next", 1);
+    }
+
+  }, false);
+
+  /* =========================================================
+     🛡️ CHAT: chặn submit/navigation ở cấp capture
+     kể cả khi sau này một wrapper ngoài vô tình trở thành form.
+     Không gọi sendText ở đây → tránh gửi trùng.
+     ========================================================= */
+  document.addEventListener("submit", function(event){
+
+    const form = event.target;
+
+    if(
+      form &&
+      form.closest &&
+      form.closest("#ttcChat")
+    ){
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+  }, true);
+
+  const chatSend =
+    document.getElementById("ttcChatSend");
+
+  /* =========================================================
+     💬 Chat input: Enter gửi, Shift+Enter xuống dòng.
+     Gia cố lại bằng listener capture để không có handler khác
+     làm submit/reload trước handler hiện tại.
+     ========================================================= */
+  const chatInput =
+    document.getElementById("ttcChatInput");
+
+  if(chatInput){
+    chatInput.addEventListener("keydown", function(event){
+
+      if(
+        event.key === "Enter" &&
+        !event.shiftKey
+      ){
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        if(typeof window.ttcChatSendFromUx === "function"){
+          window.ttcChatSendFromUx();
+        }
+      }
+
+    }, true);
+  }
+
+  /* =========================================================
+     🔊 Nút bật/tắt âm thanh UI
+     Chỉ tạo một nút nhỏ, không ảnh hưởng layout hiện tại.
+     ========================================================= */
+  function addSoundToggle(){
+
+    if(document.getElementById("ttcUiSoundToggle")){
+      return;
+    }
+
+    const button = document.createElement("button");
+    button.id = "ttcUiSoundToggle";
+    button.type = "button";
+    button.title = "Bật / tắt âm thanh giao diện";
+    button.textContent = uiSoundEnabled ? "🔊" : "🔇";
+
+    button.style.cssText = [
+      "position:fixed",
+      "right:14px",
+      "bottom:14px",
+      "z-index:9997",
+      "width:42px",
+      "height:42px",
+      "padding:0",
+      "border-radius:50%",
+      "background:#fff",
+      "color:#222",
+      "border:1px solid #ddd",
+      "box-shadow:0 4px 16px rgba(0,0,0,.14)",
+      "font-size:19px",
+      "cursor:pointer"
+    ].join(";");
+
+    button.addEventListener("click", function(event){
+      event.preventDefault();
+      event.stopPropagation();
+
+      uiSoundEnabled = !uiSoundEnabled;
+      localStorage.setItem(
+        "ttc_ui_sound_enabled",
+        uiSoundEnabled ? "1" : "0"
+      );
+
+      button.textContent =
+        uiSoundEnabled ? "🔊" : "🔇";
+
+      if(uiSoundEnabled){
+        playUiTone("success", 1);
+      }
+    });
+
+    document.body.appendChild(button);
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", addSoundToggle, {once:true});
+  }else{
+    addSoundToggle();
+  }
+
+})();
+</script>
+
+
+<!-- =========================================================
+     🛡️ TTC FINAL SAFE PATCH — UI / CHAT / FIREWORK / MUSIC
+     Không thay engine dữ liệu, tài khoản, Premium, Flashcard,
+     Test, Luyện câu, Auto Learning engine.
+========================================================= -->
+<style id="ttcFinalSafePatchCSS">
+
+/* 1) Nền TRẮNG để pháo hoa nổi rõ nhất.
+      Canvas nằm trên nền nhưng dưới các khu UI. */
+html, body{
+  background:#ffffff !important;
+}
+
+#ttcLightFallCanvas{
+  z-index:1 !important;
+  opacity:1 !important;
+  mix-blend-mode:screen !important;
+  pointer-events:none !important;
+}
+
+/* Các lớp nội dung chính nằm trên pháo hoa */
+body > header,
+body > nav,
+body > main,
+body > #accountSystem{
+  position:relative;
+  z-index:2;
+}
+
+/* Tài khoản luôn nổi trên hiệu ứng */
+#accountSystem{
+  z-index:100010 !important;
+}
+
+/* 2) CHAT ONLINE — mở toàn màn hình thật */
+#ttcChatV1{
+  position:fixed !important;
+  inset:0 !important;
+  width:100vw !important;
+  height:100vh !important;
+  height:100dvh !important;
+  padding:0 !important;
+  margin:0 !important;
+  border-radius:0 !important;
+}
+
+#ttcChatV1 .ttc-chat-shell{
+  position:fixed !important;
+  inset:0 !important;
+  left:0 !important;
+  top:0 !important;
+  transform:none !important;
+  width:100vw !important;
+  max-width:none !important;
+  height:100vh !important;
+  height:100dvh !important;
+  max-height:none !important;
+  border-radius:0 !important;
+}
+
+#ttcChatV1 .ttc-chat-head{
+  flex-shrink:0 !important;
+}
+
+#ttcChatV1 .ttc-chat-body,
+#ttcChatV1 .ttc-chat-main,
+#ttcChatV1 .ttc-chat-messages{
+  min-height:0 !important;
+}
+
+#ttcChatV1 .ttc-chat-composer{
+  flex-shrink:0 !important;
+}
+
+/* 3) AUTO LEARNING — xanh nước biển */
+#autoLearning{
+  background:linear-gradient(145deg,#ffffff 0%,#eef7ff 55%,#dff0ff 100%) !important;
+  border:2px solid #4aa3ff !important;
+  box-shadow:0 8px 25px rgba(37,134,223,.16),
+             0 0 0 3px rgba(37,134,223,.06) !important;
+}
+
+#autoLearning h2{
+  color:#0875c9 !important;
+}
+
+#autoLearning .auto-learning-word{
+  color:#075eaa !important;
+}
+
+#autoLearning .auto-learning-pinyin{
+  color:#2586df !important;
+}
+
+#autoLearning .auto-learning-meaning{
+  color:#174b73 !important;
+}
+
+#autoLearning .auto-learning-buttons button{
+  background:linear-gradient(135deg,#2586df,#0875c9) !important;
+  color:#fff !important;
+  box-shadow:0 5px 14px rgba(37,134,223,.22) !important;
+}
+
+#autoLearning .auto-learning-buttons button:hover{
+  filter:brightness(1.05);
+  transform:translateY(-1px);
+}
+
+#autoLearning select{
+  border:1px solid #78bdf2 !important;
+  color:#075eaa !important;
+  background:#fff !important;
+}
+
+/* 4) Nút tắt/bật loa UI ở BÊN PHẢI CUỐI TRANG */
+#ttcUiSoundToggle{
+  right:14px !important;
+  left:auto !important;
+  bottom:14px !important;
+  top:auto !important;
+  z-index:100020 !important;
+}
+
+/* 5) Nhạc nền — dock giữa đầu trang */
+#ttcMusicDock{
+  position:fixed;
+  top:10px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:100030;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  padding:6px 9px;
+  border:1px solid rgba(37,134,223,.22);
+  border-radius:999px;
+  background:rgba(255,255,255,.94);
+  box-shadow:0 6px 22px rgba(30,80,120,.15);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  font-size:12px;
+}
+
+#ttcMusicToggle{
+  min-width:42px;
+  min-height:34px;
+  padding:7px 10px;
+  border-radius:999px;
+  background:linear-gradient(135deg,#2586df,#0875c9);
+  color:#fff;
+  font-weight:800;
+}
+
+#ttcMusicSelect{
+  min-height:34px;
+  max-width:190px;
+  padding:6px 9px;
+  border:1px solid #9bcdf3;
+  border-radius:999px;
+  background:#fff;
+  color:#075eaa;
+  font-weight:700;
+  outline:none;
+}
+
+#ttcMusicVolume{
+  width:70px;
+  accent-color:#2586df;
+}
+
+@media(max-width:600px){
+  #ttcMusicDock{
+    top:7px;
+    max-width:calc(100vw - 110px);
+    gap:4px;
+    padding:5px 7px;
+  }
+  #ttcMusicSelect{
+    max-width:135px;
+    font-size:11px;
+  }
+  #ttcMusicVolume{
+    display:none;
+  }
+}
+
+</style>
+
+<div id="ttcMusicDock" aria-label="Nhạc nền">
+  <button id="ttcMusicToggle" type="button" title="Bật / tắt nhạc nền">🎵</button>
+  <select id="ttcMusicSelect" title="Chọn nhạc nền">
+    <option value="energy1">🔥 Sôi động 1</option>
+    <option value="energy2">⚡ Sôi động 2</option>
+    <option value="iphone1">📱 iPhone-style 1</option>
+    <option value="iphone2">📱 iPhone-style 2</option>
+    <option value="samsung1">📱 Samsung-style 1</option>
+    <option value="samsung2">📱 Samsung-style 2</option>
+  </select>
+  <input id="ttcMusicVolume" type="range" min="0" max="0.08" step="0.002" value="0.025" title="Âm lượng">
+</div>
+
+<script>
+(function(){
+  "use strict";
+  if(window.__TTC_MUSIC_V3__) return;
+  window.__TTC_MUSIC_V3__=true;
+
+  let ctx=null, timer=null, playing=false, step=0;
+  let track=localStorage.getItem("ttc_music_track")||"energy1";
+  let volume=Number(localStorage.getItem("ttc_music_volume")||"0.025");
+  const toggle=document.getElementById("ttcMusicToggle");
+  const select=document.getElementById("ttcMusicSelect");
+  const slider=document.getElementById("ttcMusicVolume");
+  if(!toggle||!select||!slider) return;
+  select.value=track;
+  if(!select.value){track="energy1";select.value=track;}
+  volume=Math.max(0,Math.min(.08,volume));
+  slider.value=String(volume);
+
+  /* Các giai điệu được tạo bằng WebAudio, không tải nhạc có bản quyền.
+     Tên iPhone/Samsung-style chỉ mô tả phong cách âm thanh. */
+  const tracks={
+    energy1:{tempo:150,melody:[523.25,659.25,783.99,659.25,587.33,698.46,880,698.46,659.25,783.99,987.77,783.99,698.46,880,1046.5,880],bass:[130.81,164.81,196,164.81]},
+    energy2:{tempo:140,melody:[392,493.88,587.33,659.25,783.99,659.25,587.33,493.88,440,554.37,659.25,739.99,880,739.99,659.25,554.37],bass:[98,123.47,146.83,130.81]},
+    iphone1:{tempo:132,melody:[659.25,783.99,987.77,783.99,659.25,587.33,659.25,880,783.99,659.25,587.33,523.25,587.33,659.25,783.99,1046.5],bass:[164.81,196,246.94,196]},
+    iphone2:{tempo:128,melody:[523.25,659.25,698.46,783.99,880,783.99,698.46,659.25,523.25,587.33,659.25,783.99,987.77,880,783.99,659.25],bass:[130.81,164.81,174.61,196]},
+    samsung1:{tempo:136,melody:[440,554.37,659.25,880,659.25,554.37,493.88,659.25,523.25,659.25,783.99,1046.5,783.99,659.25,587.33,493.88],bass:[110,138.59,164.81,130.81]},
+    samsung2:{tempo:144,melody:[587.33,698.46,880,1046.5,880,698.46,659.25,783.99,493.88,587.33,739.99,987.77,739.99,659.25,587.33,440],bass:[146.83,174.61,220,196]}
+  };
+
+  function getCtx(){
+    try{
+      const Ctx=window.AudioContext||window.webkitAudioContext;
+      if(!Ctx) return null;
+      if(!ctx) ctx=new Ctx();
+      if(ctx.state==="suspended") ctx.resume().catch(function(){});
+      return ctx;
+    }catch(e){return null;}
+  }
+  function note(freq,when,len,gain,type){
+    const c=getCtx(); if(!c) return;
+    const osc=c.createOscillator(), g=c.createGain();
+    osc.type=type||"triangle";
+    osc.frequency.setValueAtTime(freq,when);
+    g.gain.setValueAtTime(.0001,when);
+    g.gain.exponentialRampToValueAtTime(Math.max(.0002,gain),when+.015);
+    g.gain.exponentialRampToValueAtTime(.0001,when+len);
+    osc.connect(g);g.connect(c.destination);osc.start(when);osc.stop(when+len+.025);
+  }
+  function kick(when){
+    const c=getCtx(); if(!c) return;
+    const o=c.createOscillator(),g=c.createGain();
+    o.type="sine";o.frequency.setValueAtTime(105,when);o.frequency.exponentialRampToValueAtTime(48,when+.09);
+    g.gain.setValueAtTime(.0001,when);g.gain.exponentialRampToValueAtTime(.018,when+.006);g.gain.exponentialRampToValueAtTime(.0001,when+.11);
+    o.connect(g);g.connect(c.destination);o.start(when);o.stop(when+.13);
+  }
+  function schedule(){
+    const c=getCtx(); if(!c||!playing) return;
+    const t=tracks[track]||tracks.energy1, now=c.currentTime, i=step%t.melody.length;
+    note(t.melody[i],now,.18,volume,"triangle");
+    note(t.bass[Math.floor(step/4)%t.bass.length],now,.30,volume*.55,"sine");
+    if(step%4===0){kick(now);note(t.bass[Math.floor(step/4)%t.bass.length]*2,now,.10,volume*.22,"square");}
+    step++;
+  }
+  function start(){
+    if(!getCtx()) return;
+    playing=true;step=0;clearInterval(timer);schedule();
+    const t=tracks[track]||tracks.energy1;
+    timer=setInterval(schedule,60000/t.tempo/2);
+    toggle.textContent="⏸️";toggle.title="Tắt nhạc nền";
+  }
+  function stop(){playing=false;clearInterval(timer);timer=null;toggle.textContent="🎵";toggle.title="Bật nhạc nền";}
+  toggle.addEventListener("click",function(e){e.preventDefault();e.stopPropagation();if(playing)stop();else start();});
+  select.addEventListener("change",function(){track=select.value;localStorage.setItem("ttc_music_track",track);if(playing){step=0;schedule();}});
+  slider.addEventListener("input",function(){volume=Number(slider.value);localStorage.setItem("ttc_music_volume",String(volume));});
+  stop();
+})();
+</script>
+
+<script>
+(function(){
+  "use strict";
+  if(window.__TTC_ALL_BUTTON_SOUND_V3__) return;
+  window.__TTC_ALL_BUTTON_SOUND_V3__=true;
+
+  function play(type,level){
+    try{
+      if(typeof window.ttcPlayUiSound==="function"){
+        window.ttcPlayUiSound(type||"click",level||1);
+        return;
+      }
+      const Ctx=window.AudioContext||window.webkitAudioContext;
+      if(!Ctx) return;
+      const c=new Ctx(),o=c.createOscillator(),g=c.createGain();
+      o.type="sine";o.frequency.value=620;g.gain.value=.025;o.connect(g);g.connect(c.destination);
+      o.start();o.stop(c.currentTime+.045);
+    }catch(e){}
+  }
+
+  document.addEventListener("pointerdown",function(event){
+    const b=event.target.closest && event.target.closest(
+      "button,[role=button],input[type=button],input[type=submit],input[type=reset],summary"
+    );
+    if(!b) return;
+    let type="click",level=1;
+    const txt=(b.textContent||b.value||"").trim();
+    const h=txt.match(/HSK\s*(\d+)/i);
+    if(h){type="hsk";level=Number(h[1]);}
+    else if(b.matches(".search button") || /^Tìm$/i.test(txt)) type="search";
+    else if(/test từ vựng/i.test(txt)) type="success";
+    else if(/chat online/i.test(txt)) type="success";
+    play(type,level);
+  },true);
+})();
+</script>
+
+
+<style id="ttcFinalLastFixCSS">
+html,body{background:#fff !important;}
+#accountSystem{
+  position:fixed !important;
+  top:12px !important;
+  left:12px !important;
+  right:auto !important;
+  bottom:auto !important;
+  margin:0 !important;
+  z-index:100010 !important;
+}
+#ttcLightFallCanvas{
+  position:fixed !important;
+  inset:0 !important;
+  width:100vw !important;
+  height:100vh !important;
+  z-index:9998 !important;
+  opacity:1 !important;
+  pointer-events:none !important;
+  mix-blend-mode:normal !important;
+}
+#ttcMusicDock{z-index:100030 !important;}
+#ttcUiSoundToggle{right:14px !important;left:auto !important;bottom:14px !important;top:auto !important;z-index:100020 !important;}
 </style>
 </body>
 </html>
