@@ -128226,19 +128226,18 @@ $("ttcChatClose").addEventListener(
 
 $("ttcChatSend").addEventListener(
   "click",
-  function(event){
+  async function(event){
 
-    /*
-      🛡️ CHAT: tuyệt đối không cho click gửi tin
-      làm submit / điều hướng / reload trang.
-    */
     event.preventDefault();
     event.stopPropagation();
+    event.stopImmediatePropagation();
 
-    sendText();
+    await sendText();
+
+    return false;
 
   },
-  false
+  true
 );
 
 $("ttcChatAudio").addEventListener(
@@ -128306,7 +128305,7 @@ input.addEventListener(
 
 input.addEventListener(
   "keydown",
-  event => {
+  async function(event){
 
     if(
       event.key === "Enter" &&
@@ -128314,14 +128313,17 @@ input.addEventListener(
     ){
 
       event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
 
-      sendText();
+      await sendText();
 
+      return false;
     }
 
-  }
+  },
+  true
 );
-
 
 /* ============================================================
    CLICK OUTSIDE
@@ -128446,8 +128448,8 @@ button.appendChild(notificationDot);
       background:"#d71920",
       color:"#fff",
       font:"inherit",
-      fontWeight:"800",
-      fontSize:"6px",
+      fontWeight:"5500",
+      fontSize:"9px",
       cursor:"pointer",
       boxShadow:"0 8px 25px rgba(0,0,0,.18)"
     }
