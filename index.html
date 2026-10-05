@@ -2441,6 +2441,21 @@ main{
 .ttc-emoji-picker button:hover{background:#fff0f4;transform:scale(1.08)}
 .ttc-emoji-anchor{position:relative}
 .ttc-emoji-toggle{flex:0 0 auto}
+/* 🛡️ TTC — cửa vào đề: không khóa nút khi Gushi còn đang tải */
+.wh-hsk-ttc-test:disabled,
+.wh-hsk-test:disabled{
+  opacity:.72 !important;
+  cursor:wait !important;
+  transform:none !important;
+}
+.wh-ttc-opening{
+  animation:ttcExamOpening 1s ease-in-out infinite alternate;
+}
+@keyframes ttcExamOpening{
+  from{box-shadow:0 0 0 rgba(180,0,0,0);}
+  to{box-shadow:0 0 18px rgba(180,0,0,.28);}
+}
+
 .wh-hsk-ttc-test{width:100%;margin:8px 0;padding:13px 16px;border:1px solid #f0b9c9;border-radius:14px;background:linear-gradient(135deg,#fff7fa,#fff);color:#a8224b;font-weight:900;cursor:pointer;box-shadow:0 5px 15px rgba(168,34,75,.08)}
 .wh-hsk-ttc-test:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(168,34,75,.12)}
 .wh-hsk-ttc-note{margin:5px 0 12px;padding:9px 12px;border-radius:11px;background:#fff9fb;color:#765b65;font-size:12px;line-height:1.55}
@@ -116209,9 +116224,60 @@ function ttcMakeQuestion(target,pool,index){
   return {q,qPinyin,qMeaning,options:pairs.map(x=>x.value),optionPinyin:pairs.map(x=>x.w.p||""),optionMeaning:pairs.map(x=>x.w.m||""),answer,analysis:pairs.map((x,i)=>i===answer?`ĐÚNG: ${x.value}`:`SAI: ${x.value}`)};
 }
 
+async function openTtcGeneratedExam(button){
+  const level=Number(currentHsk);
+  const originalText=button ? button.textContent : "";
+  if(button){
+    button.disabled=true;
+    button.classList.add("wh-ttc-opening");
+    button.textContent = currentMode === "mock"
+      ? `⏳ ĐANG MỞ THI THỬ HSK ${level}…`
+      : `⏳ ĐANG MỞ LUYỆN TẬP HSK ${level}…`;
+  }
+
+  try{
+    /* HSK1 đã có bộ đề nội bộ cố định. */
+    if(level===1){
+      currentExamNumber=1;
+      startExam();
+      return;
+    }
+
+    /* Gushi HSK6–9 tải bất đồng bộ; chờ dữ liệu thay vì đóng cửa đề. */
+    const deadline=Date.now()+20000;
+    let ready=false;
+    while(Date.now()<deadline){
+      ready = currentMode === "mock"
+        ? ttcBuildGeneratedTests(level)
+        : ensureTtcGeneratedTest(level);
+      if(ready) break;
+      await new Promise(r=>setTimeout(r,250));
+    }
+
+    if(!ready){
+      alert("Dữ liệu HSK chưa sẵn sàng. Em đã chờ tối đa 20 giây; anh tải lại trang rồi mở Thi thử lại nhé 🤗");
+      return;
+    }
+
+    currentExamNumber=1;
+    startExam();
+  }catch(err){
+    console.error("TTC HSK: không mở được đề",err);
+    alert("Đề Thi thử chưa mở được. Em đã chặn lỗi để không ảnh hưởng phần học khác; anh thử lại một lần nhé 🤗");
+  }finally{
+    if(button){
+      button.disabled=false;
+      button.classList.remove("wh-ttc-opening");
+      button.textContent=originalText;
+    }
+  }
+}
+
 function ttcBuildGeneratedTests(level){
   level=Number(level);
-  const all=Array.isArray(window.words)?window.words:[];
+  const all=Array.isArray(window.words)
+    ? window.words
+    : (typeof words !== "undefined" && Array.isArray(words) ? words : []);
   const pool=all.filter(w=>Number(w?.hsk)===level && w?.h && w?.p && w?.m);
   const wanted=level<=2?60:level<=4?80:level<=6?100:98;
   if(pool.length<20) return false;
@@ -116258,17 +116324,23 @@ let examStartedAt = null;
 
 const MOCK_TIME = {
 
-  1:15 * 60,
+  1:35 * 60,
 
-  2:20 * 60,
+  2:55 * 60,
 
-  3:30 * 60,
+  3:90 * 60,
 
-  4:40 * 60,
+  4:105 * 60,
 
-  5:50 * 60,
+  5:125 * 60,
 
-  6:60 * 60
+  6:140 * 60,
+
+  7:210 * 60,
+
+  8:210 * 60,
+
+  9:210 * 60
 
 };
 
@@ -116595,15 +116667,19 @@ function openTestList(){
     const ttcBtn=document.createElement("button");
     ttcBtn.className="wh-hsk-ttc-test";
     ttcBtn.type="button";
-    ttcBtn.textContent=`📝 TTC LUYỆN THI HSK ${currentHsk} · ${currentHsk<=2?60:currentHsk<=4?80:currentHsk<=6?100:98} CÂU`;
-    ttcBtn.onclick=()=>{
-      if(!ensureTtcGeneratedTest(currentHsk)){ alert("Dữ liệu HSK đang được tải. Anh thử lại sau vài giây nhé 🤗"); return; }
-      currentExamNumber=1; startExam();
+    const ttcCount = currentHsk<=2?60:currentHsk<=4?80:currentHsk<=6?100:98;
+    ttcBtn.textContent = currentMode === "mock"
+      ? `🏆 TTC THI THỬ HSK ${currentHsk} · ${ttcCount} CÂU`
+      : `📝 TTC LUYỆN TẬP HSK ${currentHsk} · ${ttcCount} CÂU`;
+    ttcBtn.onclick=async()=>{
+      await openTtcGeneratedExam(ttcBtn);
     };
     testList.appendChild(ttcBtn);
     const ttcNote=document.createElement("div");
     ttcNote.className="wh-hsk-ttc-note";
-    ttcNote.innerHTML=`<strong>Đề luyện nội bộ TTC:</strong> tạo từ dữ liệu từ vựng Gushi HSK 3.0 đã đồng bộ. Cấu trúc câu hỏi luyện Hán tự · pinyin · nghĩa; đề thi thử được xáo trộn riêng mỗi lần.`;
+    ttcNote.innerHTML = currentMode === "mock"
+      ? `<strong>🏆 Thi thử TTC:</strong> có đồng hồ đếm ngược, không hiện đáp án/giải thích trong lúc làm, chấm điểm sau khi nộp và lưu thành tích. Đề được xáo trộn riêng.`
+      : `<strong>📝 Luyện tập TTC:</strong> tạo từ dữ liệu từ vựng Gushi HSK 3.0 đã đồng bộ. Có đáp án, pinyin và giải thích sau khi chọn.`;
     testList.appendChild(ttcNote);
   }
 
@@ -116613,11 +116689,12 @@ function openTestList(){
       document.createElement("button");
 
     btn.className = "wh-hsk-test";
-    btn.textContent = "📝 ĐỀ NỘI BỘ TTC · ĐỀ 01";
+    btn.textContent = currentMode === "mock"
+      ? "🏆 BẮT ĐẦU THI THỬ TTC · HSK 1 · ĐỀ 01"
+      : "📝 BẮT ĐẦU LUYỆN TẬP TTC · HSK 1 · ĐỀ 01";
 
-    btn.onclick = function(){
-      currentExamNumber = 1;
-      startExam();
+    btn.onclick = async function(){
+      await openTtcGeneratedExam(btn);
     };
 
     testList.appendChild(btn);
@@ -116702,9 +116779,17 @@ function startExam(){
   stopTimer();
 
 
-  if(currentHsk>=2 && !ensureTtcGeneratedTest(currentHsk)){
-    alert("Dữ liệu HSK đang được tải. Vui lòng thử lại sau vài giây.");
-    return;
+  if(currentHsk>=2){
+    if(currentMode === "mock"){
+      // Thi thử: tạo một bộ mới mỗi lần bắt đầu để tránh lặp nguyên đề.
+      if(!ttcBuildGeneratedTests(currentHsk)){
+        alert("Dữ liệu HSK đang được tải. Vui lòng thử lại sau vài giây.");
+        return;
+      }
+    }else if(!ensureTtcGeneratedTest(currentHsk)){
+      alert("Dữ liệu HSK đang được tải. Vui lòng thử lại sau vài giây.");
+      return;
+    }
   }
 
   const source =
