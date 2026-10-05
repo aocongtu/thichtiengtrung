@@ -2423,8 +2423,22 @@ main{
 
 
 <style id="ttc-final-v2-enhancements">
-
-
+/* =========================================================
+   🎵 TTC V2 — NHẠC NỀN + EMOJI + TEST LUYỆN THI
+========================================================= */
+.ttc-emoji-picker[hidden]{display:none}
+.ttc-emoji-picker{position:absolute;right:8px;bottom:58px;width:min(330px,calc(100vw - 24px));max-height:260px;overflow:auto;padding:10px;border-radius:16px;background:#fff;border:1px solid #eadde3;box-shadow:0 14px 35px rgba(60,20,40,.18);z-index:9999;display:grid;grid-template-columns:repeat(8,1fr);gap:5px}
+.ttc-emoji-picker button{border:0;background:#fff;border-radius:9px;font-size:23px;line-height:1;padding:7px 2px;cursor:pointer}
+.ttc-emoji-picker button:hover{background:#fff0f4;transform:scale(1.08)}
+.ttc-emoji-anchor{position:relative}
+.ttc-emoji-toggle{flex:0 0 auto}
+/* 🛡️ TTC — cửa vào đề: không khóa nút khi Gushi còn đang tải */
+.wh-hsk-ttc-test:disabled,
+.wh-hsk-test:disabled{
+  opacity:.72 !important;
+  cursor:wait !important;
+  transform:none !important;
+}
 .wh-ttc-opening{
   animation:ttcExamOpening 1s ease-in-out infinite alternate;
 }
@@ -2437,11 +2451,24 @@ main{
 .wh-hsk-ttc-test:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(168,34,75,.12)}
 .wh-hsk-ttc-note{margin:5px 0 12px;padding:9px 12px;border-radius:11px;background:#fff9fb;color:#765b65;font-size:12px;line-height:1.55}
 @media(max-width:600px){
- 
+ .ttc-emoji-picker{grid-template-columns:repeat(7,1fr);bottom:54px;right:2px}
+}
+</style>
+
+<style id="ttcStandaloneMockStyle">
+#ttcStandaloneMock .ttc-sm-backdrop{position:fixed;inset:0;z-index:2147483000;background:rgba(0,0,0,.62);display:flex;align-items:center;justify-content:center;padding:14px}
+#ttcStandaloneMock .ttc-sm-card{width:min(760px,100%);max-height:94vh;overflow:auto;background:#fff;border-radius:20px;box-shadow:0 20px 70px rgba(0,0,0,.3);padding:18px;color:#222}
+#ttcStandaloneMock .ttc-sm-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.ttc-sm-title{font-size:21px;font-weight:900;color:#b40000}.ttc-sm-close{background:#eee;color:#333;padding:8px 12px;border-radius:10px}
+#ttcStandaloneMock .ttc-sm-meta{display:flex;justify-content:space-between;margin:12px 0;font-weight:800;color:#555}.ttc-sm-time{color:#b40000;font-size:20px}
+#ttcStandaloneMock .ttc-sm-question{padding:18px;background:#fafafa;border-radius:15px;text-align:center}.ttc-sm-q{font-size:24px;font-weight:900;line-height:1.5}.ttc-sm-pinyin{margin-top:8px;color:#777}
+#ttcStandaloneMock .ttc-sm-options{display:grid;gap:10px;margin-top:15px}.ttc-sm-option{background:#fff!important;color:#222!important;border:2px solid #ddd!important;text-align:left;padding:13px 15px;border-radius:13px;font-size:17px}.ttc-sm-option.selected{border-color:#d40000!important;background:#fff0f0!important}.ttc-sm-option.correct{border-color:#15803d!important;background:#effcf3!important}
+#ttcStandaloneMock .ttc-sm-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:15px}.ttc-sm-actions button{padding:11px 16px}.ttc-sm-result{text-align:center;margin-top:13px;font-size:18px}.ttc-sm-review-list{margin-top:15px}.ttc-sm-review-item{padding:10px;border-radius:10px;margin:7px 0;background:#f7f7f7}.ttc-sm-review-item.ok{border-left:4px solid #15803d}.ttc-sm-review-item.bad{border-left:4px solid #dc2626}
+@media(max-width:600px){#ttcStandaloneMock .ttc-sm-card{padding:13px}.ttc-sm-q{font-size:20px}}
 </style>
 </head>
 
 <body>
+
 
 
 <header>
@@ -4481,7 +4508,8 @@ body > .price-box{
   >
 
     <button
-      onclick="startTest(this)"
+      onclick="openVocabularyTestChooser(this)"
+      type="button"
     >
       📝 Test từ vựng
     </button>
@@ -85784,6 +85812,63 @@ function updateTestWrongWordCount(){
    📝 BẮT ĐẦU TEST
 ================================================== */
 
+async function openVocabularyTestChooser(sourceButton){
+
+  /* =========================================================
+     📝 TEST TỪ VỰNG — CHỌN HSK ĐỘC LẬP
+     - Không phụ thuộc HSK đang chọn ở thanh điều hướng.
+     - Dùng trực tiếp kho words hiện có của web.
+     - Không thay đổi engine chấm điểm hiện tại.
+  ========================================================= */
+  const allowed = await checkPremiumFeature();
+  if(!allowed) return;
+
+  const old = document.getElementById("ttcVocabularyTestChooser");
+  if(old) old.remove();
+
+  const overlay = document.createElement("div");
+  overlay.id = "ttcVocabularyTestChooser";
+  overlay.setAttribute("role","dialog");
+  overlay.setAttribute("aria-modal","true");
+  overlay.innerHTML = `
+    <div class="ttc-vocab-test-dialog">
+      <button type="button" class="ttc-vocab-test-close" aria-label="Đóng">×</button>
+      <div class="ttc-vocab-test-title">📝 TEST TỪ VỰNG</div>
+      <div class="ttc-vocab-test-subtitle">Chọn cấp độ HSK muốn kiểm tra</div>
+      <div class="ttc-vocab-test-levels">
+        ${[1,2,3,4,5,6,7,8,9].map(lv => `
+          <button type="button" class="ttc-vocab-test-level" data-hsk="${lv}">HSK ${lv}</button>
+        `).join("")}
+      </div>
+      <div class="ttc-vocab-test-note">Đề lấy trực tiếp từ kho từ vựng HSK ${1}–9 đang có trong web.</div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  function close(){ overlay.remove(); }
+  overlay.querySelector(".ttc-vocab-test-close").onclick=close;
+  overlay.addEventListener("click",function(e){ if(e.target===overlay) close(); });
+
+  overlay.querySelectorAll(".ttc-vocab-test-level").forEach(function(levelButton){
+    levelButton.addEventListener("click",async function(){
+      const level=Number(this.dataset.hsk);
+      if(!level) return;
+
+      /* HSK được chọn riêng cho bài test, không đổi các khu học khác. */
+      currentHSK=level;
+      document.querySelectorAll(".wh-hsk-level").forEach(function(b){
+        b.classList.toggle("wh-selected",Number(b.dataset.hsk)===level);
+      });
+      const info=document.getElementById("whHskSelectedInfo");
+      if(info) info.textContent="Đang chọn HSK "+level;
+
+      close();
+      await startTest(sourceButton);
+    });
+  });
+}
+
 async function startTest(btn){
 
   const allowed =
@@ -116195,6 +116280,31 @@ function ttcMakeQuestion(target,pool,index){
   return {q,qPinyin,qMeaning,options:pairs.map(x=>x.value),optionPinyin:pairs.map(x=>x.w.p||""),optionMeaning:pairs.map(x=>x.w.m||""),answer,analysis:pairs.map((x,i)=>i===answer?`ĐÚNG: ${x.value}`:`SAI: ${x.value}`)};
 }
 
+function ttcGetVocabularyPool(level){
+  level = Number(level);
+  let source = [];
+  try{
+    if(Array.isArray(window.words)) source = window.words;
+    else if(typeof words !== "undefined" && Array.isArray(words)) source = words;
+  }catch(e){}
+  return source.filter(function(w){
+    return Number(w?.hsk) === level &&
+      String(w?.h || "").trim() &&
+      String(w?.p || "").trim() &&
+      String(w?.m || "").trim();
+  });
+}
+
+async function ttcWaitForVocabularyLevel(level, timeoutMs){
+  const deadline = Date.now() + (Number(timeoutMs) || 30000);
+  while(Date.now() < deadline){
+    const pool = ttcGetVocabularyPool(level);
+    if(pool.length >= 4) return pool;
+    await new Promise(function(resolve){setTimeout(resolve,250);});
+  }
+  return ttcGetVocabularyPool(level);
+}
+
 async function openTtcGeneratedExam(button){
   const level=Number(currentHsk);
   const originalText=button ? button.textContent : "";
@@ -116207,26 +116317,31 @@ async function openTtcGeneratedExam(button){
   }
 
   try{
-    /* HSK1 đã có bộ đề nội bộ cố định. */
+    /* 🛡️ HSK1: bộ cũ chỉ có 12 câu → dựng đủ 40 câu từ 300 từ Gushi hiện tại. */
     if(level===1){
+      if(!HSK_DATA[1]?.practice || HSK_DATA[1].practice.length < 40 || !HSK_DATA[1]?.mock || HSK_DATA[1].mock.length < 40){
+        if(!ttcBuildGeneratedTests(1)){
+          alert("Dữ liệu HSK1 chưa sẵn sàng. Anh thử lại sau vài giây nhé 🤗");
+          return;
+        }
+      }
       currentExamNumber=1;
       startExam();
       return;
     }
 
-    /* Gushi HSK6–9 tải bất đồng bộ; chờ dữ liệu thay vì đóng cửa đề. */
-    const deadline=Date.now()+20000;
-    let ready=false;
-    while(Date.now()<deadline){
-      ready = currentMode === "mock"
-        ? ttcBuildGeneratedTests(level)
-        : ensureTtcGeneratedTest(level);
-      if(ready) break;
-      await new Promise(r=>setTimeout(r,250));
+    /* 🛡️ DATA READY GATE — chờ đúng kho từ của cấp đang chọn.
+       HSK2–9 dùng chung kho words hiện tại, không phụ thuộc thứ tự
+       loader chạy nhanh/chậm. Chỉ dựng đề khi đã có đủ từ hợp lệ. */
+    const pool = await ttcWaitForVocabularyLevel(level, 30000);
+    if(pool.length < 4){
+      alert("Dữ liệu HSK " + level + " chưa sẵn sàng. Anh thử lại sau vài giây nhé 🤗");
+      return;
     }
 
+    const ready = ttcBuildGeneratedTests(level);
     if(!ready){
-      alert("Dữ liệu HSK chưa sẵn sàng. Em đã chờ tối đa 20 giây; anh tải lại trang rồi mở Thi thử lại nhé 🤗");
+      alert("Không đủ dữ liệu để tạo đề HSK " + level + ". Em đã chặn lỗi để không ảnh hưởng khu học khác.");
       return;
     }
 
@@ -116246,11 +116361,8 @@ async function openTtcGeneratedExam(button){
 
 function ttcBuildGeneratedTests(level){
   level=Number(level);
-  const all=Array.isArray(window.words)
-    ? window.words
-    : (typeof words !== "undefined" && Array.isArray(words) ? words : []);
-  const pool=all.filter(w=>Number(w?.hsk)===level && w?.h && w?.p && w?.m);
-  const wanted=level<=2?60:level<=4?80:level<=6?100:98;
+  const pool=ttcGetVocabularyPool(level);
+  const wanted = ({1:40,2:60,3:70,4:70,5:72,6:82,7:98,8:98,9:98})[level] || 40;
   if(pool.length<20) return false;
   const make=(seed)=>{
     const shuffled=ttcShuffle(pool); const out=[]; let i=0;
@@ -116295,17 +116407,17 @@ let examStartedAt = null;
 
 const MOCK_TIME = {
 
-  1:35 * 60,
+  1:40 * 60,
 
-  2:55 * 60,
+  2:60 * 60,
 
-  3:90 * 60,
+  3:83 * 60,
 
-  4:105 * 60,
+  4:85 * 60,
 
-  5:125 * 60,
+  5:110 * 60,
 
-  6:140 * 60,
+  6:125 * 60,
 
   7:210 * 60,
 
@@ -116638,12 +116750,16 @@ function openTestList(){
     const ttcBtn=document.createElement("button");
     ttcBtn.className="wh-hsk-ttc-test";
     ttcBtn.type="button";
-    const ttcCount = currentHsk<=2?60:currentHsk<=4?80:currentHsk<=6?100:98;
+    const ttcCount = ({1:40,2:60,3:70,4:70,5:72,6:82,7:98,8:98,9:98})[currentHsk] || 40;
     ttcBtn.textContent = currentMode === "mock"
       ? `🏆 TTC THI THỬ HSK ${currentHsk} · ${ttcCount} CÂU`
       : `📝 TTC LUYỆN TẬP HSK ${currentHsk} · ${ttcCount} CÂU`;
     ttcBtn.onclick=async()=>{
-      await openTtcGeneratedExam(ttcBtn);
+      if(currentMode === "mock"){
+        await openTtcStandaloneMock(Number(currentHsk), ttcBtn);
+      }else{
+        await openTtcGeneratedExam(ttcBtn);
+      }
     };
     testList.appendChild(ttcBtn);
     const ttcNote=document.createElement("div");
@@ -116665,7 +116781,11 @@ function openTestList(){
       : "📝 BẮT ĐẦU LUYỆN TẬP TTC · HSK 1 · ĐỀ 01";
 
     btn.onclick = async function(){
-      await openTtcGeneratedExam(btn);
+      if(currentMode === "mock"){
+        await openTtcStandaloneMock(1, btn);
+      }else{
+        await openTtcGeneratedExam(btn);
+      }
     };
 
     testList.appendChild(btn);
@@ -116742,6 +116862,160 @@ function openTestList(){
 }
 
 /* =========================================================
+   🛡️ TTC THI THỬ ĐỘC LẬP V2
+   - Không phụ thuộc HSK_DATA / đề HSK1 cũ
+   - Lấy trực tiếp window.words / words
+   - HSK 1–9
+   - 20 câu, có giờ, nộp bài + kết quả
+========================================================= */
+let ttcStandaloneState = null;
+
+function ttcStandalonePool(level){
+  const src = Array.isArray(window.words) ? window.words :
+    (typeof words !== "undefined" && Array.isArray(words) ? words : []);
+  return src.filter(function(w){
+    return Number(w && w.hsk) === Number(level) &&
+      String(w && w.h || "").trim() &&
+      String(w && w.p || "").trim() &&
+      String(w && w.m || "").trim();
+  });
+}
+
+function ttcStandaloneShuffle(a){
+  const x=a.slice();
+  for(let i=x.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [x[i],x[j]]=[x[j],x[i]];
+  }
+  return x;
+}
+
+function ttcStandaloneBuild(level){
+  const pool=ttcStandalonePool(level);
+  if(pool.length<4) return null;
+  const count=Math.min(30,pool.length);
+  const chosen=ttcStandaloneShuffle(pool).slice(0,count);
+  const questions=[];
+  chosen.forEach(function(target,idx){
+    const kind=idx%3;
+    let candidates=[];
+    for(const w of ttcStandaloneShuffle(pool)){
+      if(w===target) continue;
+      const val=kind===0?w.m:(kind===1?w.p:w.h);
+      const targetVal=kind===0?target.m:(kind===1?target.p:target.h);
+      if(val && val!==targetVal && !candidates.some(x=>x===val)) candidates.push(val);
+      if(candidates.length===3) break;
+    }
+    if(candidates.length<3) return;
+    const options=ttcStandaloneShuffle([kind===0?target.m:(kind===1?target.p:target.h),...candidates]);
+    const answer=options.indexOf(kind===0?target.m:(kind===1?target.p:target.h));
+    questions.push({
+      q:kind===0?`“${target.h}” 的意思是什么？`:kind===1?`“${target.h}” 的拼音是什么？`:`“${target.m}” 对应哪个词？`,
+      p:target.p,m:target.m,h:target.h,options,answer
+    });
+  });
+  return questions.length>=10 ? questions : null;
+}
+
+function ttcStandaloneRender(){
+  const st=ttcStandaloneState;
+  if(!st) return;
+  const q=st.questions[st.index];
+  const root=document.getElementById("ttcStandaloneMock");
+  if(!root) return;
+  root.querySelector(".ttc-sm-title").textContent=`🏆 THI THỬ TTC · HSK ${st.level}`;
+  root.querySelector(".ttc-sm-progress").textContent=`Câu ${st.index+1}/${st.questions.length}`;
+  root.querySelector(".ttc-sm-question").innerHTML=`<div class="ttc-sm-q">${q.q}</div><div class="ttc-sm-pinyin">${q.p}</div>`;
+  const box=root.querySelector(".ttc-sm-options");
+  box.innerHTML="";
+  q.options.forEach(function(opt,i){
+    const b=document.createElement("button"); b.type="button"; b.className="ttc-sm-option"; b.textContent=String.fromCharCode(65+i)+". "+opt;
+    b.onclick=function(){
+      if(st.submitted) return;
+      st.answers[st.index]=i;
+      box.querySelectorAll("button").forEach(x=>x.classList.remove("selected"));
+      b.classList.add("selected");
+    };
+    box.appendChild(b);
+  });
+  root.querySelector(".ttc-sm-result").textContent="";
+  root.querySelector(".ttc-sm-next").style.display=st.index===st.questions.length-1?"none":"inline-flex";
+  root.querySelector(".ttc-sm-submit").style.display=st.index===st.questions.length-1?"inline-flex":"none";
+  root.querySelector(".ttc-sm-time").textContent=ttcStandaloneFmt(st.remaining);
+}
+
+function ttcStandaloneFmt(sec){
+  sec=Math.max(0,Number(sec)||0); return String(Math.floor(sec/60)).padStart(2,"0")+":"+String(sec%60).padStart(2,"0");
+}
+
+function ttcStandaloneStopTimer(){
+  if(ttcStandaloneState && ttcStandaloneState.timer){clearInterval(ttcStandaloneState.timer);ttcStandaloneState.timer=null;}
+}
+
+function ttcStandaloneSubmit(){
+  const st=ttcStandaloneState; if(!st||st.submitted)return;
+  st.submitted=true; ttcStandaloneStopTimer();
+  let score=0; st.questions.forEach((q,i)=>{if(st.answers[i]===q.answer)score++;});
+  const pct=Math.round(score/st.questions.length*100);
+  const root=document.getElementById("ttcStandaloneMock");
+  if(root){
+    root.querySelector(".ttc-sm-result").innerHTML=`🏁 <strong>Hoàn thành HSK ${st.level}</strong><br>Đúng <strong>${score}/${st.questions.length}</strong> câu · <strong>${pct}/100</strong>`;
+    root.querySelector(".ttc-sm-submit").style.display="none";
+    root.querySelector(".ttc-sm-review").style.display="inline-flex";
+    root.querySelectorAll(".ttc-sm-option").forEach((b,i)=>{
+      const q=st.questions[st.index]; if(i===q.answer)b.classList.add("correct");
+    });
+  }
+}
+
+function ttcStandaloneReview(){
+  const st=ttcStandaloneState; const root=document.getElementById("ttcStandaloneMock"); if(!st||!root)return;
+  let html=`<div class="ttc-sm-review-list"><h3>📋 Kết quả chi tiết</h3>`;
+  st.questions.forEach((q,i)=>{const ok=st.answers[i]===q.answer; html+=`<div class="ttc-sm-review-item ${ok?"ok":"bad"}"><strong>${i+1}. ${q.h}</strong> · ${ok?"✅ Đúng":"❌ Sai"}<br>Pinyin: ${q.p}<br>Nghĩa: ${q.m}</div>`;});
+  html+=`</div>`; root.querySelector(".ttc-sm-review").insertAdjacentHTML("afterend",html); root.querySelector(".ttc-sm-review").style.display="none";
+}
+
+function closeTtcStandaloneMock(){
+  ttcStandaloneStopTimer();
+  const root=document.getElementById("ttcStandaloneMock"); if(root)root.remove();
+  ttcStandaloneState=null;
+}
+
+async function openTtcStandaloneMock(level,button){
+  level=Number(level); const old=button?button.textContent:"";
+  if(button){button.disabled=true;button.textContent=`⏳ ĐANG TẠO ĐỀ HSK ${level}…`;}
+  try{
+    const deadline=Date.now()+15000; let pool=ttcStandalonePool(level);
+    while(pool.length<4 && Date.now()<deadline){await new Promise(r=>setTimeout(r,250));pool=ttcStandalonePool(level);}
+    if(pool.length<4){alert(`Chưa lấy được dữ liệu HSK ${level}. Anh thử lại sau vài giây nhé 🤗`);return;}
+    const questions=ttcStandaloneBuild(level);
+    if(!questions){alert(`Không đủ dữ liệu hợp lệ để tạo đề HSK ${level}.`);return;}
+    closeTtcStandaloneMock();
+    const root=document.createElement("div"); root.id="ttcStandaloneMock"; root.innerHTML=`
+      <div class="ttc-sm-backdrop"><div class="ttc-sm-card">
+        <div class="ttc-sm-head"><div class="ttc-sm-title"></div><button type="button" class="ttc-sm-close">✕</button></div>
+        <div class="ttc-sm-meta"><span class="ttc-sm-progress"></span><span class="ttc-sm-time"></span></div>
+        <div class="ttc-sm-question"></div><div class="ttc-sm-options"></div>
+        <div class="ttc-sm-result"></div>
+        <div class="ttc-sm-actions"><button type="button" class="ttc-sm-next">➡️ Câu tiếp</button><button type="button" class="ttc-sm-submit">🏁 Nộp bài</button><button type="button" class="ttc-sm-review" style="display:none">📋 Xem kết quả</button></div>
+      </div></div>`;
+    document.body.appendChild(root);
+    ttcStandaloneState={level,questions,index:0,answers:[],remaining:Math.max(10,questions.length*45),submitted:false,timer:null};
+    root.querySelector(".ttc-sm-close").onclick=function(){if(confirm("Thoát bài thi thử? Tiến trình bài này sẽ không tính."))closeTtcStandaloneMock();};
+    root.querySelector(".ttc-sm-next").onclick=function(){if(ttcStandaloneState.index<questions.length-1){ttcStandaloneState.index++;ttcStandaloneRender();}};
+    root.querySelector(".ttc-sm-submit").onclick=ttcStandaloneSubmit;
+    root.querySelector(".ttc-sm-review").onclick=ttcStandaloneReview;
+    ttcStandaloneRender();
+    ttcStandaloneState.timer=setInterval(function(){
+      const st=ttcStandaloneState;if(!st||st.submitted)return;
+      st.remaining--; const el=root.querySelector(".ttc-sm-time");if(el)el.textContent=ttcStandaloneFmt(st.remaining);
+      if(st.remaining<=0){ttcStandaloneSubmit();}
+    },1000);
+  }catch(e){console.error("TTC standalone mock",e);alert("Đề thi thử chưa mở được. Em đã chặn lỗi để không ảnh hưởng khu học khác 🤗");}
+  finally{if(button){button.disabled=false;button.textContent=old;}}
+}
+
+/* =========================================================
    🚀 START
 ========================================================= */
 
@@ -116750,7 +117024,7 @@ function startExam(){
   stopTimer();
 
 
-  if(currentHsk>=2){
+  if(currentHsk>=1){
     if(currentMode === "mock"){
       // Thi thử: tạo một bộ mới mỗi lần bắt đầu để tránh lặp nguyên đề.
       if(!ttcBuildGeneratedTests(currentHsk)){
@@ -126031,6 +126305,14 @@ body.ttc-light-effect-off #ttcLightFallCanvas{
           🔗 Mời
         </button>
 
+        <button id="ttcChatFullscreen"
+                class="ttc-chat-btn"
+                type="button"
+                aria-label="Thu nhỏ khung chat"
+                title="Thu nhỏ khung chat">
+          ⛶
+        </button>
+
         <button id="ttcChatClose"
                 class="ttc-chat-btn ttc-chat-close"
                 type="button">
@@ -126267,6 +126549,7 @@ const onlineText = $("ttcChatOnlineText");
 const replyingBox = $("ttcChatReplying");
 const replyText = $("ttcChatReplyText");
 const newMessagesBtn = $("ttcChatNewMessages");
+const fullscreenBtn = $("ttcChatFullscreen");
 
 /* ============================================================
    😊 EMOJI PICKER — chỉ chèn emoji vào ô nhập, không reload chat
@@ -126456,6 +126739,7 @@ hideChatNotification();
 
   chat.classList.add("ttc-chat-open");
   chat.setAttribute("aria-hidden","false");
+  setChatFullscreen(true);
 
   await initializeChat();
 
@@ -128590,6 +128874,50 @@ function autoResizeInput(){
 }
 
 
+function setChatFullscreen(fullscreen){
+  const shell = chat && chat.querySelector(".ttc-chat-shell");
+  if(!shell) return;
+  shell.classList.toggle("ttc-chat-windowed", !fullscreen);
+  if(fullscreen){
+    shell.style.left="0";
+    shell.style.top="0";
+    shell.style.right="auto";
+    shell.style.bottom="auto";
+    shell.style.transform="none";
+    if(fullscreenBtn){
+      fullscreenBtn.textContent="↙";
+      fullscreenBtn.title="Thu nhỏ khung chat";
+      fullscreenBtn.setAttribute("aria-label","Thu nhỏ khung chat");
+    }
+  }else{
+    const w=Math.min(1100,Math.max(280,innerWidth*.94));
+    const h=Math.min(850,Math.max(360,innerHeight*.86));
+    const l=Math.max(8,(innerWidth-w)/2);
+    const t=Math.max(8,(innerHeight-h)/2);
+    shell.style.width=w+"px";
+    shell.style.height=h+"px";
+    shell.style.left=l+"px";
+    shell.style.top=t+"px";
+    shell.style.right="auto";
+    shell.style.bottom="auto";
+    shell.style.transform="none";
+    if(fullscreenBtn){
+      fullscreenBtn.textContent="⛶";
+      fullscreenBtn.title="Mở toàn màn hình";
+      fullscreenBtn.setAttribute("aria-label","Mở toàn màn hình");
+    }
+  }
+}
+
+if(fullscreenBtn){
+  fullscreenBtn.addEventListener("click",function(event){
+    event.preventDefault();
+    event.stopPropagation();
+    const shell=chat.querySelector(".ttc-chat-shell");
+    setChatFullscreen(!!shell && shell.classList.contains("ttc-chat-windowed"));
+  });
+}
+
 /* ============================================================
    EVENTS
    ============================================================ */
@@ -129076,9 +129404,6 @@ if(
 <!-- =========================
      END CHAT V1 PACK
      ========================= -->
-
-
-</style>
 <!-- =========================================================
      💬 CHAT WINDOW — FREE DRAG V2
      Desktop: kéo khung chat tự do bằng thanh tiêu đề.
@@ -129505,7 +129830,7 @@ if(
 (function(){
  if(window.__TTC_CHAT_OUTSIDE_CONTROL_FINAL__)return; window.__TTC_CHAT_OUTSIDE_CONTROL_FINAL__=true;
  function btn(){return document.getElementById("ttcFloatingChatBtn")} function shell(){return document.querySelector("#ttcChatV1 .ttc-chat-shell")}
- function place(){const b=btn(),s=shell();if(!b||!s)return;const r=b.getBoundingClientRect(),sw=s.offsetWidth||Math.min(1100,innerWidth*.96),sh=s.offsetHeight||Math.min(850,innerHeight*.94),g=10;let l=r.left,t=r.bottom+g;if(l+sw>innerWidth-8)l=innerWidth-sw-8;if(l<8)l=8;if(t+sh>innerHeight-8)t=r.top-sh-g;if(t<8)t=8;s.style.left=l+"px";s.style.top=t+"px";s.style.right="auto";s.style.bottom="auto";s.style.transform="none";}
+ function place(){const b=btn(),s=shell();if(!b||!s||!s.classList.contains('ttc-chat-windowed'))return;const r=b.getBoundingClientRect(),sw=s.offsetWidth||Math.min(1100,innerWidth*.96),sh=s.offsetHeight||Math.min(850,innerHeight*.94),g=10;let l=r.left,t=r.bottom+g;if(l+sw>innerWidth-8)l=innerWidth-sw-8;if(l<8)l=8;if(t+sh>innerHeight-8)t=r.top-sh-g;s.style.left=l+"px";s.style.top=t+"px";s.style.right="auto";s.style.bottom="auto";s.style.transform="none";}
  let pending=false;
  document.addEventListener("click",function(e){if(e.target.closest&&e.target.closest("#ttcFloatingChatBtn"))pending=true},true);
  new MutationObserver(function(){const c=document.getElementById("ttcChatV1");if(c&&pending&&c.classList.contains("ttc-chat-open")){pending=false;requestAnimationFrame(()=>requestAnimationFrame(place));}}).observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:["class"]});
@@ -130148,6 +130473,8 @@ if(
   }
 
 }
+
+</style>
 
 <style>
 /* =========================================================
@@ -131205,7 +131532,7 @@ button.addEventListener(
       id="ttcEA2Delay"
       type="range"
       min="0"
-      max="7"
+      max="15"
       step="1"
       value="3"
     >
@@ -131413,7 +131740,7 @@ button.addEventListener(
     if(
       !Number.isFinite(gap) ||
       gap < 0 ||
-      gap > 7
+      gap > 15
     ){
 
       gap = 3;
@@ -131788,7 +132115,7 @@ button.addEventListener(
        🔊 ĐỌC
        ======================================================= */
 
-    function speak(text,language){
+    function speak(text,language,onEnd){
 
       if(
         !text ||
@@ -131798,6 +132125,10 @@ button.addEventListener(
         status.textContent =
           "⚠️ Trình duyệt không hỗ trợ đọc âm thanh.";
 
+        if(typeof onEnd === "function"){
+          onEnd();
+        }
+
         return;
 
       }
@@ -131806,7 +132137,6 @@ button.addEventListener(
       try{
 
         speechSynthesis.cancel();
-
         speechSynthesis.resume();
 
 
@@ -131838,6 +132168,24 @@ button.addEventListener(
         }
 
 
+        let finished = false;
+
+        const finish =
+          function(){
+
+            if(finished){
+              return;
+            }
+
+            finished = true;
+
+            if(typeof onEnd === "function"){
+              onEnd();
+            }
+
+          };
+
+
         utterance.onstart =
           function(){
 
@@ -131849,6 +132197,8 @@ button.addEventListener(
 
         utterance.onend =
           function(){
+
+            finish();
 
             if(!running){
 
@@ -131867,6 +132217,8 @@ button.addEventListener(
                 ? "⚠️ Không tìm thấy giọng Việt trên thiết bị."
                 : "⚠️ Không phát được âm thanh.";
 
+            finish();
+
           };
 
 
@@ -131882,10 +132234,13 @@ button.addEventListener(
           error
         );
 
+        if(typeof onEnd === "function"){
+          onEnd();
+        }
+
       }
 
     }
-
 
     /* =======================================================
        🔊 CHỜ VOICE TẢI
@@ -132028,15 +132383,82 @@ button.addEventListener(
 
 
       /*
-       * 🇨🇳 → 🇻🇳
+       * ⏱️ THỜI GIAN RIÊNG CHO AUTO V2
        *
-       * Cùng một câu:
-       * đọc tiếng Trung
-       * → chờ gap
-       * → đọc nghĩa tiếng Việt
-       * → chờ gap
-       * → sang câu tiếp theo.
+       * 3 giây: khoảng nghỉ giữa tiếng Trung ↔ tiếng Việt.
+       * gap (0–15 giây): khoảng nghỉ SAU KHI ĐỌC XONG CẢ HAI
+       * ngôn ngữ rồi mới chuyển sang câu tiếp theo.
+       *
+       * Quan trọng: timer chỉ bắt đầu SAU khi TTS phát onend,
+       * nên câu dài cũng không bị cắt hoặc chuyển quá sớm.
        */
+
+      const voiceGap = 3;
+
+      /*
+       * 🛡️ WHITE HAT — KHOẢNG NGHỈ CHÍNH XÁC
+       *
+       * Không chỉ tin vào một setTimeout duy nhất.
+       * Trên một số thiết bị/trình duyệt, timer có thể bị gọi
+       * sớm hoặc bị ảnh hưởng bởi các timer khác của trang.
+       * Vì vậy luôn kiểm tra deadline thực tế bằng Date.now().
+       *
+       * Kết quả: nếu anh chọn 15 giây thì KHÔNG được phép
+       * chuyển câu trước đủ 15 giây kể từ lúc bắt đầu nghỉ.
+       */
+      const waitThen =
+        function(seconds, callback){
+
+          if(timer){
+
+            clearTimeout(timer);
+
+            timer = null;
+
+          }
+
+          const duration =
+            Math.max(0, Number(seconds) || 0) * 1000;
+
+          const deadline =
+            Date.now() + duration;
+
+          const check =
+            function(){
+
+              timer = null;
+
+              if(!running){
+                return;
+              }
+
+              const remaining =
+                deadline - Date.now();
+
+              if(remaining > 0){
+
+                timer =
+                  setTimeout(
+                    check,
+                    Math.min(remaining, 250)
+                  );
+
+                return;
+
+              }
+
+              callback();
+
+            };
+
+          check();
+
+        };
+
+
+      /* =====================================================
+         🇨🇳 → 🇻🇳
+         ===================================================== */
 
       if(
         directionMode === "zh-vi"
@@ -132044,7 +132466,10 @@ button.addEventListener(
 
         if(!zhText){
 
-          advance();
+          waitThen(
+            gap,
+            advance
+          );
 
           return;
 
@@ -132053,58 +132478,51 @@ button.addEventListener(
 
         speak(
           zhText,
-          "zh-CN"
-        );
+          "zh-CN",
+          function(){
+
+            if(!running){
+              return;
+            }
+
+            waitThen(
+              voiceGap,
+              function(){
+
+                if(!viText){
+
+                  waitThen(
+                    gap,
+                    advance
+                  );
+
+                  return;
+
+                }
 
 
-        timer =
-          setTimeout(
-            function(){
-
-              timer = null;
-
-
-              if(!running){
-
-                return;
-
-              }
-
-
-              if(!viText){
-
-                advance();
-
-                return;
-
-              }
-
-
-              /*
-               * Đọc tiếng Việt của CÙNG câu.
-               */
-
-              speak(
-                viText,
-                "vi-VN"
-              );
-
-
-              timer =
-                setTimeout(
+                speak(
+                  viText,
+                  "vi-VN",
                   function(){
 
-                    timer = null;
+                    if(!running){
+                      return;
+                    }
 
-                    advance();
+                    waitThen(
+                      gap,
+                      advance
+                    );
 
-                  },
-                  gap * 1000
+                  }
                 );
 
-            },
-            gap * 1000
-          );
+              }
+            );
+
+          }
+        );
 
 
         return;
@@ -132112,15 +132530,9 @@ button.addEventListener(
       }
 
 
-      /*
-       * 🇻🇳 → 🇨🇳
-       *
-       * Nghĩa Việt
-       * → chờ gap
-       * → câu Trung
-       * → chờ gap
-       * → câu tiếp theo.
-       */
+      /* =====================================================
+         🇻🇳 → 🇨🇳
+         ===================================================== */
 
       if(!viText){
 
@@ -132131,18 +132543,10 @@ button.addEventListener(
           "⚠️ Câu này chưa có nghĩa tiếng Việt — đang bỏ qua.";
 
 
-        timer =
-          setTimeout(
-            function(){
-
-              timer = null;
-
-              advance();
-
-            },
-            gap * 1000
-          );
-
+        waitThen(
+          gap,
+          advance
+        );
 
         return;
 
@@ -132151,52 +132555,41 @@ button.addEventListener(
 
       speak(
         viText,
-        "vi-VN"
-      );
+        "vi-VN",
+        function(){
 
+          if(!running){
+            return;
+          }
 
-      timer =
-        setTimeout(
-          function(){
+          waitThen(
+            voiceGap,
+            function(){
 
-            timer = null;
-
-
-            if(!running){
-
-              return;
-
-            }
-
-
-            /*
-             * Đọc tiếng Trung của CÙNG câu.
-             */
-
-            speak(
-              zhText,
-              "zh-CN"
-            );
-
-
-            timer =
-              setTimeout(
+              speak(
+                zhText,
+                "zh-CN",
                 function(){
 
-                  timer = null;
+                  if(!running){
+                    return;
+                  }
 
-                  advance();
+                  waitThen(
+                    gap,
+                    advance
+                  );
 
-                },
-                gap * 1000
+                }
               );
 
-          },
-          gap * 1000
-        );
+            }
+          );
+
+        }
+      );
 
     }
-
 
     /* =======================================================
        ⏱️ AUTO SCHEDULE
@@ -132982,27 +133375,24 @@ button.addEventListener(
 
 <!-- TTC FINAL — CHAT KÉO NGOÀI WEB + PHÁO HOA -->
 <style id="ttcFinalChatEffect">
-#ttcFloatingChatBtn{touch-action:none !important;cursor:grab !important;z-index:1000000 !important;-webkit-user-select:none !important;user-select:none !important;-webkit-touch-callout:none !important}
-#ttcFloatingChatBtn.ttc-dragging{cursor:grabbing !important;opacity:.92}
+#ttcFloatingChatBtn{touch-action:none !important;cursor:grab !important;z-index:1000000 !important}#ttcFloatingChatBtn.ttc-dragging{cursor:grabbing !important}
 #ttcLightFallCanvas{position:fixed !important;inset:0 !important;width:100vw !important;height:100vh !important;pointer-events:none !important;z-index:9990 !important;opacity:1 !important}
 </style>
 <script>
 (function(){
- if(window.__TTC_FINAL_CHAT_DRAG_V2__)return;window.__TTC_FINAL_CHAT_DRAG_V2__=true;
- const KEY="ttc_chat_button_position_final_v2";let b=null,drag=false,moved=false,startX=0,startY=0,startL=0,startT=0,pointerId=null,suppressClick=false;
- const clamp=(l,t)=>{if(!b)return{left:l,top:t};const r=b.getBoundingClientRect();return{left:Math.max(4,Math.min(l,innerWidth-r.width-4)),top:Math.max(4,Math.min(t,innerHeight-r.height-4))}};
- const save=()=>{try{const r=b.getBoundingClientRect();localStorage.setItem(KEY,JSON.stringify({left:r.left,top:r.top}))}catch(e){}};
- function restore(){try{const p=JSON.parse(localStorage.getItem(KEY)||"null");if(p){const q=clamp(p.left,p.top);b.style.position="fixed";b.style.left=q.left+"px";b.style.top=q.top+"px";b.style.right="auto";b.style.bottom="auto"}}catch(e){}}
- function setup(){const x=document.getElementById("ttcFloatingChatBtn");if(!x||x.dataset.ttcDragV2==="1")return;b=x;b.dataset.ttcDragV2="1";restore();
-  b.addEventListener("pointerdown",function(e){if(e.pointerType==="mouse"&&e.button!==0)return;const r=b.getBoundingClientRect();startX=e.clientX;startY=e.clientY;startL=r.left;startT=r.top;pointerId=e.pointerId;drag=true;moved=false;suppressClick=false;b.classList.add("ttc-dragging");try{b.setPointerCapture(e.pointerId)}catch(err){}e.preventDefault();e.stopPropagation()},{passive:false,capture:true});
-  b.addEventListener("pointermove",function(e){if(!drag)return;const dx=e.clientX-startX,dy=e.clientY-startY;if(Math.abs(dx)>3||Math.abs(dy)>3)moved=true;if(moved){const q=clamp(startL+dx,startT+dy);b.style.position="fixed";b.style.left=q.left+"px";b.style.top=q.top+"px";b.style.right="auto";b.style.bottom="auto";e.preventDefault();e.stopPropagation()}},{passive:false,capture:true});
-  function end(e){if(!drag)return;drag=false;b.classList.remove("ttc-dragging");try{if(pointerId!=null)b.releasePointerCapture(pointerId)}catch(err){}pointerId=null;if(moved){save();suppressClick=true;setTimeout(()=>suppressClick=false,350);e.preventDefault();e.stopPropagation()}}
-  b.addEventListener("pointerup",end,{passive:false,capture:true});b.addEventListener("pointercancel",end,{passive:false,capture:true});b.addEventListener("click",function(e){if(suppressClick||moved){e.preventDefault();e.stopImmediatePropagation();moved=false;suppressClick=false}},true);window.addEventListener("resize",restore,{passive:true});
+ if(window.__TTC_FINAL_CHAT_EFFECT_PATCH__)return;window.__TTC_FINAL_CHAT_EFFECT_PATCH__=true;
+ const KEY="ttc_chat_button_position_final";let b=null,d=false,m=false,sx=0,sy=0,sl=0,st=0,sup=false;
+ function clamp(l,t){if(!b)return{left:l,top:t};const r=b.getBoundingClientRect();return{left:Math.max(0,Math.min(l,innerWidth-r.width)),top:Math.max(0,Math.min(t,innerHeight-r.height))}}
+ function save(){try{const r=b.getBoundingClientRect();localStorage.setItem(KEY,JSON.stringify({left:r.left,top:r.top}))}catch(e){}}
+ function setup(){const x=document.getElementById("ttcFloatingChatBtn");if(!x||x.dataset.ttcFinalOutsideDrag==="1")return;b=x;b.dataset.ttcFinalOutsideDrag="1";try{const p=JSON.parse(localStorage.getItem(KEY)||"null");if(p){const q=clamp(p.left,p.top);b.style.position="fixed";b.style.left=q.left+"px";b.style.top=q.top+"px";b.style.right="auto";b.style.bottom="auto"}}catch(e){}
+ b.addEventListener("pointerdown",function(e){if(e.button!==undefined&&e.button!==0)return;const r=b.getBoundingClientRect();sx=e.clientX;sy=e.clientY;sl=r.left;st=r.top;d=true;m=false;b.classList.add("ttc-dragging");try{b.setPointerCapture(e.pointerId)}catch(x){}});
+ b.addEventListener("pointermove",function(e){if(!d)return;const dx=e.clientX-sx,dy=e.clientY-sy;if(Math.abs(dx)>4||Math.abs(dy)>4)m=true;if(!m)return;const q=clamp(sl+dx,st+dy);b.style.position="fixed";b.style.left=q.left+"px";b.style.top=q.top+"px";b.style.right="auto";b.style.bottom="auto";e.preventDefault();e.stopPropagation()},{passive:false});
+ function end(e){if(!d)return;d=false;b.classList.remove("ttc-dragging");try{b.releasePointerCapture(e.pointerId)}catch(x){}if(m){save();sup=true;setTimeout(()=>sup=false,180)}}
+ b.addEventListener("pointerup",end);b.addEventListener("pointercancel",end);b.addEventListener("click",function(e){if(sup){e.preventDefault();e.stopImmediatePropagation()}},true);
  }
  setup();new MutationObserver(setup).observe(document.documentElement,{childList:true,subtree:true});
 })();
 </script>
-
 
 
 <!-- =========================================================
@@ -133361,70 +133751,7 @@ body > #accountSystem{
   z-index:100020 !important;
 }
 
-/* 5) Nhạc nền — dock giữa đầu trang */
-#ttcMusicDock{
-  position:fixed;
-  top:10px;
-  left:50%;
-  transform:translateX(-50%);
-  z-index:100030;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:6px;
-  padding:6px 9px;
-  border:1px solid rgba(37,134,223,.22);
-  border-radius:999px;
-  background:rgba(255,255,255,.94);
-  box-shadow:0 6px 22px rgba(30,80,120,.15);
-  backdrop-filter:blur(10px);
-  -webkit-backdrop-filter:blur(10px);
-  font-size:12px;
-}
-
-#ttcMusicToggle{
-  min-width:42px;
-  min-height:34px;
-  padding:7px 10px;
-  border-radius:999px;
-  background:linear-gradient(135deg,#2586df,#0875c9);
-  color:#fff;
-  font-weight:800;
-}
-
-#ttcMusicSelect{
-  min-height:34px;
-  max-width:190px;
-  padding:6px 9px;
-  border:1px solid #9bcdf3;
-  border-radius:999px;
-  background:#fff;
-  color:#075eaa;
-  font-weight:700;
-  outline:none;
-}
-
-#ttcMusicVolume{
-  width:70px;
-  accent-color:#2586df;
-}
-
-@media(max-width:600px){
-  #ttcMusicDock{
-    top:7px;
-    max-width:calc(100vw - 110px);
-    gap:4px;
-    padding:5px 7px;
-  }
-  #ttcMusicSelect{
-    max-width:135px;
-    font-size:11px;
-  }
-  #ttcMusicVolume{
-    display:none;
-  }
-}
-
+</style>
 <script>
 (function(){
   "use strict";
@@ -133855,8 +134182,9 @@ body > #accountSystem{
     grid-template-columns:1fr;
   }
 }
-</style>
 
+
+</style>
 
 <style id="ttcWhiteHatFinalUiV1">
 /* =========================================================
@@ -133958,12 +134286,345 @@ html,body{background:#fff !important;}
 #ttcUiSoundToggle{right:14px !important;left:auto !important;bottom:14px !important;top:auto !important;z-index:100020 !important;}
 </style>
 
-<style id="ttcActionButtonGlowV2">
-@keyframes ttcTestGreenBlink{0%,100%{box-shadow:0 0 0 2px rgba(34,197,94,.14),0 0 10px rgba(34,197,94,.35)}50%{box-shadow:0 0 0 3px rgba(34,197,94,.28),0 0 24px rgba(34,197,94,.78)}}
-@keyframes ttcMatchPinkBlink{0%,100%{box-shadow:0 0 0 2px rgba(236,72,153,.14),0 0 10px rgba(236,72,153,.35)}50%{box-shadow:0 0 0 3px rgba(236,72,153,.28),0 0 24px rgba(236,72,153,.78)}}
-#ttcActionFrame .ttc-action-buttons > button:first-child{background:#ecfdf3 !important;color:#15803d !important;border:2px solid #22c55e !important;font-weight:900 !important;animation:ttcTestGreenBlink 1.25s ease-in-out infinite !important}
-#ttcMatchLauncher{background:#fff0f7 !important;color:#be185d !important;border:2px solid #ec4899 !important;animation:ttcMatchPinkBlink 1.25s ease-in-out infinite !important}
-@media(prefers-reduced-motion:reduce){#ttcActionFrame .ttc-action-buttons > button:first-child,#ttcMatchLauncher{animation:none !important}}
+<!-- =========================================================
+ 🛡️ WHITE HAT — FINAL MISSION PATCH V1
+ TTC / THÍCH TIẾNG TRUNG
+ - HSK mock: correct 3.0 item counts + reliable Gushi readiness
+ - vocabulary: duplicate-safe + natural fallback examples
+ - mobile UI sound: immediate + louder
+ - chat window: free drag desktop + mobile
+ - HSK/type buttons: independent animated colors
+ - Luyện câu: immediate 2-mode chooser, 3000/basic + HSK 1–9
+ ========================================================= -->
+<style id="ttcWhiteHatMissionV1CSS">
+
+/* =========================================================
+   📝 TEST TỪ VỰNG — BỘ CHỌN HSK ĐỘC LẬP
+========================================================= */
+#ttcVocabularyTestChooser{
+  position:fixed !important;
+  inset:0 !important;
+  z-index:100500 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:18px !important;
+  background:rgba(0,0,0,.42) !important;
+}
+#ttcVocabularyTestChooser .ttc-vocab-test-dialog{
+  position:relative !important;
+  width:min(560px,94vw) !important;
+  padding:24px !important;
+  border-radius:22px !important;
+  background:#fff !important;
+  box-shadow:0 24px 70px rgba(0,0,0,.25) !important;
+  text-align:center !important;
+}
+#ttcVocabularyTestChooser .ttc-vocab-test-close{
+  position:absolute !important;
+  top:9px !important;
+  right:12px !important;
+  width:36px !important;
+  height:36px !important;
+  border:0 !important;
+  border-radius:50% !important;
+  background:#f5f5f5 !important;
+  color:#555 !important;
+  font-size:25px !important;
+  cursor:pointer !important;
+}
+#ttcVocabularyTestChooser .ttc-vocab-test-title{
+  font-size:24px !important;
+  font-weight:900 !important;
+  color:#222 !important;
+  margin:2px 30px 7px !important;
+}
+#ttcVocabularyTestChooser .ttc-vocab-test-subtitle{
+  color:#666 !important;
+  margin-bottom:18px !important;
+}
+#ttcVocabularyTestChooser .ttc-vocab-test-levels{
+  display:grid !important;
+  grid-template-columns:repeat(3,1fr) !important;
+  gap:10px !important;
+}
+#ttcVocabularyTestChooser .ttc-vocab-test-level{
+  min-height:54px !important;
+  border:2px solid #e3e3e3 !important;
+  border-radius:13px !important;
+  background:#fff !important;
+  color:#333 !important;
+  font-weight:900 !important;
+  cursor:pointer !important;
+  box-shadow:0 2px 7px rgba(0,0,0,.07) !important;
+}
+#ttcVocabularyTestChooser .ttc-vocab-test-level:hover{
+  border-color:#ffb300 !important;
+  color:#b06f00 !important;
+  transform:translateY(-1px) !important;
+}
+#ttcVocabularyTestChooser .ttc-vocab-test-note{
+  margin-top:16px !important;
+  color:#777 !important;
+  font-size:12px !important;
+}
+@media(max-width:600px){
+  #ttcVocabularyTestChooser .ttc-vocab-test-dialog{padding:21px 15px !important}
+  #ttcVocabularyTestChooser .ttc-vocab-test-levels{grid-template-columns:repeat(3,1fr) !important;gap:8px !important}
+  #ttcVocabularyTestChooser .ttc-vocab-test-level{min-height:50px !important;font-size:14px !important}
+}
+
+
+@keyframes ttcGreenBlink{0%,100%{filter:brightness(1);box-shadow:0 0 0 rgba(34,197,94,0)}50%{filter:brightness(1.12);box-shadow:0 0 16px rgba(34,197,94,.55)}}
+@keyframes ttcBlueBlink{0%,100%{filter:brightness(1);box-shadow:0 0 0 rgba(37,99,235,0)}50%{filter:brightness(1.12);box-shadow:0 0 16px rgba(37,99,235,.55)}}
+@keyframes ttcRedBlink{0%,100%{box-shadow:0 0 0 rgba(220,38,38,0)}50%{box-shadow:0 0 18px rgba(220,38,38,.58)}}
+@keyframes ttcGreenBorderBlink{0%,100%{box-shadow:0 0 0 rgba(34,197,94,0);border-color:#22c55e}50%{box-shadow:0 0 18px rgba(34,197,94,.55);border-color:#16a34a}}
+
+/* HSK 1–9: green blinking, each button independent */
+#ttcHskFrame .ttc-hsk-buttons button,
+.ttc-hsk-buttons button.hsk-nav{
+  background:#16a34a !important;color:#fff !important;border:2px solid #15803d !important;
+  animation:ttcGreenBlink 1.25s ease-in-out infinite !important;
+}
+#ttcHskFrame .ttc-hsk-buttons button.active{background:#15803d !important;color:#fff !important;transform:translateY(-1px) scale(1.02)}
+
+/* 📝 TEST TỪ VỰNG — đỏ nhấp nháy theo yêu cầu.
+   Chỉ nút đầu tiên, không đổi màu 3 nút luyện tập còn lại. */
+#ttcActionFrame .ttc-action-buttons button:first-child{
+  background:#dc2626 !important;
+  color:#fff !important;
+  border:2px solid #b91c1c !important;
+  animation:ttcRedBlink 1.15s ease-in-out infinite !important;
+}
+#ttcActionFrame .ttc-action-buttons button:first-child:hover{
+  background:#ef4444 !important;
+}
+
+/* Part-of-speech + vocabulary test: blue blinking */
+#ttcTypeFrame .ttc-type-buttons button{
+  background:#2563eb !important;color:#fff !important;border:2px solid #1d4ed8 !important;
+  animation:ttcBlueBlink 1.35s ease-in-out infinite !important;
+}
+#ttcTypeFrame .ttc-type-buttons button.active{background:#1d4ed8 !important;color:#fff !important;transform:translateY(-1px) scale(1.02)}
+
+/* Luyện câu chooser */
+#whiteHatSentenceModes .whiteHatModeCard[data-mode="basic"]{
+  border:2px solid #dc2626 !important;
+  animation:ttcRedBlink 1.15s ease-in-out infinite !important;
+}
+#whiteHatSentenceModes .whiteHatModeCard[data-mode="hsk"]{
+  border:2px solid #22c55e !important;
+  animation:ttcGreenBorderBlink 1.25s ease-in-out infinite !important;
+}
+#whiteHatSentenceModes .whiteHatModeTitle{font-weight:900 !important}
+#whiteHatSentenceModes .whiteHatModeCard[data-mode="basic"] .whiteHatModeTitle{color:#dc2626 !important}
+#whiteHatSentenceModes .whiteHatModeCard[data-mode="hsk"] .whiteHatModeTitle{color:#15803d !important}
+
+/* Chat window: mở toàn màn hình khi vào Chat Online.
+   Chỉ khi bấm nút thu nhỏ mới quay về cửa sổ kéo-thả. */
+#ttcChatV1 .ttc-chat-shell{
+  position:fixed !important;
+  inset:0 !important;
+  left:0 !important;
+  top:0 !important;
+  margin:0 !important;
+  transform:none !important;
+  transition:none !important;
+  width:100vw !important;
+  max-width:none !important;
+  height:100vh !important;
+  height:100dvh !important;
+  max-height:none !important;
+  min-width:0 !important;
+  min-height:0 !important;
+  border-radius:0 !important;
+  touch-action:auto !important;
+}
+#ttcChatV1 .ttc-chat-head{cursor:default !important;touch-action:none !important;user-select:none !important;-webkit-user-select:none !important}
+#ttcChatV1 .ttc-chat-shell.ttc-chat-windowed{
+  inset:auto !important;
+  width:min(1100px,94vw) !important;
+  height:min(850px,86dvh) !important;
+  max-width:94vw !important;
+  max-height:86dvh !important;
+  min-width:280px !important;
+  min-height:360px !important;
+  border-radius:20px !important;
+}
+#ttcChatV1 .ttc-chat-shell.ttc-chat-windowed .ttc-chat-head{cursor:grab !important;touch-action:none !important}
+#ttcChatV1 .ttc-chat-shell.ttc-chat-windowed .ttc-chat-head:active{cursor:grabbing !important}
+
+/* Official/resource buttons remain available but the TTC entry is clearly primary */
+.wh-hsk-ttc-test{animation:ttcGreenBlink 1.25s ease-in-out infinite !important;border:2px solid #15803d !important;background:#16a34a !important;color:#fff !important}
 </style>
+<script id="ttcWhiteHatMissionV1JS">
+(function(){
+  "use strict";
+  if(window.__TTC_WHITE_HAT_MISSION_V1__) return;
+  window.__TTC_WHITE_HAT_MISSION_V1__=true;
+
+  /* =====================================================
+     🔊 LOUD MOBILE UI SOUND
+  ===================================================== */
+  var uiCtx=null;
+  function ensureAudio(){
+    try{
+      var C=window.AudioContext||window.webkitAudioContext;
+      if(!C) return null;
+      if(!uiCtx) uiCtx=new C();
+      if(uiCtx.state==='suspended') uiCtx.resume().catch(function(){});
+      return uiCtx;
+    }catch(e){return null}
+  }
+  function loudTone(type,level){
+    var c=ensureAudio(); if(!c) return;
+    try{
+      var o=c.createOscillator(),g=c.createGain(),t=c.currentTime;
+      var n=Number(level)||1;
+      var f=type==='hsk' ? 420+Math.min(9,Math.max(1,n))*38 : (type==='success'?700:560);
+      o.type=type==='hsk'?'triangle':'sine'; o.frequency.setValueAtTime(f,t);
+      g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(.095,t+.008);
+      g.gain.exponentialRampToValueAtTime(.0001,t+.105);
+      o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+.12);
+    }catch(e){}
+  }
+  document.addEventListener('pointerdown',function(e){
+    var b=e.target&&e.target.closest?e.target.closest('button,[role="button"],summary,input[type="button"],input[type="submit"]'):null;
+    if(!b) return;
+    var txt=String(b.textContent||b.value||'').trim();
+    var m=txt.match(/HSK\s*(\d+)/i);
+    loudTone(m?'hsk':(/test|chat online|luyện câu/i.test(txt)?'success':'click'),m?Number(m[1]):1);
+  },true);
+
+  /* =====================================================
+     🧹 VOCAB AUDIT — only exact duplicate records per level
+     and natural fallback examples where still missing.
+  ===================================================== */
+  var fallback={
+    '聚餐':['周末我们一起聚餐吧。','Zhōumò wǒmen yìqǐ jùcān ba。','Cuối tuần chúng ta cùng ăn một bữa nhé。'],
+    '举例':['老师先举例说明这个语法。','Lǎoshī xiān jǔlì shuōmíng zhège yǔfǎ。','Giáo viên trước tiên đưa ví dụ để giải thích ngữ pháp này。'],
+    '考生':['考生请提前十分钟到达考场。','Kǎoshēng qǐng tíqián shí fēnzhōng dàodá kǎochǎng。','Thí sinh hãy đến phòng thi trước mười phút。'],
+    '口语':['他的汉语口语越来越自然。','Tā de Hànyǔ kǒuyǔ yuèláiyuè zìrán。','Khẩu ngữ tiếng Trung của anh ấy ngày càng tự nhiên。'],
+    '快递':['我的快递今天下午到了。','Wǒ de kuàidì jīntiān xiàwǔ dào le。','Đơn hàng chuyển phát nhanh của tôi đã đến chiều nay。'],
+    '零花钱':['父母每周给孩子一些零花钱。','Fùmǔ měi zhōu gěi háizi yìxiē línghuāqián。','Bố mẹ cho con một ít tiền tiêu vặt mỗi tuần。'],
+    '零下':['今天晚上气温会降到零下五度。','Jīntiān wǎnshang qìwēn huì jiàng dào língxià wǔ dù。','Tối nay nhiệt độ sẽ giảm xuống âm năm độ。'],
+    '路过':['我每天上班都会路过这家咖啡店。','Wǒ měitiān shàngbān dōu huì lùguò zhè jiā kāfēidiàn。','Mỗi ngày đi làm tôi đều đi ngang qua quán cà phê này。'],
+    '旅客':['旅客请在检票口排队。','Lǚkè qǐng zài jiǎnpiàokǒu páiduì。','Hành khách vui lòng xếp hàng tại cổng soát vé。'],
+    '馒头':['早餐我喜欢吃一个热馒头。','Zǎocān wǒ xǐhuan chī yí ge rè mántou。','Bữa sáng tôi thích ăn một chiếc màn thầu nóng。'],
+    '美景':['这里的山水美景吸引了很多游客。','Zhèlǐ de shānshuǐ měijǐng xīyǐn le hěn duō yóukè。','Phong cảnh núi sông tuyệt đẹp ở đây thu hút rất nhiều du khách。'],
+    '面试':['明天上午我有一个工作面试。','Míngtiān shàngwǔ wǒ yǒu yí ge gōngzuò miànshì。','Sáng mai tôi có một buổi phỏng vấn xin việc。'],
+    '母女':['那对母女正在公园里散步。','Nà duì mǔnǚ zhèngzài gōngyuán lǐ sànbù。','Hai mẹ con gái đó đang đi dạo trong công viên。'],
+    '母子':['那对母子住在我们家附近。','Nà duì mǔzǐ zhù zài wǒmen jiā fùjìn。','Hai mẹ con trai đó sống gần nhà chúng tôi。'],
+    '男士':['那位男士正在等朋友。','Nà wèi nánshì zhèngzài děng péngyou。','Vị nam giới kia đang đợi bạn。'],
+    '内心':['听到这个消息，她的内心很激动。','Tīngdào zhège xiāoxi，tā de nèixīn hěn jīdòng。','Nghe tin này, trong lòng cô ấy rất xúc động。'],
+    '嗯':['嗯，我明白你的意思了。','Ń，wǒ míngbai nǐ de yìsi le。','Ừ, tôi hiểu ý của bạn rồi。'],
+    '年底':['我们计划在年底完成这个项目。','Wǒmen jìhuà zài niándǐ wánchéng zhège xiàngmù。','Chúng tôi dự định hoàn thành dự án này vào cuối năm。'],
+    '牌子':['这家店的牌子很有名。','Zhè jiā diàn de páizi hěn yǒumíng。','Thương hiệu của cửa hàng này rất nổi tiếng。'],
+    '前后':['从这里走到车站前后需要十分钟。','Cóng zhèlǐ zǒu dào chēzhàn qiánhòu xūyào shí fēnzhōng。','Từ đây đi bộ đến ga mất khoảng mười phút。'],
+    '千克':['这个箱子大约有二十千克。','Zhège xiāngzi dàyuē yǒu èrshí qiānkè。','Chiếc vali này nặng khoảng hai mươi kilôgam。'],
+    '期末':['期末考试快到了，大家都在认真复习。','Qīmò kǎoshì kuài dào le，dàjiā dōu zài rènzhēn fùxí。','Kỳ thi cuối kỳ sắp đến, mọi người đều đang ôn tập nghiêm túc。'],
+    '汽水':['天气很热，我想喝一杯汽水。','Tiānqì hěn rè，wǒ xiǎng hē yì bēi qìshuǐ。','Trời rất nóng, tôi muốn uống một ly nước ngọt có ga。'],
+    '球迷':['很多球迷来到现场为球队加油。','Hěn duō qiúmí láidào xiànchǎng wèi qiúduì jiāyóu。','Nhiều người hâm mộ đến sân để cổ vũ cho đội bóng。'],
+    '期中':['期中考试以后，我们会有几天假。','Qīzhōng kǎoshì yǐhòu，wǒmen huì yǒu jǐ tiān jià。','Sau kỳ thi giữa kỳ, chúng tôi sẽ được nghỉ vài ngày。']
+  };
+  function auditWords(){
+    if(!Array.isArray(window.words)) return;
+    /* Do not alter official/source count; remove only exact duplicates if a source failed. */
+    var seen=new Set(),clean=[];
+    for(var i=0;i<window.words.length;i++){
+      var w=window.words[i];
+      var k=Number(w.hsk)+'|'+String(w.h||'')+'|'+String(w.p||'')+'|'+String(w.m||'');
+      if(seen.has(k)) continue;
+      seen.add(k); clean.push(w);
+    }
+    if(clean.length!==window.words.length){window.words.splice(0,window.words.length,...clean);}
+    Object.keys(fallback).forEach(function(h){
+      var w=window.words.find(function(x){return String(x.h)===h && Number(x.hsk)===4;});
+      if(w && (!w.example||!w.examplePinyin||!w.exampleMeaning)){
+        w.example=fallback[h][0];w.examplePinyin=fallback[h][1];w.exampleMeaning=fallback[h][2];
+      }
+    });
+  }
+  window.ttcFinalizeVocabularyAudit=auditWords;
+  setTimeout(auditWords,2500);setTimeout(auditWords,7000);setTimeout(auditWords,15000);
+
+  /* =====================================================
+     📚 HSK 3.0 MOCK METADATA — keeps the UI honest.
+  ===================================================== */
+  window.TTC_HSK_MOCK_STRUCTURE={
+    1:{questions:40,minutes:40,sections:'Nghe 20 · Đọc 20'},
+    2:{questions:60,minutes:60,sections:'Nghe 25 · Đọc 25 · Viết 10'},
+    3:{questions:70,minutes:83,sections:'Nghe 30 · Đọc 30 · Viết 10'},
+    4:{questions:70,minutes:85,sections:'Nghe 32 · Đọc 32 · Viết 6'},
+    5:{questions:72,minutes:110,sections:'Nghe 35 · Đọc 35 · Viết 2'},
+    6:{questions:82,minutes:125,sections:'Nghe 40 · Đọc 40 · Viết 2'},
+    7:{questions:98,minutes:210,sections:'Nghe 40 · Đọc 47 · Viết 2 · Dịch 4 · Nói 5'},
+    8:{questions:98,minutes:210,sections:'Chung đề HSK 7–9'},
+    9:{questions:98,minutes:210,sections:'Chung đề HSK 7–9'}
+  };
+
+  /* =====================================================
+     🚀 Independent navigation: each button opens its target now.
+  ===================================================== */
+  function go(el,id){
+    var x=document.getElementById(id); if(!x) return;
+    document.querySelectorAll('nav button').forEach(function(b){b.classList.remove('active')});
+    if(el) el.classList.add('active');
+    requestAnimationFrame(function(){x.scrollIntoView({behavior:'smooth',block:'start'})});
+  }
+  window.ttcGoSection=go;
+
+  /* HSK buttons already call showHSK; reinforce immediate scroll after it resolves. */
+  document.addEventListener('click',function(e){
+    var b=e.target&&e.target.closest?e.target.closest('#ttcHskFrame .hsk-nav'):null;
+    if(b){setTimeout(function(){var x=document.getElementById('vocabularySection');if(x&&!x.classList.contains('hidden'))x.scrollIntoView({behavior:'smooth',block:'start'});},80);}
+    var t=e.target&&e.target.closest?e.target.closest('#ttcTypeFrame .ttc-type-buttons button'):null;
+    if(t){setTimeout(function(){var x=document.getElementById('vocabularySection');if(x&&!x.classList.contains('hidden'))x.scrollIntoView({behavior:'smooth',block:'start'});},80);}
+    var test=e.target&&e.target.closest?e.target.closest('#ttcActionFrame button:first-child'):null;
+    if(test){setTimeout(function(){var x=document.getElementById('testSection');if(x&&!x.classList.contains('hidden'))x.scrollIntoView({behavior:'smooth',block:'start'});},100);}
+    var sent=e.target&&e.target.closest?e.target.closest('#ttcActionFrame button:nth-child(2)'):null;
+    if(sent){setTimeout(function(){var x=document.getElementById('sentenceSection');if(x&&!x.classList.contains('hidden'))x.scrollIntoView({behavior:'smooth',block:'start'});},100);}
+  },false);
+
+  /* =====================================================
+     💬 CHAT WINDOW — free drag on ALL devices.
+  ===================================================== */
+  var dragKey='ttc_chat_window_position_final_v2', state={shell:null,head:null,d:false,pid:null,sx:0,sy:0,sl:0,st:0,m:false,sup:false};
+  function clamp(){
+    var s=state.shell;if(!s)return {l:0,t:0};var r=s.getBoundingClientRect();
+    return {l:Math.max(0,Math.min(state.sl+state.dx,innerWidth-r.width)),t:Math.max(0,Math.min(state.st+state.dy,innerHeight-r.height))};
+  }
+  function setupChatDrag(){
+    var s=document.querySelector('#ttcChatV1 .ttc-chat-shell'),h=s&&s.querySelector('.ttc-chat-head');
+    if(!s||!h||h.dataset.ttcFinalDrag==='1')return;
+    state.shell=s;state.head=h;h.dataset.ttcFinalDrag='1';
+    try{var p=JSON.parse(localStorage.getItem(dragKey)||'null');if(p){s.style.left=p.l+'px';s.style.top=p.t+'px';s.style.right='auto';s.style.bottom='auto';s.style.transform='none';}else{var r=s.getBoundingClientRect();s.style.left=Math.max(0,(innerWidth-r.width)/2)+'px';s.style.top=Math.max(0,(innerHeight-r.height)/2)+'px';s.style.transform='none';}}catch(e){}
+    h.addEventListener('pointerdown',function(e){
+      if(e.target.closest('button,input,select,textarea,a'))return;
+      if(e.pointerType==='mouse'&&e.button!==0)return;
+      var r=s.getBoundingClientRect();state.sx=e.clientX;state.sy=e.clientY;state.sl=r.left;state.st=r.top;state.d=true;state.m=false;state.pid=e.pointerId;s.style.left=r.left+'px';s.style.top=r.top+'px';s.style.right='auto';s.style.bottom='auto';s.style.transform='none';s.classList.add('ttc-chat-dragging');try{h.setPointerCapture(e.pointerId)}catch(x){}e.preventDefault();
+    },{passive:false});
+    h.addEventListener('pointermove',function(e){if(!state.d||e.pointerId!==state.pid)return;state.dx=e.clientX-state.sx;state.dy=e.clientY-state.sy;if(Math.abs(state.dx)>3||Math.abs(state.dy)>3)state.m=true;var p=clamp();s.style.left=p.l+'px';s.style.top=p.t+'px';if(state.m)e.preventDefault();},{passive:false});
+    function end(e){if(!state.d||e.pointerId!==state.pid)return;state.d=false;s.classList.remove('ttc-chat-dragging');try{h.releasePointerCapture(state.pid)}catch(x){}if(state.m){try{localStorage.setItem(dragKey,JSON.stringify({l:parseFloat(s.style.left),t:parseFloat(s.style.top)}))}catch(x){}state.sup=true;setTimeout(function(){state.sup=false},220)}state.pid=null;}
+    h.addEventListener('pointerup',end);h.addEventListener('pointercancel',end);h.addEventListener('click',function(e){if(state.sup){e.preventDefault();e.stopImmediatePropagation()}},true);
+  }
+  setupChatDrag();new MutationObserver(setupChatDrag).observe(document.documentElement,{childList:true,subtree:true});
+  window.addEventListener('resize',function(){if(state.shell&&!state.d){var r=state.shell.getBoundingClientRect();var l=Math.max(0,Math.min(r.left,innerWidth-r.width)),t=Math.max(0,Math.min(r.top,innerHeight-r.height));state.shell.style.left=l+'px';state.shell.style.top=t+'px';}});
+
+  /* =====================================================
+     ✍️ Luyện câu chooser: ensure exactly the two requested cards.
+  ===================================================== */
+  function reinforceSentenceModes(){
+    var s=document.getElementById('sentenceSection');if(!s)return;
+    var modes=document.getElementById('whiteHatSentenceModes');if(!modes)return;
+    var basic=modes.querySelector('[data-mode="basic"]'),hsk=modes.querySelector('[data-mode="hsk"]');
+    if(basic){basic.querySelector('.whiteHatModeTitle').textContent='🔴 3000 câu giao tiếp cơ bản';}
+    if(hsk){hsk.querySelector('.whiteHatModeTitle').textContent='🟢 Luyện câu theo cấp độ';}
+  }
+  document.addEventListener('click',function(e){if(e.target.closest&&e.target.closest('#ttcActionFrame button:nth-child(2)'))setTimeout(reinforceSentenceModes,120);});
+
+})();
+</script>
+
 </body>
 </html>
