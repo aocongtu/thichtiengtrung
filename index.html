@@ -12,7 +12,7 @@ body{
   margin:0;
   font-family:Arial,"Noto Sans",sans-serif;
   background:linear-gradient(135deg,#eef7ff,#dff4ee);
-  color:#17324d;
+  color:#17324d;F
 }
 
 header{
@@ -84848,11 +84848,19 @@ function createVoiceSettings(){
      🎨 TIÊU ĐỀ
      ================================================= */
 
-  const title =
-    box.querySelector(
-      ".voice-settings-title"
-    );
+  title.style.cssText = `
 
+  font-size:18px;
+
+  font-weight:700;
+
+  margin-bottom:16px;
+
+  color:#7c3aed !important;
+
+  animation:ttcVoicePurple 1.2s ease-in-out infinite;
+
+`;
 
   title.style.cssText = `
 
@@ -84863,6 +84871,32 @@ function createVoiceSettings(){
     margin-bottom:16px;
 
   `;
+
+const voicePurpleStyle = document.createElement("style");
+
+voicePurpleStyle.textContent = `
+
+  @keyframes ttcVoicePurple {
+
+    0%, 100% {
+      color:#7c3aed;
+      text-shadow:
+        0 0 4px #c084fc,
+        0 0 10px #a855f7;
+    }
+
+    50% {
+      color:#c026d3;
+      text-shadow:
+        0 0 8px #e879f9,
+        0 0 18px #a855f7;
+    }
+
+  }
+
+`;
+
+document.head.appendChild(voicePurpleStyle);
 
 
   /* =================================================
@@ -121227,10 +121261,12 @@ if(
 ========================================================= */
 
 #whiteHatVoiceSystemV6{
-  width:100%;
-  max-width:100%;
-  margin:8px 0;
+  width:50%;
+  max-width:50%;
+  margin:8px 12;
   box-sizing:border-box;
+   margin-left:auto;
+  margin-right:auto;
 }
 
 
@@ -125514,7 +125550,7 @@ body.ttc-light-effect-off #ttcLightFallCanvas{
 .ttc-chat-composer-wrap{
   background:#fff;
   border-top:1px solid var(--ttc-border);
-  padding:9px 12px 11px;
+  padding:9px 12px 74px;
 }
 
 .ttc-chat-replying{
@@ -126520,97 +126556,6 @@ async function createMessageElement(message,name){
 
   let html = "";
 
-
-  /* =======================================================
-     🎮 TTC GAME SHOW — INVITATION
-     ======================================================= */
-
-  if(
-    message.game_event === "invite" &&
-    message.game_id
-  ){
-
-    const gameCard =
-      document.createElement("div");
-
-    gameCard.className =
-      "ttc-game-invite-card";
-
-
-    const gameText =
-      message.content ||
-      "🎮 Bạn được mời chơi game!";
-
-
-    gameCard.innerHTML = `
-      <div class="ttc-game-invite-title">
-        🎮 LỜI MỜI CHƠI GAME
-      </div>
-
-      <div class="ttc-game-invite-text">
-        ${escapeHTML(gameText)}
-      </div>
-
-      ${
-        message.user_id !== TTC_CHAT.user.id
-          ? `
-            <div class="ttc-game-invite-actions">
-
-              <button
-                type="button"
-                class="ttc-game-accept"
-                data-game-id="${escapeHTML(message.game_id)}"
-              >
-                🟢 CHẤP NHẬN
-              </button>
-
-              <button
-                type="button"
-                class="ttc-game-decline"
-                data-game-id="${escapeHTML(message.game_id)}"
-              >
-                🔴 TỪ CHỐI
-              </button>
-
-            </div>
-          `
-          : `
-            <div class="ttc-game-invite-waiting">
-              ⏳ Đang chờ đối phương trả lời...
-            </div>
-          `
-      }
-    `;
-
-
-    bubble.appendChild(
-      gameCard
-    );
-
-
-    content.appendChild(
-      meta
-    );
-
-    content.appendChild(
-      bubble
-    );
-
-
-    wrapper.appendChild(
-      avatar
-    );
-
-    wrapper.appendChild(
-      content
-    );
-
-
-    return wrapper;
-
-  }
-
-
   /* =======================================================
      ↩️ REPLY PREVIEW
      ======================================================= */
@@ -127067,98 +127012,6 @@ async function createMessageElement(message,name){
 
 }
 
-/* =======================================================
-   🎮 TTC GAME SHOW — ACCEPT / DECLINE
-   ======================================================= */
-
-document.addEventListener(
-  "click",
-  async function(event){
-
-    const acceptBtn =
-      event.target.closest(
-        ".ttc-game-accept"
-      );
-
-    const declineBtn =
-      event.target.closest(
-        ".ttc-game-decline"
-      );
-
-    if(
-      !acceptBtn &&
-      !declineBtn
-    ){
-      return;
-    }
-
-    event.stopPropagation();
-
-    const button =
-      acceptBtn ||
-      declineBtn;
-
-    const gameId =
-      button.dataset.gameId;
-
-    if(!gameId){
-      return;
-    }
-
-    const accept =
-      !!acceptBtn;
-
-    button.disabled = true;
-
-    button.textContent =
-      accept
-        ? "⏳ ĐANG CHẤP NHẬN..."
-        : "⏳ ĐANG TỪ CHỐI...";
-
-    try{
-
-      const {data,error} =
-        await TTC_CHAT.client.rpc(
-          "ttc_respond_game_invite",
-          {
-            p_game_id:gameId,
-            p_accept:accept
-          }
-        );
-
-      if(error){
-        throw error;
-      }
-
-      console.log(
-        "🎮 TTC GAME RESPONSE:",
-        data
-      );
-
-    }catch(error){
-
-      console.error(
-        "[TTC GAME RESPONSE]",
-        error
-      );
-
-      button.disabled = false;
-
-      button.textContent =
-        accept
-          ? "🟢 CHẤP NHẬN"
-          : "🔴 TỪ CHỐI";
-
-      setStatus(
-        "Không xử lý được lời mời game: " +
-        (error.message || error),
-        "error"
-      );
-
-    }
-
-  }
-);
 
 document.addEventListener(
   "click",
