@@ -2432,9 +2432,12 @@ main{
   background:rgba(255,255,255,.94);border:1px solid #f0d7df;box-shadow:0 6px 20px rgba(120,40,80,.12);
   backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
 }
-#ttcBgMusicBtn{border:0;border-radius:999px;padding:7px 13px;background:#fff4f7;color:#c52f57;font-weight:900;cursor:pointer;box-shadow:0 2px 8px rgba(197,47,87,.12)}
+#ttcBgMusicBtn{border:0;border-radius:999px;padding:7px 10px;background:#fff4f7;color:#c52f57;font-weight:900;font-size:8px;line-height:1;cursor:pointer;box-shadow:0 2px 8px rgba(197,47,87,.12);white-space:nowrap;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 #ttcBgMusicBtn.active{background:#ffe1ea;box-shadow:0 0 0 2px rgba(197,47,87,.10),0 0 18px rgba(255,100,150,.22)}
-#ttcBgMusicName{font-size:11px;color:#8a6470;font-weight:800;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#ttcBgMusicName{font-size:10px;color:#8a6470;font-weight:800;max-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#ttcBgMusicSelect{border:1px solid #efd8df;border-radius:999px;background:#fff;color:#8a6470;font-size:9px;font-weight:800;padding:5px 7px;max-width:115px;outline:none}
+#ttcBgMusicUpload{display:none}
+#ttcBgMusicUploadLabel{border:1px solid #efd8df;border-radius:999px;background:#fff;color:#c52f57;font-size:9px;font-weight:900;padding:5px 7px;cursor:pointer;white-space:nowrap;touch-action:manipulation}
 .ttc-emoji-picker[hidden]{display:none}
 .ttc-emoji-picker{position:absolute;right:8px;bottom:58px;width:min(330px,calc(100vw - 24px));max-height:260px;overflow:auto;padding:10px;border-radius:16px;background:#fff;border:1px solid #eadde3;box-shadow:0 14px 35px rgba(60,20,40,.18);z-index:9999;display:grid;grid-template-columns:repeat(8,1fr);gap:5px}
 .ttc-emoji-picker button{border:0;background:#fff;border-radius:9px;font-size:23px;line-height:1;padding:7px 2px;cursor:pointer}
@@ -2460,7 +2463,7 @@ main{
 .wh-hsk-ttc-test:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(168,34,75,.12)}
 .wh-hsk-ttc-note{margin:5px 0 12px;padding:9px 12px;border-radius:11px;background:#fff9fb;color:#765b65;font-size:12px;line-height:1.55}
 @media(max-width:600px){
- #ttcBgMusicBar{top:6px;padding:5px 8px} #ttcBgMusicBtn{padding:6px 10px;font-size:12px} #ttcBgMusicName{max-width:105px}
+ #ttcBgMusicBar{top:6px;padding:5px 8px} #ttcBgMusicBtn{width:100px;height:31px;padding:0 8px;font-size:8px} #ttcBgMusicName{max-width:105px}
  .ttc-emoji-picker{grid-template-columns:repeat(7,1fr);bottom:54px;right:2px}
 }
 </style>
@@ -2470,8 +2473,11 @@ main{
 
 
 <div id="ttcBgMusicBar" aria-label="Nhạc nền THÍCH TIẾNG TRUNG">
-  <button id="ttcBgMusicBtn" type="button" title="Bật / tắt nhạc nền">🎵 Nhạc nền: TẮT</button>
-  <span id="ttcBgMusicName">Nhạc vui luân phiên</span>
+  <button id="ttcBgMusicBtn" type="button" title="Bật / tắt nhạc nền">🎵 Nhạc: TẮT</button>
+  <select id="ttcBgMusicSelect" title="Chọn bài nhạc nền" aria-label="Chọn bài nhạc nền"></select>
+  <label id="ttcBgMusicUploadLabel" for="ttcBgMusicUpload" title="Tải nhạc từ điện thoại">📱 Thêm nhạc</label>
+  <input id="ttcBgMusicUpload" type="file" accept="audio/*" multiple>
+  <span id="ttcBgMusicName">🌈 Nắng vui</span>
 </div>
 <header>
 
@@ -132059,8 +132065,10 @@ button.addEventListener(
       /*
        * 🇨🇳 → 🇻🇳
        *
-       * Giữ nguyên hành vi cũ:
+       * Cùng một câu:
        * đọc tiếng Trung
+       * → chờ gap
+       * → đọc nghĩa tiếng Việt
        * → chờ gap
        * → sang câu tiếp theo.
        */
@@ -132090,7 +132098,44 @@ button.addEventListener(
 
               timer = null;
 
-              advance();
+
+              if(!running){
+
+                return;
+
+              }
+
+
+              if(!viText){
+
+                advance();
+
+                return;
+
+              }
+
+
+              /*
+               * Đọc tiếng Việt của CÙNG câu.
+               */
+
+              speak(
+                viText,
+                "vi-VN"
+              );
+
+
+              timer =
+                setTimeout(
+                  function(){
+
+                    timer = null;
+
+                    advance();
+
+                  },
+                  gap * 1000
+                );
 
             },
             gap * 1000
@@ -132972,24 +133017,27 @@ button.addEventListener(
 
 <!-- TTC FINAL — CHAT KÉO NGOÀI WEB + PHÁO HOA -->
 <style id="ttcFinalChatEffect">
-#ttcFloatingChatBtn{touch-action:none !important;cursor:grab !important;z-index:1000000 !important}#ttcFloatingChatBtn.ttc-dragging{cursor:grabbing !important}
+#ttcFloatingChatBtn{touch-action:none !important;cursor:grab !important;z-index:1000000 !important;-webkit-user-select:none !important;user-select:none !important;-webkit-touch-callout:none !important}
+#ttcFloatingChatBtn.ttc-dragging{cursor:grabbing !important;opacity:.92}
 #ttcLightFallCanvas{position:fixed !important;inset:0 !important;width:100vw !important;height:100vh !important;pointer-events:none !important;z-index:9990 !important;opacity:1 !important}
 </style>
 <script>
 (function(){
- if(window.__TTC_FINAL_CHAT_EFFECT_PATCH__)return;window.__TTC_FINAL_CHAT_EFFECT_PATCH__=true;
- const KEY="ttc_chat_button_position_final";let b=null,d=false,m=false,sx=0,sy=0,sl=0,st=0,sup=false;
- function clamp(l,t){if(!b)return{left:l,top:t};const r=b.getBoundingClientRect();return{left:Math.max(0,Math.min(l,innerWidth-r.width)),top:Math.max(0,Math.min(t,innerHeight-r.height))}}
- function save(){try{const r=b.getBoundingClientRect();localStorage.setItem(KEY,JSON.stringify({left:r.left,top:r.top}))}catch(e){}}
- function setup(){const x=document.getElementById("ttcFloatingChatBtn");if(!x||x.dataset.ttcFinalOutsideDrag==="1")return;b=x;b.dataset.ttcFinalOutsideDrag="1";try{const p=JSON.parse(localStorage.getItem(KEY)||"null");if(p){const q=clamp(p.left,p.top);b.style.position="fixed";b.style.left=q.left+"px";b.style.top=q.top+"px";b.style.right="auto";b.style.bottom="auto"}}catch(e){}
- b.addEventListener("pointerdown",function(e){if(e.button!==undefined&&e.button!==0)return;const r=b.getBoundingClientRect();sx=e.clientX;sy=e.clientY;sl=r.left;st=r.top;d=true;m=false;b.classList.add("ttc-dragging");try{b.setPointerCapture(e.pointerId)}catch(x){}});
- b.addEventListener("pointermove",function(e){if(!d)return;const dx=e.clientX-sx,dy=e.clientY-sy;if(Math.abs(dx)>4||Math.abs(dy)>4)m=true;if(!m)return;const q=clamp(sl+dx,st+dy);b.style.position="fixed";b.style.left=q.left+"px";b.style.top=q.top+"px";b.style.right="auto";b.style.bottom="auto";e.preventDefault();e.stopPropagation()},{passive:false});
- function end(e){if(!d)return;d=false;b.classList.remove("ttc-dragging");try{b.releasePointerCapture(e.pointerId)}catch(x){}if(m){save();sup=true;setTimeout(()=>sup=false,180)}}
- b.addEventListener("pointerup",end);b.addEventListener("pointercancel",end);b.addEventListener("click",function(e){if(sup){e.preventDefault();e.stopImmediatePropagation()}},true);
+ if(window.__TTC_FINAL_CHAT_DRAG_V2__)return;window.__TTC_FINAL_CHAT_DRAG_V2__=true;
+ const KEY="ttc_chat_button_position_final_v2";let b=null,drag=false,moved=false,startX=0,startY=0,startL=0,startT=0,pointerId=null,suppressClick=false;
+ const clamp=(l,t)=>{if(!b)return{left:l,top:t};const r=b.getBoundingClientRect();return{left:Math.max(4,Math.min(l,innerWidth-r.width-4)),top:Math.max(4,Math.min(t,innerHeight-r.height-4))}};
+ const save=()=>{try{const r=b.getBoundingClientRect();localStorage.setItem(KEY,JSON.stringify({left:r.left,top:r.top}))}catch(e){}};
+ function restore(){try{const p=JSON.parse(localStorage.getItem(KEY)||"null");if(p){const q=clamp(p.left,p.top);b.style.position="fixed";b.style.left=q.left+"px";b.style.top=q.top+"px";b.style.right="auto";b.style.bottom="auto"}}catch(e){}}
+ function setup(){const x=document.getElementById("ttcFloatingChatBtn");if(!x||x.dataset.ttcDragV2==="1")return;b=x;b.dataset.ttcDragV2="1";restore();
+  b.addEventListener("pointerdown",function(e){if(e.pointerType==="mouse"&&e.button!==0)return;const r=b.getBoundingClientRect();startX=e.clientX;startY=e.clientY;startL=r.left;startT=r.top;pointerId=e.pointerId;drag=true;moved=false;suppressClick=false;b.classList.add("ttc-dragging");try{b.setPointerCapture(e.pointerId)}catch(err){}e.preventDefault();e.stopPropagation()},{passive:false,capture:true});
+  b.addEventListener("pointermove",function(e){if(!drag)return;const dx=e.clientX-startX,dy=e.clientY-startY;if(Math.abs(dx)>3||Math.abs(dy)>3)moved=true;if(moved){const q=clamp(startL+dx,startT+dy);b.style.position="fixed";b.style.left=q.left+"px";b.style.top=q.top+"px";b.style.right="auto";b.style.bottom="auto";e.preventDefault();e.stopPropagation()}},{passive:false,capture:true});
+  function end(e){if(!drag)return;drag=false;b.classList.remove("ttc-dragging");try{if(pointerId!=null)b.releasePointerCapture(pointerId)}catch(err){}pointerId=null;if(moved){save();suppressClick=true;setTimeout(()=>suppressClick=false,350);e.preventDefault();e.stopPropagation()}}
+  b.addEventListener("pointerup",end,{passive:false,capture:true});b.addEventListener("pointercancel",end,{passive:false,capture:true});b.addEventListener("click",function(e){if(suppressClick||moved){e.preventDefault();e.stopImmediatePropagation();moved=false;suppressClick=false}},true);window.addEventListener("resize",restore,{passive:true});
  }
  setup();new MutationObserver(setup).observe(document.documentElement,{childList:true,subtree:true});
 })();
 </script>
+
 
 
 <!-- =========================================================
@@ -133945,30 +133993,40 @@ html,body{background:#fff !important;}
 #ttcMusicDock{z-index:100030 !important;}
 #ttcUiSoundToggle{right:14px !important;left:auto !important;bottom:14px !important;top:auto !important;z-index:100020 !important;}
 </style>
-<script id="ttc-background-music-v2">
+<script id="ttc-background-music-v3">
 (function(){
   "use strict";
-  if(window.__TTC_BG_MUSIC_V2__) return;
-  window.__TTC_BG_MUSIC_V2__=true;
-  const btn=document.getElementById("ttcBgMusicBtn"), name=document.getElementById("ttcBgMusicName");
-  if(!btn) return;
-  let ctx=null,gain=null,timer=null,playing=false,track=0,noteIndex=0;
+  if(window.__TTC_BG_MUSIC_V3__) return;
+  window.__TTC_BG_MUSIC_V3__=true;
+  const btn=document.getElementById("ttcBgMusicBtn"),name=document.getElementById("ttcBgMusicName"),select=document.getElementById("ttcBgMusicSelect"),upload=document.getElementById("ttcBgMusicUpload"),bar=document.getElementById("ttcBgMusicBar");
+  if(!btn||!select||!upload) return;
+  let ctx=null,gain=null,timer=null,playing=false,noteIndex=0,trackIndex=0,localTracks=[],audio=null;
   const tracks=[
-    {name:"🌈 Nắng vui",notes:[262,330,392,330,294,349,440,349],tempo:150},
-    {name:"🍬 Kẹo ngọt",notes:[330,392,494,392,349,440,523,440],tempo:135},
-    {name:"🐼 Gấu trúc",notes:[294,370,440,370,330,415,494,415],tempo:145},
-    {name:"✨ Sao nhỏ",notes:[392,494,587,494,440,554,659,554],tempo:125},
-    {name:"🎈 Bong bóng",notes:[262,294,330,392,330,294,247,294],tempo:155},
-    {name:"🌸 Hoa xuân",notes:[349,440,523,440,392,494,587,494],tempo:140},
-    {name:"🚀 Phiêu lưu",notes:[220,277,330,415,330,277,370,440],tempo:130},
-    {name:"🎉 Lễ hội",notes:[262,330,392,523,392,330,494,659],tempo:120}
+    {name:"🌈 Nắng vui",notes:[262,330,392,330,294,349,440,349],tempo:150},{name:"🍬 Kẹo ngọt",notes:[330,392,494,392,349,440,523,440],tempo:135},{name:"🐼 Gấu trúc",notes:[294,370,440,370,330,415,494,415],tempo:145},{name:"✨ Sao nhỏ",notes:[392,494,587,494,440,554,659,554],tempo:125},{name:"🎈 Bong bóng",notes:[262,294,330,392,330,294,247,294],tempo:155},{name:"🌸 Hoa xuân",notes:[349,440,523,440,392,494,587,494],tempo:140},{name:"🚀 Phiêu lưu",notes:[220,277,330,415,330,277,370,440],tempo:130},{name:"🎉 Lễ hội",notes:[262,330,392,523,392,330,494,659],tempo:120},{name:"🌙 Đêm dịu",notes:[262,294,349,392,349,294,262,220],tempo:170},{name:"☀️ Buổi sáng",notes:[392,440,494,587,494,440,392,330],tempo:135},{name:"🍀 May mắn",notes:[330,349,392,440,392,349,330,294],tempo:145},{name:"🦋 Bươm bướm",notes:[523,494,440,392,440,494,523,587],tempo:130},{name:"🌊 Sóng xanh",notes:[220,262,294,330,294,262,247,220],tempo:165},{name:"🎠 Vòng quay",notes:[330,392,440,523,587,523,440,392],tempo:125},{name:"🍓 Dâu ngọt",notes:[392,494,523,494,392,349,392,440],tempo:140},{name:"🌟 Ước mơ",notes:[440,494,587,659,587,494,440,392],tempo:130}
   ];
-  function setup(){if(ctx) return; ctx=new (window.AudioContext||window.webkitAudioContext)(); gain=ctx.createGain();gain.gain.value=.045;gain.connect(ctx.destination)}
-  function beep(freq,dur=.20){if(!ctx||!gain)return; const o=ctx.createOscillator(),g=ctx.createGain(),t=ctx.currentTime;o.type="triangle";o.frequency.setValueAtTime(freq,t);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.22,t+.015);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(gain);o.start(t);o.stop(t+dur+.02)}
-  function step(){if(!playing)return;const tr=tracks[track%tracks.length];beep(tr.notes[noteIndex%tr.notes.length],.20);noteIndex++;if(noteIndex%tr.notes.length===0){track=(track+1)%tracks.length;name.textContent=tracks[track].name}timer=setTimeout(step,tr.tempo)}
-  async function toggle(){setup();try{if(ctx.state==="suspended")await ctx.resume()}catch(e){} playing=!playing;if(playing){btn.classList.add("active");btn.textContent="🎵 Nhạc nền: BẬT";name.textContent=tracks[track].name;step()}else{btn.classList.remove("active");btn.textContent="🎵 Nhạc nền: TẮT";clearTimeout(timer)}}
-  btn.addEventListener("click",toggle,{passive:false});
+  function setup(){if(ctx)return;try{const Ctx=window.AudioContext||window.webkitAudioContext;if(!Ctx)return;ctx=new Ctx();gain=ctx.createGain();gain.gain.value=.055;gain.connect(ctx.destination)}catch(e){ctx=null;gain=null}}
+  async function unlock(){setup();if(ctx&&ctx.state!=="running"){try{await ctx.resume()}catch(e){}}if(ctx){try{const o=ctx.createOscillator(),g=ctx.createGain();g.gain.value=.00001;o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+.01)}catch(e){}}}
+  function beep(freq,dur=.22){if(!ctx||!gain||ctx.state!=="running")return;try{const o=ctx.createOscillator(),g=ctx.createGain(),t=ctx.currentTime;o.type="triangle";o.frequency.setValueAtTime(freq,t);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.20,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(gain);o.start(t);o.stop(t+dur+.03)}catch(e){}}
+  function stopTimer(){if(timer){clearTimeout(timer);timer=null}} function stopLocal(){if(audio){try{audio.pause();audio.currentTime=0}catch(e){}audio=null}}
+  function currentIsLocal(){return select.value.indexOf("local:")===0}
+  function step(){if(!playing||currentIsLocal())return;const tr=tracks[trackIndex%tracks.length];beep(tr.notes[noteIndex%tr.notes.length],.20);noteIndex++;if(noteIndex%tr.notes.length===0){noteIndex=0;trackIndex=(trackIndex+1)%tracks.length}name.textContent=tracks[trackIndex%tracks.length].name;timer=setTimeout(step,tr.tempo)}
+  function fillList(){select.innerHTML="";tracks.forEach((tr,i)=>{const o=document.createElement("option");o.value="builtin:"+i;o.textContent=tr.name;select.appendChild(o)});localTracks.forEach((tr,i)=>{const o=document.createElement("option");o.value="local:"+i;o.textContent="📱 "+tr.name;select.appendChild(o)})} fillList();
+  async function playSelected(){await unlock();stopTimer();stopLocal();const val=select.value;if(val.indexOf("local:")===0){const item=localTracks[Number(val.split(":")[1])];if(!item)return;audio=new Audio(item.url);audio.preload="auto";audio.loop=true;audio.playsInline=true;audio.volume=.35;try{await audio.play()}catch(e){name.textContent="👆 Chạm 🎵 để phát";playing=false;btn.classList.remove("active");btn.textContent="🎵 Nhạc: TẮT";return}name.textContent=item.name}else{trackIndex=Number(val.split(":")[1])||0;noteIndex=0;step();name.textContent=tracks[trackIndex].name}}
+  async function toggle(){await unlock();if(playing){playing=false;stopTimer();stopLocal();btn.classList.remove("active");btn.textContent="🎵 Nhạc: TẮT";return}playing=true;btn.classList.add("active");btn.textContent="🎵 Nhạc: BẬT";await playSelected()}
+  select.addEventListener("change",async function(){if(!playing){name.textContent=select.options[select.selectedIndex]?.textContent||"Nhạc nền";return}await playSelected()},{passive:true});
+  upload.addEventListener("change",function(){const files=Array.from(upload.files||[]).filter(f=>f.type.startsWith("audio/"));files.forEach(file=>localTracks.push({name:file.name,url:URL.createObjectURL(file)}));fillList();if(files.length){select.value="local:"+(localTracks.length-files.length);name.textContent="📱 "+files[0].name;if(playing)playSelected()}upload.value=""});
+  document.addEventListener("visibilitychange",async function(){if(!document.hidden&&playing){await unlock();if(currentIsLocal()&&audio&&audio.paused){try{await audio.play()}catch(e){}}}});
+  ["pointerdown","touchstart"].forEach(ev=>btn.addEventListener(ev,function(){unlock()},{passive:true}));
+  bar.classList.add("ttc-music-ready");btn.addEventListener("click",toggle,{passive:false});
 })();
 </script>
+
+<style id="ttcActionButtonGlowV2">
+@keyframes ttcTestGreenBlink{0%,100%{box-shadow:0 0 0 2px rgba(34,197,94,.14),0 0 10px rgba(34,197,94,.35)}50%{box-shadow:0 0 0 3px rgba(34,197,94,.28),0 0 24px rgba(34,197,94,.78)}}
+@keyframes ttcMatchPinkBlink{0%,100%{box-shadow:0 0 0 2px rgba(236,72,153,.14),0 0 10px rgba(236,72,153,.35)}50%{box-shadow:0 0 0 3px rgba(236,72,153,.28),0 0 24px rgba(236,72,153,.78)}}
+#ttcActionFrame .ttc-action-buttons > button:first-child{background:#ecfdf3 !important;color:#15803d !important;border:2px solid #22c55e !important;font-weight:900 !important;animation:ttcTestGreenBlink 1.25s ease-in-out infinite !important}
+#ttcMatchLauncher{background:#fff0f7 !important;color:#be185d !important;border:2px solid #ec4899 !important;animation:ttcMatchPinkBlink 1.25s ease-in-out infinite !important}
+@media(prefers-reduced-motion:reduce){#ttcActionFrame .ttc-action-buttons > button:first-child,#ttcMatchLauncher{animation:none !important}}
+</style>
 </body>
 </html>
