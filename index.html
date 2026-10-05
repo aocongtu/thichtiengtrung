@@ -343,8 +343,8 @@ main{
 
   position: fixed;
 
-  right:63px;
-  bottom:12px;
+  right:23px;
+  bottom:32px;
 
   width: 48px;
   height: 48px;
@@ -357,7 +357,7 @@ main{
   box-shadow:
     0 4px 14px rgba(0,0,0,0.18);
 
-  font-size: 22px;
+  font-size: 52px;
 
   cursor: pointer;
 
@@ -132949,66 +132949,6 @@ button.addEventListener(
       }
 
     }, true);
-  }
-
-  /* =========================================================
-     🔊 Nút bật/tắt âm thanh UI
-     Chỉ tạo một nút nhỏ, không ảnh hưởng layout hiện tại.
-     ========================================================= */
-  function addSoundToggle(){
-
-    if(document.getElementById("ttcUiSoundToggle")){
-      return;
-    }
-
-    const button = document.createElement("button");
-    button.id = "ttcUiSoundToggle";
-    button.type = "button";
-    button.title = "Bật / tắt âm thanh giao diện";
-    button.textContent = uiSoundEnabled ? "🔊" : "🔇";
-
-    button.style.cssText = [
-      "position:fixed",
-      "right:14px",
-      "bottom:14px",
-      "z-index:9997",
-      "width:42px",
-      "height:42px",
-      "padding:0",
-      "border-radius:50%",
-      "background:#fff",
-      "color:#222",
-      "border:1px solid #ddd",
-      "box-shadow:0 4px 16px rgba(0,0,0,.14)",
-      "font-size:19px",
-      "cursor:pointer"
-    ].join(";");
-
-    button.addEventListener("click", function(event){
-      event.preventDefault();
-      event.stopPropagation();
-
-      uiSoundEnabled = !uiSoundEnabled;
-      localStorage.setItem(
-        "ttc_ui_sound_enabled",
-        uiSoundEnabled ? "1" : "0"
-      );
-
-      button.textContent =
-        uiSoundEnabled ? "🔊" : "🔇";
-
-      if(uiSoundEnabled){
-        playUiTone("success", 1);
-      }
-    });
-
-    document.body.appendChild(button);
-  }
-
-  if(document.readyState === "loading"){
-    document.addEventListener("DOMContentLoaded", addSoundToggle, {once:true});
-  }else{
-    addSoundToggle();
   }
 
 })();
