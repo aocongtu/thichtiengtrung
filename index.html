@@ -2423,34 +2423,8 @@ main{
 
 
 <style id="ttc-final-v2-enhancements">
-/* =========================================================
-   🎵 TTC V2 — NHẠC NỀN + EMOJI + TEST LUYỆN THI
-========================================================= */
-#ttcBgMusicBar{
-  position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:2147483000;
-  display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;
-  background:rgba(255,255,255,.94);border:1px solid #f0d7df;box-shadow:0 6px 20px rgba(120,40,80,.12);
-  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-}
-#ttcBgMusicBtn{border:0;border-radius:999px;padding:7px 10px;background:#fff4f7;color:#c52f57;font-weight:900;font-size:8px;line-height:1;cursor:pointer;box-shadow:0 2px 8px rgba(197,47,87,.12);white-space:nowrap;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-#ttcBgMusicBtn.active{background:#ffe1ea;box-shadow:0 0 0 2px rgba(197,47,87,.10),0 0 18px rgba(255,100,150,.22)}
-#ttcBgMusicName{font-size:10px;color:#8a6470;font-weight:800;max-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#ttcBgMusicSelect{border:1px solid #efd8df;border-radius:999px;background:#fff;color:#8a6470;font-size:9px;font-weight:800;padding:5px 7px;max-width:115px;outline:none}
-#ttcBgMusicUpload{display:none}
-#ttcBgMusicUploadLabel{border:1px solid #efd8df;border-radius:999px;background:#fff;color:#c52f57;font-size:9px;font-weight:900;padding:5px 7px;cursor:pointer;white-space:nowrap;touch-action:manipulation}
-.ttc-emoji-picker[hidden]{display:none}
-.ttc-emoji-picker{position:absolute;right:8px;bottom:58px;width:min(330px,calc(100vw - 24px));max-height:260px;overflow:auto;padding:10px;border-radius:16px;background:#fff;border:1px solid #eadde3;box-shadow:0 14px 35px rgba(60,20,40,.18);z-index:9999;display:grid;grid-template-columns:repeat(8,1fr);gap:5px}
-.ttc-emoji-picker button{border:0;background:#fff;border-radius:9px;font-size:23px;line-height:1;padding:7px 2px;cursor:pointer}
-.ttc-emoji-picker button:hover{background:#fff0f4;transform:scale(1.08)}
-.ttc-emoji-anchor{position:relative}
-.ttc-emoji-toggle{flex:0 0 auto}
-/* 🛡️ TTC — cửa vào đề: không khóa nút khi Gushi còn đang tải */
-.wh-hsk-ttc-test:disabled,
-.wh-hsk-test:disabled{
-  opacity:.72 !important;
-  cursor:wait !important;
-  transform:none !important;
-}
+
+
 .wh-ttc-opening{
   animation:ttcExamOpening 1s ease-in-out infinite alternate;
 }
@@ -2463,22 +2437,13 @@ main{
 .wh-hsk-ttc-test:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(168,34,75,.12)}
 .wh-hsk-ttc-note{margin:5px 0 12px;padding:9px 12px;border-radius:11px;background:#fff9fb;color:#765b65;font-size:12px;line-height:1.55}
 @media(max-width:600px){
- #ttcBgMusicBar{top:6px;padding:5px 8px} #ttcBgMusicBtn{width:100px;height:31px;padding:0 8px;font-size:8px} #ttcBgMusicName{max-width:105px}
- .ttc-emoji-picker{grid-template-columns:repeat(7,1fr);bottom:54px;right:2px}
-}
+ 
 </style>
 </head>
 
 <body>
 
 
-<div id="ttcBgMusicBar" aria-label="Nhạc nền THÍCH TIẾNG TRUNG">
-  <button id="ttcBgMusicBtn" type="button" title="Bật / tắt nhạc nền">🎵 Nhạc: TẮT</button>
-  <select id="ttcBgMusicSelect" title="Chọn bài nhạc nền" aria-label="Chọn bài nhạc nền"></select>
-  <label id="ttcBgMusicUploadLabel" for="ttcBgMusicUpload" title="Tải nhạc từ điện thoại">📱 Thêm nhạc</label>
-  <input id="ttcBgMusicUpload" type="file" accept="audio/*" multiple>
-  <span id="ttcBgMusicName">🌈 Nắng vui</span>
-</div>
 <header>
 
 <h1>
@@ -133990,36 +133955,8 @@ html,body{background:#fff !important;}
   pointer-events:none !important;
   mix-blend-mode:normal !important;
 }
-#ttcMusicDock{z-index:100030 !important;}
 #ttcUiSoundToggle{right:14px !important;left:auto !important;bottom:14px !important;top:auto !important;z-index:100020 !important;}
 </style>
-<script id="ttc-background-music-v3">
-(function(){
-  "use strict";
-  if(window.__TTC_BG_MUSIC_V3__) return;
-  window.__TTC_BG_MUSIC_V3__=true;
-  const btn=document.getElementById("ttcBgMusicBtn"),name=document.getElementById("ttcBgMusicName"),select=document.getElementById("ttcBgMusicSelect"),upload=document.getElementById("ttcBgMusicUpload"),bar=document.getElementById("ttcBgMusicBar");
-  if(!btn||!select||!upload) return;
-  let ctx=null,gain=null,timer=null,playing=false,noteIndex=0,trackIndex=0,localTracks=[],audio=null;
-  const tracks=[
-    {name:"🌈 Nắng vui",notes:[262,330,392,330,294,349,440,349],tempo:150},{name:"🍬 Kẹo ngọt",notes:[330,392,494,392,349,440,523,440],tempo:135},{name:"🐼 Gấu trúc",notes:[294,370,440,370,330,415,494,415],tempo:145},{name:"✨ Sao nhỏ",notes:[392,494,587,494,440,554,659,554],tempo:125},{name:"🎈 Bong bóng",notes:[262,294,330,392,330,294,247,294],tempo:155},{name:"🌸 Hoa xuân",notes:[349,440,523,440,392,494,587,494],tempo:140},{name:"🚀 Phiêu lưu",notes:[220,277,330,415,330,277,370,440],tempo:130},{name:"🎉 Lễ hội",notes:[262,330,392,523,392,330,494,659],tempo:120},{name:"🌙 Đêm dịu",notes:[262,294,349,392,349,294,262,220],tempo:170},{name:"☀️ Buổi sáng",notes:[392,440,494,587,494,440,392,330],tempo:135},{name:"🍀 May mắn",notes:[330,349,392,440,392,349,330,294],tempo:145},{name:"🦋 Bươm bướm",notes:[523,494,440,392,440,494,523,587],tempo:130},{name:"🌊 Sóng xanh",notes:[220,262,294,330,294,262,247,220],tempo:165},{name:"🎠 Vòng quay",notes:[330,392,440,523,587,523,440,392],tempo:125},{name:"🍓 Dâu ngọt",notes:[392,494,523,494,392,349,392,440],tempo:140},{name:"🌟 Ước mơ",notes:[440,494,587,659,587,494,440,392],tempo:130}
-  ];
-  function setup(){if(ctx)return;try{const Ctx=window.AudioContext||window.webkitAudioContext;if(!Ctx)return;ctx=new Ctx();gain=ctx.createGain();gain.gain.value=.055;gain.connect(ctx.destination)}catch(e){ctx=null;gain=null}}
-  async function unlock(){setup();if(ctx&&ctx.state!=="running"){try{await ctx.resume()}catch(e){}}if(ctx){try{const o=ctx.createOscillator(),g=ctx.createGain();g.gain.value=.00001;o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+.01)}catch(e){}}}
-  function beep(freq,dur=.22){if(!ctx||!gain||ctx.state!=="running")return;try{const o=ctx.createOscillator(),g=ctx.createGain(),t=ctx.currentTime;o.type="triangle";o.frequency.setValueAtTime(freq,t);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.20,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(gain);o.start(t);o.stop(t+dur+.03)}catch(e){}}
-  function stopTimer(){if(timer){clearTimeout(timer);timer=null}} function stopLocal(){if(audio){try{audio.pause();audio.currentTime=0}catch(e){}audio=null}}
-  function currentIsLocal(){return select.value.indexOf("local:")===0}
-  function step(){if(!playing||currentIsLocal())return;const tr=tracks[trackIndex%tracks.length];beep(tr.notes[noteIndex%tr.notes.length],.20);noteIndex++;if(noteIndex%tr.notes.length===0){noteIndex=0;trackIndex=(trackIndex+1)%tracks.length}name.textContent=tracks[trackIndex%tracks.length].name;timer=setTimeout(step,tr.tempo)}
-  function fillList(){select.innerHTML="";tracks.forEach((tr,i)=>{const o=document.createElement("option");o.value="builtin:"+i;o.textContent=tr.name;select.appendChild(o)});localTracks.forEach((tr,i)=>{const o=document.createElement("option");o.value="local:"+i;o.textContent="📱 "+tr.name;select.appendChild(o)})} fillList();
-  async function playSelected(){await unlock();stopTimer();stopLocal();const val=select.value;if(val.indexOf("local:")===0){const item=localTracks[Number(val.split(":")[1])];if(!item)return;audio=new Audio(item.url);audio.preload="auto";audio.loop=true;audio.playsInline=true;audio.volume=.35;try{await audio.play()}catch(e){name.textContent="👆 Chạm 🎵 để phát";playing=false;btn.classList.remove("active");btn.textContent="🎵 Nhạc: TẮT";return}name.textContent=item.name}else{trackIndex=Number(val.split(":")[1])||0;noteIndex=0;step();name.textContent=tracks[trackIndex].name}}
-  async function toggle(){await unlock();if(playing){playing=false;stopTimer();stopLocal();btn.classList.remove("active");btn.textContent="🎵 Nhạc: TẮT";return}playing=true;btn.classList.add("active");btn.textContent="🎵 Nhạc: BẬT";await playSelected()}
-  select.addEventListener("change",async function(){if(!playing){name.textContent=select.options[select.selectedIndex]?.textContent||"Nhạc nền";return}await playSelected()},{passive:true});
-  upload.addEventListener("change",function(){const files=Array.from(upload.files||[]).filter(f=>f.type.startsWith("audio/"));files.forEach(file=>localTracks.push({name:file.name,url:URL.createObjectURL(file)}));fillList();if(files.length){select.value="local:"+(localTracks.length-files.length);name.textContent="📱 "+files[0].name;if(playing)playSelected()}upload.value=""});
-  document.addEventListener("visibilitychange",async function(){if(!document.hidden&&playing){await unlock();if(currentIsLocal()&&audio&&audio.paused){try{await audio.play()}catch(e){}}}});
-  ["pointerdown","touchstart"].forEach(ev=>btn.addEventListener(ev,function(){unlock()},{passive:true}));
-  bar.classList.add("ttc-music-ready");btn.addEventListener("click",toggle,{passive:false});
-})();
-</script>
 
 <style id="ttcActionButtonGlowV2">
 @keyframes ttcTestGreenBlink{0%,100%{box-shadow:0 0 0 2px rgba(34,197,94,.14),0 0 10px rgba(34,197,94,.35)}50%{box-shadow:0 0 0 3px rgba(34,197,94,.28),0 0 24px rgba(34,197,94,.78)}}
