@@ -2450,6 +2450,9 @@ main{
 .wh-hsk-ttc-test{width:100%;margin:8px 0;padding:13px 16px;border:1px solid #f0b9c9;border-radius:14px;background:linear-gradient(135deg,#fff7fa,#fff);color:#a8224b;font-weight:900;cursor:pointer;box-shadow:0 5px 15px rgba(168,34,75,.08)}
 .wh-hsk-ttc-test:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(168,34,75,.12)}
 .wh-hsk-ttc-note{margin:5px 0 12px;padding:9px 12px;border-radius:11px;background:#fff9fb;color:#765b65;font-size:12px;line-height:1.55}
+.ttc-exam-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:8px 0 14px}
+.ttc-exam-button{margin:0!important;padding:11px 7px!important;font-size:12px!important;line-height:1.2}
+@media(max-width:600px){.ttc-exam-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.ttc-exam-button{min-height:46px!important;font-size:12px!important}}
 @media(max-width:600px){
  .ttc-emoji-picker{grid-template-columns:repeat(7,1fr);bottom:54px;right:2px}
 }
@@ -116320,12 +116323,11 @@ async function openTtcGeneratedExam(button){
     /* 🛡️ HSK1: bộ cũ chỉ có 12 câu → dựng đủ 40 câu từ 300 từ Gushi hiện tại. */
     if(level===1){
       if(!HSK_DATA[1]?.practice || HSK_DATA[1].practice.length < 40 || !HSK_DATA[1]?.mock || HSK_DATA[1].mock.length < 40){
-        if(!ttcBuildGeneratedTests(1)){
+        if(!ttcBuildGeneratedTests(1,currentExamNumber)){
           alert("Dữ liệu HSK1 chưa sẵn sàng. Anh thử lại sau vài giây nhé 🤗");
           return;
         }
       }
-      currentExamNumber=1;
       startExam();
       return;
     }
@@ -116339,13 +116341,12 @@ async function openTtcGeneratedExam(button){
       return;
     }
 
-    const ready = ttcBuildGeneratedTests(level);
+    const ready = ttcBuildGeneratedTests(level,currentExamNumber);
     if(!ready){
       alert("Không đủ dữ liệu để tạo đề HSK " + level + ". Em đã chặn lỗi để không ảnh hưởng khu học khác.");
       return;
     }
 
-    currentExamNumber=1;
     startExam();
   }catch(err){
     console.error("TTC HSK: không mở được đề",err);
@@ -116359,25 +116360,48 @@ async function openTtcGeneratedExam(button){
   }
 }
 
-function ttcBuildGeneratedTests(level){
+const TTC_HSK_EXAM_COUNTS = {1:40,2:60,3:80,4:100,5:100,6:101,7:98,8:98,9:98};
+const TTC_EXAM_BANK = Object.create(null);
+
+function ttcBuildGeneratedTests(level,examNo){
   level=Number(level);
+  examNo=Math.max(1,Number(examNo)||1);
   const pool=ttcGetVocabularyPool(level);
-  const wanted = ({1:40,2:60,3:70,4:70,5:72,6:82,7:98,8:98,9:98})[level] || 40;
+  const wanted=TTC_HSK_EXAM_COUNTS[level] || 40;
   if(pool.length<20) return false;
+
+  if(!TTC_EXAM_BANK[level]) TTC_EXAM_BANK[level]=Object.create(null);
+  if(TTC_EXAM_BANK[level][examNo]){
+    HSK_DATA[level]=TTC_EXAM_BANK[level][examNo];
+    return true;
+  }
+
   const make=(seed)=>{
-    const shuffled=ttcShuffle(pool); const out=[]; let i=0;
-    while(out.length<wanted && i<shuffled.length*2){const q=ttcMakeQuestion(shuffled[i%shuffled.length],pool,i+seed); if(q)out.push(q);i++;}
+    const shuffled=ttcShuffle(pool), out=[];
+    let i=0;
+    const maxAttempts=Math.max(shuffled.length*4,wanted*6);
+    while(out.length<wanted && i<maxAttempts){
+      const q=ttcMakeQuestion(shuffled[i%shuffled.length],pool,i+seed);
+      if(q) out.push(q);
+      i++;
+    }
     return out;
   };
-  const practice=make(0), mock=make(37);
+
+  const practice=make(examNo*101);
+  const mock=make(examNo*101+37);
   if(practice.length<wanted || mock.length<wanted) return false;
-  HSK_DATA[level]={practice,mock};
+
+  TTC_EXAM_BANK[level][examNo]={practice,mock};
+  HSK_DATA[level]=TTC_EXAM_BANK[level][examNo];
   return true;
 }
-function ensureTtcGeneratedTest(level){
-  if(level===1) return true;
-  if(HSK_DATA[level]?.practice?.length) return true;
-  return ttcBuildGeneratedTests(level);
+
+function ensureTtcGeneratedTest(level,examNo){
+  level=Number(level);
+  examNo=Math.max(1,Number(examNo)||1);
+  if(level===1 && examNo===1 && HSK_DATA[1]?.practice?.length>=TTC_HSK_EXAM_COUNTS[1]) return true;
+  return ttcBuildGeneratedTests(level,examNo);
 }
 
 /* =========================================================
@@ -116746,58 +116770,55 @@ function openTestList(){
 
   const source = OFFICIAL[currentHsk];
 
-  if(currentHsk >= 2){
-    const ttcBtn=document.createElement("button");
-    ttcBtn.className="wh-hsk-ttc-test";
-    ttcBtn.type="button";
-    const ttcCount = ({1:40,2:60,3:70,4:70,5:72,6:82,7:98,8:98,9:98})[currentHsk] || 40;
-    ttcBtn.textContent = currentMode === "mock"
-      ? `🏆 TTC THI THỬ HSK ${currentHsk} · ${ttcCount} CÂU`
-      : `📝 TTC LUYỆN TẬP HSK ${currentHsk} · ${ttcCount} CÂU`;
-    ttcBtn.onclick=async()=>{
-      if(currentMode === "mock"){
-        await openTtcStandaloneMock(Number(currentHsk), ttcBtn);
-      }else{
-        await openTtcGeneratedExam(ttcBtn);
-      }
-    };
-    testList.appendChild(ttcBtn);
-    const ttcNote=document.createElement("div");
-    ttcNote.className="wh-hsk-ttc-note";
-    ttcNote.innerHTML = currentMode === "mock"
-      ? `<strong>🏆 Thi thử TTC:</strong> có đồng hồ đếm ngược, không hiện đáp án/giải thích trong lúc làm, chấm điểm sau khi nộp và lưu thành tích. Đề được xáo trộn riêng.`
-      : `<strong>📝 Luyện tập TTC:</strong> tạo từ dữ liệu từ vựng Gushi HSK 3.0 đã đồng bộ. Có đáp án, pinyin và giải thích sau khi chọn.`;
-    testList.appendChild(ttcNote);
-  }
+  /* =========================================================
+     🧪 TTC — NGÂN HÀNG 10 ĐỀ / CẤP
+     - Đề do TTC tự sinh từ kho từ vựng hiện có.
+     - Bám số câu theo cấu trúc tham khảo PREP.
+     - Không sao chép nguyên văn đề bên ngoài.
+     ========================================================= */
+  {
+    const ttcCount = TTC_HSK_EXAM_COUNTS[currentHsk] || 40;
 
-  if(currentHsk === 1){
+    const ttcHead=document.createElement("div");
+    ttcHead.className="wh-hsk-ttc-note";
+    ttcHead.innerHTML =
+      `<strong>🧪 TTC ${currentMode==="mock"?"THI THỬ":"LUYỆN TẬP"} · HSK ${currentHsk}</strong>` +
+      ` · ${ttcCount} câu/đề · 10 đề sinh riêng. ` +
+      `${currentMode==="mock"
+        ? "Có đồng hồ, không hiện đáp án trong lúc thi."
+        : "Có đáp án, pinyin và giải thích sau khi chọn."}`;
+    testList.appendChild(ttcHead);
 
-    const btn =
-      document.createElement("button");
+    const examGrid=document.createElement("div");
+    examGrid.className="ttc-exam-grid";
 
-    btn.className = "wh-hsk-test";
-    btn.textContent = currentMode === "mock"
-      ? "🏆 BẮT ĐẦU THI THỬ TTC · HSK 1 · ĐỀ 01"
-      : "📝 BẮT ĐẦU LUYỆN TẬP TTC · HSK 1 · ĐỀ 01";
+    for(let examNo=1;examNo<=10;examNo++){
+      const ttcBtn=document.createElement("button");
+      ttcBtn.className="wh-hsk-ttc-test ttc-exam-button";
+      ttcBtn.type="button";
+      ttcBtn.textContent =
+        currentMode==="mock"
+          ? `🏆 ĐỀ ${String(examNo).padStart(2,"0")} · ${ttcCount} CÂU`
+          : `📝 ĐỀ ${String(examNo).padStart(2,"0")} · ${ttcCount} CÂU`;
 
-    btn.onclick = async function(){
-      if(currentMode === "mock"){
-        await openTtcStandaloneMock(1, btn);
-      }else{
-        await openTtcGeneratedExam(btn);
-      }
-    };
+      ttcBtn.onclick=async()=>{
+        currentExamNumber=examNo;
+        if(currentMode==="mock"){
+          await openTtcStandaloneMock(Number(currentHsk),ttcBtn,examNo);
+        }else{
+          await openTtcGeneratedExam(ttcBtn);
+        }
+      };
 
-    testList.appendChild(btn);
-
-    if(currentMode === "mock"){
-      renderLeaderboard(
-        selectLeaderboard,
-        currentHsk,
-        currentExamNumber
-      );
+      examGrid.appendChild(ttcBtn);
     }
 
+    testList.appendChild(examGrid);
+
+    /* Giữ nguyên bảng thành tích HSK1 đang có. */
+    if(currentHsk===1 && currentMode==="mock"){
+      renderLeaderboard(selectLeaderboard,currentHsk,currentExamNumber);
+    }
   }
 
   if(source){
@@ -116890,11 +116911,15 @@ function ttcStandaloneShuffle(a){
   return x;
 }
 
-function ttcStandaloneBuild(level){
+function ttcStandaloneBuild(level,examNo){
   const pool=ttcStandalonePool(level);
   if(pool.length<4) return null;
-  const count=Math.min(30,pool.length);
-  const chosen=ttcStandaloneShuffle(pool).slice(0,count);
+  const wanted=TTC_HSK_EXAM_COUNTS[Number(level)] || 40;
+  const count=Math.min(wanted,pool.length);
+  const n=Math.max(1,Number(examNo)||1);
+  const offset=((n-1)*13)%pool.length;
+  const rotated=pool.slice(offset).concat(pool.slice(0,offset));
+  const chosen=ttcStandaloneShuffle(rotated).slice(0,count);
   const questions=[];
   chosen.forEach(function(target,idx){
     const kind=idx%3;
@@ -116923,7 +116948,7 @@ function ttcStandaloneRender(){
   const q=st.questions[st.index];
   const root=document.getElementById("ttcStandaloneMock");
   if(!root) return;
-  root.querySelector(".ttc-sm-title").textContent=`🏆 THI THỬ TTC · HSK ${st.level}`;
+  root.querySelector(".ttc-sm-title").textContent=`🏆 THI THỬ TTC · HSK ${st.level} · ĐỀ ${String(st.examNo).padStart(2,"0")}`;
   root.querySelector(".ttc-sm-progress").textContent=`Câu ${st.index+1}/${st.questions.length}`;
   root.querySelector(".ttc-sm-question").innerHTML=`<div class="ttc-sm-q">${q.q}</div><div class="ttc-sm-pinyin">${q.p}</div>`;
   const box=root.querySelector(".ttc-sm-options");
@@ -116981,14 +117006,16 @@ function closeTtcStandaloneMock(){
   ttcStandaloneState=null;
 }
 
-async function openTtcStandaloneMock(level,button){
-  level=Number(level); const old=button?button.textContent:"";
+async function openTtcStandaloneMock(level,button,examNo){
+  level=Number(level);
+  examNo=Math.max(1,Number(examNo)||1);
+  const old=button?button.textContent:"";
   if(button){button.disabled=true;button.textContent=`⏳ ĐANG TẠO ĐỀ HSK ${level}…`;}
   try{
     const deadline=Date.now()+15000; let pool=ttcStandalonePool(level);
     while(pool.length<4 && Date.now()<deadline){await new Promise(r=>setTimeout(r,250));pool=ttcStandalonePool(level);}
     if(pool.length<4){alert(`Chưa lấy được dữ liệu HSK ${level}. Anh thử lại sau vài giây nhé 🤗`);return;}
-    const questions=ttcStandaloneBuild(level);
+    const questions=ttcStandaloneBuild(level,examNo);
     if(!questions){alert(`Không đủ dữ liệu hợp lệ để tạo đề HSK ${level}.`);return;}
     closeTtcStandaloneMock();
     const root=document.createElement("div"); root.id="ttcStandaloneMock"; root.innerHTML=`
@@ -117000,7 +117027,7 @@ async function openTtcStandaloneMock(level,button){
         <div class="ttc-sm-actions"><button type="button" class="ttc-sm-next">➡️ Câu tiếp</button><button type="button" class="ttc-sm-submit">🏁 Nộp bài</button><button type="button" class="ttc-sm-review" style="display:none">📋 Xem kết quả</button></div>
       </div></div>`;
     document.body.appendChild(root);
-    ttcStandaloneState={level,questions,index:0,answers:[],remaining:Math.max(10,questions.length*45),submitted:false,timer:null};
+    ttcStandaloneState={level,examNo,questions,index:0,answers:[],remaining:Math.max(10,questions.length*45),submitted:false,timer:null};
     root.querySelector(".ttc-sm-close").onclick=function(){if(confirm("Thoát bài thi thử? Tiến trình bài này sẽ không tính."))closeTtcStandaloneMock();};
     root.querySelector(".ttc-sm-next").onclick=function(){if(ttcStandaloneState.index<questions.length-1){ttcStandaloneState.index++;ttcStandaloneRender();}};
     root.querySelector(".ttc-sm-submit").onclick=ttcStandaloneSubmit;
@@ -117027,7 +117054,7 @@ function startExam(){
   if(currentHsk>=1){
     if(currentMode === "mock"){
       // Thi thử: tạo một bộ mới mỗi lần bắt đầu để tránh lặp nguyên đề.
-      if(!ttcBuildGeneratedTests(currentHsk)){
+      if(!ttcBuildGeneratedTests(currentHsk,currentExamNumber)){
         alert("Dữ liệu HSK đang được tải. Vui lòng thử lại sau vài giây.");
         return;
       }
