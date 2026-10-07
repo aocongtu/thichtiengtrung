@@ -134240,16 +134240,29 @@ html,body{background:#fff !important;}
     .ttc-pron-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
     .ttc-pron-lesson{grid-template-columns:1fr}
   }
-  @media(max-width:600px){
-    .ttc-top-learning-hub{width:calc(100% - 20px);grid-template-columns:1fr;gap:9px}
-    .ttc-top-learning-btn{min-height:53px;font-size:15px}
-    .ttc-hub-card{padding:13px;border-radius:18px}
-    .ttc-hub-title{font-size:18px}
-    .ttc-radical-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-    .ttc-pron-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
-    .ttc-pron-big{font-size:48px}
+@media(max-width:600px){
+  .ttc-top-learning-hub{
+  width:calc(50% - 10px);
+  margin:3px auto 10px;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+}
+  .ttc-top-learning-btn{
+    min-height:30px;
+    height:30px;
+    padding:3px 4px;
+    font-size:11px;
+    border-radius:9px;
+    white-space:nowrap;
   }
-</style>
+
+  .ttc-hub-card{padding:13px;border-radius:18px}
+  .ttc-hub-title{font-size:18px}
+  .ttc-radical-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .ttc-pron-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .ttc-pron-big{font-size:48px}
+}
+  </style>
 
 <script>
 (function(){
