@@ -135442,55 +135442,6 @@ html,body{background:#fff !important;}
 }
 
 /* =====================================================
-   📝 TEST TỪ VỰNG
-   Ô nhập đáp án: xanh lá cây phát sáng.
-===================================================== */
-.test-input{
-  border:2px solid #22c55e !important;
-  background:#f0fdf4 !important;
-  color:#14532d !important;
-  box-shadow:
-    0 0 0 rgba(34,197,94,0),
-    0 0 12px rgba(34,197,94,.28) !important;
-  transition:
-    border-color .2s ease,
-    box-shadow .2s ease,
-    background .2s ease,
-    transform .2s ease;
-  animation:ttcTestInputGreenGlow 1.8s ease-in-out infinite;
-}
-
-.test-input::placeholder{
-  color:#4b8060 !important;
-  opacity:.9;
-}
-
-.test-input:focus{
-  border-color:#16a34a !important;
-  background:#f0fdf4 !important;
-  box-shadow:
-    0 0 8px rgba(34,197,94,.55),
-    0 0 22px rgba(34,197,94,.38),
-    0 0 34px rgba(34,197,94,.16) !important;
-  transform:translateY(-1px);
-  outline:none !important;
-}
-
-@keyframes ttcTestInputGreenGlow{
-  0%,100%{
-    box-shadow:
-      0 0 7px rgba(34,197,94,.20),
-      0 0 14px rgba(34,197,94,.10);
-  }
-  50%{
-    box-shadow:
-      0 0 10px rgba(34,197,94,.42),
-      0 0 24px rgba(34,197,94,.25),
-      0 0 34px rgba(34,197,94,.10);
-  }
-}
-
-/* =====================================================
    ✍️ LUYỆN CÂU
    Khung lớn bao trọn 2 thẻ 3000 câu + theo cấp độ.
 ===================================================== */
@@ -135656,25 +135607,6 @@ html,body{background:#fff !important;}
 ========================================================= -->
 <style id="ttcWhiteHatFinalV8">
 
-
-/* =========================
-   📝 TEST TỪ VỰNG — NHẠT + NHẤP NHÁY
-========================= */
-nav button[onclick*="openVocabularyTestChooser"]{
-  background:#fff !important;
-  color:#b45309 !important;
-  border:2px solid #f3c77d !important;
-  box-shadow:0 0 7px rgba(245,158,11,.16) !important;
-  animation:ttcVocabSoftBlink 2s ease-in-out infinite !important;
-}
-nav button[onclick*="openVocabularyTestChooser"]:hover{
-  background:#fffaf0 !important;
-}
-@keyframes ttcVocabSoftBlink{
-  0%,100%{box-shadow:0 0 5px rgba(245,158,11,.12);opacity:.94}
-  50%{box-shadow:0 0 13px rgba(245,158,11,.34),0 0 22px rgba(245,158,11,.12);opacity:1}
-}
-
 /* =========================
    📝 HSK EXAM — ẨN PINYIN NẾU CÒN TỒN TẠI
 ========================= */
@@ -135694,19 +135626,6 @@ nav button[onclick*="openVocabularyTestChooser"]:hover{
   font-size:13px !important;
 }
 
-/* =========================
-   ♿ Giảm chuyển động nếu người dùng yêu cầu
-========================= */
-@media(prefers-reduced-motion:reduce){
-  header h1,
-  header h1::after,
-  header h1 .title-main,
-  .ttc-radical-btn,
-  .ttc-pron-btn,
-  nav button[onclick*="openVocabularyTestChooser"]{
-    animation:none !important;
-  }
-}
 </style>
 
 <script id="ttcWhiteHatFinalV8JS">
