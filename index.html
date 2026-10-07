@@ -2450,6 +2450,9 @@ main{
 .wh-hsk-ttc-test{width:100%;margin:8px 0;padding:13px 16px;border:1px solid #f0b9c9;border-radius:14px;background:linear-gradient(135deg,#fff7fa,#fff);color:#a8224b;font-weight:900;cursor:pointer;box-shadow:0 5px 15px rgba(168,34,75,.08)}
 .wh-hsk-ttc-test:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(168,34,75,.12)}
 .wh-hsk-ttc-note{margin:5px 0 12px;padding:9px 12px;border-radius:11px;background:#fff9fb;color:#765b65;font-size:12px;line-height:1.55}
+.ttc-exam-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:8px 0 14px}
+.ttc-exam-button{margin:0!important;padding:11px 7px!important;font-size:12px!important;line-height:1.2}
+@media(max-width:600px){.ttc-exam-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.ttc-exam-button{min-height:46px!important;font-size:12px!important}}
 @media(max-width:600px){
  .ttc-emoji-picker{grid-template-columns:repeat(7,1fr);bottom:54px;right:2px}
 }
@@ -83689,7 +83692,7 @@ function render(list=currentList){
       </div>
 
       <div class="pinyin">
-        Pinyin: ${w.p}
+        
       </div>
 
       <div class="meaning">
@@ -90889,7 +90892,7 @@ if(
 (function(){
 
   /* =========================================================
-     🃏 FLASHCARD — STATE RIÊNG
+     🃏  — STATE RIÊNG
      Không dùng currentList của HSK chính
      Không dùng Auto Learning
      ========================================================= */
@@ -90899,7 +90902,7 @@ if(
 
 /* =========================================================
    ✍️ STROKE ORDER ENGINE
-   Dữ liệu nét từ Hanzi Writer Data
+   Dữ liệu nét từ Hanzi FLASHCARDWriter Data
    ========================================================= */
 
 const strokeOrderCache = {};
@@ -92386,23 +92389,8 @@ if(!isOpen){
            "flashcardSection"
          );
 
-  setTimeout(function(){
-
-    const section =
-      document.getElementById(
-        "flashcardSection"
-      );
-
-    if(section){
-
-      section.scrollIntoView({
-        behavior:"smooth",
-        block:"start"
-      });
-
-    }
-
-  },100);
+  /* Mobile Flashcard là fixed full-screen: không smooth-scroll,
+     tránh xung đột giữa scroll của trang và transform 3D của card. */
 
 };
 
@@ -109138,6 +109126,7 @@ function whiteHatLoadSentenceProgress(
 
     if(
       !data ||
+      data.source !== "ttc-gushi-v2" ||
       !Array.isArray(data.list) ||
       !data.list.length
     ){
@@ -109454,49 +109443,65 @@ function whiteHatResetSentenceLearning(){
    → HSK1 → HSK6 đều lấy cùng nguồn words
 ===================================================== */
 
+function whiteHatLooksEnglish(value){
+
+  const text = String(value || "").trim();
+
+  if(!text) return false;
+
+  /* Có tiếng Việt → chắc chắn không phải nghĩa English. */
+  if(/[à-ỹÀ-ỸđĐ]/.test(text)) return false;
+
+  return /\b(the|a|an|and|or|of|to|in|on|for|with|from|is|are|be|this|that|someone|something|people|used|use|make|made|do|does|have|has|will|can|one|two|three)\b/i.test(text);
+}
+
 function whiteHatBuildHSK(level){
 
-  const targetLevel =
-    Number(level);
+  const targetLevel = Number(level);
 
-  if(
-    typeof words === "undefined" ||
-    !Array.isArray(words)
-  ){
+  const source =
+    (typeof window.words !== "undefined" && Array.isArray(window.words))
+      ? window.words
+      : (typeof words !== "undefined" && Array.isArray(words) ? words : []);
+
+  /* HSK6–9 phải chờ đúng bộ Gushi đồng bộ xong,
+     tuyệt đối không lấy kho câu cũ trong localStorage/nguồn cũ. */
+  if(targetLevel >= 6 && !window.TTC_GUSHI_HSK789_READY){
     return [];
   }
 
-  return words
+  const seen = new Set();
+  const result = [];
 
-    .filter(function(word){
+  source.forEach(function(word){
 
-      return (
-        word &&
-        Number(word.hsk) === targetLevel &&
-        word.example
-      );
+    if(!word || Number(word.hsk) !== targetLevel) return;
 
-    })
+    const answer = String(word.example || "").trim();
+    if(!answer) return;
 
-    .map(function(word){
+    const normalized = answer.replace(/[。！？；!?;]$/," ").trim();
+    if(!normalized || seen.has(normalized)) return;
 
-      return {
+    /* Nếu Gushi chưa dịch nghĩa xong, không cho English lọt ra UI.
+       Nghĩa từ vựng đã có tiếng Việt thì dùng làm fallback. */
+    let meaning = String(word.exampleMeaning || "").trim();
+    if(whiteHatLooksEnglish(meaning)){
+      const fallbackMeaning = String(word.m || "").trim();
+      meaning = whiteHatLooksEnglish(fallbackMeaning)
+        ? "Nghĩa tiếng Việt đang được chuẩn hóa…"
+        : fallbackMeaning;
+    }
 
-        meaning:
-          word.exampleMeaning ||
-          word.m ||
-          "",
-
-        answer:
-          word.example,
-
-        hsk:
-          Number(word.hsk)
-
-      };
-
+    seen.add(normalized);
+    result.push({
+      meaning: meaning || "Nghĩa tiếng Việt đang được chuẩn hóa…",
+      answer: answer,
+      hsk: targetLevel
     });
+  });
 
+  return result;
 }
 
   /* =====================================================
@@ -109766,67 +109771,64 @@ if(number){
      📚 HSK
   ===================================================== */
 
-  function whiteHatLoadHSK(level){
+  async function whiteHatWaitForGushi(level, timeoutMs){
 
-  whiteHatSetMode(
-    "hsk"
-  );
+    if(Number(level) < 6) return true;
+    if(window.TTC_GUSHI_HSK789_READY) return true;
 
+    const deadline = Date.now() + (Number(timeoutMs) || 18000);
 
-  /*
-     💾 THỬ KHÔI PHỤC TIẾN ĐỘ
-  */
+    while(Date.now() < deadline){
+      if(window.TTC_GUSHI_HSK789_READY) return true;
+      await new Promise(function(resolve){ setTimeout(resolve,250); });
+    }
 
-  const restored =
-    whiteHatLoadSentenceProgress(
-      "hsk",
-      level
-    );
-
-
-  /*
-     Nếu chưa có tiến độ:
-     tạo bộ câu mới + xáo trộn 1 lần
-  */
-
-  if(!restored){
-
-    whiteHatSentenceList =
-      whiteHatShuffle(
-        whiteHatBuildHSK(level)
-      );
-
-    whiteHatSentenceIndex =
-      0;
-
-    whiteHatSaveSentenceProgress();
-
+    return !!window.TTC_GUSHI_HSK789_READY;
   }
 
+  async function whiteHatLoadHSK(level){
 
-  document
-    .querySelectorAll(
-      "#whiteHatHSKButtons button"
-    )
-    .forEach(function(button){
+    level = Number(level);
 
-      button.classList.toggle(
+    whiteHatSetMode("hsk");
 
-        "active",
+    document
+      .querySelectorAll("#whiteHatHSKButtons button")
+      .forEach(function(button){
+        button.classList.toggle(
+          "active",
+          Number(button.dataset.level) === level
+        );
+      });
 
-        Number(
-          button.dataset.level
-        ) ===
-        Number(level)
+    if(level >= 6){
+      whiteHatSentenceList = [];
+      whiteHatSentenceIndex = 0;
+      whiteHatRender();
 
-      );
+      const ready = await whiteHatWaitForGushi(level,18000);
+      if(!ready){
+        const result = document.getElementById("sentenceResult");
+        if(result){
+          result.className = "sentence-result whiteHatWrong";
+          result.textContent = "⚠️ Nguồn Gushi HSK " + level + " chưa tải đủ. Không dùng dữ liệu cũ.";
+        }
+        return;
+      }
+    }
 
-    });
+    /* Chỉ khôi phục tiến độ nếu đúng schema nguồn Gushi mới.
+       Cache 2509 câu/nguồn cũ sẽ tự động bị bỏ qua. */
+    const restored = whiteHatLoadSentenceProgress("hsk",level);
 
+    if(!restored){
+      whiteHatSentenceList = whiteHatShuffle(whiteHatBuildHSK(level));
+      whiteHatSentenceIndex = 0;
+      whiteHatSaveSentenceProgress();
+    }
 
-  whiteHatRender();
-
-}
+    whiteHatRender();
+  }
 
   /* =====================================================
      🔀 XÁO TRỘN
@@ -116259,25 +116261,59 @@ function ttcShuffle(arr){
   return a;
 }
 function ttcMakeQuestion(target,pool,index){
-  const kind=index%3;
-  const targetValue=kind===0?target.m:kind===1?target.p:target.h;
-  const seen=new Set([targetValue]);
-  const distractors=[];
+  /* TTC HSK practice engine:
+     - Không dùng câu hỏi kiểm tra pinyin.
+     - HSK1: 20 câu đầu mô phỏng phần NGHE HIỂU, có nút nghe.
+     - HSK1: 20 câu sau mô phỏng phần ĐỌC HIỂU.
+     - Nội dung câu hỏi được TTC tự sinh từ kho từ vựng, không sao chép nguyên văn đề bên ngoài.
+  */
+  const listening = Number(currentHsk || 1) === 1 && index < 20;
+  const kind = index % 2; // 0: Hán tự -> nghĩa, 1: nghĩa -> Hán tự
+
+  const targetValue = kind===0 ? target.m : target.h;
+  const seen = new Set([targetValue]);
+  const distractors = [];
+
   for(const w of ttcShuffle(pool.filter(w=>w!==target && w?.h && w?.p && w?.m))){
-    const value=kind===0?w.m:kind===1?w.p:w.h;
+    const value = kind===0 ? w.m : w.h;
     if(!value || seen.has(value)) continue;
-    seen.add(value); distractors.push(w);
+    seen.add(value);
+    distractors.push(w);
     if(distractors.length===3) break;
   }
+
   if(distractors.length<3) return null;
-  let q, qPinyin="", qMeaning="";
-  if(kind===0){ q=`“${target.h}” 的意思是什么？`; qPinyin=target.p||""; qMeaning="Chọn nghĩa tiếng Việt đúng."; }
-  else if(kind===1){ q=`“${target.h}” 的拼音是什么？`; qMeaning="Chọn pinyin đúng."; }
-  else { q=`“${target.m}” 对应哪个词？`; qMeaning="Chọn từ Hán tương ứng với nghĩa tiếng Việt."; }
+
+  let q="", qPinyin="", qMeaning="";
+  if(kind===0){
+    q = `“${target.h}” có nghĩa là gì?`;
+    qPinyin = target.p || "";
+    qMeaning = "Chọn nghĩa tiếng Việt đúng.";
+  }else{
+    q = `Nghĩa “${target.m}” tương ứng với từ nào?`;
+    qPinyin = "";
+    qMeaning = "Chọn Hán tự đúng.";
+  }
+
   const source=[target,...distractors];
-  const pairs=ttcShuffle(source).map(w=>({w,value:kind===0?w.m:kind===1?w.p:w.h}));
+  const pairs=ttcShuffle(source).map(w=>({
+    w,
+    value:kind===0?w.m:w.h
+  }));
   const answer=pairs.findIndex(x=>x.w===target);
-  return {q,qPinyin,qMeaning,options:pairs.map(x=>x.value),optionPinyin:pairs.map(x=>x.w.p||""),optionMeaning:pairs.map(x=>x.w.m||""),answer,analysis:pairs.map((x,i)=>i===answer?`ĐÚNG: ${x.value}`:`SAI: ${x.value}`)};
+
+  return {
+    q,
+    qPinyin,
+    qMeaning,
+    options:pairs.map(x=>x.value),
+    optionPinyin:pairs.map(x=>x.w.p||""),
+    optionMeaning:pairs.map(x=>x.w.m||""),
+    answer,
+    analysis:pairs.map((x,i)=>i===answer?`ĐÚNG: ${x.value}`:`SAI: ${x.value}`),
+    section:listening ? "listening" : "reading",
+    audioText:listening ? (target.example || target.h || "") : ""
+  };
 }
 
 function ttcGetVocabularyPool(level){
@@ -116320,12 +116356,11 @@ async function openTtcGeneratedExam(button){
     /* 🛡️ HSK1: bộ cũ chỉ có 12 câu → dựng đủ 40 câu từ 300 từ Gushi hiện tại. */
     if(level===1){
       if(!HSK_DATA[1]?.practice || HSK_DATA[1].practice.length < 40 || !HSK_DATA[1]?.mock || HSK_DATA[1].mock.length < 40){
-        if(!ttcBuildGeneratedTests(1)){
+        if(!ttcBuildGeneratedTests(1,currentExamNumber)){
           alert("Dữ liệu HSK1 chưa sẵn sàng. Anh thử lại sau vài giây nhé 🤗");
           return;
         }
       }
-      currentExamNumber=1;
       startExam();
       return;
     }
@@ -116339,13 +116374,12 @@ async function openTtcGeneratedExam(button){
       return;
     }
 
-    const ready = ttcBuildGeneratedTests(level);
+    const ready = ttcBuildGeneratedTests(level,currentExamNumber);
     if(!ready){
       alert("Không đủ dữ liệu để tạo đề HSK " + level + ". Em đã chặn lỗi để không ảnh hưởng khu học khác.");
       return;
     }
 
-    currentExamNumber=1;
     startExam();
   }catch(err){
     console.error("TTC HSK: không mở được đề",err);
@@ -116359,25 +116393,48 @@ async function openTtcGeneratedExam(button){
   }
 }
 
-function ttcBuildGeneratedTests(level){
+const TTC_HSK_EXAM_COUNTS = {1:40,2:60,3:80,4:100,5:100,6:101,7:98,8:98,9:98};
+const TTC_EXAM_BANK = Object.create(null);
+
+function ttcBuildGeneratedTests(level,examNo){
   level=Number(level);
+  examNo=Math.max(1,Number(examNo)||1);
   const pool=ttcGetVocabularyPool(level);
-  const wanted = ({1:40,2:60,3:70,4:70,5:72,6:82,7:98,8:98,9:98})[level] || 40;
+  const wanted=TTC_HSK_EXAM_COUNTS[level] || 40;
   if(pool.length<20) return false;
+
+  if(!TTC_EXAM_BANK[level]) TTC_EXAM_BANK[level]=Object.create(null);
+  if(TTC_EXAM_BANK[level][examNo]){
+    HSK_DATA[level]=TTC_EXAM_BANK[level][examNo];
+    return true;
+  }
+
   const make=(seed)=>{
-    const shuffled=ttcShuffle(pool); const out=[]; let i=0;
-    while(out.length<wanted && i<shuffled.length*2){const q=ttcMakeQuestion(shuffled[i%shuffled.length],pool,i+seed); if(q)out.push(q);i++;}
+    const shuffled=ttcShuffle(pool), out=[];
+    let i=0;
+    const maxAttempts=Math.max(shuffled.length*4,wanted*6);
+    while(out.length<wanted && i<maxAttempts){
+      const q=ttcMakeQuestion(shuffled[i%shuffled.length],pool,i+seed);
+      if(q) out.push(q);
+      i++;
+    }
     return out;
   };
-  const practice=make(0), mock=make(37);
+
+  const practice=make(examNo*101);
+  const mock=make(examNo*101+37);
   if(practice.length<wanted || mock.length<wanted) return false;
-  HSK_DATA[level]={practice,mock};
+
+  TTC_EXAM_BANK[level][examNo]={practice,mock};
+  HSK_DATA[level]=TTC_EXAM_BANK[level][examNo];
   return true;
 }
-function ensureTtcGeneratedTest(level){
-  if(level===1) return true;
-  if(HSK_DATA[level]?.practice?.length) return true;
-  return ttcBuildGeneratedTests(level);
+
+function ensureTtcGeneratedTest(level,examNo){
+  level=Number(level);
+  examNo=Math.max(1,Number(examNo)||1);
+  if(level===1 && examNo===1 && HSK_DATA[1]?.practice?.length>=TTC_HSK_EXAM_COUNTS[1]) return true;
+  return ttcBuildGeneratedTests(level,examNo);
 }
 
 /* =========================================================
@@ -116746,58 +116803,55 @@ function openTestList(){
 
   const source = OFFICIAL[currentHsk];
 
-  if(currentHsk >= 2){
-    const ttcBtn=document.createElement("button");
-    ttcBtn.className="wh-hsk-ttc-test";
-    ttcBtn.type="button";
-    const ttcCount = ({1:40,2:60,3:70,4:70,5:72,6:82,7:98,8:98,9:98})[currentHsk] || 40;
-    ttcBtn.textContent = currentMode === "mock"
-      ? `🏆 TTC THI THỬ HSK ${currentHsk} · ${ttcCount} CÂU`
-      : `📝 TTC LUYỆN TẬP HSK ${currentHsk} · ${ttcCount} CÂU`;
-    ttcBtn.onclick=async()=>{
-      if(currentMode === "mock"){
-        await openTtcStandaloneMock(Number(currentHsk), ttcBtn);
-      }else{
-        await openTtcGeneratedExam(ttcBtn);
-      }
-    };
-    testList.appendChild(ttcBtn);
-    const ttcNote=document.createElement("div");
-    ttcNote.className="wh-hsk-ttc-note";
-    ttcNote.innerHTML = currentMode === "mock"
-      ? `<strong>🏆 Thi thử TTC:</strong> có đồng hồ đếm ngược, không hiện đáp án/giải thích trong lúc làm, chấm điểm sau khi nộp và lưu thành tích. Đề được xáo trộn riêng.`
-      : `<strong>📝 Luyện tập TTC:</strong> tạo từ dữ liệu từ vựng Gushi HSK 3.0 đã đồng bộ. Có đáp án, pinyin và giải thích sau khi chọn.`;
-    testList.appendChild(ttcNote);
-  }
+  /* =========================================================
+     🧪 TTC — NGÂN HÀNG 10 ĐỀ / CẤP
+     - Đề do TTC tự sinh từ kho từ vựng hiện có.
+     - Bám số câu theo cấu trúc tham khảo PREP.
+     - Không sao chép nguyên văn đề bên ngoài.
+     ========================================================= */
+  {
+    const ttcCount = TTC_HSK_EXAM_COUNTS[currentHsk] || 40;
 
-  if(currentHsk === 1){
+    const ttcHead=document.createElement("div");
+    ttcHead.className="wh-hsk-ttc-note";
+    ttcHead.innerHTML =
+      `<strong>🧪 TTC ${currentMode==="mock"?"THI THỬ":"LUYỆN TẬP"} · HSK ${currentHsk}</strong>` +
+      ` · ${ttcCount} câu/đề · 20 đề sinh riêng. ` +
+      `${currentMode==="mock"
+        ? "Có đồng hồ, không hiện đáp án trong lúc thi."
+        : "Có đáp án, pinyin và giải thích sau khi chọn."}`;
+    testList.appendChild(ttcHead);
 
-    const btn =
-      document.createElement("button");
+    const examGrid=document.createElement("div");
+    examGrid.className="ttc-exam-grid";
 
-    btn.className = "wh-hsk-test";
-    btn.textContent = currentMode === "mock"
-      ? "🏆 BẮT ĐẦU THI THỬ TTC · HSK 1 · ĐỀ 01"
-      : "📝 BẮT ĐẦU LUYỆN TẬP TTC · HSK 1 · ĐỀ 01";
+    for(let examNo=1;examNo<=20;examNo++){
+      const ttcBtn=document.createElement("button");
+      ttcBtn.className="wh-hsk-ttc-test ttc-exam-button";
+      ttcBtn.type="button";
+      ttcBtn.textContent =
+        currentMode==="mock"
+          ? `🏆 ĐỀ ${String(examNo).padStart(2,"0")} · ${ttcCount} CÂU`
+          : `📝 ĐỀ ${String(examNo).padStart(2,"0")} · ${ttcCount} CÂU`;
 
-    btn.onclick = async function(){
-      if(currentMode === "mock"){
-        await openTtcStandaloneMock(1, btn);
-      }else{
-        await openTtcGeneratedExam(btn);
-      }
-    };
+      ttcBtn.onclick=async()=>{
+        currentExamNumber=examNo;
+        if(currentMode==="mock"){
+          await openTtcStandaloneMock(Number(currentHsk),ttcBtn,examNo);
+        }else{
+          await openTtcGeneratedExam(ttcBtn);
+        }
+      };
 
-    testList.appendChild(btn);
-
-    if(currentMode === "mock"){
-      renderLeaderboard(
-        selectLeaderboard,
-        currentHsk,
-        currentExamNumber
-      );
+      examGrid.appendChild(ttcBtn);
     }
 
+    testList.appendChild(examGrid);
+
+    /* Giữ nguyên bảng thành tích HSK1 đang có. */
+    if(currentHsk===1 && currentMode==="mock"){
+      renderLeaderboard(selectLeaderboard,currentHsk,currentExamNumber);
+    }
   }
 
   if(source){
@@ -116830,7 +116884,7 @@ function openTestList(){
 
     audioBtn.type = "button";
     audioBtn.textContent =
-      "🎧 AUDIO / TÀI LIỆU CHÍNH THỨC";
+      "🎧 ÂM THANH / TÀI LIỆU CHÍNH THỨC";
 
     audioBtn.onclick = function(){
       window.open(
@@ -116849,7 +116903,7 @@ function openTestList(){
       "wh-hsk-official-note";
 
     note.innerHTML =
-      "Nguồn đề: <strong>Chinese Test</strong> · " +
+      "Nguồn tham khảo: <strong>cấu trúc HSK chính thức</strong> · " +
       "mở trực tiếp tài liệu chính thức để giữ nguyên " +
       "cấu trúc đề, đáp án và phần nghe.";
 
@@ -116890,11 +116944,15 @@ function ttcStandaloneShuffle(a){
   return x;
 }
 
-function ttcStandaloneBuild(level){
+function ttcStandaloneBuild(level,examNo){
   const pool=ttcStandalonePool(level);
   if(pool.length<4) return null;
-  const count=Math.min(30,pool.length);
-  const chosen=ttcStandaloneShuffle(pool).slice(0,count);
+  const wanted=TTC_HSK_EXAM_COUNTS[Number(level)] || 40;
+  const count=Math.min(wanted,pool.length);
+  const n=Math.max(1,Number(examNo)||1);
+  const offset=((n-1)*13)%pool.length;
+  const rotated=pool.slice(offset).concat(pool.slice(0,offset));
+  const chosen=ttcStandaloneShuffle(rotated).slice(0,count);
   const questions=[];
   chosen.forEach(function(target,idx){
     const kind=idx%3;
@@ -116923,9 +116981,9 @@ function ttcStandaloneRender(){
   const q=st.questions[st.index];
   const root=document.getElementById("ttcStandaloneMock");
   if(!root) return;
-  root.querySelector(".ttc-sm-title").textContent=`🏆 THI THỬ TTC · HSK ${st.level}`;
+  root.querySelector(".ttc-sm-title").textContent=`🏆 THI THỬ TTC · HSK ${st.level} · ĐỀ ${String(st.examNo).padStart(2,"0")}`;
   root.querySelector(".ttc-sm-progress").textContent=`Câu ${st.index+1}/${st.questions.length}`;
-  root.querySelector(".ttc-sm-question").innerHTML=`<div class="ttc-sm-q">${q.q}</div><div class="ttc-sm-pinyin">${q.p}</div>`;
+  root.querySelector(".ttc-sm-question").innerHTML=`<div class="ttc-sm-q">${q.q}</div>`;
   const box=root.querySelector(".ttc-sm-options");
   box.innerHTML="";
   q.options.forEach(function(opt,i){
@@ -116971,7 +117029,7 @@ function ttcStandaloneSubmit(){
 function ttcStandaloneReview(){
   const st=ttcStandaloneState; const root=document.getElementById("ttcStandaloneMock"); if(!st||!root)return;
   let html=`<div class="ttc-sm-review-list"><h3>📋 Kết quả chi tiết</h3>`;
-  st.questions.forEach((q,i)=>{const ok=st.answers[i]===q.answer; html+=`<div class="ttc-sm-review-item ${ok?"ok":"bad"}"><strong>${i+1}. ${q.h}</strong> · ${ok?"✅ Đúng":"❌ Sai"}<br>Pinyin: ${q.p}<br>Nghĩa: ${q.m}</div>`;});
+  st.questions.forEach((q,i)=>{const ok=st.answers[i]===q.answer; html+=`<div class="ttc-sm-review-item ${ok?"ok":"bad"}"><strong>${i+1}. ${q.h}</strong> · ${ok?"✅ Đúng":"❌ Sai"}<br><br>Nghĩa: ${q.m}</div>`;});
   html+=`</div>`; root.querySelector(".ttc-sm-review").insertAdjacentHTML("afterend",html); root.querySelector(".ttc-sm-review").style.display="none";
 }
 
@@ -116981,14 +117039,16 @@ function closeTtcStandaloneMock(){
   ttcStandaloneState=null;
 }
 
-async function openTtcStandaloneMock(level,button){
-  level=Number(level); const old=button?button.textContent:"";
+async function openTtcStandaloneMock(level,button,examNo){
+  level=Number(level);
+  examNo=Math.max(1,Number(examNo)||1);
+  const old=button?button.textContent:"";
   if(button){button.disabled=true;button.textContent=`⏳ ĐANG TẠO ĐỀ HSK ${level}…`;}
   try{
     const deadline=Date.now()+15000; let pool=ttcStandalonePool(level);
     while(pool.length<4 && Date.now()<deadline){await new Promise(r=>setTimeout(r,250));pool=ttcStandalonePool(level);}
     if(pool.length<4){alert(`Chưa lấy được dữ liệu HSK ${level}. Anh thử lại sau vài giây nhé 🤗`);return;}
-    const questions=ttcStandaloneBuild(level);
+    const questions=ttcStandaloneBuild(level,examNo);
     if(!questions){alert(`Không đủ dữ liệu hợp lệ để tạo đề HSK ${level}.`);return;}
     closeTtcStandaloneMock();
     const root=document.createElement("div"); root.id="ttcStandaloneMock"; root.innerHTML=`
@@ -117000,7 +117060,7 @@ async function openTtcStandaloneMock(level,button){
         <div class="ttc-sm-actions"><button type="button" class="ttc-sm-next">➡️ Câu tiếp</button><button type="button" class="ttc-sm-submit">🏁 Nộp bài</button><button type="button" class="ttc-sm-review" style="display:none">📋 Xem kết quả</button></div>
       </div></div>`;
     document.body.appendChild(root);
-    ttcStandaloneState={level,questions,index:0,answers:[],remaining:Math.max(10,questions.length*45),submitted:false,timer:null};
+    ttcStandaloneState={level,examNo,questions,index:0,answers:[],remaining:Math.max(10,questions.length*45),submitted:false,timer:null};
     root.querySelector(".ttc-sm-close").onclick=function(){if(confirm("Thoát bài thi thử? Tiến trình bài này sẽ không tính."))closeTtcStandaloneMock();};
     root.querySelector(".ttc-sm-next").onclick=function(){if(ttcStandaloneState.index<questions.length-1){ttcStandaloneState.index++;ttcStandaloneRender();}};
     root.querySelector(".ttc-sm-submit").onclick=ttcStandaloneSubmit;
@@ -117027,7 +117087,7 @@ function startExam(){
   if(currentHsk>=1){
     if(currentMode === "mock"){
       // Thi thử: tạo một bộ mới mỗi lần bắt đầu để tránh lặp nguyên đề.
-      if(!ttcBuildGeneratedTests(currentHsk)){
+      if(!ttcBuildGeneratedTests(currentHsk,currentExamNumber)){
         alert("Dữ liệu HSK đang được tải. Vui lòng thử lại sau vài giây.");
         return;
       }
@@ -117219,18 +117279,8 @@ function renderQuestions(){
         item.q;
 
 
-      const pinyin =
-        document.createElement(
-          "div"
-        );
-
-
-      pinyin.className =
-        "wh-hsk-q-pinyin";
-
-
-      pinyin.textContent =
-        item.qPinyin;
+      /* Pinyin được giữ trong dữ liệu để phục vụ TTS,
+         nhưng KHÔNG hiển thị trong đề thi. */
 
 
       const meaning =
@@ -117351,6 +117401,46 @@ function renderQuestions(){
         number
       );
 
+      /* HSK1 mô phỏng cấu trúc 20 Nghe + 20 Đọc:
+         câu Nghe có nút phát âm, không hiện pinyin. */
+      if(Number(currentHsk) === 1 && index === 0){
+        const sectionTitle = document.createElement("div");
+        sectionTitle.className = "wh-hsk-section-title";
+        sectionTitle.innerHTML =
+          "<strong>🎧 NGHE HIỂU — 20 CÂU</strong>" +
+          "<span>Nghe nội dung tiếng Trung rồi chọn đáp án phù hợp.</span>";
+        questionsBox.appendChild(sectionTitle);
+      }
+
+      if(Number(currentHsk) === 1 && index === 20){
+        const sectionTitle = document.createElement("div");
+        sectionTitle.className = "wh-hsk-section-title";
+        sectionTitle.innerHTML =
+          "<strong>📖 ĐỌC HIỂU — 20 CÂU</strong>" +
+          "<span>Đọc câu hỏi và chọn đáp án đúng.</span>";
+        questionsBox.appendChild(sectionTitle);
+      }
+
+      if(item.section === "listening" && item.audioText){
+        const audioBtn = document.createElement("button");
+        audioBtn.type = "button";
+        audioBtn.className = "wh-hsk-listening-btn";
+        audioBtn.textContent = "🔊 Nhấn để nghe câu hỏi";
+        audioBtn.addEventListener("click", function(e){
+          e.preventDefault();
+          e.stopPropagation();
+          try{
+            if(typeof say === "function") say(item.audioText);
+            else if("speechSynthesis" in window){
+              speechSynthesis.cancel();
+              const u = new SpeechSynthesisUtterance(item.audioText);
+              u.lang = "zh-CN";
+              speechSynthesis.speak(u);
+            }
+          }catch(err){}
+        });
+        card.appendChild(audioBtn);
+      }
 
       card.appendChild(
         q
@@ -117364,11 +117454,6 @@ function renderQuestions(){
       nhưng tuyệt đối không có đáp án/giải thích.
       -------------------------------------------------------
       */
-
-      card.appendChild(
-        pinyin
-      );
-
 
       card.appendChild(
         meaning
@@ -117479,9 +117564,6 @@ function showPracticeFeedback(
     "<strong>🇨🇳 Câu hỏi:</strong><br>" +
     item.q +
     "<br>" +
-    "<span style='color:#777;font-style:italic'>" +
-    item.qPinyin +
-    "</span><br>" +
     "<span>🇻🇳 " +
     item.qMeaning +
     "</span>" +
@@ -118872,7 +118954,7 @@ function WH_HSK1_Q(
 HSK_DATA[1].mock = [
 
   /* =======================================================
-     🎧 LISTENING — PHẦN 1
+     🎧 NGHE HIỂU — PHẦN 1
      1–5
      Nghe câu nói → chọn hình phù hợp
   ======================================================= */
@@ -118949,7 +119031,7 @@ HSK_DATA[1].mock = [
 
 
   /* =======================================================
-     🎧 LISTENING — PHẦN 2
+     🎧 NGHE HIỂU — PHẦN 2
      6–10
      Nghe câu → chọn hình / đáp án
   ======================================================= */
@@ -119026,7 +119108,7 @@ HSK_DATA[1].mock = [
 
 
   /* =======================================================
-     🎧 LISTENING — PHẦN 3
+     🎧 NGHE HIỂU — PHẦN 3
      11–15
      Nghe hội thoại → chọn đáp án
   ======================================================= */
@@ -119103,7 +119185,7 @@ HSK_DATA[1].mock = [
 
 
   /* =======================================================
-     🎧 LISTENING — PHẦN 4
+     🎧 NGHE HIỂU — PHẦN 4
      16–20
      Nghe câu + câu hỏi → chọn đáp án
   ======================================================= */
@@ -119180,7 +119262,7 @@ HSK_DATA[1].mock = [
 
 
   /* =======================================================
-     📖 READING — PHẦN 1
+     📖 ĐỌC HIỂU — PHẦN 1
      21–25
      Đọc câu → chọn hình
   ======================================================= */
@@ -119257,7 +119339,7 @@ HSK_DATA[1].mock = [
 
 
   /* =======================================================
-     📖 READING — PHẦN 2
+     📖 ĐỌC HIỂU — PHẦN 2
      26–30
      Đọc câu hỏi → chọn câu trả lời
   ======================================================= */
@@ -119334,7 +119416,7 @@ HSK_DATA[1].mock = [
 
 
   /* =======================================================
-     📖 READING — PHẦN 3
+     📖 ĐỌC HIỂU — PHẦN 3
      31–35
      Chọn từ thích hợp
   ======================================================= */
@@ -119411,7 +119493,7 @@ HSK_DATA[1].mock = [
 
 
   /* =======================================================
-     📖 READING — PHẦN 4
+     📖 ĐỌC HIỂU — PHẦN 4
      36–40
      Chọn câu đúng
   ======================================================= */
@@ -119522,42 +119604,42 @@ renderQuestions =
         ? [
 
             [
-              "🎧 LISTENING — PHẦN 1",
+              "🎧 NGHE HIỂU — PHẦN 1",
               "Nghe câu nói và chọn hình phù hợp."
             ],
 
             [
-              "🎧 LISTENING — PHẦN 2",
+              "🎧 NGHE HIỂU — PHẦN 2",
               "Nghe câu và chọn đáp án phù hợp."
             ],
 
             [
-              "🎧 LISTENING — PHẦN 3",
+              "🎧 NGHE HIỂU — PHẦN 3",
               "Nghe hội thoại và chọn đáp án phù hợp."
             ],
 
             [
-              "🎧 LISTENING — PHẦN 4",
+              "🎧 NGHE HIỂU — PHẦN 4",
               "Nghe câu hỏi và chọn câu trả lời đúng."
             ],
 
             [
-              "📖 READING — PHẦN 1",
+              "📖 ĐỌC HIỂU — PHẦN 1",
               "Chọn hình phù hợp với câu."
             ],
 
             [
-              "📖 READING — PHẦN 2",
+              "📖 ĐỌC HIỂU — PHẦN 2",
               "Chọn câu trả lời phù hợp."
             ],
 
             [
-              "📖 READING — PHẦN 3",
+              "📖 ĐỌC HIỂU — PHẦN 3",
               "Chọn từ thích hợp để hoàn thành câu."
             ],
 
             [
-              "📖 READING — PHẦN 4",
+              "📖 ĐỌC HIỂU — PHẦN 4",
               "Chọn câu đúng."
             ]
 
@@ -124881,7 +124963,8 @@ body.ttc-light-effect-off #ttcLightFallCanvas{
       all[level]={
         order,
         cursor,
-        matched:Array.from(matched)
+        matched:Array.from(matched),
+        source:"ttc-gushi-v2"
       };
 
       localStorage.setItem(
@@ -126412,18 +126495,6 @@ body.ttc-light-effect-off #ttcLightFallCanvas{
   🎙️
 </button>
 
-<button id="ttcDiceButton"
-        class="ttc-chat-icon-btn"
-        type="button"
-        title="Ném xúc sắc"
-        aria-label="Ném xúc sắc">
-  🎲
-</button>
-
-<div class="ttc-emoji-anchor">
-<button id="ttcChatEmoji" class="ttc-chat-icon-btn ttc-emoji-toggle" type="button" title="Biểu tượng cảm xúc" aria-label="Biểu tượng cảm xúc">😊</button>
-<div id="ttcChatEmojiPicker" class="ttc-emoji-picker" hidden></div>
-</div>
 
 <textarea id="ttcChatInput"
             
@@ -130476,551 +130547,7 @@ if(
 
 </style>
 
-<style>
-/* =========================================================
-   TTC DICE V4 — JAVASCRIPT 3D ROTATION
-   ========================================================= */
-
-.ttc-dice-chat-event{
-  display:flex;
-  align-items:center;
-  gap:7px;
-  width:max-content;
-  max-width:90%;
-  margin:6px 0;
-  padding:5px 9px;
-  border-radius:12px;
-  background:rgba(255,255,255,.95);
-  box-shadow:0 2px 8px rgba(0,0,0,.10);
-}
-
-.ttc-dice-chat-name{
-  font-size:12px;
-  font-weight:700;
-  white-space:nowrap;
-}
-
-/* Khung nhìn 3D */
-.ttc-dice-box{
-  width:38px;
-  height:38px;
-  position:relative;
-  flex:none;
-
-  perspective:180px;
-  perspective-origin:50% 50%;
-}
-
-/* Cube */
-.ttc-dice-cube{
-  position:absolute;
-
-  left:3px;
-  top:3px;
-
-  width:32px;
-  height:32px;
-
-  transform-style:preserve-3d;
-  transform-origin:50% 50%;
-
-  will-change:transform;
-}
-
-/* 6 mặt */
-.ttc-dice-face{
-  position:absolute;
-
-  width:32px;
-  height:32px;
-
-  box-sizing:border-box;
-
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  grid-template-rows:repeat(3,1fr);
-
-  padding:5px;
-
-  background:#fff;
-
-  border:1px solid #bdbdbd;
-  border-radius:6px;
-
-  box-shadow:
-    inset 0 0 3px rgba(0,0,0,.12),
-    0 1px 3px rgba(0,0,0,.18);
-
-  backface-visibility:visible;
-}
-
-/* Đúng cấu trúc cube 3D */
-.ttc-dice-face.front{
-  transform:translateZ(16px);
-}
-
-.ttc-dice-face.back{
-  transform:rotateY(180deg) translateZ(16px);
-}
-
-.ttc-dice-face.right{
-  transform:rotateY(90deg) translateZ(16px);
-}
-
-.ttc-dice-face.left{
-  transform:rotateY(-90deg) translateZ(16px);
-}
-
-.ttc-dice-face.top{
-  transform:rotateX(90deg) translateZ(16px);
-}
-
-.ttc-dice-face.bottom{
-  transform:rotateX(-90deg) translateZ(16px);
-}
-
-/* Chấm */
-.ttc-dice-dot{
-  width:5px;
-  height:5px;
-
-  border-radius:50%;
-
-  background:#222;
-
-  align-self:center;
-  justify-self:center;
-}
-</style>
-
-<script>
-(function(){
-
-  "use strict";
-
-  const button =
-    document.getElementById("ttcDiceButton");
-
-  const messagesBox =
-    document.getElementById("ttcChatMessages");
-
-  if(!button || !messagesBox){
-
-    console.warn(
-      "[TTC DICE V4] Chat elements not found."
-    );
-
-    return;
-  }
-
-  let rolling = false;
-
-
-  /* =========================================================
-     TẠO MỘT MẶT
-     ========================================================= */
-
-  function createFace(className, number){
-
-    const face =
-      document.createElement("span");
-
-    face.className =
-      "ttc-dice-face " + className;
-
-    const positions = {
-
-      1:[5],
-
-      2:[1,9],
-
-      3:[1,5,9],
-
-      4:[1,3,7,9],
-
-      5:[1,3,5,7,9],
-
-      6:[1,3,4,6,7,9]
-
-    };
-
-    for(let i=1;i<=9;i++){
-
-      const dot =
-        document.createElement("span");
-
-      if(
-        positions[number].includes(i)
-      ){
-
-        dot.className =
-          "ttc-dice-dot";
-
-      }
-
-      face.appendChild(dot);
-    }
-
-    return face;
-  }
-
-
-  /* =========================================================
-     TẠO CUBE
-     ========================================================= */
-
-  function createDiceMessage(result){
-
-    const event =
-      document.createElement("div");
-
-    event.className =
-      "ttc-dice-chat-event";
-
-
-    /* Tên người ném */
-
-    const name =
-      document.createElement("span");
-
-    name.className =
-      "ttc-dice-chat-name";
-
-    let displayName = "Bạn";
-
-    try{
-
-      if(
-        window.TTC_CHAT &&
-        TTC_CHAT.user &&
-        TTC_CHAT.user.user_metadata
-      ){
-
-        displayName =
-          TTC_CHAT.user.user_metadata.display_name ||
-          TTC_CHAT.user.user_metadata.full_name ||
-          "Bạn";
-
-      }
-
-    }catch(e){}
-
-    name.textContent =
-      displayName;
-
-
-    /* Khung 3D */
-
-    const box =
-      document.createElement("span");
-
-    box.className =
-      "ttc-dice-box";
-
-
-    /* Cube */
-
-    const cube =
-      document.createElement("span");
-
-    cube.className =
-      "ttc-dice-cube";
-
-
-    /*
-       QUAN TRỌNG:
-
-       Số kết quả luôn được đặt ở FRONT.
-
-       Sau khi xoay xong,
-       FRONT quay trở lại phía người nhìn.
-
-       Như vậy số cuối cùng luôn chính xác.
-    */
-
-    const remaining =
-      [1,2,3,4,5,6].filter(
-        n => n !== result
-      );
-
-    cube.appendChild(
-      createFace("front",result)
-    );
-
-    cube.appendChild(
-      createFace("back",remaining[0])
-    );
-
-    cube.appendChild(
-      createFace("right",remaining[1])
-    );
-
-    cube.appendChild(
-      createFace("left",remaining[2])
-    );
-
-    cube.appendChild(
-      createFace("top",remaining[3])
-    );
-
-    cube.appendChild(
-      createFace("bottom",remaining[4])
-    );
-
-
-    box.appendChild(cube);
-
-    event.appendChild(name);
-    event.appendChild(box);
-
-
-    return {
-      event:event,
-      cube:cube
-    };
-
-  }
-
-
-  /* =========================================================
-     EASING
-     ========================================================= */
-
-  function easeOutCubic(t){
-
-    return 1 -
-      Math.pow(1 - t,3);
-
-  }
-
-
-  /* =========================================================
-     XOAY 3D THẬT BẰNG REQUESTANIMATIONFRAME
-     ========================================================= */
-
-  function animateDice(cube,done){
-
-    const duration =
-      1500;
-
-    const start =
-      performance.now();
-
-
-    /*
-       Số vòng xoay lớn để mắt nhìn
-       chắc chắn thấy cube đổi mặt.
-
-       X: lăn về phía trước
-       Y: xoay trái/phải
-       Z: lắc nghiêng
-    */
-
-    const startX =
-      -18;
-
-    const startY =
-      25;
-
-    const startZ =
-      -8;
-
-
-    const totalX =
-      720 + 180;
-
-    const totalY =
-      1080 + 180;
-
-    const totalZ =
-      360 + 25;
-
-
-    function frame(now){
-
-      const elapsed =
-        now - start;
-
-      const raw =
-        Math.min(
-          elapsed / duration,
-          1
-        );
-
-      const progress =
-        easeOutCubic(raw);
-
-
-      const rx =
-        startX +
-        totalX * progress;
-
-      const ry =
-        startY +
-        totalY * progress;
-
-      const rz =
-        startZ +
-        totalZ * progress;
-
-
-      /*
-         Đây là điểm quan trọng:
-         mỗi frame trực tiếp thay đổi
-         transform 3D của cube.
-      */
-
-      cube.style.transform =
-        "rotateX(" + rx + "deg) " +
-        "rotateY(" + ry + "deg) " +
-        "rotateZ(" + rz + "deg)";
-
-
-      if(raw < 1){
-
-        requestAnimationFrame(frame);
-
-      }else{
-
-        /*
-           Sau khi xoay xong,
-           đưa mặt FRONT về đúng hướng.
-
-           Front chính là số kết quả.
-        */
-
-        cube.style.transform =
-          "rotateX(0deg) " +
-          "rotateY(0deg) " +
-          "rotateZ(0deg)";
-
-
-        if(done){
-          done();
-        }
-
-      }
-
-    }
-
-
-    requestAnimationFrame(frame);
-
-  }
-
-
-  /* =========================================================
-     NÚT 🎲
-     ========================================================= */
-button.addEventListener(
-  "click",
-  function(){
-
-    if(rolling){
-      return;
-    }
-
-    rolling = true;
-    button.disabled = true;
-
-    /* =========================
-       V4 CŨ — GIỮ NGUYÊN
-    ========================= */
-
-    const result =
-      Math.floor(
-        Math.random() * 6
-      ) + 1;
-
-    const dice =
-      createDiceMessage(result);
-
-    messagesBox.appendChild(
-      dice.event
-    );
-
-    messagesBox.scrollTop =
-      messagesBox.scrollHeight;
-
-    animateDice(
-      dice.cube,
-      function(){
-
-        rolling = false;
-        button.disabled = false;
-
-      }
-    );
-
-
-    /* =========================
-       GỬI KẾT QUẢ CHO MỌI NGƯỜI
-       KHÔNG CHỜ SUPABASE
-    ========================= */
-
-    try{
-
-      const supabase =
-        window.supabase;
-
-      const roomId =
-        TTC_CHAT &&
-        TTC_CHAT.currentRoom
-          ? TTC_CHAT.currentRoom.id
-          : null;
-
-      const userId =
-        TTC_CHAT &&
-        TTC_CHAT.user
-          ? TTC_CHAT.user.id
-          : null;
-
-      if(
-        supabase &&
-        roomId &&
-        userId
-      ){
-
-        supabase
-          .from("community_messages")
-          .insert({
-            room_id: roomId,
-            user_id: userId,
-            content: "🎲",
-            message_type: "text",
-            dice_value: result
-          })
-          .then(function(res){
-
-            if(res.error){
-
-              console.warn(
-                "[TTC DICE] Không gửi được realtime:",
-                res.error
-              );
-
-            }
-
-          });
-
-      }
-
-    }catch(error){
-
-      console.warn(
-        "[TTC DICE] Realtime error:",
-        error
-      );
-
-    }
-
-  }
-
-);
- 
-})();
-</script>
-
+  
 <!-- =========================================================
      🟢 AUTO LEARNING CÂU VÍ DỤ V2 — ĐỘC LẬP
      DÁN NGUYÊN KHỐI NGAY TRƯỚC 
@@ -133414,122 +132941,6 @@ button.addEventListener(
   window.__TTC_UX_POLISH_V1__ = true;
 
   /* =========================================================
-     🔊 UI SOUND ENGINE — WebAudio, không cần file âm thanh ngoài
-     ========================================================= */
-  let audioContext = null;
-  let uiSoundEnabled =
-    localStorage.getItem("ttc_ui_sound_enabled") !== "0";
-
-  function getAudioContext(){
-    if(!uiSoundEnabled){
-      return null;
-    }
-
-    try{
-      if(!audioContext){
-        const Ctx =
-          window.AudioContext ||
-          window.webkitAudioContext;
-
-        if(!Ctx){
-          return null;
-        }
-
-        audioContext = new Ctx();
-      }
-
-      if(audioContext.state === "suspended"){
-        try{
-          const resumeResult =
-            audioContext.resume();
-
-          if(
-            resumeResult &&
-            typeof resumeResult.catch === "function"
-          ){
-            resumeResult.catch(function(){});
-          }
-        }catch(e){}
-      }
-
-      return audioContext;
-    }catch(error){
-      return null;
-    }
-  }
-
-  function playUiTone(type, level){
-
-    if(!uiSoundEnabled){
-      return;
-    }
-
-    const ctx = getAudioContext();
-    if(!ctx){
-      return;
-    }
-
-    const now = ctx.currentTime;
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-
-    let base = 520;
-    let duration = 0.075;
-    let endGain = 0.0001;
-
-    const hsk = Number(level);
-
-    if(type === "hsk"){
-      /* HSK1 thấp → HSK9 cao, tạo cảm giác mỗi cấp có màu riêng. */
-      base = 390 + Math.max(1, Math.min(9, hsk || 1)) * 42;
-      duration = 0.105;
-    }
-    else if(type === "search"){
-      base = 720;
-      duration = 0.09;
-    }
-    else if(type === "success"){
-      base = 660;
-      duration = 0.14;
-    }
-    else if(type === "next"){
-      base = 580;
-      duration = 0.055;
-    }
-    else if(type === "click"){
-      base = 500;
-      duration = 0.045;
-    }
-
-    osc.type = type === "success" ? "sine" : "triangle";
-    osc.frequency.setValueAtTime(base, now);
-
-    if(type === "success"){
-      osc.frequency.linearRampToValueAtTime(base * 1.32, now + duration);
-    }
-
-    gain.gain.setValueAtTime(0.0001, now);
-    gain.gain.exponentialRampToValueAtTime(0.035, now + 0.008);
-    gain.gain.exponentialRampToValueAtTime(endGain, now + duration);
-
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-
-    osc.start(now);
-    osc.stop(now + duration + 0.015);
-  }
-
-  window.ttcPlayUiSound = playUiTone;
-
-  /* Chat Enter bridge: gọi đúng engine sendText() đang có sẵn. */
-  window.ttcChatSendFromUx = function(){
-    const sendButton = document.getElementById("ttcChatSend");
-    if(sendButton){
-      sendButton.click();
-    }
-  };
-
-  /* =========================================================
      🔊 Bắt click trên HSK / nút học / tra từ
      ========================================================= */
   document.addEventListener("click", function(event){
@@ -133740,15 +133151,6 @@ body > #accountSystem{
   border:1px solid #78bdf2 !important;
   color:#075eaa !important;
   background:#fff !important;
-}
-
-/* 4) Nút tắt/bật loa UI ở BÊN PHẢI CUỐI TRANG */
-#ttcUiSoundToggle{
-  right:14px !important;
-  left:auto !important;
-  bottom:14px !important;
-  top:auto !important;
-  z-index:100020 !important;
 }
 
 </style>
@@ -134623,6 +134025,1081 @@ html,body{background:#fff !important;}
   }
   document.addEventListener('click',function(e){if(e.target.closest&&e.target.closest('#ttcActionFrame button:nth-child(2)'))setTimeout(reinforceSentenceModes,120);});
 
+})();
+</script>
+
+
+<!-- =========================================================
+ 🛡️ WHITE HAT — TTC DATA INTEGRITY + NEW LEARNING HUB V1
+ - HSK6–9: không hiển thị nghĩa/câu ví dụ tiếng Anh
+ - Dịch nghĩa + exampleMeaning sang tiếng Việt theo lô, có cache
+ - Khử câu ví dụ trùng trong cùng cấp HSK
+ - Chuẩn hóa pinyin Unicode
+ - Thêm 214 Bộ thủ + Luyện phát âm ở đầu trang
+ - Không thay engine học/test/chat/flashcard hiện tại
+ ========================================================= -->
+<style id="ttcWhiteHatIntegrityAndHubV1">
+  .ttc-top-learning-hub{
+    width:min(1150px,calc(100% - 30px));
+    margin:4px auto 16px;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    position:relative;
+    z-index:20;
+  }
+  .ttc-top-learning-btn{
+    min-height:58px;
+    border-radius:17px;
+    border:2px solid transparent;
+    color:#fff !important;
+    font-size:17px;
+    font-weight:950;
+    letter-spacing:.1px;
+    cursor:pointer;
+    transition:transform .18s ease,box-shadow .18s ease,filter .18s ease;
+  }
+  .ttc-top-learning-btn:hover{transform:translateY(-2px);filter:brightness(1.04)}
+  .ttc-top-learning-btn:active{transform:scale(.98)}
+  .ttc-radical-btn{
+    background:linear-gradient(135deg,#ec4899,#db2777);
+    border-color:#f9a8d4;
+    box-shadow:0 0 12px rgba(236,72,153,.42),0 8px 22px rgba(219,39,119,.18);
+    animation:ttcRadicalGlow 1.8s ease-in-out infinite;
+  }
+  .ttc-pron-btn{
+    background:linear-gradient(135deg,#f97316,#ea580c);
+    border-color:#fdba74;
+    box-shadow:0 0 12px rgba(249,115,22,.42),0 8px 22px rgba(234,88,12,.18);
+    animation:ttcPronGlow 1.8s ease-in-out infinite;
+  }
+  @keyframes ttcRadicalGlow{50%{box-shadow:0 0 24px rgba(236,72,153,.68),0 10px 26px rgba(219,39,119,.24)}}
+  @keyframes ttcPronGlow{50%{box-shadow:0 0 24px rgba(249,115,22,.68),0 10px 26px rgba(234,88,12,.24)}}
+
+  body.ttc-hub-lock-scroll{overflow:hidden !important;}
+  #ttcRadicalsOverlay,#ttcPronunciationOverlay{
+    position:fixed;inset:0;z-index:2147482900;
+    background:rgba(15,23,42,.62);
+    display:none;align-items:center;justify-content:center;
+    padding:12px;
+  }
+  #ttcRadicalsOverlay.open,#ttcPronunciationOverlay.open{display:flex}
+  .ttc-hub-card{
+    width:min(1050px,98vw);max-height:94vh;overflow:auto;
+    background:#fff;border-radius:22px;
+    box-shadow:0 24px 90px rgba(0,0,0,.32);
+    padding:18px;
+  }
+  .ttc-hub-head{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    position:sticky;top:-18px;background:#fff;z-index:3;padding:4px 0 12px;
+    border-bottom:1px solid #edf0f5;
+  }
+  .ttc-hub-title{font-size:22px;font-weight:950;color:#172033}
+  .ttc-hub-close{
+    width:40px;height:40px;border-radius:50%;padding:0;
+    background:#f1f5f9;color:#334155;border:1px solid #e2e8f0;
+    font-size:23px;
+  }
+  .ttc-radical-toolbar{
+    display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:14px 0;
+  }
+  .ttc-radical-search{
+    flex:1;min-width:210px;padding:11px 13px;border:1px solid #dbe3ee;
+    border-radius:12px;font-size:15px;outline:none;
+  }
+  .ttc-radical-count{font-weight:850;color:#64748b;font-size:13px}
+  .ttc-radical-grid{
+    display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;
+  }
+  .ttc-radical-item{
+    border:1px solid #f1c4df;border-radius:16px;background:#fff8fc;
+    padding:13px;cursor:pointer;text-align:left;
+    transition:.16s ease;
+  }
+  .ttc-radical-item:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(219,39,119,.12)}
+  .ttc-radical-char{font-size:38px;font-weight:900;color:#be185d;line-height:1}
+  .ttc-radical-no{font-size:11px;color:#9f1239;font-weight:900;margin-top:7px}
+  .ttc-radical-name{font-size:13px;font-weight:900;color:#334155;margin-top:3px}
+  .ttc-radical-meaning{font-size:12px;color:#64748b;margin-top:4px;line-height:1.4}
+  .ttc-radical-detail{
+    margin-top:14px;padding:16px;border-radius:17px;background:#fff1f7;border:1px solid #f5b9d8;
+    display:none;
+  }
+  .ttc-radical-detail.open{display:block}
+  .ttc-radical-detail-char{font-size:70px;font-weight:950;color:#be185d;text-align:center}
+  .ttc-radical-detail-text{text-align:center;color:#475569;line-height:1.65}
+  .ttc-pron-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+  .ttc-pron-tab{
+    border:1px solid #fed7aa;background:#fff7ed;color:#c2410c;border-radius:999px;
+    padding:9px 13px;font-weight:900;cursor:pointer;
+  }
+  .ttc-pron-tab.active{background:#f97316;color:#fff}
+  .ttc-pron-content{min-height:330px}
+  .ttc-pron-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}
+  .ttc-pron-cell{
+    padding:13px 9px;border-radius:14px;background:#fff7ed;border:1px solid #fed7aa;
+    text-align:center;cursor:pointer;
+  }
+  .ttc-pron-cell strong{display:block;font-size:20px;color:#c2410c}
+  .ttc-pron-cell span{display:block;font-size:12px;color:#78716c;margin-top:4px;line-height:1.4}
+  .ttc-pron-lesson{
+    display:grid;grid-template-columns:1.1fr .9fr;gap:14px;
+  }
+  .ttc-pron-box{
+    padding:16px;border-radius:18px;background:#fffaf5;border:1px solid #fed7aa;
+  }
+  .ttc-pron-big{font-size:58px;font-weight:950;color:#ea580c;text-align:center}
+  .ttc-pron-example{font-size:25px;font-weight:900;text-align:center;color:#172033;line-height:1.5;margin:12px 0}
+  .ttc-pron-pinyin{text-align:center;font-size:19px;font-weight:850;color:#c2410c}
+  .ttc-pron-meaning{text-align:center;color:#475569;margin-top:8px}
+  .ttc-pron-record{
+    width:100%;margin-top:14px;background:#ea580c;color:#fff;border:0;border-radius:14px;
+    padding:13px;font-weight:950;cursor:pointer;
+  }
+  .ttc-pron-status{margin-top:10px;text-align:center;color:#64748b;font-size:13px;line-height:1.5}
+  .ttc-pron-ai{
+    margin-top:12px;padding:11px;border-radius:12px;background:#fff7ed;color:#9a3412;
+    border:1px dashed #fdba74;font-size:12px;line-height:1.55;
+  }
+
+  /* =========================================================
+     🌸 214 BỘ THỦ — DECK GIỐNG FLASHCARD HSK
+     ========================================================= */
+  .ttc-radical-deck-card{max-width:920px;width:min(94vw,920px);}
+  .ttc-radical-deck-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:10px 0 12px;}
+  .ttc-radical-deck-counter{font-weight:950;color:#be185d;font-size:14px;}
+  .ttc-radical-deck-help{font-size:12px;color:#94a3b8;text-align:right;}
+  .ttc-radical-deck-scene{width:100%;height:min(64vh,560px);min-height:390px;perspective:1400px;}
+  .ttc-radical-flashcard{position:relative;width:100%;height:100%;cursor:pointer;transform-style:preserve-3d;transition:transform .62s cubic-bezier(.22,.72,.2,1);outline:none;}
+  .ttc-radical-flashcard.flipped{transform:rotateY(180deg);}
+  .ttc-radical-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:24px;padding:28px;background:linear-gradient(145deg,#fff7fc 0%,#fff 65%,#fff8fb 100%);border:2px solid #f3b4d6;box-shadow:0 18px 45px rgba(190,24,93,.14);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;overflow:auto;}
+  .ttc-radical-face.back{transform:rotateY(180deg);align-items:stretch;text-align:left;justify-content:flex-start;}
+  .ttc-radical-front-char{font-family:"Noto Sans CJK SC","Noto Sans SC","Microsoft YaHei",sans-serif;font-size:clamp(105px,20vw,190px);line-height:1;font-weight:950;color:#be185d;text-shadow:0 6px 20px rgba(190,24,93,.14);}
+  .ttc-radical-front-name{font-size:clamp(21px,4vw,30px);font-weight:950;color:#334155;margin-top:15px;}
+  .ttc-radical-front-meta{font-size:14px;font-weight:900;color:#9f1239;margin-top:9px;}
+  .ttc-radical-speak{margin-top:20px;border:0;border-radius:999px;background:#db2777;color:#fff;padding:12px 22px;font-size:16px;font-weight:950;cursor:pointer;box-shadow:0 8px 20px rgba(219,39,119,.25);}
+  .ttc-radical-speak:active{transform:scale(.97);}
+  .ttc-radical-flip-hint{font-size:12px;color:#94a3b8;margin-top:13px;}
+  .ttc-radical-back-title{font-size:clamp(21px,4vw,28px);font-weight:950;color:#be185d;margin-bottom:12px;text-align:center;}
+  .ttc-radical-back-row{padding:12px 14px;border-radius:14px;background:#fff1f7;margin-top:9px;color:#475569;line-height:1.6;font-size:14px;}
+  .ttc-radical-back-row b{color:#9f1239;}
+  .ttc-radical-deck-nav{display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:10px;margin-top:14px;}
+  .ttc-radical-deck-nav button{border:1px solid #f3b4d6;background:#fff;color:#be185d;border-radius:14px;padding:12px 10px;font-weight:950;cursor:pointer;}
+  .ttc-radical-deck-nav button:nth-child(2){background:#db2777;color:#fff;border-color:#db2777;box-shadow:0 7px 18px rgba(219,39,119,.18);}
+  .ttc-radical-deck-nav button:active{transform:translateY(1px);}
+  .ttc-radical-deck-status{text-align:center;color:#64748b;font-size:12px;margin-top:10px;min-height:18px;}
+  @media(max-width:600px){
+    .ttc-radical-deck-card{width:94vw;}
+    .ttc-radical-deck-scene{height:calc(100dvh - 260px);min-height:390px;max-height:570px;}
+    .ttc-radical-face{padding:18px;border-radius:20px;}
+    .ttc-radical-front-char{font-size:clamp(100px,31vw,155px);}
+    .ttc-radical-deck-nav{gap:7px;}
+    .ttc-radical-deck-nav button{padding:11px 6px;font-size:12px;}
+    .ttc-radical-deck-top{align-items:flex-start;}
+  }
+
+  /* V2 — Bộ thủ flashcard + kho câu luyện phát âm */
+  .ttc-radical-detail{perspective:1200px;background:transparent;border:0;padding:0;}
+  .ttc-radical-flashcard{position:relative;min-height:310px;margin-top:14px;cursor:pointer;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.2,.75,.2,1);outline:none;}
+  .ttc-radical-flashcard.flipped{transform:rotateY(180deg)}
+  .ttc-radical-face{position:absolute;inset:0;backface-visibility:hidden;border-radius:22px;padding:22px;background:linear-gradient(145deg,#fff7fc,#fff);border:2px solid #f3b4d6;box-shadow:0 16px 38px rgba(190,24,93,.12);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+  .ttc-radical-face.back{transform:rotateY(180deg);align-items:stretch;text-align:left;justify-content:flex-start;overflow:auto;}
+  .ttc-radical-front-char{font-size:108px;line-height:1;font-weight:950;color:#be185d;text-shadow:0 5px 18px rgba(190,24,93,.13)}
+  .ttc-radical-front-name{font-size:20px;font-weight:950;color:#334155;margin-top:12px}
+  .ttc-radical-front-no{font-size:12px;font-weight:850;color:#9f1239;margin-top:5px}
+  .ttc-radical-speak{margin-top:16px;border:0;border-radius:999px;background:#db2777;color:#fff;padding:10px 20px;font-size:15px;font-weight:950;cursor:pointer;box-shadow:0 7px 18px rgba(219,39,119,.22)}
+  .ttc-radical-flip-hint{font-size:12px;color:#94a3b8;margin-top:12px}
+  .ttc-radical-back-title{font-size:23px;font-weight:950;color:#be185d;margin-bottom:10px;text-align:center}
+  .ttc-radical-back-row{padding:10px 12px;border-radius:13px;background:#fff1f7;margin-top:8px;color:#475569;line-height:1.55}
+  .ttc-radical-back-row b{color:#9f1239}
+  .ttc-radical-examples{margin-top:10px;font-size:13px;color:#64748b;line-height:1.55}
+  .ttc-practice-toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+  .ttc-practice-select,.ttc-practice-jump{border:1px solid #fed7aa;background:#fff7ed;color:#9a3412;border-radius:12px;padding:9px 11px;font-weight:850;outline:none}
+  .ttc-practice-counter{margin-left:auto;font-size:12px;font-weight:900;color:#9a3412}
+  .ttc-practice-card{border:2px solid #fed7aa;background:linear-gradient(145deg,#fffaf5,#fff);border-radius:22px;padding:20px;box-shadow:0 12px 30px rgba(234,88,12,.09)}
+  .ttc-practice-hanzi{font-size:38px;font-weight:950;text-align:center;color:#ea580c;line-height:1.45}
+  .ttc-practice-pinyin{text-align:center;font-size:19px;font-weight:900;color:#c2410c;margin-top:7px}
+  .ttc-practice-meaning{text-align:center;color:#475569;margin-top:8px;line-height:1.5}
+  .ttc-practice-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:16px}
+  .ttc-practice-actions button{border:0;border-radius:13px;padding:12px;font-weight:950;cursor:pointer;background:#ea580c;color:#fff}
+  .ttc-practice-actions button.secondary{background:#fff7ed;color:#c2410c;border:1px solid #fed7aa}
+  .ttc-practice-nav{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:10px}
+  .ttc-practice-nav button{border:1px solid #fed7aa;background:#fff;color:#c2410c;border-radius:12px;padding:10px;font-weight:900;cursor:pointer}
+  .ttc-practice-status{margin-top:10px;text-align:center;color:#64748b;font-size:13px;line-height:1.5;min-height:20px}
+  .ttc-practice-source{text-align:center;margin-top:8px;font-size:11px;color:#94a3b8}
+  @media(max-width:600px){
+    .ttc-radical-flashcard{min-height:330px}
+    .ttc-radical-front-char{font-size:88px}
+    .ttc-practice-hanzi{font-size:30px}
+    .ttc-practice-counter{width:100%;margin-left:0}
+  }
+
+  @media(max-width:800px){
+    .ttc-radical-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .ttc-pron-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+    .ttc-pron-lesson{grid-template-columns:1fr}
+  }
+  @media(max-width:600px){
+    .ttc-top-learning-hub{width:calc(100% - 20px);grid-template-columns:1fr;gap:9px}
+    .ttc-top-learning-btn{min-height:53px;font-size:15px}
+    .ttc-hub-card{padding:13px;border-radius:18px}
+    .ttc-hub-title{font-size:18px}
+    .ttc-radical-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+    .ttc-pron-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .ttc-pron-big{font-size:48px}
+  }
+</style>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------------------------------------------------------
+     1) 214 BỘ THỦ KANGXI
+     --------------------------------------------------------- */
+  const TTC_214_RADICALS = [{"c":"一","name":"Nhất","meaning":"một"},{"c":"丨","name":"Cổn","meaning":"nét sổ"},{"c":"丶","name":"Chủ","meaning":"nét chấm"},{"c":"丿","name":"Phiệt","meaning":"nét phẩy"},{"c":"乙","name":"Ất","meaning":"thứ hai; nét cong"},{"c":"亅","name":"Quyết","meaning":"nét móc"},{"c":"二","name":"Nhị","meaning":"hai"},{"c":"亠","name":"Đầu","meaning":"nắp; đầu"},{"c":"人","name":"Nhân","meaning":"người"},{"c":"儿","name":"Nhi","meaning":"chân người"},{"c":"入","name":"Nhập","meaning":"vào"},{"c":"八","name":"Bát","meaning":"tám"},{"c":"冂","name":"Quynh","meaning":"vùng bao ngoài"},{"c":"冖","name":"Mịch","meaning":"mái che"},{"c":"冫","name":"Băng","meaning":"băng; nước đá"},{"c":"几","name":"Kỷ","meaning":"ghế nhỏ"},{"c":"凵","name":"Khảm","meaning":"hộp mở"},{"c":"刀","name":"Đao","meaning":"dao"},{"c":"力","name":"Lực","meaning":"sức lực"},{"c":"勹","name":"Bao","meaning":"bao bọc"},{"c":"匕","name":"Chủy","meaning":"thìa; dao găm"},{"c":"匚","name":"Phương","meaning":"hộp"},{"c":"匸","name":"Hệ","meaning":"che giấu"},{"c":"十","name":"Thập","meaning":"mười"},{"c":"卜","name":"Bốc","meaning":"bói; xem quẻ"},{"c":"卩","name":"Tiết","meaning":"đốt tre; dấu ấn"},{"c":"厂","name":"Hán","meaning":"vách đá; nhà xưởng"},{"c":"厶","name":"Khư","meaning":"riêng tư"},{"c":"又","name":"Hựu","meaning":"lại; bàn tay phải"},{"c":"口","name":"Khẩu","meaning":"miệng"},{"c":"囗","name":"Vi","meaning":"vây quanh"},{"c":"土","name":"Thổ","meaning":"đất"},{"c":"士","name":"Sĩ","meaning":"kẻ sĩ"},{"c":"夂","name":"Truy","meaning":"đi chậm"},{"c":"夊","name":"Tuy","meaning":"đi chậm"},{"c":"夕","name":"Tịch","meaning":"buổi tối"},{"c":"大","name":"Đại","meaning":"lớn"},{"c":"女","name":"Nữ","meaning":"phụ nữ"},{"c":"子","name":"Tử","meaning":"con; trẻ em"},{"c":"宀","name":"Miên","meaning":"mái nhà"},{"c":"寸","name":"Thốn","meaning":"tấc"},{"c":"小","name":"Tiểu","meaning":"nhỏ"},{"c":"尢","name":"Uông","meaning":"yếu; què"},{"c":"尸","name":"Thi","meaning":"xác; thân thể"},{"c":"屮","name":"Triệt","meaning":"mầm cây"},{"c":"山","name":"Sơn","meaning":"núi"},{"c":"巛","name":"Xuyên","meaning":"sông"},{"c":"工","name":"Công","meaning":"công việc"},{"c":"己","name":"Kỷ","meaning":"bản thân"},{"c":"巾","name":"Cân","meaning":"khăn; vải"},{"c":"干","name":"Can","meaning":"khô; can thiệp"},{"c":"幺","name":"Yêu","meaning":"nhỏ bé"},{"c":"广","name":"Nghiễm","meaning":"mái nhà; nơi ở"},{"c":"廴","name":"Dẫn","meaning":"bước dài"},{"c":"廾","name":"Củng","meaning":"hai tay nâng"},{"c":"弋","name":"Dặc","meaning":"bắn; cọc"},{"c":"弓","name":"Cung","meaning":"cây cung"},{"c":"彐","name":"Kệ","meaning":"đầu mõm"},{"c":"彡","name":"Sam","meaning":"lông; nét trang trí"},{"c":"彳","name":"Xích","meaning":"bước chân"},{"c":"心","name":"Tâm","meaning":"tim; lòng"},{"c":"戈","name":"Qua","meaning":"giáo; binh khí"},{"c":"戶","name":"Hộ","meaning":"cửa"},{"c":"手","name":"Thủ","meaning":"tay"},{"c":"支","name":"Chi","meaning":"cành; nhánh"},{"c":"攴","name":"Phộc","meaning":"đánh nhẹ"},{"c":"文","name":"Văn","meaning":"văn; chữ"},{"c":"斗","name":"Đẩu","meaning":"đấu; cái gáo"},{"c":"斤","name":"Cân","meaning":"rìu"},{"c":"方","name":"Phương","meaning":"phương hướng; vuông"},{"c":"无","name":"Vô","meaning":"không"},{"c":"日","name":"Nhật","meaning":"mặt trời; ngày"},{"c":"曰","name":"Viết","meaning":"nói rằng"},{"c":"月","name":"Nguyệt","meaning":"mặt trăng; tháng"},{"c":"木","name":"Mộc","meaning":"cây; gỗ"},{"c":"欠","name":"Khiếm","meaning":"thiếu; ngáp"},{"c":"止","name":"Chỉ","meaning":"dừng"},{"c":"歹","name":"Ngạt","meaning":"chết; xấu"},{"c":"殳","name":"Thù","meaning":"binh khí; đánh"},{"c":"毋","name":"Vô","meaning":"chớ; không"},{"c":"比","name":"Tỷ","meaning":"so sánh"},{"c":"毛","name":"Mao","meaning":"lông"},{"c":"氏","name":"Thị","meaning":"họ"},{"c":"气","name":"Khí","meaning":"hơi; khí"},{"c":"水","name":"Thủy","meaning":"nước"},{"c":"火","name":"Hỏa","meaning":"lửa"},{"c":"爪","name":"Trảo","meaning":"móng vuốt"},{"c":"父","name":"Phụ","meaning":"cha"},{"c":"爻","name":"Hào","meaning":"hào âm dương"},{"c":"爿","name":"Tường","meaning":"mảnh gỗ"},{"c":"片","name":"Phiến","meaning":"mảnh; miếng"},{"c":"牙","name":"Nha","meaning":"răng; ngà"},{"c":"牛","name":"Ngưu","meaning":"trâu; bò"},{"c":"犬","name":"Khuyển","meaning":"chó"},{"c":"玄","name":"Huyền","meaning":"sâu xa; huyền bí"},{"c":"玉","name":"Ngọc","meaning":"ngọc"},{"c":"瓜","name":"Qua","meaning":"dưa"},{"c":"瓦","name":"Ngõa","meaning":"ngói"},{"c":"甘","name":"Cam","meaning":"ngọt"},{"c":"生","name":"Sinh","meaning":"sinh; sống"},{"c":"用","name":"Dụng","meaning":"dùng"},{"c":"田","name":"Điền","meaning":"ruộng"},{"c":"疋","name":"Thất","meaning":"tấm vải; chân"},{"c":"疒","name":"Nạch","meaning":"bệnh"},{"c":"癶","name":"Bát","meaning":"bước chân"},{"c":"白","name":"Bạch","meaning":"trắng"},{"c":"皮","name":"Bì","meaning":"da"},{"c":"皿","name":"Mãnh","meaning":"đồ đựng"},{"c":"目","name":"Mục","meaning":"mắt"},{"c":"矛","name":"Mâu","meaning":"giáo; mâu"},{"c":"矢","name":"Thỉ","meaning":"mũi tên"},{"c":"石","name":"Thạch","meaning":"đá"},{"c":"示","name":"Thị","meaning":"chỉ; thần linh"},{"c":"禸","name":"Nhựu","meaning":"dấu chân"},{"c":"禾","name":"Hòa","meaning":"lúa"},{"c":"穴","name":"Huyệt","meaning":"hang; huyệt"},{"c":"立","name":"Lập","meaning":"đứng; lập"},{"c":"竹","name":"Trúc","meaning":"tre"},{"c":"米","name":"Mễ","meaning":"gạo"},{"c":"糸","name":"Mịch","meaning":"tơ; sợi"},{"c":"缶","name":"Phữu","meaning":"chum; vò"},{"c":"网","name":"Võng","meaning":"lưới"},{"c":"羊","name":"Dương","meaning":"dê; cừu"},{"c":"羽","name":"Vũ","meaning":"lông vũ"},{"c":"老","name":"Lão","meaning":"già"},{"c":"而","name":"Nhi","meaning":"mà; râu"},{"c":"耒","name":"Lỗi","meaning":"cày"},{"c":"耳","name":"Nhĩ","meaning":"tai"},{"c":"聿","name":"Duật","meaning":"bút"},{"c":"肉","name":"Nhục","meaning":"thịt"},{"c":"臣","name":"Thần","meaning":"bề tôi"},{"c":"自","name":"Tự","meaning":"tự; bản thân"},{"c":"至","name":"Chí","meaning":"đến"},{"c":"臼","name":"Cữu","meaning":"cối giã"},{"c":"舌","name":"Thiệt","meaning":"lưỡi"},{"c":"舛","name":"Suyễn","meaning":"trái ngược"},{"c":"舟","name":"Chu","meaning":"thuyền"},{"c":"艮","name":"Cấn","meaning":"dừng; cứng"},{"c":"色","name":"Sắc","meaning":"màu sắc"},{"c":"艸","name":"Thảo","meaning":"cỏ"},{"c":"虍","name":"Hô","meaning":"vằn hổ"},{"c":"虫","name":"Trùng","meaning":"sâu; côn trùng"},{"c":"血","name":"Huyết","meaning":"máu"},{"c":"行","name":"Hành","meaning":"đi; hàng"},{"c":"衣","name":"Y","meaning":"áo; quần áo"},{"c":"襾","name":"Á","meaning":"che phủ"},{"c":"見","name":"Kiến","meaning":"thấy"},{"c":"角","name":"Giác","meaning":"sừng; góc"},{"c":"言","name":"Ngôn","meaning":"lời nói"},{"c":"谷","name":"Cốc","meaning":"thung lũng"},{"c":"豆","name":"Đậu","meaning":"đậu; đồ đựng"},{"c":"豕","name":"Thỉ","meaning":"lợn"},{"c":"豸","name":"Trãi","meaning":"loài thú không chân rõ"},{"c":"貝","name":"Bối","meaning":"vỏ sò; tiền"},{"c":"赤","name":"Xích","meaning":"đỏ"},{"c":"走","name":"Tẩu","meaning":"chạy; đi"},{"c":"足","name":"Túc","meaning":"chân"},{"c":"身","name":"Thân","meaning":"thân thể"},{"c":"車","name":"Xa","meaning":"xe"},{"c":"辛","name":"Tân","meaning":"cay; đắng"},{"c":"辰","name":"Thần","meaning":"thời; sao Thần"},{"c":"辵","name":"Sước","meaning":"đi; di chuyển"},{"c":"邑","name":"Ấp","meaning":"thành; vùng đất"},{"c":"酉","name":"Dậu","meaning":"rượu; chi Dậu"},{"c":"釆","name":"Biện","meaning":"phân biệt"},{"c":"里","name":"Lý","meaning":"làng; dặm"},{"c":"金","name":"Kim","meaning":"kim loại; vàng"},{"c":"長","name":"Trường","meaning":"dài; trưởng"},{"c":"門","name":"Môn","meaning":"cửa"},{"c":"阜","name":"Phụ","meaning":"gò; đồi"},{"c":"隶","name":"Đãi","meaning":"bắt kịp; nô lệ"},{"c":"隹","name":"Chuy","meaning":"chim đuôi ngắn"},{"c":"雨","name":"Vũ","meaning":"mưa"},{"c":"青","name":"Thanh","meaning":"xanh; xanh trong"},{"c":"非","name":"Phi","meaning":"không; sai"},{"c":"面","name":"Diện","meaning":"mặt"},{"c":"革","name":"Cách","meaning":"da thuộc"},{"c":"韋","name":"Vi","meaning":"da thuộc mềm"},{"c":"韭","name":"Cửu","meaning":"hẹ"},{"c":"音","name":"Âm","meaning":"âm thanh"},{"c":"頁","name":"Hiệt","meaning":"đầu; trang"},{"c":"風","name":"Phong","meaning":"gió"},{"c":"飛","name":"Phi","meaning":"bay"},{"c":"食","name":"Thực","meaning":"ăn; thức ăn"},{"c":"首","name":"Thủ","meaning":"đầu"},{"c":"香","name":"Hương","meaning":"thơm; hương"},{"c":"馬","name":"Mã","meaning":"ngựa"},{"c":"骨","name":"Cốt","meaning":"xương"},{"c":"高","name":"Cao","meaning":"cao"},{"c":"髟","name":"Tiêu","meaning":"tóc dài"},{"c":"鬥","name":"Đấu","meaning":"đánh nhau"},{"c":"鬯","name":"Sưởng","meaning":"rượu thơm"},{"c":"鬲","name":"Cách","meaning":"nồi ba chân"},{"c":"鬼","name":"Quỷ","meaning":"ma; quỷ"},{"c":"魚","name":"Ngư","meaning":"cá"},{"c":"鳥","name":"Điểu","meaning":"chim"},{"c":"鹵","name":"Lỗ","meaning":"muối; đất mặn"},{"c":"鹿","name":"Lộc","meaning":"hươu"},{"c":"麥","name":"Mạch","meaning":"lúa mì"},{"c":"麻","name":"Ma","meaning":"cây gai"},{"c":"黃","name":"Hoàng","meaning":"vàng"},{"c":"黍","name":"Thử","meaning":"kê"},{"c":"黑","name":"Hắc","meaning":"đen"},{"c":"黹","name":"Chỉ","meaning":"thêu"},{"c":"黽","name":"Mãnh","meaning":"ếch; nhái"},{"c":"鼎","name":"Đỉnh","meaning":"đỉnh; vạc"},{"c":"鼓","name":"Cổ","meaning":"trống"},{"c":"鼠","name":"Thử","meaning":"chuột"},{"c":"鼻","name":"Tỵ","meaning":"mũi"},{"c":"齊","name":"Tề","meaning":"đều; chỉnh tề"},{"c":"齒","name":"Xỉ","meaning":"răng"},{"c":"龍","name":"Long","meaning":"rồng"},{"c":"龜","name":"Quy","meaning":"rùa"},{"c":"龠","name":"Dược","meaning":"sáo"}];
+
+  function esc(v){
+    return String(v ?? "").replace(/[&<>"']/g,function(c){
+      return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]);
+    });
+  }
+
+  function requireLogin(){
+    if(window.currentUser){ return true; }
+    alert("🔒 Vui lòng đăng ký hoặc đăng nhập tài khoản trước.");
+    return false;
+  }
+
+  function speakHub(text){
+    if(!text || !("speechSynthesis" in window)) return;
+    try{
+      speechSynthesis.cancel();
+      const u=new SpeechSynthesisUtterance(String(text));
+      u.lang="zh-CN";
+      u.rate=typeof window.selectedRate==="number"?window.selectedRate:.9;
+      u.pitch=1;u.volume=1;speechSynthesis.speak(u);
+    }catch(e){}
+  }
+
+  /* ---------------------------------------------------------
+     2) TẠO HAI NÚT Ở ĐẦU TRANG
+     --------------------------------------------------------- */
+  function buildTopHub(){
+    if(document.getElementById("ttcTopLearningHub")) return;
+    const host=document.createElement("div");
+    host.id="ttcTopLearningHub";
+    host.className="ttc-top-learning-hub";
+    host.innerHTML=
+      '<button type="button" class="ttc-top-learning-btn ttc-radical-btn" id="ttcOpenRadicals">🌸 214 Bộ thủ</button>'+
+      '<button type="button" class="ttc-top-learning-btn ttc-pron-btn" id="ttcOpenPronunciation">🟠 Luyện phát âm</button>';
+    const nav=document.querySelector("nav");
+    if(nav && nav.parentNode){
+      nav.parentNode.insertBefore(host,nav);
+    }else{
+      document.body.prepend(host);
+    }
+    document.getElementById("ttcOpenRadicals").onclick=function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      if(requireLogin()) openRadicals();
+    };
+    document.getElementById("ttcOpenPronunciation").onclick=function(){
+      if(requireLogin()) openPronunciation();
+    };
+  }
+
+  /* ---------------------------------------------------------
+     3) 214 BỘ THỦ — FLASHCARD DECK V1
+     Giống hệ Flashcard HSK: 1 thẻ đang học / 214 thẻ.
+     Không đụng engine Flashcard HSK hiện tại.
+     --------------------------------------------------------- */
+  let radicalOverlay=null;
+  let radicalIndex=0;
+  let radicalFlipped=false;
+
+  function radicalStrokeCount(no){
+    const n=Number(no)||1;
+    if(n<=6) return 1;
+    if(n<=29) return 2;
+    if(n<=61) return 3;
+    if(n<=94) return 4;
+    if(n<=117) return 5;
+    if(n<=146) return 6;
+    if(n<=166) return 7;
+    if(n<=178) return 8;
+    if(n<=190) return 9;
+    if(n<=197) return 10;
+    if(n<=201) return 11;
+    if(n<=205) return 12;
+    if(n<=208) return 13;
+    if(n<=210) return 14;
+    if(n===211) return 15;
+    if(n===212) return 16;
+    return 17;
+  }
+
+  function getRadicalDeck(){
+    return TTC_214_RADICALS.map(function(x,i){
+      return Object.assign({no:i+1,strokes:radicalStrokeCount(i+1)},x);
+    });
+  }
+
+  function openRadicals(){
+    if(!radicalOverlay) buildRadicals();
+    radicalIndex=0;
+    radicalFlipped=false;
+    radicalOverlay.classList.add("open");
+    document.body.classList.add("ttc-hub-lock-scroll");
+    renderRadicalFlashcard();
+  }
+
+  function closeRadicals(){
+    if(radicalOverlay) radicalOverlay.classList.remove("open");
+    document.body.classList.remove("ttc-hub-lock-scroll");
+  }
+
+  function buildRadicals(){
+    radicalOverlay=document.createElement("div");
+    radicalOverlay.id="ttcRadicalsOverlay";
+    radicalOverlay.innerHTML=
+      '<div class="ttc-hub-card ttc-radical-deck-card">'+
+        '<div class="ttc-hub-head">'+
+          '<div class="ttc-hub-title">🌸 214 Bộ thủ — Flashcard</div>'+ 
+          '<button type="button" class="ttc-hub-close" id="ttcRadClose">×</button>'+ 
+        '</div>'+ 
+        '<div class="ttc-radical-deck-top">'+
+          '<div class="ttc-radical-deck-counter" id="ttcRadDeckCounter">📍 1 / 214</div>'+ 
+          '<div class="ttc-radical-deck-help">👆 Nhấn 2 lần vào thẻ để lật mặt sau</div>'+ 
+        '</div>'+ 
+        '<div class="ttc-radical-deck-scene">'+
+          '<div class="ttc-radical-flashcard" id="ttcRadFlash" tabindex="0" aria-label="Flashcard bộ thủ">'+
+            '<div class="ttc-radical-face front" id="ttcRadFront"></div>'+ 
+            '<div class="ttc-radical-face back" id="ttcRadBack"></div>'+ 
+          '</div>'+ 
+        '</div>'+ 
+        '<div class="ttc-radical-deck-nav">'+
+          '<button type="button" id="ttcRadPrev">⬅️ Trước</button>'+ 
+          '<button type="button" id="ttcRadFlip">🔄 Lật Card</button>'+ 
+          '<button type="button" id="ttcRadNext">Sau ➡️</button>'+ 
+        '</div>'+ 
+        '<div class="ttc-radical-deck-status" id="ttcRadStatus">Sẵn sàng học 214 bộ thủ 🌸</div>'+ 
+      '</div>';
+    document.body.appendChild(radicalOverlay);
+
+    document.getElementById("ttcRadClose").onclick=function(e){
+      e.preventDefault(); e.stopPropagation(); closeRadicals();
+    };
+    radicalOverlay.addEventListener("click",function(e){
+      if(e.target===radicalOverlay) closeRadicals();
+    });
+    document.getElementById("ttcRadPrev").onclick=function(e){
+      e.preventDefault(); e.stopPropagation(); previousRadicalCard();
+    };
+    document.getElementById("ttcRadNext").onclick=function(e){
+      e.preventDefault(); e.stopPropagation(); nextRadicalCard();
+    };
+    document.getElementById("ttcRadFlip").onclick=function(e){
+      e.preventDefault(); e.stopPropagation(); flipRadicalCard();
+    };
+    const card=document.getElementById("ttcRadFlash");
+    card.ondblclick=function(e){
+      if(e.target && e.target.closest && e.target.closest("button")) return;
+      flipRadicalCard();
+    };
+    card.onkeydown=function(e){
+      if(e.key==="Enter" || e.key===" "){
+        e.preventDefault(); flipRadicalCard();
+      }
+      if(e.key==="ArrowLeft") previousRadicalCard();
+      if(e.key==="ArrowRight") nextRadicalCard();
+    };
+  }
+
+  function radicalExampleChars(radical){
+    const data=(typeof words!=='undefined'&&Array.isArray(words))?words:window.words;
+    if(!Array.isArray(data)) return [];
+    return data.filter(function(w){
+      return w && String(w.radical||"").includes(radical);
+    }).slice(0,4);
+  }
+
+  function radicalMemory(x){
+    const m={
+      "一":"Một nét ngang — hãy hình dung một đường thẳng duy nhất.",
+      "丨":"Nét sổ — hình dung một đường đứng từ trên xuống.",
+      "丶":"Nét chấm — nhớ như một giọt nước nhỏ.",
+      "丿":"Nét phẩy — tưởng tượng một nét nghiêng từ trên xuống.",
+      "乙":"Nét cong — nhớ hình dáng uốn cong của nét.",
+      "亅":"Nét móc — tưởng tượng một nét sổ rồi móc lại.",
+      "人":"Người — hình dáng hai chân người đang đứng.",
+      "口":"Miệng — hình vuông như khuôn miệng.",
+      "女":"Nữ — ghi nhớ hình dáng người phụ nữ cách điệu.",
+      "子":"Con/trẻ — liên tưởng đến một đứa trẻ.",
+      "心":"Tim/lòng — liên tưởng đến trái tim và cảm xúc.",
+      "手":"Tay — liên tưởng trực tiếp đến bàn tay.",
+      "目":"Mắt — khung chữ giống con mắt.",
+      "耳":"Tai — hình dáng chữ gợi hình chiếc tai.",
+      "口":"Miệng — khung vuông dễ nhớ như miệng.",
+      "木":"Cây — nhìn như thân cây với cành.",
+      "水":"Nước — các nét tỏa ra như dòng nước.",
+      "火":"Lửa — các nét như ngọn lửa bốc lên.",
+      "山":"Núi — ba đỉnh núi nhô lên.",
+      "日":"Mặt trời/ngày — hình tròn mặt trời được vuông hóa.",
+      "月":"Mặt trăng/tháng — hình trăng lưỡi liềm cách điệu.",
+      "田":"Ruộng — ô ruộng chia thành nhiều thửa.",
+      "竹":"Tre — liên tưởng hai nhánh tre.",
+      "雨":"Mưa — các chấm mưa rơi dưới mái trời.",
+      "馬":"Ngựa — hình ngựa cách điệu trong chữ Hán.",
+      "魚":"Cá — hình cá với thân và đuôi.",
+      "鳥":"Chim — hình chim cách điệu.",
+      "門":"Cửa — hai cánh cửa đứng đối nhau.",
+      "金":"Kim loại/vàng — liên tưởng kim loại và vàng.",
+      "食":"Ăn/thức ăn — liên tưởng đến việc ăn uống.",
+      "言":"Lời nói — liên tưởng đến lời nói phát ra từ miệng.",
+      "車":"Xe — hình chiếc xe nhìn từ trên xuống.",
+      "馬":"Ngựa — ghi nhớ dáng ngựa trong chữ cổ.",
+      "魚":"Cá — ghi nhớ thân cá và đuôi.",
+      "鳥":"Chim — ghi nhớ hình chim.",
+      "龍":"Rồng — liên tưởng hình rồng uốn lượn.",
+      "龜":"Rùa — hình mai và thân rùa cách điệu."
+    };
+    return m[x.c] || ("Gắn bộ thủ này với nhóm nghĩa «"+x.meaning+"» và một chữ quen thuộc chứa nó để nhớ lâu hơn.");
+  }
+
+  function flipRadicalCard(){
+    radicalFlipped=!radicalFlipped;
+    const card=document.getElementById("ttcRadFlash");
+    if(card) card.classList.toggle("flipped",radicalFlipped);
+    const status=document.getElementById("ttcRadStatus");
+    if(status) status.textContent=radicalFlipped ? "📖 Mặt sau — xem nghĩa, cách dùng và ví dụ." : "🌸 Mặt trước — nhìn bộ thủ và nghe phát âm.";
+  }
+
+  function renderRadicalFlashcard(){
+    const deck=getRadicalDeck();
+    if(!deck.length) return;
+    if(radicalIndex<0) radicalIndex=deck.length-1;
+    if(radicalIndex>=deck.length) radicalIndex=0;
+    const x=deck[radicalIndex];
+    radicalFlipped=false;
+
+    const card=document.getElementById("ttcRadFlash");
+    const front=document.getElementById("ttcRadFront");
+    const back=document.getElementById("ttcRadBack");
+    const counter=document.getElementById("ttcRadDeckCounter");
+    const status=document.getElementById("ttcRadStatus");
+    if(!card||!front||!back) return;
+    card.classList.remove("flipped");
+    card.setAttribute("aria-label","Flashcard bộ thủ "+x.name+" "+x.c);
+    if(counter) counter.textContent="📍 "+(radicalIndex+1)+" / "+deck.length;
+    if(status) status.textContent="🌸 Mặt trước — nhìn bộ thủ và nghe phát âm.";
+
+    front.innerHTML=
+      '<div class="ttc-radical-front-char">'+esc(x.c)+'</div>'+ 
+      '<div class="ttc-radical-front-name">Bộ '+esc(x.name)+'</div>'+ 
+      '<div class="ttc-radical-front-meta">BỘ THỨ '+x.no+' / 214  ·  ✍️ '+x.strokes+' nét</div>'+ 
+      '<button type="button" class="ttc-radical-speak" id="ttcRadSpeak">🔊 Đọc to '+esc(x.c)+'</button>'+ 
+      '<div class="ttc-radical-flip-hint">Nhấn 2 lần vào thẻ để lật mặt sau ↻</div>';
+
+    const examples=radicalExampleChars(x.c);
+    back.innerHTML=
+      '<div class="ttc-radical-back-title">'+esc(x.c)+' · Bộ '+esc(x.name)+'</div>'+ 
+      '<div class="ttc-radical-back-row"><b>📖 Nghĩa:</b> '+esc(x.meaning)+'</div>'+ 
+      '<div class="ttc-radical-back-row"><b>💡 Giải thích:</b> Bộ thủ là thành phần dùng để phân loại/tra cứu chữ Hán và thường gợi ý một nhóm ý nghĩa hoặc chủ đề.</div>'+ 
+      '<div class="ttc-radical-back-row"><b>🧠 Cách nhớ:</b> '+esc(radicalMemory(x))+'</div>'+ 
+      '<div class="ttc-radical-back-row"><b>🔎 Ví dụ:</b> '+(examples.length?examples.map(function(w){return esc(w.h)+' — '+esc(w.m)+(w.p?' · '+esc(w.p):"");}).join('<br>'):'Chưa tìm thấy chữ ví dụ gắn bộ này trong dữ liệu hiện tại.')+'</div>'+ 
+      '<div class="ttc-radical-back-row"><b>✍️ Số nét:</b> '+x.strokes+' nét</div>'+ 
+      '<div class="ttc-radical-flip-hint" style="text-align:center">Nhấn 2 lần để quay lại mặt trước ↻</div>';
+
+    const speak=document.getElementById("ttcRadSpeak");
+    if(speak) speak.onclick=function(e){e.preventDefault();e.stopPropagation();speakHub(x.c);};
+  }
+
+  function previousRadicalCard(){
+    radicalIndex--;
+    renderRadicalFlashcard();
+  }
+  function nextRadicalCard(){
+    radicalIndex++;
+    renderRadicalFlashcard();
+  }
+
+  /* ---------------------------------------------------------
+     4) LUYỆN PHÁT ÂM
+     --------------------------------------------------------- */
+  const PRON_DATA={
+    tones:[
+      {key:"1",title:"Thanh 1 — cao, ngang",symbol:"ā",example:"妈",pinyin:"mā",meaning:"mẹ"},
+      {key:"2",title:"Thanh 2 — đi lên",symbol:"á",example:"麻",pinyin:"má",meaning:"cây gai; tê"},
+      {key:"3",title:"Thanh 3 — hạ rồi lên",symbol:"ǎ",example:"马",pinyin:"mǎ",meaning:"ngựa"},
+      {key:"4",title:"Thanh 4 — rơi mạnh",symbol:"à",example:"骂",pinyin:"mà",meaning:"mắng"},
+      {key:"0",title:"Thanh nhẹ — ngắn, nhẹ",symbol:"a",example:"吗",pinyin:"ma",meaning:"trợ từ nghi vấn"}
+    ],
+    initials:[
+      ["b","bā","八","tám"],["p","pā","趴","nằm sấp"],["m","mā","妈","mẹ"],["f","fā","发","phát; gửi"],
+      ["d","dā","搭","đặt; bắt"],["t","tā","他","anh ấy"],["n","nǎ","哪","nào"],["l","lā","拉","kéo"],
+      ["g","gā","高","cao"],["k","kā","开","mở"],["h","hā","好","tốt"],["j","jī","鸡","gà"],
+      ["q","qī","七","bảy"],["x","xī","西","phía tây"],["zh","zhī","知","biết"],["ch","chī","吃","ăn"],
+      ["sh","shī","师","thầy; giáo viên"],["r","rì","日","ngày"],["z","zī","资","tư liệu"],["c","cí","词","từ"],
+      ["s","sī","思","suy nghĩ"]
+    ],
+    finals:[
+      ["a","ā","妈","mẹ"],["o","ō","我","tôi"],["e","ē","喝","uống"],["i","yī","一","một"],
+      ["u","wū","五","năm"],["ü","yǔ","雨","mưa"],["ai","ài","爱","yêu"],["ei","èi","黑","đen"],
+      ["ao","ǎo","好","tốt"],["ou","ǒu","口","miệng"],["an","ān","安","an; yên"],["en","ēn","恩","ân huệ"],
+      ["ang","áng","昂","ngẩng lên"],["eng","ēng","灯","đèn"],["ong","ōng","东","đông"],["ia","yā","呀","trợ từ"],
+      ["ie","yě","也","cũng"],["iu","liú","流","chảy; dòng"],["ian","yān","烟","khói"],["ing","yīng","英","anh; ưu tú"],
+      ["uan","wān","弯","cong"],["üan","yuán","圆","tròn"],["üe","yuè","月","mặt trăng"],["er","ér","儿","con; âm nhi hóa"]
+    ]
+  };
+  let pronOverlay=null,pronTab="tones",pronRecorder=null,pronStream=null,pronChunks=[];
+  function openPronunciation(){
+    if(!pronOverlay) buildPronunciation();
+    pronOverlay.classList.add("open");
+    renderPronTab("tones");
+  }
+  function buildPronunciation(){
+    pronOverlay=document.createElement("div");
+    pronOverlay.id="ttcPronunciationOverlay";
+    pronOverlay.innerHTML=
+      '<div class="ttc-hub-card">'+
+        '<div class="ttc-hub-head"><div class="ttc-hub-title">🟠 Luyện phát âm tiếng Trung</div><button class="ttc-hub-close" id="ttcPronClose">×</button></div>'+
+        '<div class="ttc-pron-tabs">'+
+          '<button class="ttc-pron-tab" data-tab="tones">🎵 5 thanh điệu</button>'+
+          '<button class="ttc-pron-tab" data-tab="initials">🔤 Thanh mẫu</button>'+
+          '<button class="ttc-pron-tab" data-tab="finals">🔡 Vận mẫu</button>'+
+          '<button class="ttc-pron-tab" data-tab="practice">🎤 Ghi âm luyện tập</button>'+
+        '</div>'+
+        '<div id="ttcPronContent" class="ttc-pron-content"></div>'+
+      '</div>';
+    document.body.appendChild(pronOverlay);
+    document.getElementById("ttcPronClose").onclick=()=>pronOverlay.classList.remove("open");
+    pronOverlay.addEventListener("click",e=>{if(e.target===pronOverlay)pronOverlay.classList.remove("open")});
+    pronOverlay.querySelectorAll(".ttc-pron-tab").forEach(b=>b.onclick=()=>renderPronTab(b.dataset.tab));
+  }
+  let pronPracticeList=[],pronPracticeIndex=0,pronPracticeLevel="all";
+  function getPronPracticeWords(){
+    const data=(typeof words!=="undefined"&&Array.isArray(words))?words:window.words;
+    if(!Array.isArray(data))return [];
+    return data.filter(w=>w && String(w.example||"").trim() && String(w.examplePinyin||"").trim())
+      .filter(w=>pronPracticeLevel==="all" || Number(w.hsk)===Number(pronPracticeLevel))
+      .map(w=>({h:String(w.example),p:String(w.examplePinyin),m:String(w.exampleMeaning||w.m||""),hsk:Number(w.hsk)||0}));
+  }
+  function ensurePronPracticeList(){
+    pronPracticeList=getPronPracticeWords();
+    if(pronPracticeIndex>=pronPracticeList.length)pronPracticeIndex=0;
+  }
+  function renderPractice(){
+    ensurePronPracticeList();
+    const box=document.getElementById("ttcPronContent"); if(!box)return;
+    const item=pronPracticeList[pronPracticeIndex];
+    const opts='<option value="all">HSK 1 → HSK 9</option>'+Array.from({length:9},(_,i)=>'<option value="'+(i+1)+'">HSK '+(i+1)+'</option>').join("");
+    if(!item){box.innerHTML='<div class="ttc-pron-box">⚠️ Chưa có dữ liệu câu ví dụ để luyện trong cấp HSK đang chọn. Anh thử HSK khác hoặc HSK 1 → HSK 9 nhé.</div>';return;}
+    box.innerHTML='<div class="ttc-practice-toolbar"><select id="ttcPracticeLevel" class="ttc-practice-select">'+opts+'</select><span class="ttc-practice-counter">Câu '+(pronPracticeIndex+1)+' / '+pronPracticeList.length+'</span></div>'+ 
+      '<div class="ttc-practice-card"><div class="ttc-practice-hanzi">'+esc(item.h)+'</div><div class="ttc-practice-pinyin">'+esc(item.p)+'</div><div class="ttc-practice-meaning">🇻🇳 '+esc(item.m||"Đang cập nhật nghĩa tiếng Việt…")+'</div>'+ 
+      '<div class="ttc-practice-actions"><button type="button" id="ttcPracticeModel">🔊 Nghe mẫu</button><button type="button" id="ttcPracticeRecord">🎤 Ghi âm</button></div><div class="ttc-practice-nav"><button type="button" id="ttcPracticePrev">← Câu trước</button><button type="button" id="ttcPracticeNext">Câu tiếp →</button></div><div class="ttc-practice-status" id="ttcPracticeStatus">Nghe mẫu → đọc theo → ghi âm → nghe lại.</div><div id="ttcPracticeAudio"></div><div class="ttc-practice-source">Nguồn câu ví dụ: dữ liệu từ vựng HSK của TTC · HSK '+item.hsk+'</div></div>';
+    const sel=document.getElementById("ttcPracticeLevel");sel.value=pronPracticeLevel;
+    sel.onchange=function(){pronPracticeLevel=this.value;pronPracticeIndex=0;renderPractice();};
+    document.getElementById("ttcPracticeModel").onclick=function(){speakHub(item.h);};
+    document.getElementById("ttcPracticePrev").onclick=function(){if(pronPracticeList.length){pronPracticeIndex=(pronPracticeIndex-1+pronPracticeList.length)%pronPracticeList.length;renderPractice();}};
+    document.getElementById("ttcPracticeNext").onclick=function(){if(pronPracticeList.length){pronPracticeIndex=(pronPracticeIndex+1)%pronPracticeList.length;renderPractice();}};
+    document.getElementById("ttcPracticeRecord").onclick=function(){togglePronRecord(true);};
+  }
+  function renderPronTab(tab){
+    pronTab=tab;
+    if(!pronOverlay)return;
+    pronOverlay.querySelectorAll(".ttc-pron-tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));
+    const box=document.getElementById("ttcPronContent");
+    if(tab==="practice"){renderPractice();return;}
+    if(tab==="tones"){
+      box.innerHTML='<div class="ttc-pron-grid">'+PRON_DATA.tones.map(x=>'<button class="ttc-pron-cell" data-speak="'+esc(x.example)+'"><strong>'+esc(x.symbol)+'</strong><span>'+esc(x.title)+'</span><span>'+esc(x.example)+' · '+esc(x.pinyin)+'</span><span>🇻🇳 '+esc(x.meaning)+'</span></button>').join("")+'</div><div class="ttc-pron-box" style="margin-top:14px"><b>📌 Cách học:</b><br>Thanh điệu làm thay đổi nghĩa của từ. Hãy nghe mẫu, nhìn dấu thanh và đọc lại.</div>';
+      box.querySelectorAll("[data-speak]").forEach(b=>b.onclick=()=>speakHub(b.dataset.speak));return;
+    }
+    const data=PRON_DATA[tab];
+    box.innerHTML='<div class="ttc-pron-grid">'+data.map(x=>'<button class="ttc-pron-cell" data-speak="'+esc(x[2])+'"><strong>'+esc(x[0])+'</strong><span>'+esc(x[1])+'</span><span>'+esc(x[2])+'</span><span>🇻🇳 '+esc(x[3])+'</span></button>').join("")+'</div><div class="ttc-pron-box" style="margin-top:14px"><b>🔊 Nhấn từng ô để nghe.</b><br>Thanh mẫu là âm đầu, vận mẫu là phần vần. Học từng âm rồi ghép thành âm tiết hoàn chỉnh.</div>';
+    box.querySelectorAll("[data-speak]").forEach(b=>b.onclick=()=>speakHub(b.dataset.speak));
+  }
+
+  async function togglePronRecord(practiceMode=false){
+    const btn=document.getElementById(practiceMode?"ttcPracticeRecord":"ttcPronRecord"),status=document.getElementById(practiceMode?"ttcPracticeStatus":"ttcPronStatus"),out=document.getElementById(practiceMode?"ttcPracticeAudio":"ttcPronAudio");
+    if(!btn)return;
+    if(pronRecorder&&pronRecorder.state==="recording"){pronRecorder.stop();return;}
+    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+      status.textContent="❌ Trình duyệt không hỗ trợ ghi âm.";return;
+    }
+    try{
+      pronStream=await navigator.mediaDevices.getUserMedia({audio:true});
+      pronChunks=[];
+      pronRecorder=new MediaRecorder(pronStream);
+      pronRecorder.ondataavailable=e=>{if(e.data&&e.data.size)pronChunks.push(e.data)};
+      pronRecorder.onstop=function(){
+        const blob=new Blob(pronChunks,{type:"audio/webm"});
+        const url=URL.createObjectURL(blob);
+        out.innerHTML='<audio controls style="width:100%;margin-top:10px" src="'+url+'"></audio>';
+        status.textContent="✅ Đã ghi âm. Hãy nghe lại và so sánh với mẫu.";
+        btn.textContent="🎤 Ghi âm lại";
+        if(pronStream){pronStream.getTracks().forEach(t=>t.stop());pronStream=null;}
+      };
+      pronRecorder.start();
+      const target=(pronPracticeList[pronPracticeIndex]?.h)||"你好";
+      status.textContent="🔴 Đang ghi âm… Hãy đọc câu mẫu thật rõ.";
+      btn.textContent="⏹ Dừng ghi âm";
+    }catch(e){
+      status.textContent="❌ Không thể truy cập microphone. Hãy kiểm tra quyền micro.";
+    }
+  }
+
+  /* ---------------------------------------------------------
+     5) DATA INTEGRITY
+     --------------------------------------------------------- */
+  function normalizePinyin(value){
+    return String(value||"")
+      .replace(/\u3000/g," ")
+      .replace(/\s+/g," ")
+      .trim()
+      .replace(/([A-Za-zÜüĀāĂăĄąĒēĔĕĘęĪīĬĭŌōŎŏŐőŪūŬŭŰűǕǖǗǘǙǚǛǜ])/g,function(m){return m;});
+  }
+  function looksEnglish(value){
+    const x=String(value||"").trim();
+    if(!x)return false;
+    if(/[à-ỹÀ-ỸđĐ]/.test(x))return false;
+    return /\b(the|a|an|and|or|of|to|in|on|for|with|from|is|are|be|this|that|someone|something|people|company|used|use|make|made|do|does|have|has|will|can|one|two|three)\b/i.test(x);
+  }
+  function dedupeExamples(){
+    const dataWords=(typeof words!=='undefined' && Array.isArray(words))?words:window.words;
+    if(!Array.isArray(dataWords))return;
+    const seenByLevel={};
+    for(const w of dataWords){
+      const level=Number(w.hsk)||0;
+      seenByLevel[level] ||= new Set();
+      const ex=String(w.example||"").replace(/[。！？；]$/,"").trim();
+      if(!ex)continue;
+      if(seenByLevel[level].has(ex)){
+        w.example="";
+        w.examplePinyin="";
+        w.exampleMeaning="";
+      }else{
+        seenByLevel[level].add(ex);
+      }
+      if(w.p)w.p=normalizePinyin(w.p);
+      if(w.examplePinyin)w.examplePinyin=normalizePinyin(w.examplePinyin);
+    }
+  }
+
+  async function translateGushiVietnamese(){
+    const dataWords=(typeof words!=='undefined' && Array.isArray(words))?words:window.words;
+    if(!Array.isArray(dataWords))return;
+    const targets=[];
+    for(const w of dataWords){
+      if(Number(w.hsk)<6)continue;
+      if(looksEnglish(w.m)||looksEnglish(w.exampleMeaning)){
+        targets.push(w);
+      }
+    }
+    if(!targets.length)return;
+
+    let cache={};
+    try{cache=JSON.parse(localStorage.getItem("ttc_gushi_vi_integrity_v3")||"{}")||{}}catch(e){}
+
+    const pending=[];
+    for(const w of targets){
+      const key=String(w.h)+"|"+String(w.p||"");
+      if(cache[key]&&cache[key].m)w.m=cache[key].m;
+      if(cache[key]&&cache[key].e)w.exampleMeaning=cache[key].e;
+      if(looksEnglish(w.m)){
+        w.__ttcSourceEnglishMeaning=String(w.m);
+        w.m="Đang chuẩn hóa nghĩa tiếng Việt…";
+      }
+      if(looksEnglish(w.exampleMeaning)){
+        w.__ttcSourceEnglishExample=String(w.exampleMeaning);
+        w.exampleMeaning="Đang chuẩn hóa câu ví dụ tiếng Việt…";
+      }
+      if(w.__ttcSourceEnglishMeaning || w.__ttcSourceEnglishExample)pending.push(w);
+    }
+
+    const batchSize=8;
+    for(let i=0;i<pending.length;i+=batchSize){
+      const batch=pending.slice(i,i+batchSize);
+      const payload=batch.map(w=>{
+        const m=w.__ttcSourceEnglishMeaning || (looksEnglish(w.m)?w.m:"[VI_OK]");
+        const e=w.__ttcSourceEnglishExample || (looksEnglish(w.exampleMeaning)?w.exampleMeaning:"[VI_OK]");
+        return m+" ⟦TTCSEP⟧ "+e;
+      }).join("\n");
+      try{
+        const url="https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=vi&dt=t&q="+encodeURIComponent(payload);
+        const res=await fetch(url,{cache:"no-store"});
+        if(!res.ok)throw new Error("HTTP "+res.status);
+        const data=await res.json();
+        const translated=Array.isArray(data?.[0])?data[0].map(x=>x?.[0]||"").join(""):"";
+        const lines=translated.split("\n");
+        if(lines.length===batch.length){
+          batch.forEach((w,idx)=>{
+            const parts=lines[idx].split("⟦TTCSEP⟧");
+            const m=String(parts[0]||"").trim();
+            const e=String(parts.slice(1).join("⟦TTCSEP⟧")||"").trim();
+            const key=String(w.h)+"|"+String(w.p||"");
+            if(m&&m!=="[VI_OK]"&&!looksEnglish(m)){w.m=m;delete w.__ttcSourceEnglishMeaning;}
+            if(e&&e!=="[VI_OK]"&&!looksEnglish(e)){w.exampleMeaning=e;delete w.__ttcSourceEnglishExample;}
+            cache[key]={m:w.m,e:w.exampleMeaning};
+          });
+          try{localStorage.setItem("ttc_gushi_vi_integrity_v3",JSON.stringify(cache))}catch(e){}
+          if(typeof window.render==="function" && typeof window.currentHSK!=="undefined" && Number(window.currentHSK)>=6){
+            currentList=dataWords.filter(w=>Number(w.hsk)===Number(currentHSK));
+            if(typeof render==='function')render(currentList);
+          }
+        }
+      }catch(err){
+        console.warn("TTC VI integrity translation stopped:",err);
+        break;
+      }
+      await new Promise(r=>setTimeout(r,160));
+    }
+  }
+
+  function repairVocabulary(){
+    dedupeExamples();
+    translateGushiVietnamese();
+  }
+
+  function waitForGushi(){
+    let tries=0;
+    const timer=setInterval(function(){
+      tries++;
+      if(((typeof words!=='undefined' && Array.isArray(words)) || Array.isArray(window.words)) && (window.TTC_GUSHI_HSK789_READY || tries>50)){
+        clearInterval(timer);
+        repairVocabulary();
+      }
+    },500);
+    setTimeout(function(){clearInterval(timer);repairVocabulary()},30000);
+  }
+
+  function closeOnEsc(e){
+    if(e.key!=="Escape")return;
+    if(radicalOverlay)radicalOverlay.classList.remove("open");
+    if(pronOverlay)pronOverlay.classList.remove("open");
+  }
+
+  function init(){
+    buildTopHub();
+    waitForGushi();
+    document.addEventListener("keydown",closeOnEsc);
+  }
+
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});
+  else init();
+
+  window.TTC_WhiteHatDataRepairV1=repairVocabulary;
+})();
+</script>
+
+
+
+<!-- =========================================================
+ 🛡️ WHITE HAT — UI POLISH V3
+ - Chat Online: ẩn 214 Bộ thủ + Luyện phát âm khi Chat mở
+ - Test từ vựng: ô nhập đáp án xanh lá phát sáng
+ - Luyện câu: khung lớn xanh nước biển phát sáng bao 2 chế độ
+ - CHỈ CSS/UI + observer trạng thái Chat, không thay engine
+ ========================================================= -->
+<style id="ttcWhiteHatUIPolishV3">
+
+/* =====================================================
+   💬 CHAT ONLINE
+   Hai nút đầu trang không được chui vào khung Chat.
+   Khi Chat mở: ẩn hoàn toàn host 214 Bộ thủ / Luyện phát âm.
+===================================================== */
+#ttcTopLearningHub.ttc-chat-hidden{
+  display:none !important;
+}
+
+/* =====================================================
+   ✍️ LUYỆN CÂU
+   Khung lớn bao trọn 2 thẻ 3000 câu + theo cấp độ.
+===================================================== */
+#whiteHatSentenceModes{
+  position:relative !important;
+  width:100% !important;
+  box-sizing:border-box !important;
+  margin:18px 0 24px !important;
+  padding:16px !important;
+  border:2px solid #2563eb !important;
+  border-radius:24px !important;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(239,246,255,.96),
+      rgba(219,234,254,.92)
+    ) !important;
+  box-shadow:
+    0 0 8px rgba(37,99,235,.34),
+    0 0 22px rgba(37,99,235,.22),
+    0 0 42px rgba(37,99,235,.12),
+    inset 0 0 18px rgba(59,130,246,.08) !important;
+  animation:ttcSentenceHubBlueGlow 2.2s ease-in-out infinite;
+}
+
+#whiteHatSentenceModes::before{
+  content:"✍️ KHU LUYỆN CÂU";
+  display:block;
+  text-align:center;
+  margin:0 0 12px;
+  color:#1d4ed8;
+  font-size:15px;
+  font-weight:950;
+  letter-spacing:.3px;
+}
+
+#whiteHatSentenceModes .whiteHatModeCard{
+  border-radius:18px !important;
+  background:#fff !important;
+  min-width:0;
+}
+
+@keyframes ttcSentenceHubBlueGlow{
+  0%,100%{
+    box-shadow:
+      0 0 7px rgba(37,99,235,.28),
+      0 0 18px rgba(37,99,235,.14),
+      inset 0 0 14px rgba(59,130,246,.05);
+  }
+  50%{
+    box-shadow:
+      0 0 10px rgba(37,99,235,.48),
+      0 0 28px rgba(37,99,235,.28),
+      0 0 46px rgba(37,99,235,.13),
+      inset 0 0 20px rgba(59,130,246,.10);
+  }
+}
+
+@media(max-width:650px){
+  #whiteHatSentenceModes{
+    padding:11px !important;
+    border-radius:20px !important;
+    gap:10px !important;
+  }
+
+  #whiteHatSentenceModes::before{
+    margin-bottom:9px;
+    font-size:14px;
+  }
+}
+</style>
+
+<script id="ttcWhiteHatUIPolishV3JS">
+(function(){
+  "use strict";
+
+  /* =====================================================
+     💬 CHAT VISIBILITY GUARD
+     Không sửa Chat engine.
+     Chỉ theo dõi class mở/đóng của Chat và ẩn host hai nút đầu trang.
+  ===================================================== */
+  function syncTopLearningHubWithChat(){
+    var hub=document.getElementById("ttcTopLearningHub");
+    var chat=document.getElementById("ttcChatV1");
+    if(!hub || !chat) return;
+
+    var opened=chat.classList.contains("ttc-chat-open");
+    hub.classList.toggle("ttc-chat-hidden",opened);
+  }
+
+  function installChatVisibilityGuard(){
+    syncTopLearningHubWithChat();
+
+    var chat=document.getElementById("ttcChatV1");
+    if(chat && !chat.dataset.ttcUiPolishGuard){
+      chat.dataset.ttcUiPolishGuard="1";
+      new MutationObserver(syncTopLearningHubWithChat).observe(
+        chat,
+        {attributes:true,attributeFilter:["class"]}
+      );
+    }
+
+    var hub=document.getElementById("ttcTopLearningHub");
+    if(hub){
+      syncTopLearningHubWithChat();
+      return true;
+    }
+    return false;
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded",installChatVisibilityGuard,{once:true});
+  }else{
+    installChatVisibilityGuard();
+  }
+
+  /* Hai thành phần này được tạo động, nên quan sát DOM để bắt đúng lúc tạo. */
+  new MutationObserver(function(){
+    installChatVisibilityGuard();
+  }).observe(document.documentElement,{childList:true,subtree:true});
+
+})();
+</script>
+
+
+<style id="ttc-whitehat-hub-skin-v2">
+/* TEST TỪ VỰNG — tô toàn bộ khung lớn từ tiêu đề tới nhóm nút cuối */
+#testSection{
+  border:2px solid rgba(34,197,94,.72) !important;
+  background:linear-gradient(180deg,rgba(240,253,244,.98),rgba(220,252,231,.88)) !important;
+  box-shadow:0 0 12px rgba(34,197,94,.32),0 0 30px rgba(34,197,94,.16) !important;
+  border-radius:22px !important;
+  transition:box-shadow .25s ease,border-color .25s ease;
+}
+#testSection:hover{box-shadow:0 0 18px rgba(34,197,94,.45),0 0 38px rgba(34,197,94,.20) !important}
+/* giữ các nút/ô con rõ ràng, không biến chúng thành một khối xanh */
+#testSection #testButtonsAuto{position:relative;z-index:1}
+
+/* LUYỆN CÂU — khung lớn bao trọn từ tiêu đề tới 3 nút cuối */
+#sentenceSection{
+  border:2px solid rgba(14,165,233,.78) !important;
+  background:linear-gradient(180deg,rgba(239,250,255,.98),rgba(224,242,254,.90)) !important;
+  box-shadow:0 0 12px rgba(14,165,233,.34),0 0 32px rgba(14,165,233,.18) !important;
+  border-radius:22px !important;
+  transition:box-shadow .25s ease,border-color .25s ease;
+}
+#sentenceSection:hover{box-shadow:0 0 18px rgba(14,165,233,.48),0 0 40px rgba(14,165,233,.22) !important}
+
+/* Hai lựa chọn bên trong vẫn là 2 khung nhỏ độc lập */
+#whiteHatSentenceModes{position:relative;z-index:1}
+</style>
+
+
+<!-- =========================================================
+ 🛡️ WHITE HAT — FINAL V8 SAFE UI PATCH
+ - Chat: bỏ nút emoji riêng, hạ composer gọn hơn
+ - Chat: không cho nút Ngữ pháp lọt vào khung
+ - Flashcard: khóa transform thừa khi mở, chống rung
+ - Tiêu đề TTC: biển quảng cáo 7 màu toàn khung
+ - 214 Bộ thủ / Luyện phát âm: hạ tông
+ - Test từ vựng: hạ tông + nhấp nháy nhẹ
+ - HSK exam: tiếng Việt, không hiện pinyin
+========================================================= -->
+<style id="ttcWhiteHatFinalV8">
+
+/* =========================
+   📝 HSK EXAM — ẨN PINYIN NẾU CÒN TỒN TẠI
+========================= */
+#whHskExam .wh-hsk-q-pinyin,
+#whHskExam .ttc-sm-pinyin{
+  display:none !important;
+}
+#whHskExam .wh-hsk-section-title{
+  margin-top:20px;
+}
+#whHskExam .wh-hsk-listening-btn{
+  width:100%;
+}
+
+/* HSK test button: tiếng Việt, dễ nhìn */
+.wh-hsk-ttc-test{
+  font-size:13px !important;
+}
+
+</style>
+
+<script id="ttcWhiteHatFinalV8JS">
+(function(){
+  "use strict";
+
+  /* Không cho Grammar Launcher xuất hiện khi Chat đang mở,
+     kể cả launcher được tạo động sau này. */
+  function syncChatOverlays(){
+    const chat=document.getElementById("ttcChatV1");
+    const grammar=document.getElementById("thttGrammarLauncher");
+    const hub=document.getElementById("ttcTopLearningHub");
+    const opened=!!chat && chat.classList.contains("ttc-chat-open");
+    if(grammar) grammar.style.display=opened ? "none" : "";
+    if(hub) hub.classList.toggle("ttc-chat-hidden",opened);
+  }
+
+  function install(){
+    syncChatOverlays();
+    const chat=document.getElementById("ttcChatV1");
+    if(chat && chat.dataset.ttcV8Guard!=="1"){
+      chat.dataset.ttcV8Guard="1";
+      new MutationObserver(syncChatOverlays).observe(
+        chat,
+        {attributes:true,attributeFilter:["class"]}
+      );
+    }
+  }
+
+  new MutationObserver(install).observe(
+    document.documentElement,
+    {childList:true,subtree:true}
+  );
+
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",install,{once:true});
+  }else{
+    install();
+  }
+
+  })();
+</script>
+
+
+<style id="ttcHuyMissionV8FinalPatch">
+/* 1) TEST TỪ VỰNG — CAM NHẤP NHÁY */
+#ttcActionFrame .ttc-action-buttons button:first-child{
+  background:#f97316 !important;
+  color:#fff !important;
+  border:2px solid #ea580c !important;
+  animation:ttcOrangeTestBlink 1.05s ease-in-out infinite !important;
+}
+#ttcActionFrame .ttc-action-buttons button:first-child:hover{background:#fb923c !important}
+@keyframes ttcOrangeTestBlink{
+  0%,100%{filter:brightness(1);box-shadow:0 0 0 rgba(249,115,22,0)}
+  50%{filter:brightness(1.16);box-shadow:0 0 20px rgba(249,115,22,.68)}
+}
+
+<script>
+(function(){
+  'use strict';
+
+  function fixTTCHeaderRainbow(){
+    var header = document.querySelector('body > header');
+    if(!header) return;
+
+    var h1 = header.querySelector('h1');
+    if(!h1) return;
+
+    h1.classList.add('ttc-rainbow-title-fix');
+
+    var text = '';
+    Array.prototype.slice.call(h1.childNodes).forEach(function(node){
+      if(node.nodeType === Node.TEXT_NODE){
+        text += node.nodeValue || '';
+        node.nodeValue = '';
+      }
+    });
+
+    text = text.replace(/\s+/g,' ').trim();
+
+    var title = h1.querySelector('.ttc-rainbow-text-fix');
+    if(!title){
+      title = document.createElement('span');
+      title.className = 'ttc-rainbow-text-fix';
+      h1.insertBefore(title, h1.firstChild);
+    }
+
+    if(text && title.textContent !== text){
+      title.textContent = text;
+    }
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', fixTTCHeaderRainbow);
+  }else{
+    fixTTCHeaderRainbow();
+  }
+
+  setTimeout(fixTTCHeaderRainbow, 100);
+  setTimeout(fixTTCHeaderRainbow, 500);
+  setTimeout(fixTTCHeaderRainbow, 1200);
 })();
 </script>
 
