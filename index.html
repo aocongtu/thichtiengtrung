@@ -135658,71 +135658,6 @@ html,body{background:#fff !important;}
 
 
 /* =========================
-   💬 CHAT — KHÔNG HIỆN EMOJI PICKER / NÚT EMOJI
-========================= */
-#ttcChatV1 .ttc-emoji-anchor,
-#ttcChatV1 #ttcChatEmoji,
-#ttcChatV1 #ttcChatEmojiPicker{
-  display:none !important;
-}
-#ttcChatV1 .ttc-chat-composer{
-  padding-bottom:8px !important;
-  padding-top:5px !important;
-  align-items:flex-end !important;
-}
-#ttcChatV1 .ttc-chat-input{
-  margin-bottom:2px !important;
-  min-height:40px !important;
-}
-#ttcChatV1 .ttc-chat-composer-wrap{
-  padding-bottom:4px !important;
-}
-
-/* Nút Ngữ pháp không được nằm trên khung Chat */
-#ttcChatV1.ttc-chat-open ~ #thttGrammarLauncher{
-  display:none !important;
-}
-body:has(#ttcChatV1.ttc-chat-open) #thttGrammarLauncher{
-  display:none !important;
-}
-
-/* Nếu Chat mở, ẩn toàn bộ nhóm nút học nổi để khung sạch */
-body:has(#ttcChatV1.ttc-chat-open) #ttcTopLearningHub{
-  display:none !important;
-}
-
-/* =========================
-   🃏 FLASHCARD — ỔN ĐỊNH KHI NHẤN HỌC
-========================= */
-#flashcardSection.flashcard-fullscreen{
-  transform:none !important;
-}
-#flashcardSection.flashcard-fullscreen .flashcard-content{
-  animation:none !important;
-  transform:none !important;
-}
-#flashcardSection.flashcard-fullscreen .flashcard{
-  transform-style:preserve-3d !important;
-  transform-origin:center center !important;
-  translate:none !important;
-  scale:none !important;
-  will-change:transform !important;
-}
-#flashcardSection.flashcard-fullscreen .flashcard:not(.is-flipped){
-  --flashcard-drag-x:0px !important;
-  --flashcard-drag-y:0px !important;
-  --flashcard-drag-rotate:0deg !important;
-}
-#flashcardSection.flashcard-fullscreen .flashcard-face{
-  transform-style:preserve-3d !important;
-}
-
-/* Desktop cũng không để animation mở làm nhích khung */
-#flashcardSection.flashcard-open .flashcard-content{
-  animation:none !important;
-}
-
-/* =========================
    📝 TEST TỪ VỰNG — NHẠT + NHẤP NHÁY
 ========================= */
 nav button[onclick*="openVocabularyTestChooser"]{
@@ -135812,19 +135747,7 @@ nav button[onclick*="openVocabularyTestChooser"]:hover{
     install();
   }
 
-  /* Khi mở Flashcard mobile, reset toàn bộ transform tạm thời
-     trước khi render để card bắt đầu đúng giữa, không lắc. */
-  window.addEventListener("resize",function(){
-    const card=document.getElementById("flashcard");
-    const section=document.getElementById("flashcardSection");
-    if(!card || !section) return;
-    if(section.classList.contains("flashcard-fullscreen")){
-      card.style.setProperty("--flashcard-drag-x","0px");
-      card.style.setProperty("--flashcard-drag-y","0px");
-      card.style.setProperty("--flashcard-drag-rotate","0deg");
-    }
-  },{passive:true});
-})();
+  })();
 </script>
 
 
