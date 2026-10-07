@@ -2468,17 +2468,6 @@ main{
 #ttcStandaloneMock .ttc-sm-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:15px}.ttc-sm-actions button{padding:11px 16px}.ttc-sm-result{text-align:center;margin-top:13px;font-size:18px}.ttc-sm-review-list{margin-top:15px}.ttc-sm-review-item{padding:10px;border-radius:10px;margin:7px 0;background:#f7f7f7}.ttc-sm-review-item.ok{border-left:4px solid #15803d}.ttc-sm-review-item.bad{border-left:4px solid #dc2626}
 @media(max-width:600px){#ttcStandaloneMock .ttc-sm-card{padding:13px}.ttc-sm-q{font-size:20px}}
 </style>
-
-<style id="ttc-flashcard-no-wobble-final">
-/* 🛡️ FINAL MOBILE FLASHCARD SAFETY — chỉ Flashcard HSK */
-@media(max-width:600px){
-  #flashcardSection.flashcard-fullscreen .flashcard{
-    --flashcard-drag-y:0px !important;
-    --flashcard-drag-rotate:0deg !important;
-    will-change:transform;
-  }
-}
-</style>
 </head>
 
 <body>
@@ -93778,9 +93767,38 @@ function initFlashcardMobileGestures(){
           deltaX
         )
       );
-    /* 🛡️ KHÓA HẲN TRỤC DỌC + XOAY. Card chỉ chạy theo X. */
-    currentY = 0;
-    const rotate = 0;
+
+
+    /*
+       Cho card đi theo ngón tay theo chiều dọc.
+
+       Không giới hạn lên hay xuống.
+       Chỉ giảm nhẹ Y để card không
+       bay quá mạnh.
+    */
+
+    const maxVertical =
+      scene.clientHeight || 600;
+
+
+    currentY =
+      Math.max(
+        -maxVertical * 0.45,
+        Math.min(
+          maxVertical * 0.45,
+          deltaY * 0.75
+        )
+      );
+
+
+    const rotate =
+      Math.max(
+        -18,
+        Math.min(
+          18,
+          currentX * 0.045
+        )
+      );
 
 
     card.style.setProperty(
@@ -93934,8 +93952,10 @@ function initFlashcardMobileGestures(){
        để giữ cảm giác tự nhiên.
     */
 
-    /* 🛡️ Không bay lên/xuống khi hoàn tất swipe. */
-    const targetY = 0;
+    const targetY =
+      currentY >= 0
+        ? 70
+        : -70;
 
 
     card.style.transition =
@@ -93954,8 +93974,14 @@ function initFlashcardMobileGestures(){
     );
 
 
-    /* 🛡️ Không xoay card khi swipe. */
-    card.style.setProperty("--flashcard-drag-rotate", "0deg");
+    card.style.setProperty(
+      "--flashcard-drag-rotate",
+      `${
+        direction > 0
+          ? 18
+          : -18
+      }deg`
+    );
 
 
     const preview =
@@ -94116,7 +94142,10 @@ function initFlashcardMobileGestures(){
       dragging = true;
       swipeIntent = false;
       swipeDirection = 0;
-      /* 🛡️ Chưa có swipe thì không tắt transition. */
+
+
+      card.style.transition =
+        "none";
 
     },
     {
@@ -94171,38 +94200,36 @@ function initFlashcardMobileGestures(){
 
 
       /*
-         🔒 KHÓA TRỤC — CHỐNG RUNG/LẮC MOBILE
-         Không cho một cú chạm hơi lệch hoặc kéo dọc
-         vô tình biến thành gesture của Flashcard HSK.
-         Chỉ bắt đầu swipe khi X đủ rõ và X thắng Y.
+         Chỉ cần bắt đầu di chuyển
+         một chút là cho card theo tay.
       */
 
       if(
-        !swipeIntent
+        !swipeIntent &&
+        distance < 7
+      ){
+        return;
+      }
+
+
+      /*
+         Chỉ cần có X đủ rõ.
+         KHÔNG quan tâm Y là lên hay xuống.
+      */
+
+      if(
+        !swipeIntent &&
+        Math.abs(deltaX) >= 6
       ){
 
-        if(
-          distance < 10
-        ){
-          return;
-        }
-
-        const absX = Math.abs(deltaX);
-        const absY = Math.abs(deltaY);
-
-        if(
-          absX < 12 ||
-          absX < absY * 1.25
-        ){
-          return;
-        }
-
         swipeIntent = true;
-        card.style.transition = "none";
+
+
         swipeDirection =
           deltaX >= 0
             ? 1
             : -1;
+
 
         createPreview(
           swipeDirection
@@ -135002,7 +135029,6 @@ html,body{background:#fff !important;}
       e.preventDefault(); e.stopPropagation(); flipRadicalCard();
     };
     const card=document.getElementById("ttcRadFlash");
-    /* 214 Bộ thủ dùng gesture riêng/không dùng initFlashcardMobileGestures. */
     card.ondblclick=function(e){
       if(e.target && e.target.closest && e.target.closest("button")) return;
       flipRadicalCard();
@@ -135391,228 +135417,6 @@ html,body{background:#fff !important;}
   window.TTC_WhiteHatDataRepairV1=repairVocabulary;
 })();
 </script>
-
-
-
-<!-- =========================================================
- 🛡️ WHITE HAT — UI POLISH V3
- - Chat Online: ẩn 214 Bộ thủ + Luyện phát âm khi Chat mở
- - Test từ vựng: ô nhập đáp án xanh lá phát sáng
- - Luyện câu: khung lớn xanh nước biển phát sáng bao 2 chế độ
- - CHỈ CSS/UI + observer trạng thái Chat, không thay engine
- ========================================================= -->
-<style id="ttcWhiteHatUIPolishV3">
-
-/* =====================================================
-   💬 CHAT ONLINE
-   Hai nút đầu trang không được chui vào khung Chat.
-   Khi Chat mở: ẩn hoàn toàn host 214 Bộ thủ / Luyện phát âm.
-===================================================== */
-#ttcTopLearningHub.ttc-chat-hidden{
-  display:none !important;
-}
-
-/* =====================================================
-   📝 TEST TỪ VỰNG
-   Ô nhập đáp án: xanh lá cây phát sáng.
-===================================================== */
-.test-input{
-  border:2px solid #22c55e !important;
-  background:#f0fdf4 !important;
-  color:#14532d !important;
-  box-shadow:
-    0 0 0 rgba(34,197,94,0),
-    0 0 12px rgba(34,197,94,.28) !important;
-  transition:
-    border-color .2s ease,
-    box-shadow .2s ease,
-    background .2s ease,
-    transform .2s ease;
-  animation:ttcTestInputGreenGlow 1.8s ease-in-out infinite;
-}
-
-.test-input::placeholder{
-  color:#4b8060 !important;
-  opacity:.9;
-}
-
-.test-input:focus{
-  border-color:#16a34a !important;
-  background:#f0fdf4 !important;
-  box-shadow:
-    0 0 8px rgba(34,197,94,.55),
-    0 0 22px rgba(34,197,94,.38),
-    0 0 34px rgba(34,197,94,.16) !important;
-  transform:translateY(-1px);
-  outline:none !important;
-}
-
-@keyframes ttcTestInputGreenGlow{
-  0%,100%{
-    box-shadow:
-      0 0 7px rgba(34,197,94,.20),
-      0 0 14px rgba(34,197,94,.10);
-  }
-  50%{
-    box-shadow:
-      0 0 10px rgba(34,197,94,.42),
-      0 0 24px rgba(34,197,94,.25),
-      0 0 34px rgba(34,197,94,.10);
-  }
-}
-
-/* =====================================================
-   ✍️ LUYỆN CÂU
-   Khung lớn bao trọn 2 thẻ 3000 câu + theo cấp độ.
-===================================================== */
-#whiteHatSentenceModes{
-  position:relative !important;
-  width:100% !important;
-  box-sizing:border-box !important;
-  margin:18px 0 24px !important;
-  padding:16px !important;
-  border:2px solid #2563eb !important;
-  border-radius:24px !important;
-  background:
-    linear-gradient(
-      135deg,
-      rgba(239,246,255,.96),
-      rgba(219,234,254,.92)
-    ) !important;
-  box-shadow:
-    0 0 8px rgba(37,99,235,.34),
-    0 0 22px rgba(37,99,235,.22),
-    0 0 42px rgba(37,99,235,.12),
-    inset 0 0 18px rgba(59,130,246,.08) !important;
-  animation:ttcSentenceHubBlueGlow 2.2s ease-in-out infinite;
-}
-
-#whiteHatSentenceModes::before{
-  content:"✍️ KHU LUYỆN CÂU";
-  display:block;
-  text-align:center;
-  margin:0 0 12px;
-  color:#1d4ed8;
-  font-size:15px;
-  font-weight:950;
-  letter-spacing:.3px;
-}
-
-#whiteHatSentenceModes .whiteHatModeCard{
-  border-radius:18px !important;
-  background:#fff !important;
-  min-width:0;
-}
-
-@keyframes ttcSentenceHubBlueGlow{
-  0%,100%{
-    box-shadow:
-      0 0 7px rgba(37,99,235,.28),
-      0 0 18px rgba(37,99,235,.14),
-      inset 0 0 14px rgba(59,130,246,.05);
-  }
-  50%{
-    box-shadow:
-      0 0 10px rgba(37,99,235,.48),
-      0 0 28px rgba(37,99,235,.28),
-      0 0 46px rgba(37,99,235,.13),
-      inset 0 0 20px rgba(59,130,246,.10);
-  }
-}
-
-@media(max-width:650px){
-  #whiteHatSentenceModes{
-    padding:11px !important;
-    border-radius:20px !important;
-    gap:10px !important;
-  }
-
-  #whiteHatSentenceModes::before{
-    margin-bottom:9px;
-    font-size:14px;
-  }
-}
-</style>
-
-<script id="ttcWhiteHatUIPolishV3JS">
-(function(){
-  "use strict";
-
-  /* =====================================================
-     💬 CHAT VISIBILITY GUARD
-     Không sửa Chat engine.
-     Chỉ theo dõi class mở/đóng của Chat và ẩn host hai nút đầu trang.
-  ===================================================== */
-  function syncTopLearningHubWithChat(){
-    var hub=document.getElementById("ttcTopLearningHub");
-    var chat=document.getElementById("ttcChatV1");
-    if(!hub || !chat) return;
-
-    var opened=chat.classList.contains("ttc-chat-open");
-    hub.classList.toggle("ttc-chat-hidden",opened);
-  }
-
-  function installChatVisibilityGuard(){
-    syncTopLearningHubWithChat();
-
-    var chat=document.getElementById("ttcChatV1");
-    if(chat && !chat.dataset.ttcUiPolishGuard){
-      chat.dataset.ttcUiPolishGuard="1";
-      new MutationObserver(syncTopLearningHubWithChat).observe(
-        chat,
-        {attributes:true,attributeFilter:["class"]}
-      );
-    }
-
-    var hub=document.getElementById("ttcTopLearningHub");
-    if(hub){
-      syncTopLearningHubWithChat();
-      return true;
-    }
-    return false;
-  }
-
-  if(document.readyState === "loading"){
-    document.addEventListener("DOMContentLoaded",installChatVisibilityGuard,{once:true});
-  }else{
-    installChatVisibilityGuard();
-  }
-
-  /* Hai thành phần này được tạo động, nên quan sát DOM để bắt đúng lúc tạo. */
-  new MutationObserver(function(){
-    installChatVisibilityGuard();
-  }).observe(document.documentElement,{childList:true,subtree:true});
-
-})();
-</script>
-
-
-<style id="ttc-whitehat-hub-skin-v2">
-/* TEST TỪ VỰNG — tô toàn bộ khung lớn từ tiêu đề tới nhóm nút cuối */
-#testSection{
-  border:2px solid rgba(34,197,94,.72) !important;
-  background:linear-gradient(180deg,rgba(240,253,244,.98),rgba(220,252,231,.88)) !important;
-  box-shadow:0 0 12px rgba(34,197,94,.32),0 0 30px rgba(34,197,94,.16) !important;
-  border-radius:22px !important;
-  transition:box-shadow .25s ease,border-color .25s ease;
-}
-#testSection:hover{box-shadow:0 0 18px rgba(34,197,94,.45),0 0 38px rgba(34,197,94,.20) !important}
-/* giữ các nút/ô con rõ ràng, không biến chúng thành một khối xanh */
-#testSection #testButtonsAuto{position:relative;z-index:1}
-
-/* LUYỆN CÂU — khung lớn bao trọn từ tiêu đề tới 3 nút cuối */
-#sentenceSection{
-  border:2px solid rgba(14,165,233,.78) !important;
-  background:linear-gradient(180deg,rgba(239,250,255,.98),rgba(224,242,254,.90)) !important;
-  box-shadow:0 0 12px rgba(14,165,233,.34),0 0 32px rgba(14,165,233,.18) !important;
-  border-radius:22px !important;
-  transition:box-shadow .25s ease,border-color .25s ease;
-}
-#sentenceSection:hover{box-shadow:0 0 18px rgba(14,165,233,.48),0 0 40px rgba(14,165,233,.22) !important}
-
-/* Hai lựa chọn bên trong vẫn là 2 khung nhỏ độc lập */
-#whiteHatSentenceModes{position:relative;z-index:1}
-</style>
 
 </body>
 </html>
