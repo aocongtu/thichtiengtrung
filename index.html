@@ -93781,14 +93781,11 @@ function initFlashcardMobileGestures(){
       scene.clientHeight || 600;
 
 
-    currentY =
-      Math.max(
-        -maxVertical * 0.45,
-        Math.min(
-          maxVertical * 0.45,
-          deltaY * 0.75
-        )
-      );
+    /*
+       Không cho chuyển động dọc của ngón tay làm card đung đưa.
+       Y chỉ được dùng rất nhẹ sau khi swipe ngang đã xác nhận.
+    */
+    currentY = 0;
 
 
     const rotate =
@@ -94144,8 +94141,8 @@ function initFlashcardMobileGestures(){
       swipeDirection = 0;
 
 
-      card.style.transition =
-        "none";
+      /* Không tắt transition khi chỉ mới chạm.
+         Chỉ khóa transition khi gesture ngang thực sự được xác nhận. */
 
     },
     {
@@ -94204,22 +94201,22 @@ function initFlashcardMobileGestures(){
          một chút là cho card theo tay.
       */
 
+      /*
+         🛡️ CHẶN RUNG/ĐUNG ĐƯA MOBILE
+         Không coi mọi chuyển động nhỏ của ngón tay là swipe.
+         Phải có chuyển động ngang rõ ràng và lớn hơn chuyển động dọc.
+      */
       if(
         !swipeIntent &&
-        distance < 7
+        (distance < 14 || Math.abs(deltaX) < 12 || Math.abs(deltaX) <= Math.abs(deltaY))
       ){
         return;
       }
 
-
-      /*
-         Chỉ cần có X đủ rõ.
-         KHÔNG quan tâm Y là lên hay xuống.
-      */
-
       if(
         !swipeIntent &&
-        Math.abs(deltaX) >= 6
+        Math.abs(deltaX) >= 12 &&
+        Math.abs(deltaX) > Math.abs(deltaY)
       ){
 
         swipeIntent = true;
@@ -94230,6 +94227,8 @@ function initFlashcardMobileGestures(){
             ? 1
             : -1;
 
+        /* Chỉ từ thời điểm này card mới được kéo theo tay. */
+        card.style.transition = "none";
 
         createPreview(
           swipeDirection
