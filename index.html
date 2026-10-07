@@ -93781,11 +93781,14 @@ function initFlashcardMobileGestures(){
       scene.clientHeight || 600;
 
 
-    /*
-       Không cho chuyển động dọc của ngón tay làm card đung đưa.
-       Y chỉ được dùng rất nhẹ sau khi swipe ngang đã xác nhận.
-    */
-    currentY = 0;
+    currentY =
+      Math.max(
+        -maxVertical * 0.45,
+        Math.min(
+          maxVertical * 0.45,
+          deltaY * 0.75
+        )
+      );
 
 
     const rotate =
@@ -94141,8 +94144,8 @@ function initFlashcardMobileGestures(){
       swipeDirection = 0;
 
 
-      /* Không tắt transition khi chỉ mới chạm.
-         Chỉ khóa transition khi gesture ngang thực sự được xác nhận. */
+      card.style.transition =
+        "none";
 
     },
     {
@@ -94197,38 +94200,38 @@ function initFlashcardMobileGestures(){
 
 
       /*
-         Chỉ cần bắt đầu di chuyển
-         một chút là cho card theo tay.
+         🔒 KHÓA TRỤC — CHỐNG RUNG/LẮC MOBILE
+         Không cho một cú chạm hơi lệch hoặc kéo dọc
+         vô tình biến thành gesture của Flashcard HSK.
+         Chỉ bắt đầu swipe khi X đủ rõ và X thắng Y.
       */
 
-      /*
-         🛡️ CHẶN RUNG/ĐUNG ĐƯA MOBILE
-         Không coi mọi chuyển động nhỏ của ngón tay là swipe.
-         Phải có chuyển động ngang rõ ràng và lớn hơn chuyển động dọc.
-      */
       if(
-        !swipeIntent &&
-        (distance < 14 || Math.abs(deltaX) < 12 || Math.abs(deltaX) <= Math.abs(deltaY))
+        !swipeIntent
       ){
-        return;
-      }
 
-      if(
-        !swipeIntent &&
-        Math.abs(deltaX) >= 12 &&
-        Math.abs(deltaX) > Math.abs(deltaY)
-      ){
+        if(
+          distance < 10
+        ){
+          return;
+        }
+
+        const absX = Math.abs(deltaX);
+        const absY = Math.abs(deltaY);
+
+        if(
+          absX < 12 ||
+          absX < absY * 1.25
+        ){
+          return;
+        }
 
         swipeIntent = true;
-
 
         swipeDirection =
           deltaX >= 0
             ? 1
             : -1;
-
-        /* Chỉ từ thời điểm này card mới được kéo theo tay. */
-        card.style.transition = "none";
 
         createPreview(
           swipeDirection
@@ -135028,6 +135031,7 @@ html,body{background:#fff !important;}
       e.preventDefault(); e.stopPropagation(); flipRadicalCard();
     };
     const card=document.getElementById("ttcRadFlash");
+    /* 214 Bộ thủ dùng gesture riêng/không dùng initFlashcardMobileGestures. */
     card.ondblclick=function(e){
       if(e.target && e.target.closest && e.target.closest("button")) return;
       flipRadicalCard();
