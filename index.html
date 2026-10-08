@@ -1371,9 +1371,8 @@ main{
 
 }
 
-</style>
 
-<style>
+
 
 /* =========================================================
    🃏 BLOCK 4 — FLASHCARD THU GỌN / MỞ RỘNG
@@ -1558,9 +1557,8 @@ main{
 
 }
 
-</style>
 
-<style>
+
 
 /* =========================================================
    📱 FLASHCARD MOBILE — FULL SCREEN LEARNING MODE
@@ -79954,7 +79952,17 @@ const words = [
 
   window.__TTC_GUSHI_HSK789_LOADER__ = true;
 
+  /* Gushi đã chuyển URL chính sang gushichinese.com.
+     .online hiện redirect sang .com; dùng URL đích trực tiếp để
+     tránh lỗi CORS/redirect khiến loader HSK7–9 không chạy. */
   const SOURCE_URLS = {
+    6:"https://gushichinese.com/hsk-3.0/downloads/hsk-3.0-words-6.json",
+    7:"https://gushichinese.com/hsk-3.0/downloads/hsk-3.0-words-7.json",
+    8:"https://gushichinese.com/hsk-3.0/downloads/hsk-3.0-words-8.json",
+    9:"https://gushichinese.com/hsk-3.0/downloads/hsk-3.0-words-9.json"
+  };
+
+  const FALLBACK_SOURCE_URLS = {
     6:"https://gushi-chinese.online/hsk-3.0/downloads/hsk-3.0-words-6.json",
     7:"https://gushi-chinese.online/hsk-3.0/downloads/hsk-3.0-words-7.json",
     8:"https://gushi-chinese.online/hsk-3.0/downloads/hsk-3.0-words-8.json",
@@ -79994,7 +80002,7 @@ const words = [
     return map;
   }
 
-  function convert(source, old){
+  function convert(source, old, sourceLevelFallback){
 
     const h = String(source.hanzi || "").trim();
 
@@ -80021,7 +80029,7 @@ const words = [
         ""
       ).trim(),
       t:String(old?.t || "Từ vựng").trim(),
-      hsk:Number(source.level || 0),
+      hsk:Number(source.level || sourceLevelFallback || 0),
       radical:String(old?.radical || "").trim(),
       components:String(old?.components || "").trim(),
       explanation:String(old?.explanation || "").trim(),
@@ -80045,19 +80053,23 @@ const words = [
 
   async function loadLevel(level){
 
-    const response =
-      await fetch(
-        SOURCE_URLS[level],
-        {
-          cache:"no-store"
-        }
-      );
+    let response = null;
+    let lastError = null;
 
-    if(!response.ok){
-      throw new Error(
-        "Gushi HSK " + level +
-        " HTTP " + response.status
-      );
+    for(const url of [SOURCE_URLS[level], FALLBACK_SOURCE_URLS[level]]){
+      try{
+        response = await fetch(url,{cache:"no-store"});
+        if(response.ok) break;
+        lastError = new Error(
+          "Gushi HSK " + level + " HTTP " + response.status
+        );
+      }catch(error){
+        lastError = error;
+      }
+    }
+
+    if(!response || !response.ok){
+      throw lastError || new Error("Gushi HSK " + level + " fetch failed");
     }
 
     const json =
@@ -80067,6 +80079,19 @@ const words = [
       Array.isArray(json.data)
         ? json.data
         : [];
+
+    /* Gushi xác định cấp ở cả header và từng record.
+       Luôn chuẩn hóa về đúng level đang tải để HSK8/9
+       không bị rơi thành hsk=0 nếu schema thay đổi nhẹ. */
+    const sourceLevel =
+      Number(json.level || level);
+
+    if(sourceLevel !== Number(level)){
+      throw new Error(
+        "Gushi HSK " + level +
+        " header level=" + sourceLevel
+      );
+    }
 
     if(data.length !== expected[level]){
       throw new Error(
@@ -80086,17 +80111,35 @@ const words = [
       const old =
         oldMap();
 
-      const results =
-        await Promise.all([
-          loadLevel(6),
-          loadLevel(7),
-          loadLevel(8),
-          loadLevel(9)
-        ]);
+      /*
+         Tải từng cấp độc lập. Trước đây Promise.all() khiến chỉ cần
+         một request HSK6–9 lỗi/tạm thời là TOÀN BỘ HSK6–9 không được
+         đưa vào words. Đây là điểm dễ làm HSK8–9 "biến mất" dù URL
+         và dữ liệu nguồn vẫn còn nguyên.
+      */
+      const loaded = [];
+
+      for(const level of [6,7,8,9]){
+        try{
+          const data = await loadLevel(level);
+          loaded.push({level, data});
+        }catch(levelError){
+          console.warn(
+            "⚠️ Gushi HSK " + level + " chưa tải được:",
+            levelError
+          );
+        }
+      }
+
+      if(!loaded.length){
+        throw new Error("Không tải được HSK6–9 từ Gushi");
+      }
 
       const incoming = [];
 
-      for(const data of results){
+      for(const pack of loaded){
+        const data = pack.data;
+        const sourceLevelFallback = pack.level;
 
         const seenWords = new Set();
         const seenExamples = new Set();
@@ -80112,7 +80155,8 @@ const words = [
               ) ||
               old.get(
                 String(source.hanzi || "")
-              )
+              ),
+              sourceLevelFallback
             );
 
           if(!item){
@@ -80164,18 +80208,26 @@ const words = [
          Xóa toàn bộ HSK7–9 cũ rồi đưa đúng nguồn mới vào.
          HSK1–6 không bị đụng.
       */
-      for(let i=words.length-1;i>=0;i--){
+      const loadedLevels = new Set(
+        loaded.map(x => Number(x.level))
+      );
 
-        if(Number(words[i].hsk) >= 6){
+      /* Chỉ thay những HSK đã tải thành công.
+         Nếu HSK8 hoặc HSK9 gặp lỗi mạng, dữ liệu cấp đó đang có
+         trong file không bị xóa oan. */
+      for(let i=words.length-1;i>=0;i--){
+        if(loadedLevels.has(Number(words[i].hsk))){
           words.splice(i,1);
         }
-
       }
 
       words.push(...incoming);
 
-      window.TTC_GUSHI_HSK789_READY = true;
-      window.TTC_GUSHI_HSK6_READY = true;
+      window.TTC_GUSHI_HSK789_READY =
+        loadedLevels.has(8) && loadedLevels.has(9);
+      window.TTC_GUSHI_HSK6_READY = loadedLevels.has(6);
+      window.TTC_GUSHI_HSK789_LOADED_LEVELS =
+        Array.from(loadedLevels).sort((a,b)=>a-b);
       window.TTC_GUSHI_HSK789_COUNTS = {
         6:incoming.filter(x=>x.hsk===6).length,
         7:incoming.filter(x=>x.hsk===7).length,
@@ -80227,7 +80279,9 @@ const words = [
 
       console.log(
         "🇨🇳 Gushi HSK6–9 synced:",
-        window.TTC_GUSHI_HSK789_COUNTS
+        window.TTC_GUSHI_HSK789_COUNTS,
+        "loaded:",
+        window.TTC_GUSHI_HSK789_LOADED_LEVELS
       );
 
       /*
@@ -129950,108 +130004,267 @@ if(
 </style>
 
 <script>
+/* =========================================================
+   💬 CHAT FLOATING BUTTON — CANONICAL DRAG ENGINE
+   Gộp logic của:
+   - ttc_chat_button_position_v1
+   - TTC_FINAL_CHAT_EFFECT_PATCH
+   Giữ tương thích vị trí cũ, chỉ còn 1 bộ pointer handler.
+   ========================================================= */
 (function(){
-  const STORAGE_KEY = "ttc_chat_button_position_v1";
+  "use strict";
+
+  const STORAGE_KEY = "ttc_chat_button_position_final";
+  const LEGACY_KEY = "ttc_chat_button_position_v1";
+
   let btn = null;
   let dragging = false;
   let moved = false;
-  let startX = 0, startY = 0;
-  let startLeft = 0, startTop = 0;
+  let startX = 0;
+  let startY = 0;
+  let startLeft = 0;
+  let startTop = 0;
   let suppressClick = false;
 
   function clampPosition(left, top){
-    if(!btn) return {left, top};
+    if(!btn){
+      return {left, top};
+    }
+
     const rect = btn.getBoundingClientRect();
     const maxLeft = Math.max(0, window.innerWidth - rect.width);
     const maxTop = Math.max(0, window.innerHeight - rect.height);
+
     return {
       left: Math.max(0, Math.min(left, maxLeft)),
       top: Math.max(0, Math.min(top, maxTop))
     };
   }
 
-  function applySavedPosition(){
-    if(!btn) return;
+  function savePosition(){
+    if(!btn){
+      return;
+    }
+
+    const rect = btn.getBoundingClientRect();
+
     try{
-      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
-      if(saved && Number.isFinite(saved.left) && Number.isFinite(saved.top)){
-        const p = clampPosition(saved.left, saved.top);
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+          left: rect.left,
+          top: rect.top
+        })
+      );
+    }catch(e){}
+  }
+
+  function readSavedPosition(){
+    try{
+      const current =
+        JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+
+      if(
+        current &&
+        Number.isFinite(current.left) &&
+        Number.isFinite(current.top)
+      ){
+        return current;
+      }
+
+      /* Tương thích vị trí đã lưu bởi engine V1 cũ. */
+      const legacy =
+        JSON.parse(localStorage.getItem(LEGACY_KEY) || "null");
+
+      if(
+        legacy &&
+        Number.isFinite(legacy.left) &&
+        Number.isFinite(legacy.top)
+      ){
+        return legacy;
+      }
+    }catch(e){}
+
+    return null;
+  }
+
+  function applySavedPosition(){
+    if(!btn){
+      return;
+    }
+
+    const saved = readSavedPosition();
+    if(!saved){
+      return;
+    }
+
+    const p = clampPosition(saved.left, saved.top);
+
+    btn.style.position = "fixed";
+    btn.style.left = p.left + "px";
+    btn.style.top = p.top + "px";
+    btn.style.right = "auto";
+    btn.style.bottom = "auto";
+  }
+
+  function setup(){
+    const next =
+      document.getElementById("ttcFloatingChatBtn");
+
+    if(!next || next === btn){
+      return;
+    }
+
+    if(next.dataset.ttcCanonicalDragReady === "1"){
+      btn = next;
+      return;
+    }
+
+    btn = next;
+    btn.dataset.ttcCanonicalDragReady = "1";
+
+    applySavedPosition();
+
+    btn.addEventListener(
+      "pointerdown",
+      function(event){
+        event.stopPropagation();
+
+        if(
+          event.button !== undefined &&
+          event.button !== 0
+        ){
+          return;
+        }
+
+        const rect = btn.getBoundingClientRect();
+
+        startX = event.clientX;
+        startY = event.clientY;
+        startLeft = rect.left;
+        startTop = rect.top;
+
+        dragging = true;
+        moved = false;
+
+        btn.style.position = "fixed";
+        btn.style.left = rect.left + "px";
+        btn.style.top = rect.top + "px";
+        btn.style.right = "auto";
+        btn.style.bottom = "auto";
+
+        btn.classList.add("ttc-dragging");
+
+        try{
+          btn.setPointerCapture(event.pointerId);
+        }catch(e){}
+      },
+      {passive:false}
+    );
+
+    btn.addEventListener(
+      "pointermove",
+      function(event){
+        if(!dragging){
+          return;
+        }
+
+        const dx = event.clientX - startX;
+        const dy = event.clientY - startY;
+
+        if(
+          Math.abs(dx) > 4 ||
+          Math.abs(dy) > 4
+        ){
+          moved = true;
+        }
+
+        if(!moved){
+          return;
+        }
+
+        const p = clampPosition(
+          startLeft + dx,
+          startTop + dy
+        );
+
+        btn.style.position = "fixed";
         btn.style.left = p.left + "px";
         btn.style.top = p.top + "px";
         btn.style.right = "auto";
         btn.style.bottom = "auto";
-        btn.style.position = "fixed";
+
+        event.preventDefault();
+        event.stopPropagation();
+      },
+      {passive:false}
+    );
+
+    function finish(event){
+      if(!dragging){
+        return;
       }
-    }catch(e){}
-  }
 
-  function setup(){
-    const next = document.getElementById("ttcFloatingChatBtn");
-    if(!next || next === btn || next.dataset.ttcDragReady === "1") return;
-    btn = next;
-    btn.dataset.ttcDragReady = "1";
-    applySavedPosition();
-
-    btn.addEventListener("pointerdown", function(e){
-      e.stopPropagation();
-      if(e.button !== undefined && e.button !== 0) return;
-      const rect = btn.getBoundingClientRect();
-      startX = e.clientX; startY = e.clientY;
-      startLeft = rect.left; startTop = rect.top;
-      dragging = true; moved = false;
-      btn.style.position = "fixed";
-      btn.style.left = rect.left + "px";
-      btn.style.top = rect.top + "px";
-      btn.style.right = "auto"; btn.style.bottom = "auto";
-      btn.classList.add("ttc-dragging");
-      try{ btn.setPointerCapture(e.pointerId); }catch(err){}
-    });
-
-    btn.addEventListener("pointermove", function(e){
-      if(!dragging) return;
-      const dx = e.clientX - startX;
-      const dy = e.clientY - startY;
-      if(Math.abs(dx) > 5 || Math.abs(dy) > 5) moved = true;
-      if(!moved) return;
-      const p = clampPosition(startLeft + dx, startTop + dy);
-      btn.style.left = p.left + "px";
-      btn.style.top = p.top + "px";
-      e.preventDefault();
-    });
-
-    function finish(e){
-      if(!dragging) return;
       dragging = false;
       btn.classList.remove("ttc-dragging");
-      try{ btn.releasePointerCapture(e.pointerId); }catch(err){}
+
+      try{
+        btn.releasePointerCapture(event.pointerId);
+      }catch(e){}
+
       if(moved){
-        const rect = btn.getBoundingClientRect();
-        try{ localStorage.setItem(STORAGE_KEY, JSON.stringify({left:rect.left, top:rect.top})); }catch(err){}
+        savePosition();
         suppressClick = true;
-        setTimeout(function(){ suppressClick = false; }, 120);
+
+        setTimeout(function(){
+          suppressClick = false;
+        },180);
       }
     }
 
     btn.addEventListener("pointerup", finish);
     btn.addEventListener("pointercancel", finish);
-    btn.addEventListener("click", function(e){
-      if(suppressClick){
-        e.preventDefault();
-        e.stopImmediatePropagation();
-      }
-    }, true);
+
+    btn.addEventListener(
+      "click",
+      function(event){
+        if(suppressClick){
+          event.preventDefault();
+          event.stopImmediatePropagation();
+        }
+      },
+      true
+    );
   }
 
   setup();
-  new MutationObserver(setup).observe(document.documentElement, {childList:true, subtree:true});
-  window.addEventListener("resize", function(){
-    if(!btn) return;
-    const rect = btn.getBoundingClientRect();
-    const p = clampPosition(rect.left, rect.top);
-    btn.style.left = p.left + "px";
-    btn.style.top = p.top + "px";
-  });
+
+  new MutationObserver(setup).observe(
+    document.documentElement,
+    {
+      childList:true,
+      subtree:true
+    }
+  );
+
+  window.addEventListener(
+    "resize",
+    function(){
+      if(!btn){
+        return;
+      }
+
+      const rect = btn.getBoundingClientRect();
+      const p = clampPosition(rect.left, rect.top);
+
+      btn.style.left = p.left + "px";
+      btn.style.top = p.top + "px";
+    },
+    {passive:true}
+  );
+
 })();
+
 </script>
 
 <!-- =========================================================
@@ -132905,21 +133118,7 @@ if(
 #ttcFloatingChatBtn{touch-action:none !important;cursor:grab !important;z-index:1000000 !important}#ttcFloatingChatBtn.ttc-dragging{cursor:grabbing !important}
 #ttcLightFallCanvas{position:fixed !important;inset:0 !important;width:100vw !important;height:100vh !important;pointer-events:none !important;z-index:9990 !important;opacity:1 !important}
 </style>
-<script>
-(function(){
- if(window.__TTC_FINAL_CHAT_EFFECT_PATCH__)return;window.__TTC_FINAL_CHAT_EFFECT_PATCH__=true;
- const KEY="ttc_chat_button_position_final";let b=null,d=false,m=false,sx=0,sy=0,sl=0,st=0,sup=false;
- function clamp(l,t){if(!b)return{left:l,top:t};const r=b.getBoundingClientRect();return{left:Math.max(0,Math.min(l,innerWidth-r.width)),top:Math.max(0,Math.min(t,innerHeight-r.height))}}
- function save(){try{const r=b.getBoundingClientRect();localStorage.setItem(KEY,JSON.stringify({left:r.left,top:r.top}))}catch(e){}}
- function setup(){const x=document.getElementById("ttcFloatingChatBtn");if(!x||x.dataset.ttcFinalOutsideDrag==="1")return;b=x;b.dataset.ttcFinalOutsideDrag="1";try{const p=JSON.parse(localStorage.getItem(KEY)||"null");if(p){const q=clamp(p.left,p.top);b.style.position="fixed";b.style.left=q.left+"px";b.style.top=q.top+"px";b.style.right="auto";b.style.bottom="auto"}}catch(e){}
- b.addEventListener("pointerdown",function(e){if(e.button!==undefined&&e.button!==0)return;const r=b.getBoundingClientRect();sx=e.clientX;sy=e.clientY;sl=r.left;st=r.top;d=true;m=false;b.classList.add("ttc-dragging");try{b.setPointerCapture(e.pointerId)}catch(x){}});
- b.addEventListener("pointermove",function(e){if(!d)return;const dx=e.clientX-sx,dy=e.clientY-sy;if(Math.abs(dx)>4||Math.abs(dy)>4)m=true;if(!m)return;const q=clamp(sl+dx,st+dy);b.style.position="fixed";b.style.left=q.left+"px";b.style.top=q.top+"px";b.style.right="auto";b.style.bottom="auto";e.preventDefault();e.stopPropagation()},{passive:false});
- function end(e){if(!d)return;d=false;b.classList.remove("ttc-dragging");try{b.releasePointerCapture(e.pointerId)}catch(x){}if(m){save();sup=true;setTimeout(()=>sup=false,180)}}
- b.addEventListener("pointerup",end);b.addEventListener("pointercancel",end);b.addEventListener("click",function(e){if(sup){e.preventDefault();e.stopImmediatePropagation()}},true);
- }
- setup();new MutationObserver(setup).observe(document.documentElement,{childList:true,subtree:true});
-})();
-</script>
+
 
 
 <!-- =========================================================
@@ -134899,220 +135098,71 @@ html,body{background:#fff !important;}
 }
 </style>
 
-<script id="ttcWhiteHatUIPolishV3JS">
+<script>
 (function(){
   "use strict";
 
   /* =====================================================
-     💬 CHAT VISIBILITY GUARD
-     Không sửa Chat engine.
-     Chỉ theo dõi class mở/đóng của Chat và ẩn host hai nút đầu trang.
+     💬 CHAT / TOP UI VISIBILITY — CANONICAL GUARD
+     Gộp 2 patch cũ:
+     1) Ẩn Top Learning Hub khi Chat mở.
+     2) Ẩn Grammar Launcher khi Chat mở.
+     Không đụng Chat engine.
   ===================================================== */
-  function syncTopLearningHubWithChat(){
-    var hub=document.getElementById("ttcTopLearningHub");
-    var chat=document.getElementById("ttcChatV1");
-    if(!hub || !chat) return;
 
-    var opened=chat.classList.contains("ttc-chat-open");
-    hub.classList.toggle("ttc-chat-hidden",opened);
+  function syncChatOverlays(){
+    var chat = document.getElementById("ttcChatV1");
+    var hub = document.getElementById("ttcTopLearningHub");
+    var grammar = document.getElementById("thttGrammarLauncher");
+    var opened = !!chat && chat.classList.contains("ttc-chat-open");
+
+    if(hub){
+      hub.classList.toggle("ttc-chat-hidden", opened);
+    }
+
+    if(grammar){
+      grammar.style.display = opened ? "none" : "";
+    }
   }
 
   function installChatVisibilityGuard(){
-    syncTopLearningHubWithChat();
+    syncChatOverlays();
 
-    var chat=document.getElementById("ttcChatV1");
-    if(chat && !chat.dataset.ttcUiPolishGuard){
-      chat.dataset.ttcUiPolishGuard="1";
-      new MutationObserver(syncTopLearningHubWithChat).observe(
+    var chat = document.getElementById("ttcChatV1");
+
+    if(chat && chat.dataset.ttcCanonicalVisibilityGuard !== "1"){
+      chat.dataset.ttcCanonicalVisibilityGuard = "1";
+
+      new MutationObserver(syncChatOverlays).observe(
         chat,
-        {attributes:true,attributeFilter:["class"]}
+        {attributes:true, attributeFilter:["class"]}
       );
     }
+  }
 
-    var hub=document.getElementById("ttcTopLearningHub");
-    if(hub){
-      syncTopLearningHubWithChat();
-      return true;
+  function boot(){
+    installChatVisibilityGuard();
+
+    if(!document.documentElement){
+      return;
     }
-    return false;
+
+    if(!window.__TTC_CHAT_VISIBILITY_CANONICAL_OBSERVER__){
+      window.__TTC_CHAT_VISIBILITY_CANONICAL_OBSERVER__ = true;
+
+      new MutationObserver(installChatVisibilityGuard).observe(
+        document.documentElement,
+        {childList:true, subtree:true}
+      );
+    }
   }
 
   if(document.readyState === "loading"){
-    document.addEventListener("DOMContentLoaded",installChatVisibilityGuard,{once:true});
+    document.addEventListener("DOMContentLoaded", boot, {once:true});
   }else{
-    installChatVisibilityGuard();
+    boot();
   }
 
-  /* Hai thành phần này được tạo động, nên quan sát DOM để bắt đúng lúc tạo. */
-  new MutationObserver(function(){
-    installChatVisibilityGuard();
-  }).observe(document.documentElement,{childList:true,subtree:true});
-
-})();
-</script>
-
-
-<style id="ttc-whitehat-hub-skin-v2">
-/* TEST TỪ VỰNG — tô toàn bộ khung lớn từ tiêu đề tới nhóm nút cuối */
-#testSection{
-  border:2px solid rgba(34,197,94,.72) !important;
-  background:linear-gradient(180deg,rgba(240,253,244,.98),rgba(220,252,231,.88)) !important;
-  box-shadow:0 0 12px rgba(34,197,94,.32),0 0 30px rgba(34,197,94,.16) !important;
-  border-radius:22px !important;
-  transition:box-shadow .25s ease,border-color .25s ease;
-}
-#testSection:hover{box-shadow:0 0 18px rgba(34,197,94,.45),0 0 38px rgba(34,197,94,.20) !important}
-/* giữ các nút/ô con rõ ràng, không biến chúng thành một khối xanh */
-#testSection #testButtonsAuto{position:relative;z-index:1}
-
-/* LUYỆN CÂU — khung lớn bao trọn từ tiêu đề tới 3 nút cuối */
-#sentenceSection{
-  border:2px solid rgba(14,165,233,.78) !important;
-  background:linear-gradient(180deg,rgba(239,250,255,.98),rgba(224,242,254,.90)) !important;
-  box-shadow:0 0 12px rgba(14,165,233,.34),0 0 32px rgba(14,165,233,.18) !important;
-  border-radius:22px !important;
-  transition:box-shadow .25s ease,border-color .25s ease;
-}
-#sentenceSection:hover{box-shadow:0 0 18px rgba(14,165,233,.48),0 0 40px rgba(14,165,233,.22) !important}
-
-/* Hai lựa chọn bên trong vẫn là 2 khung nhỏ độc lập */
-#whiteHatSentenceModes{position:relative;z-index:1}
-</style>
-
-
-<!-- =========================================================
- 🛡️ WHITE HAT — FINAL V8 SAFE UI PATCH
- - Chat: bỏ nút emoji riêng, hạ composer gọn hơn
- - Chat: không cho nút Ngữ pháp lọt vào khung
- - Flashcard: khóa transform thừa khi mở, chống rung
- - Tiêu đề TTC: biển quảng cáo 7 màu toàn khung
- - 214 Bộ thủ / Luyện phát âm: hạ tông
- - Test từ vựng: hạ tông + nhấp nháy nhẹ
- - HSK exam: tiếng Việt, không hiện pinyin
-========================================================= -->
-<style id="ttcWhiteHatFinalV8">
-
-/* =========================
-   📝 HSK EXAM — ẨN PINYIN NẾU CÒN TỒN TẠI
-========================= */
-#whHskExam .wh-hsk-q-pinyin,
-#whHskExam .ttc-sm-pinyin{
-  display:none !important;
-}
-#whHskExam .wh-hsk-section-title{
-  margin-top:20px;
-}
-#whHskExam .wh-hsk-listening-btn{
-  width:100%;
-}
-
-/* HSK test button: tiếng Việt, dễ nhìn */
-.wh-hsk-ttc-test{
-  font-size:13px !important;
-}
-
-</style>
-
-<script id="ttcWhiteHatFinalV8JS">
-(function(){
-  "use strict";
-
-  /* Không cho Grammar Launcher xuất hiện khi Chat đang mở,
-     kể cả launcher được tạo động sau này. */
-  function syncChatOverlays(){
-    const chat=document.getElementById("ttcChatV1");
-    const grammar=document.getElementById("thttGrammarLauncher");
-    const hub=document.getElementById("ttcTopLearningHub");
-    const opened=!!chat && chat.classList.contains("ttc-chat-open");
-    if(grammar) grammar.style.display=opened ? "none" : "";
-    if(hub) hub.classList.toggle("ttc-chat-hidden",opened);
-  }
-
-  function install(){
-    syncChatOverlays();
-    const chat=document.getElementById("ttcChatV1");
-    if(chat && chat.dataset.ttcV8Guard!=="1"){
-      chat.dataset.ttcV8Guard="1";
-      new MutationObserver(syncChatOverlays).observe(
-        chat,
-        {attributes:true,attributeFilter:["class"]}
-      );
-    }
-  }
-
-  new MutationObserver(install).observe(
-    document.documentElement,
-    {childList:true,subtree:true}
-  );
-
-  if(document.readyState==="loading"){
-    document.addEventListener("DOMContentLoaded",install,{once:true});
-  }else{
-    install();
-  }
-
-  })();
-</script>
-
-
-<style id="ttcHuyMissionV8FinalPatch">
-/* 1) TEST TỪ VỰNG — CAM NHẤP NHÁY */
-#ttcActionFrame .ttc-action-buttons button:first-child{
-  background:#f97316 !important;
-  color:#fff !important;
-  border:2px solid #ea580c !important;
-  animation:ttcOrangeTestBlink 1.05s ease-in-out infinite !important;
-}
-#ttcActionFrame .ttc-action-buttons button:first-child:hover{background:#fb923c !important}
-@keyframes ttcOrangeTestBlink{
-  0%,100%{filter:brightness(1);box-shadow:0 0 0 rgba(249,115,22,0)}
-  50%{filter:brightness(1.16);box-shadow:0 0 20px rgba(249,115,22,.68)}
-}
-
-<script>
-(function(){
-  'use strict';
-
-  function fixTTCHeaderRainbow(){
-    var header = document.querySelector('body > header');
-    if(!header) return;
-
-    var h1 = header.querySelector('h1');
-    if(!h1) return;
-
-    h1.classList.add('ttc-rainbow-title-fix');
-
-    var text = '';
-    Array.prototype.slice.call(h1.childNodes).forEach(function(node){
-      if(node.nodeType === Node.TEXT_NODE){
-        text += node.nodeValue || '';
-        node.nodeValue = '';
-      }
-    });
-
-    text = text.replace(/\s+/g,' ').trim();
-
-    var title = h1.querySelector('.ttc-rainbow-text-fix');
-    if(!title){
-      title = document.createElement('span');
-      title.className = 'ttc-rainbow-text-fix';
-      h1.insertBefore(title, h1.firstChild);
-    }
-
-    if(text && title.textContent !== text){
-      title.textContent = text;
-    }
-  }
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', fixTTCHeaderRainbow);
-  }else{
-    fixTTCHeaderRainbow();
-  }
-
-  setTimeout(fixTTCHeaderRainbow, 100);
-  setTimeout(fixTTCHeaderRainbow, 500);
-  setTimeout(fixTTCHeaderRainbow, 1200);
 })();
 </script>
 
