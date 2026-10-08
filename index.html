@@ -135288,6 +135288,50 @@ html,body{background:#fff !important;}
 
 })();
 </script>
+<style id="ttc-whitehat-hub-skin-v2">
+/* TEST TỪ VỰNG — tô toàn bộ khung lớn từ tiêu đề tới nhóm nút cuối */
+#testSection{
+  border:2px solid rgba(34,197,94,.72) !important;
+  background:linear-gradient(180deg,rgba(240,253,244,.98),rgba(220,252,231,.88)) !important;
+  box-shadow:0 0 12px rgba(34,197,94,.32),0 0 30px rgba(34,197,94,.16) !important;
+  border-radius:22px !important;
+  transition:box-shadow .25s ease,border-color .25s ease;
+}
+#testSection:hover{box-shadow:0 0 18px rgba(34,197,94,.45),0 0 38px rgba(34,197,94,.20) !important}
+/* giữ các nút/ô con rõ ràng, không biến chúng thành một khối xanh */
+#testSection #testButtonsAuto{position:relative;z-index:1}
+
+/* LUYỆN CÂU — khung lớn bao trọn từ tiêu đề tới 3 nút cuối */
+#sentenceSection{
+  border:2px solid rgba(14,165,233,.78) !important;
+  background:linear-gradient(180deg,rgba(239,250,255,.98),rgba(224,242,254,.90)) !important;
+  box-shadow:0 0 12px rgba(14,165,233,.34),0 0 32px rgba(14,165,233,.18) !important;
+  border-radius:22px !important;
+  transition:box-shadow .25s ease,border-color .25s ease;
+}
+
+/* =========================
+   📝 HSK EXAM — ẨN PINYIN NẾU CÒN TỒN TẠI
+========================= */
+#whHskExam .wh-hsk-q-pinyin,
+#whHskExam .ttc-sm-pinyin{
+  display:none !important;
+}
+#whHskExam .wh-hsk-section-title{
+  margin-top:20px;
+}
+#whHskExam .wh-hsk-listening-btn{
+  width:100%;
+}
+
+/* HSK test button: tiếng Việt, dễ nhìn */
+.wh-hsk-ttc-test{
+  font-size:13px !important;
+}
+</script>
+
+
+</style>
 <style id="ttcHuyMissionV8FinalPatch">
 /* 1) TEST TỪ VỰNG — CAM NHẤP NHÁY */
 #ttcActionFrame .ttc-action-buttons button:first-child{
@@ -135301,8 +135345,6 @@ html,body{background:#fff !important;}
   0%,100%{filter:brightness(1);box-shadow:0 0 0 rgba(249,115,22,0)}
   50%{filter:brightness(1.16);box-shadow:0 0 20px rgba(249,115,22,.68)}
 }
-
-<script>
 
 </body>
 </html>
