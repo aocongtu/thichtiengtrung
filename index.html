@@ -80002,6 +80002,20 @@ const words = [
     return map;
   }
 
+  function looksLikeEnglish(value){
+    const text = String(value || "").trim();
+    if(!text) return false;
+
+    /*
+       Chỉ đánh dấu là tiếng Anh khi có dấu hiệu khá rõ.
+       Không dùng regex ASCII đơn thuần vì tiếng Việt cũng dùng
+       chữ Latin không dấu/dấu kết hợp.
+    */
+    const lower = text.toLowerCase();
+    const englishWords = /\b(the|a|an|to|of|and|or|in|on|for|with|from|that|this|is|are|was|were|be|been|being|have|has|had|do|does|did|can|could|will|would|should|must|may|might|not|no|yes|one|two|three|person|people|thing|make|made|use|used|important|possible|different|change|company|system|problem|information|experience|example|meaning|word|time|place|way|work|life|world|good|bad|new|old|large|small|many|much|more|most|some|only|very|first|last)\b/;
+    return englishWords.test(lower) && !/[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i.test(text);
+  }
+
   function convert(source, old, sourceLevelFallback){
 
     const h = String(source.hanzi || "").trim();
@@ -80016,16 +80030,24 @@ const words = [
     const examplePinyin =
       String(source.examplePinyin || "").trim();
 
-    const exampleMeaning =
+    const sourceMeaning =
+      String(source.meaning || "").trim();
+
+    const sourceExampleMeaning =
       String(source.exampleEnglish || "").trim();
+
+    const oldMeaning =
+      String(old?.m || old?.v || "").trim();
+
+    const oldExampleMeaning =
+      String(old?.exampleMeaning || "").trim();
 
     return {
       h:h,
       p:String(source.pinyin || "").trim(),
       m:String(
-        old?.m ||
-        old?.v ||
-        source.meaning ||
+        oldMeaning ||
+        sourceMeaning ||
         ""
       ).trim(),
       t:String(old?.t || "Từ vựng").trim(),
@@ -80040,14 +80062,19 @@ const words = [
         examplePinyin ||
         String(old?.examplePinyin || "").trim(),
       exampleMeaning:
-        String(
-          old?.exampleMeaning ||
-          exampleMeaning ||
-          ""
-        ).trim(),
+        oldExampleMeaning ||
+        sourceExampleMeaning ||
+        "",
 
+      /*
+         Old TTC có nghĩa tiếng Việt thì giữ nguyên.
+         Nếu old.m thực chất vẫn là tiếng Anh, cho phép bộ dịch xử lý lại.
+      */
       __ttcVietnamese:
-        !!old?.m
+        !!oldMeaning && !looksLikeEnglish(oldMeaning),
+
+      __ttcExampleVietnamese:
+        !!oldExampleMeaning && !looksLikeEnglish(oldExampleMeaning)
     };
   }
 
@@ -80296,194 +80323,190 @@ const words = [
 
       async function translateNewMeaningsToVietnamese(){
 
-        const candidates =
-          words.filter(function(w){
-
-            return (
-              Number(w.hsk) >= 6 &&
-              w.m &&
-              !w.__ttcVietnamese
-            );
-
-          });
-
-        if(!candidates.length){
-          return;
-        }
-
         let cache = {};
 
         try{
-          cache =
-            JSON.parse(
-              localStorage.getItem(
-                "ttc_gushi_vi_meanings_v2"
-              ) || "{}"
-            ) || {};
+          cache = JSON.parse(
+            localStorage.getItem("ttc_gushi_vi_meanings_v3") || "{}"
+          ) || {};
         }catch(e){}
 
-        for(const word of candidates){
-
-          const key =
-            String(word.h) + "|" +
-            String(word.m);
-
-          if(cache[key]){
-            word.m = cache[key];
-            word.__ttcVietnamese = true;
+        /* Khôi phục cache cũ nếu có. */
+        try{
+          const oldCache = JSON.parse(
+            localStorage.getItem("ttc_gushi_vi_meanings_v2") || "{}"
+          ) || {};
+          for(const key of Object.keys(oldCache)){
+            if(!cache[key]) cache[key] = oldCache[key];
           }
+        }catch(e){}
 
+        function saveCache(){
+          try{
+            localStorage.setItem(
+              "ttc_gushi_vi_meanings_v3",
+              JSON.stringify(cache)
+            );
+          }catch(e){}
         }
 
         /*
-           Dịch tối đa từng nhóm nhỏ để URL không quá dài.
+           Google Translate trả data[0] theo từng đoạn dịch.
+           Bản cũ nối tất cả đoạn bằng "" rồi split("\n"), khiến
+           batch thường chỉ còn 1 chuỗi và vòng dịch dừng giữa chừng.
+           Bản này lấy từng segment trực tiếp; nếu số segment không khớp,
+           tự động thử từng mục riêng để không bỏ sót.
         */
-        const pending =
-          candidates.filter(
-            w => !w.__ttcVietnamese
-          );
+        async function translateBatch(texts){
+          if(!texts.length) return [];
 
-        const batchSize = 8;
+          const payload = texts.map(function(text){
+            return String(text || "").replace(/[|\n\r]+/g," ").trim();
+          }).join("\n");
 
-        for(
-          let i=0;
-          i<pending.length;
-          i+=batchSize
-        ){
+          const url =
+            "https://translate.googleapis.com/" +
+            "translate_a/single?client=gtx&sl=en&tl=vi" +
+            "&dt=t&q=" + encodeURIComponent(payload);
 
-          const batch =
-            pending.slice(
-              i,
-              i+batchSize
-            );
+          const response = await fetch(url,{cache:"no-store"});
+          if(!response.ok) throw new Error("Translate HTTP " + response.status);
 
-          const payload =
-            batch.map(
-              w => String(w.m).replace(
-                /[|\n\r]+/g,
-                " "
-              )
-            ).join("\n");
+          const data = await response.json();
+          const segments = Array.isArray(data?.[0]) ? data[0] : [];
+          const parts = segments.map(function(x){
+            return String(x?.[0] || "").trim();
+          });
 
-          try{
+          if(parts.length === texts.length){
+            return parts;
+          }
 
-            const url =
-              "https://translate.googleapis.com/" +
-              "translate_a/single?client=gtx&sl=en&tl=vi" +
-              "&dt=t&q=" +
-              encodeURIComponent(payload);
+          /* Fallback chắc chắn: dịch từng mục nếu API gộp segment. */
+          const result = [];
+          for(const text of texts){
+            try{
+              const singleUrl =
+                "https://translate.googleapis.com/" +
+                "translate_a/single?client=gtx&sl=en&tl=vi" +
+                "&dt=t&q=" + encodeURIComponent(String(text));
+              const singleResponse = await fetch(singleUrl,{cache:"no-store"});
+              if(!singleResponse.ok){
+                result.push("");
+                continue;
+              }
+              const singleData = await singleResponse.json();
+              const singleParts = Array.isArray(singleData?.[0])
+                ? singleData[0].map(x=>String(x?.[0] || "")).join("")
+                : "";
+              result.push(singleParts.trim());
+            }catch(e){
+              result.push("");
+            }
+          }
+          return result;
+        }
 
-            const response =
-              await fetch(
-                url,
-                {
-                  cache:"no-store"
+        function applyCache(){
+          for(const word of words){
+            if(Number(word.hsk) < 6) continue;
+
+            const meaningKey =
+              String(word.h) + "|" + String(word.m || "");
+
+            if(cache[meaningKey] && !looksLikeEnglish(word.m)){
+              word.m = cache[meaningKey];
+              word.__ttcVietnamese = true;
+            }
+
+            const exampleKey =
+              "EX|" + String(word.h) + "|" + String(word.exampleMeaning || "");
+
+            if(cache[exampleKey]){
+              word.exampleMeaning = cache[exampleKey];
+              word.__ttcExampleVietnamese = true;
+            }
+          }
+        }
+
+        applyCache();
+
+        const meaningPending = words.filter(function(w){
+          return Number(w.hsk) >= 6 && w.m &&
+            (!w.__ttcVietnamese || looksLikeEnglish(w.m));
+        });
+
+        const examplePending = words.filter(function(w){
+          return Number(w.hsk) >= 6 && w.exampleMeaning &&
+            (!w.__ttcExampleVietnamese || looksLikeEnglish(w.exampleMeaning));
+        });
+
+        async function processField(list, field, isExample){
+          const batchSize = 12;
+
+          for(let i=0;i<list.length;i+=batchSize){
+            const batch = list.slice(i,i+batchSize);
+            const texts = batch.map(w=>String(w[field] || "").trim());
+
+            try{
+              const translated = await translateBatch(texts);
+
+              batch.forEach(function(word,index){
+                const vi = String(translated[index] || "").trim();
+                if(!vi) return;
+
+                const original = String(word[field] || "").trim();
+                const key = isExample
+                  ? "EX|" + String(word.h) + "|" + original
+                  : String(word.h) + "|" + original;
+
+                cache[key] = vi;
+                word[field] = vi;
+
+                if(isExample){
+                  word.__ttcExampleVietnamese = true;
+                }else{
+                  word.__ttcVietnamese = true;
                 }
-              );
+              });
 
-            if(!response.ok){
+              saveCache();
+            }catch(error){
+              console.warn(
+                "Gushi Vietnamese translation batch stopped:",
+                error
+              );
               break;
             }
 
-            const data =
-              await response.json();
-
-            const translated =
-              Array.isArray(data?.[0])
-                ? data[0]
-                    .map(
-                      x => x?.[0] || ""
-                    )
-                    .join("")
-                : "";
-
-            const parts =
-              translated.split("\n");
-
-            /*
-               Nếu dịch vụ trả đúng số dòng,
-               cập nhật an toàn.
-            */
-            if(parts.length === batch.length){
-
-              batch.forEach(
-                function(word,index){
-
-                  const vi =
-                    String(
-                      parts[index] || ""
-                    ).trim();
-
-                  if(vi){
-
-                    const key =
-                      String(word.h) + "|" +
-                      String(word.m);
-
-                    cache[key] = vi;
-                    word.m = vi;
-                    word.__ttcVietnamese = true;
-
-                  }
-
-                }
-              );
-
-              try{
-                localStorage.setItem(
-                  "ttc_gushi_vi_meanings_v2",
-                  JSON.stringify(cache)
-                );
-              }catch(e){}
-
-            }
-
-          }catch(error){
-
-            console.warn(
-              "Gushi Vietnamese translation stopped:",
-              error
-            );
-
-            break;
-
+            /* Nhường UI; dịch tiếp ở nền. */
+            await new Promise(resolve=>setTimeout(resolve,100));
           }
-
-          /*
-             Không khóa UI bằng hàng nghìn request liên tiếp.
-          */
-          await new Promise(
-            resolve => setTimeout(resolve,120)
-          );
-
         }
 
-        /*
-           Nếu người học đang ở HSK7–9,
-           vẽ lại sau khi nghĩa đã dịch được.
-        */
+        /* Ưu tiên nghĩa từ trước, sau đó xử lý nghĩa câu ví dụ. */
+        await processField(meaningPending,"m",false);
+        await processField(examplePending,"exampleMeaning",true);
+
         if(
           typeof currentHSK !== "undefined" &&
           currentHSK >= 6 &&
           typeof render === "function"
         ){
-
-          currentList =
-            words.filter(
-              w =>
-                Number(w.hsk) ===
-                Number(currentHSK)
-            );
-
+          currentList = words.filter(
+            w => Number(w.hsk) === Number(currentHSK)
+          );
           render(currentList);
-
         }
 
         console.log(
-          "🇻🇳 TTC Gushi: đã xử lý nghĩa tiếng Việt.",
-          candidates.length
+          "🇻🇳 TTC Gushi: translation audit",
+          {
+            meaningPending: meaningPending.length,
+            examplePending: examplePending.length,
+            hsk789: window.TTC_GUSHI_HSK789_COUNTS
+          }
         );
-
       }
 
     }catch(error){
@@ -134902,71 +134925,171 @@ html,body{background:#fff !important;}
   async function translateGushiVietnamese(){
     const dataWords=(typeof words!=='undefined' && Array.isArray(words))?words:window.words;
     if(!Array.isArray(dataWords))return;
-    const targets=[];
-    for(const w of dataWords){
-      if(Number(w.hsk)<6)continue;
-      if(looksEnglish(w.m)||looksEnglish(w.exampleMeaning)){
-        targets.push(w);
-      }
+
+    /*
+       🇻🇳 TTC HSK7–9 — VI INTEGRITY V4
+       Mục tiêu: KHÔNG để nghĩa tiếng Anh/tiếng nước ngoài lọt ra UI.
+       V3 dùng batch + dấu phân cách; nếu API gộp segment thì có thể bỏ sót.
+       V4 dịch từng trường cần sửa, có fallback từng mục và chặn English.
+    */
+
+    const SPECIAL_VI={
+      "example; model":"ví dụ; mô hình",
+      "peugeot":"Peugeot (thương hiệu ô tô)",
+      "example":"ví dụ",
+      "model":"mô hình",
+      "brand":"thương hiệu"
+    };
+
+    function hasVietnamese(text){
+      return /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i.test(String(text||""));
     }
-    if(!targets.length)return;
+
+    function isEnglishOrForeign(text){
+      const x=String(text||"").trim();
+      if(!x)return false;
+      if(hasVietnamese(x))return false;
+      if(/[一-鿿]/.test(x))return false;
+
+      const lower=x.toLowerCase();
+      if(SPECIAL_VI[lower])return true;
+
+      /* Các mục chỉ gồm Latin/ASCII, hoặc có từ tiếng Anh rõ ràng,
+         đều phải qua bộ chuẩn hóa. Điều này bắt được cả "peugeot". */
+      const englishWords=/\b(the|a|an|and|or|of|to|in|on|for|with|from|is|are|be|this|that|someone|something|people|company|used|use|make|made|do|does|have|has|will|can|one|two|three|example|model|brand|car|vehicle|standard|rate|ratio|sign|symbol|mark|indicate|represent|expression|meaning|word|person|people|thing|place|work|life|world|good|bad|new|old|large|small|many|much|more|most|some|only|very|first|last)\b/i;
+      if(englishWords.test(lower))return true;
+      return /^[A-Za-z0-9][A-Za-z0-9 .,';:/()&+\-]*$/.test(x);
+    }
+
+    function applySpecial(text){
+      const key=String(text||"").trim().toLowerCase();
+      return SPECIAL_VI[key] || "";
+    }
 
     let cache={};
-    try{cache=JSON.parse(localStorage.getItem("ttc_gushi_vi_integrity_v3")||"{}")||{}}catch(e){}
+    try{
+      cache=JSON.parse(localStorage.getItem("ttc_gushi_vi_integrity_v4")||"{}")||{};
+    }catch(e){}
 
-    const pending=[];
-    for(const w of targets){
-      const key=String(w.h)+"|"+String(w.p||"");
-      if(cache[key]&&cache[key].m)w.m=cache[key].m;
-      if(cache[key]&&cache[key].e)w.exampleMeaning=cache[key].e;
-      if(looksEnglish(w.m)){
-        w.__ttcSourceEnglishMeaning=String(w.m);
-        w.m="Đang chuẩn hóa nghĩa tiếng Việt…";
+    /* Giữ cache V3 để không mất các bản dịch tốt đã có. */
+    try{
+      const oldCache=JSON.parse(localStorage.getItem("ttc_gushi_vi_integrity_v3")||"{}")||{};
+      for(const key of Object.keys(oldCache)){
+        if(!cache[key])cache[key]=oldCache[key];
       }
-      if(looksEnglish(w.exampleMeaning)){
-        w.__ttcSourceEnglishExample=String(w.exampleMeaning);
-        w.exampleMeaning="Đang chuẩn hóa câu ví dụ tiếng Việt…";
-      }
-      if(w.__ttcSourceEnglishMeaning || w.__ttcSourceEnglishExample)pending.push(w);
+    }catch(e){}
+
+    function saveCache(){
+      try{
+        localStorage.setItem("ttc_gushi_vi_integrity_v4",JSON.stringify(cache));
+      }catch(e){}
     }
 
-    const batchSize=8;
-    for(let i=0;i<pending.length;i+=batchSize){
-      const batch=pending.slice(i,i+batchSize);
-      const payload=batch.map(w=>{
-        const m=w.__ttcSourceEnglishMeaning || (looksEnglish(w.m)?w.m:"[VI_OK]");
-        const e=w.__ttcSourceEnglishExample || (looksEnglish(w.exampleMeaning)?w.exampleMeaning:"[VI_OK]");
-        return m+" ⟦TTCSEP⟧ "+e;
-      }).join("\n");
+    async function translateOne(text){
+      const source=String(text||"").trim();
+      if(!source)return "";
+
+      const special=applySpecial(source);
+      if(special)return special;
+
       try{
-        const url="https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=vi&dt=t&q="+encodeURIComponent(payload);
+        const url="https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=vi&dt=t&q="+encodeURIComponent(source);
         const res=await fetch(url,{cache:"no-store"});
         if(!res.ok)throw new Error("HTTP "+res.status);
         const data=await res.json();
-        const translated=Array.isArray(data?.[0])?data[0].map(x=>x?.[0]||"").join(""):"";
-        const lines=translated.split("\n");
-        if(lines.length===batch.length){
-          batch.forEach((w,idx)=>{
-            const parts=lines[idx].split("⟦TTCSEP⟧");
-            const m=String(parts[0]||"").trim();
-            const e=String(parts.slice(1).join("⟦TTCSEP⟧")||"").trim();
-            const key=String(w.h)+"|"+String(w.p||"");
-            if(m&&m!=="[VI_OK]"&&!looksEnglish(m)){w.m=m;delete w.__ttcSourceEnglishMeaning;}
-            if(e&&e!=="[VI_OK]"&&!looksEnglish(e)){w.exampleMeaning=e;delete w.__ttcSourceEnglishExample;}
-            cache[key]={m:w.m,e:w.exampleMeaning};
-          });
-          try{localStorage.setItem("ttc_gushi_vi_integrity_v3",JSON.stringify(cache))}catch(e){}
-          if(typeof window.render==="function" && typeof window.currentHSK!=="undefined" && Number(window.currentHSK)>=6){
-            currentList=dataWords.filter(w=>Number(w.hsk)===Number(currentHSK));
-            if(typeof render==='function')render(currentList);
-          }
-        }
-      }catch(err){
-        console.warn("TTC VI integrity translation stopped:",err);
-        break;
-      }
-      await new Promise(r=>setTimeout(r,160));
+        const translated=Array.isArray(data?.[0])
+          ? data[0].map(x=>String(x?.[0]||"")).join("").trim()
+          : "";
+        if(translated && !isEnglishOrForeign(translated))return translated;
+      }catch(e){}
+      return "";
     }
+
+    const pending=[];
+
+    for(const w of dataWords){
+      if(Number(w.hsk)<6)continue;
+
+      const key=String(w.h)+"|"+String(w.p||"");
+      const saved=cache[key]||{};
+
+      if(saved.m && !isEnglishOrForeign(saved.m))w.m=saved.m;
+      if(saved.e && !isEnglishOrForeign(saved.e))w.exampleMeaning=saved.e;
+
+      if(isEnglishOrForeign(w.m)){
+        const original=String(w.m).trim();
+        const special=applySpecial(original);
+        if(special){
+          w.m=special;
+        }else{
+          w.__ttcSourceEnglishMeaning=original;
+          w.m="Đang chuẩn hóa nghĩa tiếng Việt…";
+          pending.push({w,type:"m",source:original,key});
+        }
+      }
+
+      if(isEnglishOrForeign(w.exampleMeaning)){
+        const original=String(w.exampleMeaning).trim();
+        const special=applySpecial(original);
+        if(special){
+          w.exampleMeaning=special;
+        }else{
+          w.__ttcSourceEnglishExample=original;
+          w.exampleMeaning="Đang chuẩn hóa câu ví dụ tiếng Việt…";
+          pending.push({w,type:"e",source:original,key});
+        }
+      }
+
+      if(!isEnglishOrForeign(w.m) && !isEnglishOrForeign(w.exampleMeaning)){
+        cache[key]={m:w.m,e:w.exampleMeaning};
+      }
+    }
+
+    saveCache();
+
+    /* Dịch tuần tự để không làm API gộp/đảo dòng và không bỏ sót. */
+    for(const item of pending){
+      const vi=await translateOne(item.source);
+
+      if(vi){
+        if(item.type==="m"){
+          item.w.m=vi;
+          item.w.__ttcVietnamese=true;
+          delete item.w.__ttcSourceEnglishMeaning;
+        }else{
+          item.w.exampleMeaning=vi;
+          item.w.__ttcExampleVietnamese=true;
+          delete item.w.__ttcSourceEnglishExample;
+        }
+      }else{
+        /* Không bao giờ để English hiện ra UI nếu API tạm thời lỗi. */
+        if(item.type==="m"){
+          item.w.m="Đang chuẩn hóa nghĩa tiếng Việt…";
+        }else{
+          item.w.exampleMeaning="Đang chuẩn hóa câu ví dụ tiếng Việt…";
+        }
+      }
+
+      const key=item.key;
+      cache[key]={
+        m:isEnglishOrForeign(item.w.m)?"":item.w.m,
+        e:isEnglishOrForeign(item.w.exampleMeaning)?"":item.w.exampleMeaning
+      };
+      saveCache();
+
+      if(
+        typeof currentHSK!=="undefined" &&
+        Number(currentHSK)>=6 &&
+        typeof render==='function'
+      ){
+        currentList=dataWords.filter(w=>Number(w.hsk)===Number(currentHSK));
+        render(currentList);
+      }
+
+      await new Promise(r=>setTimeout(r,90));
+    }
+
+    console.log("🇻🇳 TTC HSK6–9 VI integrity V4:",pending.length,"mục cần chuẩn hóa");
   }
 
   function repairVocabulary(){
