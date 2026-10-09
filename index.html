@@ -103935,67 +103935,95 @@ BẢN HOÀN CHỈNH V3.1
 function tokenizeChinese(sentence){
 
   const text =
-    String(sentence || "").trim();
+    String(sentence || "").replace(/\s+/g, "").trim();
 
   if(!text){
     return [];
   }
 
   /*
-     Tách dấu câu thành token riêng trước
+     Ghép theo từ/cụm có nghĩa bằng cách tìm cụm dài nhất trước.
+     Ví dụ: 他已经戒烟两个月了。 → 他 | 已经 | 戒烟 | 两个月 | 了。
+     Dấu câu được gắn vào cụm cuối, không tạo nút riêng.
   */
-  const parts =
-    text.match(
-      /[\u4e00-\u9fff]+|[，。！？；：、,.!?;:]/g
-    ) || [];
+  const builtInPhrases = [
+    "两个月","三个月","一个月","几个月","两年","三年","半年",
+    "已经","正在","刚刚","马上","后来","以前","以后","因为","所以",
+    "如果","虽然","但是","可是","而且","然后","当然","可能","应该","需要",
+    "戒烟","吸烟","喝酒","身体","医院","工作","学习","中文","中国",
+    "日本","朋友","同学","老师","学生","公司","学校","商店","东西",
+    "电话","手机","电脑","天气","时间","时候","早上","上午","中午",
+    "下午","晚上","今天","昨天","明天","前天","后天","去年","今年",
+    "明年","周末","星期天","星期一","星期二","星期三","星期四","星期五",
+    "星期六","每天","一起","我们","你们","他们","她们","它们","自己",
+    "大家","别人","什么","怎么","为什么","哪里","多少","怎么样","可以",
+    "喜欢","知道","认识","觉得","希望","准备","开始","继续","结束",
+    "回来","出去","进去","回家","上班","下班","起床","睡觉","吃饭",
+    "喝水","做饭","买东西","打电话","发信息","看见","听见","告诉",
+    "帮助","找到","明白","非常","特别","一点儿","一点","一下","不太",
+    "没有","不是","不要","不能","不会","不想","就是","还是","还有",
+    "他","她","它","我","你","您","这","那","哪","谁","是","有",
+    "在","不","没","很","也","都","要","去","来","会","能","想",
+    "了","吗","呢","吧","把","给","跟","对","从","到","和","就",
+    "还","又","才","再","先","让","被","比","为","但","可","与",
+    "每","各","最","更","多","少","上","下","中","里","外","着",
+    "过","得","地","的","个","只","次"
+  ];
 
-  const result = [];
+  const lexiconSet = new Set(builtInPhrases);
 
-  parts.forEach(function(part){
-
-    /*
-       Dấu câu → giữ nguyên thành 1 nút riêng
-    */
-    if(
-      /^[，。！？；：、,.!?;:]+$/.test(part)
-    ){
-
-      result.push(part);
-
-      return;
+  /* HSK words already loaded by the site can improve segmentation, read-only. */
+  try {
+    if(typeof words !== "undefined" && Array.isArray(words)){
+      words.forEach(function(item){
+        const h = String(item && item.h || "").trim();
+        if(h.length >= 2 && h.length <= 6 && /^[\u3400-\u9fff]+$/.test(h)){
+          lexiconSet.add(h);
+        }
+      });
     }
+  } catch(e) {}
 
-    /*
-       Phần tiếng Trung:
-       tách từng Hán tự để chắc chắn
-       mỗi nút đều có thể bấm riêng.
-       
-       Ví dụ:
-       我在这里
-       ↓
-       我 | 在 | 这 | 里
-       
-       Quan trọng:
-       không còn tình trạng
-       我在这里 | 。
-       thành 1 nút duy nhất.
-    */
-
-    for(
-      let i = 0;
-      i < part.length;
-      i++
-    ){
-
-      result.push(
-        part.charAt(i)
-      );
-
-    }
-
+  const lexicon = Array.from(lexiconSet).sort(function(a,b){
+    return b.length - a.length;
   });
+  const punctuation = "，。！？；：、,.!?;:";
+  const result = [];
+  let i = 0;
 
-  return result;
+  while(i < text.length){
+    const ch = text.charAt(i);
+
+    if(punctuation.indexOf(ch) >= 0){
+      if(result.length){
+        result[result.length - 1] += ch;
+      } else {
+        result.push(ch);
+      }
+      i++;
+      continue;
+    }
+
+    let found = "";
+    for(let k = 0; k < lexicon.length; k++){
+      const candidate = lexicon[k];
+      if(text.slice(i, i + candidate.length) === candidate){
+        found = candidate;
+        break;
+      }
+    }
+
+    if(found){
+      result.push(found);
+      i += found.length;
+    } else {
+      /* Unknown vocabulary falls back to one character, not a whole sentence. */
+      result.push(ch);
+      i++;
+    }
+  }
+
+  return result.filter(Boolean);
 }
   
 
@@ -104100,8 +104128,6 @@ function renderUnscramble(){
 
 
   body.innerHTML = `
-
-    ${renderSentenceNavigator()}
 
     <div class="thtt-g-card thtt-mode-only">
 
@@ -104212,6 +104238,9 @@ function renderUnscramble(){
 
 
         </div>
+
+        <!-- Điều hướng câu đặt dưới cùng để thao tác thuận tiện. -->
+        ${renderSentenceNavigator()}
 
       </div>
 
@@ -110158,19 +110187,13 @@ if(number){
       );
 
 
+      /*
+       * Không tự chuyển câu sau khi trả lời đúng.
+       * Giữ nguyên câu và kết quả để người học chủ động bấm
+       * “Câu tiếp” hoặc nhấn Enter lần nữa.
+       */
       whiteHatBusy =
-        true;
-
-
-      setTimeout(function(){
-
-        whiteHatBusy =
-          false;
-
-        whiteHatNext();
-
-      },900);
-
+        false;
 
       return true;
 
