@@ -111216,6 +111216,13 @@ if(resetProgress){
     };
 
 
+  /* Read-only bridge for optional helpers; the learning engine stays unchanged. */
+  window.__ttcWhiteHatSentenceState = {
+    getCurrent: function(){ return whiteHatCurrent(); },
+    getMode: function(){ return whiteHatMode; }
+  };
+
+
 })();
 
 </script>
@@ -135328,7 +135335,6 @@ html,body{background:#fff !important;}
 .wh-hsk-ttc-test{
   font-size:13px !important;
 }
-</script>
 
 
 </style>
@@ -135345,6 +135351,395 @@ html,body{background:#fff !important;}
   0%,100%{filter:brightness(1);box-shadow:0 0 0 rgba(249,115,22,0)}
   50%{filter:brightness(1.16);box-shadow:0 0 20px rgba(249,115,22,.68)}
 }
+
+
+
+<!-- =========================================================
+ 🇨🇳 TTC — PHỒN THỂ KHÔNG LẶP + GHÉP TỪ NGAY Ô NHẬP CÂU
+ Chỉ bổ sung lớp hiển thị và điền cụm từ vào sentenceInput hiện có.
+ Không thay dữ liệu câu, cơ chế kiểm tra, tiến độ hoặc engine học.
+========================================================= -->
+<style id="ttcTraditionalAndWordBuilderPatch">
+  .ttc-traditional{
+    display:inline-block;
+    margin-left:.18em;
+    font-size:.78em;
+    font-weight:600;
+    opacity:.82;
+    white-space:nowrap;
+  }
+  #ttcSentenceWordBank{
+    display:none;
+    margin:10px 0 14px;
+    padding:12px;
+    border:1px solid #f1c4c4;
+    border-radius:12px;
+    background:#fffafa;
+    text-align:left;
+  }
+  #ttcSentenceWordBank.is-open{display:block}
+  #ttcSentenceWordBank .ttc-word-bank-hint{
+    margin:0 0 9px;
+    color:#7f1d1d;
+    font-size:13px;
+    line-height:1.5;
+  }
+  #ttcSentenceWordBank .ttc-word-bank-items{
+    display:flex;
+    flex-wrap:wrap;
+    gap:7px;
+  }
+  #ttcSentenceWordBank .ttc-word-chip{
+    padding:8px 11px;
+    border:1px solid #efb0b0;
+    border-radius:9px;
+    background:#fff;
+    color:#7f1d1d;
+    font-size:16px;
+    font-weight:800;
+    line-height:1.25;
+  }
+  #ttcSentenceWordBank .ttc-word-chip.is-selected{
+    background:#ffe4e6;
+    border-color:#be123c;
+    color:#881337;
+    box-shadow:inset 0 0 0 1px rgba(190,18,60,.16);
+  }
+  #ttcSentenceWordBank .ttc-word-bank-footer{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:10px;
+  }
+  #ttcSentenceWordBank .ttc-word-bank-footer button{
+    padding:7px 10px;
+    font-size:13px;
+  }
+  #whiteHatSentenceActions #ttcSentenceBuildWordsButton{
+    background:#9f1239 !important;
+    color:#fff !important;
+    border:1px solid #881337 !important;
+  }
+  @media(max-width:600px){
+    #ttcSentenceWordBank{padding:9px}
+    #ttcSentenceWordBank .ttc-word-chip{padding:8px 9px;font-size:15px}
+  }
+</style>
+<script>
+(function(){
+  'use strict';
+  if(window.__TTC_TRADITIONAL_WORD_BUILDER_V1__) return;
+  window.__TTC_TRADITIONAL_WORD_BUILDER_V1__ = true;
+
+  /* ---------------- Simplified → Traditional ---------------- */
+  var traditionalConverter = null;
+  var traditionalStarted = false;
+  var targetSelector = [
+    '.hanzi', '.sentence-target', '#sentenceTarget', '.test-question',
+    '.flashcard-hanzi', '.flashcard-back-hanzi', '.flashcard-example-chinese',
+    '.thtt-g-example', '.thtt-speaking-sentence'
+  ].join(',');
+
+  function convertTargets(){
+    if(!traditionalConverter) return;
+    document.querySelectorAll(targetSelector).forEach(function(el){
+      if(!el || el.closest('#ttcSentenceWordBank')) return;
+      /* Key anti-loop guard: generated text is never processed again. */
+      if(el.querySelector('.ttc-traditional')) return;
+      var original = '';
+      el.childNodes.forEach(function(node){
+        if(node.nodeType === 3) original += node.nodeValue || '';
+      });
+      original = original.trim();
+      if(!original || !/[\u3400-\u9fff]/.test(original)) return;
+      var traditional = '';
+      try { traditional = traditionalConverter(original); } catch(e) { return; }
+      if(!traditional || traditional === original) return;
+      var span = document.createElement('span');
+      span.className = 'ttc-traditional';
+      span.setAttribute('lang','zh-Hant');
+      span.setAttribute('aria-label','繁體中文');
+      span.textContent = '（' + traditional + '）';
+      el.appendChild(span);
+    });
+  }
+
+  function loadTraditionalLibrary(){
+    if(traditionalStarted) return;
+    traditionalStarted = true;
+    if(window.OpenCC && typeof window.OpenCC.Converter === 'function'){
+      try {
+        traditionalConverter = window.OpenCC.Converter({from:'cn', to:'tw'});
+        convertTargets();
+        return;
+      } catch(e) {}
+    }
+    var script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/opencc-js@1.0.5/dist/umd/full.js';
+    script.async = true;
+    script.onload = function(){
+      try {
+        if(window.OpenCC && typeof window.OpenCC.Converter === 'function'){
+          traditionalConverter = window.OpenCC.Converter({from:'cn', to:'tw'});
+          convertTargets();
+        }
+      } catch(e) {}
+    };
+    script.onerror = function(){ traditionalStarted = false; };
+    document.head.appendChild(script);
+  }
+
+  var traditionalObserver = new MutationObserver(function(){
+    if(traditionalConverter) convertTargets();
+  });
+  traditionalObserver.observe(document.documentElement, {childList:true, subtree:true, characterData:true});
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', loadTraditionalLibrary, {once:true});
+  } else {
+    loadTraditionalLibrary();
+  }
+
+  /* ---------------- Word/phrase chunks for existing input ---------------- */
+  var bankEl = null;
+  var chipListEl = null;
+  var currentTokens = [];
+  /* Theo dõi chính xác cụm đã chèn để nhấn lại cụm sai là gỡ được. */
+  var selectedTokenIndexes = new Set();
+  var tokenInsertions = [];
+
+  var builtInWords = [
+    '两个月','三个月','一个月','半年','两年','三年','每天晚上','今天晚上','明天早上',
+    '已经','正在','刚刚','马上','后来','以前','以后','因为','所以','如果','虽然','但是',
+    '戒烟','吸烟','喝酒','身体','医院','工作','学习','中文','中国','日本','朋友','同学',
+    '老师','学生','公司','学校','商店','东西','电话','手机','电脑','天气','时间','时候',
+    '早上','上午','中午','下午','晚上','今天','昨天','明天','前天','后天','去年','今年','明年',
+    '周末','星期天','星期一','星期二','星期三','星期四','星期五','星期六','每天','一起',
+    '我们','你们','他们','她们','它们','自己','大家','别人','什么','怎么','为什么','哪里',
+    '多少','怎么样','可以','可能','应该','需要','喜欢','知道','认识','觉得','希望','准备',
+    '开始','继续','结束','回来','出去','进去','回家','上班','下班','起床','睡觉','吃饭',
+    '喝水','做饭','买东西','打电话','发信息','看见','听见','告诉','帮助','找到','明白',
+    '非常','特别','一点','一下','一点儿','不太','没有','不是','不要','不能','不会','不想',
+    '就是','还是','已经','还有','然后','所以','但是','而且','如果','当然','可能','应该',
+    '他','她','它','我','你','您','我们','你们','他们','这','那','哪','谁','是','有','在',
+    '不','没','很','也','都','要','去','来','会','能','想','了','吗','呢','吧','把','给','跟',
+    '对','从','到','和','就','还','又','才','再','先','让','被','比','为','但','可','与','每',
+    '各','最','更','多','少','上','下','中','里','外','着','过','得','地','的','个','只','次'
+  ];
+
+  function getLexicon(){
+    var set = new Set(builtInWords.filter(function(w){ return w && w.length > 0; }));
+    /* Use already-loaded HSK vocabulary when available, without changing it. */
+    try {
+      if(typeof words !== 'undefined' && Array.isArray(words)){
+        words.forEach(function(item){
+          var h = item && String(item.h || '').trim();
+          if(h && h.length >= 2 && h.length <= 6 && /^[\u3400-\u9fff]+$/.test(h)) set.add(h);
+        });
+      }
+    } catch(e) {}
+    return Array.from(set).sort(function(a,b){ return b.length-a.length; });
+  }
+
+  function tokenizeSentence(sentence){
+    var text = String(sentence || '').replace(/\s+/g,'').trim();
+    if(!text) return [];
+    var punctuation = '，。！？；：、,.!?;:';
+    var lexicon = getLexicon();
+    var tokens = [];
+    var i = 0;
+    while(i < text.length){
+      var ch = text.charAt(i);
+      if(punctuation.indexOf(ch) >= 0){
+        if(tokens.length) tokens[tokens.length-1] += ch;
+        else tokens.push(ch);
+        i++;
+        continue;
+      }
+      var found = '';
+      for(var k=0;k<lexicon.length;k++){
+        var candidate = lexicon[k];
+        if(text.slice(i, i+candidate.length) === candidate){ found = candidate; break; }
+      }
+      if(found){ tokens.push(found); i += found.length; continue; }
+
+      /* Unknown run: group into chunks of 2 Hanzi where possible, not one Hanzi at a time. */
+      var run = '';
+      while(i < text.length){
+        ch = text.charAt(i);
+        if(punctuation.indexOf(ch) >= 0) break;
+        var nextKnown = false;
+        for(var j=0;j<lexicon.length;j++){
+          if(text.slice(i, i+lexicon[j].length) === lexicon[j]){ nextKnown = true; break; }
+        }
+        if(nextKnown && run) break;
+        if(nextKnown) break;
+        run += ch;
+        i++;
+      }
+      if(run){
+        for(var p=0;p<run.length;p+=2) tokens.push(run.slice(p,p+2));
+      } else {
+        tokens.push(ch);
+        i++;
+      }
+    }
+    return tokens.filter(Boolean);
+  }
+
+  function shuffleTokens(tokens){
+    var result = tokens.slice();
+    for(var i=result.length-1;i>0;i--){
+      var j = Math.floor(Math.random()*(i+1));
+      var temp = result[i]; result[i] = result[j]; result[j] = temp;
+    }
+    return result;
+  }
+
+  function getCurrentItem(){
+    try {
+      var state = window.__ttcWhiteHatSentenceState;
+      if(state && typeof state.getCurrent === 'function') return state.getCurrent();
+    } catch(e) {}
+    return null;
+  }
+
+  function renderWordBank(){
+    if(!bankEl || !chipListEl) return;
+    chipListEl.innerHTML = '';
+    currentTokens.forEach(function(token, index){
+      var chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'ttc-word-chip' + (selectedTokenIndexes.has(index) ? ' is-selected' : '');
+      chip.textContent = token;
+      chip.setAttribute('aria-pressed', selectedTokenIndexes.has(index) ? 'true' : 'false');
+      chip.setAttribute('aria-label', (selectedTokenIndexes.has(index) ? 'Gỡ cụm ' : 'Thêm cụm ') + token + (selectedTokenIndexes.has(index) ? ' khỏi ô nhập câu' : ' vào ô nhập câu'));
+      chip.addEventListener('click', function(){
+        var input = document.getElementById('sentenceInput');
+        if(!input) return;
+        if(selectedTokenIndexes.has(index)){
+          /* Nhấn lại đúng chip đã chọn: xóa riêng cụm đó, không phải làm lại từ đầu. */
+          var insertionIndex = -1;
+          for(var r=tokenInsertions.length-1;r>=0;r--){
+            if(tokenInsertions[r].index === index){ insertionIndex = r; break; }
+          }
+          var start = -1;
+          var end = -1;
+          if(insertionIndex >= 0){
+            var record = tokenInsertions[insertionIndex];
+            if(input.value.slice(record.start, record.end) === record.token){
+              start = record.start; end = record.end;
+            }
+          }
+          /* Nếu anh đã tự sửa ô nhập, tìm lần xuất hiện cuối cùng của cụm để gỡ nếu có. */
+          if(start < 0){
+            start = input.value.lastIndexOf(token);
+            if(start >= 0) end = start + token.length;
+          }
+          if(start >= 0 && end >= start){
+            input.value = input.value.slice(0,start) + input.value.slice(end);
+            tokenInsertions = tokenInsertions.filter(function(rec){ return rec.index !== index; });
+            tokenInsertions.forEach(function(rec){
+              if(rec.start >= end){ rec.start -= (end-start); rec.end -= (end-start); }
+            });
+          }
+          selectedTokenIndexes.delete(index);
+        } else {
+          var startAt = input.value.length;
+          input.value += token;
+          tokenInsertions.push({index:index, token:token, start:startAt, end:startAt+token.length});
+          selectedTokenIndexes.add(index);
+        }
+        input.focus();
+        try { input.setSelectionRange(input.value.length, input.value.length); } catch(e) {}
+        renderWordBank();
+      });
+      chipListEl.appendChild(chip);
+    });
+  }
+
+  function buildWordBank(){
+    var item = getCurrentItem();
+    var input = document.getElementById('sentenceInput');
+    if(!item || !item.answer || !input || !bankEl) return;
+    currentTokens = shuffleTokens(tokenizeSentence(item.answer));
+    selectedTokenIndexes = new Set();
+    tokenInsertions = [];
+    renderWordBank();
+    bankEl.classList.add('is-open');
+    var hint = bankEl.querySelector('.ttc-word-bank-hint');
+    if(hint) hint.textContent = 'Nhấn một từ/cụm để thêm vào ô “Gõ câu bằng chữ Hán…”. Chọn nhầm thì nhấn lại chính cụm đó để gỡ; anh cũng có thể sửa trực tiếp trong ô nhập.';
+  }
+
+  function ensureWordBank(){
+    var input = document.getElementById('sentenceInput');
+    var actions = document.getElementById('whiteHatSentenceActions');
+    if(!input || !actions) return;
+
+    if(!bankEl){
+      bankEl = document.createElement('div');
+      bankEl.id = 'ttcSentenceWordBank';
+      bankEl.innerHTML = '<p class="ttc-word-bank-hint">Chọn cụm từ để điền vào ô nhập câu hiện có.</p><div class="ttc-word-bank-items"></div><div class="ttc-word-bank-footer"><button type="button" id="ttcSentenceWordBankShuffle">🔀 Xáo trộn cụm từ</button><button type="button" id="ttcSentenceWordBankClear">🧹 Xóa ô nhập</button><button type="button" id="ttcSentenceWordBankClose">Đóng</button></div>';
+      chipListEl = bankEl.querySelector('.ttc-word-bank-items');
+      input.insertAdjacentElement('afterend', bankEl);
+      bankEl.querySelector('#ttcSentenceWordBankShuffle').addEventListener('click', function(){ buildWordBank(); });
+      bankEl.querySelector('#ttcSentenceWordBankClear').addEventListener('click', function(){
+        var field = document.getElementById('sentenceInput');
+        if(field){ field.value = ''; field.focus(); }
+        selectedTokenIndexes = new Set();
+        tokenInsertions = [];
+        renderWordBank();
+      });
+      bankEl.querySelector('#ttcSentenceWordBankClose').addEventListener('click', function(){ bankEl.classList.remove('is-open'); });
+    }
+
+    if(!document.getElementById('ttcSentenceBuildWordsButton')){
+      var button = document.createElement('button');
+      button.type = 'button';
+      button.id = 'ttcSentenceBuildWordsButton';
+      button.textContent = '🧩 Ghép từ';
+      button.addEventListener('click', function(event){
+        event.preventDefault();
+        event.stopPropagation();
+        if(bankEl && bankEl.classList.contains('is-open')) buildWordBank();
+        else buildWordBank();
+      });
+      actions.appendChild(button);
+    }
+  }
+
+  function resetBankForNextQuestion(){
+    if(bankEl){
+      bankEl.classList.remove('is-open');
+      if(chipListEl) chipListEl.innerHTML = '';
+    }
+    currentTokens = [];
+    selectedTokenIndexes = new Set();
+    tokenInsertions = [];
+  }
+
+  var actionObserver = new MutationObserver(function(){ ensureWordBank(); });
+  actionObserver.observe(document.documentElement, {childList:true, subtree:true});
+
+  var numberObserver = new MutationObserver(function(){ resetBankForNextQuestion(); });
+  function observeSentenceNumber(){
+    var number = document.getElementById('sentenceNumber');
+    if(number && !number.dataset.ttcWordBankObserved){
+      number.dataset.ttcWordBankObserved = '1';
+      numberObserver.observe(number, {childList:true, subtree:true, characterData:true});
+    }
+  }
+  var numberFinder = new MutationObserver(function(){ observeSentenceNumber(); });
+  numberFinder.observe(document.documentElement, {childList:true, subtree:true});
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', function(){ ensureWordBank(); observeSentenceNumber(); }, {once:true});
+  } else {
+    ensureWordBank();
+    observeSentenceNumber();
+  }
+})();
+</script>
+
 
 </body>
 </html>
