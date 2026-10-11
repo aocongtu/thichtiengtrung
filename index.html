@@ -2417,6 +2417,22 @@ main{
 
 }
 
+
+/* TTC — nút bật/tắt Pinyin, không can thiệp engine dữ liệu */
+.ttc-pinyin-toggle{flex:0 0 auto;padding:7px 10px;border:1px solid #e7b7c6;border-radius:10px;background:#fff5f8;color:#a8224b;font-size:12px;font-weight:800;white-space:nowrap}
+#vocabularySection .toolbar{gap:10px}
+#vocabularySection .pinyin{display:none}
+#vocabularySection.ttc-show-pinyin .pinyin{display:block}
+/* Flashcard: nút Pinyin nằm bên trái tiêu đề, không chen vào cụm chọn HSK */
+#flashcardSection .flashcard-header{justify-content:flex-start;flex-wrap:wrap}
+#flashcardSection #flashcardPinyinToggle{order:0;align-self:flex-start}
+#flashcardSection .flashcard-title{order:1}
+#flashcardSection .flashcard-controls{order:2;margin-left:auto}
+/* Bản CSS cũ ẩn Pinyin mặt trước bằng !important; chỉ hiện khi nút đang bật */
+#flashcardSection .flashcard-front .flashcard-pinyin:not(.ttc-pinyin-hidden){display:block!important}
+#flashcardSection .flashcard-front .flashcard-pinyin.ttc-pinyin-hidden,
+#flashcardSection .flashcard-back-pinyin.ttc-pinyin-hidden{display:none!important}
+@media(max-width:600px){.ttc-pinyin-toggle{padding:7px 8px;font-size:11px}#vocabularySection .toolbar{gap:7px}#flashcardSection .flashcard-header{column-gap:8px;row-gap:8px}#flashcardSection .flashcard-controls{margin-left:0;width:100%;justify-content:flex-start}}
 </style>
 
 
@@ -2454,6 +2470,10 @@ main{
 @media(max-width:600px){
  .ttc-emoji-picker{grid-template-columns:repeat(7,1fr);bottom:54px;right:2px}
 }
+
+.ttc-exam-button.wh-ttc-exam-selected{outline:3px solid #b40000;outline-offset:1px;background:#fff0f4!important}
+.ttc-exam-start-wrap{margin:14px 0 18px;text-align:center}
+.ttc-exam-start{max-width:520px}
 </style>
 
 <style id="ttcStandaloneMockStyle">
@@ -4769,6 +4789,8 @@ body > .price-box{
 
   <div class="flashcard-header">
 
+    <button type="button" id="flashcardPinyinToggle" class="ttc-pinyin-toggle" aria-pressed="true" onclick="toggleFlashcardPinyin()">拼音：开</button>
+
     <div class="flashcard-title">
       🃏 FLASHCARD
     </div>
@@ -5186,6 +5208,8 @@ body > .price-box{
 <strong id="title">
 HSK 1 — 150 từ
 </strong>
+
+<button type="button" id="vocabularyPinyinToggle" class="ttc-pinyin-toggle" aria-pressed="false" onclick="toggleVocabularyPinyin()">拼音：关</button>
 
 <div class="progress">
 <div id="bar"></div>
@@ -83745,6 +83769,34 @@ function getCurrentVocabularyWord(){
    HIỂN THỊ TỪ
 ================================================== */
 
+/* =========================================================
+   🔤 PINYIN TOGGLE — flashcard và danh sách từ vựng
+   Trạng thái chỉ ảnh hưởng hiển thị, không sửa dữ liệu/âm thanh.
+========================================================= */
+let ttcFlashcardPinyinVisible = true;
+let ttcVocabularyPinyinVisible = false;
+
+function toggleFlashcardPinyin(){
+  ttcFlashcardPinyinVisible = !ttcFlashcardPinyinVisible;
+  const button = document.getElementById("flashcardPinyinToggle");
+  if(button){
+    button.textContent = ttcFlashcardPinyinVisible ? "拼音：开" : "拼音：关";
+    button.setAttribute("aria-pressed", String(ttcFlashcardPinyinVisible));
+  }
+  document.querySelectorAll("#flashcardSection .flashcard-pinyin, #flashcardSection .flashcard-back-pinyin").forEach(el=>el.classList.toggle("ttc-pinyin-hidden", !ttcFlashcardPinyinVisible));
+}
+
+function toggleVocabularyPinyin(){
+  ttcVocabularyPinyinVisible = !ttcVocabularyPinyinVisible;
+  const section = document.getElementById("vocabularySection");
+  const button = document.getElementById("vocabularyPinyinToggle");
+  if(section) section.classList.toggle("ttc-show-pinyin", ttcVocabularyPinyinVisible);
+  if(button){
+    button.textContent = ttcVocabularyPinyinVisible ? "拼音：开" : "拼音：关";
+    button.setAttribute("aria-pressed", String(ttcVocabularyPinyinVisible));
+  }
+}
+
 function render(list=currentList){
 
   const box=document.getElementById("cards");
@@ -83769,7 +83821,7 @@ function render(list=currentList){
       </div>
 
       <div class="pinyin">
-        
+        ${w.p || ""}
       </div>
 
       <div class="meaning">
@@ -93014,6 +93066,10 @@ function closeFlashcardMobile(){
         word.p || "—";
 
     }
+
+    [frontPinyin, backPinyin].forEach(function(el){
+      if(el) el.classList.toggle("ttc-pinyin-hidden", !ttcFlashcardPinyinVisible);
+    });
 
 
     /* =====================================================
@@ -116943,10 +116999,26 @@ function openTestList(){
 
       ttcBtn.onclick=async()=>{
         currentExamNumber=examNo;
-        if(currentMode==="mock"){
-          await openTtcStandaloneMock(Number(currentHsk),ttcBtn,examNo);
+        examGrid.querySelectorAll("button").forEach(b=>b.classList.remove("wh-ttc-exam-selected"));
+        ttcBtn.classList.add("wh-ttc-exam-selected");
+        selectLeaderboard.innerHTML = "";
+        if(currentMode === "mock"){
+          await renderLeaderboard(selectLeaderboard, Number(currentHsk), examNo);
+          const startWrap=document.createElement("div");
+          startWrap.className="ttc-exam-start-wrap";
+          startWrap.innerHTML='<button type="button" class="wh-hsk-ttc-test ttc-exam-start">▶️ BẮT ĐẦU THI THỬ ĐỀ '+String(examNo).padStart(2,"0")+'</button>';
+          startWrap.querySelector("button").onclick=async()=>{
+            await openTtcStandaloneMock(Number(currentHsk), startWrap.querySelector("button"), examNo);
+          };
+          selectLeaderboard.appendChild(startWrap);
+          selectLeaderboard.scrollIntoView({behavior:"smooth",block:"nearest"});
         }else{
-          await openTtcGeneratedExam(ttcBtn);
+          const startWrap=document.createElement("div");
+          startWrap.className="ttc-exam-start-wrap";
+          startWrap.innerHTML='<button type="button" class="wh-hsk-ttc-test ttc-exam-start">▶️ BẮT ĐẦU LUYỆN TẬP ĐỀ '+String(examNo).padStart(2,"0")+'</button>';
+          startWrap.querySelector("button").onclick=async()=>{ await openTtcGeneratedExam(startWrap.querySelector("button")); };
+          selectLeaderboard.appendChild(startWrap);
+          startWrap.scrollIntoView({behavior:"smooth",block:"nearest"});
         }
       };
 
@@ -116955,10 +117027,7 @@ function openTestList(){
 
     testList.appendChild(examGrid);
 
-    /* Giữ nguyên bảng thành tích HSK1 đang có. */
-    if(currentHsk===1 && currentMode==="mock"){
-      renderLeaderboard(selectLeaderboard,currentHsk,currentExamNumber);
-    }
+    /* Bảng thành tích được tải sau khi người học chọn đúng đề thi. */
   }
 
   if(source){
@@ -117117,11 +117186,14 @@ function ttcStandaloneStopTimer(){
   if(ttcStandaloneState && ttcStandaloneState.timer){clearInterval(ttcStandaloneState.timer);ttcStandaloneState.timer=null;}
 }
 
-function ttcStandaloneSubmit(){
+async function ttcStandaloneSubmit(){
   const st=ttcStandaloneState; if(!st||st.submitted)return;
   st.submitted=true; ttcStandaloneStopTimer();
   let score=0; st.questions.forEach((q,i)=>{if(st.answers[i]===q.answer)score++;});
   const pct=Math.round(score/st.questions.length*100);
+  const usedSeconds=Math.max(0, Math.max(10,st.questions.length*45)-st.remaining);
+  /* Lưu kết quả thi thử bằng đúng RPC/bảng thành tích đang có; không thay engine chấm điểm. */
+  try{ if(await getCurrentUser()) await saveMockAchievement(score,st.questions.length,usedSeconds); }catch(e){ console.warn("TTC standalone leaderboard save:",e); }
   const root=document.getElementById("ttcStandaloneMock");
   if(root){
     root.querySelector(".ttc-sm-result").innerHTML=`🏁 <strong>Hoàn thành HSK ${st.level}</strong><br>Đúng <strong>${score}/${st.questions.length}</strong> câu · <strong>${pct}/100</strong>`;
