@@ -2486,6 +2486,26 @@ main{
 #ttcStandaloneMock .ttc-sm-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:15px}.ttc-sm-actions button{padding:11px 16px}.ttc-sm-result{text-align:center;margin-top:13px;font-size:18px}.ttc-sm-review-list{margin-top:15px}.ttc-sm-review-item{padding:10px;border-radius:10px;margin:7px 0;background:#f7f7f7}.ttc-sm-review-item.ok{border-left:4px solid #15803d}.ttc-sm-review-item.bad{border-left:4px solid #dc2626}
 @media(max-width:600px){#ttcStandaloneMock .ttc-sm-card{padding:13px}.ttc-sm-q{font-size:20px}}
 </style>
+
+<!-- TTC FIX: ẨN CÁC NÚT NỔI KHI FLASHCARD MỞ TOÀN MÀN HÌNH TRÊN ĐIỆN THOẠI.
+     Các nút sẽ tự hiện lại khi đóng Flashcard; không thay đổi hành vi ngoài chế độ học. -->
+<style id="ttcFlashcardFloatersIsolationFix">
+@media (max-width:600px) {
+  body.flashcard-mobile-mode #accountSystem,
+  body.flashcard-mobile-mode #ttcFloatingChatBtn,
+  body.flashcard-mobile-mode #thttGrammarLauncher {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  body.flashcard-mobile-mode #flashcardExitButton,
+  body.flashcard-mobile-mode #flashcardResetButton {
+    z-index: 100020 !important;
+  }
+}
+</style>
+
 </head>
 
 <body>
