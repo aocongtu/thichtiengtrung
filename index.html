@@ -86021,6 +86021,44 @@ async function openVocabularyTestChooser(sourceButton){
   });
 }
 
+/* TTC: tiến độ Test từ vựng lưu trên chính trình duyệt, không cần đồng bộ thiết bị. */
+function getLocalTestProgressKey(level){
+  return "ttc_vocabulary_test_session_v1_hsk_" + Number(level);
+}
+function loadLocalTestProgress(level){
+  try{
+    const raw = localStorage.getItem(getLocalTestProgressKey(level));
+    if(!raw) return null;
+    const data = JSON.parse(raw);
+    return data && Number(data.hsk_level) === Number(level) ? data : null;
+  }catch(error){ console.warn("Không đọc được tiến độ Test:", error); return null; }
+}
+function saveLocalTestProgress(){
+  try{
+    if(!Array.isArray(testQuestions) || !testQuestions.length) return false;
+    const result = document.getElementById("testResult");
+    const input = document.getElementById("testInput");
+    localStorage.setItem(getLocalTestProgressKey(currentHSK), JSON.stringify({
+      hsk_level:Number(currentHSK), current_index:Number(testIndex)||0,
+      score:Number(testScore)||0, answered:!!testAnswered, completed:!!testFinished,
+      input_value:input ? input.value : "", result_html:result ? result.innerHTML : "",
+      result_color:result ? result.style.color : "", updated_at:Date.now()
+    }));
+    return true;
+  }catch(error){ console.warn("Không lưu được tiến độ Test:", error); return false; }
+}
+function clearLocalTestProgress(level){
+  try{ localStorage.removeItem(getLocalTestProgressKey(level)); }
+  catch(error){ console.warn("Không xóa được tiến độ Test:", error); }
+}
+function bindLocalTestProgressAutosave(){
+  const input=document.getElementById("testInput");
+  if(input && !input.dataset.ttcProgressAutosave){
+    input.dataset.ttcProgressAutosave="1";
+    input.addEventListener("input",saveLocalTestProgress);
+  }
+}
+
 async function startTest(btn){
 
   const allowed =
@@ -86068,23 +86106,19 @@ testQuestions =
     w => Number(w.hsk) === Number(currentHSK)
   );
 
-testScore = 0;
+bindLocalTestProgressAutosave();
 
-testAnswered = false;
+/* Ưu tiên trạng thái đầy đủ trên trình duyệt; dùng tiến độ tài khoản cũ làm dự phòng. */
+const localProgress = loadLocalTestProgress(currentHSK);
+const progress = localProgress || await loadTestProgress(currentHSK);
 
-testFinished = false;
-
-
-/* =========================================================
-   💾 ĐỌC TIẾN ĐỘ HSK HIỆN TẠI
-========================================================= */
-
-const progress =
-  await loadTestProgress(currentHSK);
-
-
-testIndex =
-  Number(progress.current_index || 0);
+testIndex = Math.max(0, Math.min(
+  Number(progress.current_index || 0),
+  Math.max(0, testQuestions.length - 1)
+));
+testScore = Math.max(0, Number(progress.score || 0));
+testAnswered = !!progress.answered;
+testFinished = !!progress.completed;
 
 
 /* =========================================================
@@ -86126,6 +86160,7 @@ if(progress.completed){
   createTestButtons();
 
   updateTestButtonState();
+  saveLocalTestProgress();
 
   return;
 
@@ -86189,6 +86224,22 @@ if(progress.completed){
 
   showTestQuestion();
 
+  /* Khôi phục câu đang làm, nội dung nhập và kết quả đã chấm. */
+  if(localProgress){
+    const input=document.getElementById("testInput");
+    const result=document.getElementById("testResult");
+    if(input) input.value=localProgress.input_value || "";
+    if(result){
+      result.innerHTML=localProgress.result_html || "";
+      result.style.color=localProgress.result_color || "";
+    }
+    testAnswered=!!localProgress.answered;
+    testFinished=!!localProgress.completed;
+    document.getElementById("score").textContent=
+      `Điểm hiện tại: ${getTestScorePercent()} / 100`;
+    updateTestButtonState();
+    saveLocalTestProgress();
+  }
 
   createTestButtons();
 
@@ -86257,6 +86308,7 @@ function showTestQuestion(){
 
 
   updateTestButtonState();
+  saveLocalTestProgress();
 
 
   /*
@@ -86397,6 +86449,7 @@ saveTestProgress(
 
 
     updateTestButtonState();
+    saveLocalTestProgress();
 
 
     return;
@@ -86455,6 +86508,7 @@ saveTestProgress(
 
 
   updateTestButtonState();
+  saveLocalTestProgress();
 
 }
 
@@ -86640,6 +86694,7 @@ saveTestProgress(
 
 
   updateTestButtonState();
+  saveLocalTestProgress();
 
 }
 
@@ -86668,9 +86723,8 @@ function resetTest(){
      💾 XÓA TIẾN ĐỘ CỦA RIÊNG HSK NÀY
   ================================================== */
 
-  resetTestProgress(
-    currentHSK
-  );
+  resetTestProgress(currentHSK);
+  clearLocalTestProgress(currentHSK);
 
 
   /* ==================================================
