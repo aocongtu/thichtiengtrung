@@ -4589,7 +4589,40 @@ body > .price-box{
 }
 
 .auto-learning h2{
-  margin:0 0 15px;
+  margin:0 !important;
+  flex:1 1 auto;
+  text-align:center;
+  font-size:22px;
+}
+
+.ttc-auto-topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-bottom:15px;
+}
+
+.ttc-auto-pinyin-toggle,.ttc-auto-collapse-toggle{
+  flex:0 0 auto;
+  min-height:34px;
+  padding:6px 9px !important;
+  border:1px solid #d1d5db !important;
+  border-radius:9px !important;
+  background:#fff !important;
+  color:#374151 !important;
+  font-size:12px !important;
+  font-weight:800;
+  white-space:nowrap;
+}
+
+#autoLearningPinyin[hidden],#ttcEA2Pinyin[hidden]{display:none !important;}
+
+@media(max-width:600px){
+  .auto-learning{padding:14px;}
+  .ttc-auto-topbar{gap:5px;}
+  .auto-learning h2{font-size:17px;}
+  .ttc-auto-pinyin-toggle,.ttc-auto-collapse-toggle{padding:6px 7px !important;font-size:11px !important;}
 }
 
 .auto-learning-word{
@@ -4641,7 +4674,13 @@ body > .price-box{
 
 <div id="autoLearning" class="auto-learning">
 
-  <h2>🔊 AUTO LEARNING</h2>
+  <div class="ttc-auto-topbar">
+    <button type="button" id="autoLearningPinyinToggle" class="ttc-auto-pinyin-toggle" aria-pressed="false">拼音：关</button>
+    <h2>🔊 AUTO LEARNING</h2>
+    <button type="button" id="autoLearningCollapseToggle" class="ttc-auto-collapse-toggle" aria-expanded="true">收起 −</button>
+  </div>
+
+  <div id="autoLearningBody">
 
 <div style="
   margin: 10px 0 18px;
@@ -4782,6 +4821,7 @@ body > .price-box{
     Sẵn sàng học
   </div>
 
+  </div><!-- /#autoLearningBody -->
 </div>
 
 </section>
@@ -131026,20 +131066,43 @@ if(
    TIÊU ĐỀ
    ========================================================= */
 
+#ttcExampleAutoV2 .ea2-topbar{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:8px !important;
+  margin:0 0 16px !important;
+}
+
 #ttcExampleAutoV2 .ea2-title{
   display:block !important;
-
-  margin:0 0 16px !important;
-
+  flex:1 1 auto !important;
+  margin:0 !important;
   color:var(--ea2-green-dark) !important;
-
   font-size:21px !important;
   line-height:1.35 !important;
-
   font-weight:900 !important;
-
   text-align:center !important;
 }
+
+#ttcExampleAutoV2 .ea2-top-toggle{
+  appearance:none !important;
+  flex:0 0 auto !important;
+  min-height:34px !important;
+  padding:6px 9px !important;
+  border:1px solid #bbf7d0 !important;
+  border-radius:9px !important;
+  background:#ffffff !important;
+  color:#166534 !important;
+  font:inherit !important;
+  font-size:12px !important;
+  font-weight:800 !important;
+  white-space:nowrap !important;
+  cursor:pointer !important;
+}
+
+#ttcExampleAutoV2 .ea2-top-toggle:hover{background:#f0fdf4 !important;}
+#ttcExampleAutoV2 .ea2-pinyin[hidden]{display:none !important;}
 
 /* =========================================================
    HSK
@@ -131047,14 +131110,33 @@ if(
 
 #ttcExampleAutoV2 .ea2-hsk-row{
   display:flex !important;
-
   flex-wrap:wrap !important;
-
+  align-items:center !important;
   justify-content:center !important;
-
-  gap:7px !important;
-
+  gap:8px !important;
   margin:0 0 18px !important;
+}
+
+#ttcExampleAutoV2 .ea2-hsk-label{
+  color:#166534 !important;
+  font-size:14px !important;
+  font-weight:800 !important;
+}
+
+#ttcExampleAutoV2 .ea2-hsk-select{
+  appearance:auto !important;
+  min-width:180px !important;
+  max-width:100% !important;
+  min-height:42px !important;
+  padding:9px 14px !important;
+  border:1px solid #bbf7d0 !important;
+  border-radius:10px !important;
+  background:#ffffff !important;
+  color:#166534 !important;
+  font:inherit !important;
+  font-size:15px !important;
+  font-weight:800 !important;
+  cursor:pointer !important;
 }
 
 #ttcExampleAutoV2 .ea2-hsk{
@@ -131332,9 +131414,12 @@ if(
 
   #ttcExampleAutoV2 .ea2-card{
     min-height:225px !important;
-
     padding:20px 10px !important;
   }
+
+  #ttcExampleAutoV2 .ea2-title{font-size:16px !important;}
+  #ttcExampleAutoV2 .ea2-topbar{gap:5px !important;}
+  #ttcExampleAutoV2 .ea2-top-toggle{padding:6px 7px !important;font-size:11px !important;}
 
   #ttcExampleAutoV2 .ea2-buttons .ea2-btn{
     flex:1 1 130px !important;
@@ -131349,9 +131434,13 @@ if(
   aria-label="Auto Learning câu ví dụ"
 >
 
-  <div class="ea2-title">
-    🟢 AUTO LEARNING CÂU VÍ DỤ
+  <div class="ea2-topbar">
+    <button type="button" id="ttcEA2PinyinToggle" class="ea2-top-toggle" aria-pressed="false">拼音：关</button>
+    <div class="ea2-title">🟢 AUTO LEARNING CÂU VÍ DỤ</div>
+    <button type="button" id="ttcEA2CollapseToggle" class="ea2-top-toggle" aria-expanded="true">收起 −</button>
   </div>
+
+  <div id="ttcEA2Body">
 
   <div
     class="ea2-hsk-row"
@@ -131497,6 +131586,7 @@ if(
     id="ttcEA2Status"
   ></div>
 
+  </div><!-- /#ttcEA2Body -->
 </section>
 
 
@@ -132615,111 +132705,50 @@ if(
 
       hskRow.innerHTML = "";
 
+      const label = document.createElement("label");
+      label.className = "ea2-hsk-label";
+      label.textContent = "📚 Chọn cấp độ HSK:";
+      label.htmlFor = "ttcEA2HskSelect";
 
-      for(
-        let n = 1;
-        n <= 9;
-        n++
-      ){
+      const select = document.createElement("select");
+      select.className = "ea2-hsk-select";
+      select.id = "ttcEA2HskSelect";
+      select.setAttribute("aria-label", "Chọn cấp độ HSK cho câu ví dụ");
 
-        const button =
-          document.createElement(
-            "button"
-          );
-
-
-        button.type =
-          "button";
-
-
-        button.className =
-          "ea2-hsk";
-
-
-        button.textContent =
-          "HSK " + n;
-
-
-        if(
-          n === currentHSK
-        ){
-
-          button.classList.add(
-            "active"
-          );
-
-        }
-
-
-        button.addEventListener(
-          "click",
-          async function(){
-
-            if(n >= 2){
-
-              const ok =
-                await premiumOK();
-
-
-              if(!ok){
-
-                status.className =
-                  "ea2-status locked";
-
-
-                status.textContent =
-                  "🔒 HSK " +
-                  n +
-                  " dành cho Premium.";
-
-
-                return;
-
-              }
-
-            }
-
-
-            stop();
-
-
-            currentHSK = n;
-
-
-            index =
-              Number(
-                localStorage.getItem(
-                  indexKey(n)
-                ) || 0
-              );
-
-
-            buildList();
-
-
-            renderHSKButtons();
-
-            render();
-
-
-            status.className =
-              "ea2-status";
-
-
-            status.textContent = "";
-
-          }
-        );
-
-
-        hskRow.appendChild(
-          button
-        );
-
+      for(let n = 1; n <= 9; n++){
+        const option = document.createElement("option");
+        option.value = String(n);
+        option.textContent = "HSK " + n;
+        if(n === currentHSK){ option.selected = true; }
+        select.appendChild(option);
       }
 
-    }
+      select.addEventListener("change", async function(){
+        const n = Number(select.value);
 
+        if(n >= 2){
+          const ok = await premiumOK();
+          if(!ok){
+            select.value = String(currentHSK);
+            status.className = "ea2-status locked";
+            status.textContent = "🔒 HSK " + n + " dành cho Premium.";
+            return;
+          }
+        }
+
+        stop();
+        currentHSK = n;
+        try{ localStorage.setItem(KEY_HSK, String(currentHSK)); }catch(e){}
+        index = Number(localStorage.getItem(indexKey(n)) || 0);
+        buildList();
+        render();
+        status.className = "ea2-status";
+        status.textContent = "";
+      });
+
+      hskRow.appendChild(label);
+      hskRow.appendChild(select);
+    }
 
     /* =======================================================
        ⬅️ TRƯỚC
@@ -135910,5 +135939,110 @@ html,body{background:#fff !important;}
 </script>
 
 
+
+
+<script>
+/* =========================================================
+   🛡️ TTC AUTO LEARNING UI CONTROLS — isolated presentation layer
+   Không thay đổi dữ liệu hoặc engine tự động học.
+   ========================================================= */
+(function(){
+  "use strict";
+  function initTtcAutoLearningUi(){
+    const vocab = document.getElementById("autoLearning");
+    const vocabBody = document.getElementById("autoLearningBody");
+    const vocabPinyin = document.getElementById("autoLearningPinyin");
+    const vocabPinyinBtn = document.getElementById("autoLearningPinyinToggle");
+    const vocabCollapseBtn = document.getElementById("autoLearningCollapseToggle");
+    const example = document.getElementById("ttcExampleAutoV2");
+    const exampleBody = document.getElementById("ttcEA2Body");
+    const examplePinyin = document.getElementById("ttcEA2Pinyin");
+    const examplePinyinBtn = document.getElementById("ttcEA2PinyinToggle");
+    const exampleCollapseBtn = document.getElementById("ttcEA2CollapseToggle");
+    if(!vocab || !vocabBody || !vocabPinyin || !vocabPinyinBtn || !vocabCollapseBtn || !example || !exampleBody || !examplePinyin || !examplePinyinBtn || !exampleCollapseBtn){
+      return;
+    }
+
+    function loadBool(key, fallback){
+      try{ const value = localStorage.getItem(key); return value === null ? fallback : value === "1"; }catch(e){ return fallback; }
+    }
+    function saveBool(key, value){ try{ localStorage.setItem(key, value ? "1" : "0"); }catch(e){} }
+
+    let vocabPinyinOn = loadBool("ttc_auto_vocab_pinyin_visible", false);
+    let examplePinyinOn = loadBool("ttc_auto_example_pinyin_visible", false);
+    let vocabExpanded = loadBool("ttc_auto_vocab_expanded", true);
+    let exampleExpanded = loadBool("ttc_auto_example_expanded", true);
+
+    function setPinyin(el, btn, on){
+      el.hidden = !on;
+      btn.textContent = on ? "拼音：开" : "拼音：关";
+      btn.setAttribute("aria-pressed", on ? "true" : "false");
+    }
+    function setCollapsed(body, btn, expanded){
+      body.hidden = !expanded;
+      btn.textContent = expanded ? "收起 −" : "展开 ＋";
+      btn.setAttribute("aria-expanded", expanded ? "true" : "false");
+    }
+
+    setPinyin(vocabPinyin, vocabPinyinBtn, vocabPinyinOn);
+    setPinyin(examplePinyin, examplePinyinBtn, examplePinyinOn);
+    setCollapsed(vocabBody, vocabCollapseBtn, vocabExpanded);
+    setCollapsed(exampleBody, exampleCollapseBtn, exampleExpanded);
+
+    vocabPinyinBtn.addEventListener("click", function(){
+      vocabPinyinOn = !vocabPinyinOn;
+      setPinyin(vocabPinyin, vocabPinyinBtn, vocabPinyinOn);
+      saveBool("ttc_auto_vocab_pinyin_visible", vocabPinyinOn);
+    });
+    examplePinyinBtn.addEventListener("click", function(){
+      examplePinyinOn = !examplePinyinOn;
+      setPinyin(examplePinyin, examplePinyinBtn, examplePinyinOn);
+      saveBool("ttc_auto_example_pinyin_visible", examplePinyinOn);
+    });
+    vocabCollapseBtn.addEventListener("click", function(){
+      vocabExpanded = !vocabExpanded;
+      setCollapsed(vocabBody, vocabCollapseBtn, vocabExpanded);
+      saveBool("ttc_auto_vocab_expanded", vocabExpanded);
+    });
+    exampleCollapseBtn.addEventListener("click", function(){
+      exampleExpanded = !exampleExpanded;
+      setCollapsed(exampleBody, exampleCollapseBtn, exampleExpanded);
+      saveBool("ttc_auto_example_expanded", exampleExpanded);
+    });
+  }
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", initTtcAutoLearningUi, {once:true});
+  }else{
+    initTtcAutoLearningUi();
+  }
+})();
+</script>
+
+
+
+<!-- WHITE HAT FIX: giữ ổn định nút Premium / chuyển khoản, không nhảy khi rê chuột hoặc chạm -->
+<style id="ttc-premium-payment-stability-fix">
+  .price-box .price-card,
+  .price-box .price-card:hover,
+  .price-box button,
+  .price-box button:hover,
+  .price-box button:active,
+  .price-box summary,
+  .price-box summary:hover,
+  .price-box summary:active {
+    animation: none !important;
+    transform: none !important;
+    translate: none !important;
+    transition-property: background-color, color, border-color, box-shadow !important;
+  }
+  .price-box .price-card:hover {
+    box-shadow: 0 5px 15px rgba(0,0,0,.06) !important;
+  }
+  .price-box button,
+  .price-box summary {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+</style>
 </body>
 </html>
