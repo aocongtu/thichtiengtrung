@@ -88250,30 +88250,73 @@ showAccountMessage(
   const TTC_DEVICE_STORAGE_KEY =
     "ttc_device_id_v1";
 
-
+  /*
+     🛡️ DEVICE ID ỔN ĐỊNH CHO NHIỀU TAB
+     - Các tab cùng trình duyệt dùng chung một ID.
+     - Trên thichtiengtrung.io.vn, cookie dùng chung cho
+       tên miền gốc và www để tránh đếm trùng khi đổi host.
+     - Web Locks giúp tránh hai tab mới cùng tạo hai ID đồng thời.
+     - Không dùng fingerprint để theo dõi người dùng.
+  */
   function getTtcDeviceId(){
 
-    let deviceId =
-      localStorage.getItem(
-        TTC_DEVICE_STORAGE_KEY
-      );
+    const host = String(location.hostname || "").toLowerCase();
+    const useSharedDomainCookie =
+      host === "thichtiengtrung.io.vn" ||
+      host.endsWith(".thichtiengtrung.io.vn");
 
-
-    if(!deviceId){
-
-      deviceId =
-        crypto.randomUUID();
-
-      localStorage.setItem(
-        TTC_DEVICE_STORAGE_KEY,
-        deviceId
-      );
-
+    function readCookie(){
+      const prefix = TTC_DEVICE_STORAGE_KEY + "=";
+      const item = (document.cookie || "")
+        .split(";")
+        .map(function(part){ return part.trim(); })
+        .find(function(part){ return part.indexOf(prefix) === 0; });
+      return item ? decodeURIComponent(item.slice(prefix.length)) : "";
     }
 
+    function writeCookie(value){
+      if(!useSharedDomainCookie) return;
+      document.cookie =
+        TTC_DEVICE_STORAGE_KEY + "=" + encodeURIComponent(value) +
+        "; Max-Age=31536000; Path=/; Domain=.thichtiengtrung.io.vn; SameSite=Lax; Secure";
+    }
 
-    return deviceId;
+    function getOrCreate(){
+      let deviceId = useSharedDomainCookie ? readCookie() : "";
 
+      if(!deviceId){
+        try{
+          deviceId = localStorage.getItem(TTC_DEVICE_STORAGE_KEY) || "";
+        }catch(error){
+          console.warn("TTC: không đọc được localStorage thiết bị", error);
+        }
+      }
+
+      if(!deviceId){
+        deviceId = (window.crypto && typeof window.crypto.randomUUID === "function")
+          ? window.crypto.randomUUID()
+          : "ttc-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+      }
+
+      try{
+        localStorage.setItem(TTC_DEVICE_STORAGE_KEY, deviceId);
+      }catch(error){
+        console.warn("TTC: không lưu được localStorage thiết bị", error);
+      }
+      writeCookie(deviceId);
+      return deviceId;
+    }
+
+    /* Khóa dùng chung giữa các tab nếu trình duyệt hỗ trợ Web Locks. */
+    if(navigator.locks && typeof navigator.locks.request === "function"){
+      return navigator.locks.request(
+        "ttc-device-id-init-v1",
+        { mode: "exclusive" },
+        function(){ return getOrCreate(); }
+      );
+    }
+
+    return Promise.resolve(getOrCreate());
   }
 
 
@@ -88305,7 +88348,7 @@ showAccountMessage(
  window.registerTtcDevice = async function(){
 
     const deviceId =
-      getTtcDeviceId();
+      await getTtcDeviceId();
 
 
     const deviceName =
