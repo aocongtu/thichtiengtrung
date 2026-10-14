@@ -87725,7 +87725,6 @@ function createAccountSystem(){
 
     <div class="account-box">
 
-
       <!-- =================================================
            ĐĂNG NHẬP / ĐĂNG KÝ
            ================================================= -->
@@ -87884,6 +87883,16 @@ function createAccountSystem(){
 
           </div>
 
+
+          <!-- NÂNG CẤP PREMIUM NẰM TRONG MENU TÀI KHOẢN -->
+          <button
+            type="button"
+            id="accountPremiumButton"
+            class="account-premium-button"
+            onclick="(function(){var box=document.querySelector('body > .price-box');if(!box)return;var details=box.querySelector('details');if(details)details.open=true;box.scrollIntoView({behavior:'smooth',block:'center'});})();"
+          >
+            💎 Nâng cấp Premium <span aria-hidden="true">›</span>
+          </button>
 
           <div
             class="account-actions">
@@ -134044,6 +134053,45 @@ body > header h1{
 }
 
 /* =========================================================
+   💎 PREMIUM — THU NHỎ ~50% + GIỮA + NHẤP NHÁY
+========================================================= */
+body > .price-box{
+  width:min(575px,50%) !important;
+  min-width:360px !important;
+  margin:0 auto 14px !important;
+  animation:ttcPremiumPulse 1.8s ease-in-out infinite;
+}
+
+body > .price-box > div:first-child > div:first-child{
+  font-size:13px !important;
+  font-weight:900 !important;
+}
+
+body > .price-box summary{
+  padding:5px 9px !important;
+  font-size:12px !important;
+}
+
+@keyframes ttcPremiumPulse{
+  0%,100%{
+    transform:scale(1);
+    box-shadow:0 4px 15px rgba(30,80,120,.08);
+  }
+  50%{
+    transform:scale(1.025);
+    box-shadow:0 0 18px rgba(212,0,0,.20);
+  }
+}
+
+@media(max-width:600px){
+  body > .price-box{
+    width:calc(100% - 28px) !important;
+    min-width:0 !important;
+    margin:0 auto 12px !important;
+  }
+}
+
+/* =========================================================
    💬 CHAT — GIỮ VÙNG TIN NHẮN ỔN ĐỊNH
 ========================================================= */
 #ttcChatV1 .ttc-chat-messages{
@@ -135980,6 +136028,23 @@ html,body{background:#fff !important;}
 </script>
 
 
+
+<!-- WHITE HAT FIX: đưa lối vào Premium vào khung tài khoản, bỏ hiệu ứng rung/lơ lửng -->
+<style id="ttc-premium-account-integration-fix">
+  #accountSystem .account-premium-button{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    width:100%;box-sizing:border-box;margin:7px 0 8px;padding:9px 11px;
+    border:1px solid #e5c46b;border-radius:9px;background:#fff8e7;color:#805b12;
+    font-size:13px;font-weight:900;line-height:1.3;cursor:pointer;
+    box-shadow:none;animation:none;transform:none;transition:background-color .15s,color .15s,border-color .15s;
+    -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+  }
+  #accountSystem .account-premium-button:hover{background:#fff1c7;border-color:#d9ae3f;transform:none;animation:none;}
+  #accountSystem .account-premium-button:active{transform:none;animation:none;}
+  body > .price-box{animation:none !important;transform:none !important;translate:none !important;}
+  body > .price-box:hover,body > .price-box:active{animation:none !important;transform:none !important;translate:none !important;}
+  @media(max-width:600px){#accountSystem .account-premium-button{font-size:12px;padding:8px 9px;}}
+</style>
 
 <!-- WHITE HAT FIX: giữ ổn định nút Premium / chuyển khoản, không nhảy khi rê chuột hoặc chạm -->
 <style id="ttc-premium-payment-stability-fix">
