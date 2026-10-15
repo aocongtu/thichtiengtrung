@@ -2434,6 +2434,17 @@ main{
 #flashcardSection .flashcard-back-pinyin.ttc-pinyin-hidden{display:none!important}
 @media(max-width:600px){.ttc-pinyin-toggle{padding:7px 8px;font-size:11px}#vocabularySection .toolbar{gap:7px}#flashcardSection .flashcard-header{column-gap:8px;row-gap:8px}#flashcardSection .flashcard-controls{margin-left:0;width:100%;justify-content:flex-start}}
 
+
+/* TTC — ô vị trí từ vựng: nhấn để nhập số thứ tự muốn học tiếp */
+.ttc-vocab-position{
+  width:94px; min-width:78px; padding:8px 9px;
+  border:1px solid #b9d7e8; border-radius:10px;
+  background:#fff; color:#24557a; font:700 14px Arial,sans-serif;
+  text-align:center; font-variant-numeric:tabular-nums;
+  outline:none; box-shadow:0 2px 7px rgba(30,80,120,.06);
+}
+.ttc-vocab-position:focus{border-color:#2586df;box-shadow:0 0 0 3px rgba(37,134,223,.14)}
+
 /* TTC SAFE ADDITION — đánh số thứ tự danh sách từ HSK */
 #vocabularySection .card .hsk{max-width:calc(100% - 24px);font-variant-numeric:tabular-nums}
 /* TTC — Từ vựng chuyên ngành */
@@ -5314,9 +5325,9 @@ HSK 1 — 150 từ
 <div id="bar"></div>
 </div>
 
-<span id="count">
-150 từ
-</span>
+<input id="count" class="ttc-vocab-position" type="text" inputmode="numeric"
+       value="1/150" aria-label="Vị trí từ vựng hiện tại"
+       title="Nhấn để nhập số thứ tự từ muốn học tiếp" autocomplete="off">
 
 </div>
 
@@ -83896,6 +83907,87 @@ function toggleVocabularyPinyin(){
   }
 }
 
+
+/* =========================================================
+   TTC — NHẢY TỚI TỪ VỰNG THEO SỐ THỨ TỰ
+   Ví dụ nhập 55 → cuộn tới thẻ từ thứ 55 trong danh sách hiện tại.
+   Không sửa dữ liệu từ vựng hay engine học.
+========================================================= */
+let ttcVocabularyStartIndex = 0;
+
+function updateVocabularyPositionDisplay(list=currentList){
+  const input = document.getElementById("count");
+  if(!input) return;
+  const total = Array.isArray(list) ? list.length : 0;
+  if(total === 0){
+    ttcVocabularyStartIndex = 0;
+    input.value = "0/0";
+    input.setAttribute("aria-label","Danh sách từ vựng trống");
+    return;
+  }
+  ttcVocabularyStartIndex = Math.max(0, Math.min(ttcVocabularyStartIndex, total - 1));
+  input.value = `${ttcVocabularyStartIndex + 1}/${total}`;
+  input.setAttribute("aria-label",`Vị trí ${ttcVocabularyStartIndex + 1} trên ${total}. Nhấn để nhập số thứ tự.`);
+}
+
+function ttcJumpToVocabularyPosition(rawValue){
+  const input = document.getElementById("count");
+  const total = Array.isArray(currentList) ? currentList.length : 0;
+  const raw = String(rawValue ?? "").trim();
+  if(!total){
+    updateVocabularyPositionDisplay(currentList);
+    return;
+  }
+  // Chỉ nhận số thứ tự; nếu người dùng nhập "55/300", vẫn lấy số 55.
+  const match = raw.match(/^\s*(\d+)/);
+  if(!match){
+    updateVocabularyPositionDisplay(currentList);
+    return;
+  }
+  const requested = Number(match[1]);
+  if(!Number.isFinite(requested)){
+    updateVocabularyPositionDisplay(currentList);
+    return;
+  }
+  const index = Math.max(0, Math.min(Math.trunc(requested) - 1, total - 1));
+  ttcVocabularyStartIndex = index;
+  updateVocabularyPositionDisplay(currentList);
+
+  requestAnimationFrame(() => {
+    const cards = document.querySelectorAll("#cards .card");
+    const target = cards[index];
+    if(target){
+      target.scrollIntoView({behavior:"smooth", block:"center"});
+      target.setAttribute("tabindex","-1");
+      try{ target.focus({preventScroll:true}); }catch(e){}
+    }
+  });
+}
+
+function initTtcVocabularyPositionInput(){
+  const input = document.getElementById("count");
+  if(!input || input.dataset.ttcPositionReady === "1") return;
+  input.dataset.ttcPositionReady = "1";
+  input.addEventListener("focus", () => {
+    // Khi chạm vào "1/300", chỉ để lại ô số cho dễ sửa thành 55.
+    const match = String(input.value).match(/^(\d+)/);
+    input.value = match ? match[1] : "1";
+    input.select();
+  });
+  input.addEventListener("keydown", event => {
+    if(event.key === "Enter"){
+      event.preventDefault();
+      ttcJumpToVocabularyPosition(input.value);
+      input.blur();
+    }else if(event.key === "Escape"){
+      updateVocabularyPositionDisplay(currentList);
+      input.blur();
+    }
+  });
+  input.addEventListener("change", () => ttcJumpToVocabularyPosition(input.value));
+  input.addEventListener("blur", () => updateVocabularyPositionDisplay(currentList));
+}
+
 function render(list=currentList){
 
   const box=document.getElementById("cards");
@@ -83941,8 +84033,7 @@ function render(list=currentList){
 
   `).join("");
 
-  document.getElementById("count").textContent=
-    `${list.length} từ`;
+  updateVocabularyPositionDisplay(list);
 
   document.getElementById("bar").style.width=
     currentList.length
@@ -89385,7 +89476,7 @@ function startAccountTrialCountdown(
 }
 
   /* =========================================================
-     8. KIỂM TRA SESSION + GIỚI HẠN 3 THIẾT BỊ
+     8. KIỂM TRA SESSION + GIỚI HẠN 6 THIẾT BỊ
      ========================================================= */
 
   let ttcDeviceCheckRunning = false;
@@ -89417,7 +89508,7 @@ function startAccountTrialCountdown(
        → cập nhật last_seen
        → cho đăng nhập bình thường.
 
-       Nếu đã đủ 3 thiết bị:
+       Nếu đã đủ 6 thiết bị:
        → chỉ đăng xuất phiên hiện tại.
     */
 
@@ -89453,7 +89544,7 @@ function startAccountTrialCountdown(
         ){
 
           showAccountMessage(
-            "🚫 Tài khoản đã sử dụng đủ 3 thiết bị.<br>" +
+            "🚫 Tài khoản đã sử dụng đủ 6 thiết bị.<br>" +
             "Vui lòng đăng xuất một thiết bị cũ trước khi đăng nhập thiết bị này.",
             "error"
           );
@@ -136320,6 +136411,22 @@ launcher.addEventListener("click",()=>{
 categorySelect.addEventListener("change",fillBranches);
 branchSelect.addEventListener("change",renderSpecialty);
 fillBranches();
+})();
+</script>
+
+<script>
+/* TTC safe init for editable vocabulary position counter */
+(function(){
+  function boot(){
+    if(typeof initTtcVocabularyPositionInput === "function"){
+      initTtcVocabularyPositionInput();
+      updateVocabularyPositionDisplay(
+        typeof currentList !== "undefined" ? currentList : []
+      );
+    }
+  }
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded",boot,{once:true});
+  else boot();
 })();
 </script>
 
