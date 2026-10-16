@@ -5372,10 +5372,12 @@ HSK 1 — 150 từ
     max="150"
     value="1"
     inputmode="numeric"
+    enterkeyhint="go"
     aria-label="Nhập số thứ tự từ muốn học tiếp"
-    title="Nhập số thứ tự từ muốn học tiếp rồi nhấn Enter"
+    title="Nhập số thứ tự rồi nhấn Go/Done trên bàn phím hoặc chạm ra ngoài ô"
     onfocus="this.select()"
-    onkeydown="if(event.key==='Enter'){event.preventDefault();ttcJumpToVocabularyPosition(this.value)}"
+    onkeydown="if(event.key==='Enter'||event.key==='Go'){event.preventDefault();ttcJumpToVocabularyPosition(this.value)}"
+    onblur="ttcJumpToVocabularyPosition(this.value)"
   >
   <span aria-hidden="true">/</span>
   <span id="ttcVocabularyPositionTotal">150</span>
