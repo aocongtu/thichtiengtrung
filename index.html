@@ -388,7 +388,7 @@ main{
   position: fixed;
 
   right:23px;
-  bottom:12px;
+  bottom:32px;
 
   width: 48px;
   height: 48px;
@@ -401,7 +401,7 @@ main{
   box-shadow:
     0 4px 14px rgba(0,0,0,0.18);
 
-  font-size: 32px;
+  font-size: 52px;
 
   cursor: pointer;
 
@@ -89189,185 +89189,118 @@ async function updateAccountUI(user){
 
 
   /* =====================================================
-     KIỂM TRA MEMBERSHIP
+     KIỂM TRA MEMBERSHIP — ƯU TIÊN GÓI CÒN HẠN
+     - Không chỉ dựa vào created_at vì bản ghi được gia hạn
+       có thể giữ nguyên created_at.
+     - Luôn kiểm tra cả status và end_date.
      ===================================================== */
 
   const {
-    data,
-    error
-  } =
-    await window.supabase
+    data: memberships,
+    error: membershipError
+  } = await window.supabase
       .from("memberships")
-      .select("*")
-      .eq(
-        "user_id",
-        user.id
-      )
-      .order(
-        "created_at",
-        {
-          ascending:false
-        }
-      )
-      .limit(1);
+      .select("id,plan,amount,status,start_date,end_date,created_at,updated_at")
+      .eq("user_id", user.id)
+      .order("updated_at", { ascending: false, nullsFirst: false });
 
 
-  /* =====================================================
-     TÊN CÁC GÓI
-     ===================================================== */
-
+  /* TÊN CÁC GÓI */
   const planNames = {
+    "1_month": "1 tháng",
+    "6_months": "6 tháng",
+    "1_year": "1 năm"
+  };
 
-  "1_month":
-    "1 tháng",
+  const nowMs = Date.now();
+  const allMemberships = (!membershipError && Array.isArray(memberships))
+    ? memberships
+    : [];
 
-  "6_months":
-    "6 tháng",
+  // Chọn gói active và chưa hết hạn, không phụ thuộc bản ghi mới tạo nhất.
+  const currentMembership = allMemberships.find(m =>
+    m.status === "active" &&
+    m.end_date &&
+    new Date(m.end_date).getTime() > nowMs
+  );
 
-  "1_year":
-    "1 năm"
+  // Yêu cầu đang chờ (nếu bảng membership có lưu trạng thái này).
+  const pendingMembership = allMemberships.find(m =>
+    m.status === "pending"
+  );
 
-};
+  // Gói hết hạn gần nhất để vẫn hiển thị đúng lịch sử, không giả vờ còn Premium.
+  const expiredMembership = allMemberships
+    .filter(m =>
+      m.status === "expired" ||
+      (m.end_date && new Date(m.end_date).getTime() <= nowMs)
+    )
+    .sort((a, b) =>
+      new Date(b.end_date || 0).getTime() -
+      new Date(a.end_date || 0).getTime()
+    )[0];
 
-  /* =====================================================
-     CÓ MEMBERSHIP HOẶC ĐANG CHỜ
-     ===================================================== */
-
-  if(
-    !error &&
-    data &&
-    data.length > 0
-  ){
-
-    const membership =
-      data[0];
-
-
-    const planName =
-      planNames[membership.plan] ||
-      membership.plan ||
-      "Không xác định";
-
-
-    /* ===================================================
-       ĐANG HOẠT ĐỘNG
-       =================================================== */
-
-    if(
-      membership.status ===
-      "active"
-    ){
-
-      const endDate =
-        membership.end_date
-          ? new Date(
-              membership.end_date
-            ).toLocaleDateString(
-              "vi-VN"
-            )
-          : "Không xác định";
-
-
-      statusBox.innerHTML = `
-
-        💎 <b>THÀNH VIÊN PREMIUM</b><br>
-
-        📦 Gói: <b>${planName}</b><br>
-
-        📅 Hạn sử dụng: <b>${endDate}</b>
-
-      `;
-
-
-      return;
-
-    }
-
-
-    /* ===================================================
-       ĐANG CHỜ XÁC NHẬN
-       =================================================== */
-
-    if(
-      membership.status ===
-      "pending"
-    ){
-
-      statusBox.innerHTML = `
-
-        ⏳ <b>ĐANG CHỜ XÁC NHẬN</b><br>
-
-        📦 Gói: <b>${planName}</b><br>
-
-        Yêu cầu đăng ký đang được xử lý.
-
-      `;
-
-
-      return;
-
-    }
-
-  }
-
-
-  /* =====================================================
-     KHÔNG CÓ PREMIUM
-     → KIỂM TRA FREE TRIAL 5 GIỜ
-     ===================================================== */
-
-  const trial =
-    await checkFreeTrial();
-
-
-  /* =====================================================
-     TRIAL CÒN THỜI GIAN
-     ===================================================== */
-
-  if(
-    trial.allowed
-  ){
+  if(currentMembership){
+    const planName = planNames[currentMembership.plan] || currentMembership.plan || "Không xác định";
+    const endDate = new Date(currentMembership.end_date).toLocaleDateString("vi-VN");
 
     statusBox.innerHTML = `
-
-      🎁 <b>HỌC THỬ PREMIUM</b><br>
-
-      ⏱️ Còn lại:
-      <b id="accountTrialCountdown">
-        Đang tính...
-      </b><br>
-
-      🎓 HSK 1–2: <b>Miễn phí</b>
-
+      💎 <b>THÀNH VIÊN PREMIUM</b><br>
+      📦 Gói: <b>${planName}</b><br>
+      📅 Hạn sử dụng: <b>${endDate}</b>
     `;
-
-
-    /* ===================================================
-       ĐỒNG HỒ TRIAL
-       =================================================== */
-
-    startAccountTrialCountdown(
-      trial.remaining
-    );
-
-
     return;
-
   }
 
+  if(pendingMembership){
+    const planName = planNames[pendingMembership.plan] || pendingMembership.plan || "Không xác định";
+    statusBox.innerHTML = `
+      ⏳ <b>ĐANG CHỜ XÁC NHẬN</b><br>
+      📦 Gói đăng ký: <b>${planName}</b><br>
+      Yêu cầu đăng ký đang được xử lý.
+    `;
+    return;
+  }
+
+  if(expiredMembership){
+    const planName = planNames[expiredMembership.plan] || expiredMembership.plan || "Không xác định";
+    const endDate = expiredMembership.end_date
+      ? new Date(expiredMembership.end_date).toLocaleDateString("vi-VN")
+      : "Không xác định";
+
+    statusBox.innerHTML = `
+      ⏰ <b>GÓI PREMIUM ĐÃ HẾT HẠN</b><br>
+      📦 Gói gần nhất: <b>${planName}</b><br>
+      📅 Hết hạn ngày: <b>${endDate}</b><br>
+      🎓 HSK 1–2: <b>Miễn phí</b>
+    `;
+    return;
+  }
+
+  if(membershipError){
+    console.error("Không tải được memberships:", membershipError);
+  }
 
   /* =====================================================
-     TRIAL ĐÃ HẾT
+     KHÔNG CÓ GÓI PREMIUM HIỆU LỰC → KIỂM TRA FREE TRIAL
      ===================================================== */
 
+  const trial = await checkFreeTrial();
+
+  if(trial.allowed){
+    statusBox.innerHTML = `
+      🎁 <b>HỌC THỬ PREMIUM</b><br>
+      ⏱️ Còn lại: <b id="accountTrialCountdown">Đang tính...</b><br>
+      🎓 HSK 1–2: <b>Miễn phí</b>
+    `;
+    startAccountTrialCountdown(trial.remaining);
+    return;
+  }
+
   statusBox.innerHTML = `
-
     ⏰ <b>ĐÃ HẾT THỜI GIAN HỌC THỬ</b><br>
-
     🎓 HSK 1–2: <b>Miễn phí</b><br>
-
-    💎 HSK 3–9: <b>Premium</b>
-
+    💎 HSK 3–9: <b>Cần đăng ký Premium</b>
   `;
 
 }
