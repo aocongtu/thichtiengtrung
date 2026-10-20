@@ -2592,6 +2592,53 @@ body.ttc-reading-open #thttGrammarLauncher{display:none!important;visibility:hid
 #ttcReadingSection .ttc-reading-pair-active{border-radius:8px;outline:2px solid rgba(22,163,74,.32);outline-offset:2px;transition:outline-color .18s ease}
 @media(prefers-reduced-motion:reduce){#ttcReadingSection .ttc-reading-pair-active{transition:none}}
 </style>
+
+<style id="ttc-listening-dictation-v1-css">
+#ttcListeningLauncher{display:block;width:min(100%,560px);margin:12px auto 18px;padding:15px 20px;border:1px solid #fdba74;border-radius:16px;background:linear-gradient(135deg,#c2410c,#fb923c);color:#fff;font-size:17px;font-weight:900;box-shadow:0 0 8px #fdba74,0 0 22px rgba(249,115,22,.42);animation:ttcListeningGlow 1.8s ease-in-out infinite alternate;cursor:pointer}
+@keyframes ttcListeningGlow{from{box-shadow:0 0 6px #fdba74,0 0 12px rgba(249,115,22,.25)}to{box-shadow:0 0 12px #ffedd5,0 0 28px rgba(249,115,22,.62)}}
+#ttcListeningSection{display:none;margin:20px 0 28px;padding:20px;background:#fff;border:1px solid #fed7aa;border-radius:20px;box-shadow:0 6px 24px rgba(194,65,12,.10);color:#334155}
+#ttcListeningSection.ttc-listening-open{display:block}
+#ttcListeningSection *{box-sizing:border-box}
+#ttcListeningSection .ttc-listen-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+#ttcListeningSection h2{margin:0;color:#c2410c}
+#ttcListeningSection .ttc-listen-note{line-height:1.6;color:#64748b}
+#ttcListeningSection .ttc-listen-levels{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:16px 0}
+#ttcListeningSection .ttc-listen-level,#ttcListeningSection .ttc-listen-item,#ttcListeningSection .ttc-listen-btn{border-radius:12px;padding:11px 14px;font-weight:800;cursor:pointer}
+#ttcListeningSection .ttc-listen-level{border:1px solid #fdba74;background:#fff7ed;color:#9a3412;text-align:left}
+#ttcListeningSection .ttc-listen-level small{display:block;font-weight:500;margin-top:4px;color:#78716c}
+#ttcListeningSection .ttc-listen-item{display:block;width:100%;text-align:left;margin:8px 0;border:1px solid #fed7aa;background:#fff;color:#9a3412}
+#ttcListeningSection .ttc-listen-nav,#ttcListeningSection .ttc-listen-controls,#ttcListeningSection .ttc-listen-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0}
+#ttcListeningSection .ttc-listen-btn{border:1px solid #fdba74;background:#fff7ed;color:#9a3412}
+#ttcListeningSection .ttc-listen-btn.primary{border-color:#ea580c;background:#ea580c;color:#fff}
+#ttcListeningSection .ttc-listen-btn:disabled{opacity:.4;cursor:not-allowed}
+#ttcListeningSection .ttc-listen-nav-title{font-weight:900;color:#9a3412}
+#ttcListeningSection .ttc-listen-detail{margin-top:12px;padding:15px;border:1px solid #fed7aa;border-radius:15px;background:#fff}
+#ttcListeningSection .ttc-listen-detail h3{margin:0 0 10px;color:#9a3412;font-size:22px}
+#ttcListeningSection .ttc-listen-mode-label{font-weight:800;color:#9a3412}
+#ttcListeningSection .ttc-listen-editor-wrap{margin-top:14px;border:1px solid #d6d3d1;border-radius:13px;overflow:hidden;background:#fff}
+#ttcListeningSection .ttc-listen-editor-toolbar{display:flex;gap:5px;flex-wrap:wrap;padding:9px;background:#fafaf9;border-bottom:1px solid #e7e5e4}
+#ttcListeningSection .ttc-listen-editor-toolbar button{padding:7px 10px;border:1px solid #d6d3d1;border-radius:7px;background:#fff;color:#44403c;font-size:13px}
+#ttcListeningSection .ttc-listen-editor{min-height:240px;padding:15px;outline:none;font-size:19px;line-height:1.9;color:#1c1917;white-space:pre-wrap;overflow-wrap:anywhere}
+#ttcListeningSection .ttc-listen-editor:empty:before{content:attr(data-placeholder);color:#a8a29e;pointer-events:none}
+#ttcListeningSection .ttc-listen-editor:focus{box-shadow:inset 0 0 0 2px rgba(249,115,22,.12)}
+#ttcListeningSection .ttc-listen-check-result{display:none;margin-top:14px;padding:13px;border:1px solid #e7e5e4;border-radius:12px;background:#fafaf9;font-size:18px;line-height:2;white-space:pre-wrap;overflow-wrap:anywhere}
+#ttcListeningSection .ttc-listen-check-result.visible{display:block}
+#ttcListeningSection .ttc-listen-live-wrap{margin-top:12px;padding:10px;border:1px dashed #fdba74;border-radius:12px;background:#fffbeb}
+#ttcListeningSection .ttc-listen-live-wrap>strong{display:block;color:#9a3412;margin-bottom:6px}
+#ttcListeningSection .ttc-check-correct{color:#15803d;background:#dcfce7;border-radius:4px}
+#ttcListeningSection .ttc-check-wrong{color:#b91c1c;background:#fee2e2;border-radius:4px;text-decoration:underline wavy #ef4444}
+#ttcListeningSection .ttc-check-missing{color:#b91c1c;background:#ffedd5;border:1px dashed #f97316;border-radius:4px;font-weight:900;letter-spacing:1px}
+#ttcListeningSection .ttc-listen-answer{display:none;margin-top:12px;padding:14px;border:1px solid #fed7aa;border-radius:12px;background:#fff7ed;line-height:1.9;white-space:pre-wrap}
+#ttcListeningSection .ttc-listen-answer.visible{display:block}
+#ttcListeningSection .ttc-listen-answer .py{display:block;margin-top:7px;color:#0f766e;font-size:15px}
+#ttcListeningSection .ttc-listen-answer .vi{display:block;margin-top:7px;color:#475569;font-size:15px}
+#ttcListeningSection .ttc-listen-status{min-height:24px;margin-top:10px;color:#78716c;font-size:13px}
+#ttcListeningSection .ttc-listen-settings{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:10px 0}
+#ttcListeningSection .ttc-listen-settings label{display:flex;align-items:center;gap:6px;font-size:14px;color:#57534e}
+#ttcListeningSection select{max-width:100%;padding:8px;border:1px solid #d6d3d1;border-radius:9px;background:#fff;color:#44403c}
+@media(max-width:600px){#ttcListeningSection{padding:13px}#ttcListeningSection .ttc-listen-levels{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}#ttcListeningSection .ttc-listen-editor{min-height:200px;font-size:17px;padding:12px}#ttcListeningSection .ttc-listen-editor-toolbar button{padding:7px 8px}#ttcListeningLauncher{font-size:15px;padding:13px}}
+</style>
+
 </head>
 
 <body>
@@ -4662,6 +4709,50 @@ body > .price-box{
 <button type="button" id="ttcSpecialtyLauncher" aria-expanded="false">📚 Từ vựng chuyên ngành ✨</button>
 <button type="button" id="ttcReadingLauncher" aria-expanded="false">📖 Khu luyện đọc HSK</button>
 <section id="ttcReadingSection" aria-label="Khu luyện đọc HSK"><div class="ttc-reading-section-head"><h2>📖 Khu luyện đọc HSK</h2><button type="button" id="ttcReadingHelpBtn" class="ttc-reading-secondary">❔ Giải thích</button></div><div id="ttcReadingHelp" class="ttc-reading-help" hidden><strong>Cách sử dụng</strong><ol><li>Chọn HSK 1–9 để mở danh sách bài đọc.</li><li>Chọn bài đọc để mở riêng nội dung.</li><li>Dùng các nút phía trên bài để bật/tắt Pinyin, nghe bài, hiện nghĩa tiếng Việt ngay dưới từng câu, chọn màu và giọng đọc.</li><li>Nhấn chữ Hán bất kỳ để bắt đầu nghe từ vị trí đó; phần đã đọc sẽ được tô màu theo lựa chọn.</li></ol><p>Các bài bổ sung trong thư viện này được biên soạn mới cho mục đích học tập. Tài liệu tham khảo mở: <a href="https://bloomchinese.com/open-education-resources" target="_blank" rel="noopener noreferrer">BloomChinese OER (CC BY 4.0)</a>. Nội dung từ nguồn ngoài chỉ nên tái sử dụng khi giấy phép cho phép và có ghi công phù hợp.</p></div><div id="ttcReadingLevels" class="ttc-reading-levels"></div><div id="ttcReadingNav" class="ttc-reading-nav" hidden><button type="button" id="ttcReadingBackLevels" class="ttc-reading-secondary">← Tất cả cấp độ</button><span id="ttcReadingNavTitle"></span></div><div id="ttcReadingList" hidden></div><article id="ttcReadingDetail" hidden></article></section>
+
+<button type="button" id="ttcListeningLauncher" aria-expanded="false">🎧 Khu luyện nghe gõ theo HSK ✨</button>
+<section id="ttcListeningSection" aria-label="Khu luyện nghe gõ theo HSK">
+  <div class="ttc-listen-head"><h2>🎧 Khu luyện nghe gõ theo HSK</h2><button type="button" class="ttc-listen-btn" id="ttcListenHelpBtn">❔ Cách học</button></div>
+  <p class="ttc-listen-note" id="ttcListenHelp" hidden>Chọn cấp độ và bài đọc, nghe rồi gõ lại bằng tiếng Trung. Nội dung đối chiếu lấy trực tiếp từ thư viện Khu luyện đọc HSK. Nhấn CHECK VAR để xem chữ đúng, chữ sai và vị trí còn thiếu. Bài làm chỉ giữ trong phiên hiện tại, không tự động lưu.</p>
+  <div class="ttc-listen-levels" id="ttcListenLevels"></div>
+  <div class="ttc-listen-nav" id="ttcListenNav" hidden><button type="button" class="ttc-listen-btn" id="ttcListenBackLevels">← Tất cả HSK</button><span class="ttc-listen-nav-title" id="ttcListenNavTitle"></span></div>
+  <div id="ttcListenList" hidden></div>
+  <div class="ttc-listen-detail" id="ttcListenDetail" hidden>
+    <h3 id="ttcListenArticleTitle"></h3>
+    <div class="ttc-listen-settings">
+      <label>Giọng đọc <select id="ttcListenVoice" aria-label="Chọn giọng đọc tiếng Trung"></select></label>
+      <label><input type="checkbox" id="ttcListenShowPinyin"> Pinyin</label><label><input type="checkbox" id="ttcListenShowVi"> Tiếng Việt</label><label>Tốc độ <select id="ttcListenRate" aria-label="Tốc độ đọc"><option value="0.1">0.1× Cực chậm</option><option value="0.25">0.25× Siêu chậm</option><option value="0.5">0.5× Rất chậm</option><option value="0.65">0.65× Chậm</option><option value="0.85">0.85× Hơi chậm</option><option value="1">1× Bình thường</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option></select></label>
+    </div>
+    <div class="ttc-listen-controls">
+      <button type="button" class="ttc-listen-btn primary" id="ttcListenWhole">🔊 Nghe cả bài</button>
+      <button type="button" class="ttc-listen-btn primary" id="ttcListenSegmentMode">🎧 Nghe từng đoạn</button>
+      <button type="button" class="ttc-listen-btn primary" id="ttcListenPlayCurrent">🔊 Nghe tiếp</button>
+      <button type="button" class="ttc-listen-btn" id="ttcListenStop">⏹ Dừng</button>
+      <button type="button" class="ttc-listen-btn" id="ttcListenReveal">👁 Bật xem</button>
+    </div>
+    <div class="ttc-listen-mode-label" id="ttcListenModeLabel">Chọn chế độ nghe để bắt đầu.</div>
+    <div class="ttc-listen-answer" id="ttcListenAnswer" aria-live="polite"></div>
+    <div class="ttc-listen-editor-wrap">
+      <div class="ttc-listen-editor-toolbar" aria-label="Công cụ soạn thảo">
+        <button type="button" data-cmd="bold" title="In đậm"><b>B</b></button><button type="button" data-cmd="italic" title="In nghiêng"><i>I</i></button><button type="button" data-cmd="underline" title="Gạch chân"><u>U</u></button>
+        <button type="button" data-cmd="justifyLeft" title="Căn trái">☰←</button><button type="button" data-cmd="justifyCenter" title="Căn giữa">☰↔</button><button type="button" data-cmd="insertUnorderedList" title="Danh sách">• Danh sách</button>
+        <button type="button" data-cmd="undo" title="Hoàn tác">↶</button><button type="button" data-cmd="redo" title="Làm lại">↷</button>
+        <button type="button" data-insert="，">，</button><button type="button" data-insert="。">。</button><button type="button" data-insert="？">？</button><button type="button" data-insert="！">！</button>
+      </div>
+      <div id="ttcListenEditor" class="ttc-listen-editor" contenteditable="true" role="textbox" aria-multiline="true" data-placeholder="Bấm vào đây và gõ lại những gì anh/chị nghe được…"></div>
+    </div>
+    <div class="ttc-listen-controls">
+      <button type="button" class="ttc-listen-btn primary" id="ttcListenCheck" aria-pressed="false">🧩 CHECK VAR trực tiếp: TẮT</button>
+      <button type="button" class="ttc-listen-btn" id="ttcListenPrev">⬅️ Đoạn phía trước</button>
+      <button type="button" class="ttc-listen-btn" id="ttcListenNext">➡️ Đoạn tiếp theo</button>
+      <button type="button" class="ttc-listen-btn" id="ttcListenClear">🧹 Xóa bài gõ</button>
+    </div>
+    <div class="ttc-listen-check-result" id="ttcListenCheckResult" hidden aria-hidden="true"></div>
+    <div class="ttc-listen-live-wrap"><strong>Kết quả CHECK VAR</strong><div class="ttc-listen-check-result" id="ttcListenLiveResult" aria-live="polite"></div></div>
+    <div class="ttc-listen-status" id="ttcListenStatus" role="status"></div>
+  </div>
+</section>
+
 <section id="ttcSpecialtySection" aria-label="Từ vựng chuyên ngành">
   <h2>📚 Từ vựng chuyên ngành Trung – Việt</h2>
   <p class="ttc-specialty-note">Nguồn tham khảo thuật ngữ: <a href="https://www.cnterm.cn/" target="_blank" rel="noopener noreferrer">全国科学技术名词审定委员会</a> / <a href="https://www.termonline.cn/about" target="_blank" rel="noopener noreferrer">术语在线</a>; tham khảo cấu trúc từ điển mở <a href="https://github.com/ph0ngp/CVDICT" target="_blank" rel="noopener noreferrer">CVDICT</a>. Nghĩa tiếng Việt, giải thích và câu ví dụ trong bộ bổ sung được biên soạn cho mục đích học tập; nên rà soát thêm trước khi dùng làm tài liệu chuyên môn chính thức.</p>
@@ -136332,6 +136423,205 @@ const speechAvailable=()=>typeof window!=='undefined'&&'speechSynthesis'in windo
 #thttGrammarLauncher:hover{opacity:1;transform:translateX(-2px)}
 @media(max-width:600px){#thttGrammarLauncher{right:0!important;bottom:35%!important;padding:8px 6px!important;font-size:12px!important;max-width:34px!important}}
 </style>
+
+
+
+<style id="ttc-listening-fix-v3-css">
+#ttcListeningSection .ttc-listen-answer-pair{padding:10px 0;border-bottom:1px solid rgba(120,120,120,.18)}
+#ttcListeningSection .ttc-listen-answer-pair:last-child{border-bottom:0}
+#ttcListeningSection .ttc-listen-answer-pair .zh{margin:0 0 5px;font-size:1.12em;line-height:1.8}
+#ttcListeningSection .ttc-listen-answer-pair .py{margin:0 0 5px;line-height:1.65;color:#8a5a00}
+#ttcListeningSection .ttc-listen-answer-pair .vi{margin:0;line-height:1.65;color:#26734d}
+#ttcListeningSection #ttcListenCheck[aria-pressed="true"]{box-shadow:0 0 0 2px rgba(34,197,94,.3);}
+</style>
+<script id="ttc-listening-dictation-v1-js">
+(function(){
+'use strict';
+const launcher=document.getElementById('ttcListeningLauncher');
+const section=document.getElementById('ttcListeningSection');
+if(!launcher||!section)return;
+const $=id=>document.getElementById(id);
+const levels=$('ttcListenLevels'),nav=$('ttcListenNav'),navTitle=$('ttcListenNavTitle'),list=$('ttcListenList'),detail=$('ttcListenDetail');
+const editor=$('ttcListenEditor'),answer=$('ttcListenAnswer'),checkResult=$('ttcListenCheckResult'),liveResult=$('ttcListenLiveResult'),status=$('ttcListenStatus');
+const engine=document.getElementById('ttc-reading-engine-v3');
+let bank={};
+try{
+ const source=engine&&engine.textContent;
+ const match=source&&source.match(/const bank=(\{[\s\S]*?\});const launcher=/);
+ if(!match)throw new Error('Không tìm thấy kho bài đọc trong engine hiện có.');
+ bank=JSON.parse(match[1]);
+}catch(err){
+ levels.innerHTML='<p>Không đọc được thư viện bài đọc hiện có. Khu luyện nghe đã dừng để tránh dùng sai dữ liệu.</p>';
+ console.error('[TTC Listening] Không thể nạp nguồn bài đọc:',err);
+ return;
+}
+let currentLevel=0,currentArticle=null,currentIndex=0,mode='segment',revealed=false,voices=[],selectedVoice='',sessionId=0,liveCheckEnabled=false;
+let pairedSegments=[],segmentDrafts=[],wholeDraft='';
+const speechAvailable=()=>typeof window!=='undefined'&&'speechSynthesis'in window;
+function stopAudio(){sessionId++;if(speechAvailable())window.speechSynthesis.cancel();status.textContent='Đã dừng phát âm thanh.';}
+function escapeHtml(value){return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function splitParts(text){return String(text||'').match(/[^。！？!?；;.]+[。！？!?；;.]?/g)?.map(x=>x.trim()).filter(Boolean)||[String(text||'')];}
+function groupParts(parts,target){const groups=Array.from({length:target},()=>[]);if(!parts.length)return groups.map(()=> '');parts.forEach((part,j)=>groups[Math.min(target-1,Math.floor(j*target/parts.length))].push(part));return groups.map(g=>g.join(''));}
+function alignParts(parts,target){if(parts.length===target)return parts;if(!parts.length)return Array.from({length:target},()=> '');return groupParts(parts,target);}
+function makeSegments(article){
+ const zh=splitParts(article.zh),py=splitParts(article.py||''),vi=splitParts(article.vi||'');
+ const target=Math.max(1,Math.min(zh.length||1,vi.length||zh.length||1));
+ const z=alignParts(zh,target),p=alignParts(py,target),v=alignParts(vi,target);
+ return z.map((text,i)=>({zh:text,py:p[i]||'',vi:v[i]||'',index:i}));
+}
+function view(which){
+ levels.hidden=which!=='levels';list.hidden=which!=='list';detail.hidden=which!=='detail';nav.hidden=which==='levels';
+}
+function renderLevels(){
+ levels.replaceChildren();
+ for(let n=1;n<=9;n++){
+  const b=document.createElement('button');b.type='button';b.className='ttc-listen-level';
+  b.innerHTML='HSK '+n+'<small>Danh sách bài đọc làm bài nghe</small>';
+  b.addEventListener('click',()=>renderList(n));
+  levels.appendChild(b);
+ }
+}
+function renderList(n){
+ stopAudio();currentLevel=n;navTitle.textContent='Danh sách bài đọc · HSK '+n;list.replaceChildren();
+ const articles=bank[String(n)]||[];
+ articles.forEach((a,i)=>{
+  const b=document.createElement('button');b.type='button';b.className='ttc-listen-item';
+  b.innerHTML='<strong>Bài đọc số '+(i+1)+'</strong><span> · '+escapeHtml(a.title||'')+'</span>';
+  b.addEventListener('click',async()=>{
+   if(Number(n)>=3){
+    let allowed=false;
+    try{allowed=typeof checkPremiumAccess==='function'?!!(await checkPremiumAccess(Number(n))):false;}catch(e){}
+    if(!allowed){if(typeof checkPremiumAccess!=='function')alert('🔒 Bài nghe HSK '+n+' cần quyền truy cập Premium.');return;}
+   }
+   openArticle(a,i);
+  });
+  list.appendChild(b);
+ });
+ if(!articles.length)list.innerHTML='<p>Chưa có bài đọc ở cấp độ này.</p>';
+ view('list');list.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function openArticle(article,index){
+ stopAudio();currentArticle=article;currentIndex=0;mode='segment';revealed=false;liveCheckEnabled=false;pairedSegments=makeSegments(article);segmentDrafts=pairedSegments.map(()=> '');wholeDraft='';
+ const savedRate=parseFloat(localStorage.getItem('ttcReadingRate')||localStorage.getItem('ttsRate')||'0.65');const rateSelect=$('ttcListenRate');rateSelect.value=Array.from(rateSelect.options).some(o=>Number(o.value)===savedRate)?String(savedRate):'0.65';$('ttcListenCheck').setAttribute('aria-pressed','false');$('ttcListenCheck').textContent='🧩 CHECK VAR trực tiếp: TẮT';
+ $('ttcListenArticleTitle').textContent='HSK '+article.level+' · Bài đọc số '+(index+1)+' · '+(article.title||'');
+ editor.innerHTML='';checkResult.replaceChildren();checkResult.classList.remove('visible');liveResult.replaceChildren();liveResult.classList.remove('visible');answer.classList.remove('visible');
+ $('ttcListenModeLabel').textContent='Chế độ nghe từng đoạn · Đoạn 1/'+pairedSegments.length;
+ $('ttcListenNext').disabled=pairedSegments.length<=1;
+ $('ttcListenReveal').textContent='👁 Bật xem';
+ status.textContent='Nguồn bài đọc đã được nạp trực tiếp từ Khu luyện đọc HSK.';
+ updateAnswer();updateModeButtons();view('detail');detail.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function updateModeButtons(){
+ $('ttcListenWhole').setAttribute('aria-pressed',String(mode==='whole'));
+ $('ttcListenSegmentMode').setAttribute('aria-pressed',String(mode==='segment'));
+ $('ttcListenNext').disabled=mode!=='segment'||pairedSegments.length<=1;
+ $('ttcListenPrev').disabled=mode!=='segment'||pairedSegments.length<=1;
+ $('ttcListenPrev').textContent=currentIndex===0?'↶ Về đoạn cuối':'⬅️ Đoạn phía trước';
+ $('ttcListenNext').textContent=currentIndex>=pairedSegments.length-1?'↻ Về đoạn đầu':'➡️ Đoạn tiếp theo';
+ $('ttcListenModeLabel').textContent=mode==='whole'?'Chế độ nghe cả bài · CHECK VAR đối chiếu toàn bài':'Chế độ nghe từng đoạn · Đoạn '+(currentIndex+1)+'/'+pairedSegments.length;
+}
+function updateAnswer(){
+ if(!currentArticle)return;
+ const items=mode==='whole'?pairedSegments:[pairedSegments[currentIndex]];
+ answer.replaceChildren();
+ items.forEach((item)=>{
+  if(!item)return;
+  const block=document.createElement('div');block.className='ttc-listen-answer-pair';
+  const zh=document.createElement('div');zh.className='zh';zh.textContent=item.zh||'';block.appendChild(zh);
+  if($('ttcListenShowPinyin').checked){const py=document.createElement('div');py.className='py';py.textContent=item.py||'Pinyin chưa có cho phần này.';block.appendChild(py);}
+  if($('ttcListenShowVi').checked){const vi=document.createElement('div');vi.className='vi';vi.textContent=item.vi||'Chưa có nghĩa tiếng Việt cho phần này.';block.appendChild(vi);}
+  answer.appendChild(block);
+ });
+ answer.classList.toggle('visible',revealed);
+ $('ttcListenReveal').textContent=revealed?'🙈 Ẩn nội dung':'👁 Bật xem';
+}
+function populateVoices(){
+ if(!speechAvailable())return;
+ voices=window.speechSynthesis.getVoices().filter(v=>/^zh([_-]|$)/i.test(v.lang)||/chinese|mandarin|中文|普通话|中国/i.test(v.name));
+ const select=$('ttcListenVoice');const readingVoice=document.getElementById('ttcReadingVoice');const sharedVoice=document.getElementById('whiteHatChineseSelectV6');const previous=selectedVoice||localStorage.getItem('ttsVoiceName')||(readingVoice&&readingVoice.value)||(sharedVoice&&sharedVoice.value)||select.value;select.replaceChildren();
+ const auto=document.createElement('option');auto.value='';auto.textContent='Dùng giọng đã chọn ở Khu luyện đọc HSK';select.appendChild(auto);
+ voices.forEach(v=>{const o=document.createElement('option');o.value=v.name;o.textContent=v.name+' · '+v.lang;select.appendChild(o);});
+ if(voices.some(v=>v.name===previous))select.value=previous;else select.value='';
+ selectedVoice=select.value;
+}
+function speak(text){
+ if(!text||!speechAvailable()){status.textContent='Trình duyệt này không hỗ trợ đọc tiếng Trung. Hãy thử Chrome hoặc Edge và kiểm tra giọng đọc hệ thống.';return;}
+ window.speechSynthesis.cancel();const thisSession=++sessionId;
+ const utterance=new SpeechSynthesisUtterance(text);utterance.lang='zh-CN';utterance.rate=Number($('ttcListenRate').value)||0.65;
+ const readingVoice=document.getElementById('ttcReadingVoice');const sharedVoice=document.getElementById('whiteHatChineseSelectV6');const savedVoice=localStorage.getItem('ttsVoiceName')||(readingVoice&&readingVoice.value)||(sharedVoice&&sharedVoice.value)||'';
+ const voice=voices.find(v=>v.name===selectedVoice)||voices.find(v=>v.name===savedVoice)||voices.find(v=>/^zh-CN$/i.test(v.lang))||voices.find(v=>/^zh(-|_)/i.test(v.lang));
+ if(voice){utterance.voice=voice;utterance.lang=voice.lang||'zh-CN';}else{status.textContent='Không tìm thấy giọng tiếng Trung trên thiết bị. Hãy chọn/cài giọng Mandarin trong cài đặt giọng đọc.';return;}
+ utterance.onstart=()=>{if(thisSession===sessionId)status.textContent=mode==='whole'?'Đang nghe toàn bài…':'Đang nghe đoạn '+(currentIndex+1)+'/'+pairedSegments.length+'…';};
+ utterance.onend=()=>{if(thisSession===sessionId)status.textContent='Đã nghe xong '+(mode==='whole'?'toàn bài.':'đoạn '+(currentIndex+1)+'. Anh/chị có thể nhấn Đoạn tiếp theo bất cứ lúc nào.');};
+ utterance.onerror=ev=>{if(thisSession===sessionId&&ev.error!=='canceled'&&ev.error!=='interrupted')status.textContent='Không phát được giọng đọc. Thử chọn giọng khác hoặc kiểm tra cài đặt âm thanh.';};
+ window.speechSynthesis.speak(utterance);
+}
+function plainEditorText(){return (editor.innerText||editor.textContent||'').replace(/\u00a0/g,' ').replace(/\s/g,'');}
+function renderDiff(expected,typed,target=checkResult,announce=true){
+ const a=Array.from(String(expected||'').replace(/\s/g,'')),b=Array.from(String(typed||'').replace(/\s/g,''));
+ const n=a.length,m=b.length,dp=Array.from({length:n+1},()=>new Uint32Array(m+1));
+ for(let i=0;i<=n;i++)dp[i][0]=i;
+ for(let j=0;j<=m;j++)dp[0][j]=j;
+ for(let i=1;i<=n;i++)for(let j=1;j<=m;j++){
+  if(a[i-1]===b[j-1])dp[i][j]=dp[i-1][j-1];
+  else dp[i][j]=Math.min(dp[i-1][j-1]+1,dp[i-1][j]+1,dp[i][j-1]+1);
+ }
+ const ops=[];let i=n,j=m;
+ while(i>0||j>0){
+  if(i>0&&j>0&&a[i-1]===b[j-1]&&dp[i][j]===dp[i-1][j-1]){ops.push({type:'ok',ch:b[j-1]});i--;j--;continue;}
+  if(i>0&&j>0&&dp[i][j]===dp[i-1][j-1]+1){ops.push({type:'wrong',ch:b[j-1],expected:a[i-1]});i--;j--;continue;}
+  if(i>0&&dp[i][j]===dp[i-1][j]+1){ops.push({type:'missing',ch:a[i-1]});i--;continue;}
+  if(j>0){ops.push({type:'extra',ch:b[j-1]});j--;continue;}
+ }
+ ops.reverse();
+ // Không báo thiếu ở đuôi bài: người học có thể mới gõ đến đây và chưa hoàn tất.
+ let lastTyped=-1;for(let k=0;k<ops.length;k++)if(ops[k].type!=='missing')lastTyped=k;
+ const shown=ops.slice(0,lastTyped+1);
+ const fragment=document.createDocumentFragment();let correct=0,wrong=0,missing=0,extra=0;
+ for(let k=0;k<shown.length;k++){
+  const op=shown[k];
+  if(op.type==='missing'){
+   let count=1;while(k+1<shown.length&&shown[k+1].type==='missing'){count++;k++;}
+   const span=document.createElement('span');span.className='ttc-check-missing';span.textContent='?'.repeat(count);span.title='Thiếu '+count+' chữ';fragment.appendChild(span);missing+=count;continue;
+  }
+  const span=document.createElement('span');span.textContent=op.ch;
+  if(op.type==='ok'){span.className='ttc-check-correct';correct++;}
+  else if(op.type==='wrong'){span.className='ttc-check-wrong';span.title='Chữ đúng cần là: '+op.expected;wrong++;}
+  else {span.className='ttc-check-wrong';span.title='Chữ thừa';extra++;}
+  fragment.appendChild(span);
+ }
+ if(!shown.length){const hint=document.createElement('span');hint.textContent='Hãy gõ phần đã nghe để xem chữ đúng và chữ sai.';fragment.appendChild(hint);}
+ target.replaceChildren(fragment);target.classList.add('visible');
+ if(announce)status.textContent='Đối chiếu: '+correct+' chữ đúng · '+wrong+' chữ sai · '+missing+' chữ thiếu · '+extra+' chữ thừa. Chữ đúng màu xanh, chữ sai màu đỏ, dấu ? chỉ vị trí thiếu ở giữa phần đã gõ.';
+}
+function activeExpected(){return !currentArticle?'':(mode==='whole'?currentArticle.zh:(pairedSegments[currentIndex]?.zh||''));}
+function saveDraft(){if(!currentArticle)return;if(mode==='whole')wholeDraft=editor.innerHTML;else segmentDrafts[currentIndex]=editor.innerHTML;}
+function loadDraft(){editor.innerHTML=mode==='whole'?wholeDraft:(segmentDrafts[currentIndex]||'');checkResult.classList.remove('visible');refreshDiffOnEdit();}
+function refreshDiffOnEdit(){if(!liveCheckEnabled||!currentArticle){liveResult.classList.remove('visible');return;}renderDiff(activeExpected(),plainEditorText(),liveResult,false);}
+launcher.addEventListener('click',()=>{const open=!section.classList.contains('ttc-listening-open');section.classList.toggle('ttc-listening-open',open);launcher.setAttribute('aria-expanded',String(open));if(!open)stopAudio();});
+$('ttcListenHelpBtn').addEventListener('click',()=>{$('ttcListenHelp').hidden=!$('ttcListenHelp').hidden;});
+$('ttcListenBackLevels').addEventListener('click',()=>{stopAudio();currentArticle=null;view('levels');});
+$('ttcListenWhole').addEventListener('click',()=>{if(!currentArticle)return;saveDraft();mode='whole';currentIndex=0;revealed=false;loadDraft();updateAnswer();updateModeButtons();speak(currentArticle.zh);});
+$('ttcListenSegmentMode').addEventListener('click',()=>{if(!currentArticle)return;stopAudio();saveDraft();mode='segment';currentIndex=0;revealed=false;loadDraft();updateAnswer();updateModeButtons();speak(pairedSegments[0]?.zh||'');});
+$('ttcListenPlayCurrent').addEventListener('click',()=>{if(!currentArticle)return;speak(mode==='whole'?currentArticle.zh:(pairedSegments[currentIndex]?.zh||''));});
+$('ttcListenStop').addEventListener('click',stopAudio);
+$('ttcListenReveal').addEventListener('click',()=>{revealed=!revealed;updateAnswer();});
+function moveSegment(delta){if(mode!=='segment'||!pairedSegments.length)return;saveDraft();stopAudio();currentIndex=(currentIndex+delta+pairedSegments.length)%pairedSegments.length;revealed=false;loadDraft();updateAnswer();updateModeButtons();status.textContent='Đã chuyển sang đoạn '+(currentIndex+1)+'/'+pairedSegments.length+'. Nhấn “Nghe tiếp” để phát đoạn này.';}
+$('ttcListenPrev').addEventListener('click',()=>moveSegment(-1));
+$('ttcListenNext').addEventListener('click',()=>moveSegment(1));
+$('ttcListenCheck').addEventListener('click',()=>{if(!currentArticle)return;liveCheckEnabled=!liveCheckEnabled;$('ttcListenCheck').setAttribute('aria-pressed',String(liveCheckEnabled));$('ttcListenCheck').textContent=liveCheckEnabled?'🧩 CHECK VAR trực tiếp: BẬT':'🧩 CHECK VAR trực tiếp: TẮT';if(liveCheckEnabled){renderDiff(activeExpected(),plainEditorText(),liveResult,false);status.textContent='CHECK VAR trực tiếp đang bật: chữ sẽ được đối chiếu ngay khi gõ.';}else{liveResult.classList.remove('visible');status.textContent='CHECK VAR trực tiếp đã tắt.';}});
+$('ttcListenClear').addEventListener('click',()=>{if(!editor.textContent.trim())return;if(!confirm('Xóa toàn bộ nội dung đã gõ trong bài này?'))return;editor.innerHTML='';saveDraft();checkResult.replaceChildren();checkResult.classList.remove('visible');liveResult.replaceChildren();liveResult.classList.remove('visible');refreshDiffOnEdit();status.textContent='Đã xóa nội dung đang gõ.';});
+editor.addEventListener('input',()=>{saveDraft();refreshDiffOnEdit();});
+
+section.querySelectorAll('.ttc-listen-editor-toolbar [data-cmd]').forEach(btn=>btn.addEventListener('click',()=>{editor.focus();try{document.execCommand(btn.dataset.cmd,false,null);}catch(e){};}));
+section.querySelectorAll('.ttc-listen-editor-toolbar [data-insert]').forEach(btn=>btn.addEventListener('click',()=>{editor.focus();try{document.execCommand('insertText',false,btn.dataset.insert);}catch(e){editor.appendChild(document.createTextNode(btn.dataset.insert));}}));
+$('ttcListenShowPinyin').addEventListener('change',updateAnswer);$('ttcListenShowVi').addEventListener('change',updateAnswer);
+$('ttcListenRate').addEventListener('change',()=>{const rate=$('ttcListenRate').value;try{localStorage.setItem('ttcReadingRate',rate);localStorage.setItem('ttsRate',rate);}catch(e){}const shared=document.getElementById('whiteHatRateSelectV6');if(shared)shared.value=rate;status.textContent='Tốc độ mới sẽ áp dụng cho lần phát tiếp theo và được đồng bộ với Khu luyện đọc HSK.';});
+$('ttcListenVoice').addEventListener('change',()=>{selectedVoice=$('ttcListenVoice').value;try{if(selectedVoice)localStorage.setItem('ttsVoiceName',selectedVoice);}catch(e){}const shared=document.getElementById('whiteHatChineseSelectV6');if(shared&&selectedVoice){shared.value=selectedVoice;shared.dispatchEvent(new Event('change',{bubbles:true}));}status.textContent='Đã chọn giọng đọc cho lần phát tiếp theo.';});
+if(speechAvailable()){populateVoices();window.speechSynthesis.addEventListener?.('voiceschanged',populateVoices);}
+renderLevels();view('levels');
+})();
+</script>
 
 </body>
 </html>
