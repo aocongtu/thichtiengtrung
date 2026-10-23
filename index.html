@@ -136464,8 +136464,7 @@ let charOffset=0;const segments=paired.map((seg,index)=>{const start=charOffset;
  start=Math.max(0,Math.min(chars.length-1,Number(start)||0));
  const firstSeg=Math.max(0,segments.findIndex(seg=>start>=seg.start&&start<seg.end));
  let lastScrolledSegment=-1,lastScrolledChar=-1,paintedThrough=start-1;
- let lastBoundaryAt=0,lastBoundaryIndex=start-1,fallbackStartedAt=0;
- const stepMs=Math.max(105,Math.min(320,205/(Number(readingRate)||0.65)));
+ const stepMs=Math.max(150,Math.min(700,430/(Number(readingRate)||0.65)));
  function updateTranslation(active){
   detail.querySelectorAll('.ttc-reading-pair').forEach((row,i)=>{
    row.hidden=false;row.classList.toggle('ttc-reading-pair-active',i===active);
@@ -136476,7 +136475,7 @@ let charOffset=0;const segments=paired.map((seg,index)=>{const start=charOffset;
    lastScrolledSegment=active;
    const activeRow=detail.querySelector('.ttc-reading-pair[data-segment="'+active+'"]');
    if(activeRow){const rect=activeRow.getBoundingClientRect(),vh=window.innerHeight||document.documentElement.clientHeight;
-    if(rect.top<92||rect.bottom>vh-110){try{activeRow.scrollIntoView({behavior:'smooth',block:'center',inline:'nearest'})}catch(e){activeRow.scrollIntoView()}}
+    if(rect.top<92||rect.bottom>vh-110){try{activeRow.scrollIntoView({behavior:'auto',block:'nearest',inline:'nearest'})}catch(e){activeRow.scrollIntoView()}}
    }
   }
  }
@@ -136491,7 +136490,6 @@ let charOffset=0;const segments=paired.map((seg,index)=>{const start=charOffset;
   }
   const seg=segments.findIndex(item=>safeUpto>=item.start&&safeUpto<item.end);
   if(seg>=0)updateTranslation(seg);
-  // Scroll by paragraph, not every character: avoids layout work that can make highlighting lag.
   if(safeUpto!==lastScrolledChar&&safeUpto>=start){
    const activeChar=allCharNodes[safeUpto];
    if(activeChar){const rect=activeChar.getBoundingClientRect(),vh=window.innerHeight||document.documentElement.clientHeight;
@@ -136500,37 +136498,62 @@ let charOffset=0;const segments=paired.map((seg,index)=>{const start=charOffset;
   }
  }
  updateTranslation(firstSeg);
- const speechText=chars.slice(start).join('');
- const u=new SpeechSynthesisUtterance(speechText);
- u.lang='zh-CN';u.rate=readingRate;
- const v=getVoice();if(v){u.voice=v;u.lang=v.lang||'zh-CN'}
- u.onstart=()=>{
+ // Tách lời đọc tại dấu câu và ranh giới đoạn. Nhờ vậy cơ chế dự phòng không thể tô vượt qua dấu phẩy/chấm khi giọng đang nghỉ.
+ const endSet=new Set();
+ for(const seg of segments){if(seg.end>start)endSet.add(seg.end-1)}
+ const chunks=[];let chunkStart=start;
+ for(let pos=start;pos<chars.length;pos++){
+  const ch=chars[pos];
+  if(/[，,。！？!?；;：:、]/.test(ch)||endSet.has(pos)){
+   chunks.push({start:chunkStart,end:pos,text:chars.slice(chunkStart,pos+1).join('')});
+   chunkStart=pos+1;
+  }
+ }
+ if(chunkStart<chars.length)chunks.push({start:chunkStart,end:chars.length-1,text:chars.slice(chunkStart).join('')});
+ if(!chunks.length)return;
+ let chunkIndex=0;
+ function playChunk(){
   if(thisSession!==ttcReadingSession)return;
-  fallbackStartedAt=Date.now();lastBoundaryAt=fallbackStartedAt;lastBoundaryIndex=start-1;
-  // Keep a lightweight fallback alive even after the first native boundary; some desktop voices
-  // emit word-level boundaries only, or stop emitting them for long stretches.
-  ttcReadingFallbackInterval=setInterval(()=>{
-   if(thisSession!==ttcReadingSession){clearReadingFallback();return}
-   const now=Date.now();
-   if(now-lastBoundaryAt<420)return;
-   const estimated=Math.min(chars.length-1,Math.max(start,lastBoundaryIndex+1+Math.floor((now-lastBoundaryAt)/stepMs)));
-   if(estimated>paintedThrough)paintThrough(estimated);
-  },100);
- };
- u.onboundary=ev=>{
-  if(thisSession!==ttcReadingSession||!Number.isFinite(ev.charIndex))return;
-  const offset=Math.max(0,Math.min(speechText.length-1,ev.charIndex));
-  const length=Number.isFinite(ev.charLength)&&ev.charLength>0?ev.charLength:1;
-  const upto=Math.min(chars.length-1,start+offset+length-1);
-  lastBoundaryAt=Date.now();lastBoundaryIndex=upto;
-  paintThrough(upto);
- };
- u.onend=()=>{
-  if(thisSession!==ttcReadingSession)return;
-  clearReadingFallback();paintThrough(chars.length-1);updateTranslation(segments.length-1);
- };
- u.onerror=()=>{if(thisSession===ttcReadingSession)clearReadingFallback()};
- speechSynthesis.speak(u);
+  if(chunkIndex>=chunks.length){clearReadingFallback();paintThrough(chars.length-1);updateTranslation(segments.length-1);return}
+  const chunk=chunks[chunkIndex];
+  const u=new SpeechSynthesisUtterance(chunk.text);
+  u.lang='zh-CN';u.rate=readingRate;
+  const v=getVoice();if(v){u.voice=v;u.lang=v.lang||'zh-CN'}
+  let chunkStartedAt=0,lastBoundaryAt=0,lastBoundaryIndex=chunk.start-1;
+  u.onstart=()=>{
+   if(thisSession!==ttcReadingSession)return;
+   chunkStartedAt=Date.now();lastBoundaryAt=chunkStartedAt;lastBoundaryIndex=chunk.start-1;
+   ttcReadingFallbackInterval=setInterval(()=>{
+    if(thisSession!==ttcReadingSession){clearReadingFallback();return}
+    const now=Date.now();
+    if(now-lastBoundaryAt<500)return;
+    const estimated=Math.min(chunk.end,Math.max(chunk.start,lastBoundaryIndex+1+Math.floor((now-lastBoundaryAt)/stepMs)));
+    if(estimated>paintedThrough)paintThrough(estimated);
+   },100);
+  };
+  u.onboundary=ev=>{
+   if(thisSession!==ttcReadingSession||!Number.isFinite(ev.charIndex))return;
+   const local=Array.from(chunk.text);
+   const offset=Math.max(0,Math.min(local.length-1,ev.charIndex));
+   const length=Number.isFinite(ev.charLength)&&ev.charLength>0?ev.charLength:1;
+   const upto=Math.min(chunk.end,chunk.start+offset+length-1);
+   lastBoundaryAt=Date.now();lastBoundaryIndex=upto;
+   paintThrough(upto);
+  };
+  u.onend=()=>{
+   if(thisSession!==ttcReadingSession)return;
+   clearReadingFallback();paintThrough(chunk.end);
+   chunkIndex++;
+   ttcReadingFallbackStartTimer=setTimeout(()=>{ttcReadingFallbackStartTimer=null;playChunk()},100);
+  };
+  u.onerror=()=>{
+   if(thisSession!==ttcReadingSession)return;
+   clearReadingFallback();
+   // Không để lỗi một đoạn làm tô màu nhảy thẳng đến cuối bài.
+  };
+  speechSynthesis.speak(u);
+ }
+ playChunk();
 }document.getElementById('ttcReadingPlayAll').addEventListener('click',()=>speakFrom(0));detail.querySelectorAll('.ttc-reading-char').forEach(e=>e.addEventListener('click',()=>speakFrom(Number(e.dataset.pos))));detail.scrollIntoView({behavior:'smooth',block:'start'});const cnBox=document.getElementById('ttcReadingChinese');let readingSelectionTimer=null,lastReadingSelectionKey='',lastReadingSelectionAt=0;function collectSelectedReadingPairs(selection){const chars=Array.from(cnBox.querySelectorAll('.ttc-reading-char'));const pairs=[];const selectedChars=[];if(selection&&selection.rangeCount){for(const ch of chars){try{if(selection.containsNode(ch,true)){selectedChars.push(ch);const pair=ch.closest('.ttc-reading-pair');if(pair)pairs.push(pair)}}catch(e){}}}return {pairs:Array.from(new Set(pairs)),selectedChars}}function processReadingSelection(){if(!cnBox.isConnected)return;const selection=window.getSelection();const sel=String(selection?.toString()||'').trim();if(!sel||!/[\u3400-\u9fff]/.test(sel)){lastReadingSelectionKey='';return}if(!selection||!selection.rangeCount)return;const range=selection.getRangeAt(0);const node=range.commonAncestorContainer;const element=node.nodeType===1?node:node.parentElement;if(!element||!cnBox.contains(element))return;if(document.getElementById('ttcReadingTranslatePopup'))return;const found=collectSelectedReadingPairs(selection);if(!found.pairs.length)return;const key=sel+'|'+found.selectedChars.map(x=>x.dataset.pos).join(',');const now=Date.now();if(key===lastReadingSelectionKey&&now-lastReadingSelectionAt<1200)return;lastReadingSelectionKey=key;lastReadingSelectionAt=now;const oneChar=Array.from(sel).length===1&&/[\u3400-\u9fff]/.test(sel);showReadingTranslation(sel,found.pairs,oneChar?found.selectedChars[0]:null)}function scheduleReadingSelection(){if(readingSelectionTimer)clearTimeout(readingSelectionTimer);readingSelectionTimer=setTimeout(processReadingSelection,350)}document.addEventListener('selectionchange',scheduleReadingSelection);cnBox.addEventListener('mouseup',scheduleReadingSelection);cnBox.addEventListener('keyup',scheduleReadingSelection);cnBox.addEventListener('touchend',()=>{setTimeout(scheduleReadingSelection,100)},{passive:true});cnBox.addEventListener('dblclick',ev=>{const target=ev.target.closest('.ttc-reading-char');if(!target)return;ev.preventDefault();const pair=target.closest('.ttc-reading-pair');showReadingTranslation(target.textContent,[pair],target)})}const hb=document.getElementById('ttcReadingHelpBtn'),hp=document.getElementById('ttcReadingHelp');hb.addEventListener('click',()=>{hp.hidden=!hp.hidden;hb.textContent=hp.hidden?'❔ Giải thích':'✖ Đóng giải thích'});launcher.addEventListener('click',()=>{const open=!section.classList.contains('ttc-open');section.classList.toggle('ttc-open',open);document.body.classList.toggle('ttc-reading-open',open);launcher.setAttribute('aria-expanded',String(open));if(open){renderLevels();view('levels')}else stopReading()});back.addEventListener('click',()=>{renderLevels();view('levels')});renderLevels();view('levels')})();</script>
 
 <style id="ttcTypeIndependentFixV3">
