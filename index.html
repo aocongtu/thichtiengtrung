@@ -136464,7 +136464,7 @@ let charOffset=0;const segments=paired.map((seg,index)=>{const start=charOffset;
  start=Math.max(0,Math.min(chars.length-1,Number(start)||0));
  const firstSeg=Math.max(0,segments.findIndex(seg=>start>=seg.start&&start<seg.end));
  let lastScrolledSegment=-1,lastScrolledChar=-1,paintedThrough=start-1;
- const stepMs=Math.max(150,Math.min(700,430/(Number(readingRate)||0.65)));
+ const stepMs=Math.max(100,Math.min(1800,220/(Number(readingRate)||0.65)));
  function updateTranslation(active){
   detail.querySelectorAll('.ttc-reading-pair').forEach((row,i)=>{
    row.hidden=false;row.classList.toggle('ttc-reading-pair-active',i===active);
@@ -136519,14 +136519,14 @@ let charOffset=0;const segments=paired.map((seg,index)=>{const start=charOffset;
   const u=new SpeechSynthesisUtterance(chunk.text);
   u.lang='zh-CN';u.rate=readingRate;
   const v=getVoice();if(v){u.voice=v;u.lang=v.lang||'zh-CN'}
-  let chunkStartedAt=0,lastBoundaryAt=0,lastBoundaryIndex=chunk.start-1;
+  let lastBoundaryAt=0,lastBoundaryIndex=chunk.start-1;
   u.onstart=()=>{
    if(thisSession!==ttcReadingSession)return;
-   chunkStartedAt=Date.now();lastBoundaryAt=chunkStartedAt;lastBoundaryIndex=chunk.start-1;
+   lastBoundaryAt=Date.now();lastBoundaryIndex=chunk.start-1;
    ttcReadingFallbackInterval=setInterval(()=>{
     if(thisSession!==ttcReadingSession){clearReadingFallback();return}
     const now=Date.now();
-    if(now-lastBoundaryAt<500)return;
+    // Không chờ 500 ms mới chạy dự phòng: độ trễ đó tích tụ ở cuối câu rồi bị onend tô bù thành cú nhảy.
     const estimated=Math.min(chunk.end,Math.max(chunk.start,lastBoundaryIndex+1+Math.floor((now-lastBoundaryAt)/stepMs)));
     if(estimated>paintedThrough)paintThrough(estimated);
    },100);
