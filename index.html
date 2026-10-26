@@ -327,7 +327,17 @@ main{
   font-size:40px;
   font-weight:bold;
   color:#183f66;
-  margin:20px 0;
+  margin:20px 0 4px;
+}
+
+.sentence-target-pinyin{
+  min-height:0;
+  margin:0 0 18px;
+  color:#52718a;
+  font-size:20px;
+  font-weight:600;
+  line-height:1.6;
+  overflow-wrap:anywhere;
 }
 
 .sentence-input{
@@ -5623,6 +5633,7 @@ Câu 1
 <div class="sentence-target" id="sentenceTarget">
 ？？？
 </div>
+<div class="sentence-target-pinyin" id="sentenceTargetPinyin" aria-live="polite"></div>
 
 <input
  id="sentenceInput"
@@ -110027,6 +110038,9 @@ function whiteHatResetSentenceLearning(){
           answer:
             item.answer || "",
 
+          pinyin:
+            item.pinyin || item.py || "",
+
           hsk:
             Number(
               item.hsk || 1
@@ -110099,6 +110113,7 @@ function whiteHatBuildHSK(level){
     result.push({
       meaning: meaning || "Nghĩa tiếng Việt đang được chuẩn hóa…",
       answer: answer,
+      pinyin: String(word.examplePinyin || "").trim(),
       hsk: targetLevel
     });
   });
@@ -110171,6 +110186,29 @@ function whiteHatBuildHSK(level){
    🖥️ HIỂN THỊ CÂU
 ===================================================== */
 
+/* Pinyin nằm riêng dưới đáp án Hán tự; không sửa nội dung nút/kết quả kiểm tra. */
+function whiteHatPinyinFor(item){
+  if(!item) return "";
+  if(String(item.pinyin || "").trim()) return String(item.pinyin).trim();
+  const hanzi = Array.from(String(item.answer || ""));
+  const charMap = Object.create(null);
+  try{
+    const source = (typeof words !== "undefined" && Array.isArray(words)) ? words : [];
+    source.forEach(function(w){
+      if(!w || !w.h || !w.p) return;
+      const chars = Array.from(String(w.h));
+      const syllables = String(w.p).trim().split(/\s+/);
+      if(chars.length === syllables.length){
+        chars.forEach(function(ch,i){ if(!charMap[ch]) charMap[ch]=syllables[i]; });
+      }
+    });
+  }catch(e){}
+  return hanzi.map(function(ch){
+    if(/[\u3400-\u9fff]/.test(ch)) return charMap[ch] || ch;
+    return ch;
+  }).join(" ").replace(/\s+([，。！？；：,.!?;:])/g,"$1").replace(/([，。！？；：,.!?;:])\s+/g,"$1 ").trim();
+}
+
 function whiteHatRender(){
 
   const item =
@@ -110225,6 +110263,8 @@ function whiteHatRender(){
         "？？？";
 
     }
+    const targetPinyin = document.getElementById("sentenceTargetPinyin");
+    if(targetPinyin) targetPinyin.textContent = "";
 
     return;
 
@@ -110266,6 +110306,8 @@ if(number){
     );
 
   }
+  const targetPinyin = document.getElementById("sentenceTargetPinyin");
+  if(targetPinyin) targetPinyin.textContent = "";
 
 
   if(input){
@@ -110554,6 +110596,8 @@ if(number){
     target.classList.add(
       "whiteHatAnswerShown"
     );
+    const targetPinyin = document.getElementById("sentenceTargetPinyin");
+    if(targetPinyin) targetPinyin.textContent = whiteHatPinyinFor(item);
 
 
     if(result){
@@ -110665,6 +110709,8 @@ if(number){
         );
 
       }
+      const targetPinyin = document.getElementById("sentenceTargetPinyin");
+      if(targetPinyin) targetPinyin.textContent = whiteHatPinyinFor(item);
 
 
       if(result){
@@ -110711,6 +110757,8 @@ if(number){
       );
 
     }
+    const targetPinyin = document.getElementById("sentenceTargetPinyin");
+    if(targetPinyin) targetPinyin.textContent = "";
 
 
     if(result){
