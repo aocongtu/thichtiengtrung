@@ -4883,7 +4883,7 @@ body > .price-box{
 <div id="autoLearning" class="auto-learning">
 
   <div class="ttc-auto-topbar">
-    <button type="button" id="autoLearningPinyinToggle" class="ttc-auto-pinyin-toggle" aria-pressed="false">拼音：关</button>
+    <button type="button" id="autoLearningPinyinToggle" class="ttc-auto-pinyin-toggle" aria-pressed="false">pinyin：đóng</button>
     <h2>🔊 AUTO LEARNING</h2>
     <button type="button" id="autoLearningCollapseToggle" class="ttc-auto-collapse-toggle" aria-expanded="true">收起 −</button>
   </div>
@@ -5057,7 +5057,7 @@ body > .price-box{
 
   <div class="flashcard-header">
 
-    <button type="button" id="flashcardPinyinToggle" class="ttc-pinyin-toggle" aria-pressed="true" onclick="toggleFlashcardPinyin()">拼音：开</button>
+    <button type="button" id="flashcardPinyinToggle" class="ttc-pinyin-toggle" aria-pressed="true" onclick="toggleFlashcardPinyin()">pinyin：mở</button>
 
     <div class="flashcard-title">
       🃏 FLASHCARD
@@ -5478,7 +5478,7 @@ body > .price-box{
 HSK 1 — 300 từ
 </strong>
 
-<button type="button" id="vocabularyPinyinToggle" class="ttc-pinyin-toggle" aria-pressed="false" onclick="toggleVocabularyPinyin()">拼音：关</button>
+<button type="button" id="vocabularyPinyinToggle" class="ttc-pinyin-toggle" aria-pressed="false" onclick="toggleVocabularyPinyin()">pinyin：đóng</button>
 
 <div class="progress">
 <div id="bar"></div>
@@ -84064,7 +84064,7 @@ function toggleFlashcardPinyin(){
   ttcFlashcardPinyinVisible = !ttcFlashcardPinyinVisible;
   const button = document.getElementById("flashcardPinyinToggle");
   if(button){
-    button.textContent = ttcFlashcardPinyinVisible ? "拼音：开" : "拼音：关";
+    button.textContent = ttcFlashcardPinyinVisible ? "pinyin：mở" : "pinyin：tắt";
     button.setAttribute("aria-pressed", String(ttcFlashcardPinyinVisible));
   }
   document.querySelectorAll("#flashcardSection .flashcard-pinyin, #flashcardSection .flashcard-back-pinyin").forEach(el=>el.classList.toggle("ttc-pinyin-hidden", !ttcFlashcardPinyinVisible));
@@ -84076,7 +84076,7 @@ function toggleVocabularyPinyin(){
   const button = document.getElementById("vocabularyPinyinToggle");
   if(section) section.classList.toggle("ttc-show-pinyin", ttcVocabularyPinyinVisible);
   if(button){
-    button.textContent = ttcVocabularyPinyinVisible ? "拼音：开" : "拼音：关";
+    button.textContent = ttcVocabularyPinyinVisible ? "pinyin：mở" : "pinyin：tắt";
     button.setAttribute("aria-pressed", String(ttcVocabularyPinyinVisible));
   }
 }
@@ -131761,7 +131761,7 @@ if(
 >
 
   <div class="ea2-topbar">
-    <button type="button" id="ttcEA2PinyinToggle" class="ea2-top-toggle" aria-pressed="false">拼音：关</button>
+    <button type="button" id="ttcEA2PinyinToggle" class="ea2-top-toggle" aria-pressed="false">pinyin：đóng</button>
     <div class="ea2-title">🟢 AUTO LEARNING CÂU VÍ DỤ</div>
     <button type="button" id="ttcEA2CollapseToggle" class="ea2-top-toggle" aria-expanded="true">收起 −</button>
   </div>
@@ -135934,12 +135934,12 @@ html,body{background:#fff !important;}
 
     function setPinyin(el, btn, on){
       el.hidden = !on;
-      btn.textContent = on ? "拼音：开" : "拼音：关";
+      btn.textContent = on ? "pinyin：mở" : "pinyin：đóng";
       btn.setAttribute("aria-pressed", on ? "true" : "false");
     }
     function setCollapsed(body, btn, expanded){
       body.hidden = !expanded;
-      btn.textContent = expanded ? "收起 −" : "展开 ＋";
+      btn.textContent = expanded ? "thu nhỏ lại −" : "mở  ra ＋";
       btn.setAttribute("aria-expanded", expanded ? "true" : "false");
     }
 
