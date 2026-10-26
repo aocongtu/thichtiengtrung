@@ -111113,9 +111113,8 @@ if(number){
 
         if(panel){
 
-          panel.classList.add(
-            "show"
-          );
+          panel.classList.add("show");
+          panel.classList.remove("levels-open");
 
         }
 
@@ -111175,12 +111174,14 @@ if(number){
 
     hskPanel.innerHTML = `
 
-      <div
-        class="whiteHatHSKTitle"
-        style="color:#222 !important;"
+      <button
+        type="button"
+        id="whiteHatHSKToggle"
+        aria-expanded="false"
+        aria-controls="whiteHatHSKButtons"
       >
-        🇨🇳 Chọn cấp độ câu
-      </div>
+        🇨🇳 Chọn cấp HSK <span aria-hidden="true">▾</span>
+      </button>
 
       <div
         id="whiteHatHSKButtons"
@@ -111261,12 +111262,25 @@ if(number){
 
 
     /*
-      HSK click
+      HSK selector: compact by default; expand only on tap.
+    */
+    const hskToggle = hskPanel.querySelector("#whiteHatHSKToggle");
+    if(hskToggle){
+      hskToggle.addEventListener("click", function(event){
+        event.stopPropagation();
+        const expanded = hskPanel.classList.toggle("levels-open");
+        hskToggle.setAttribute("aria-expanded", expanded ? "true" : "false");
+        hskToggle.innerHTML = '🇨🇳 Chọn cấp HSK <span aria-hidden="true">' + (expanded ? '▴' : '▾') + '</span>';
+      });
+    }
+
+    /*
+      HSK click — only level buttons load a level.
     */
 
     hskPanel
       .querySelectorAll(
-        "button"
+        "button[data-level]"
       )
       .forEach(function(button){
 
@@ -111277,6 +111291,12 @@ if(number){
             event.stopPropagation();
 
 
+            hskPanel.classList.remove("levels-open");
+            const toggle = hskPanel.querySelector("#whiteHatHSKToggle");
+            if(toggle){
+              toggle.setAttribute("aria-expanded", "false");
+              toggle.innerHTML = '🇨🇳 Chọn cấp HSK <span aria-hidden="true">▾</span>';
+            }
             whiteHatLoadHSK(
               Number(
                 button.dataset.level
@@ -136636,5 +136656,40 @@ renderLevels();view('levels');
   });
 })();
 </script>
+
+<style id="ttcCompactSentenceHSKSelector">
+  #whiteHatHSKPanel #whiteHatHSKToggle{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:10px !important;
+    width:min(100%,260px) !important;
+    min-height:38px !important;
+    margin:4px auto 8px !important;
+    padding:8px 14px !important;
+    border:1px solid #d1d5db !important;
+    border-radius:11px !important;
+    background:#fff !important;
+    color:#222 !important;
+    font-size:14px !important;
+    font-weight:800 !important;
+    cursor:pointer !important;
+  }
+  #whiteHatHSKPanel #whiteHatHSKButtons{display:none !important}
+  #whiteHatHSKPanel.levels-open #whiteHatHSKButtons{display:grid !important}
+  #whiteHatHSKPanel #whiteHatHSKButtons{
+    grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+    gap:7px !important;
+    margin-top:8px !important;
+  }
+  #whiteHatHSKPanel #whiteHatHSKButtons button{
+    min-height:38px !important;
+    padding:8px 5px !important;
+  }
+  @media(min-width:700px){
+    #whiteHatHSKPanel.levels-open #whiteHatHSKButtons{grid-template-columns:repeat(9,minmax(0,1fr)) !important}
+  }
+</style>
+
 </body>
 </html>
