@@ -135565,14 +135565,6 @@ html,body{background:#fff !important;}
  Không thay dữ liệu câu, cơ chế kiểm tra, tiến độ hoặc engine học.
 ========================================================= -->
 <style id="ttcTraditionalAndWordBuilderPatch">
-  .ttc-traditional{
-    display:inline-block;
-    margin-left:.18em;
-    font-size:.78em;
-    font-weight:600;
-    opacity:.82;
-    white-space:nowrap;
-  }
   #ttcSentenceWordBank{
     display:none;
     margin:10px 0 14px;
@@ -135636,75 +135628,10 @@ html,body{background:#fff !important;}
   if(window.__TTC_TRADITIONAL_WORD_BUILDER_V1__) return;
   window.__TTC_TRADITIONAL_WORD_BUILDER_V1__ = true;
 
-  /* ---------------- Simplified → Traditional ---------------- */
-  var traditionalConverter = null;
-  var traditionalStarted = false;
-  var targetSelector = [
-    '.hanzi', '.sentence-target', '#sentenceTarget', '.test-question',
-    '.flashcard-hanzi', '.flashcard-back-hanzi', '.flashcard-example-chinese',
-    '.thtt-g-example', '.thtt-speaking-sentence'
-  ].join(',');
-
-  function convertTargets(){
-    if(!traditionalConverter) return;
-    document.querySelectorAll(targetSelector).forEach(function(el){
-      if(!el || el.closest('#ttcSentenceWordBank')) return;
-      /* Key anti-loop guard: generated text is never processed again. */
-      if(el.querySelector('.ttc-traditional')) return;
-      var original = '';
-      el.childNodes.forEach(function(node){
-        if(node.nodeType === 3) original += node.nodeValue || '';
-      });
-      original = original.trim();
-      if(!original || !/[\u3400-\u9fff]/.test(original)) return;
-      var traditional = '';
-      try { traditional = traditionalConverter(original); } catch(e) { return; }
-      if(!traditional || traditional === original) return;
-      var span = document.createElement('span');
-      span.className = 'ttc-traditional';
-      span.setAttribute('lang','zh-Hant');
-      span.setAttribute('aria-label','繁體中文');
-      span.textContent = '（' + traditional + '）';
-      el.appendChild(span);
-    });
-  }
-
-  function loadTraditionalLibrary(){
-    if(traditionalStarted) return;
-    traditionalStarted = true;
-    if(window.OpenCC && typeof window.OpenCC.Converter === 'function'){
-      try {
-        traditionalConverter = window.OpenCC.Converter({from:'cn', to:'tw'});
-        convertTargets();
-        return;
-      } catch(e) {}
-    }
-    var script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/opencc-js@1.0.5/dist/umd/full.js';
-    script.async = true;
-    script.onload = function(){
-      try {
-        if(window.OpenCC && typeof window.OpenCC.Converter === 'function'){
-          traditionalConverter = window.OpenCC.Converter({from:'cn', to:'tw'});
-          convertTargets();
-        }
-      } catch(e) {}
-    };
-    script.onerror = function(){ traditionalStarted = false; };
-    document.head.appendChild(script);
-  }
-
-  var traditionalObserver = new MutationObserver(function(){
-    if(traditionalConverter) convertTargets();
-  });
-  traditionalObserver.observe(document.documentElement, {childList:true, subtree:true, characterData:true});
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', loadTraditionalLibrary, {once:true});
-  } else {
-    loadTraditionalLibrary();
-  }
-
   /* ---------------- Word/phrase chunks for existing input ---------------- */
+  /* Side-by-side Traditional characters are intentionally disabled.
+     The main #ttcScriptSwitch engine remains responsible for switching
+     the whole page between Simplified and Traditional. */
   var bankEl = null;
   var chipListEl = null;
   var currentTokens = [];
