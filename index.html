@@ -137759,3 +137759,17 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
   observer.observe(document.documentElement,{childList:true,subtree:true});
 })();
 </script>
+
+
+<!-- TTC FIX: keep top learning launchers outside immersive flashcard view -->
+<style id="ttcKeepTopLearningButtonsOutsideFullscreen20261027">
+  /* The two top launchers belong to the page navigation, not to either learning card.
+     Hide them while an immersive learning panel covers the viewport, then restore
+     them automatically when the user taps “Thu nhỏ” or presses Escape. */
+  body.ttc-learning-scroll-locked #ttcTopLearningHub {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+  #ttcTopLearningHub { position: relative; z-index: auto; }
+</style>
