@@ -84338,23 +84338,20 @@ if(typeof window.resetAutoLearningForCurrentHSK === "function"){
 
   const result =
     words.filter(function(word){
-
-      const hanzi =
-        normalizeText(word.h);
-
-      const pinyin =
-        normalizeText(word.p);
-
-      const meaning =
-        normalizeText(word.m);
-
-
-      return (
-        hanzi.includes(searchKey) ||
-        pinyin.includes(searchKey) ||
-        meaning.includes(searchKey)
-      );
-
+      const hanzi = normalizeText(word.h);
+      const pinyin = normalizeText(word.p);
+      const meaning = normalizeText(word.m);
+      return hanzi.includes(searchKey) || pinyin.includes(searchKey) || meaning.includes(searchKey);
+    }).sort(function(a,b){
+      function rank(word){
+        const h=normalizeText(word.h), p=normalizeText(word.p), m=normalizeText(word.m);
+        if(h===searchKey || p===searchKey || m===searchKey) return 0;
+        if(h.startsWith(searchKey) || p.startsWith(searchKey) || m.startsWith(searchKey)) return 1;
+        if(h.includes(searchKey)) return 2;
+        if(p.includes(searchKey)) return 3;
+        return 4;
+      }
+      return rank(a)-rank(b);
     });
 
 
@@ -84388,7 +84385,9 @@ if(typeof window.refreshAutoLearning === "function"){
       document.getElementById("vocabularySection");
 
     if(vocabularySection){
-      vocabularySection.scrollIntoView({
+      const cards = document.getElementById("cards");
+      const firstCard = cards && cards.querySelector(".card");
+      (firstCard || vocabularySection).scrollIntoView({
         behavior:"smooth",
         block:"start"
       });
@@ -104543,23 +104542,33 @@ function tokenizeChinese(sentence){
     "过","得","地","的","个","只","次"
   ];
 
-  const lexiconSet = new Set(builtInPhrases);
-
-  /* HSK words already loaded by the site can improve segmentation, read-only. */
+  /* Phân đoạn theo thứ tự ưu tiên rõ ràng:
+     1) từ vựng của cấp HSK đang học (cụm dài nhất trước),
+     2) kho từ vựng toàn site,
+     3) danh sách cụm từ dự phòng.
+     Không trộn các kho trước khi so khớp để từ ngoài cấp không lấn từ HSK hiện tại. */
+  const hskLexicon = [];
+  const allLexicon = [];
   try {
+    if(typeof currentList !== "undefined" && Array.isArray(currentList)){
+      currentList.forEach(function(item){
+        const h = String(item && item.h || "").trim();
+        if(h.length >= 2 && h.length <= 6 && /^[\u3400-\u9fff]+$/.test(h)) hskLexicon.push(h);
+      });
+    }
     if(typeof words !== "undefined" && Array.isArray(words)){
       words.forEach(function(item){
         const h = String(item && item.h || "").trim();
-        if(h.length >= 2 && h.length <= 6 && /^[\u3400-\u9fff]+$/.test(h)){
-          lexiconSet.add(h);
-        }
+        if(h.length >= 2 && h.length <= 6 && /^[\u3400-\u9fff]+$/.test(h)) allLexicon.push(h);
       });
     }
   } catch(e) {}
-
-  const lexicon = Array.from(lexiconSet).sort(function(a,b){
-    return b.length - a.length;
-  });
+  const sortLongest = function(list){
+    return Array.from(new Set(list)).sort(function(a,b){ return b.length - a.length; });
+  };
+  const hskWords = sortLongest(hskLexicon);
+  const allWords = sortLongest(allLexicon);
+  const fallbackWords = sortLongest(builtInPhrases);
   const punctuation = "，。！？；：、,.!?;:";
   const result = [];
   let i = 0;
@@ -104578,12 +104587,17 @@ function tokenizeChinese(sentence){
     }
 
     let found = "";
-    for(let k = 0; k < lexicon.length; k++){
-      const candidate = lexicon[k];
-      if(text.slice(i, i + candidate.length) === candidate){
-        found = candidate;
-        break;
+    const remaining = text.slice(i);
+    /* Chỉ dùng kho kế tiếp khi cấp HSK hiện tại không có từ khớp tại vị trí này. */
+    for(const pool of [hskWords, allWords, fallbackWords]){
+      for(let k = 0; k < pool.length; k++){
+        const candidate = pool[k];
+        if(remaining.startsWith(candidate)){
+          found = candidate;
+          break;
+        }
       }
+      if(found) break;
     }
 
     if(found){
@@ -136818,7 +136832,7 @@ renderLevels();view('levels');
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',arrange,{once:true});else arrange();
  var learningSelector='#ttcTopLearningHub .ttc-top-learning-btn,#ttcTypeFrame .ttc-type-buttons button,#ttcActionFrame .ttc-action-buttons button,#ttcMatchLauncher,#ttcListenLauncher,#ttcSpecialtyLauncher,#ttcReadingLauncher,#ttcListeningLauncher';
- document.addEventListener('click',function(e){var b=e.target&&e.target.closest?e.target.closest(learningSelector):null;if(b&&e.detail===2){e.preventDefault();e.stopImmediatePropagation();}},true);
+ document.addEventListener('click',function(e){var b=e.target&&e.target.closest?e.target.closest(learningSelector):null;if(b&&e.detail===2&&!b.matches('#ttcReadingLauncher')){e.preventDefault();e.stopImmediatePropagation();}},true);
  document.addEventListener('dblclick',function(e){var b=e.target&&e.target.closest?e.target.closest(learningSelector):null;if(b)b.classList.add('ttc-user-glow');});
  var selectedType='';
  document.addEventListener('click',function(e){
@@ -137434,6 +137448,131 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',arrangeSentenceActions,{once:true});else arrangeSentenceActions();
   var observer=new MutationObserver(function(){arrangeSentenceActions();});
+  observer.observe(document.documentElement,{childList:true,subtree:true});
+})();
+</script>
+
+
+<!-- TTC SAFE PATCH 2026-10-27: search, reading toggle, Auto Learning layout -->
+<style id="ttcSafeRequestedFixes20261027">
+  /* Auto Learning từ vựng đứng trước Auto Learning câu ví dụ */
+  #autoLearning{margin-bottom:12px!important;padding:14px!important}
+  #ttcExampleAutoV2{margin:12px auto 22px!important;padding:14px!important}
+  #autoLearning .ttc-auto-topbar,#ttcExampleAutoV2 .ea2-topbar{gap:6px!important;margin-bottom:10px!important}
+  #autoLearning .ttc-auto-topbar h2,#ttcExampleAutoV2 .ea2-title{font-size:clamp(13px,2.5vw,18px)!important;line-height:1.25!important}
+  #autoLearning .ttc-auto-pinyin-toggle,#autoLearning .ttc-auto-collapse-toggle,
+  #ttcExampleAutoV2 .ea2-top-toggle{padding:6px 8px!important;font-size:11px!important;white-space:nowrap!important}
+  /* HSK buttons thành một hàng ngang gọn; màn hình nhỏ có thể vuốt ngang */
+  #autoLearningBody .auto-learning-hsk-buttons,
+  #autoLearningBody #autoLearningHSKButtons,
+  #ttcEA2HskRow{
+    display:flex!important;flex-flow:row nowrap!important;align-items:center!important;
+    justify-content:flex-start!important;gap:5px!important;width:100%!important;
+    max-width:100%!important;overflow-x:auto!important;overscroll-behavior-x:contain;
+    padding:4px 2px 8px!important;margin:6px 0 10px!important;
+  }
+  #autoLearningBody .auto-learning-hsk-buttons button,
+  #autoLearningBody #autoLearningHSKButtons button,
+  #ttcEA2HskRow button{
+    flex:0 0 auto!important;min-width:0!important;padding:6px 9px!important;
+    font-size:12px!important;line-height:1.2!important;white-space:nowrap!important;
+  }
+  #autoLearningBody select#autoLearningHSK{padding:6px 9px!important;font-size:13px!important}
+  #ttcReadingSection.ttc-open{display:block!important}
+  @media(max-width:600px){
+    #autoLearning,#ttcExampleAutoV2{width:100%!important;max-width:100%!important;padding:10px!important;border-radius:14px!important}
+    #autoLearning .ttc-auto-topbar,#ttcExampleAutoV2 .ea2-topbar{gap:4px!important}
+    #autoLearning .ttc-auto-topbar h2,#ttcExampleAutoV2 .ea2-title{font-size:12px!important}
+    #autoLearning .ttc-auto-pinyin-toggle,#autoLearning .ttc-auto-collapse-toggle,
+    #ttcExampleAutoV2 .ea2-top-toggle{padding:5px 6px!important;font-size:10px!important}
+  }
+</style>
+<script id="ttcSafeRequestedFixes20261027JS">
+(function(){
+  'use strict';
+  function arrangeAutoLearning(){
+    var vocab=document.getElementById('autoLearning');
+    var example=document.getElementById('ttcExampleAutoV2');
+    if(vocab&&example&&vocab.parentNode===example.parentNode&&vocab.nextElementSibling!==example){
+      vocab.parentNode.insertBefore(vocab,example);
+    }else if(vocab&&example&&vocab.compareDocumentPosition(example)&Node.DOCUMENT_POSITION_PRECEDING){
+      example.parentNode.insertBefore(vocab,example);
+    }
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',arrangeAutoLearning,{once:true});
+  else arrangeAutoLearning();
+})();
+</script>
+
+
+<!-- TTC FINAL POLISH 2026-10-27: correct Auto Learning order, single-row controls, larger typing field -->
+<style id="ttcFinalAutoAndSentencePolish20261027">
+  /* Both Auto Learning sections use the same content column and actual visual order. */
+  #autoLearning, #ttcExampleAutoV2 { box-sizing:border-box!important; width:min(100%,900px)!important; max-width:100%!important; margin:12px auto!important; }
+  #autoLearning .auto-learning-buttons {
+    display:flex!important; flex-flow:row nowrap!important; align-items:center!important; justify-content:flex-start!important;
+    gap:6px!important; width:100%!important; max-width:100%!important; overflow-x:auto!important;
+    padding:4px 2px 8px!important; margin:7px 0!important; overscroll-behavior-x:contain!important;
+  }
+  #autoLearning .auto-learning-buttons > * { flex:0 0 auto!important; min-width:max-content!important; margin:0!important; padding:7px 10px!important; font-size:12px!important; line-height:1.2!important; white-space:nowrap!important; }
+  #autoLearning #autoInterval { max-width:145px!important; }
+  #autoLearningBody > div[style*="text-align: center"] { display:flex!important; flex-flow:row nowrap!important; align-items:center!important; justify-content:flex-start!important; gap:8px!important; overflow-x:auto!important; padding:3px 0 7px!important; margin:6px 0 10px!important; }
+  #autoLearningBody > div[style*="text-align: center"] label { flex:0 0 auto!important; white-space:nowrap!important; font-size:13px!important; }
+  #autoLearningHSK { flex:0 0 auto!important; max-width:100%!important; font-size:13px!important; padding:7px 9px!important; }
+  /* Example Auto Learning: all action buttons sit in one horizontally scrollable row. */
+  #ttcExampleAutoV2 .ttc-ea2-controls-single-row {
+    display:flex!important; flex-flow:row nowrap!important; align-items:center!important; justify-content:flex-start!important;
+    gap:6px!important; width:100%!important; max-width:100%!important; overflow-x:auto!important;
+    padding:4px 2px 8px!important; margin:7px 0!important; overscroll-behavior-x:contain!important;
+  }
+  #ttcExampleAutoV2 .ttc-ea2-controls-single-row .ea2-btn { flex:0 0 auto!important; width:auto!important; min-width:max-content!important; padding:7px 10px!important; font-size:12px!important; line-height:1.2!important; white-space:nowrap!important; }
+  #ttcExampleAutoV2 .ea2-hsk-row { display:flex!important; flex-flow:row nowrap!important; align-items:center!important; justify-content:flex-start!important; gap:5px!important; width:100%!important; max-width:100%!important; overflow-x:auto!important; padding:4px 2px 8px!important; margin:6px 0 10px!important; overscroll-behavior-x:contain!important; }
+  #ttcExampleAutoV2 .ea2-hsk-row button { flex:0 0 auto!important; min-width:max-content!important; padding:7px 10px!important; font-size:12px!important; white-space:nowrap!important; }
+  /* Larger, more readable input for sentence typing (including on phones). */
+  #sentenceSection #sentenceInput {
+    box-sizing:border-box!important; display:block!important; width:100%!important; max-width:100%!important; min-width:0!important;
+    min-height:64px!important; padding:14px 15px!important; font-size:clamp(20px,4.8vw,24px)!important;
+    line-height:1.55!important; font-weight:600!important; letter-spacing:.2px!important;
+  }
+  #sentenceSection #sentenceInput::placeholder { font-size:clamp(16px,4vw,19px)!important; font-weight:500!important; }
+  @media(max-width:600px){
+    #autoLearning, #ttcExampleAutoV2 { padding:10px!important; }
+    #autoLearning .auto-learning-buttons > *, #ttcExampleAutoV2 .ttc-ea2-controls-single-row .ea2-btn { padding:7px 9px!important; font-size:12px!important; }
+    #sentenceSection #sentenceInput { min-height:66px!important; font-size:21px!important; padding:14px!important; }
+  }
+</style>
+<script id="ttcFinalAutoAndSentencePolish20261027JS">
+(function(){
+  'use strict';
+  function arrange(){
+    var vocab=document.getElementById('autoLearning');
+    var example=document.getElementById('ttcExampleAutoV2');
+    var main=vocab && vocab.closest('main');
+    /* Move the example section out of nav and directly after vocabulary Auto Learning. */
+    if(vocab && example && main && (example.parentNode!==main || vocab.nextElementSibling!==example)){
+      vocab.insertAdjacentElement('afterend',example);
+    }
+    if(example){
+      var body=document.getElementById('ttcEA2Body');
+      if(body){
+        var groups=Array.from(body.querySelectorAll(':scope > .ea2-buttons'));
+        if(groups.length){
+          var row=body.querySelector(':scope > .ttc-ea2-controls-single-row');
+          if(!row){ row=document.createElement('div'); row.className='ttc-ea2-controls-single-row'; }
+          var card=body.querySelector(':scope > .ea2-card');
+          if(card && row.previousElementSibling!==card) card.insertAdjacentElement('afterend',row);
+          else if(!card && row.parentNode!==body) body.insertBefore(row,body.firstChild);
+          groups.forEach(function(group){
+            Array.from(group.querySelectorAll('button')).forEach(function(button){row.appendChild(button);});
+            group.remove();
+          });
+          if(row.children.length===0) row.remove();
+        }
+      }
+    }
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',arrange,{once:true}); else arrange();
+  var observer=new MutationObserver(function(){arrange();});
   observer.observe(document.documentElement,{childList:true,subtree:true});
 })();
 </script>
