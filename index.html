@@ -2659,6 +2659,82 @@ body.ttc-reading-open #thttGrammarLauncher{display:none!important;visibility:hid
 #ttcReadingStopNearby button:focus-visible{outline:3px solid #fca5a5;outline-offset:2px}
 @media(max-width:600px){#ttcReadingStopNearby{right:10px;bottom:72px}#ttcReadingStopNearby button{padding:10px 14px;font-size:13px}}
 </style>
+
+<style id="ttc-requested-button-polish-v1">
+/* TTC: các nút học giữ nền trắng cho tới khi người học nhấn đúp */
+#ttcTopLearningHub .ttc-top-learning-btn,
+#ttcTypeFrame .ttc-type-buttons button,
+#ttcSpecialtyLauncher,#ttcReadingLauncher,#ttcListeningLauncher{
+  background:#fff !important;color:#34465a !important;
+  border:1px solid #d8e1e9 !important;
+  box-shadow:0 2px 7px rgba(20,45,70,.07) !important;
+  animation:none !important;filter:none !important;
+  transition:background .2s ease,box-shadow .2s ease,border-color .2s ease,color .2s ease !important;
+}
+#ttcTopLearningHub .ttc-top-learning-btn.ttc-user-glow,
+#ttcTypeFrame .ttc-type-buttons button.ttc-user-glow,
+#ttcSpecialtyLauncher.ttc-user-glow,
+#ttcReadingLauncher.ttc-user-glow,
+#ttcListeningLauncher.ttc-user-glow{
+  color:#fff !important;
+}
+#ttcTopLearningHub .ttc-radical-btn.ttc-user-glow{background:linear-gradient(135deg,#ec4899,#db2777)!important;border-color:#f9a8d4!important;box-shadow:0 0 14px rgba(236,72,153,.62),0 0 25px rgba(219,39,119,.28)!important}
+#ttcTopLearningHub .ttc-pron-btn.ttc-user-glow{background:linear-gradient(135deg,#ea580c,#fb923c)!important;border-color:#fdba74!important;box-shadow:0 0 14px rgba(249,115,22,.62),0 0 25px rgba(249,115,22,.28)!important}
+#ttcTypeFrame .ttc-type-buttons button.ttc-user-glow{background:linear-gradient(135deg,#2563eb,#1d4ed8)!important;border-color:#93c5fd!important;box-shadow:0 0 13px rgba(37,99,235,.55)!important}
+#ttcSpecialtyLauncher.ttc-user-glow{background:linear-gradient(135deg,#6d28d9,#a855f7)!important;border-color:#c084fc!important;box-shadow:0 0 14px rgba(168,85,247,.58)!important}
+#ttcReadingLauncher.ttc-user-glow{background:linear-gradient(135deg,#047857,#22c55e)!important;border-color:#86efac!important;box-shadow:0 0 14px rgba(34,197,94,.58)!important}
+#ttcListeningLauncher.ttc-user-glow{background:linear-gradient(135deg,#c2410c,#fb923c)!important;border-color:#fdba74!important;box-shadow:0 0 14px rgba(249,115,22,.58)!important}
+/* Ba launcher chuyên ngành/đọc/nghe nằm gọn trong một hàng */
+#ttcMainLearningLaunchers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;max-width:900px;margin:12px auto 18px}
+#ttcMainLearningLaunchers>button{display:block;width:100%;min-width:0;margin:0!important;padding:10px 6px!important;font-size:clamp(11px,1.45vw,15px)!important;line-height:1.3;border-radius:12px!important;white-space:normal;overflow-wrap:anywhere}
+#flashcardSection>.flashcard-collapsed-bar{display:none!important}
+#ttcFlashcardLauncherBar{display:flex;justify-content:center;width:100%;margin:8px auto 16px}
+#ttcFlashcardLauncherBar #flashcardToggleButton{width:min(100%,560px);margin:0;padding:11px 18px;font-size:15px}
+body.flashcard-mobile-mode #ttcFlashcardLauncherBar{display:none!important}
+@media(max-width:420px){
+ #ttcMainLearningLaunchers{gap:5px;margin:9px auto 14px}
+ #ttcMainLearningLaunchers>button{padding:9px 3px!important;font-size:10px!important;letter-spacing:-.15px}
+ #ttcFlashcardLauncherBar #flashcardToggleButton{font-size:13px;padding:10px 8px}
+}
+
+/* V2: selectors for every requested navigation button, including launchers created by scripts. */
+#ttcTypeFrame .ttc-type-buttons button,
+#ttcActionFrame .ttc-action-buttons button,
+#ttcMatchLauncher,#ttcListenLauncher,
+#ttcTopLearningHub .ttc-top-learning-btn,
+#ttcSpecialtyLauncher,#ttcReadingLauncher,#ttcListeningLauncher{
+  background:#fff !important;background-image:none !important;color:#34465a !important;
+  border:1px solid #d8e1e9 !important;box-shadow:0 2px 7px rgba(20,45,70,.07) !important;
+  animation:none !important;filter:none !important;
+}
+#ttcTypeFrame .ttc-type-buttons button.ttc-user-glow,
+#ttcActionFrame .ttc-action-buttons button.ttc-user-glow,
+#ttcMatchLauncher.ttc-user-glow,#ttcListenLauncher.ttc-user-glow,
+#ttcTopLearningHub .ttc-top-learning-btn.ttc-user-glow,
+#ttcSpecialtyLauncher.ttc-user-glow,#ttcReadingLauncher.ttc-user-glow,#ttcListeningLauncher.ttc-user-glow{color:#fff !important}
+#ttcActionFrame .ttc-action-buttons{display:grid !important;grid-template-columns:repeat(4,minmax(0,1fr)) !important;align-items:stretch;gap:8px !important}
+#ttcActionFrame .ttc-action-buttons button{width:100% !important;min-width:0 !important;margin:0 !important;padding:10px 5px !important;font-size:clamp(10px,1.4vw,14px) !important;line-height:1.25 !important;white-space:normal !important;overflow-wrap:anywhere !important;border-radius:10px !important}
+#ttcTypeFrame .ttc-type-buttons button{min-width:0 !important;flex:1 1 0;padding:10px 7px !important}
+#ttcTypeHskChooser{display:flex;flex-wrap:wrap;justify-content:center;gap:7px;margin:8px auto 4px;padding:10px;border:1px solid #e2e8f0;border-radius:12px;background:#fff;max-width:760px}
+#ttcTypeHskChooser[hidden]{display:none !important}
+#ttcTypeHskChooser button{min-width:48px;padding:8px 10px;border:1px solid #dbe4ee;border-radius:9px;background:#fff;color:#334155;font-weight:800}
+#ttcTypeHskChooser button:hover,#ttcTypeHskChooser button:focus-visible{background:#eff6ff;border-color:#93c5fd}
+#ttcFlashcardLauncherBar{margin:5px auto 8px !important}
+#flashcardSection{scroll-margin-top:8px}
+#ttcActionFrame .ttc-action-buttons button.ttc-user-glow:nth-child(1){background:linear-gradient(135deg,#0f766e,#14b8a6)!important;border-color:#99f6e4!important;box-shadow:0 0 12px rgba(20,184,166,.48)!important;color:#fff!important}
+#ttcActionFrame .ttc-action-buttons button.ttc-user-glow:nth-child(2){background:linear-gradient(135deg,#7c3aed,#a78bfa)!important;border-color:#c4b5fd!important;box-shadow:0 0 12px rgba(139,92,246,.48)!important;color:#fff!important}
+#ttcMatchLauncher.ttc-user-glow{background:linear-gradient(135deg,#2563eb,#60a5fa)!important;border-color:#93c5fd!important;box-shadow:0 0 12px rgba(59,130,246,.5)!important;color:#fff!important}
+#ttcListenLauncher.ttc-user-glow{background:linear-gradient(135deg,#d97706,#fbbf24)!important;border-color:#fde68a!important;box-shadow:0 0 12px rgba(245,158,11,.5)!important;color:#fff!important}
+@media(max-width:600px){
+ #ttcActionFrame .ttc-action-buttons{grid-template-columns:repeat(4,minmax(0,1fr)) !important;gap:5px !important}
+ #ttcActionFrame .ttc-action-buttons button{font-size:10px !important;padding:9px 3px !important;letter-spacing:-.2px}
+ #ttcTypeFrame .ttc-type-buttons{gap:5px !important}
+ #ttcTypeFrame .ttc-type-buttons button{font-size:12px !important;padding:9px 4px !important}
+ #ttcTypeHskChooser{gap:5px;padding:8px}
+ #ttcTypeHskChooser button{min-width:42px;padding:8px 7px}
+}
+</style>
+
 </head>
 
 <body>
@@ -5058,7 +5134,7 @@ body > .price-box{
     class="flashcard-toggle-button"
     onclick="toggleFlashcardSection()"
   >
-    🃏 FLASHCARD  ＋
+    Nhấn để học FLASHCARD+
   </button>
 
 </div>
@@ -5621,9 +5697,7 @@ Câu 1
 <div class="sentence-meaning" id="sentenceMeaning">
 </div>
 
-<div class="sentence-target" id="sentenceTarget">
-？？？
-</div>
+<div class="sentence-target" id="sentenceTarget"></div>
 <div class="sentence-target-pinyin" id="sentenceTargetPinyin" aria-live="polite"></div>
 
 <input
@@ -84823,7 +84897,8 @@ function showType(type, btn){
           .filter(Boolean);
 
 
-      return types.includes(type);
+      var wantedType=type.toLocaleLowerCase('vi').replace(/\s+/g,' ').trim();
+      return types.some(function(item){var normalized=item.toLocaleLowerCase('vi').replace(/\s+/g,' ').trim();return normalized===wantedType || normalized.indexOf(wantedType+' ')===0;});
 
     });
 
@@ -93190,7 +93265,7 @@ if(!isOpen){
     button.textContent =
       isOpen
         ? "🃏 FLASHCARD  −"
-        : "🃏 FLASHCARD  ＋";
+        : "Nhấn để học FLASHCARD+";
 
   }
 
@@ -93271,7 +93346,7 @@ function closeFlashcardMobile(){
   if(button){
 
     button.textContent =
-      "🃏 FLASHCARD  ＋";
+      "Nhấn để học FLASHCARD+";
 
   }
 
@@ -110274,7 +110349,7 @@ function whiteHatRender(){
     if(target){
 
       target.textContent =
-        "？？？";
+        "";
 
     }
     const targetPinyin = document.getElementById("sentenceTargetPinyin");
@@ -110313,7 +110388,7 @@ if(number){
   if(target){
 
     target.textContent =
-      "？？？";
+      "";
 
     target.classList.remove(
       "whiteHatAnswerShown"
@@ -110760,7 +110835,7 @@ if(number){
     if(target){
 
       target.textContent =
-        "？？？";
+        "";
 
       target.classList.remove(
         "whiteHatAnswerShown"
@@ -136718,6 +136793,70 @@ renderLevels();view('levels');
   }
 </style>
 
+
+<script id="ttc-requested-button-polish-v1-js">
+(function(){
+ 'use strict';
+ function arrange(){
+   var hsk=document.getElementById('ttcHskFrame');
+   var flashSection=document.getElementById('flashcardSection');
+   var toggle=document.getElementById('flashcardToggleButton');
+   if(hsk && flashSection && toggle && !document.getElementById('ttcFlashcardLauncherBar')){
+     var bar=toggle.closest('.flashcard-collapsed-bar');
+     if(bar){var launchBar=document.createElement('div');launchBar.id='ttcFlashcardLauncherBar';launchBar.appendChild(bar);hsk.insertAdjacentElement('afterend',launchBar);}
+   }
+   var specialty=document.getElementById('ttcSpecialtyLauncher'),reading=document.getElementById('ttcReadingLauncher'),listening=document.getElementById('ttcListeningLauncher');
+   if(specialty && reading && listening && !document.getElementById('ttcMainLearningLaunchers')){
+     var row=document.createElement('div');row.id='ttcMainLearningLaunchers';specialty.parentNode.insertBefore(row,specialty);row.append(specialty,reading,listening);
+   }
+   var typeFrame=document.getElementById('ttcTypeFrame');
+   if(typeFrame && !document.getElementById('ttcTypeHskChooser')){
+     var chooser=document.createElement('div');chooser.id='ttcTypeHskChooser';chooser.hidden=true;chooser.setAttribute('aria-label','Chọn cấp độ HSK cho loại từ');
+     chooser.innerHTML=[1,2,3,4,5,6,7,8,9].map(function(n){return '<button type="button" data-level="'+n+'">HSK '+n+'</button>';}).join('');
+     var buttons=typeFrame.querySelector('.ttc-type-buttons');if(buttons)buttons.insertAdjacentElement('afterend',chooser);
+   }
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',arrange,{once:true});else arrange();
+ var learningSelector='#ttcTopLearningHub .ttc-top-learning-btn,#ttcTypeFrame .ttc-type-buttons button,#ttcActionFrame .ttc-action-buttons button,#ttcMatchLauncher,#ttcListenLauncher,#ttcSpecialtyLauncher,#ttcReadingLauncher,#ttcListeningLauncher';
+ document.addEventListener('click',function(e){var b=e.target&&e.target.closest?e.target.closest(learningSelector):null;if(b&&e.detail===2){e.preventDefault();e.stopImmediatePropagation();}},true);
+ document.addEventListener('dblclick',function(e){var b=e.target&&e.target.closest?e.target.closest(learningSelector):null;if(b)b.classList.add('ttc-user-glow');});
+ var selectedType='';
+ document.addEventListener('click',function(e){
+   var typeButton=e.target&&e.target.closest?e.target.closest('#ttcTypeFrame .ttc-type-buttons button'):null;
+   if(typeButton){
+     e.preventDefault();e.stopImmediatePropagation();
+     var chooser=document.getElementById('ttcTypeHskChooser');
+     var vocab=document.getElementById('vocabularySection');
+     var thisType=(typeButton.textContent||'').trim();
+     if(chooser && !chooser.hidden && selectedType===thisType){
+       chooser.hidden=true;
+       if(vocab)vocab.classList.add('hidden');
+       typeButton.classList.remove('ttc-user-glow');
+       return;
+     }
+     selectedType=thisType;
+     if(chooser){chooser.hidden=false;chooser.querySelectorAll('button').forEach(function(b){b.setAttribute('aria-label','Học '+selectedType+' HSK '+b.dataset.level);});}
+     typeButton.classList.add('ttc-user-glow');
+     return;
+   }
+   var levelButton=e.target&&e.target.closest?e.target.closest('#ttcTypeHskChooser button'):null;
+   if(levelButton){
+     var level=Number(levelButton.dataset.level), hskButton=document.querySelector('#ttcHskFrame .hsk-nav:nth-child('+level+')');
+     var chooser=document.getElementById('ttcTypeHskChooser');if(chooser)chooser.hidden=true;
+     if(typeof window.showHSK==='function' && hskButton){
+       Promise.resolve(window.showHSK(level,hskButton)).then(function(){
+         if(typeof currentHSK!=='undefined' && Number(currentHSK)===level && typeof window.showType==='function'){var typeButtons=Array.from(document.querySelectorAll('#ttcTypeFrame .ttc-type-buttons button'));var typeButton=typeButtons.find(function(x){return (x.textContent||'').trim()===selectedType;});window.showType(selectedType,typeButton);}
+         var vocab=document.getElementById('vocabularySection');if(vocab){vocab.classList.remove('hidden');setTimeout(function(){vocab.scrollIntoView({behavior:'smooth',block:'start'});},60);}
+       }).catch(function(){});
+     }
+     return;
+   }
+   var flashButton=e.target&&e.target.closest?e.target.closest('#flashcardToggleButton'):null;
+   if(flashButton){setTimeout(function(){var section=document.getElementById('flashcardSection');if(section){section.scrollIntoView({behavior:'smooth',block:'start'});window.scrollBy({top:-8,behavior:'smooth'});}},120);}
+ },true);
+})();
+</script>
+
 </body>
 </html>
 
@@ -136977,3 +137116,324 @@ renderLevels();view('levels');
   #whiteHatHSKPanel #whiteHatHSKButtons button{padding:6px 2px !important;font-size:11px !important}
 }
 </style>
+
+
+<!-- TTC PATCH V3: FORCE WHITE TYPE/TEST BUTTONS + FLASHCARD TOP ALIGN -->
+<style id="ttc-white-buttons-flashcard-top-v3">
+  /* These rules intentionally come last to override legacy blue/red blink rules. */
+  #ttcTypeFrame .ttc-type-buttons button,
+  #ttcActionFrame .ttc-action-buttons button:first-child {
+    background:#fff !important;
+    background-image:none !important;
+    color:#34465a !important;
+    border:1px solid #d8e1e9 !important;
+    box-shadow:0 2px 7px rgba(20,45,70,.07) !important;
+    animation:none !important;
+    filter:none !important;
+  }
+  #ttcTypeFrame .ttc-type-buttons button.ttc-user-glow {
+    background:linear-gradient(135deg,#2563eb,#1d4ed8) !important;
+    color:#fff !important;
+    border-color:#93c5fd !important;
+    box-shadow:0 0 13px rgba(37,99,235,.55) !important;
+  }
+  #ttcActionFrame .ttc-action-buttons button:first-child.ttc-user-glow {
+    background:linear-gradient(135deg,#dc2626,#f87171) !important;
+    color:#fff !important;
+    border-color:#fecaca !important;
+    box-shadow:0 0 13px rgba(220,38,38,.48) !important;
+  }
+  /* On mobile the full-screen Flashcard content starts at the top, not vertically centered. */
+  #flashcardSection.flashcard-fullscreen .flashcard-content {
+    display:block !important;
+    padding-top:max(54px, calc(env(safe-area-inset-top) + 48px)) !important;
+    margin-top:0 !important;
+    align-items:flex-start !important;
+    justify-content:flex-start !important;
+  }
+  #flashcardSection.flashcard-fullscreen .flashcard-header {
+    margin-top:0 !important;
+  }
+  #flashcardSection.flashcard-fullscreen .flashcard-scene,
+  #flashcardSection.flashcard-fullscreen #flashcard {
+    margin-top:0 !important;
+  }
+  #flashcardSection { scroll-margin-top:0 !important; }
+</style>
+<script id="ttc-flashcard-scroll-fix-v3">
+(function(){
+  'use strict';
+  function scrollFlashcardToTop(){
+    var section=document.getElementById('flashcardSection');
+    if(!section) return;
+    if(section.classList.contains('flashcard-fullscreen')){
+      section.scrollTop=0;
+      var content=section.querySelector('.flashcard-content');
+      if(content) content.scrollTop=0;
+      return;
+    }
+    section.scrollIntoView({behavior:'auto',block:'start'});
+    window.scrollTo({top:Math.max(0,section.getBoundingClientRect().top+window.pageYOffset),behavior:'auto'});
+  }
+  document.addEventListener('click',function(e){
+    var button=e.target && e.target.closest ? e.target.closest('#flashcardToggleButton') : null;
+    if(!button) return;
+    /* Run after the existing inline toggle has opened/closed the section. */
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        if(window.innerWidth<=600){
+          var section=document.getElementById('flashcardSection');
+          if(section && section.classList.contains('flashcard-fullscreen')) scrollFlashcardToTop();
+        } else {
+          var section=document.getElementById('flashcardSection');
+          if(section && section.classList.contains('flashcard-open')) scrollFlashcardToTop();
+        }
+      });
+    });
+  },false);
+})();
+</script>
+
+<!-- TTC V4: thao tác đóng nhanh, vị trí Flashcard và chữ ghép câu rõ hơn -->
+<style id="ttcV4ToggleAndSentencePolish">
+/* Flashcard trên điện thoại: giữ chính nút mở ở phía trên để nhấn lần hai đóng được */
+body.flashcard-mobile-mode #ttcFlashcardLauncherBar{
+  display:flex !important; position:fixed !important;
+  top:max(6px,env(safe-area-inset-top)) !important;
+  left:10px !important; right:10px !important; width:auto !important;
+  margin:0 !important; z-index:100005 !important;
+  justify-content:center !important; pointer-events:auto !important;
+}
+body.flashcard-mobile-mode #ttcFlashcardLauncherBar #flashcardToggleButton{
+  width:min(100%,360px) !important; min-height:38px !important;
+  padding:8px 12px !important; font-size:13px !important;
+  border-radius:999px !important; background:#fff !important;
+  color:#17324d !important; border:1px solid #d5e0e8 !important;
+  box-shadow:0 3px 14px rgba(0,0,0,.18) !important;
+}
+body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px !important}
+/* Ghép câu: chữ Hán trong kho phải lớn, tương phản rõ */
+#thttGrammarOverlay .thtt-word,
+#thttWordBank .thtt-word{
+  min-width:48px !important; min-height:52px !important;
+  padding:9px 13px !important; font-size:clamp(24px,6vw,34px) !important;
+  line-height:1.25 !important; font-weight:900 !important;
+  border-radius:12px !important;
+}
+#thttGrammarOverlay .thtt-answer,
+#thttAnswerBank{
+  min-height:68px !important; font-size:clamp(23px,5.6vw,32px) !important;
+  line-height:1.5 !important; gap:7px !important;
+}
+#thttGrammarOverlay .thtt-g-actions button[data-action="clearUnscramble"],
+#thttGrammarOverlay .thtt-g-actions button[data-action="showAnswer"]{
+  padding:6px 9px !important; font-size:12px !important;
+  min-height:32px !important; border-radius:8px !important;
+}
+/* Hai nút phụ của kho chữ: nhỏ hơn rõ ràng so với các chữ Hán */
+#ttcSentenceWordBank .ttc-word-bank-footer button,
+#ttcSentenceWordBankClear,#ttcSentenceWordBankClose{
+  padding:5px 9px !important; min-height:29px !important;
+  font-size:11px !important; line-height:1.2 !important;
+  font-weight:700 !important; border-radius:8px !important;
+}
+@media(max-width:600px){
+  #thttGrammarOverlay .thtt-word,#thttWordBank .thtt-word{
+    min-width:44px !important; min-height:50px !important;
+    padding:8px 10px !important; font-size:clamp(23px,7vw,31px) !important;
+  }
+  #thttGrammarOverlay .thtt-answer,#thttAnswerBank{font-size:clamp(22px,6.2vw,29px) !important}
+  #ttcSentenceWordBank .ttc-word-bank-footer button,
+  #ttcSentenceWordBankClear,#ttcSentenceWordBankClose{font-size:10px !important;padding:5px 7px !important}
+}
+</style>
+<script id="ttcV4CommonLearningToggle">
+(function(){
+ 'use strict';
+ if(window.__TTC_V4_COMMON_TOGGLE__) return;
+ window.__TTC_V4_COMMON_TOGGLE__=true;
+ function visible(el){return !!el && !el.hidden && !el.classList.contains('hidden') && getComputedStyle(el).display!=='none' && getComputedStyle(el).visibility!=='hidden';}
+ function closeSection(el){if(!el)return;el.classList.add('hidden');el.setAttribute('aria-hidden','true');}
+ document.addEventListener('click',function(e){
+   var b=e.target&&e.target.closest?e.target.closest('#ttcActionFrame .ttc-action-buttons button'):null;
+   if(!b)return;
+   var label=(b.textContent||'').trim().toLowerCase();
+   if(label.indexOf('luyện câu')>=0){
+     var section=document.getElementById('sentenceSection');
+     if(visible(section) && b.dataset.ttcWasOpen==='1'){
+       e.preventDefault();e.stopImmediatePropagation();closeSection(section);b.dataset.ttcWasOpen='0';
+       var title=document.getElementById('title');if(title)title.textContent='🇨🇳 THÍCH TIẾNG TRUNG';
+       window.scrollTo({top:0,behavior:'smooth'});return;
+     }
+     setTimeout(function(){if(visible(section))b.dataset.ttcWasOpen='1';},80);
+   }
+   if(label.indexOf('test từ vựng')>=0){
+     var chooser=document.getElementById('ttcVocabularyTestChooser');
+     if(visible(chooser) && b.dataset.ttcWasOpen==='1'){
+       e.preventDefault();e.stopImmediatePropagation();
+       var close=chooser.querySelector('.ttc-vocab-test-close');if(close)close.click();else chooser.hidden=true;
+       b.dataset.ttcWasOpen='0';window.scrollTo({top:0,behavior:'smooth'});return;
+     }
+     setTimeout(function(){if(visible(chooser))b.dataset.ttcWasOpen='1';},80);
+   }
+ },true);
+ /* Keep the same Flashcard launcher available at the top while learning on mobile. */
+ function updateFlashcardLauncher(){
+   var button=document.getElementById('flashcardToggleButton');
+   if(!button)return;
+   if(document.body.classList.contains('flashcard-mobile-mode')){
+     button.textContent='↙ Thu nhỏ / đóng FLASHCARD+';
+     button.setAttribute('aria-expanded','true');
+   }else{
+     button.textContent='Nhấn để học FLASHCARD+';
+     button.setAttribute('aria-expanded','false');
+   }
+ }
+ var observer=new MutationObserver(updateFlashcardLauncher);
+ observer.observe(document.body,{attributes:true,attributeFilter:['class']});
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',updateFlashcardLauncher,{once:true});else updateFlashcardLauncher();
+})();
+</script>
+
+
+
+<!-- TTC FINAL PATCH V5: learning launcher toggle, visible glow, sentence word-bank layout -->
+<style id="ttc-final-patch-v5">
+/* Make the requested learning/navigation buttons consistently white at rest. */
+#ttcTopLearningHub .ttc-top-learning-btn,
+#ttcTypeFrame .ttc-type-buttons button,
+#ttcActionFrame .ttc-action-buttons button,
+#ttcMatchLauncher,#ttcListenLauncher,
+#ttcSpecialtyLauncher,#ttcReadingLauncher,#ttcListeningLauncher,
+#ttcFlashcardLauncherBar #flashcardToggleButton{
+  background:#fff !important;background-image:none !important;
+  color:#34465a !important;border:1px solid #d8e1e9 !important;
+  box-shadow:0 2px 7px rgba(20,45,70,.09) !important;
+  animation:none !important;filter:none !important;
+  transition:background .18s ease,box-shadow .18s ease,border-color .18s ease,color .18s ease !important;
+}
+#ttcTopLearningHub .ttc-top-learning-btn.ttc-user-glow,
+#ttcTypeFrame .ttc-type-buttons button.ttc-user-glow,
+#ttcActionFrame .ttc-action-buttons button.ttc-user-glow,
+#ttcMatchLauncher.ttc-user-glow,#ttcListenLauncher.ttc-user-glow,
+#ttcSpecialtyLauncher.ttc-user-glow,#ttcReadingLauncher.ttc-user-glow,
+#ttcListeningLauncher.ttc-user-glow,
+#ttcFlashcardLauncherBar #flashcardToggleButton.ttc-user-glow{color:#fff !important}
+#ttcTopLearningHub .ttc-radical-btn.ttc-user-glow{background:linear-gradient(135deg,#ec4899,#db2777)!important;border-color:#f9a8d4!important;box-shadow:0 0 14px rgba(236,72,153,.62),0 0 25px rgba(219,39,119,.28)!important}
+#ttcTopLearningHub .ttc-pron-btn.ttc-user-glow{background:linear-gradient(135deg,#ea580c,#fb923c)!important;border-color:#fdba74!important;box-shadow:0 0 14px rgba(249,115,22,.62),0 0 25px rgba(249,115,22,.28)!important}
+#ttcTypeFrame .ttc-type-buttons button.ttc-user-glow{background:linear-gradient(135deg,#2563eb,#1d4ed8)!important;border-color:#93c5fd!important;box-shadow:0 0 13px rgba(37,99,235,.55)!important}
+#ttcActionFrame .ttc-action-buttons button.ttc-user-glow,#ttcMatchLauncher.ttc-user-glow,#ttcListenLauncher.ttc-user-glow{background:linear-gradient(135deg,#0f766e,#14b8a6)!important;border-color:#99f6e4!important;box-shadow:0 0 14px rgba(20,184,166,.5)!important}
+#ttcSpecialtyLauncher.ttc-user-glow{background:linear-gradient(135deg,#6d28d9,#a855f7)!important;border-color:#c084fc!important;box-shadow:0 0 14px rgba(168,85,247,.58)!important}
+#ttcReadingLauncher.ttc-user-glow{background:linear-gradient(135deg,#047857,#22c55e)!important;border-color:#86efac!important;box-shadow:0 0 14px rgba(34,197,94,.58)!important}
+#ttcListeningLauncher.ttc-user-glow,#ttcFlashcardLauncherBar #flashcardToggleButton.ttc-user-glow{background:linear-gradient(135deg,#c2410c,#fb923c)!important;border-color:#fdba74!important;box-shadow:0 0 14px rgba(249,115,22,.58)!important}
+#ttcTypeHskChooser[hidden]{display:none!important}
+#ttcTypeHskChooser{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:10px 0;padding:10px;border:1px solid #dbe4ee;border-radius:12px;background:#fff}
+#ttcTypeHskChooser button{background:#fff!important;color:#334155!important;border:1px solid #d8e1e9!important;border-radius:9px;padding:9px 5px;font-weight:800}
+#ttcTypeHskChooser button.ttc-user-glow{background:#2563eb!important;color:#fff!important;box-shadow:0 0 12px rgba(37,99,235,.45)!important}
+/* Ghép câu: word chips are the visual focus; action buttons get their own compact footer box. */
+#ttcSentenceWordBank{position:relative!important;padding:12px!important;background:#fff!important}
+#ttcSentenceWordBank .ttc-word-bank-items{display:flex!important;flex-wrap:wrap!important;align-items:center!important;gap:9px!important;width:100%!important}
+#ttcSentenceWordBank .ttc-word-chip{font-size:clamp(25px,6.8vw,34px)!important;line-height:1.2!important;font-weight:900!important;min-height:48px!important;padding:8px 12px!important;border-radius:11px!important;letter-spacing:.02em!important;touch-action:manipulation}
+#ttcSentenceWordBank .ttc-word-chip.is-selected{background:#ffe4e6!important;border:2px solid #be123c!important;color:#881337!important}
+#ttcSentenceWordBank .ttc-word-bank-footer{display:flex!important;justify-content:flex-end!important;align-items:center!important;gap:7px!important;width:100%!important;margin-top:12px!important;padding:8px!important;background:#f8fafc!important;border:1px solid #e2e8f0!important;border-radius:10px!important}
+#ttcSentenceWordBank .ttc-word-bank-footer button{flex:0 0 auto!important;width:auto!important;min-width:0!important;padding:5px 9px!important;font-size:11px!important;line-height:1.2!important;border-radius:8px!important;font-weight:700!important}
+@media(max-width:600px){#ttcSentenceWordBank .ttc-word-chip{font-size:clamp(27px,7.4vw,35px)!important;min-height:50px!important;padding:8px 12px!important}#ttcSentenceWordBank .ttc-word-bank-footer{margin-top:10px!important;padding:7px!important}#ttcSentenceWordBank .ttc-word-bank-footer button{font-size:11px!important;padding:5px 8px!important}}
+</style>
+<script id="ttc-final-toggle-v5">
+(function(){
+ 'use strict';
+ var selector='#ttcTopLearningHub .ttc-top-learning-btn,#ttcActionFrame .ttc-action-buttons button,#ttcMatchLauncher,#ttcListenLauncher,#ttcSpecialtyLauncher,#ttcReadingLauncher,#ttcListeningLauncher,#flashcardToggleButton';
+ var lastButton=null;
+ function visible(el){if(!el)return false;var cs=getComputedStyle(el);return !el.hidden&&cs.display!=='none'&&cs.visibility!=='hidden'&&!el.classList.contains('hidden')}
+ function findTestChooser(){return document.querySelector('#ttcVocabularyTestChooser:not([hidden]),.ttc-vocab-test-dialog:not([hidden]),#ttcVocabularyTestChooser .ttc-vocab-test-dialog')||document.getElementById('ttcVocabularyTestChooser')}
+ function closeTarget(b){
+   var id=b.id||'', text=(b.textContent||'').trim().toLowerCase();
+   if(id==='flashcardToggleButton'){
+     var fs=document.getElementById('flashcardSection');
+     if(fs && (fs.classList.contains('flashcard-fullscreen')||fs.classList.contains('flashcard-open'))){
+       if(typeof window.closeFlashcardMobile==='function'&&fs.classList.contains('flashcard-fullscreen'))window.closeFlashcardMobile();
+       else if(typeof window.toggleFlashcardSection==='function')window.toggleFlashcardSection();
+       else {fs.classList.remove('flashcard-open','flashcard-fullscreen');document.body.classList.remove('flashcard-mobile-mode');}
+       return true;
+     }
+   }
+   if(b.closest('#ttcTypeFrame')){
+     var chooser=document.getElementById('ttcTypeHskChooser');
+     var vocab=document.getElementById('vocabularySection');
+     if(chooser&&!chooser.hidden){chooser.hidden=true;if(vocab)vocab.classList.add('hidden');return true;}
+     return false;
+   }
+   if(/luyện câu/.test(text)){
+     var sentence=document.getElementById('sentenceSection');
+     if(sentence&&visible(sentence)){sentence.classList.add('hidden');sentence.style.display='none';return true;}
+   }
+   if(/test từ vựng/.test(text)){
+     var test=findTestChooser();
+     if(test&&visible(test)){test.hidden=true;test.style.display='none';return true;}
+   }
+   if(id==='ttcReadingLauncher'){
+     var reading=document.getElementById('ttcReadingSection');if(reading&&visible(reading)){reading.style.display='none';b.setAttribute('aria-expanded','false');return true;}
+   }
+   if(id==='ttcListeningLauncher'){
+     var listening=document.getElementById('ttcListeningSection');if(listening&&visible(listening)){listening.style.display='none';b.setAttribute('aria-expanded','false');return true;}
+   }
+   if(id==='ttcSpecialtyLauncher'){
+     var specialty=document.getElementById('ttcSpecialtySection')||document.getElementById('ttcSpecialtyPanel')||document.querySelector('.ttc-specialty-overlay');
+     if(specialty&&visible(specialty)){specialty.style.display='none';b.setAttribute('aria-expanded','false');return true;}
+   }
+   if(id==='ttcMatchLauncher'){
+     var match=document.getElementById('ttcMatchOverlay');if(match&&visible(match)){match.style.display='none';b.setAttribute('aria-expanded','false');return true;}
+   }
+   if(id==='ttcListenLauncher'){
+     var listen=document.getElementById('ttcListenOverlay');if(listen&&visible(listen)){listen.style.display='none';b.setAttribute('aria-expanded','false');return true;}
+   }
+   if(id==='ttcOpenRadicals'){
+     var rad=document.querySelector('#ttcRadicalOverlay,.ttc-radical-overlay,[id*="RadicalOverlay"]');if(rad&&visible(rad)){rad.remove();return true;}
+   }
+   if(id==='ttcOpenPronunciation'){
+     var pron=document.querySelector('#ttcPronunciationOverlay,.ttc-pronunciation-overlay,[id*="PronunciationOverlay"]');if(pron&&visible(pron)){pron.remove();return true;}
+   }
+   return false;
+ }
+ document.addEventListener('click',function(e){
+   var b=e.target&&e.target.closest?e.target.closest(selector):null;if(!b)return;
+   if(lastButton===b&&b.dataset.ttcToggleOpen==='1'){
+     if(closeTarget(b)){
+       e.preventDefault();e.stopImmediatePropagation();b.dataset.ttcToggleOpen='0';b.classList.remove('ttc-user-glow');lastButton=null;return;
+     }
+   }
+   if(lastButton&&lastButton!==b){lastButton.classList.remove('ttc-user-glow');}
+   lastButton=b;b.classList.add('ttc-user-glow');b.dataset.ttcToggleOpen='1';
+ },true);
+ /* Double-click remains supported, but single click also gives visible feedback. */
+ document.addEventListener('dblclick',function(e){var b=e.target&&e.target.closest?e.target.closest(selector):null;if(b)b.classList.add('ttc-user-glow');});
+})();
+</script>
+
+
+<!-- TTC FINAL FIX V6: type filter state, clean sentence prompt, compact action row -->
+<style id="ttc-final-fix-v6-css">
+  #sentenceSection #sentenceTarget:empty{display:none!important}
+  #sentenceSection .sentence-box > br{display:none!important}
+  #ttcSentenceActionRow{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important;width:100%!important;margin:12px auto 4px!important;align-items:stretch!important}
+  #ttcSentenceActionRow button{display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;min-width:0!important;min-height:38px!important;margin:0!important;padding:7px 5px!important;font-size:clamp(11px,2.8vw,14px)!important;line-height:1.2!important;white-space:normal!important;overflow-wrap:anywhere!important;border-radius:9px!important}
+  @media(max-width:380px){#ttcSentenceActionRow{gap:4px!important}#ttcSentenceActionRow button{font-size:10px!important;padding:6px 2px!important}}
+</style>
+<script id="ttc-final-fix-v6-js">
+(function(){
+  'use strict';
+  function arrangeSentenceActions(){
+    var box=document.querySelector('#sentenceSection .sentence-box');
+    if(!box)return;
+    var buttons=Array.from(box.querySelectorAll(':scope > button'));
+    var wanted=buttons.filter(function(b){var h=(b.getAttribute('onclick')||'').replace(/\s/g,'');return /checkSentence\(\)/.test(h)||/saySentence\(\)/.test(h)||/nextSentence\(\)/.test(h);});
+    if(wanted.length!==3)return;
+    var row=document.getElementById('ttcSentenceActionRow');
+    if(!row){row=document.createElement('div');row.id='ttcSentenceActionRow';wanted[0].insertAdjacentElement('beforebegin',row);}
+    wanted.forEach(function(b){row.appendChild(b);});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',arrangeSentenceActions,{once:true});else arrangeSentenceActions();
+  var observer=new MutationObserver(function(){arrangeSentenceActions();});
+  observer.observe(document.documentElement,{childList:true,subtree:true});
+})();
+</script>
