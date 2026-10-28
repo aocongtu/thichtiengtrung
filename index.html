@@ -138013,3 +138013,106 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
   }
 </style>
 
+
+
+<!-- TTC RESPONSIVE CONTROLS PATCH 2026-10-28: wrap instead of horizontal swipe on narrow screens -->
+<style id="ttcResponsiveWrapControls20261028">
+  /* Auto Learning: let controls form as many rows as needed; never require sideways swiping. */
+  #autoLearning.ttc-learning-fullscreen .auto-learning-buttons,
+  #ttcExampleAutoV2.ttc-learning-fullscreen .ttc-ea2-controls-single-row {
+    display:flex!important;
+    flex:0 0 auto!important;
+    flex-flow:row wrap!important;
+    align-items:stretch!important;
+    justify-content:center!important;
+    gap:clamp(6px,1.2vw,12px)!important;
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    overflow-x:visible!important;
+    overflow-y:visible!important;
+    padding:5px 0!important;
+    margin:4px 0!important;
+    -webkit-overflow-scrolling:auto!important;
+  }
+  #autoLearning.ttc-learning-fullscreen .auto-learning-buttons > button,
+  #ttcExampleAutoV2.ttc-learning-fullscreen .ttc-ea2-controls-single-row > .ea2-btn {
+    box-sizing:border-box!important;
+    flex:1 1 112px!important;
+    width:auto!important;
+    min-width:0!important;
+    max-width:100%!important;
+    min-height:42px!important;
+    padding:clamp(7px,1.2vw,12px) clamp(7px,1vw,12px)!important;
+    font-size:clamp(11px,1.2vw,15px)!important;
+    line-height:1.25!important;
+    white-space:normal!important;
+    overflow-wrap:anywhere!important;
+    text-align:center!important;
+  }
+  #autoLearning.ttc-learning-fullscreen .auto-learning-buttons > label {
+    box-sizing:border-box!important;
+    flex:1 1 100%!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    white-space:normal!important;
+  }
+  #autoLearning.ttc-learning-fullscreen #autoInterval {
+    box-sizing:border-box!important;
+    width:auto!important;
+    max-width:100%!important;
+    min-width:0!important;
+  }
+  #autoLearning.ttc-learning-fullscreen #autoLearningBody > div[style*="text-align: center"],
+  #ttcExampleAutoV2.ttc-learning-fullscreen .ea2-hsk-row {
+    flex-flow:row wrap!important;
+    justify-content:center!important;
+    overflow-x:visible!important;
+    overflow-y:visible!important;
+    white-space:normal!important;
+  }
+  #autoLearning.ttc-learning-fullscreen #autoLearningHSK,
+  #ttcExampleAutoV2.ttc-learning-fullscreen .ea2-hsk-row button,
+  #ttcExampleAutoV2.ttc-learning-fullscreen .ea2-hsk-select {
+    flex:0 1 auto!important;
+    min-width:0!important;
+    max-width:100%!important;
+  }
+  @media(max-width:600px) {
+    #autoLearning.ttc-learning-fullscreen,
+    #ttcExampleAutoV2.ttc-learning-fullscreen {
+      overflow-x:hidden!important;
+      overflow-y:auto!important;
+    }
+    #autoLearning.ttc-learning-fullscreen .auto-learning-buttons,
+    #ttcExampleAutoV2.ttc-learning-fullscreen .ttc-ea2-controls-single-row {
+      gap:6px!important;
+      justify-content:stretch!important;
+    }
+    #autoLearning.ttc-learning-fullscreen .auto-learning-buttons > button,
+    #ttcExampleAutoV2.ttc-learning-fullscreen .ttc-ea2-controls-single-row > .ea2-btn {
+      flex:1 1 calc(33.333% - 6px)!important;
+      min-width:0!important;
+      min-height:40px!important;
+      padding:7px 5px!important;
+      font-size:12px!important;
+      white-space:normal!important;
+      overflow-wrap:anywhere!important;
+    }
+    #autoLearning.ttc-learning-fullscreen #autoLearningBody > div[style*="text-align: center"] {
+      justify-content:center!important;
+      flex-wrap:wrap!important;
+      gap:6px!important;
+    }
+    #autoLearning.ttc-learning-fullscreen #autoLearningHSK {
+      flex:1 1 120px!important;
+      width:auto!important;
+    }
+    #ttcExampleAutoV2.ttc-learning-fullscreen .ea2-hsk-row button {
+      flex:1 1 54px!important;
+      padding:7px 5px!important;
+      font-size:12px!important;
+    }
+  }
+</style>
