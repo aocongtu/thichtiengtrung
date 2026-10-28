@@ -138610,8 +138610,8 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
       if(dir){
         var updateDir=function(){
           var t=dir.textContent||'';
-          if(t!=='↔ Chiều Việt ↔ Trung' && /🇻🇳|vi-zh|Việt/i.test(t) && /🇨🇳|zh-vi|Trung/i.test(t)){
-            dir.textContent='↔ Chiều Việt ↔ Trung';
+          if(t!=='Việt ↔ Trung' && /🇻🇳|vi-zh|Việt/i.test(t) && /🇨🇳|zh-vi|Trung/i.test(t)){
+            dir.textContent='Việt ↔ Trung';
           }
         };
         updateDir();
@@ -138653,7 +138653,7 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
       }
       var dir2=document.getElementById('ttcEA2Direction');
       if(dir2){
-        var updateDir2=function(){if(dir2.textContent!=='↔ Chiều Việt ↔ Trung')dir2.textContent='↔ Chiều Việt ↔ Trung';};
+        var updateDir2=function(){if(dir2.textContent!=='Việt ↔ Trung')dir2.textContent='Việt ↔ Trung';};
         updateDir2();
         dir2.addEventListener('click',function(){setTimeout(updateDir2,0);});
       }
