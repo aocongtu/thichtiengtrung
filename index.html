@@ -125198,6 +125198,32 @@ body.ttc-light-effect-off #ttcLightFallCanvas{
       wrap.appendChild(hanzi);
       wrap.appendChild(sound);
 
+      /* Nút bật/tắt Pinyin đặt ngay cạnh nút loa */
+      const pinyinButton = document.createElement("button");
+      pinyinButton.type = "button";
+      pinyinButton.className = "ttc-match-pinyin-toggle";
+      pinyinButton.textContent = "拼音";
+      pinyinButton.setAttribute("aria-label", "Hiện hoặc ẩn Pinyin");
+      pinyinButton.title = "Nhấn để hiện/ẩn Pinyin";
+
+      const wordIndex = Number(item.dataset.index);
+      const wordData = Array.isArray(window.words) ? window.words[wordIndex] : null;
+      const pinyinText = String(wordData && (wordData.p || wordData.pinyin || wordData.py) || "").trim();
+      const pinyin = document.createElement("span");
+      pinyin.className = "ttc-match-pinyin";
+      pinyin.textContent = pinyinText || "Chưa có Pinyin";
+      pinyin.hidden = true;
+      pinyinButton.disabled = !pinyinText;
+      pinyinButton.addEventListener("click", function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        pinyin.hidden = !pinyin.hidden;
+        pinyinButton.classList.toggle("is-visible", !pinyin.hidden);
+        pinyinButton.setAttribute("aria-pressed", String(!pinyin.hidden));
+      });
+      wrap.appendChild(pinyinButton);
+      wrap.appendChild(pinyin);
+
       item.appendChild(wrap);
 
     });
@@ -138115,4 +138141,248 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
       font-size:12px!important;
     }
   }
+</style>
+
+
+<!-- TTC FINAL MOBILE LAYOUT + TYPOGRAPHY FIX 2026-10-28 -->
+<style id="ttcFinalMobileLayoutTypographyFix20261028">
+  /* Prevent any inner element from forcing either learning panel wider than its viewport. */
+  #autoLearning.ttc-learning-fullscreen,
+  #ttcExampleAutoV2.ttc-learning-fullscreen,
+  #autoLearning.ttc-learning-fullscreen *,
+  #ttcExampleAutoV2.ttc-learning-fullscreen * {
+    box-sizing:border-box!important;
+    min-width:0!important;
+  }
+  #autoLearning.ttc-learning-fullscreen,
+  #ttcExampleAutoV2.ttc-learning-fullscreen {
+    width:100vw!important;
+    max-width:100vw!important;
+    overflow-x:hidden!important;
+    padding-left:clamp(8px,2.5vw,24px)!important;
+    padding-right:clamp(8px,2.5vw,24px)!important;
+  }
+  #autoLearning.ttc-learning-fullscreen #autoLearningBody,
+  #ttcExampleAutoV2.ttc-learning-fullscreen #ttcEA2Body,
+  #autoLearning.ttc-learning-fullscreen #autoLearningBody > *,
+  #ttcExampleAutoV2.ttc-learning-fullscreen #ttcEA2Body > * {
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    margin-left:0!important;
+    margin-right:0!important;
+  }
+
+  /* Wrap all controls naturally instead of creating a horizontally overflowing strip. */
+  #autoLearning.ttc-learning-fullscreen .auto-learning-buttons,
+  #ttcExampleAutoV2.ttc-learning-fullscreen .ttc-ea2-controls-single-row,
+  #ttcExampleAutoV2.ttc-learning-fullscreen .ea2-buttons {
+    display:flex!important;
+    flex-flow:row wrap!important;
+    align-items:stretch!important;
+    justify-content:center!important;
+    gap:8px!important;
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    overflow:visible!important;
+    padding:4px 0!important;
+    margin:4px 0!important;
+  }
+  #autoLearning.ttc-learning-fullscreen .auto-learning-buttons > button,
+  #autoLearning.ttc-learning-fullscreen .auto-learning-buttons > select,
+  #autoLearning.ttc-learning-fullscreen .auto-learning-buttons > label,
+  #ttcExampleAutoV2.ttc-learning-fullscreen .ttc-ea2-controls-single-row > .ea2-btn,
+  #ttcExampleAutoV2.ttc-learning-fullscreen .ea2-buttons > .ea2-btn {
+    flex:1 1 118px!important;
+    width:auto!important;
+    min-width:0!important;
+    max-width:100%!important;
+    min-height:44px!important;
+    padding:9px 8px!important;
+    margin:0!important;
+    font-size:clamp(13px,1.7vw,16px)!important;
+    font-weight:700!important;
+    line-height:1.3!important;
+    text-align:center!important;
+    white-space:normal!important;
+    overflow-wrap:anywhere!important;
+    word-break:normal!important;
+  }
+  #autoLearning.ttc-learning-fullscreen .auto-learning-buttons > label {
+    flex:1 1 100%!important;
+    width:100%!important;
+  }
+  #autoLearning.ttc-learning-fullscreen #autoInterval {
+    width:auto!important;
+    max-width:100%!important;
+    min-width:0!important;
+  }
+
+  /* HSK choices wrap to new lines; no sideways scrolling and no max-content widths. */
+  #autoLearning.ttc-learning-fullscreen #autoLearningBody > div[style*="text-align: center"],
+  #ttcExampleAutoV2.ttc-learning-fullscreen .ea2-hsk-row {
+    display:flex!important;
+    flex-flow:row wrap!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:6px!important;
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    overflow:visible!important;
+    white-space:normal!important;
+    padding:4px 0!important;
+  }
+  #autoLearning.ttc-learning-fullscreen #autoLearningBody > div[style*="text-align: center"] label {
+    flex:0 1 auto!important;
+    max-width:100%!important;
+    font-size:14px!important;
+    white-space:normal!important;
+  }
+  #autoLearning.ttc-learning-fullscreen #autoLearningHSK,
+  #ttcExampleAutoV2.ttc-learning-fullscreen .ea2-hsk-row button,
+  #ttcExampleAutoV2.ttc-learning-fullscreen .ea2-hsk-select {
+    flex:1 1 54px!important;
+    width:auto!important;
+    min-width:0!important;
+    max-width:100%!important;
+    min-height:40px!important;
+    padding:7px 8px!important;
+    font-size:14px!important;
+    font-weight:700!important;
+    line-height:1.25!important;
+    white-space:normal!important;
+    overflow-wrap:anywhere!important;
+  }
+
+  /* Harmonized, readable type scale for both learning panels. */
+  #autoLearning.ttc-learning-fullscreen .ttc-auto-topbar h2,
+  #ttcExampleAutoV2.ttc-learning-fullscreen .ea2-title {
+    font-size:clamp(15px,2.2vw,24px)!important;
+    line-height:1.3!important;
+    font-weight:800!important;
+    overflow-wrap:anywhere!important;
+  }
+  #autoLearning.ttc-learning-fullscreen .auto-learning-word,
+  #ttcExampleAutoV2.ttc-learning-fullscreen .ea2-hanzi {
+    font-size:clamp(40px,8.5vw,88px)!important;
+    line-height:1.3!important;
+    font-weight:700!important;
+    overflow-wrap:anywhere!important;
+  }
+  #autoLearning.ttc-learning-fullscreen .auto-learning-pinyin,
+  #ttcExampleAutoV2.ttc-learning-fullscreen .ea2-pinyin {
+    font-size:clamp(22px,4vw,34px)!important;
+    line-height:1.45!important;
+    font-weight:500!important;
+    overflow-wrap:anywhere!important;
+  }
+  #autoLearning.ttc-learning-fullscreen .auto-learning-meaning,
+  #ttcExampleAutoV2.ttc-learning-fullscreen .ea2-meaning {
+    font-size:clamp(20px,3vw,28px)!important;
+    line-height:1.55!important;
+    font-weight:500!important;
+    overflow-wrap:anywhere!important;
+    word-break:normal!important;
+  }
+  #autoLearning.ttc-learning-fullscreen .auto-learning-status,
+  #autoLearning.ttc-learning-fullscreen #autoLearningStatus,
+  #ttcExampleAutoV2.ttc-learning-fullscreen .ea2-status,
+  #ttcExampleAutoV2.ttc-learning-fullscreen .ea2-counter {
+    font-size:14px!important;
+    line-height:1.45!important;
+    overflow-wrap:anywhere!important;
+  }
+
+  @media(max-width:600px) {
+    #autoLearning.ttc-learning-fullscreen,
+    #ttcExampleAutoV2.ttc-learning-fullscreen {
+      padding-left:8px!important;
+      padding-right:8px!important;
+      gap:8px!important;
+    }
+    #autoLearning.ttc-learning-fullscreen .auto-learning-buttons,
+    #ttcExampleAutoV2.ttc-learning-fullscreen .ttc-ea2-controls-single-row {
+      gap:6px!important;
+    }
+    #autoLearning.ttc-learning-fullscreen .auto-learning-buttons > button,
+    #autoLearning.ttc-learning-fullscreen .auto-learning-buttons > select,
+    #ttcExampleAutoV2.ttc-learning-fullscreen .ttc-ea2-controls-single-row > .ea2-btn {
+      flex:1 1 112px!important;
+      min-height:42px!important;
+      padding:8px 6px!important;
+      font-size:13px!important;
+    }
+    #autoLearning.ttc-learning-fullscreen .ttc-auto-topbar,
+    #ttcExampleAutoV2.ttc-learning-fullscreen .ea2-topbar {
+      flex-wrap:wrap!important;
+      overflow:visible!important;
+      gap:6px!important;
+    }
+    #autoLearning.ttc-learning-fullscreen .ttc-auto-topbar h2,
+    #ttcExampleAutoV2.ttc-learning-fullscreen .ea2-title {
+      flex:1 1 100%!important;
+      order:-1!important;
+      text-align:center!important;
+      font-size:16px!important;
+    }
+    #autoLearning.ttc-learning-fullscreen .auto-learning-word,
+    #ttcExampleAutoV2.ttc-learning-fullscreen .ea2-hanzi {font-size:clamp(38px,10vw,64px)!important;}
+    #autoLearning.ttc-learning-fullscreen .auto-learning-pinyin,
+    #ttcExampleAutoV2.ttc-learning-fullscreen .ea2-pinyin {font-size:clamp(21px,5.4vw,27px)!important;}
+    #autoLearning.ttc-learning-fullscreen .auto-learning-meaning,
+    #ttcExampleAutoV2.ttc-learning-fullscreen .ea2-meaning {font-size:clamp(19px,4.8vw,24px)!important;}
+  }
+</style>
+
+
+<style id="ttc-final-bold-pinyin-polish-20261028">
+/* TTC: chữ rõ, đậm đồng đều trong các khu học tập và Nối từ đúng */
+#autoLearning.ttc-learning-fullscreen,
+#ttcExampleAutoV2.ttc-learning-fullscreen,
+#ttcMatchOverlay,
+#ttcMatchLauncher {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+#autoLearning.ttc-learning-fullscreen :is(p,span,div,button,label,strong,b,h1,h2,h3,h4),
+#ttcExampleAutoV2.ttc-learning-fullscreen :is(p,span,div,button,label,strong,b,h1,h2,h3,h4) {
+  font-weight: 800 !important;
+}
+#autoLearning.ttc-learning-fullscreen .auto-learning-hanzi,
+#ttcExampleAutoV2.ttc-learning-fullscreen .ea2-hanzi {
+  font-weight: 900 !important;
+}
+#autoLearning.ttc-learning-fullscreen .auto-learning-pinyin,
+#autoLearning.ttc-learning-fullscreen .auto-learning-meaning,
+#ttcExampleAutoV2.ttc-learning-fullscreen .ea2-pinyin,
+#ttcExampleAutoV2.ttc-learning-fullscreen .ea2-meaning {
+  font-weight: 800 !important;
+}
+#ttcMatchLauncher { font-weight: 900 !important; }
+#ttcMatchOverlay :is(.ttc-match-title,.ttc-match-level,.ttc-match-status,.ttc-match-column h3,.ttc-match-item,.ttc-match-meaning,.ttc-match-footer button) {
+  font-weight: 900 !important;
+  -webkit-text-stroke: .15px currentColor;
+}
+.ttc-match-hanzi-wrap {
+  display:flex !important; flex-wrap:wrap !important; align-items:center !important;
+  justify-content:center !important; gap:6px !important; width:100% !important;
+}
+.ttc-match-pinyin-toggle {
+  flex:0 0 auto !important; min-width:44px !important; min-height:40px !important;
+  margin:0 !important; padding:0 8px !important; border:1px solid #c7d2fe !important;
+  border-radius:999px !important; background:#eef2ff !important; color:#3730a3 !important;
+  font-size:14px !important; font-weight:900 !important; line-height:1 !important;
+  box-shadow:0 2px 7px rgba(55,48,163,.12) !important; cursor:pointer !important;
+}
+.ttc-match-pinyin-toggle.is-visible { background:#e0e7ff !important; border-color:#818cf8 !important; }
+.ttc-match-pinyin-toggle:disabled { opacity:.45 !important; cursor:not-allowed !important; }
+.ttc-match-pinyin {
+  flex:1 0 100% !important; width:100% !important; padding:5px 2px 0 !important;
+  color:#4338ca !important; font-size:clamp(16px,4vw,22px) !important;
+  line-height:1.35 !important; font-weight:900 !important; text-align:center !important;
+  overflow-wrap:anywhere !important;
+}
+.ttc-match-pinyin[hidden] { display:none !important; }
 </style>
