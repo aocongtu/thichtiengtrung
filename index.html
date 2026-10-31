@@ -5603,25 +5603,20 @@ HSK 1 — 300 từ
 
 <section id="testSection" class="panel hidden">
 
+<div class="ttc-test-heading-row">
 <h2 id="testTitle">
 📝 TEST TỪ VỰNG HSK 1
 </h2>
-
-<div class="keyboard-help">
-
-⌨️
-<span class="key">Enter</span>
-→ Kiểm tra khi đang nhập &nbsp;·&nbsp;
-
-<span class="key">Enter</span>
-→ 🔊 Phát âm khi không nhập
-
-<br>
-
-<span class="key">Space</span>
-➡️ Câu tiếp
-
+<button type="button" id="ttcTestFullscreenButton" aria-pressed="false">⛶ Toàn màn hình</button>
 </div>
+
+<details class="keyboard-help ttc-test-help">
+  <summary>💡 Giải thích</summary>
+  <div class="ttc-test-help-content">
+    <div>⌨️ <span class="key">Enter</span> → Kiểm tra khi đang nhập; khi không nhập → 🔊 Phát âm.</div>
+    <div><span class="key">Space</span> → Câu tiếp.</div>
+  </div>
+</details>
 
 <div class="test-box">
 
@@ -136898,6 +136893,72 @@ renderLevels();view('levels');
    var flashButton=e.target&&e.target.closest?e.target.closest('#flashcardToggleButton'):null;
    if(flashButton){setTimeout(function(){var section=document.getElementById('flashcardSection');if(section){section.scrollIntoView({behavior:'smooth',block:'start'});window.scrollBy({top:-8,behavior:'smooth'});}},120);}
  },true);
+})();
+</script>
+
+
+<style id="ttc-vocabulary-test-compact-v1">
+/* Chỉ tinh chỉnh giao diện riêng khu TEST TỪ VỰNG; không thay đổi engine chấm bài. */
+#testSection .ttc-test-heading-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+#testSection .ttc-test-heading-row h2{margin:0;flex:1 1 220px}
+#testSection #ttcTestFullscreenButton{flex:0 0 auto;padding:8px 12px;border:1px solid #b7d9c2;border-radius:10px;background:#fff;color:#176b3a;font-size:13px;font-weight:800;white-space:nowrap}
+#testSection .ttc-test-help{display:inline-block;width:auto;max-width:100%;margin:4px 0 10px;padding:7px 11px;background:#f5fbf6;border:1px solid #cfe5d4;border-radius:10px;color:#285c3a;font-size:13px;text-align:left}
+#testSection .ttc-test-help summary{cursor:pointer;list-style:none;font-weight:800;white-space:nowrap}
+#testSection .ttc-test-help summary::-webkit-details-marker{display:none}
+#testSection .ttc-test-help summary::after{content:'＋';margin-left:9px;color:#287344}
+#testSection .ttc-test-help[open] summary::after{content:'−'}
+#testSection .ttc-test-help-content{padding:7px 2px 1px;line-height:1.65}
+#testSection .ttc-test-help-content .key{padding:2px 6px;font-size:12px}
+#testSection .test-box{padding-top:2px}
+#testSection #testQuestion{color:#087536 !important;font-size:clamp(25px,4vw,36px);font-weight:800;line-height:1.45;margin:12px 0}
+#testSection #testInput{width:min(760px,100%);min-height:68px;padding:15px 18px;border:2px solid #83bd98;border-radius:14px;background:#fff;font-size:clamp(27px,4vw,34px);font-weight:700;line-height:1.4;color:#17324d;text-align:center}
+#testSection #testInput:focus{border-color:#168344;box-shadow:0 0 0 3px rgba(22,131,68,.13)}
+#testSection .test-box>button{padding:8px 13px;margin:4px 3px;border-radius:10px;font-size:13px}
+#testSection #testButtonsAuto{margin-top:8px !important}
+#testSection #testButtonsAuto>div[style*="display:flex"]{gap:6px !important;margin-top:6px !important}
+#testSection #testButtonsAuto button{padding:8px 11px;font-size:12px;border-radius:9px}
+#testSection .test-number{margin-bottom:5px}
+#testSection .test-result{margin:8px 0;min-height:24px}
+#testSection .score{margin:8px 0;font-size:20px}
+#testSection.ttc-test-fullscreen{position:fixed !important;inset:0 !important;z-index:100000 !important;width:100vw !important;height:100vh !important;height:100dvh !important;max-width:none !important;margin:0 !important;padding:max(12px,env(safe-area-inset-top)) 14px max(14px,env(safe-area-inset-bottom)) !important;border-radius:0 !important;overflow:auto !important;overscroll-behavior:contain;background:linear-gradient(180deg,#f0fdf4,#dcfce7) !important}
+#testSection.ttc-test-fullscreen .ttc-test-heading-row{position:sticky;top:0;z-index:2;padding:4px 0 8px;background:rgba(240,253,244,.97)}
+#testSection.ttc-test-fullscreen .test-box{max-width:950px;margin:5vh auto 0}
+#testSection.ttc-test-fullscreen #testInput{min-height:84px;font-size:clamp(30px,5vw,42px)}
+@media(max-width:600px){
+ #testSection .ttc-test-heading-row{gap:6px}
+ #testSection .ttc-test-heading-row h2{font-size:19px}
+ #testSection #ttcTestFullscreenButton{padding:7px 9px;font-size:12px}
+ #testSection .ttc-test-help{margin:3px 0 7px;padding:6px 9px;font-size:12px}
+ #testSection #testInput{min-height:64px;padding:12px 10px}
+ #testSection .test-box>button{padding:8px 10px;margin:3px 2px}
+ #testSection.ttc-test-fullscreen .test-box{margin:8vh auto 0}
+}
+</style>
+<script id="ttc-vocabulary-test-ui-v1">
+(function(){
+  function initTtcVocabularyTestUI(){
+    var section=document.getElementById('testSection');
+    var button=document.getElementById('ttcTestFullscreenButton');
+    if(!section || !button || button.dataset.ttcBound==='1') return;
+    button.dataset.ttcBound='1';
+    function setFullscreen(active){
+      section.classList.toggle('ttc-test-fullscreen',!!active);
+      button.setAttribute('aria-pressed',active?'true':'false');
+      button.textContent=active?'✕ Thu nhỏ':'⛶ Toàn màn hình';
+      document.body.style.overflow=active?'hidden':'';
+      if(active){
+        section.scrollTop=0;
+        setTimeout(function(){var input=document.getElementById('testInput');if(input)input.focus({preventScroll:true});},80);
+      }
+    }
+    button.addEventListener('click',function(){setFullscreen(!section.classList.contains('ttc-test-fullscreen'));});
+    document.addEventListener('keydown',function(event){
+      if(event.key==='Escape' && section.classList.contains('ttc-test-fullscreen')) setFullscreen(false);
+    });
+    window.addEventListener('beforeunload',function(){document.body.style.overflow='';});
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',initTtcVocabularyTestUI,{once:true});
+  else initTtcVocabularyTestUI();
 })();
 </script>
 
