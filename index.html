@@ -86797,7 +86797,7 @@ saveTestProgress(
 );
 
     result.textContent =
-      `✅ Chính xác! ${w.h} = ${w.m}`;
+      "Chính xác";
 
 
     result.style.color =
@@ -136897,68 +136897,62 @@ renderLevels();view('levels');
 </script>
 
 
-<style id="ttc-vocabulary-test-compact-v1">
-/* Chỉ tinh chỉnh giao diện riêng khu TEST TỪ VỰNG; không thay đổi engine chấm bài. */
-#testSection .ttc-test-heading-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px}
-#testSection .ttc-test-heading-row h2{margin:0;flex:1 1 220px}
-#testSection #ttcTestFullscreenButton{flex:0 0 auto;padding:8px 12px;border:1px solid #b7d9c2;border-radius:10px;background:#fff;color:#176b3a;font-size:13px;font-weight:800;white-space:nowrap}
-#testSection .ttc-test-help{display:inline-block;width:auto;max-width:100%;margin:4px 0 10px;padding:7px 11px;background:#f5fbf6;border:1px solid #cfe5d4;border-radius:10px;color:#285c3a;font-size:13px;text-align:left}
-#testSection .ttc-test-help summary{cursor:pointer;list-style:none;font-weight:800;white-space:nowrap}
-#testSection .ttc-test-help summary::-webkit-details-marker{display:none}
-#testSection .ttc-test-help summary::after{content:'＋';margin-left:9px;color:#287344}
-#testSection .ttc-test-help[open] summary::after{content:'−'}
-#testSection .ttc-test-help-content{padding:7px 2px 1px;line-height:1.65}
-#testSection .ttc-test-help-content .key{padding:2px 6px;font-size:12px}
-#testSection .test-box{padding-top:2px}
-#testSection #testQuestion{color:#087536 !important;font-size:clamp(25px,4vw,36px);font-weight:800;line-height:1.45;margin:12px 0}
-#testSection #testInput{width:min(760px,100%);min-height:68px;padding:15px 18px;border:2px solid #83bd98;border-radius:14px;background:#fff;font-size:clamp(27px,4vw,34px);font-weight:700;line-height:1.4;color:#17324d;text-align:center}
-#testSection #testInput:focus{border-color:#168344;box-shadow:0 0 0 3px rgba(22,131,68,.13)}
-#testSection .test-box>button{padding:8px 13px;margin:4px 3px;border-radius:10px;font-size:13px}
-#testSection #testButtonsAuto{margin-top:8px !important}
-#testSection #testButtonsAuto>div[style*="display:flex"]{gap:6px !important;margin-top:6px !important}
-#testSection #testButtonsAuto button{padding:8px 11px;font-size:12px;border-radius:9px}
-#testSection .test-number{margin-bottom:5px}
-#testSection .test-result{margin:8px 0;min-height:24px}
-#testSection .score{margin:8px 0;font-size:20px}
-#testSection.ttc-test-fullscreen{position:fixed !important;inset:0 !important;z-index:100000 !important;width:100vw !important;height:100vh !important;height:100dvh !important;max-width:none !important;margin:0 !important;padding:max(12px,env(safe-area-inset-top)) 14px max(14px,env(safe-area-inset-bottom)) !important;border-radius:0 !important;overflow:auto !important;overscroll-behavior:contain;background:linear-gradient(180deg,#f0fdf4,#dcfce7) !important}
-#testSection.ttc-test-fullscreen .ttc-test-heading-row{position:sticky;top:0;z-index:2;padding:4px 0 8px;background:rgba(240,253,244,.97)}
-#testSection.ttc-test-fullscreen .test-box{max-width:950px;margin:5vh auto 0}
-#testSection.ttc-test-fullscreen #testInput{min-height:84px;font-size:clamp(30px,5vw,42px)}
-@media(max-width:600px){
- #testSection .ttc-test-heading-row{gap:6px}
- #testSection .ttc-test-heading-row h2{font-size:19px}
- #testSection #ttcTestFullscreenButton{padding:7px 9px;font-size:12px}
- #testSection .ttc-test-help{margin:3px 0 7px;padding:6px 9px;font-size:12px}
- #testSection #testInput{min-height:64px;padding:12px 10px}
- #testSection .test-box>button{padding:8px 10px;margin:3px 2px}
- #testSection.ttc-test-fullscreen .test-box{margin:8vh auto 0}
-}
+<style id="ttc-vocabulary-test-compact-v2">
+/* Thu gọn khoảng cách và đồng nhất kiểu chữ trong khu kiểm tra từ vựng. */
+#testSection{margin-top:10px !important;padding:12px 16px !important}
+#testSection .ttc-test-heading-row{margin:0 0 4px !important;gap:6px !important}
+#testSection .ttc-test-help{margin:2px 0 5px !important;padding:5px 9px !important}
+#testSection .ttc-test-help-content{padding:4px 2px 0 !important;line-height:1.35 !important}
+#testSection .test-box{padding:0 !important;margin:0 auto !important}
+#testSection .test-number{margin:2px 0 3px !important;line-height:1.25 !important}
+#testSection #testQuestion,
+#testSection #testQuestion *{color:#087536 !important;font-size:clamp(24px,3.5vw,32px) !important;font-weight:800 !important;line-height:1.3 !important;font-family:Arial,"Noto Sans",sans-serif !important}
+#testSection #testQuestion{margin:5px 0 8px !important}
+#testSection #testHint{margin:4px 0 7px !important;line-height:1.35 !important}
+#testSection #testInput{width:min(760px,100%) !important;min-height:60px !important;padding:10px 14px !important;font-size:clamp(26px,3.8vw,32px) !important;font-weight:700 !important}
+#testSection .test-box>br{display:none !important}
+#testSection .test-box>button{margin:5px 3px !important;padding:7px 12px !important}
+#testSection #testResult{min-height:24px !important;margin:5px 0 !important;font-size:25px !important;line-height:1.25 !important;font-weight:900 !important;color:#087536 !important}
+#testSection #score{margin:5px 0 !important;font-size:16px !important}
+#testSection #testButtonsAuto{margin-top:5px !important}
+#testSection #testWrongWordCount{margin:5px 0 4px !important}
+#testSection #testButtonsAuto>div[style*="display:flex"]{gap:5px !important;margin-top:4px !important}
+#testSection #testButtonsAuto button{padding:6px 9px !important;margin:2px !important;font-size:12px !important}
+#testSection.ttc-test-fullscreen{position:fixed !important;inset:0 !important;z-index:2147483000 !important;width:100vw !important;height:100vh !important;height:100dvh !important;max-width:none !important;margin:0 !important;padding:max(10px,env(safe-area-inset-top)) 12px max(10px,env(safe-area-inset-bottom)) !important;border-radius:0 !important;overflow:auto !important;background:#f0fdf4 !important}
+#testSection.ttc-test-fullscreen .test-box{max-width:900px !important;margin:8px auto 0 !important}
+#testSection.ttc-test-fullscreen #testInput{min-height:76px !important}
+@media(max-width:600px){#testSection{padding:10px !important}#testSection .ttc-test-heading-row h2{font-size:18px !important}#testSection #testInput{min-height:58px !important}#testSection #testResult{font-size:23px !important}}
 </style>
-<script id="ttc-vocabulary-test-ui-v1">
+<script id="ttc-vocabulary-test-ui-v2">
 (function(){
-  function initTtcVocabularyTestUI(){
-    var section=document.getElementById('testSection');
-    var button=document.getElementById('ttcTestFullscreenButton');
-    if(!section || !button || button.dataset.ttcBound==='1') return;
-    button.dataset.ttcBound='1';
-    function setFullscreen(active){
-      section.classList.toggle('ttc-test-fullscreen',!!active);
-      button.setAttribute('aria-pressed',active?'true':'false');
-      button.textContent=active?'✕ Thu nhỏ':'⛶ Toàn màn hình';
-      document.body.style.overflow=active?'hidden':'';
-      if(active){
-        section.scrollTop=0;
-        setTimeout(function(){var input=document.getElementById('testInput');if(input)input.focus({preventScroll:true});},80);
-      }
-    }
-    button.addEventListener('click',function(){setFullscreen(!section.classList.contains('ttc-test-fullscreen'));});
-    document.addEventListener('keydown',function(event){
-      if(event.key==='Escape' && section.classList.contains('ttc-test-fullscreen')) setFullscreen(false);
-    });
-    window.addEventListener('beforeunload',function(){document.body.style.overflow='';});
+ function init(){
+  var section=document.getElementById('testSection');
+  var button=document.getElementById('ttcTestFullscreenButton');
+  if(!section||!button||button.dataset.ttcBoundV2==='1')return;
+  button.dataset.ttcBoundV2='1';
+  var placeholder=null, originalParent=null, originalNext=null;
+  function setFullscreen(active){
+   if(active){
+    originalParent=section.parentNode; originalNext=section.nextSibling;
+    placeholder=document.createComment('testSection original position');
+    originalParent.insertBefore(placeholder,section);
+    document.body.appendChild(section);
+    section.classList.add('ttc-test-fullscreen');
+    document.body.style.overflow='hidden';
+   }else{
+    section.classList.remove('ttc-test-fullscreen');
+    if(placeholder&&placeholder.parentNode){placeholder.parentNode.insertBefore(section,placeholder);placeholder.remove();}
+    document.body.style.overflow='';
+   }
+   button.setAttribute('aria-pressed',active?'true':'false');
+   button.textContent=active?'✕ Thu nhỏ':'⛶ Toàn màn hình';
+   if(active)setTimeout(function(){var input=document.getElementById('testInput');if(input)input.focus({preventScroll:true});},80);
   }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',initTtcVocabularyTestUI,{once:true});
-  else initTtcVocabularyTestUI();
+  button.addEventListener('click',function(){setFullscreen(!section.classList.contains('ttc-test-fullscreen'));});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&section.classList.contains('ttc-test-fullscreen'))setFullscreen(false);});
+  window.addEventListener('beforeunload',function(){document.body.style.overflow='';});
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
 </script>
 
