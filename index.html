@@ -86750,6 +86750,7 @@ function checkTest(){
 
   if(!input){
 
+    result.classList.remove("ttc-test-correct-only");
     result.textContent =
       "⚠️ Anh hãy nhập Hán tự trước nhé!";
 
@@ -86796,12 +86797,12 @@ saveTestProgress(
   false
 );
 
-    result.textContent =
-      "Chính xác";
-
-
-    result.style.color =
-      "#15956f";
+    /* Chỉ hiển thị đúng một dòng chữ, không kế thừa nội dung cũ. */
+    result.innerHTML = "Chính xác";
+    result.classList.add("ttc-test-correct-only");
+    result.style.color = "#087536";
+    result.style.fontSize = "24px";
+    result.style.fontWeight = "800";
 
 
     document
@@ -86834,6 +86835,7 @@ saveTestProgress(
      ❌ SAI
   ================================================== */
 
+  result.classList.remove("ttc-test-correct-only");
   result.innerHTML =
     `❌ Chưa đúng.<br>
      Đáp án: <strong>${w.h}</strong><br>
@@ -121967,46 +121969,17 @@ Nút CTRL → ĐỌC ĐÁP ÁN
 
 
       /*
-        Hiện đáp án đầy đủ
-      */
-
-      whiteHatTestShowAnswer(w);
-
-
-      /*
-        Thông báo nổi bật
+        Chỉ hiện một thông báo ngắn gọn.
+        Không bật thẻ đáp án/chúc mừng lớn để tránh chiếm màn hình.
       */
 
       if(result){
 
-        result.innerHTML = `
-
-          <div
-            style="
-              font-size:26px;
-              font-weight:900;
-              color:#15803d;
-              margin:8px 0;
-            "
-          >
-            🎉 CHÍNH XÁC! 💪
-          </div>
-
-          <div
-            style="
-              font-size:18px;
-              color:#334155;
-            "
-          >
-            ${w.h}
-            · ${w.p || ""}
-            · ${w.m || ""}
-          </div>
-
-        `;
-
-        result.style.color =
-          "#15803d";
+        result.textContent = "Chính xác";
+        result.classList.add("ttc-test-correct-only");
+        result.style.color = "#087536";
+        result.style.fontSize = "24px";
+        result.style.fontWeight = "900";
 
       }
 
@@ -136956,6 +136929,59 @@ renderLevels();view('levels');
 })();
 </script>
 
+
+<style id="ttc-vocabulary-test-final-polish-v3">
+/* Nút giải thích chỉ rộng bằng nội dung, không kéo thành một thanh dài. */
+#testSection details.ttc-test-help{
+  display:table !important;
+  width:max-content !important;
+  max-width:100% !important;
+  margin:2px auto 5px !important;
+  padding:4px 9px !important;
+  box-sizing:border-box !important;
+}
+#testSection details.ttc-test-help > summary{
+  display:inline-flex !important;
+  align-items:center !important;
+  width:auto !important;
+  max-width:100% !important;
+  white-space:nowrap !important;
+  cursor:pointer !important;
+  line-height:1.25 !important;
+  padding:1px 2px !important;
+}
+#testSection details.ttc-test-help .ttc-test-help-content{
+  width:max-content !important;
+  max-width:min( min(88vw, 520px), 100%) !important;
+  box-sizing:border-box !important;
+  font-size:12px !important;
+  line-height:1.35 !important;
+  padding:5px 2px 1px !important;
+}
+#testSection .test-box{margin-top:2px !important}
+#testSection #testResult{
+  min-height:0 !important;
+  margin:5px 0 !important;
+  font-size:18px !important;
+  line-height:1.35 !important;
+  font-weight:700 !important;
+}
+#testSection #testResult.ttc-test-correct-only{
+  display:block !important;
+  min-height:0 !important;
+  margin:7px 0 !important;
+  color:#087536 !important;
+  font-family:Arial,"Noto Sans",sans-serif !important;
+  font-size:24px !important;
+  line-height:1.25 !important;
+  font-weight:800 !important;
+  letter-spacing:.1px !important;
+}
+@media(max-width:600px){
+  #testSection details.ttc-test-help{margin:2px auto 4px !important;padding:3px 8px !important}
+  #testSection #testResult.ttc-test-correct-only{font-size:23px !important}
+}
+</style>
 </body>
 </html>
 
@@ -138970,3 +138996,51 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
   observer.observe(document.documentElement,{childList:true,subtree:true});
 })();
 </script>
+
+<!-- TTC TEST RESULT + FONT PATCH V4: chỉ tác động khu Test từ vựng -->
+<style id="ttc-test-result-font-patch-v4">
+  /* Ẩn thẻ đáp án/chúc mừng lớn được White Hat tạo bên dưới ô nhập. */
+  #testSection #whiteHatTestAnswer,
+  #testSection #whiteHatTestAnswer.show {
+    display: none !important;
+    max-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+
+  /* Chỉ một dòng kết quả khi nhập đúng. */
+  #testSection #testResult.ttc-test-correct-only {
+    display: block !important;
+    min-height: 0 !important;
+    margin: 6px 0 !important;
+    padding: 0 !important;
+    color: #087536 !important;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+    font-size: 24px !important;
+    font-weight: 900 !important;
+    line-height: 1.25 !important;
+    letter-spacing: 0 !important;
+    -webkit-text-stroke: .25px currentColor !important;
+  }
+
+  /* Đồng nhất nét chữ tiếng Việt, kể cả dấu được hệ điều hành ghép glyph. */
+  #testSection #testQuestion,
+  #testSection #testQuestion * {
+    color: #087536 !important;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+    font-size: clamp(24px, 3.5vw, 32px) !important;
+    font-style: normal !important;
+    font-weight: 900 !important;
+    line-height: 1.3 !important;
+    letter-spacing: 0 !important;
+    -webkit-text-stroke: .3px currentColor !important;
+    text-shadow: none !important;
+    font-synthesis: weight !important;
+  }
+
+  @media (max-width: 600px) {
+    #testSection #testResult.ttc-test-correct-only { font-size: 23px !important; }
+  }
+</style>
