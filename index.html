@@ -3873,8 +3873,10 @@ window.sendPaymentRequest = async function(){
 
   const dbPlanMap = {
     "1month": "1_month",
+    "3month": "3_months",
     "6month": "6_months",
-    "1year": "1_year"
+    "1year": "1_year",
+    "lifetime": "lifetime"
   };
 
 
@@ -138958,4 +138960,44 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
   @media (max-width: 600px) {
     #testSection #testResult.ttc-test-correct-only { font-size: 23px !important; }
   }
+
+
+/* 💎 PREMIUM — ánh sáng nhấp nháy nhẹ, nổi bật nhưng không gây chói */
+.price-box{
+  position:relative;
+  overflow:visible;
+  border:1px solid #f0c96a !important;
+  background:linear-gradient(135deg,#fffdf4,#fff8e5,#fff) !important;
+  box-shadow:0 0 0 1px rgba(255,205,75,.22),0 8px 24px rgba(194,139,25,.14);
+  animation:ttcPremiumGlow 2.8s ease-in-out infinite;
+}
+.price-box > div:first-child > div:first-child{
+  color:#9b6500;
+  text-shadow:0 0 9px rgba(255,205,65,.38);
+}
+.price-card{
+  position:relative;
+  border:1px solid #f1d48b !important;
+  border-radius:13px;
+  background:linear-gradient(145deg,#fff,#fff9e8) !important;
+  box-shadow:0 3px 10px rgba(181,130,24,.10);
+  transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease;
+}
+.price-card:hover{
+  transform:translateY(-3px);
+  border-color:#e6ad28 !important;
+  box-shadow:0 0 0 2px rgba(255,203,68,.22),0 8px 20px rgba(181,130,24,.20);
+}
+.price-money{
+  color:#a96700 !important;
+  text-shadow:0 0 8px rgba(255,205,65,.25);
+}
+@keyframes ttcPremiumGlow{
+  0%,100%{box-shadow:0 0 0 1px rgba(255,205,75,.18),0 7px 20px rgba(194,139,25,.10)}
+  50%{box-shadow:0 0 0 3px rgba(255,205,75,.30),0 0 22px rgba(255,196,45,.30),0 9px 26px rgba(194,139,25,.18)}
+}
+@media(prefers-reduced-motion:reduce){
+  .price-box{animation:none}
+  .price-card{transition:none}
+}
 </style>
