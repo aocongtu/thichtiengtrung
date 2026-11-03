@@ -3143,87 +3143,22 @@ document.addEventListener("DOMContentLoaded",function(){
            💎 CÁC GÓI THÀNH VIÊN
       ====================================================== -->
 
-      <div
-        class="price-list"
-        style="
-          margin-top:12px;
-          display:flex;
-          flex-wrap:wrap;
-          gap:8px;
-        "
-      >
-
-        <!-- 1 THÁNG -->
-        <div
-          class="price-card"
-          onclick="selectPlan('1month')"
-          style="
-            cursor:pointer;
-            flex:1;
-            min-width:150px;
-            padding:10px;
-            text-align:center;
-          "
-        >
-
-          <div class="price-time">
-            📅 1 THÁNG
-          </div>
-
-          <div class="price-money">
-            50.000 VNĐ
-          </div>
-
+      <div class="price-list" style="margin-top:12px;display:flex;flex-wrap:wrap;gap:8px;">
+        <div class="price-card" onclick="selectPlan('1month')" style="cursor:pointer;flex:1;min-width:150px;padding:10px;text-align:center;">
+          <div class="price-time">📅 1 THÁNG</div><div class="price-money">50.000 VNĐ</div><div class="price-offer">⭐ Gói phổ biến</div>
         </div>
-
-
-        <!-- 6 THÁNG -->
-        <div
-          class="price-card"
-          onclick="selectPlan('6month')"
-          style="
-            cursor:pointer;
-            flex:1;
-            min-width:150px;
-            padding:10px;
-            text-align:center;
-          "
-        >
-
-          <div class="price-time">
-            📅 6 THÁNG
-          </div>
-
-          <div class="price-money">
-            290.000 VNĐ
-          </div>
-
+        <div class="price-card" onclick="selectPlan('3month')" style="cursor:pointer;flex:1;min-width:150px;padding:10px;text-align:center;">
+          <div class="price-time">📅 3 THÁNG</div><div class="price-money">145.000 VNĐ</div><div class="price-offer">Tiết kiệm 3,3%</div>
         </div>
-
-
-        <!-- 1 NĂM -->
-        <div
-          class="price-card"
-          onclick="selectPlan('1year')"
-          style="
-            cursor:pointer;
-            flex:1;
-            min-width:150px;
-            padding:10px;
-            text-align:center;
-          "
-        >
-
-          <div class="price-time">
-            📅 1 NĂM
-          </div>
-
-          <div class="price-money">
-            500.000 VNĐ
-          </div>
-
+        <div class="price-card" onclick="selectPlan('6month')" style="cursor:pointer;flex:1;min-width:150px;padding:10px;text-align:center;">
+          <div class="price-time">📅 6 THÁNG</div><div class="price-money">280.000 VNĐ</div><div class="price-offer">Tiết kiệm 6,7%</div>
         </div>
-
+        <div class="price-card" onclick="selectPlan('1year')" style="cursor:pointer;flex:1;min-width:150px;padding:10px;text-align:center;">
+          <div class="price-time">📅 1 NĂM</div><div class="price-money">500.000 VNĐ</div><div class="price-offer">Siêu tiết kiệm 16,7%</div>
+        </div>
+        <div class="price-card" onclick="selectPlan('lifetime')" style="cursor:pointer;flex:1;min-width:150px;padding:10px;text-align:center;">
+          <div class="price-time">♾️ VĨNH VIỄN</div><div class="price-money">2.000.000 VNĐ</div><div class="price-offer">Giảm cực sốc · Trọn đời</div>
+        </div>
       </div>
 
     </details>
@@ -3491,31 +3426,11 @@ let selectedPlan = null;
    ========================================================= */
 
 const PLANS = {
-
-  "1month": {
-    key: "1month",
-    name: "1 tháng",
-    amount: 50000,
-    days: 30,
-    label: "50.000 VNĐ"
-  },
-
-  "6month": {
-    key: "6month",
-    name: "6 tháng",
-    amount: 290000,
-    days: 180,
-    label: "290.000 VNĐ"
-  },
-
-  "1year": {
-    key: "1year",
-    name: "1 năm",
-    amount: 500000,
-    days: 365,
-    label: "500.000 VNĐ"
-  }
-
+  "1month": { key:"1month", name:"1 tháng", amount:50000, days:30, label:"50.000 VNĐ" },
+  "3month": { key:"3month", name:"3 tháng", amount:145000, days:90, label:"145.000 VNĐ" },
+  "6month": { key:"6month", name:"6 tháng", amount:280000, days:180, label:"280.000 VNĐ" },
+  "1year": { key:"1year", name:"1 năm", amount:500000, days:365, label:"500.000 VNĐ" },
+  "lifetime": { key:"lifetime", name:"Vĩnh viễn", amount:2000000, days:36500, label:"2.000.000 VNĐ" }
 };
 
 /* =========================================================
@@ -110182,13 +110097,13 @@ function whiteHatBuildHSK(level){
     if(whiteHatLooksEnglish(meaning)){
       const fallbackMeaning = String(word.m || "").trim();
       meaning = whiteHatLooksEnglish(fallbackMeaning)
-        ? "Nghĩa tiếng Việt đang được chuẩn hóa…"
+        ? "Nghĩa tiếng Việt chưa có"
         : fallbackMeaning;
     }
 
     seen.add(normalized);
     result.push({
-      meaning: meaning || "Nghĩa tiếng Việt đang được chuẩn hóa…",
+      meaning: meaning || "Nghĩa tiếng Việt chưa có",
       answer: answer,
       pinyin: String(word.examplePinyin || "").trim(),
       hsk: targetLevel
