@@ -121890,7 +121890,7 @@ Nút CTRL → ĐỌC ĐÁP ÁN
 
       if(result){
 
-        result.textContent = "Chính xác";
+        result.textContent = "Chính xác" + (w.p ? " · " + w.p : "");
         result.classList.add("ttc-test-correct-only");
         result.style.color = "#087536";
         result.style.fontSize = "24px";
