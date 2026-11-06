@@ -109442,6 +109442,16 @@ function loadChineseVoice(){
     return;
   }
 
+  try{
+    var storedVoice = localStorage.getItem("ttsVoiceName") || "";
+    if(storedVoice) selectedVoiceName = storedVoice;
+  }catch(error){}
+
+  if(String(selectedVoiceName).indexOf("ttcnet:") === 0){
+    chineseVoice = null;
+    return;
+  }
+
   const voices =
     getChineseVoices();
 
@@ -112510,7 +112520,7 @@ function createAccountSystem(){
             type="button"
             id="accountPremiumButton"
             class="account-premium-button"
-            onclick="(function(){var box=document.querySelector('body > .price-box');if(!box)return;var details=box.querySelector('details');if(details)details.open=true;box.scrollIntoView({behavior:'smooth',block:'center'});})();"
+            onclick="(function(){var box=document.querySelector('.price-box');var acc=document.getElementById('accountSystem');if(!box)return;if(acc)acc.insertAdjacentElement('afterend',box);var open=box.classList.toggle('ttc-premium-open');var details=box.querySelector('details');if(details)details.open=open;})();"
           >
             💎 Nâng cấp Premium <span aria-hidden="true">›</span>
           </button>
@@ -147639,26 +147649,15 @@ Nút CTRL → ĐỌC ĐÁP ÁN
     select.innerHTML = "";
 
 
-    if(!list.length){
-
-      const option =
-        document.createElement(
-          "option"
-        );
-
-      option.value = "";
-
-      option.textContent =
-        "⚠️ Thiết bị chưa cung cấp giọng này";
-
-      select.appendChild(
-        option
-      );
-
-      return;
-
-    }
-
+    list = list.slice().sort(function(a, b){
+      function rank(v){
+        var n = String(v.name || "").toLowerCase();
+        if(/xiaoxiao|xiaoyi|huihui|yaoyao|hoaimy|female/.test(n)) return 0;
+        if(/kangkang|yunxi|yunjian|yunyang|yunfeng|namminh|male/.test(n)) return 1;
+        return 2;
+      }
+      return rank(a) - rank(b);
+    });
 
     list.forEach(
       function(v){
@@ -147668,15 +147667,20 @@ Nút CTRL → ĐỌC ĐÁP ÁN
             "option"
           );
 
+        var low = String(v.name || "").toLowerCase();
+        var who = /kangkang|yunxi|yunjian|yunyang|yunfeng|yunhao|namminh|male/.test(low)
+          ? "Nam"
+          : (/xiaoxiao|xiaoyi|xiaohan|xiaomeng|huihui|yaoyao|hoaimy|female/.test(low) ? "Nữ" : "Giọng");
+
         option.value =
           v.name;
 
         option.textContent =
           flag +
           " " +
-          v.name +
-          " · " +
-          v.lang;
+          who +
+          " · máy · " +
+          v.name;
 
         select.appendChild(
           option
@@ -147684,6 +147688,29 @@ Nút CTRL → ĐỌC ĐÁP ÁN
 
       }
     );
+
+    var netVoices = flag === "🇨🇳" ? [
+      ["ttcnet:youdao-nu", "🇨🇳 Nữ · Youdao · rõ"],
+      ["ttcnet:youdao-nam", "🇨🇳 Nam · Youdao · rõ"],
+      ["ttcnet:baidu-nu", "🇨🇳 Nữ · Baidu · rõ"],
+      ["ttcnet:google-nu", "🇨🇳 Nữ · Google · rõ"]
+    ] : [
+      ["ttcnet:google-vi", "🇻🇳 Nữ · Google · rõ"]
+    ];
+
+    if(!list.length && !netVoices.length){
+      const option = document.createElement("option");
+      option.value = "";
+      option.textContent = "⚠️ Thiết bị chưa cung cấp giọng này";
+      select.appendChild(option);
+    }
+
+    netVoices.forEach(function(pair){
+      var option = document.createElement("option");
+      option.value = pair[0];
+      option.textContent = pair[1];
+      select.appendChild(option);
+    });
 
 
     const savedExists =
@@ -147697,41 +147724,49 @@ Nút CTRL → ĐỌC ĐÁP ÁN
         }
       );
 
+    const oldExists =
+      list.some(
+        function(v){
 
-    if(savedExists){
+          return (
+            v.name === old
+          );
+
+        }
+      );
+
+    const netSaved =
+      netVoices.some(function(pair){ return pair[0] === saved; });
+
+    const netOld =
+      netVoices.some(function(pair){ return pair[0] === old; });
+
+
+    if(savedExists || netSaved){
 
       select.value =
         saved;
 
     }
 
-    else{
+    else if(oldExists || netOld){
 
-      const oldExists =
-        list.some(
-          function(v){
+      select.value =
+        old;
 
-            return (
-              v.name === old
-            );
+    }
 
-          }
-        );
+    else if(list[0]){
 
+      select.value =
+        list[0].name;
 
-      if(oldExists){
+    }
 
-        select.value =
-          old;
+    else if(netVoices[0]){
 
-      }
-
-      else{
-
-        select.value =
-          list[0].name;
-
-      }
+      select.value =
+        netVoices[0][0];
 
     }
 
@@ -147992,10 +148027,16 @@ Nút CTRL → ĐỌC ĐÁP ÁN
          * Chọn xong → tự phát mẫu.
          */
 
-        speakSample(
-          "你好，很高兴认识你。",
-          voice
-        );
+        if(String(name).indexOf("ttcnet:") === 0){
+          var sample = new SpeechSynthesisUtterance("你好，很高兴认识你。");
+          sample.lang = "zh-CN";
+          synth.speak(sample);
+        }else{
+          speakSample(
+            "你好，很高兴认识你。",
+            voice
+          );
+        }
 
       }
     );
@@ -148070,10 +148111,16 @@ Nút CTRL → ĐỌC ĐÁP ÁN
          * Chọn xong → tự phát mẫu.
          */
 
-        speakSample(
-          "Xin chào, rất vui được làm quen với bạn.",
-          voice
-        );
+        if(String(name).indexOf("ttcnet:") === 0){
+          var sampleVi = new SpeechSynthesisUtterance("Xin chào, rất vui được làm quen với bạn.");
+          sampleVi.lang = "vi-VN";
+          synth.speak(sampleVi);
+        }else{
+          speakSample(
+            "Xin chào, rất vui được làm quen với bạn.",
+            voice
+          );
+        }
 
       }
     );
@@ -163831,10 +163878,13 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
     var header = document.querySelector("header");
     if(!btn || !header) return;
     var slot = document.getElementById("ttcExamTopSlot");
+    var anchor = document.getElementById("ttcTopLearningHub") || document.getElementById("whiteHatVoiceSystemV6") || header;
     if(!slot){
       slot = document.createElement("div");
       slot.id = "ttcExamTopSlot";
-      header.insertAdjacentElement("afterend", slot);
+      anchor.insertAdjacentElement("afterend", slot);
+    }else if(slot.previousElementSibling !== anchor){
+      anchor.insertAdjacentElement("afterend", slot);
     }
     if(btn.parentNode!==slot) slot.appendChild(btn);
     syncExamButton();
@@ -163901,8 +163951,11 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
   .ttc-learn-group>.ttc-learn-note{margin:0 0 10px;color:#64748b;font-size:13px;line-height:1.4}
   .ttc-learn-group-body{display:flex;flex-direction:column;align-items:stretch;gap:8px}
   #ttcGroupLevel .ttc-hsk-frame,#ttcGroupLevel .ttc-type-frame,#ttcGroupPractice .ttc-action-frame{margin:0 auto;width:100%}
-  #ttcGroupPractice #ttcReadingLauncher,#ttcGroupPractice #ttcListeningLauncher,#ttcGroupTools #ttcSpecialtyLauncher,#ttcGroupTools #ttcMatchLauncher,#ttcGroupTools #ttcListenLauncher{width:min(100%,560px);margin:0 auto}
-  #ttcGroupTools #ttcTopLearningHub{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:0}
+  #ttcGroupPractice #ttcReadingLauncher,#ttcGroupPractice #ttcListeningLauncher,#ttcGroupPractice #ttcMatchLauncher,#ttcGroupPractice #ttcListenLauncher,#ttcSpecialtyLauncher{width:min(100%,560px);margin:0 auto}
+  #ttcTopLearningHub{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:8px auto}
+  #whiteHatVoiceSystemV6{margin:8px auto 0}
+  body > .price-box{display:none !important}
+  .price-box.ttc-premium-open{display:block !important;margin:12px auto}
 </style>
 <script id="ttc-learn-path-js">
 (function(){
@@ -163927,19 +163980,26 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
     if(button && section) button.insertAdjacentElement("afterend", section);
   }
   function layout(){
-    var exam = document.getElementById("ttcExamTopSlot");
     var main = document.querySelector("main");
     if(!main) return;
+    var oldTools = document.getElementById("ttcGroupTools");
+    if(oldTools) oldTools.remove();
     var level = ensureGroup("ttcGroupLevel", "1. Chọn cấp độ", "Chọn HSK, rồi có thể lọc theo loại từ.");
     var study = ensureGroup("ttcGroupStudy", "2. Học từ", "Xem thẻ, nghe và học tự động.");
-    var practice = ensureGroup("ttcGroupPractice", "3. Luyện tập", "Đọc, nghe, đặt câu và kiểm tra.");
-    var tools = ensureGroup("ttcGroupTools", "4. Công cụ thêm", "Bộ thủ, phát âm, nối từ và từ chuyên ngành.");
-    var anchor = exam || document.querySelector("header");
-    [level, study, practice, tools].forEach(function(body){
+    var practice = ensureGroup("ttcGroupPractice", "3. Luyện tập", "Đọc, nghe, đặt câu, kiểm tra, nối từ và phản xạ.");
+    var header = document.querySelector("header");
+    var voice = document.getElementById("whiteHatVoiceSystemV6");
+    var hub = document.getElementById("ttcTopLearningHub");
+    var exam = document.getElementById("ttcExamTopSlot");
+    var anchor = header;
+    [voice, hub, exam].forEach(function(node){
+      if(!node || !anchor) return;
+      if(node.previousElementSibling !== anchor) anchor.insertAdjacentElement("afterend", node);
+      anchor = node;
+    });
+    [level, study, practice].forEach(function(body){
       var group = body.parentNode;
-      if(anchor && group.parentNode !== anchor.parentNode){
-        anchor.insertAdjacentElement("afterend", group);
-      }else if(anchor && group.previousElementSibling !== anchor){
+      if(anchor && group.previousElementSibling !== anchor){
         anchor.insertAdjacentElement("afterend", group);
       }
       anchor = group;
@@ -163952,15 +164012,106 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
     putPair(practice, document.getElementById("ttcReadingLauncher"), document.getElementById("ttcReadingSection"));
     putPair(practice, document.getElementById("ttcListeningLauncher"), document.getElementById("ttcListeningSection"));
     put(practice, document.getElementById("ttcActionFrame"));
-    put(tools, document.getElementById("ttcTopLearningHub"));
-    putPair(tools, document.getElementById("ttcSpecialtyLauncher"), document.getElementById("ttcSpecialtySection"));
-    put(tools, document.getElementById("ttcMatchLauncher"));
-    put(tools, document.getElementById("ttcListenLauncher"));
+    put(practice, document.getElementById("ttcMatchLauncher"));
+    put(practice, document.getElementById("ttcListenLauncher"));
+    var spec = document.getElementById("ttcSpecialtyLauncher");
+    var specSection = document.getElementById("ttcSpecialtySection");
+    var practiceGroup = practice.parentNode;
+    if(practiceGroup && spec && spec.previousElementSibling !== practiceGroup){
+      practiceGroup.insertAdjacentElement("afterend", spec);
+    }
+    if(spec && specSection) spec.insertAdjacentElement("afterend", specSection);
   }
   if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", layout);
   else layout();
   setTimeout(layout, 0);
   setTimeout(layout, 700);
   setTimeout(layout, 1800);
+  setTimeout(layout, 2600);
+})();
+</script>
+<script id="ttc-net-voices">
+(function(){
+  "use strict";
+  if(!window.speechSynthesis || window.__ttcNetSpeak) return;
+  window.__ttcNetSpeak = true;
+  var origSpeak = window.speechSynthesis.speak.bind(window.speechSynthesis);
+  var origCancel = window.speechSynthesis.cancel.bind(window.speechSynthesis);
+  var audio = null;
+  var token = 0;
+  function stop(){
+    token++;
+    if(audio){
+      audio.pause();
+      audio.src = "";
+      audio = null;
+    }
+  }
+  function chunks(text){
+    var parts = String(text || "").split(/(?<=[。！？!?；;])/);
+    var out = [];
+    var buf = "";
+    parts.forEach(function(part){
+      if(!part) return;
+      if((buf + part).length > 80){
+        if(buf) out.push(buf);
+        buf = part;
+      }else buf += part;
+    });
+    if(buf) out.push(buf);
+    return out.length ? out : [String(text || "")];
+  }
+  function urlFor(id, text){
+    var q = encodeURIComponent(text);
+    if(id === "ttcnet:youdao-nu") return "https://dict.youdao.com/dictvoice?le=zh&type=1&audio=" + q;
+    if(id === "ttcnet:youdao-nam") return "https://dict.youdao.com/dictvoice?le=zh&type=2&audio=" + q;
+    if(id === "ttcnet:baidu-nu") return "https://fanyi.baidu.com/gettts?lan=zh&spd=4&source=web&text=" + q;
+    if(id === "ttcnet:google-nu") return "https://translate.googleapis.com/translate_tts?ie=UTF-8&client=gtx&tl=zh-CN&q=" + q;
+    if(id === "ttcnet:google-vi") return "https://translate.googleapis.com/translate_tts?ie=UTF-8&client=gtx&tl=vi&q=" + q;
+    return "";
+  }
+  function chosen(u){
+    var lang = String(u && u.lang || "").toLowerCase();
+    var text = String(u && u.text || "");
+    var vi = lang.indexOf("vi") === 0 || (/[ăâêôơưđàáạảãèéẹẻẽìíịỉĩòóọỏõùúụủũỳýỵỷỹ]/i.test(text) && !/[\u4e00-\u9fff]/.test(text));
+    var key = vi ? "thichTiengTrung_vietnameseVoiceName" : "ttsVoiceName";
+    try{ return localStorage.getItem(key) || ""; }catch(e){ return ""; }
+  }
+  function play(id, text, u, mark){
+    var parts = chunks(text);
+    var i = 0;
+    function next(){
+      if(mark !== token) return;
+      if(i >= parts.length){
+        if(u && typeof u.onend === "function"){ try{ u.onend({type:"end"}); }catch(e){} }
+        return;
+      }
+      var src = urlFor(id, parts[i++]);
+      audio = new Audio(src);
+      audio.onended = next;
+      audio.onerror = function(){
+        if(u && typeof u.onerror === "function"){ try{ u.onerror({type:"error", error:"synthesis-failed"}); }catch(e){} }
+      };
+      var ready = audio.play();
+      if(ready && ready.catch) ready.catch(function(){
+        if(u && typeof u.onerror === "function"){ try{ u.onerror({type:"error", error:"audio-failed"}); }catch(e){} }
+      });
+    }
+    next();
+  }
+  window.speechSynthesis.cancel = function(){
+    stop();
+    try{ origCancel(); }catch(e){}
+  };
+  window.speechSynthesis.speak = function(u){
+    var id = chosen(u);
+    if(id.indexOf("ttcnet:") === 0){
+      stop();
+      var mark = token;
+      play(id, u && u.text, u, mark);
+      return;
+    }
+    return origSpeak(u);
+  };
 })();
 </script>
