@@ -113036,31 +113036,6 @@ showAccountMessage(
       getTtcDeviceName();
 
 
-    try{
-      const userResult = await window.supabase.auth.getUser();
-      const userId = userResult && userResult.data && userResult.data.user && userResult.data.user.id;
-      if(userId){
-        const listed = await window.supabase
-          .from("user_devices")
-          .select("device_id,device_name")
-          .eq("user_id", userId);
-        const rows = listed && Array.isArray(listed.data) ? listed.data : [];
-        const duplicates = rows.filter(function(row){
-          return row.device_id !== deviceId && row.device_name === deviceName;
-        });
-        for(const row of duplicates){
-          await window.supabase
-            .from("user_devices")
-            .delete()
-            .eq("user_id", userId)
-            .eq("device_id", row.device_id);
-        }
-      }
-    }catch(error){
-      console.warn("TTC: không gộp được thiết bị trùng", error);
-    }
-
-
     const {
       data,
       error
@@ -114121,31 +114096,11 @@ function startAccountTrialCountdown(
 
     try{
 
-      const deviceId = await getTtcDeviceId();
-      const deviceName = getTtcDeviceName();
-      const savedDevices = Array.isArray(session.user?.user_metadata?.ttc_devices)
-        ? session.user.user_metadata.ttc_devices.filter(function(item){ return item && item.id; })
-        : [];
-      const alreadySaved = savedDevices.some(function(item){ return item.id === deviceId; });
-      let slotOk = alreadySaved || savedDevices.length < 5;
-
-      if(slotOk && !(alreadySaved && savedDevices.some(function(item){ return item.id === deviceId && item.name === deviceName; }))){
-        const nextDevices = savedDevices.filter(function(item){ return item.id !== deviceId; });
-        nextDevices.push({ id:deviceId, name:deviceName, seen:Date.now() });
-        try{
-          await window.supabase.auth.updateUser({ data:{ ttc_devices:nextDevices } });
-        }catch(error){
-          console.warn("TTC: không lưu được danh sách thiết bị", error);
-        }
-      }
-
       const deviceResult =
         await registerTtcDevice();
 
-      const serverBlocked = !deviceResult?.ok && deviceResult?.reason !== "device_limit";
 
-
-      if(!slotOk || serverBlocked){
+      if(deviceResult?.reason === "device_limit"){
 
         console.warn(
           "🚫 TTC DEVICE ACCESS BLOCKED:",
@@ -114161,34 +114116,23 @@ function startAccountTrialCountdown(
         window.currentUser =
           null;
 
-
-        if(
-          !slotOk ||
-          deviceResult?.reason ===
-          "device_limit"
-        ){
-
-          showAccountMessage(
-            "🚫 Tài khoản đã sử dụng đủ 5 thiết bị.<br>" +
-            "Vui lòng đăng xuất một thiết bị cũ trước khi đăng nhập thiết bị này.",
-            "error"
-          );
-
-        }else{
-
-          showAccountMessage(
-            "⚠️ Không thể kiểm tra thiết bị.<br>" +
-            "Vui lòng thử đăng nhập lại.",
-            "error"
-          );
-
-        }
-
+        showAccountMessage(
+          "🚫 Tài khoản đã sử dụng đủ 5 thiết bị.<br>" +
+          "Vui lòng đăng xuất một thiết bị cũ trước khi đăng nhập thiết bị này.",
+          "error"
+        );
 
         updateAccountUI(null);
 
         return;
 
+      }
+
+      if(!deviceResult?.ok){
+        console.warn(
+          "TTC: bỏ qua lỗi kiểm tra thiết bị, vẫn giữ đăng nhập.",
+          deviceResult
+        );
       }
 
 
@@ -114212,42 +114156,12 @@ function startAccountTrialCountdown(
         error
       );
 
-
-      /*
-         Không cho phiên hoạt động
-         nếu hệ thống không kiểm tra
-         được giới hạn thiết bị.
-      */
-
-      try{
-
-        await window.supabase.auth.signOut({
-          scope:"local"
-        });
-
-      }catch(signOutError){
-
-        console.error(
-          "❌ TTC LOCAL SIGNOUT ERROR:",
-          signOutError
-        );
-
-      }
-
-
       window.currentUser =
-        null;
+        session.user;
 
-
-      updateAccountUI(null);
-
-
-      showAccountMessage(
-        "⚠️ Không thể kiểm tra thiết bị.<br>" +
-        "Vui lòng thử đăng nhập lại.",
-        "error"
+      updateAccountUI(
+        session.user
       );
-
 
     }finally{
 
