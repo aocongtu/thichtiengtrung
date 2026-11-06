@@ -2585,7 +2585,7 @@ main{
 #ttcStandaloneMock .ttc-sm-card{width:min(760px,100%);max-height:94vh;overflow:auto;background:#fff;border-radius:20px;box-shadow:0 20px 70px rgba(0,0,0,.3);padding:18px;color:#222}
 #ttcStandaloneMock .ttc-sm-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.ttc-sm-title{font-size:21px;font-weight:700;color:#b40000}.ttc-sm-close{background:#eee;color:#333;padding:8px 12px;border-radius:10px}
 #ttcStandaloneMock .ttc-sm-meta{display:flex;justify-content:space-between;margin:12px 0;font-weight:700;color:#555}.ttc-sm-time{color:#b40000;font-size:20px}
-#ttcStandaloneMock .ttc-sm-question{padding:18px;background:#fafafa;border-radius:15px;text-align:center}.ttc-sm-q{font-size:24px;font-weight:700;line-height:1.5}.ttc-sm-pinyin{margin-top:8px;color:#777}
+#ttcStandaloneMock .ttc-sm-question{padding:18px;background:#fafafa;border-radius:15px;text-align:center}.ttc-sm-q{font-size:24px;font-weight:700;line-height:1.5;white-space:pre-line}.ttc-sm-pinyin{margin-top:8px;color:#777}
 #ttcStandaloneMock .ttc-sm-options{display:grid;gap:10px;margin-top:15px}.ttc-sm-option{background:#fff!important;color:#222!important;border:2px solid #ddd!important;text-align:left;padding:13px 15px;border-radius:13px;font-size:17px}.ttc-sm-option.selected{border-color:#d40000!important;background:#fff0f0!important}.ttc-sm-option.correct{border-color:#15803d!important;background:#effcf3!important}
 #ttcStandaloneMock .ttc-sm-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:15px}.ttc-sm-actions button{padding:11px 16px}.ttc-sm-result{text-align:center;margin-top:13px;font-size:18px}.ttc-sm-review-list{margin-top:15px}.ttc-sm-review-item{padding:10px;border-radius:10px;margin:7px 0;background:#f7f7f7}.ttc-sm-review-item.ok{border-left:4px solid #15803d}.ttc-sm-review-item.bad{border-left:4px solid #dc2626}
 @media(max-width:600px){#ttcStandaloneMock .ttc-sm-card{padding:13px}.ttc-sm-q{font-size:20px}}
@@ -164882,8 +164882,59 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
       '<rect x="8" y="8" width="224" height="144" rx="18" fill="#fff7ed" stroke="#fdba74" stroke-width="3"/>' +
       body + '</svg>';
   }
+  function normSceneText(value){
+    return " " + String(value||"").toLowerCase()
+      .replace(/[.,!?;:()"'“”‘’/+\-，。！？、]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim() + " ";
+  }
+  function pickScene(text){
+    const norm = normSceneText(text);
+    const keys = [
+      ["sủi cảo","dumpling",30],["bánh chẻo","dumpling",30],["ăn trưa","rice",28],["đang ăn","rice",28],["món ăn","rice",26],["ngon","rice",18],["ăn","rice",16],["cơm","rice",30],["phở","noodle",30],["bún","noodle",30],["miến","noodle",30],["mì","noodle",30],
+      ["cà phê","coffee",30],["trà","tea",30],["chè","tea",30],["sữa","milk",30],["uống nước","cup",30],["nước lọc","cup",30],["cốc nước","cup",30],["cốc","cup",28],["ly","cup",24],["chén","cup",24],["trên bàn","table",26],["cái bàn","table",28],
+      ["hoa quả","apple",30],["trái cây","apple",30],["quả táo","apple",30],["táo","apple",30],
+      ["đọc sách","book",30],["quyển sách","book",30],["thư viện","book",30],["sách","book",30],["tờ báo","book",28],
+      ["bút chì","pencil",30],["cái bút","pencil",30],["bút","pencil",28],
+      ["sinh viên","school",30],["đại học","school",30],["tiểu học","school",30],["đi học","school",28],["trường trung học","school",30],["trường học","school",30],["học sinh","school",30],["giáo viên","school",30],["thầy giáo","school",30],["cô giáo","school",30],["tốt nghiệp","school",30],["trung học","school",30],["lớp học","school",30],["bài tập","school",28],["trường","school",24],
+      ["ở nhà","house",16],["ngôi nhà","house",24],["về nhà","house",16],["cửa sổ","house",20],["đứng ở cửa","house",24],["cửa","house",14],["phòng","house",16],["nhà","house",4],
+      ["đứa trẻ","family",26],["trẻ con","family",26],["trẻ em","family",26],["gia đình","family",24],["em gái","family",28],["em trai","family",28],["anh trai","family",28],["chị gái","family",28],["con gái","family",26],["con trai","family",26],["bạn bè","family",24],["bạn thân","family",24],["bố","family",22],["mẹ","family",22],["cha","family",18],["ông","family",16],["bà","family",16],["vợ","family",22],["chồng","family",22],
+      ["bạn gái","couple",30],["bạn trai","couple",30],["người yêu","couple",30],
+      ["máy bay","plane",30],["sân bay","plane",30],["tàu hỏa","train",30],["tàu hoả","train",30],["xe lửa","train",30],
+      ["xe buýt","bus",30],["ô tô","bus",30],["taxi","bus",30],["xe đạp","bus",30],["xe máy","bus",30],["lái xe","bus",28],
+      ["cửa hàng","shop",30],["siêu thị","shop",30],["nhà hàng","shop",30],["chợ","shop",30],["mua sắm","shop",28],["mua","shop",18],["rẻ","shop",22],["đắt","shop",22],["cái túi","shop",24],["túi","shop",16],
+      ["điện thoại","phone",30],["gọi điện","phone",30],["máy tính","laptop",30],["vi tính","laptop",30],
+      ["bệnh viện","doctor",30],["bác sĩ","doctor",30],["khám bệnh","doctor",30],["thuốc","pill",30],["đau","pill",16],["bệnh","pill",16],
+      ["đá bóng","ball",30],["quả bóng","ball",30],["thể thao","ball",24],["bóng","ball",18],
+      ["con mèo","cat",30],["mèo","cat",30],["con chó","dog",30],["chú chó","dog",30],["chó","dog",30],["con chim","bird",30],["chim","bird",30],["con cá","fish",30],["cá nhân","talk",40],["cá","fish",30],
+      ["đôi giày","shoe",30],["giày","shoe",30],["quần áo","shirt",30],["áo","shirt",26],["quần","shirt",26],["mặc","shirt",12],
+      ["đi ngủ","bed",30],["giường","bed",30],["ngủ","bed",28],
+      ["tạm biệt","wave",24],["xin chào","wave",24],["cảm ơn","wave",20],["xin lỗi","wave",20],["chào","wave",16],
+      ["bông hoa","flower",30],["đáng yêu","cute",30],["dễ thương","cute",30],["hoa","flower",22],
+      ["cái cây","tree",30],["cây","tree",22],["núi","hills",24],["công viên","hills",24],["đi bộ","walk",24],
+      ["rạp chiếu phim","movie",30],["xem phim","movie",30],["bộ phim","movie",30],["phim","movie",26],["hát","sing",26],["tấm ảnh","photo",28],["bức ảnh","photo",28],["quốc gia","globe",24],["bản đồ","globe",26],
+      ["công việc","work",30],["làm việc","work",30],["công ty","work",30],["nổi tiếng","star",30],["bận","work",20],
+      ["rất lạnh","snow",28],["lạnh","snow",18],["mấy phút","clock",24],["phút","clock",12],["cuộc họp","work",28],["đang họp","work",28],["họp","work",16],
+      ["tiếng trung","talk",30],["nói chuyện","talk",28],["đáp án","paper",26],["chữ hán","paper",28],["chữ","paper",24],["đọc","book",16],
+      ["tuổi","cake",22],["đồng hồ","clock",30],["mấy giờ","clock",28],["một trăm","money",24],["tiền","money",28],["đồng ý","talk",40],["đồng","money",18],
+      ["trời mưa","rain",30],["mưa","rain",30],["tuyết","snow",30],["mùa đông","snow",24],["trời nắng","sun",30],["nắng","sun",26],["mùa hè","sun",22],
+      ["bây giờ","clock",6],["hôm nay","clock",4],["ngày mai","clock",8],["hôm qua","clock",8],
+      ["thích","cute",10],["yêu","cute",12],["vui","cute",12],["buồn","think",12],["không biết","think",8]
+    ];
+    let best = "";
+    let bestScore = 0;
+    for(let i=0;i<keys.length;i++){
+      const phrase = keys[i][0];
+      if(norm.indexOf(" "+phrase+" ") < 0) continue;
+      const score = keys[i][2] * 20 + phrase.length;
+      if(score > bestScore){ best = keys[i][1]; bestScore = score; }
+    }
+    return best;
+  }
+  function sceneOf(word){
+    return pickScene(word && word.exampleMeaning) || pickScene(word && word.m) || "talk";
+  }
   function pictureOf(word){
-    const text = (String(word.m||"")+" "+String(word.exampleMeaning||"")).toLowerCase();
     const key = String(word.h||"")+"|"+String(word.example||"")+"|"+String(word.m||"");
     let seed = 7;
     for(let i=0;i<key.length;i++) seed = (Math.imul(seed, 33) + key.charCodeAt(i)) >>> 0;
@@ -164942,34 +164993,26 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
       shoe: function(){return '<path d="M'+(ox-40)+' 120 h50 l20 8 v16 h-86 v-12 z" fill="#fff" stroke="'+ink+'" stroke-width="2.4"/><path d="M'+(ox-40)+' 120 v-16 h22 v16" fill="#fecaca" stroke="'+ink+'" stroke-width="2"/>';},
       bed: function(){return '<path d="M'+(ox-58)+' 150 h120" stroke="'+ink+'" stroke-width="3"/><path d="M'+(ox-48)+' 150 v-36 h96 v36" fill="#fff" stroke="'+ink+'" stroke-width="2.4"/><rect x="'+(ox-40)+'" y="96" width="28" height="18" rx="4" fill="#bfdbfe" stroke="'+ink+'" stroke-width="2"/>';},
       wave: function(){return '<path d="M'+(ox-20)+' 140 q16 -28 8 -48 q20 8 28 -6" fill="none" stroke="'+ink+'" stroke-width="3" stroke-linecap="round"/><path d="M'+(ox-6)+' 92 q18 6 10 20" fill="none" stroke="'+ink+'" stroke-width="2.4"/>';},
+      talk: function(){return '<circle cx="'+(ox-18)+'" cy="108" r="14" fill="#f4d2b4" stroke="'+ink+'" stroke-width="2"/><circle cx="'+(ox+22)+'" cy="112" r="12" fill="#f4d2b4" stroke="'+ink+'" stroke-width="2"/><path d="M'+(ox-34)+' 150 v-18 q16 -12 32 0 v18 M'+(ox+8)+' 150 v-16 q14 -10 28 0 v16" fill="#bfdbfe" stroke="'+ink+'" stroke-width="2"/><path d="M'+(ox-8)+' 86 q14 -16 24 -2" fill="none" stroke="'+ink+'" stroke-width="2"/>';},
+      work: function(){return '<rect x="'+(ox-28)+'" y="108" width="56" height="36" rx="6" fill="#92400e" stroke="'+ink+'" stroke-width="2.2"/><path d="M'+(ox-12)+' 108 v-10 h24 v10" fill="none" stroke="'+ink+'" stroke-width="2.2"/><rect x="'+(ox-34)+'" y="96" width="22" height="28" fill="#fff" stroke="'+ink+'" stroke-width="2"/>';},
+      star: function(){return '<path d="M'+ox+' 78 l10 22 24 2 -18 16 6 24 -22 -14 -22 14 6 -24 -18 -16 24 -2 z" fill="#facc15" stroke="'+ink+'" stroke-width="2.2"/>';},
+      cute: function(){return '<path d="M'+ox+' 142 l-28 -24 a18 18 0 0 1 28 -22 a18 18 0 0 1 28 22 z" fill="#fb7185" stroke="'+ink+'" stroke-width="2.2"/>';},
+      paper: function(){return '<rect x="'+(ox-32)+'" y="86" width="64" height="72" rx="4" fill="#fff" stroke="'+ink+'" stroke-width="2.2"/><path d="M'+(ox-20)+' 106 h40 M'+(ox-20)+' 122 h40 M'+(ox-20)+' 138 h28" stroke="#94a3b8" stroke-width="2"/>';},
+      think: function(){return '<ellipse cx="'+ox+'" cy="100" rx="34" ry="22" fill="#fff" stroke="'+ink+'" stroke-width="2.2"/><circle cx="'+(ox-8)+'" cy="128" r="6" fill="#fff" stroke="'+ink+'"/><circle cx="'+(ox-18)+'" cy="140" r="4" fill="#fff" stroke="'+ink+'"/>';},
+      walk: function(){return '<path d="M'+(ox-50)+' 146 h100" stroke="'+ink+'" stroke-width="3" stroke-linecap="round"/><circle cx="'+(ox-16)+'" cy="118" r="10" fill="#f4d2b4" stroke="'+ink+'"/><path d="M'+(ox-16)+' 128 v16 M'+(ox-16)+' 136 l-12 14 M'+(ox-16)+' 136 l12 12" stroke="'+ink+'" stroke-width="2.2" stroke-linecap="round"/>';},
+      cake: function(){return '<path d="M'+(ox-36)+' 118 h72 v28 h-72 z" fill="#f9a8d4" stroke="'+ink+'" stroke-width="2.2"/><path d="M'+(ox-36)+' 118 q8 -10 18 0 q8 -10 18 0 q8 -10 18 0 q8 -10 18 0" fill="#fff" stroke="'+ink+'" stroke-width="1.6"/><path d="M'+(ox-12)+' 118 v-16 M'+ox+' 118 v-20 M'+(ox+12)+' 118 v-16" stroke="'+ink+'" stroke-width="2"/>';},
+      dumpling: function(){return '<path d="M'+(ox-34)+' 124 q34 -40 68 0 q-34 22 -68 0 z" fill="#fff" stroke="'+ink+'" stroke-width="2.2"/><path d="M'+(ox-8)+' 124 q10 -16 22 0" fill="none" stroke="'+ink+'" stroke-width="1.6"/>';},
+      couple: function(){return '<circle cx="'+(ox-16)+'" cy="100" r="14" fill="#f4d2b4" stroke="'+ink+'" stroke-width="2"/><circle cx="'+(ox+18)+'" cy="102" r="13" fill="#f4d2b4" stroke="'+ink+'" stroke-width="2"/><path d="M'+(ox-32)+' 150 v-22 q16 -14 32 0 v22 M'+(ox+4)+' 150 v-20 q14 -12 28 0 v20" fill="#fecdd3" stroke="'+ink+'" stroke-width="2"/>';},
+      table: function(){return '<path d="M'+(ox-46)+' 118 h92" stroke="'+ink+'" stroke-width="3"/><path d="M'+(ox-36)+' 118 v30 M'+(ox+36)+' 118 v30" stroke="'+ink+'" stroke-width="2.4"/>';},
+      movie: function(){return '<rect x="'+(ox-40)+'" y="88" width="80" height="48" rx="4" fill="#1e293b" stroke="'+ink+'" stroke-width="2.2"/><path d="M'+(ox-6)+' 102 l18 10 l-18 10 z" fill="#fff"/>';},
+      sing: function(){return '<rect x="'+(ox-8)+'" y="96" width="16" height="36" rx="8" fill="#94a3b8" stroke="'+ink+'" stroke-width="2"/><circle cx="'+ox+'" cy="92" r="10" fill="#cbd5e1" stroke="'+ink+'" stroke-width="2"/>';},
+      photo: function(){return '<rect x="'+(ox-34)+'" y="90" width="68" height="52" rx="4" fill="#fff" stroke="'+ink+'" stroke-width="2.2"/><circle cx="'+ox+'" cy="112" r="12" fill="#f4d2b4" stroke="'+ink+'"/><path d="M'+(ox-20)+' 132 l14 -16 10 10 8 -8 14 14" fill="#86efac"/>';},
+      globe: function(){return '<circle cx="'+ox+'" cy="112" r="32" fill="#7dd3fc" stroke="'+ink+'" stroke-width="2.2"/><ellipse cx="'+ox+'" cy="112" rx="14" ry="32" fill="none" stroke="#0369a1" stroke-width="2"/><path d="M'+(ox-32)+' 112 h64 M'+(ox-24)+' 96 h48 M'+(ox-24)+' 128 h48" fill="none" stroke="#0369a1" stroke-width="2"/>';},
       flower: function(){return '<path d="M'+ox+' 150 V100" stroke="#166534" stroke-width="3"/><circle cx="'+ox+'" cy="92" r="10" fill="#f472b6" stroke="'+ink+'"/><circle cx="'+(ox-14)+'" cy="104" r="10" fill="#f9a8d4" stroke="'+ink+'"/><circle cx="'+(ox+14)+'" cy="104" r="10" fill="#f9a8d4" stroke="'+ink+'"/><circle cx="'+ox+'" cy="104" r="5" fill="#fde68a"/>';},
       tree: function(){return '<rect x="'+(ox-6)+'" y="118" width="12" height="36" fill="#92400e"/><circle cx="'+ox+'" cy="100" r="28" fill="#22c55e" stroke="'+ink+'" stroke-width="2.2"/><circle cx="'+(ox-16)+'" cy="112" r="16" fill="#16a34a"/>';},
       hills: function(){return '<path d="M'+(ox-70)+' 150 L'+(ox-20)+' 90 L'+ox+' 150 Z" fill="#86efac" stroke="'+ink+'" stroke-width="2"/><path d="M'+(ox-10)+' 150 L'+(ox+30)+' 78 L'+(ox+70)+' 150 Z" fill="#4ade80" stroke="'+ink+'" stroke-width="2"/><circle cx="'+(ox+48)+'" cy="70" r="12" fill="#facc15" stroke="'+ink+'" stroke-width="2"/>';}
     };
-    const rules = [
-      [/mì|phở|bún|miến/, "noodle"], [/cơm|ăn|bữa|đói|thức ăn/, "rice"], [/táo|trái cây|hoa quả/, "apple"],
-      [/cà phê/, "coffee"], [/trà/, "tea"], [/sữa/, "milk"], [/uống|nước/, "cup"],
-      [/bút|viết chữ|viết/, "pencil"], [/sách|đọc|học bài/, "book"], [/trường|lớp|học sinh|giáo viên/, "school"],
-      [/mẹ|bố|ba |cha |gia đình|bạn bè|anh |chị |em /, "family"],
-      [/máy bay/, "plane"], [/tàu hoả|tàu hỏa|xe lửa/, "train"], [/xe |bus|ô tô|taxi|đi /, "bus"],
-      [/tiền|giá tiền|mua/, "shop"], [/cửa hàng|chợ/, "shop"],
-      [/mèo/, "cat"], [/chó/, "dog"], [/chim/, "bird"], [/cá /, "fish"],
-      [/giày/, "shoe"], [/áo|quần|mặc/, "shirt"], [/ngủ|giường/, "bed"],
-      [/mưa/, "rain"], [/tuyết|lạnh/, "snow"], [/nắng|trời nắng|nóng/, "sun"],
-      [/điện thoại/, "phone"], [/máy tính|vi tính/, "laptop"],
-      [/bác sĩ|bệnh viện/, "doctor"], [/thuốc|đau|bệnh/, "pill"],
-      [/bóng|đá bóng|thể thao/, "ball"], [/bơi/, "fish"],
-      [/đồng hồ|mấy giờ|giờ /, "clock"], [/nhà|phòng|cửa /, "house"],
-      [/chào|tạm biệt/, "wave"], [/hoa /, "flower"], [/cây /, "tree"]
-    ];
-    let chosen = "";
-    for(let i=0;i<rules.length;i++){
-      if(rules[i][0].test(text)){ chosen = rules[i][1]; break; }
-    }
-    if(!chosen){
-      const keys = Object.keys(props);
-      chosen = keys[seed % keys.length];
-    }
+    const chosen = (props[sceneOf(word)] ? sceneOf(word) : "talk");
     const html = '<svg viewBox="0 0 320 180" width="320" height="180" role="img" aria-label="Hình phác họa">'
       + '<rect width="320" height="180" rx="18" fill="'+sky+'"/>'
       + '<path d="M0 138 Q80 128 160 140 T320 136 V180 H0 Z" fill="#d9edc4"/>'
@@ -164982,24 +165025,28 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
     const rest = others(pool, word, rng, 3);
     while(rest.length<3) rest.push(pool[rest.length%pool.length]);
     if(type==="listen-tf"){
-      const truth = rng()<0.5;
-      const shown = truth ? word : rest[0];
+      let claimWord = word;
+      const heardScene = sceneOf(word);
+      const different = rest.find(function(w){ return sceneOf(w) !== heardScene; });
+      const truth = different ? rng()<0.5 : true;
+      if(!truth) claimWord = different;
+      const claim = vi(claimWord);
       const answer = truth ? 0 : 1;
       const heard = part.slice();
-      heard[2] = "Xem hình, bấm nghe, rồi chọn Đúng hoặc Sai. Câu không hiện sẵn.";
+      heard[2] = "Hình vẽ đúng câu tiếng Việt bên dưới. Nghe rồi chọn Đúng hoặc Sai.";
       return pack(heard, {
-        q: "看图，听句子，判断对错。",
-        qMeaning: "Nghe câu. Chọn Đúng nếu câu khớp hình, Sai nếu không khớp.",
+        q: "看图，听句子，判断对错。\n" + claim,
+        qMeaning: "Hình minh họa câu: " + claim + " — Chọn Đúng nếu câu nghe được nói đúng như vậy, Sai nếu không.",
         options: ["对    Đúng", "错    Sai"],
         optionPinyin: ["duì", "cuò"],
-        optionMeaning: ["Câu nghe được khớp với hình.", "Câu nghe được không khớp với hình."],
+        optionMeaning: ["Câu nghe được đúng với hình và câu tiếng Việt.", "Câu nghe được không đúng với hình."],
         answer: answer,
         analysis: [
           answer===0 ? "ĐÚNG: câu vừa nghe nói đúng nội dung hình." : "SAI: câu vừa nghe không nói về hình này.",
           answer===1 ? "ĐÚNG: câu vừa nghe không khớp hình, nên chọn Sai." : "SAI: câu vừa nghe khớp hình, không chọn Sai."
         ],
         audioText: zh(word),
-        picture: pictureOf(shown),
+        picture: pictureOf(claimWord),
         h: word.h, m: word.m
       });
     }
