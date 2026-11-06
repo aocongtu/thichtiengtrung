@@ -3929,8 +3929,10 @@ window.sendPaymentRequest = async function(){
 
   const dbPlanMap = {
     "1month": "1_month",
+    "3month": "3_months",
     "6month": "6_months",
-    "1year": "1_year"
+    "1year": "1_year",
+    "lifetime": "lifetime"
   };
 
 
@@ -112043,6 +112045,24 @@ accountStyle.textContent = `
 
 }
 
+#accountMenu .price-box{
+  display:block !important;
+  width:100% !important;
+  min-width:0 !important;
+  max-width:none !important;
+  margin:8px 0 0 !important;
+  padding:8px !important;
+  animation:none !important;
+  position:static !important;
+  box-shadow:none !important;
+}
+#accountMenu .price-box[hidden]{display:none !important}
+#accountMenu .price-box summary{display:none}
+#accountMenu .price-list{display:flex !important}
+.account-user.menu-open .account-menu:has(.price-box.ttc-premium-open){
+  width:min(460px,calc(100vw - 24px));
+}
+
 
 /* =========================================================
    💎 THÔNG TIN GÓI
@@ -112545,7 +112565,7 @@ function createAccountSystem(){
             type="button"
             id="accountPremiumButton"
             class="account-premium-button"
-            onclick="(function(){var box=document.querySelector('.price-box');var acc=document.getElementById('accountSystem');if(!box)return;if(acc)acc.insertAdjacentElement('afterend',box);var open=box.classList.toggle('ttc-premium-open');var details=box.querySelector('details');if(details)details.open=open;})();"
+            onclick="(function(event){if(event)event.stopPropagation();var box=document.querySelector('.price-box');var menu=document.getElementById('accountMenu');if(!box||!menu)return;if(box.parentElement!==menu)menu.appendChild(box);var open=box.classList.toggle('ttc-premium-open');box.hidden=!open;var details=box.querySelector('details');if(details)details.open=true;})(event);"
           >
             💎 Nâng cấp Premium <span aria-hidden="true">›</span>
           </button>
@@ -112900,7 +112920,7 @@ showAccountMessage(
   }
 
   /* =======================================================
-     📱 TTC — GIỚI HẠN 3 THIẾT BỊ
+     📱 TTC — GIỚI HẠN 5 THIẾT BỊ
      ======================================================= */
 
   const TTC_DEVICE_STORAGE_KEY =
@@ -112931,14 +112951,17 @@ showAccountMessage(
     }
 
     function writeCookie(value){
-      if(!useSharedDomainCookie) return;
+      const secure = location.protocol === "https:" ? "; Secure" : "";
+      const domain = useSharedDomainCookie ? "; Domain=.thichtiengtrung.io.vn" : "";
       document.cookie =
         TTC_DEVICE_STORAGE_KEY + "=" + encodeURIComponent(value) +
-        "; Max-Age=31536000; Path=/; Domain=.thichtiengtrung.io.vn; SameSite=Lax; Secure";
+        "; Max-Age=31536000; Path=/" + domain + "; SameSite=Lax" + secure;
     }
 
     function getOrCreate(){
-      let deviceId = useSharedDomainCookie ? readCookie() : "";
+      if(window.__ttcDeviceId) return window.__ttcDeviceId;
+
+      let deviceId = readCookie();
 
       if(!deviceId){
         try{
@@ -112953,6 +112976,8 @@ showAccountMessage(
           ? window.crypto.randomUUID()
           : "ttc-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
       }
+
+      window.__ttcDeviceId = deviceId;
 
       try{
         localStorage.setItem(TTC_DEVICE_STORAGE_KEY, deviceId);
@@ -113009,6 +113034,31 @@ showAccountMessage(
 
     const deviceName =
       getTtcDeviceName();
+
+
+    try{
+      const userResult = await window.supabase.auth.getUser();
+      const userId = userResult && userResult.data && userResult.data.user && userResult.data.user.id;
+      if(userId){
+        const listed = await window.supabase
+          .from("user_devices")
+          .select("device_id,device_name")
+          .eq("user_id", userId);
+        const rows = listed && Array.isArray(listed.data) ? listed.data : [];
+        const duplicates = rows.filter(function(row){
+          return row.device_id !== deviceId && row.device_name === deviceName;
+        });
+        for(const row of duplicates){
+          await window.supabase
+            .from("user_devices")
+            .delete()
+            .eq("user_id", userId)
+            .eq("device_id", row.device_id);
+        }
+      }
+    }catch(error){
+      console.warn("TTC: không gộp được thiết bị trùng", error);
+    }
 
 
     const {
@@ -113427,7 +113477,7 @@ showAccountMessage(
 
   document.addEventListener(
     "click",
-    function(){
+    function(event){
 
       const userBox =
         document.getElementById(
@@ -113435,7 +113485,7 @@ showAccountMessage(
         );
 
 
-      if(userBox){
+      if(userBox && !userBox.contains(event.target)){
 
         userBox.classList.remove(
           "menu-open"
@@ -113717,16 +113767,42 @@ async function updateAccountUI(user){
 
   const planNames = {
 
-  "1_month":
-    "1 tháng",
-
-  "6_months":
-    "6 tháng",
-
-  "1_year":
-    "1 năm"
+  "1_month": "1 tháng",
+  "3_months": "3 tháng",
+  "6_months": "6 tháng",
+  "1_year": "1 năm",
+  "lifetime": "Vĩnh viễn"
 
 };
+
+  function membershipDurationLabel(membership){
+
+    const end = membership.end_date ? new Date(membership.end_date) : null;
+
+    if(!end || Number.isNaN(end.getTime()) || end.getTime() <= Date.now()){
+      return "";
+    }
+
+    const startRaw = membership.start_date || membership.created_at;
+    const start = startRaw ? new Date(startRaw) : null;
+    const days = start && !Number.isNaN(start.getTime())
+      ? Math.round((end.getTime() - start.getTime()) / 86400000)
+      : 0;
+
+    if(days >= 3000 || membership.plan === "lifetime"){
+      return "Vĩnh viễn";
+    }
+
+    if(days > 0){
+      const months = Math.max(1, Math.round(days / 30));
+      if(months === 12) return "1 năm";
+      if(months > 12 && months % 12 === 0 && months < 120) return (months / 12) + " năm";
+      return months + " tháng";
+    }
+
+    return planNames[membership.plan] || membership.plan || "Premium";
+
+  }
 
   /* =====================================================
      CÓ MEMBERSHIP HOẶC ĐANG CHỜ
@@ -113743,6 +113819,7 @@ async function updateAccountUI(user){
 
 
     const planName =
+      membershipDurationLabel(membership) ||
       planNames[membership.plan] ||
       membership.plan ||
       "Không xác định";
@@ -113754,7 +113831,8 @@ async function updateAccountUI(user){
 
     if(
       membership.status ===
-      "active"
+      "active" &&
+      membershipDurationLabel(membership)
     ){
 
       const endDate =
@@ -114002,7 +114080,7 @@ function startAccountTrialCountdown(
 }
 
   /* =========================================================
-     8. KIỂM TRA SESSION + GIỚI HẠN 3 THIẾT BỊ
+     8. KIỂM TRA SESSION + GIỚI HẠN 5 THIẾT BỊ
      ========================================================= */
 
   let ttcDeviceCheckRunning = false;
@@ -114034,7 +114112,7 @@ function startAccountTrialCountdown(
        → cập nhật last_seen
        → cho đăng nhập bình thường.
 
-       Nếu đã đủ 3 thiết bị:
+       Nếu đã đủ 5 thiết bị:
        → chỉ đăng xuất phiên hiện tại.
     */
 
@@ -114043,11 +114121,31 @@ function startAccountTrialCountdown(
 
     try{
 
+      const deviceId = await getTtcDeviceId();
+      const deviceName = getTtcDeviceName();
+      const savedDevices = Array.isArray(session.user?.user_metadata?.ttc_devices)
+        ? session.user.user_metadata.ttc_devices.filter(function(item){ return item && item.id; })
+        : [];
+      const alreadySaved = savedDevices.some(function(item){ return item.id === deviceId; });
+      let slotOk = alreadySaved || savedDevices.length < 5;
+
+      if(slotOk && !(alreadySaved && savedDevices.some(function(item){ return item.id === deviceId && item.name === deviceName; }))){
+        const nextDevices = savedDevices.filter(function(item){ return item.id !== deviceId; });
+        nextDevices.push({ id:deviceId, name:deviceName, seen:Date.now() });
+        try{
+          await window.supabase.auth.updateUser({ data:{ ttc_devices:nextDevices } });
+        }catch(error){
+          console.warn("TTC: không lưu được danh sách thiết bị", error);
+        }
+      }
+
       const deviceResult =
         await registerTtcDevice();
 
+      const serverBlocked = !deviceResult?.ok && deviceResult?.reason !== "device_limit";
 
-      if(!deviceResult?.ok){
+
+      if(!slotOk || serverBlocked){
 
         console.warn(
           "🚫 TTC DEVICE ACCESS BLOCKED:",
@@ -114065,12 +114163,13 @@ function startAccountTrialCountdown(
 
 
         if(
+          !slotOk ||
           deviceResult?.reason ===
           "device_limit"
         ){
 
           showAccountMessage(
-            "🚫 Tài khoản đã sử dụng đủ 3 thiết bị.<br>" +
+            "🚫 Tài khoản đã sử dụng đủ 5 thiết bị.<br>" +
             "Vui lòng đăng xuất một thiết bị cũ trước khi đăng nhập thiết bị này.",
             "error"
           );
@@ -164990,7 +165089,7 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
   #ttcTopLearningHub{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:8px auto}
   #whiteHatVoiceSystemV6{margin:8px auto 0}
   body > .price-box{display:none !important}
-  .price-box.ttc-premium-open{display:block !important;margin:12px auto}
+  #accountMenu .price-box.ttc-premium-open{display:block !important;margin:8px 0 0 !important}
 </style>
 <script id="ttc-learn-path-js">
 (function(){
