@@ -164106,20 +164106,38 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
   #ttcVideoWatch.ttc-video-cover{position:fixed;inset:0;z-index:1000003;display:flex;flex-direction:column;box-sizing:border-box;background:#fff;padding:12px;overflow:auto}
   #ttcVideoWatch.ttc-video-cover .ttc-video-frame{flex:1 1 auto;min-height:220px;padding-top:0}
   #ttcVideoWatch.ttc-video-cover #ttcVideoLines{flex:0 0 auto;max-height:34vh;overflow:auto;background:#fff}
-  #ttcVideoNote{margin:0 0 10px;color:#64748b;font-size:13px;line-height:1.45}
+  #ttcVideoSources{display:flex;gap:8px;margin:0 0 10px}
+  #ttcVideoSources button{flex:1;border:1px solid #fecdd3;background:#fff;color:#9f1239;border-radius:14px;padding:12px 8px;font-weight:800;cursor:pointer}
+  #ttcVideoSources button.ttc-on{background:#9f1239;color:#fff}
+  .ttc-video-pick{display:flex;gap:8px}
+  .ttc-video-pick button{flex:1;min-height:92px;border:1px solid #fecdd3;border-radius:16px;background:#fff7f8;color:#9f1239;font-size:18px;font-weight:800;cursor:pointer}
+  .ttc-story-nav{position:static !important;background:#0f172a;margin:0 0 8px}
+  .ttc-story-frame{position:relative;height:34vh;max-height:240px;min-height:150px;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;padding:14px;color:#fff;background:linear-gradient(160deg,#7f1d1d,#fb7185)}
+  .ttc-story-frame b{font-size:28px;line-height:1.35;text-shadow:0 2px 8px rgba(0,0,0,.35)}
+  .ttc-story-frame small{opacity:.9;font-weight:700}
+  #ttcStoryPlay{position:absolute;top:10px;right:10px;border:0;border-radius:999px;background:rgba(15,23,42,.9);color:#fff;font-weight:800;padding:8px 12px;cursor:pointer}
+  #ttcStoryLines{max-height:42vh;overflow:auto}
+  .ttc-story-card{min-height:88px;padding:12px;text-align:left}
   #ttcVideoLessons{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
   #ttcVideoLessons button{border:1px solid #fecdd3;background:#fff;color:#9f1239;border-radius:999px;padding:8px 12px;font-weight:700;cursor:pointer}
   #ttcVideoLessons button.ttc-on{background:#9f1239;color:#fff;border-color:#9f1239}
   .ttc-video-frame{position:relative;width:100%;max-width:100%;padding-top:56.25%;background:#0f172a;border-radius:12px;overflow:hidden}
   .ttc-video-frame iframe{position:absolute;inset:0;width:100%;height:100%;max-width:100%;border:0}
   .ttc-video-overlay{position:absolute;z-index:5;left:8px;right:8px;top:8px;display:flex;gap:6px;flex-wrap:wrap}
-  .ttc-video-overlay button{border:0;border-radius:999px;background:#fff;color:#111;font-weight:800;padding:6px 10px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.28)}
-  .ttc-video-tools{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
-  .ttc-video-tools button{border:1px solid #e5e7eb;background:#fff;border-radius:999px;padding:7px 12px;font-weight:700;cursor:pointer}
-  .ttc-video-line{padding:8px 0;border-top:1px solid #f1f5f9}
-  .ttc-video-zh{font-size:22px;font-weight:700;line-height:1.45}
-  .ttc-video-py{color:#1d4ed8;font-weight:700;line-height:1.45}
-  .ttc-video-vi{color:#0f766e;font-weight:700;line-height:1.45}
+  .ttc-video-overlay button{border:0;border-radius:999px;background:rgba(15,23,42,.9);color:#fff;font-weight:800;padding:7px 11px;cursor:pointer}
+  .ttc-video-tools{position:absolute;z-index:5;left:8px;right:8px;bottom:8px;display:flex;gap:6px;flex-wrap:wrap;margin:0;padding:6px;border-radius:12px;background:rgba(15,23,42,.88)}
+  .ttc-video-tools button{border:1px solid rgba(255,255,255,.55);background:transparent;color:#fff;border-radius:999px;padding:7px 10px;font-weight:800;cursor:pointer}
+  .ttc-video-line{padding:10px 0;border-top:1px solid #e2e8f0}
+  .ttc-video-zh{font-size:30px;font-weight:800;line-height:1.4;color:#0f172a}
+  .ttc-video-py{font-size:22px;color:#1d4ed8;font-weight:800;line-height:1.4}
+  .ttc-video-vi{font-size:22px;color:#0f766e;font-weight:800;line-height:1.4}
+  @media(max-width:700px){
+    #ttcVideoSection,#ttcVideoSection.ttc-video-watching{width:100% !important;padding:8px}
+    .ttc-video-frame{padding-top:0;height:34vh;max-height:210px}
+    .ttc-video-zh{font-size:26px}
+    .ttc-video-py,.ttc-video-vi{font-size:18px}
+    .ttc-video-card img{height:78px}
+  }
   .ttc-video-caption-note{margin:8px 0 0;color:#334155;font-weight:700;line-height:1.45}
   #ttcVideoMeta{margin:8px 0 0;color:#64748b;font-size:13px}
   #ttcTopLearningHub{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:8px auto}
@@ -164226,10 +164244,13 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
   var section = document.createElement("section");
   section.id = "ttcVideoSection";
   section.hidden = true;
-  section.innerHTML = "<p id='ttcVideoNote'></p><div id='ttcVideoLevels'></div><div id='ttcVideoStage'></div>";
+  section.innerHTML = "<p id='ttcVideoNote'></p><div id='ttcVideoSources'></div><div id='ttcVideoLevels'></div><div id='ttcVideoStage'></div>";
   document.body.appendChild(btn);
   document.body.appendChild(section);
-  section.querySelector("#ttcVideoNote").textContent = "Mỗi cấp có 50 bài. Video nằm trong khung nút. Pinyin, dịch tiếng Việt và Phóng to nằm trên video và vẫn còn khi phóng to.";
+  section.querySelector("#ttcVideoNote").textContent = "Chọn một khu. Video của trang lấy bài đọc HSK của mình, đọc từng câu, có pinyin và tiếng Việt.";
+  var source = "pick";
+  var storyLine = 0;
+  var storyToken = 0;
 
   function lessons(){ return bank[level] || []; }
   function saveSeen(){ try { localStorage.setItem("ttcVideoSeen", JSON.stringify(seen)); } catch (e) {} }
@@ -164237,6 +164258,169 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
     return String(s || "").replace(/[&<>"']/g, function(c){
       return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];
     });
+  }
+  function readStories(){
+    if (window.__ttcReadingBank && window.__ttcReadingBank["1"]) return window.__ttcReadingBank;
+    var el = document.getElementById("ttc-reading-engine-v3");
+    if (!el) return {};
+    var text = el.textContent;
+    var start = text.indexOf("const bank=");
+    var end = text.indexOf(";window.__ttcReadingBank", start);
+    if (start < 0 || end < 0) return {};
+    try { return JSON.parse(text.slice(start + "const bank=".length, end)); } catch (e) { return {}; }
+  }
+  function splitCue(text){
+    var raw = String(text || "").replace(/\r/g, "");
+    var parts = raw.split("\n").map(function(s){ return s.trim(); }).filter(Boolean);
+    if (parts.length > 1) return parts;
+    var one = parts[0] || "";
+    var bits = [], buf = "";
+    for (var i = 0; i < one.length; i++) {
+      buf += one[i];
+      if ("。！？".indexOf(one[i]) >= 0) { bits.push(buf.trim()); buf = ""; }
+    }
+    if (buf.trim()) bits.push(buf.trim());
+    return bits;
+  }
+  function storyCues(item){
+    var zh = splitCue(item.zh), py = splitCue(item.py), vi = splitCue(item.vi);
+    var n = Math.max(zh.length, py.length, vi.length);
+    var rows = [];
+    for (var i = 0; i < n; i++) rows.push([zh[i] || "", py[i] || "", vi[i] || ""]);
+    return rows;
+  }
+  function storyLessons(){ return readStories()[level] || []; }
+  function stopStory(){
+    storyToken++;
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+  }
+  function renderSources(){
+    var box = section.querySelector("#ttcVideoSources");
+    box.innerHTML = "";
+    [["youtube","Học theo YouTube"],["story","Video của trang"]].forEach(function(pair){
+      var b = document.createElement("button");
+      b.type = "button";
+      b.textContent = pair[1];
+      if (source === pair[0]) b.className = "ttc-on";
+      b.addEventListener("click", function(){
+        stopStory();
+        source = pair[0];
+        mode = "list";
+        index = 0;
+        render();
+      });
+      box.appendChild(b);
+    });
+  }
+  function renderPick(){
+    section.querySelector("#ttcVideoLevels").innerHTML = "";
+    section.querySelector("#ttcVideoStage").innerHTML =
+      "<div class='ttc-video-pick'>" +
+        "<button type='button' id='ttcPickYoutube'>Học theo YouTube</button>" +
+        "<button type='button' id='ttcPickStory'>Video của trang</button>" +
+      "</div>";
+    section.querySelector("#ttcPickYoutube").addEventListener("click", function(){ source = "youtube"; render(); });
+    section.querySelector("#ttcPickStory").addEventListener("click", function(){ source = "story"; render(); });
+  }
+  function renderStoryList(){
+    stopStory();
+    var stage = section.querySelector("#ttcVideoStage");
+    var rows = storyLessons();
+    var html = "<p class='ttc-video-progress'>HSK " + level + " · " + rows.length + " video của trang</p><div class='ttc-video-grid'>";
+    rows.forEach(function(item, i){
+      html += "<button type='button' class='ttc-video-card ttc-story-card' data-i='" + i + "'><b>Bài " + (i + 1) + "</b><span>" + esc(item.title) + "</span></button>";
+    });
+    html += "</div>";
+    stage.innerHTML = html;
+    [].forEach.call(stage.querySelectorAll(".ttc-story-card"), function(card){
+      card.addEventListener("click", function(){
+        index = Number(card.getAttribute("data-i")) || 0;
+        storyLine = 0;
+        mode = "watch";
+        render();
+      });
+    });
+  }
+  function paintStory(item, rows){
+    var stage = document.getElementById("ttcStoryPoster");
+    var list = document.getElementById("ttcStoryLines");
+    if (!stage || !list) return;
+    var row = rows[storyLine] || ["","",""];
+    stage.innerHTML = "<button type='button' id='ttcStoryPlay'>Phát</button><b>" + esc(row[0] || item.title) + "</b><small>Câu " + (storyLine + 1) + "/" + rows.length + "</small>";
+    var playing = stage.getAttribute("data-playing") === "1";
+    stage.querySelector("#ttcStoryPlay").textContent = playing ? "Dừng" : "Phát";
+    list.innerHTML = rows.map(function(line, i){
+      return "<div class='ttc-video-line" + (i === storyLine ? " ttc-on" : "") + "' data-i='" + i + "'><div class='ttc-video-zh'>" + esc(line[0]) + "</div>" +
+        (showPy ? "<div class='ttc-video-py'>" + esc(line[1]) + "</div>" : "") +
+        (showVi ? "<div class='ttc-video-vi'>" + esc(line[2]) + "</div>" : "") + "</div>";
+    }).join("");
+    var current = list.querySelector(".ttc-on");
+    if (current) list.scrollTop = Math.max(0, current.offsetTop - 8);
+    [].forEach.call(list.querySelectorAll(".ttc-video-line"), function(line){
+      line.addEventListener("click", function(){
+        storyLine = Number(line.getAttribute("data-i")) || 0;
+        speakStory(item, rows, storyLine);
+      });
+    });
+    stage.querySelector("#ttcStoryPlay").addEventListener("click", function(){
+      if (stage.getAttribute("data-playing") === "1") { stopStory(); stage.setAttribute("data-playing","0"); paintStory(item, rows); }
+      else speakStory(item, rows, storyLine);
+    });
+  }
+  function speakStory(item, rows, at){
+    stopStory();
+    var my = storyToken;
+    storyLine = at;
+    var stage = document.getElementById("ttcStoryPoster");
+    if (stage) stage.setAttribute("data-playing", "1");
+    paintStory(item, rows);
+    var line = rows[at];
+    if (!line || !line[0]) return;
+    var moved = false;
+    function advance(){
+      if (moved || my !== storyToken) return;
+      moved = true;
+      if (at + 1 < rows.length) speakStory(item, rows, at + 1);
+      else {
+        var box = document.getElementById("ttcStoryPoster");
+        if (box) box.setAttribute("data-playing", "0");
+        paintStory(item, rows);
+      }
+    }
+    var wait = Math.max(1100, line[0].length * 340);
+    var timer = setTimeout(advance, wait);
+    try {
+      var u = new SpeechSynthesisUtterance(line[0]);
+      u.lang = "zh-CN";
+      u.onend = function(){ clearTimeout(timer); advance(); };
+      window.speechSynthesis.speak(u);
+    } catch (e) {}
+  }
+  function renderStoryWatch(){
+    var rowsAll = storyLessons();
+    var item = rowsAll[index];
+    if (!item) { mode = "list"; renderStoryList(); return; }
+    var cues = storyCues(item);
+    var stage = section.querySelector("#ttcVideoStage");
+    stage.innerHTML =
+      "<div id='ttcVideoWatch' class='ttc-story-watch'>" +
+        "<div class='ttc-video-tools ttc-story-nav'>" +
+          "<button type='button' id='ttcStoryBack'>← Danh sách</button>" +
+          "<button type='button' id='ttcStoryPrev'>Bài trước</button>" +
+          "<button type='button' id='ttcStoryNext'>Bài sau</button>" +
+          "<button type='button' id='ttcVideoPy'>Pinyin: " + (showPy ? "bật" : "tắt") + "</button>" +
+          "<button type='button' id='ttcVideoVi'>Dịch tiếng Việt: " + (showVi ? "bật" : "tắt") + "</button>" +
+        "</div>" +
+        "<div id='ttcStoryPoster' class='ttc-story-frame' data-playing='0'></div>" +
+        "<p id='ttcVideoMeta'>HSK " + level + " · Bài " + (index + 1) + "/" + rowsAll.length + " · " + esc(item.title) + "</p>" +
+        "<div id='ttcStoryLines'></div>" +
+      "</div>";
+    paintStory(item, cues);
+    stage.querySelector("#ttcStoryBack").addEventListener("click", function(){ stopStory(); mode = "list"; render(); });
+    stage.querySelector("#ttcStoryPrev").addEventListener("click", function(){ stopStory(); index = (index - 1 + rowsAll.length) % rowsAll.length; storyLine = 0; render(); });
+    stage.querySelector("#ttcStoryNext").addEventListener("click", function(){ stopStory(); index = (index + 1) % rowsAll.length; storyLine = 0; render(); });
+    stage.querySelector("#ttcVideoPy").addEventListener("click", function(){ showPy = !showPy; render(); });
+    stage.querySelector("#ttcVideoVi").addEventListener("click", function(){ showVi = !showVi; render(); });
   }
   function renderLevels(){
     var box = section.querySelector("#ttcVideoLevels");
@@ -164247,7 +164431,7 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
       b.textContent = "HSK " + n;
       if (String(n) === level) b.className = "ttc-on";
       b.addEventListener("click", function(lv){
-        return function(){ level = lv; index = 0; mode = "list"; render(); };
+        return function(){ stopStory(); level = lv; index = 0; storyLine = 0; mode = "list"; render(); };
       }(String(n)));
       box.appendChild(b);
     }
@@ -164301,33 +164485,37 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
     saveSeen();
     var stage = section.querySelector("#ttcVideoStage");
     var existing = document.getElementById("ttcVideoFrame");
+    var lines = lineHtml(item);
     if (existing && existing.src.indexOf("/embed/" + item.youtube) >= 0 && stage.querySelector("#ttcVideoOverlay")) {
       var py = stage.querySelector("#ttcVideoPy");
       var vi = stage.querySelector("#ttcVideoVi");
       var fs = stage.querySelector("#ttcVideoFs");
       if (py) py.textContent = "Pinyin: " + (showPy ? "bật" : "tắt");
-      if (vi) vi.textContent = "Dịch: " + (showVi ? "bật" : "tắt");
+      if (vi) vi.textContent = "Dịch tiếng Việt: " + (showVi ? "bật" : "tắt");
       if (fs) fs.textContent = fsLabel();
+      var box = stage.querySelector("#ttcVideoLines");
+      if (box) box.innerHTML = lines;
+      bindLines(item);
       return;
     }
     var src = "https://www.youtube-nocookie.com/embed/" + item.youtube + "?rel=0&fs=0&modestbranding=1&cc_load_policy=1&cc_lang_pref=zh-Hans&hl=zh-CN";
     stage.innerHTML =
       "<div id='ttcVideoWatch'>" +
-        "<div class='ttc-video-tools'>" +
-          "<button type='button' id='ttcVideoBack'>← Danh sách</button>" +
-          "<button type='button' id='ttcVideoPrev'>Bài trước</button>" +
-          "<button type='button' id='ttcVideoNext'>Bài sau</button>" +
-        "</div>" +
         "<div class='ttc-video-frame'>" +
           "<iframe id='ttcVideoFrame' title='Bài học tiếng Trung trên YouTube' src='" + src + "' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'></iframe>" +
           "<div id='ttcVideoOverlay' class='ttc-video-overlay'>" +
             "<button type='button' id='ttcVideoPy'>Pinyin: " + (showPy ? "bật" : "tắt") + "</button>" +
-            "<button type='button' id='ttcVideoVi'>Dịch: " + (showVi ? "bật" : "tắt") + "</button>" +
+            "<button type='button' id='ttcVideoVi'>Dịch tiếng Việt: " + (showVi ? "bật" : "tắt") + "</button>" +
             "<button type='button' id='ttcVideoFs'>" + fsLabel() + "</button>" +
+          "</div>" +
+          "<div class='ttc-video-tools'>" +
+            "<button type='button' id='ttcVideoBack'>← Danh sách</button>" +
+            "<button type='button' id='ttcVideoPrev'>Bài trước</button>" +
+            "<button type='button' id='ttcVideoNext'>Bài sau</button>" +
           "</div>" +
         "</div>" +
         "<p id='ttcVideoMeta'>HSK " + level + " · Bài " + (index + 1) + "/" + rows.length + " · " + esc(item.title) + "</p>" +
-        "<p id='ttcVideoCaption' class='ttc-video-caption-note'>Chữ đang đọc nằm trên phụ đề của video. Khung này không gắn bài đọc HSK vào trong.</p>" +
+        "<div id='ttcVideoLines'>" + lines + "</div>" +
       "</div>";
     stage.querySelector("#ttcVideoBack").addEventListener("click", function(){
       var watch = document.getElementById("ttcVideoWatch");
@@ -164364,6 +164552,7 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
       var fs = document.getElementById("ttcVideoFs");
       if (fs) fs.textContent = fsLabel();
     });
+    bindLines(item);
     requestAnimationFrame(function(){
       var frame = stage.querySelector(".ttc-video-frame");
       if (!frame) return;
@@ -164372,8 +164561,15 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
     });
   }
   function render(){
-    section.classList.toggle("ttc-video-watching", mode === "watch");
+    section.classList.toggle("ttc-video-watching", mode === "watch" && source !== "pick");
+    renderSources();
+    if (source === "pick") { renderPick(); return; }
     renderLevels();
+    if (source === "story") {
+      if (mode === "watch") renderStoryWatch();
+      else renderStoryList();
+      return;
+    }
     if (mode === "watch") renderWatch();
     else renderList();
   }
@@ -164387,6 +164583,7 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
     btn.setAttribute("aria-expanded", open ? "true" : "false");
     if (open) render();
     else {
+      stopStory();
       var frame = document.getElementById("ttcVideoFrame");
       if (frame) frame.src = "about:blank";
       mode = "list";
