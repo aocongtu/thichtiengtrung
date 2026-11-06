@@ -2799,7 +2799,7 @@ body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; 
       <li><strong>Học từ.</strong> Mở thẻ flashcard, hoặc bấm học tự động để nghe từ và câu ví dụ. Bấm lần nữa thì thu gọn.</li>
       <li><strong>Xem video.</strong> Nút “Học tiếng Trung qua video” màu trắng khi chưa học. Bấm vào mới mở bài và nút chuyển đỏ.</li>
       <li><strong>Đọc và nghe.</strong> Khu luyện đọc có bài theo cấp độ. Khu luyện nghe để nghe rồi gõ lại cho đúng chính tả.</li>
-      <li><strong>Luyện thi.</strong> Trong Khu luyện thi HSK, phần nghe có hình, câu chữ được giấu. Anh nghe rồi gõ lại câu, không nhìn sẵn đáp án.</li>
+      <li><strong>Luyện thi.</strong> Trong Khu luyện thi HSK, phần nghe có hình minh họa. Câu được giấu. Anh nghe rồi chọn Đúng hoặc Sai, hoặc chọn đáp án phía dưới.</li>
       <li><strong>Tra từ.</strong> Ô tìm kiếm nhận Hán tự, pinyin hoặc tiếng Việt. Có thể vẽ, chụp ảnh hoặc nói.</li>
     </ol>
   </section>
@@ -145796,7 +145796,7 @@ renderQuestions =
 
         if(
           item.picture &&
-          item.picture.icon
+          item.picture.svg
         ){
 
           const picture =
@@ -145808,9 +145808,8 @@ renderQuestions =
             "wh-hsk-picture";
 
           picture.innerHTML =
-            "<span>" +
-            item.picture.icon +
-            "</span>";
+            "<div class='wh-hsk-picture-label'>Hình minh họa</div>" +
+            item.picture.svg;
 
           card.appendChild(
             picture
@@ -164849,59 +164848,128 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
     };
   }
 
+  function sceneSvg(kind){
+    const art = {
+      food: '<rect x="70" y="78" width="100" height="36" rx="18" fill="#f8fafc" stroke="#0f172a" stroke-width="4"/><path d="M78 78c8-24 28-24 36 0" fill="none" stroke="#0f172a" stroke-width="4"/><path d="M118 78c8-24 28-24 36 0" fill="none" stroke="#0f172a" stroke-width="4"/><circle cx="108" cy="92" r="6" fill="#fb923c"/><circle cx="128" cy="96" r="5" fill="#22c55e"/>',
+      drink: '<path d="M86 48h68l-8 70a16 16 0 0 1-16 14h-20a16 16 0 0 1-16-14z" fill="#bae6fd" stroke="#0f172a" stroke-width="4"/><path d="M154 62h18v28h-14" fill="none" stroke="#0f172a" stroke-width="4"/>',
+      book: '<path d="M48 52h72v78H48z" fill="#fff" stroke="#0f172a" stroke-width="4"/><path d="M120 52h72v78h-72z" fill="#dbeafe" stroke="#0f172a" stroke-width="4"/><path d="M64 72h40M64 90h40M136 72h40M136 90h40" stroke="#64748b" stroke-width="3"/>',
+      house: '<path d="M40 108V78L120 40l80 38v30" fill="#fee2e2" stroke="#0f172a" stroke-width="4"/><rect x="96" y="96" width="36" height="40" fill="#fff" stroke="#0f172a" stroke-width="4"/><rect x="58" y="88" width="22" height="18" fill="#bfdbfe" stroke="#0f172a" stroke-width="3"/>',
+      people: '<circle cx="92" cy="62" r="18" fill="#fde68a" stroke="#0f172a" stroke-width="4"/><circle cx="148" cy="66" r="16" fill="#fde68a" stroke="#0f172a" stroke-width="4"/><path d="M62 132c6-28 28-36 46-28 16 8 28 4 40-10 14 8 36 10 46 38" fill="#bfdbfe" stroke="#0f172a" stroke-width="4"/>',
+      travel: '<rect x="36" y="78" width="150" height="42" rx="10" fill="#fde68a" stroke="#0f172a" stroke-width="4"/><circle cx="72" cy="126" r="12" fill="#0f172a"/><circle cx="156" cy="126" r="12" fill="#0f172a"/><rect x="52" y="88" width="28" height="16" fill="#bfdbfe"/>',
+      shop: '<rect x="70" y="46" width="100" height="78" rx="8" fill="#fecaca" stroke="#0f172a" stroke-width="4"/><path d="M78 46l-16 28h116l-16-28" fill="#fff" stroke="#0f172a" stroke-width="4"/><rect x="108" y="86" width="24" height="38" fill="#fff" stroke="#0f172a" stroke-width="3"/>',
+      time: '<circle cx="120" cy="86" r="46" fill="#fff" stroke="#0f172a" stroke-width="4"/><path d="M120 86V58M120 86l24 14" stroke="#0f172a" stroke-width="4" stroke-linecap="round"/>',
+      smile: '<circle cx="120" cy="86" r="48" fill="#fde68a" stroke="#0f172a" stroke-width="4"/><circle cx="102" cy="76" r="5" fill="#0f172a"/><circle cx="138" cy="76" r="5" fill="#0f172a"/><path d="M98 100c8 14 36 14 44 0" fill="none" stroke="#0f172a" stroke-width="4"/>',
+      health: '<rect x="96" y="48" width="48" height="76" rx="8" fill="#fff" stroke="#0f172a" stroke-width="4"/><path d="M120 66v40M100 86h40" stroke="#ef4444" stroke-width="8" stroke-linecap="round"/>',
+      weather: '<circle cx="86" cy="70" r="24" fill="#facc15" stroke="#0f172a" stroke-width="4"/><path d="M78 108h92a24 24 0 0 0-8-46 28 28 0 0 0-52 8" fill="#fff" stroke="#0f172a" stroke-width="4"/>',
+      phone: '<rect x="88" y="40" width="64" height="100" rx="12" fill="#e0f2fe" stroke="#0f172a" stroke-width="4"/><circle cx="120" cy="124" r="6" fill="#0f172a"/>',
+      work: '<rect x="58" y="70" width="124" height="58" rx="8" fill="#bfdbfe" stroke="#0f172a" stroke-width="4"/><path d="M96 70v-12a24 24 0 0 1 48 0v12" fill="none" stroke="#0f172a" stroke-width="4"/>',
+      sport: '<circle cx="120" cy="88" r="40" fill="#fff" stroke="#0f172a" stroke-width="4"/><path d="M80 88h80M120 48c16 16 16 64 0 80M120 48c-16 16-16 64 0 80" fill="none" stroke="#0f172a" stroke-width="3"/>',
+      animal: '<circle cx="120" cy="92" r="34" fill="#fdba74" stroke="#0f172a" stroke-width="4"/><circle cx="92" cy="58" r="12" fill="#fdba74" stroke="#0f172a" stroke-width="4"/><circle cx="148" cy="58" r="12" fill="#fdba74" stroke="#0f172a" stroke-width="4"/><circle cx="108" cy="88" r="4" fill="#0f172a"/><circle cx="132" cy="88" r="4" fill="#0f172a"/>',
+      clothes: '<path d="M84 50l36-16 36 16 18 28-24 10v48H90V88L66 78z" fill="#bfdbfe" stroke="#0f172a" stroke-width="4"/>',
+      sleep: '<path d="M48 108h144v16H48z" fill="#cbd5e1" stroke="#0f172a" stroke-width="4"/><path d="M70 108V78h70v30" fill="#fff" stroke="#0f172a" stroke-width="4"/><circle cx="154" cy="72" r="16" fill="#fde68a" stroke="#0f172a" stroke-width="4"/>',
+      hello: '<circle cx="120" cy="52" r="18" fill="#fde68a" stroke="#0f172a" stroke-width="4"/><path d="M96 130c4-34 20-46 24-46s20 12 24 46" fill="#bfdbfe" stroke="#0f172a" stroke-width="4"/><path d="M144 78c18-20 36-8 32 10" fill="none" stroke="#0f172a" stroke-width="4"/>',
+      place: '<path d="M40 120h160" stroke="#0f172a" stroke-width="4"/><path d="M48 120l28-52 36 28 28-40 40 64" fill="#bbf7d0" stroke="#0f172a" stroke-width="4"/><circle cx="168" cy="52" r="14" fill="#facc15" stroke="#0f172a" stroke-width="3"/>'
+    };
+    const body = art[kind] || art.place;
+    return '<svg viewBox="0 0 240 160" width="240" height="160" aria-hidden="true">' +
+      '<rect x="8" y="8" width="224" height="144" rx="18" fill="#fff7ed" stroke="#fdba74" stroke-width="3"/>' +
+      body + '</svg>';
+  }
   function pictureOf(word){
     const text = (String(word.m||"")+" "+String(word.exampleMeaning||"")).toLowerCase();
     const rows = [
-      [/ăn|cơm|thức ăn|đói|bữa/, "🍚"],
-      [/uống|nước|trà|cà phê|sữa/, "🥤"],
-      [/học|trường|lớp|sách|đọc|viết|chữ/, "📚"],
-      [/nhà|phòng|cửa|bàn|ghế/, "🏠"],
-      [/mẹ|bố|ba |cha |gia đình|bạn|con/, "👨‍👩‍👧"],
-      [/đi |xe|tàu|máy bay|đường|bus/, "🚌"],
-      [/mua|tiền|cửa hàng|giá/, "🛍️"],
-      [/giờ|ngày|tháng|năm|hôm|tuần|sáng|tối/, "⏰"],
-      [/thích|yêu|vui|buồn|đẹp/, "😊"],
-      [/bệnh|đau|bác sĩ|thuốc|khỏe/, "🩺"],
-      [/mưa|nắng|lạnh|nóng|trời/, "⛅"],
-      [/điện thoại|máy tính|mạng/, "📱"],
-      [/làm việc|công ty|văn phòng|nghề/, "💼"],
-      [/bóng|chạy|thể thao|bơi/, "⚽"],
-      [/mèo|chó|chim|cá|động vật/, "🐾"],
-      [/áo|quần|mặc|giày/, "👕"],
-      [/ngủ|giường|nghỉ/, "🛏️"],
-      [/chào|tên|gọi/, "👋"]
+      [/ăn|cơm|thức ăn|đói|bữa/, "food"],
+      [/uống|nước|trà|cà phê|sữa/, "drink"],
+      [/học|trường|lớp|sách|đọc|viết|chữ/, "book"],
+      [/nhà|phòng|cửa|bàn|ghế/, "house"],
+      [/mẹ|bố|ba |cha |gia đình|bạn|con|người/, "people"],
+      [/đi |xe|tàu|máy bay|đường|bus/, "travel"],
+      [/mua|tiền|cửa hàng|giá/, "shop"],
+      [/giờ|ngày|tháng|năm|hôm|tuần|sáng|tối/, "time"],
+      [/thích|yêu|vui|buồn|đẹp/, "smile"],
+      [/bệnh|đau|bác sĩ|thuốc|khỏe/, "health"],
+      [/mưa|nắng|lạnh|nóng|trời/, "weather"],
+      [/điện thoại|máy tính|mạng/, "phone"],
+      [/làm việc|công ty|văn phòng|nghề/, "work"],
+      [/bóng|chạy|thể thao|bơi/, "sport"],
+      [/mèo|chó|chim|cá|động vật/, "animal"],
+      [/áo|quần|mặc|giày/, "clothes"],
+      [/ngủ|giường|nghỉ/, "sleep"],
+      [/chào|tên|gọi/, "hello"]
     ];
     for(let i=0;i<rows.length;i++){
-      if(rows[i][0].test(text)) return {icon: rows[i][1]};
+      if(rows[i][0].test(text)) return {svg: sceneSvg(rows[i][1])};
     }
-    const icons = ["🖼️","🌿","⭐","🎯","📘","🧩","🌸","🔔"];
-    const n = Array.from(String(word.h||"x")).reduce(function(sum, ch){ return sum + ch.charCodeAt(0); }, 0);
-    return {icon: icons[n % icons.length]};
-  }
-  function listeningQuestion(part, word, audio){
-    const heard = part.slice();
-    heard[2] = "Xem hình, bấm nghe, rồi gõ lại câu tiếng Trung. Câu không hiện sẵn.";
-    return pack(heard, {
-      q: "看图，听句子，然后写下你听到的句子。",
-      qMeaning: "Nghe xong hãy gõ lại đúng câu tiếng Trung vào ô bên dưới.",
-      options: [],
-      answer: 0,
-      analysis: ["Đáp án là câu vừa được đọc. Dấu câu không bắt buộc."],
-      audioText: audio,
-      inputMode: "dictation",
-      answerText: audio,
-      picture: pictureOf(word),
-      h: word.h,
-      m: word.m
-    });
+    return {svg: sceneSvg("place")};
   }
   function make(type, word, pool, rng, part){
     const rest = others(pool, word, rng, 3);
     while(rest.length<3) rest.push(pool[rest.length%pool.length]);
-    if(type==="listen-tf") return listeningQuestion(part, word, zh(word));
-    if(type==="listen-meaning") return listeningQuestion(part, word, zh(word));
-    if(type==="listen-reply") return listeningQuestion(part, word, "请问，"+zh(word).replace(/[。！？]$/,"")+"吗？");
-    if(type==="listen-word") return listeningQuestion(part, word, zh(word));
+    if(type==="listen-tf"){
+      const truth = rng()<0.5;
+      const shown = truth ? word : rest[0];
+      const answer = truth ? 0 : 1;
+      const heard = part.slice();
+      heard[2] = "Xem hình, bấm nghe, rồi chọn Đúng hoặc Sai. Câu không hiện sẵn.";
+      return pack(heard, {
+        q: "看图，听句子，判断对错。",
+        qMeaning: "Nghe câu. Chọn Đúng nếu câu khớp hình, Sai nếu không khớp.",
+        options: ["对    Đúng", "错    Sai"],
+        optionPinyin: ["duì", "cuò"],
+        optionMeaning: ["Câu nghe được khớp với hình.", "Câu nghe được không khớp với hình."],
+        answer: answer,
+        analysis: [
+          answer===0 ? "ĐÚNG: câu vừa nghe nói đúng nội dung hình." : "SAI: câu vừa nghe không nói về hình này.",
+          answer===1 ? "ĐÚNG: câu vừa nghe không khớp hình, nên chọn Sai." : "SAI: câu vừa nghe khớp hình, không chọn Sai."
+        ],
+        audioText: zh(word),
+        picture: pictureOf(shown),
+        h: word.h, m: word.m
+      });
+    }
+    if(type==="listen-meaning"){
+      const picked = choices(vi(word), rest.map(vi), rng, "nghĩa của câu vừa nghe");
+      const heard = part.slice();
+      heard[2] = "Xem hình, nghe câu, rồi chọn nghĩa đúng. Câu không hiện sẵn.";
+      return pack(heard, {
+        q: "请听句子，选择正确的意思。",
+        qMeaning: "Chọn nghĩa tiếng Việt đúng với câu vừa nghe.",
+        options: picked.options, answer: picked.answer, analysis: picked.analysis,
+        optionMeaning: picked.options.slice(),
+        audioText: zh(word), picture: pictureOf(word), h: word.h, m: word.m
+      });
+    }
+    if(type==="listen-reply"){
+      const correct = "是的，"+zh(word);
+      const wrongs = rest.map(function(w){ return "不是，"+zh(w); });
+      const picked = choices(correct, wrongs, rng, "câu trả lời hợp với câu hỏi");
+      const heard = part.slice();
+      heard[2] = "Nghe câu hỏi, xem hình, rồi chọn câu trả lời.";
+      return pack(heard, {
+        q: "请听问题，选择最合适的回答。",
+        qMeaning: "Nghe câu hỏi rồi chọn câu đáp.",
+        options: picked.options,
+        optionPinyin: ["","","",""],
+        optionMeaning: ["","","",""],
+        answer: picked.answer, analysis: picked.analysis,
+        audioText: "请问，"+zh(word).replace(/[。！？]$/,"")+"吗？",
+        picture: pictureOf(word), h: word.h, m: word.m
+      });
+    }
+    if(type==="listen-word"){
+      const picked = choices(word.h, rest.map(function(w){ return w.h; }), rng, "từ được nhắc trong câu");
+      const heard = part.slice();
+      heard[2] = "Nghe câu, xem hình, rồi chọn từ được nhắc tới.";
+      return pack(heard, {
+        q: "请听句子，选择句子里提到的词。",
+        qMeaning: "Chọn từ xuất hiện trong câu vừa nghe.",
+        options: picked.options,
+        optionPinyin: picked.options.map(function(){ return ""; }),
+        optionMeaning: picked.options.map(function(){ return ""; }),
+        answer: picked.answer, analysis: picked.analysis,
+        audioText: zh(word), picture: pictureOf(word), h: word.h, m: word.m
+      });
+    }
     if(type==="read-tf"){
       const truth = rng()<0.5;
       const statement = truth ? vi(word) : vi(rest[0]);
@@ -164909,7 +164977,7 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
       return pack(part, {
         q: "读句子，判断意思对不对。\n"+statement,
         qMeaning: "Đọc câu tiếng Trung và xét câu tiếng Việt.",
-        options:["对","错"],
+        options:["对    Đúng","错    Sai"],
         optionPinyin:["duì","cuò"],
         optionMeaning:["Đúng","Sai"],
         answer: answer,
@@ -165158,8 +165226,9 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
   #ttcStarterPanel[hidden]{display:none !important}
   #ttcStarterPanel ol{margin:8px 0 0;padding-left:18px}
   #ttcStarterPanel li{margin:6px 0;line-height:1.45}
-  .wh-hsk-picture{display:flex;align-items:center;justify-content:center;min-height:148px;margin:10px auto;border-radius:18px;background:linear-gradient(160deg,#fff7ed,#e0f2fe);border:1px solid #fed7aa}
-  .wh-hsk-picture span{font-size:72px;line-height:1}
+  .wh-hsk-picture{display:flex !important;flex-direction:column;align-items:center !important;justify-content:center;gap:6px;width:min(320px,100%) !important;min-height:180px;margin:12px auto !important;padding:10px;border-radius:18px;background:#fff7ed;border:2px solid #fb923c;text-align:center !important}
+  .wh-hsk-picture-label{font-size:13px;font-weight:800;color:#9a3412}
+  .wh-hsk-picture svg{width:min(280px,100%);height:auto;display:block}
   .wh-hsk-dictation{width:100%;box-sizing:border-box;min-height:74px;margin-top:8px;padding:12px;border:1px solid #cbd5e1;border-radius:14px;font-size:22px;font-weight:700}
   #ttcVideoSection{width:min(560px,100%);max-width:100%;margin:8px auto 0;padding:14px;background:#fff;border:1px solid #fecdd3;border-radius:16px}
   #ttcVideoSection.ttc-video-watching{width:min(560px,100%);max-width:100%}
