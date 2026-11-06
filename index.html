@@ -36,17 +36,39 @@ h1{
   max-width:900px;
   margin:auto;
   display:flex;
-  gap:10px;
+  gap:8px;
+  flex-wrap:wrap;
 }
 
 .search input{
-  flex:1;
+  flex:1 1 220px;
   padding:14px 18px;
   border-radius:14px;
   border:2px solid #a8d1ef;
   font-size:17px;
   outline:none;
 }
+
+.ttc-theme-slot{position:relative;display:flex;justify-content:center;margin:0 auto 12px}
+#ttcThemeButton{border-radius:999px;padding:10px 18px;background:#111827;color:#fff}
+.ttc-theme-menu{position:absolute;top:48px;z-index:30;display:grid;grid-template-columns:1fr 1fr;gap:6px;width:min(280px,90vw);padding:10px;border-radius:14px;background:#fff;border:1px solid #dbe4ee;box-shadow:0 12px 30px rgba(15,23,42,.16)}
+.ttc-theme-menu[hidden]{display:none !important}
+.ttc-theme-menu button{background:#f8fafc;color:#1e293b;border:1px solid #e2e8f0}
+.ttc-draw-box{max-width:900px;margin:10px auto 0;padding:10px;border:1px solid #dbe4ee;border-radius:14px;background:#fff}
+#ttcDrawCanvas{display:block;width:100%;height:180px;border:1px dashed #94a3b8;border-radius:12px;background:#fff;touch-action:none}
+.ttc-draw-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+#ttcOcrStatus{margin:8px 0 0;color:#475569;font-size:14px}
+html[data-theme="night"] body{background:#0b1220 !important;color:#e5e7eb !important}
+html[data-theme="night"] body :is(header,main,section,article,nav,.auto-learning,.search,.ttc-draw-box,.ttc-theme-menu){background:#111827 !important;color:#e5e7eb !important;border-color:#334155 !important}
+html[data-theme="night"] input,html[data-theme="night"] textarea,html[data-theme="night"] select{background:#1e293b !important;color:#f8fafc !important;border-color:#475569 !important}
+html[data-theme="paper"] body{background:#f6f1e7 !important;color:#3f2e1e !important}
+html[data-theme="paper"] body :is(header,main,section,article,.auto-learning){background:#fffaf3 !important}
+html[data-theme="forest"] body{background:#ecfdf3 !important;color:#14532d !important}
+html[data-theme="forest"] body :is(header,main,section,article,.auto-learning){background:#f0fdf4 !important}
+html[data-theme="sea"] body{background:#e0f2fe !important;color:#0c4a6e !important}
+html[data-theme="sea"] body :is(header,main,section,article,.auto-learning){background:#f0f9ff !important}
+html[data-theme="sunset"] body{background:#fff1f2 !important;color:#881337 !important}
+html[data-theme="sunset"] body :is(header,main,section,article,.auto-learning){background:#fff7ed !important}
 
 button{
   border:0;
@@ -2625,28 +2647,21 @@ body.ttc-reading-open #thttGrammarLauncher{display:none!important;visibility:hid
 #ttcListeningSection .ttc-listen-detail{margin-top:12px;padding:15px;border:1px solid #fed7aa;border-radius:15px;background:#fff}
 #ttcListeningSection .ttc-listen-detail h3{margin:0 0 10px;color:#9a3412;font-size:22px}
 #ttcListeningSection .ttc-listen-mode-label{font-weight:700;color:#9a3412}
-#ttcListeningSection .ttc-listen-editor-wrap{margin-top:14px;border:1px solid #d6d3d1;border-radius:13px;overflow:hidden;background:#fff}
-#ttcListeningSection .ttc-listen-editor-toolbar{display:flex;gap:5px;flex-wrap:wrap;padding:9px;background:#fafaf9;border-bottom:1px solid #e7e5e4}
-#ttcListeningSection .ttc-listen-editor-toolbar button{padding:7px 10px;border:1px solid #d6d3d1;border-radius:7px;background:#fff;color:#44403c;font-size:13px}
-#ttcListeningSection .ttc-listen-editor{min-height:240px;padding:15px;outline:none;font-size:19px;line-height:1.9;color:#1c1917;white-space:pre-wrap;overflow-wrap:anywhere}
-#ttcListeningSection .ttc-listen-editor:empty:before{content:attr(data-placeholder);color:#a8a29e;pointer-events:none}
-#ttcListeningSection .ttc-listen-editor:focus{box-shadow:inset 0 0 0 2px rgba(249,115,22,.12)}
-#ttcListeningSection .ttc-listen-check-result{display:none;margin-top:14px;padding:13px;border:1px solid #e7e5e4;border-radius:12px;background:#fafaf9;font-size:18px;line-height:2;white-space:pre-wrap;overflow-wrap:anywhere}
-#ttcListeningSection .ttc-listen-check-result.visible{display:block}
-#ttcListeningSection .ttc-listen-live-wrap{margin-top:12px;padding:10px;border:1px dashed #fdba74;border-radius:12px;background:#fffbeb}
-#ttcListeningSection .ttc-listen-live-wrap>strong{display:block;color:#9a3412;margin-bottom:6px}
-#ttcListeningSection .ttc-check-correct{color:#15803d;background:#dcfce7;border-radius:4px}
-#ttcListeningSection .ttc-check-wrong{color:#b91c1c;background:#fee2e2;border-radius:4px;text-decoration:underline wavy #ef4444}
-#ttcListeningSection .ttc-check-missing{color:#b91c1c;background:#ffedd5;border:1px dashed #f97316;border-radius:4px;font-weight:700;letter-spacing:1px}
-#ttcListeningSection .ttc-listen-answer{display:none;margin-top:12px;padding:14px;border:1px solid #fed7aa;border-radius:12px;background:#fff7ed;line-height:1.9;white-space:pre-wrap}
-#ttcListeningSection .ttc-listen-answer.visible{display:block}
+#ttcListeningSection .ttc-listen-answer{display:block;max-height:30vh;overflow:auto;margin-top:12px;padding:14px;border:1px solid #fed7aa;border-radius:12px;background:#fff7ed;line-height:1.9;white-space:pre-wrap}
 #ttcListeningSection .ttc-listen-answer .py{display:block;margin-top:7px;color:#0f766e;font-size:15px}
 #ttcListeningSection .ttc-listen-answer .vi{display:block;margin-top:7px;color:#475569;font-size:15px}
+#ttcListeningSection .ttc-listen-field{position:relative;margin-top:12px;min-height:66vh;border:1px solid #d6d3d1;border-radius:13px;background:#fff;overflow:hidden}
+#ttcListeningSection .ttc-listen-mirror,#ttcListeningSection #ttcListenEditor{box-sizing:border-box;min-height:66vh;margin:0;padding:16px;border:0;font-family:"Segoe UI","Microsoft YaHei UI","Microsoft YaHei",sans-serif;font-size:22px;font-weight:700;line-height:1.8;letter-spacing:0;white-space:pre-wrap;word-break:break-all;overflow-wrap:anywhere}
+#ttcListeningSection .ttc-listen-mirror{position:absolute;inset:0;pointer-events:none;color:transparent;overflow:hidden}
+#ttcListeningSection #ttcListenEditor{position:relative;display:block;width:100%;resize:vertical;background:transparent;color:#1c1917;outline:none}
+#ttcListeningSection .ttc-listen-field.ttc-checking #ttcListenEditor{color:transparent;caret-color:#9a3412}
+#ttcListeningSection .ttc-listen-mirror .ok{color:#15803d}
+#ttcListeningSection .ttc-listen-mirror .bad{color:#b91c1c;text-decoration:underline wavy #ef4444}
 #ttcListeningSection .ttc-listen-status{min-height:24px;margin-top:10px;color:#78716c;font-size:13px}
 #ttcListeningSection .ttc-listen-settings{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:10px 0}
 #ttcListeningSection .ttc-listen-settings label{display:flex;align-items:center;gap:6px;font-size:14px;color:#57534e}
 #ttcListeningSection select{max-width:100%;padding:8px;border:1px solid #d6d3d1;border-radius:9px;background:#fff;color:#44403c}
-@media(max-width:600px){#ttcListeningSection{padding:13px}#ttcListeningSection .ttc-listen-levels{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}#ttcListeningSection .ttc-listen-editor{min-height:200px;font-size:17px;padding:12px}#ttcListeningSection .ttc-listen-editor-toolbar button{padding:7px 8px}#ttcListeningLauncher{font-size:15px;padding:13px}}
+@media(max-width:600px){#ttcListeningSection{padding:13px}#ttcListeningSection .ttc-listen-levels{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}#ttcListeningSection .ttc-listen-mirror,#ttcListeningSection #ttcListenEditor{min-height:66vh;font-size:20px;padding:12px}#ttcListeningLauncher{font-size:15px;padding:13px}}
 </style>
 <style id="ttc-script-switch-style">
 .ttc-script-switch-wrap{display:flex;justify-content:center;align-items:center;width:100%;margin:-7px auto 16px}
@@ -2759,6 +2774,18 @@ body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; 
 
 <header>
 
+<div class="ttc-theme-slot">
+  <button type="button" id="ttcThemeButton" aria-expanded="false">🎨 Giao diện</button>
+  <div id="ttcThemeMenu" class="ttc-theme-menu" hidden>
+    <button type="button" data-theme="day">Ban ngày</button>
+    <button type="button" data-theme="night">Ban đêm</button>
+    <button type="button" data-theme="paper">Giấy</button>
+    <button type="button" data-theme="forest">Rừng</button>
+    <button type="button" data-theme="sea">Biển</button>
+    <button type="button" data-theme="sunset">Hoàng hôn</button>
+  </div>
+</div>
+
 <h1>
    THÍCH TIẾNG TRUNG
 <span style="font-size:18px"></span>
@@ -2774,6 +2801,19 @@ body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; 
  placeholder="🔎 Tìm Hán tự, Pinyin, nghĩa tiếng Việt..."
 >
 <button onclick="searchWords()">Tìm</button>
+<button type="button" id="ttcDrawSearch">✍️ Vẽ</button>
+<button type="button" id="ttcPhotoSearch">📷 Ảnh</button>
+<button type="button" id="ttcVoiceSearch">🎤 Nói</button>
+<input id="ttcPhotoFile" type="file" accept="image/*" hidden>
+</div>
+<div id="ttcDrawBox" class="ttc-draw-box" hidden>
+  <canvas id="ttcDrawCanvas" width="640" height="220"></canvas>
+  <div class="ttc-draw-actions">
+    <button type="button" id="ttcDrawClear">Xóa nét</button>
+    <button type="button" id="ttcDrawRead">Nhận chữ</button>
+    <button type="button" id="ttcDrawClose">Đóng</button>
+  </div>
+  <p id="ttcOcrStatus"></p>
 </div>
 
 </header>
@@ -4742,7 +4782,7 @@ body > .price-box{
 <button type="button" id="ttcListeningLauncher" aria-expanded="false">🎧 Khu luyện nghe gõ theo HSK ✨</button>
 <section id="ttcListeningSection" aria-label="Khu luyện nghe gõ theo HSK" style="display:none">
   <div class="ttc-listen-head"><h2>🎧 Khu luyện nghe gõ theo HSK</h2><button type="button" class="ttc-listen-btn" id="ttcListenHelpBtn">❔ Cách học</button></div>
-  <p class="ttc-listen-note" id="ttcListenHelp" hidden>Chọn cấp độ và bài đọc, nghe rồi gõ lại bằng tiếng Trung. Nội dung đối chiếu lấy trực tiếp từ thư viện Khu luyện đọc HSK. Nhấn CHECK VAR để xem chữ đúng, chữ sai và vị trí còn thiếu. Bài làm chỉ giữ trong phiên hiện tại, không tự động lưu.</p>
+  <p class="ttc-listen-note" id="ttcListenHelp" hidden>Mở cả bài đọc HSK, nhìn mẫu và chép lại vào khung lớn. Nghe cả bài sẽ được đọc từng đoạn nối tiếp. Bật CHECK VAR để chính chữ trong khung đổi màu ngay khi gõ: đúng thì xanh, sai thì đỏ.</p>
   <div class="ttc-listen-levels" id="ttcListenLevels"></div>
   <div class="ttc-listen-nav" id="ttcListenNav" hidden><button type="button" class="ttc-listen-btn" id="ttcListenBackLevels">← Tất cả HSK</button><span class="ttc-listen-nav-title" id="ttcListenNavTitle"></span></div>
   <div id="ttcListenList" hidden></div>
@@ -4754,30 +4794,15 @@ body > .price-box{
     </div>
     <div class="ttc-listen-controls">
       <button type="button" class="ttc-listen-btn primary" id="ttcListenWhole">🔊 Nghe cả bài</button>
-      <button type="button" class="ttc-listen-btn primary" id="ttcListenSegmentMode">🎧 Nghe từng đoạn</button>
-      <button type="button" class="ttc-listen-btn primary" id="ttcListenPlayCurrent">🔊 Nghe tiếp</button>
       <button type="button" class="ttc-listen-btn" id="ttcListenStop">⏹ Dừng</button>
-      <button type="button" class="ttc-listen-btn" id="ttcListenReveal">👁 Bật xem</button>
-    </div>
-    <div class="ttc-listen-mode-label" id="ttcListenModeLabel">Chọn chế độ nghe để bắt đầu.</div>
-    <div class="ttc-listen-answer" id="ttcListenAnswer" aria-live="polite"></div>
-    <div class="ttc-listen-editor-wrap">
-      <div class="ttc-listen-editor-toolbar" aria-label="Công cụ soạn thảo">
-        <button type="button" data-cmd="bold" title="In đậm"><b>B</b></button><button type="button" data-cmd="italic" title="In nghiêng"><i>I</i></button><button type="button" data-cmd="underline" title="Gạch chân"><u>U</u></button>
-        <button type="button" data-cmd="justifyLeft" title="Căn trái">☰←</button><button type="button" data-cmd="justifyCenter" title="Căn giữa">☰↔</button><button type="button" data-cmd="insertUnorderedList" title="Danh sách">• Danh sách</button>
-        <button type="button" data-cmd="undo" title="Hoàn tác">↶</button><button type="button" data-cmd="redo" title="Làm lại">↷</button>
-        <button type="button" data-insert="，">，</button><button type="button" data-insert="。">。</button><button type="button" data-insert="？">？</button><button type="button" data-insert="！">！</button>
-      </div>
-      <div id="ttcListenEditor" class="ttc-listen-editor" contenteditable="true" role="textbox" aria-multiline="true" data-placeholder="Bấm vào đây và gõ lại những gì anh/chị nghe được…"></div>
-    </div>
-    <div class="ttc-listen-controls">
-      <button type="button" class="ttc-listen-btn primary" id="ttcListenCheck" aria-pressed="false">🧩 CHECK VAR trực tiếp: TẮT</button>
-      <button type="button" class="ttc-listen-btn" id="ttcListenPrev">⬅️ Đoạn phía trước</button>
-      <button type="button" class="ttc-listen-btn" id="ttcListenNext">➡️ Đoạn tiếp theo</button>
+      <button type="button" class="ttc-listen-btn primary" id="ttcListenCheck" aria-pressed="false">🧩 CHECK VAR: TẮT</button>
       <button type="button" class="ttc-listen-btn" id="ttcListenClear">🧹 Xóa bài gõ</button>
     </div>
-    <div class="ttc-listen-check-result" id="ttcListenCheckResult" hidden aria-hidden="true"></div>
-    <div class="ttc-listen-live-wrap"><strong>Kết quả CHECK VAR</strong><div class="ttc-listen-check-result" id="ttcListenLiveResult" aria-live="polite"></div></div>
+    <div class="ttc-listen-answer" id="ttcListenAnswer" aria-live="polite"></div>
+    <div class="ttc-listen-field" id="ttcListenField">
+      <div class="ttc-listen-mirror" id="ttcListenMirror" aria-hidden="true"></div>
+      <textarea id="ttcListenEditor" aria-label="Khung chép bài"></textarea>
+    </div>
     <div class="ttc-listen-status" id="ttcListenStatus" role="status"></div>
   </div>
 </section>
@@ -127635,7 +127660,632 @@ BẢN HOÀN CHỈNH V3.1
     note:"书面语常用。"
   }
 
-]
+],
+
+    7: [
+
+      {
+        id:"hsk7_01",
+        pattern:"不但……而且……",
+        title:"不但……而且…… — không những… mà còn…",
+        structure:"不但 A，而且 B",
+        example:"他不但会说汉语，而且写得也很好。",
+        pinyin:"Tā búdàn huì shuō Hànyǔ, érqiě xiě de yě hěn hǎo.",
+        meaning:"Anh ấy không những nói được tiếng Trung, mà viết cũng rất tốt.",
+        explanation:"Mẫu này nối hai ý cùng chiều. Ý sau mạnh hơn hoặc bổ sung cho ý trước. A và B phải cùng hướng: cả hai đều tốt, hoặc cả hai đều khó. Không dùng để nối hai ý trái nhau.",
+        note:"Không đảo thành 而且 đứng trước 不但. Nếu muốn nói ý trái, dùng 虽然……但是…….",
+        examples:[
+          {tag:"Câu gốc", zh:"他不但会说汉语，而且写得也很好。", py:"Tā búdàn huì shuō Hànyǔ, érqiě xiě de yě hěn hǎo.", vi:"Anh ấy không những nói được tiếng Trung, mà viết cũng rất tốt."},
+          {tag:"Việc học", zh:"这道题不但难，而且时间也不够。", py:"Zhè dào tí búdàn nán, érqiě shíjiān yě bú gòu.", vi:"Bài này không những khó, mà thời gian cũng không đủ."},
+          {tag:"Đời sống", zh:"这家店不但便宜，而且离学校很近。", py:"Zhè jiā diàn búdàn piányi, érqiě lí xuéxiào hěn jìn.", vi:"Quán này không những rẻ, mà còn rất gần trường."}
+        ]
+      },
+
+      {
+        id:"hsk7_02",
+        pattern:"既然……就……",
+        title:"既然……就…… — đã… thì…",
+        structure:"既然 A，就 B",
+        example:"既然决定了，就认真做完。",
+        pinyin:"Jìrán juédìng le, jiù rènzhēn zuò wán.",
+        meaning:"Đã quyết định rồi thì hãy làm cho xong một cách nghiêm túc.",
+        explanation:"既然 nêu một việc đã thành sự thật. 就 nêu việc nên làm vì sự thật đó. Khác với 如果: 如果 là giả định chưa xảy ra, 既然 là việc người nghe đã chấp nhận.",
+        note:"不要把 既然 dùng cho việc còn đang đoán.",
+        examples:[
+          {tag:"Câu gốc", zh:"既然决定了，就认真做完。", py:"Jìrán juédìng le, jiù rènzhēn zuò wán.", vi:"Đã quyết định rồi thì hãy làm cho xong một cách nghiêm túc."},
+          {tag:"Lời khuyên", zh:"既然来了，就多坐一会儿。", py:"Jìrán lái le, jiù duō zuò yíhuìr.", vi:"Đã đến rồi thì ngồi thêm một lúc."},
+          {tag:"Công việc", zh:"既然发现问题了，就马上改。", py:"Jìrán fāxiàn wèntí le, jiù mǎshàng gǎi.", vi:"Đã phát hiện ra vấn đề thì sửa ngay."}
+        ]
+      },
+
+      {
+        id:"hsk7_03",
+        pattern:"即使……也……",
+        title:"即使……也…… — ngay cả nếu… cũng…",
+        structure:"即使 A，也 B",
+        example:"即使下雨，我们也去。",
+        pinyin:"Jíshǐ xià yǔ, wǒmen yě qù.",
+        meaning:"Ngay cả nếu trời mưa, chúng tôi cũng đi.",
+        explanation:"A là tình huống khó hoặc giả định. B là kết quả không đổi. Mẫu này nhấn mạnh quyết tâm hoặc quy luật không bị A làm thay đổi.",
+        note:"也 thường đứng trước động từ của vế sau, không đứng đầu câu.",
+        examples:[
+          {tag:"Câu gốc", zh:"即使下雨，我们也去。", py:"Jíshǐ xià yǔ, wǒmen yě qù.", vi:"Ngay cả nếu trời mưa, chúng tôi cũng đi."},
+          {tag:"Học tập", zh:"即使很累，他也把作业写完。", py:"Jíshǐ hěn lèi, tā yě bǎ zuòyè xiě wán.", vi:"Dù rất mệt, anh ấy cũng viết xong bài tập."},
+          {tag:"Quy tắc", zh:"即使是朋友，也不能迟到。", py:"Jíshǐ shì péngyou, yě bù néng chídào.", vi:"Dù là bạn bè cũng không được đến muộn."}
+        ]
+      },
+
+      {
+        id:"hsk7_04",
+        pattern:"无论……都……",
+        title:"无论……都…… — bất kể… đều…",
+        structure:"无论 A，都 B",
+        example:"无论多忙，他都会给你回消息。",
+        pinyin:"Wúlùn duō máng, tā dōu huì gěi nǐ huí xiāoxi.",
+        meaning:"Dù bận đến đâu, anh ấy cũng sẽ trả lời tin cho bạn.",
+        explanation:"无论 mở ra mọi trường hợp trong một phạm vi. 都 chốt kết quả áp dụng cho tất cả các trường hợp đó. Sau 无论 thường có từ hỏi hoặc cách nói lựa chọn như 多忙、谁、A还是B.",
+        note:"Thiếu 都 thì câu mất chỗ nhấn mạnh “đều”.",
+        examples:[
+          {tag:"Câu gốc", zh:"无论多忙，他都会给你回消息。", py:"Wúlùn duō máng, tā dōu huì gěi nǐ huí xiāoxi.", vi:"Dù bận đến đâu, anh ấy cũng sẽ trả lời tin cho bạn."},
+          {tag:"Lựa chọn", zh:"无论坐公交还是走路，我都按时到。", py:"Wúlùn zuò gōngjiāo háishi zǒulù, wǒ dōu ànshí dào.", vi:"Dù đi xe buýt hay đi bộ, tôi đều đến đúng giờ."},
+          {tag:"Người", zh:"无论谁来问，都要说清楚。", py:"Wúlùn shéi lái wèn, dōu yào shuō qīngchu.", vi:"Bất kể ai đến hỏi cũng phải nói cho rõ."}
+        ]
+      },
+
+      {
+        id:"hsk7_05",
+        pattern:"与其……不如……",
+        title:"与其……不如…… — thay vì… chi bằng…",
+        structure:"与其 A，不如 B",
+        example:"与其抱怨，不如现在就开始。",
+        pinyin:"Yǔqí bàoyuàn, bùrú xiànzài jiù kāishǐ.",
+        meaning:"Thay vì phàn nàn, chi bằng bắt đầu ngay bây giờ.",
+        explanation:"Người nói so hai cách và chọn B. A là cách kém hơn, B là cách được đề nghị. Đây là lời khuyên, không phải câu kể trung lập.",
+        note:"B là lựa chọn được nghiêng về, không phải vế bị loại.",
+        examples:[
+          {tag:"Câu gốc", zh:"与其抱怨，不如现在就开始。", py:"Yǔqí bàoyuàn, bùrú xiànzài jiù kāishǐ.", vi:"Thay vì phàn nàn, chi bằng bắt đầu ngay bây giờ."},
+          {tag:"Học", zh:"与其死记，不如多造几个句子。", py:"Yǔqí sǐjì, bùrú duō zào jǐ ge jùzi.", vi:"Thay vì học vẹt, chi bằng đặt thêm vài câu."},
+          {tag:"Đi lại", zh:"与其在家等，不如自己去看看。", py:"Yǔqí zài jiā děng, bùrú zìjǐ qù kànkan.", vi:"Thay vì ngồi nhà đợi, chi bằng tự đi xem."}
+        ]
+      },
+
+      {
+        id:"hsk7_06",
+        pattern:"之所以……是因为……",
+        title:"之所以……是因为…… — sở dĩ… là vì…",
+        structure:"之所以 A，是因为 B",
+        example:"他之所以进步快，是因为每天都复习。",
+        pinyin:"Tā zhī suǒyǐ jìnbù kuài, shì yīnwèi měitiān dōu fùxí.",
+        meaning:"Sở dĩ anh ấy tiến bộ nhanh là vì ngày nào cũng ôn.",
+        explanation:"A là kết quả người nghe đã thấy. B là nguyên nhân được giải thích sau. Mẫu này viết trang trọng hơn 因为……所以…… và thường đặt kết quả lên trước.",
+        note:"是因为 giải thích nguyên nhân, không phải một việc xảy ra tiếp theo.",
+        examples:[
+          {tag:"Câu gốc", zh:"他之所以进步快，是因为每天都复习。", py:"Tā zhī suǒyǐ jìnbù kuài, shì yīnwèi měitiān dōu fùxí.", vi:"Sở dĩ anh ấy tiến bộ nhanh là vì ngày nào cũng ôn."},
+          {tag:"Cửa hàng", zh:"这家店之所以排队，是因为菜很好吃。", py:"Zhè jiā diàn zhī suǒyǐ páiduì, shì yīnwèi cài hěn hǎochī.", vi:"Sở dĩ quán này phải xếp hàng là vì món ăn rất ngon."},
+          {tag:"Công việc", zh:"会议之所以推迟，是因为材料还没齐。", py:"Huìyì zhī suǒyǐ tuīchí, shì yīnwèi cáiliào hái méi qí.", vi:"Sở dĩ cuộc họp bị lùi là vì tài liệu chưa đủ."}
+        ]
+      },
+
+      {
+        id:"hsk7_07",
+        pattern:"不是……而是……",
+        title:"不是……而是…… — không phải… mà là…",
+        structure:"不是 A，而是 B",
+        example:"我不是不想去，而是今天真的没有时间。",
+        pinyin:"Wǒ bú shì bù xiǎng qù, ér shì jīntiān zhēn de méiyǒu shíjiān.",
+        meaning:"Tôi không phải không muốn đi, mà hôm nay thật sự không có thời gian.",
+        explanation:"Mẫu này phủ định cách hiểu A rồi đưa ra cách hiểu đúng B. Dùng khi cần sửa một sự hiểu lầm. A và B phải là hai cách nói về cùng một việc.",
+        note:"而是 không đứng một mình ở đầu câu nếu chưa có 不是.",
+        examples:[
+          {tag:"Câu gốc", zh:"我不是不想去，而是今天真的没有时间。", py:"Wǒ bú shì bù xiǎng qù, ér shì jīntiān zhēn de méiyǒu shíjiān.", vi:"Tôi không phải không muốn đi, mà hôm nay thật sự không có thời gian."},
+          {tag:"Nguyên nhân", zh:"问题不是钱，而是计划不清楚。", py:"Wèntí bú shì qián, ér shì jìhuà bù qīngchu.", vi:"Vấn đề không phải là tiền, mà là kế hoạch chưa rõ."},
+          {tag:"Cảm xúc", zh:"她不是生气，而是有点担心。", py:"Tā bú shì shēngqì, ér shì yǒudiǎn dānxīn.", vi:"Cô ấy không phải giận, mà là hơi lo."}
+        ]
+      },
+
+      {
+        id:"hsk7_08",
+        pattern:"免得",
+        title:"免得 — kẻo / để khỏi",
+        structure:"做 A，免得 B",
+        example:"出门带伞，免得淋雨。",
+        pinyin:"Chūmén dài sǎn, miǎnde lín yǔ.",
+        meaning:"Ra ngoài hãy mang ô, kẻo bị mưa ướt.",
+        explanation:"免得 nói mục đích tiêu cực: làm A để việc không hay B không xảy ra. Sau 免得 là việc muốn tránh, không phải việc muốn đạt được. Nếu muốn nói mục đích tích cực, dùng 为了.",
+        note:"Không đặt kết quả tốt ngay sau 免得.",
+        examples:[
+          {tag:"Câu gốc", zh:"出门带伞，免得淋雨。", py:"Chūmén dài sǎn, miǎnde lín yǔ.", vi:"Ra ngoài hãy mang ô, kẻo bị mưa ướt."},
+          {tag:"Học", zh:"把生词记下来，免得下次又忘。", py:"Bǎ shēngcí jì xiàlái, miǎnde xià cì yòu wàng.", vi:"Hãy chép từ mới lại, kẻo lần sau lại quên."},
+          {tag:"Công việc", zh:"提前确认时间，免得大家白跑一趟。", py:"Tíqián quèrèn shíjiān, miǎnde dàjiā bái pǎo yí tàng.", vi:"Xác nhận giờ trước, kẻo mọi người đi một chuyến vô ích."}
+        ]
+      },
+
+      {
+        id:"hsk7_09",
+        pattern:"难怪",
+        title:"难怪 — thảo nào / hóa ra",
+        structure:"难怪 + câu",
+        example:"他一夜没睡，难怪今天没精神。",
+        pinyin:"Tā yí yè méi shuì, nánguài jīntiān méi jīngshen.",
+        meaning:"Anh ấy thức cả đêm, thảo nào hôm nay không có sức.",
+        explanation:"难怪 dùng khi vừa hiểu ra nguyên nhân của một việc đã thấy. Vế trước thường là nguyên nhân mới biết, vế sau là hiện tượng. Giọng nói mang cảm giác “thì ra là vậy”.",
+        note:"Không dùng 难怪 cho một kế hoạch ở tương lai.",
+        examples:[
+          {tag:"Câu gốc", zh:"他一夜没睡，难怪今天没精神。", py:"Tā yí yè méi shuì, nánguài jīntiān méi jīngshen.", vi:"Anh ấy thức cả đêm, thảo nào hôm nay không có sức."},
+          {tag:"Thời tiết", zh:"路上全是水，难怪你迟到了。", py:"Lùshang quán shì shuǐ, nánguài nǐ chídào le.", vi:"Đường toàn nước, thảo nào bạn đến muộn."},
+          {tag:"Học", zh:"这些词都没复习，难怪听不懂。", py:"Zhèxiē cí dōu méi fùxí, nánguài tīng bu dǒng.", vi:"Những từ này đều chưa ôn, thảo nào nghe không hiểu."}
+        ]
+      },
+
+      {
+        id:"hsk7_10",
+        pattern:"到底",
+        title:"到底 — rốt cuộc",
+        structure:"到底 + câu hỏi",
+        example:"你到底去不去？",
+        pinyin:"Nǐ dàodǐ qù bu qù?",
+        meaning:"Rốt cuộc bạn có đi hay không?",
+        explanation:"Trong câu hỏi, 到底 đòi một câu trả lời dứt khoát sau khi đã hỏi nhiều lần hoặc còn phân vân. Nó đứng trước phần hỏi. 到底 còn có nghĩa “cuối cùng đã” trong câu kể, nhưng ở bậc này hãy học nghĩa hỏi cho rõ.",
+        note:"Câu hỏi với 到底 vẫn cần từ hỏi hoặc mẫu A-not-A, không thêm 吗 một cách tùy tiện.",
+        examples:[
+          {tag:"Câu gốc", zh:"你到底去不去？", py:"Nǐ dàodǐ qù bu qù?", vi:"Rốt cuộc bạn có đi hay không?"},
+          {tag:"Lý do", zh:"他到底为什么没来？", py:"Tā dàodǐ wèishénme méi lái?", vi:"Rốt cuộc vì sao anh ấy không đến?"},
+          {tag:"Lựa chọn", zh:"我们到底坐地铁还是打车？", py:"Wǒmen dàodǐ zuò dìtiě háishi dǎchē?", vi:"Rốt cuộc chúng ta đi tàu điện hay gọi xe?"}
+        ]
+      },
+
+      {
+        id:"hsk7_11",
+        pattern:"好不容易",
+        title:"好不容易 — mãi mới / rất khó khăn mới",
+        structure:"好不容易 + mới + kết quả",
+        example:"我好不容易才买到票。",
+        pinyin:"Wǒ hǎo bù róngyì cái mǎi dào piào.",
+        meaning:"Tôi mãi mới mua được vé.",
+        explanation:"Mẫu này nói một việc tốn công và cuối cùng đã xong. 才 hoặc 才把 thường đi kèm để nhấn “mãi mới”. Không dùng cho việc dễ làm.",
+        note:"好不容易 và 好容易 trong khẩu ngữ đôi khi cùng nghĩa “khó khăn lắm”, nên đừng hiểu 好容易 là “rất dễ”.",
+        examples:[
+          {tag:"Câu gốc", zh:"我好不容易才买到票。", py:"Wǒ hǎo bù róngyì cái mǎi dào piào.", vi:"Tôi mãi mới mua được vé."},
+          {tag:"Học", zh:"这个音我好不容易才读准。", py:"Zhège yīn wǒ hǎo bù róngyì cái dú zhǔn.", vi:"Âm này tôi khó khăn lắm mới đọc chuẩn."},
+          {tag:"Thời gian", zh:"我们好不容易见面，就多聊一会儿吧。", py:"Wǒmen hǎo bù róngyì jiànmiàn, jiù duō liáo yíhuìr ba.", vi:"Chúng ta mãi mới gặp nhau, hãy nói chuyện thêm một lúc."}
+        ]
+      },
+
+      {
+        id:"hsk7_12",
+        pattern:"一方面……另一方面……",
+        title:"一方面……另一方面…… — một mặt… mặt khác…",
+        structure:"一方面 A，另一方面 B",
+        example:"一方面要省钱，另一方面也不能太委屈自己。",
+        pinyin:"Yì fāngmiàn yào shěng qián, lìng yì fāngmiàn yě bù néng tài wěiqu zìjǐ.",
+        meaning:"Một mặt cần tiết kiệm, mặt khác cũng không nên để mình khổ quá.",
+        explanation:"Mẫu này đặt hai mặt của cùng một vấn đề cạnh nhau. Hai mặt có thể bổ sung hoặc cần cân bằng. Dùng khi viết đoạn văn, không chỉ một câu cảm thán.",
+        note:"Hai vế nên cùng nói về một chủ đề.",
+        examples:[
+          {tag:"Câu gốc", zh:"一方面要省钱，另一方面也不能太委屈自己。", py:"Yì fāngmiàn yào shěng qián, lìng yì fāngmiàn yě bù néng tài wěiqu zìjǐ.", vi:"Một mặt cần tiết kiệm, mặt khác cũng không nên để mình khổ quá."},
+          {tag:"Học", zh:"一方面多听，另一方面也要开口说。", py:"Yì fāngmiàn duō tīng, lìng yì fāngmiàn yě yào kāikǒu shuō.", vi:"Một mặt nghe nhiều, mặt khác cũng phải mở miệng nói."},
+          {tag:"Công việc", zh:"一方面赶进度，另一方面要保证质量。", py:"Yì fāngmiàn gǎn jìndù, lìng yì fāngmiàn yào bǎozhèng zhìliàng.", vi:"Một mặt đẩy tiến độ, mặt khác phải bảo đảm chất lượng."}
+        ]
+      }
+
+    ],
+
+    8: [
+
+      {
+        id:"hsk8_01",
+        pattern:"尚且……何况……",
+        title:"尚且……何况…… — ngay cả… còn… huống hồ…",
+        structure:"A 尚且 B，何况 C",
+        example:"专家尚且觉得难，何况是初学者。",
+        pinyin:"Zhuānjiā shàngqiě juéde nán, hékuàng shì chūxuézhě.",
+        meaning:"Ngay cả chuyên gia còn thấy khó, huống hồ là người mới học.",
+        explanation:"Vế trước nêu một trường hợp mạnh hơn đã khó hoặc đã đúng. Vế sau suy ra trường hợp yếu hơn càng như vậy. 何况 không cần lặp lại toàn bộ kết luận.",
+        note:"Không dùng mẫu này để liệt kê hai việc ngang nhau.",
+        examples:[
+          {tag:"Câu gốc", zh:"专家尚且觉得难，何况是初学者。", py:"Zhuānjiā shàngqiě juéde nán, hékuàng shì chūxuézhě.", vi:"Ngay cả chuyên gia còn thấy khó, huống hồ là người mới học."},
+          {tag:"Thời tiết", zh:"大人尚且觉得冷，何况孩子。", py:"Dàren shàngqiě juéde lěng, hékuàng háizi.", vi:"Người lớn còn thấy lạnh, huống hồ trẻ con."},
+          {tag:"Công việc", zh:"平时尚且忙不过来，何况年底。", py:"Píngshí shàngqiě máng bu guòlái, hékuàng niándǐ.", vi:"Ngày thường còn bận không xuể, huống hồ cuối năm."}
+        ]
+      },
+
+      {
+        id:"hsk8_02",
+        pattern:"固然……但是……",
+        title:"固然……但是…… — cố nhiên… nhưng…",
+        structure:"固然 A，但是 B",
+        example:"价格固然重要，但是质量更不能忽略。",
+        pinyin:"Jiàgé gùrán zhòngyào, dànshì zhìliàng gèng bù néng hūlüè.",
+        meaning:"Giá cả cố nhiên quan trọng, nhưng chất lượng lại càng không thể bỏ qua.",
+        explanation:"固然 thừa nhận A là đúng. 但是 chuyển sang mặt người viết muốn nhấn mạnh hơn. Khác với 虽然 ở chỗ 固然 thường dùng khi viết, và sự nhượng bộ lịch sự hơn.",
+        note:"Vế sau mới là trọng tâm, đừng dừng ở vế thừa nhận.",
+        examples:[
+          {tag:"Câu gốc", zh:"价格固然重要，但是质量更不能忽略。", py:"Jiàgé gùrán zhòngyào, dànshì zhìliàng gèng bù néng hūlüè.", vi:"Giá cả cố nhiên quan trọng, nhưng chất lượng lại càng không thể bỏ qua."},
+          {tag:"Học", zh:"速度固然要快，但是准确更重要。", py:"Sùdù gùrán yào kuài, dànshì zhǔnquè gèng zhòngyào.", vi:"Tốc độ cố nhiên cần nhanh, nhưng chính xác còn quan trọng hơn."},
+          {tag:"Ý kiến", zh:"这个办法固然简单，但是并不适合所有人。", py:"Zhège bànfǎ gùrán jiǎndān, dànshì bìng bú shìhé suǒyǒu rén.", vi:"Cách này cố nhiên đơn giản, nhưng không hợp với mọi người."}
+        ]
+      },
+
+      {
+        id:"hsk8_03",
+        pattern:"尽管……还是……",
+        title:"尽管……还是…… — dù… vẫn…",
+        structure:"尽管 A，还是 B",
+        example:"尽管别人反对，他还是坚持自己的计划。",
+        pinyin:"Jǐnguǎn biéren fǎnduì, tā háishi jiānchí zìjǐ de jìhuà.",
+        meaning:"Dù người khác phản đối, anh ấy vẫn giữ kế hoạch của mình.",
+        explanation:"尽管 nhượng bộ một trở ngại đã có thật. 还是 nói hành động hoặc kết quả không đổi. Mẫu này mạnh hơn một câu 但是 thông thường vì nhấn “vẫn cứ”.",
+        note:"还是 ở đây không phải câu hỏi “hay là”.",
+        examples:[
+          {tag:"Câu gốc", zh:"尽管别人反对，他还是坚持自己的计划。", py:"Jǐnguǎn biéren fǎnduì, tā háishi jiānchí zìjǐ de jìhuà.", vi:"Dù người khác phản đối, anh ấy vẫn giữ kế hoạch của mình."},
+          {tag:"Thời tiết", zh:"尽管风很大，比赛还是照常举行。", py:"Jǐnguǎn fēng hěn dà, bǐsài háishi zhàocháng jǔxíng.", vi:"Dù gió rất lớn, trận đấu vẫn diễn ra như thường."},
+          {tag:"Học", zh:"尽管听不懂全部，我还是把课听完了。", py:"Jǐnguǎn tīng bu dǒng quánbù, wǒ háishi bǎ kè tīng wán le.", vi:"Dù không hiểu hết, tôi vẫn nghe hết buổi học."}
+        ]
+      },
+
+      {
+        id:"hsk8_04",
+        pattern:"倘若",
+        title:"倘若 — ví phỏng / nếu như",
+        structure:"倘若 A，就 B",
+        example:"倘若明天有空，我们就去博物馆。",
+        pinyin:"Tǎngruò míngtiān yǒu kòng, wǒmen jiù qù bówùguǎn.",
+        meaning:"Nếu ngày mai rảnh, chúng ta sẽ đi bảo tàng.",
+        explanation:"倘若 là cách nói “nếu” trang trọng, gặp trong văn viết hơn trong nói chuyện hàng ngày. Nghĩa gần 如果, nhưng giọng điệu đứng đắn hơn. Vế sau thường có 就、便.",
+        note:"Nói chuyện thân mật thì 要是、如果 tự nhiên hơn 倘若.",
+        examples:[
+          {tag:"Câu gốc", zh:"倘若明天有空，我们就去博物馆。", py:"Tǎngruò míngtiān yǒu kòng, wǒmen jiù qù bówùguǎn.", vi:"Nếu ngày mai rảnh, chúng ta sẽ đi bảo tàng."},
+          {tag:"Cảnh báo", zh:"倘若再拖延，问题会更严重。", py:"Tǎngruò zài tuōyán, wèntí huì gèng yánzhòng.", vi:"Nếu còn trì hoãn, vấn đề sẽ nặng hơn."},
+          {tag:"Kế hoạch", zh:"倘若资金足够，这个项目可以扩大。", py:"Tǎngruò zījīn zúgòu, zhège xiàngmù kěyǐ kuòdà.", vi:"Nếu vốn đủ, dự án này có thể mở rộng."}
+        ]
+      },
+
+      {
+        id:"hsk8_05",
+        pattern:"一旦",
+        title:"一旦 — một khi",
+        structure:"一旦 A，就 B",
+        example:"一旦养成习惯，后面就容易多了。",
+        pinyin:"Yídàn yǎngchéng xíguàn, hòumiàn jiù róngyì duō le.",
+        meaning:"Một khi đã thành thói quen, phần sau sẽ dễ hơn nhiều.",
+        explanation:"一旦 nói một việc vừa xảy ra thì hệ quả đi theo rất nhanh. Thường dùng cho bước ngoặt: một khi bắt đầu, một khi mất, một khi đồng ý. Khác 如果 ở chỗ nhấn tính chất “vừa xảy ra là kéo theo”.",
+        note:"Không dùng 一旦 cho thói quen nhỏ diễn ra mỗi ngày một cách bình thường.",
+        examples:[
+          {tag:"Câu gốc", zh:"一旦养成习惯，后面就容易多了。", py:"Yídàn yǎngchéng xíguàn, hòumiàn jiù róngyì duō le.", vi:"Một khi đã thành thói quen, phần sau sẽ dễ hơn nhiều."},
+          {tag:"Rủi ro", zh:"一旦错过今天，就要再等一个月。", py:"Yídàn cuòguò jīntiān, jiù yào zài děng yí ge yuè.", vi:"Một khi lỡ hôm nay thì phải đợi thêm một tháng."},
+          {tag:"Quyết định", zh:"一旦答应，就要做到。", py:"Yídàn dāying, jiù yào zuò dào.", vi:"Một khi đã nhận lời thì phải làm được."}
+        ]
+      },
+
+      {
+        id:"hsk8_06",
+        pattern:"以至于",
+        title:"以至于 — đến mức",
+        structure:"A，以至于 B",
+        example:"他准备得太少，以至于现场不知道说什么。",
+        pinyin:"Tā zhǔnbèi de tài shǎo, yǐzhìyú xiànchǎng bù zhīdào shuō shénme.",
+        meaning:"Anh ấy chuẩn bị quá ít, đến mức lúc tại chỗ không biết nói gì.",
+        explanation:"以至于 nối một nguyên nhân hoặc mức độ với kết quả đã đi xa, thường là kết quả không hay hoặc ngoài dự tính. Vế sau là mức độ mà việc đã tới.",
+        note:"Kết quả nên là hệ quả thật của vế trước, không phải một việc ngẫu nhiên.",
+        examples:[
+          {tag:"Câu gốc", zh:"他准备得太少，以至于现场不知道说什么。", py:"Tā zhǔnbèi de tài shǎo, yǐzhìyú xiànchǎng bù zhīdào shuō shénme.", vi:"Anh ấy chuẩn bị quá ít, đến mức lúc tại chỗ không biết nói gì."},
+          {tag:"Thời gian", zh:"雨下得太大，以至于路上都积水了。", py:"Yǔ xià de tài dà, yǐzhìyú lùshang dōu jīshuǐ le.", vi:"Mưa to đến mức đường chỗ nào cũng ngập."},
+          {tag:"Học", zh:"他只顾刷题，以至于忽略了口语。", py:"Tā zhǐ gù shuā tí, yǐzhìyú hūlüè le kǒuyǔ.", vi:"Anh ấy chỉ chăm làm bài, đến mức bỏ bê khẩu ngữ."}
+        ]
+      },
+
+      {
+        id:"hsk8_07",
+        pattern:"由此可见",
+        title:"由此可见 — từ đó có thể thấy",
+        structure:"事实 + 由此可见 + 结论",
+        example:"两次试验的结果一样，由此可见方法是有效的。",
+        pinyin:"Liǎng cì shìyàn de jiéguǒ yíyàng, yóu cǐ kějiàn fāngfǎ shì yǒuxiào de.",
+        meaning:"Kết quả hai lần thử giống nhau, từ đó có thể thấy cách làm này có hiệu quả.",
+        explanation:"由此可见 đứng đầu câu kết luận, dựa trên bằng chứng vừa nêu. Dùng trong đoạn văn nghị luận. Không dùng để mở đầu khi chưa có việc gì được kể.",
+        note:"Kết luận phải rút ra từ câu trước, không đưa thêm thông tin mới không liên quan.",
+        examples:[
+          {tag:"Câu gốc", zh:"两次试验的结果一样，由此可见方法是有效的。", py:"Liǎng cì shìyàn de jiéguǒ yíyàng, yóu cǐ kějiàn fāngfǎ shì yǒuxiào de.", vi:"Kết quả hai lần thử giống nhau, từ đó có thể thấy cách làm này có hiệu quả."},
+          {tag:"Học", zh:"他每天都来，由此可见他很重视这门课。", py:"Tā měitiān dōu lái, yóu cǐ kějiàn tā hěn zhòngshì zhè mén kè.", vi:"Ngày nào anh ấy cũng đến, từ đó có thể thấy anh ấy rất coi trọng môn này."},
+          {tag:"Xã hội", zh:"报名人数增加了，由此可见需求在上升。", py:"Bàomíng rénshù zēngjiā le, yóu cǐ kějiàn xūqiú zài shàngshēng.", vi:"Số người đăng ký tăng, từ đó có thể thấy nhu cầu đang lên."}
+        ]
+      },
+
+      {
+        id:"hsk8_08",
+        pattern:"换言之",
+        title:"换言之 — nói cách khác",
+        structure:"A。换言之，B",
+        example:"这个计划成本很高。换言之，我们现在还做不起。",
+        pinyin:"Zhège jìhuà chéngběn hěn gāo. Huàn yán zhī, wǒmen xiànzài hái zuò bu qǐ.",
+        meaning:"Kế hoạch này chi phí rất cao. Nói cách khác, bây giờ chúng ta chưa làm nổi.",
+        explanation:"换言之 nhắc lại ý vừa nói bằng cách dễ hiểu hơn hoặc thẳng hơn. B không được là một ý mới hoàn toàn. Dùng khi muốn người nghe nắm đúng điều đang nói.",
+        note:"Nếu B sang chuyện khác, đừng dùng 换言之.",
+        examples:[
+          {tag:"Câu gốc", zh:"这个计划成本很高。换言之，我们现在还做不起。", py:"Zhège jìhuà chéngběn hěn gāo. Huàn yán zhī, wǒmen xiànzài hái zuò bu qǐ.", vi:"Kế hoạch này chi phí rất cao. Nói cách khác, bây giờ chúng ta chưa làm nổi."},
+          {tag:"Học", zh:"他还不能独立读文章。换言之，生词量还不够。", py:"Tā hái bù néng dúlì dú wénzhāng. Huàn yán zhī, shēngcí liàng hái bú gòu.", vi:"Anh ấy chưa đọc được bài một mình. Nói cách khác, lượng từ mới còn chưa đủ."},
+          {tag:"Thời hạn", zh:"报告周五前必须交。换言之，只剩两天了。", py:"Bàogào Zhōuwǔ qián bìxū jiāo. Huàn yán zhī, zhǐ shèng liǎng tiān le.", vi:"Báo cáo phải nộp trước thứ Sáu. Nói cách khác, chỉ còn hai ngày."}
+        ]
+      },
+
+      {
+        id:"hsk8_09",
+        pattern:"鉴于",
+        title:"鉴于 — xét vì / căn cứ vào",
+        structure:"鉴于 A，B",
+        example:"鉴于天气不好，活动改到室内举行。",
+        pinyin:"Jiànyú tiānqì bù hǎo, huódòng gǎi dào shìnèi jǔxíng.",
+        meaning:"Xét vì thời tiết không tốt, hoạt động chuyển vào trong nhà.",
+        explanation:"鉴于 đưa lý do trang trọng trước quyết định. Thường gặp trong thông báo, văn bản. Lý do là việc đã biết, quyết định là việc được đưa ra vì lý do đó.",
+        note:"Khẩu ngữ hàng ngày dùng 因为 tự nhiên hơn.",
+        examples:[
+          {tag:"Câu gốc", zh:"鉴于天气不好，活动改到室内举行。", py:"Jiànyú tiānqì bù hǎo, huódòng gǎi dào shìnèi jǔxíng.", vi:"Xét vì thời tiết không tốt, hoạt động chuyển vào trong nhà."},
+          {tag:"Công việc", zh:"鉴于人数太多，会议分成两组。", py:"Jiànyú rénshù tài duō, huìyì fēnchéng liǎng zǔ.", vi:"Xét vì quá đông, cuộc họp chia thành hai nhóm."},
+          {tag:"An toàn", zh:"鉴于路滑，请大家慢一点开。", py:"Jiànyú lù huá, qǐng dàjiā màn yìdiǎn kāi.", vi:"Xét vì đường trơn, mọi người hãy lái chậm lại."}
+        ]
+      },
+
+      {
+        id:"hsk8_10",
+        pattern:"就……而言",
+        title:"就……而言 — xét về mặt…",
+        structure:"就 A 而言，B",
+        example:"就价格而言，这台电脑比较合适。",
+        pinyin:"Jiù jiàgé ér yán, zhè tái diànnǎo bǐjiào héshì.",
+        meaning:"Xét về giá, chiếc máy tính này khá hợp.",
+        explanation:"Mẫu này giới hạn góc nhìn. Kết luận B chỉ đúng trong phạm vi A, chưa phải kết luận cho mọi mặt. Rất hữu ích khi so sánh: giá, chất lượng, thời gian, mức độ khó.",
+        note:"Đừng để người nghe tưởng B là đánh giá toàn bộ nếu bạn chỉ nói một mặt.",
+        examples:[
+          {tag:"Câu gốc", zh:"就价格而言，这台电脑比较合适。", py:"Jiù jiàgé ér yán, zhè tái diànnǎo bǐjiào héshì.", vi:"Xét về giá, chiếc máy tính này khá hợp."},
+          {tag:"Học", zh:"就发音而言，他还需要多练习。", py:"Jiù fāyīn ér yán, tā hái xūyào duō liànxí.", vi:"Xét về phát âm, anh ấy vẫn cần luyện thêm."},
+          {tag:"Thành phố", zh:"就交通而言，住在地铁站附近更方便。", py:"Jiù jiāotōng ér yán, zhù zài dìtiězhàn fùjìn gèng fāngbiàn.", vi:"Xét về đi lại, ở gần ga tàu điện tiện hơn."}
+        ]
+      },
+
+      {
+        id:"hsk8_11",
+        pattern:"无非",
+        title:"无非 — chẳng qua là",
+        structure:"无非是 + việc được thu gọn",
+        example:"他这么说，无非是希望大家再试试。",
+        pinyin:"Tā zhème shuō, wúfēi shì xīwàng dàjiā zài shìshi.",
+        meaning:"Anh ấy nói vậy chẳng qua là mong mọi người thử thêm lần nữa.",
+        explanation:"无非 thu một việc tưởng phức tạp về một lý do hoặc bản chất đơn giản. Giọng có thể nhẹ nhàng hoặc hơi xem nhẹ, tùy ngữ cảnh. Không dùng khi muốn khen một việc rất lớn.",
+        note:"无非 không có nghĩa “hoàn toàn không”.",
+        examples:[
+          {tag:"Câu gốc", zh:"他这么说，无非是希望大家再试试。", py:"Tā zhème shuō, wúfēi shì xīwàng dàjiā zài shìshi.", vi:"Anh ấy nói vậy chẳng qua là mong mọi người thử thêm lần nữa."},
+          {tag:"Lý do", zh:"我问这些，无非是想把情况弄清楚。", py:"Wǒ wèn zhèxiē, wúfēi shì xiǎng bǎ qíngkuàng nòng qīngchu.", vi:"Tôi hỏi những điều này chẳng qua là muốn làm rõ tình hình."},
+          {tag:"Thói quen", zh:"他每天早起，无非是为了多读一会儿书。", py:"Tā měitiān zǎo qǐ, wúfēi shì wèile duō dú yíhuìr shū.", vi:"Ngày nào anh ấy cũng dậy sớm, chẳng qua là để đọc thêm một lúc."}
+        ]
+      },
+
+      {
+        id:"hsk8_12",
+        pattern:"不至于",
+        title:"不至于 — chưa đến mức",
+        structure:"不至于 + kết quả nặng",
+        example:"只是晚了五分钟，不至于这么生气。",
+        pinyin:"Zhǐ shì wǎn le wǔ fēnzhōng, bú zhìyú zhème shēngqì.",
+        meaning:"Chỉ muộn năm phút, chưa đến mức phải giận như vậy.",
+        explanation:"不至于 bác một kết quả bị xem là quá nặng so với nguyên nhân. Người nói công nhận có vấn đề, nhưng không đồng ý với mức phản ứng. Thường đi với 这么、那么.",
+        note:"Sau 不至于 là việc bị cho là quá đáng, không phải việc bình thường.",
+        examples:[
+          {tag:"Câu gốc", zh:"只是晚了五分钟，不至于这么生气。", py:"Zhǐ shì wǎn le wǔ fēnzhōng, bú zhìyú zhème shēngqì.", vi:"Chỉ muộn năm phút, chưa đến mức phải giận như vậy."},
+          {tag:"Học", zh:"错了一道题，不至于整个考试都失败。", py:"Cuò le yí dào tí, bú zhìyú zhěng gè kǎoshì dōu shībài.", vi:"Sai một câu chưa đến mức cả bài thi đều hỏng."},
+          {tag:"Sức khỏe", zh:"有点咳嗽，不至于不能上课。", py:"Yǒudiǎn késou, bú zhìyú bù néng shàngkè.", vi:"Hơi ho một chút, chưa đến mức không thể lên lớp."}
+        ]
+      }
+
+    ],
+
+    9: [
+
+      {
+        id:"hsk9_01",
+        pattern:"毋庸置疑",
+        title:"毋庸置疑 — không còn phải nghi ngờ",
+        structure:"毋庸置疑，+ nhận định",
+        example:"毋庸置疑，坚持练习是进步的关键。",
+        pinyin:"Wú yōng zhì yí, jiānchí liànxí shì jìnbù de guānjiàn.",
+        meaning:"Không còn phải nghi ngờ, kiên trì luyện tập là then chốt của sự tiến bộ.",
+        explanation:"Đây là cụm trang trọng để khẳng định một nhận định đã có cơ sở mạnh. Đặt ở đầu câu hoặc sau chủ ngữ. Không dùng cho chuyện nhỏ, cảm tính hoặc việc còn đang tranh cãi nếu bạn chưa đưa được lý do.",
+        note:"Văn nói thân mật nên đổi thành 毫无疑问 hoặc 肯定.",
+        examples:[
+          {tag:"Câu gốc", zh:"毋庸置疑，坚持练习是进步的关键。", py:"Wú yōng zhì yí, jiānchí liànxí shì jìnbù de guānjiàn.", vi:"Không còn phải nghi ngờ, kiên trì luyện tập là then chốt của sự tiến bộ."},
+          {tag:"Việc chung", zh:"教育的重要性毋庸置疑。", py:"Jiàoyù de zhòngyào xìng wú yōng zhì yí.", vi:"Tầm quan trọng của giáo dục không còn phải nghi ngờ."},
+          {tag:"Kết luận", zh:"毋庸置疑，这个数据改变了原来的判断。", py:"Wú yōng zhì yí, zhège shùjù gǎibiàn le yuánlái de pànduàn.", vi:"Không còn phải nghi ngờ, số liệu này đã đổi phán đoán ban đầu."}
+        ]
+      },
+
+      {
+        id:"hsk9_02",
+        pattern:"不言而喻",
+        title:"不言而喻 — không nói cũng rõ",
+        structure:"……是不言而喻的",
+        example:"良好的休息对学习的作用不言而喻。",
+        pinyin:"Liánghǎo de xiūxi duì xuéxí de zuòyòng bù yán ér yù.",
+        meaning:"Tác dụng của việc nghỉ ngơi tốt đối với học tập là điều không nói cũng rõ.",
+        explanation:"Dùng khi người viết cho rằng người đọc đã thấy hệ quả, nên không cần chứng minh dài. Vẫn nên có một câu trước nêu sự việc, nếu không cụm này sẽ thành khẩu hiệu trống.",
+        note:"Không dùng để né một câu hỏi đang cần giải thích cụ thể.",
+        examples:[
+          {tag:"Câu gốc", zh:"良好的休息对学习的作用不言而喻。", py:"Liánghǎo de xiūxi duì xuéxí de zuòyòng bù yán ér yù.", vi:"Tác dụng của việc nghỉ ngơi tốt đối với học tập là điều không nói cũng rõ."},
+          {tag:"Thành phố", zh:"交通改善以后，生活会方便很多，这是不言而喻的。", py:"Jiāotōng gǎishàn yǐhòu, shēnghuó huì fāngbiàn hěn duō, zhè shì bù yán ér yù de.", vi:"Sau khi giao thông khá hơn, đời sống sẽ tiện hơn nhiều, điều đó không nói cũng rõ."},
+          {tag:"Quan hệ", zh:"信任对合作的意义不言而喻。", py:"Xìnrèn duì hézuò de yìyì bù yán ér yù.", vi:"Ý nghĩa của sự tin cậy đối với hợp tác là điều không nói cũng rõ."}
+        ]
+      },
+
+      {
+        id:"hsk9_03",
+        pattern:"归根结底",
+        title:"归根结底 — suy cho cùng",
+        structure:"归根结底，+ kết luận",
+        example:"方法有很多，归根结底还是要自己动手练。",
+        pinyin:"Fāngfǎ yǒu hěn duō, guī gēn jié dǐ háishi yào zìjǐ dòngshǒu liàn.",
+        meaning:"Cách thì có nhiều, suy cho cùng vẫn phải tự tay luyện.",
+        explanation:"Cụm này gom nhiều ý vừa nêu về một nguyên nhân hoặc kết luận cuối. Đặt sau phần liệt kê, trước câu chốt. Không mở bài bằng cụm này khi chưa có gì để “gom”.",
+        note:"归根到底 là cách nói gần nghĩa, cùng chức năng.",
+        examples:[
+          {tag:"Câu gốc", zh:"方法有很多，归根结底还是要自己动手练。", py:"Fāngfǎ yǒu hěn duō, guī gēn jié dǐ háishi yào zìjǐ dòngshǒu liàn.", vi:"Cách thì có nhiều, suy cho cùng vẫn phải tự tay luyện."},
+          {tag:"Tranh luận", zh:"双方说法不同，归根结底是目标不一样。", py:"Shuāngfāng shuōfǎ bùtóng, guī gēn jié dǐ shì mùbiāo bù yíyàng.", vi:"Hai bên nói khác nhau, suy cho cùng là mục tiêu không giống nhau."},
+          {tag:"Thất bại", zh:"这次没做成，归根结底是准备不足。", py:"Zhè cì méi zuò chéng, guī gēn jié dǐ shì zhǔnbèi bùzú.", vi:"Lần này không làm xong, suy cho cùng là chuẩn bị chưa đủ."}
+        ]
+      },
+
+      {
+        id:"hsk9_04",
+        pattern:"从某种意义上说",
+        title:"从某种意义上说 — theo một nghĩa nào đó",
+        structure:"从某种意义上说，+ nhận định có giới hạn",
+        example:"从某种意义上说，犯错也是学习的一部分。",
+        pinyin:"Cóng mǒu zhǒng yìyì shang shuō, fàncuò yě shì xuéxí de yí bùfen.",
+        meaning:"Theo một nghĩa nào đó, mắc lỗi cũng là một phần của việc học.",
+        explanation:"Cụm này báo trước rằng câu sau không phải chân lý tuyệt đối, mà là một cách nhìn. Dùng khi muốn nói một nhận định tinh tế mà không biến nó thành quy luật cho mọi trường hợp.",
+        note:"Nếu sự việc đã chắc và có số liệu, không cần hạ giọng bằng cụm này.",
+        examples:[
+          {tag:"Câu gốc", zh:"从某种意义上说，犯错也是学习的一部分。", py:"Cóng mǒu zhǒng yìyì shang shuō, fàncuò yě shì xuéxí de yí bùfen.", vi:"Theo một nghĩa nào đó, mắc lỗi cũng là một phần của việc học."},
+          {tag:"Thành phố", zh:"从某种意义上说，等待也是一种选择。", py:"Cóng mǒu zhǒng yìyì shang shuō, děngdài yě shì yì zhǒng xuǎnzé.", vi:"Theo một nghĩa nào đó, chờ đợi cũng là một lựa chọn."},
+          {tag:"Công việc", zh:"从某种意义上说，这份工作是在训练耐心。", py:"Cóng mǒu zhǒng yìyì shang shuō, zhè fèn gōngzuò shì zài xùnliàn nàixīn.", vi:"Theo một nghĩa nào đó, công việc này đang luyện tính kiên nhẫn."}
+        ]
+      },
+
+      {
+        id:"hsk9_05",
+        pattern:"以……为代价",
+        title:"以……为代价 — lấy… làm cái giá",
+        structure:"以 A 为代价 + kết quả",
+        example:"不能以健康为代价去赶进度。",
+        pinyin:"Bù néng yǐ jiànkāng wéi dàijià qù gǎn jìndù.",
+        meaning:"Không thể lấy sức khỏe làm cái giá để đuổi tiến độ.",
+        explanation:"Mẫu này nói kết quả đạt được bằng một sự mất mát. A là thứ bị đánh đổi. Thường mang ý không đồng ý nếu đứng với 不能、不应. Có thể dùng trung lập khi phân tích một quyết định lịch sử hoặc kinh tế.",
+        note:"A là cái bị mất, không phải cái đạt được.",
+        examples:[
+          {tag:"Câu gốc", zh:"不能以健康为代价去赶进度。", py:"Bù néng yǐ jiànkāng wéi dàijià qù gǎn jìndù.", vi:"Không thể lấy sức khỏe làm cái giá để đuổi tiến độ."},
+          {tag:"Môi trường", zh:"这座城市的发展曾以环境为代价。", py:"Zhè zuò chéngshì de fāzhǎn céng yǐ huánjìng wéi dàijià.", vi:"Sự phát triển của thành phố này từng lấy môi trường làm cái giá."},
+          {tag:"Học", zh:"不要以放弃睡眠为代价来准备考试。", py:"Bú yào yǐ fàngqì shuìmián wéi dàijià lái zhǔnbèi kǎoshì.", vi:"Đừng lấy việc bỏ ngủ làm cái giá để chuẩn bị thi."}
+        ]
+      },
+
+      {
+        id:"hsk9_06",
+        pattern:"与此同时",
+        title:"与此同时 — đồng thời với việc đó",
+        structure:"A。与此同时，B",
+        example:"学校增加了课程。与此同时，图书馆的开放时间也延长了。",
+        pinyin:"Xuéxiào zēngjiā le kèchéng. Yǔ cǐ tóngshí, túshūguǎn de kāifàng shíjiān yě yáncháng le.",
+        meaning:"Trường đã thêm môn học. Đồng thời, giờ mở cửa thư viện cũng được kéo dài.",
+        explanation:"与此同时 nối hai việc xảy ra cùng giai đoạn và cùng đáng nói. B không phải nguyên nhân của A, cũng không phải bước tiếp theo. Muốn nói bước sau thì dùng 接着、然后.",
+        note:"Hai việc nên có liên hệ về thời điểm hoặc bối cảnh.",
+        examples:[
+          {tag:"Câu gốc", zh:"学校增加了课程。与此同时，图书馆的开放时间也延长了。", py:"Xuéxiào zēngjiā le kèchéng. Yǔ cǐ tóngshí, túshūguǎn de kāifàng shíjiān yě yáncháng le.", vi:"Trường đã thêm môn học. Đồng thời, giờ mở cửa thư viện cũng được kéo dài."},
+          {tag:"Kinh tế", zh:"出口增加了。与此同时，国内需求也在恢复。", py:"Chūkǒu zēngjiā le. Yǔ cǐ tóngshí, guónèi xūqiú yě zài huīfù.", vi:"Xuất khẩu tăng. Đồng thời, nhu cầu trong nước cũng đang hồi lại."},
+          {tag:"Cá nhân", zh:"他在准备考试。与此同时，他还要完成实习。", py:"Tā zài zhǔnbèi kǎoshì. Yǔ cǐ tóngshí, tā hái yào wánchéng shíxí.", vi:"Anh ấy đang chuẩn bị thi. Đồng thời anh ấy còn phải hoàn thành thực tập."}
+        ]
+      },
+
+      {
+        id:"hsk9_07",
+        pattern:"继而",
+        title:"继而 — rồi tiếp đó",
+        structure:"A，继而 B",
+        example:"他先说明了原因，继而提出了两个办法。",
+        pinyin:"Tā xiān shuōmíng le yuányīn, jì'ér tíchū le liǎng ge bànfǎ.",
+        meaning:"Anh ấy nói rõ nguyên nhân trước, rồi tiếp đó đưa ra hai cách.",
+        explanation:"继而 nối bước sau trong một diễn tiến chặt, thường trong văn viết. B xảy ra sau A và phát triển từ A. Khác 然后 ở mức độ trang trọng và ở chỗ hai bước gắn nghĩa với nhau, không chỉ là thứ tự thời gian.",
+        note:"Không dùng 继而 cho hai việc ngẫu nhiên cùng ngày.",
+        examples:[
+          {tag:"Câu gốc", zh:"他先说明了原因，继而提出了两个办法。", py:"Tā xiān shuōmíng le yuányīn, jì'ér tíchū le liǎng ge bànfǎ.", vi:"Anh ấy nói rõ nguyên nhân trước, rồi tiếp đó đưa ra hai cách."},
+          {tag:"Diễn biến", zh:"讨论渐渐热烈，继而变成了争论。", py:"Tǎolùn jiànjiàn rèliè, jì'ér biànchéng le zhēnglùn.", vi:"Cuộc bàn bạc dần sôi nổi, rồi tiếp đó thành tranh luận."},
+          {tag:"Nghiên cứu", zh:"作者先列出数据，继而分析了原因。", py:"Zuòzhě xiān lièchū shùjù, jì'ér fēnxī le yuányīn.", vi:"Tác giả liệt kê số liệu trước, rồi tiếp đó phân tích nguyên nhân."}
+        ]
+      },
+
+      {
+        id:"hsk9_08",
+        pattern:"所谓……就是……",
+        title:"所谓……就是…… — cái gọi là… chính là…",
+        structure:"所谓 A，就是 B",
+        example:"所谓复习，就是把学过的内容重新变成自己的。",
+        pinyin:"Suǒwèi fùxí, jiù shì bǎ xuéguò de nèiróng chóngxīn biànchéng zìjǐ de.",
+        meaning:"Cái gọi là ôn tập chính là biến lại nội dung đã học thành của mình.",
+        explanation:"所谓 đưa ra một từ hoặc khái niệm. 就是 định nghĩa nó theo cách người viết muốn người đọc hiểu. Có thể trung lập, cũng có thể hơi nghi ngờ nếu ngữ cảnh mỉa mai. Ở bài học này dùng theo nghĩa định nghĩa rõ.",
+        note:"B phải là định nghĩa của A, không phải một ví dụ rời.",
+        examples:[
+          {tag:"Câu gốc", zh:"所谓复习，就是把学过的内容重新变成自己的。", py:"Suǒwèi fùxí, jiù shì bǎ xuéguò de nèiróng chóngxīn biànchéng zìjǐ de.", vi:"Cái gọi là ôn tập chính là biến lại nội dung đã học thành của mình."},
+          {tag:"Hợp tác", zh:"所谓合作，就是双方都愿意让一步。", py:"Suǒwèi hézuò, jiù shì shuāngfāng dōu yuànyì ràng yí bù.", vi:"Cái gọi là hợp tác chính là hai bên đều chịu nhường một bước."},
+          {tag:"Thành công", zh:"所谓按时完成，就是在期限前交出可用的结果。", py:"Suǒwèi ànshí wánchéng, jiù shì zài qīxiàn qián jiāo chū kěyòng de jiéguǒ.", vi:"Cái gọi là hoàn thành đúng hạn chính là nộp một kết quả dùng được trước thời hạn."}
+        ]
+      },
+
+      {
+        id:"hsk9_09",
+        pattern:"并非……而是……",
+        title:"并非……而是…… — chẳng phải… mà là…",
+        structure:"并非 A，而是 B",
+        example:"问题并非缺少想法，而是缺少坚持。",
+        pinyin:"Wèntí bìngfēi quēshǎo xiǎngfǎ, ér shì quēshǎo jiānchí.",
+        meaning:"Vấn đề chẳng phải thiếu ý tưởng, mà là thiếu sự kiên trì.",
+        explanation:"并非 phủ định mạnh và trang trọng hơn 不是. 而是 đưa ra bản chất đúng. Dùng khi sửa một cách hiểu phổ biến trong đoạn văn. A là cách hiểu bị loại, B là cách hiểu được giữ.",
+        note:"Giữ hai vế cùng loại: cùng là nguyên nhân, hoặc cùng là nhận định.",
+        examples:[
+          {tag:"Câu gốc", zh:"问题并非缺少想法，而是缺少坚持。", py:"Wèntí bìngfēi quēshǎo xiǎngfǎ, ér shì quēshǎo jiānchí.", vi:"Vấn đề chẳng phải thiếu ý tưởng, mà là thiếu sự kiên trì."},
+          {tag:"Thái độ", zh:"他并非反对，而是还需要时间考虑。", py:"Tā bìngfēi fǎnduì, ér shì hái xūyào shíjiān kǎolǜ.", vi:"Anh ấy chẳng phải phản đối, mà là còn cần thời gian suy nghĩ."},
+          {tag:"Kết quả", zh:"成功并非偶然，而是长期准备的结果。", py:"Chénggōng bìngfēi ǒurán, ér shì chángqī zhǔnbèi de jiéguǒ.", vi:"Thành công chẳng phải ngẫu nhiên, mà là kết quả của chuẩn bị lâu dài."}
+        ]
+      },
+
+      {
+        id:"hsk9_10",
+        pattern:"与其说……不如说……",
+        title:"与其说……不如说…… — nói là… chẳng bằng nói là…",
+        structure:"与其说 A，不如说 B",
+        example:"与其说他在休息，不如说他在想下一步。",
+        pinyin:"Yǔqí shuō tā zài xiūxi, bùrú shuō tā zài xiǎng xià yí bù.",
+        meaning:"Nói là anh ấy đang nghỉ chẳng bằng nói là anh ấy đang nghĩ bước tiếp.",
+        explanation:"Mẫu này sửa cách gọi một sự việc. A là cách mô tả chưa sát, B là cách mô tả đúng hơn. Khác 与其……不如……: mẫu kia chọn việc nên làm, mẫu này chọn cách nói cho đúng bản chất.",
+        note:"Hai vế là hai cách gọi cùng một sự việc.",
+        examples:[
+          {tag:"Câu gốc", zh:"与其说他在休息，不如说他在想下一步。", py:"Yǔqí shuō tā zài xiūxi, bùrú shuō tā zài xiǎng xià yí bù.", vi:"Nói là anh ấy đang nghỉ chẳng bằng nói là anh ấy đang nghĩ bước tiếp."},
+          {tag:"Thành phố", zh:"与其说这是旅游，不如说这是一次调查。", py:"Yǔqí shuō zhè shì lǚyóu, bùrú shuō zhè shì yí cì diàochá.", vi:"Nói đây là du lịch chẳng bằng nói đây là một chuyến tìm hiểu."},
+          {tag:"Học", zh:"与其说他记性差，不如说他没有复习。", py:"Yǔqí shuō tā jìxing chà, bùrú shuō tā méiyǒu fùxí.", vi:"Nói anh ấy trí nhớ kém chẳng bằng nói anh ấy đã không ôn."}
+        ]
+      },
+
+      {
+        id:"hsk9_11",
+        pattern:"退一步说",
+        title:"退一步说 — lùi một bước mà nói",
+        structure:"退一步说，+ nhượng bộ",
+        example:"退一步说，即使计划要改，已经做的准备也不会白费。",
+        pinyin:"Tuì yí bù shuō, jíshǐ jìhuà yào gǎi, yǐjīng zuò de zhǔnbèi yě bú huì báifèi.",
+        meaning:"Lùi một bước mà nói, ngay cả nếu kế hoạch phải đổi, phần đã chuẩn bị cũng không uổng.",
+        explanation:"Cụm này nhường một bước trong tranh luận rồi vẫn giữ một kết luận. Người viết tạm chấp nhận trường hợp xấu hơn, và cho thấy ngay trường hợp đó thì ý chính vẫn đứng. Thường đi với 即使、就算.",
+        note:"Phải có nhượng bộ thật ở câu sau, không chỉ là một câu chuyển ý trống.",
+        examples:[
+          {tag:"Câu gốc", zh:"退一步说，即使计划要改，已经做的准备也不会白费。", py:"Tuì yí bù shuō, jíshǐ jìhuà yào gǎi, yǐjīng zuò de zhǔnbèi yě bú huì báifèi.", vi:"Lùi một bước mà nói, ngay cả nếu kế hoạch phải đổi, phần đã chuẩn bị cũng không uổng."},
+          {tag:"Thi cử", zh:"退一步说，就算这次没考好，你也知道自己缺在哪里。", py:"Tuì yí bù shuō, jiùsuàn zhè cì méi kǎo hǎo, nǐ yě zhīdào zìjǐ quē zài nǎlǐ.", vi:"Lùi một bước mà nói, dù lần này thi chưa tốt, bạn cũng biết mình thiếu ở đâu."},
+          {tag:"Mua bán", zh:"退一步说，即使现在不买，先比较也是有用的。", py:"Tuì yí bù shuō, jíshǐ xiànzài bù mǎi, xiān bǐjiào yě shì yǒuyòng de.", vi:"Lùi một bước mà nói, dù bây giờ không mua, việc so sánh trước vẫn có ích."}
+        ]
+      },
+
+      {
+        id:"hsk9_12",
+        pattern:"诚然",
+        title:"诚然 — quả thật / cố nhiên",
+        structure:"诚然 A，但是 B",
+        example:"诚然，这个目标很难，但是并不是没有办法。",
+        pinyin:"Chéngrán, zhège mùbiāo hěn nán, dànshì bìng bú shì méiyǒu bànfǎ.",
+        meaning:"Quả thật mục tiêu này rất khó, nhưng không phải là không có cách.",
+        explanation:"诚然 thừa nhận một sự thật mà đối phương đang nêu, rồi mới đưa mặt còn lại. Dùng trong văn nghị luận để tỏ ra đã nghe lý lẽ kia. Trọng tâm thường nằm sau 但是、然而.",
+        note:"Không dùng 诚然 nếu bạn không thật sự đồng ý với vế thừa nhận.",
+        examples:[
+          {tag:"Câu gốc", zh:"诚然，这个目标很难，但是并不是没有办法。", py:"Chéngrán, zhège mùbiāo hěn nán, dànshì bìng bú shì méiyǒu bànfǎ.", vi:"Quả thật mục tiêu này rất khó, nhưng không phải là không có cách."},
+          {tag:"Chi phí", zh:"诚然，成本会上升，但这能减少以后的风险。", py:"Chéngrán, chéngběn huì shàngshēng, dàn zhè néng jiǎnshǎo yǐhòu de fēngxiǎn.", vi:"Quả thật chi phí sẽ tăng, nhưng điều đó có thể giảm rủi ro về sau."},
+          {tag:"Học", zh:"诚然，记忆需要时间，但是方法可以让它更快。", py:"Chéngrán, jìyì xūyào shíjiān, dànshì fāngfǎ kěyǐ ràng tā gèng kuài.", vi:"Quả thật ghi nhớ cần thời gian, nhưng phương pháp có thể làm việc đó nhanh hơn."}
+        ]
+      }
+
+    ]
+
   };
 
 
@@ -127687,10 +128337,15 @@ BẢN HOÀN CHỈNH V3.1
   style.textContent = `
 
     #thttGrammarLauncher{
-      position:fixed;
-      right:18px;
-      bottom:90px;
-      z-index:99990;
+      display:none !important;
+      right:0;
+      bottom:0;
+      width:1px;
+      height:1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      opacity:0;
+      z-index:1;
       border:0;
       border-radius:50px;
       padding:8px 11px;
@@ -128208,13 +128863,13 @@ BẢN HOÀN CHỈNH V3.1
 
         <div class="thtt-g-levels">
 
-          ${[1,2,3,4,5,6].map(level => `
+          ${[1,2,3,4,5,6,7,8,9].map(level => `
 
             <button
               class="thtt-g-level ${level === 1 ? "active" : ""}"
               data-level="${level}">
 
-              HSK ${level}
+              HSK ${level}${level > 1 ? " · Premium" : ""}
 
             </button>
 
@@ -128587,6 +129242,123 @@ BẢN HOÀN CHỈNH V3.1
      RENDER NORMAL
   ========================================================= */
 
+  function grammarExamples(item){
+
+    if(!item) return [];
+
+    if(Array.isArray(item.examples) && item.examples.length){
+      return item.examples.map(function(ex){
+        return {
+          tag: ex.tag || "",
+          zh: ex.zh || ex.example || "",
+          py: ex.py || ex.pinyin || "",
+          vi: ex.vi || ex.meaning || ""
+        };
+      });
+    }
+
+    const out = [{
+      tag: "Câu gốc",
+      zh: item.example || "",
+      py: item.pinyin || "",
+      vi: item.meaning || ""
+    }];
+
+    const zh = String(item.example || "").trim();
+    const py = String(item.pinyin || "").trim();
+    const vi = String(item.meaning || "").trim();
+
+    if(/。$/.test(zh) && !/[吗呢吧？?]/.test(zh)){
+      out.push({
+        tag: "Hỏi lại cùng mẫu",
+        zh: zh.replace(/。$/, "吗？"),
+        py: py.replace(/[.。]?\s*$/, "") + " ma?",
+        vi: "Có phải " + vi.replace(/[.。]$/, "") + " không?"
+      });
+    }
+
+    if(zh.startsWith("我") && /^Wǒ/i.test(py)){
+      out.push({
+        tag: "Đổi ngôi",
+        zh: "他" + zh.slice(1),
+        py: py.replace(/^Wǒ/, "Tā"),
+        vi: vi.replace(/^Tôi/, "Anh ấy").replace(/^tôi/, "anh ấy")
+      });
+    }else if(zh.startsWith("你") && /^Nǐ/i.test(py)){
+      out.push({
+        tag: "Đổi ngôi",
+        zh: "我" + zh.slice(1),
+        py: py.replace(/^Nǐ/, "Wǒ"),
+        vi: vi.replace(/^Bạn/, "Tôi").replace(/^bạn/, "tôi")
+      });
+    }
+
+    return out;
+
+  }
+
+
+  function grammarExampleHtml(item){
+
+    return grammarExamples(item).map(function(ex, index){
+
+      return `
+
+        <div class="thtt-g-label">
+          🇨🇳 Ví dụ ${index + 1}${ex.tag ? " · " + ex.tag : ""}
+        </div>
+
+        <div class="thtt-g-example">
+          ${ex.zh}
+        </div>
+
+        <div class="thtt-g-pinyin">
+          ${ex.py}
+        </div>
+
+        <div class="thtt-g-meaning">
+          🇻🇳 ${ex.vi}
+        </div>
+
+      `;
+
+    }).join("");
+
+  }
+
+
+  function grammarExplainHtml(item){
+
+    return `
+
+      <div class="thtt-g-info">
+        <b>💡 Mẫu này dùng để làm gì:</b><br>
+        ${item.explanation || ""}
+      </div>
+
+      <div class="thtt-g-info">
+        <b>📐 Xếp vào câu:</b><br>
+        Giữ đúng khung <b>${item.structure || ""}</b>.
+        Chủ ngữ đứng trước. Chỉ đổi người, thời gian hoặc sự vật;
+        không đảo vị trí của mẫu.
+      </div>
+
+      <div class="thtt-g-info">
+        <b>👀 Đọc câu mẫu:</b><br>
+        ${item.example || ""} nghĩa là “${item.meaning || ""}”.
+        Đọc theo pinyin để giữ thanh điệu, rồi che pinyin và nói lại.
+      </div>
+
+      <div class="thtt-g-info">
+        <b>⚠️ Lỗi cần tránh:</b><br>
+        ${item.note || "Không đảo trật tự của mẫu và không bỏ thành phần bắt buộc."}
+      </div>
+
+    `;
+
+  }
+
+
   function renderNormal(){
 
     currentMode =
@@ -128651,31 +129423,9 @@ BẢN HOÀN CHỈNH V3.1
           ${item.structure}
         </div>
 
-        <div class="thtt-g-label">
-          🇨🇳 Ví dụ
-        </div>
+        ${grammarExampleHtml(item)}
 
-        <div class="thtt-g-example">
-          ${item.example}
-        </div>
-
-        <div class="thtt-g-pinyin">
-          ${item.pinyin}
-        </div>
-
-        <div class="thtt-g-meaning">
-          🇻🇳 ${item.meaning}
-        </div>
-
-        <div class="thtt-g-info">
-          <b>💡 Giải thích:</b><br>
-          ${item.explanation}
-        </div>
-
-        <div class="thtt-g-info">
-          <b>⚠️ Lưu ý:</b><br>
-          ${item.note}
-        </div>
+        ${grammarExplainHtml(item)}
 
         <div class="thtt-g-actions">
 
@@ -133309,7 +134059,7 @@ function renderUnscramble(){
             "học miễn phí Ngữ pháp HSK1.\n\n" +
 
             "💎 Nâng cấp Premium để mở khóa " +
-            "Ngữ pháp HSK1 → HSK6."
+            "Ngữ pháp HSK1 → HSK9."
           );
 
         }finally{
@@ -159029,10 +159779,10 @@ html,body{background:#fff !important;}
  ========================================================= -->
 <style id="ttcWhiteHatIntegrityAndHubV1">
   .ttc-top-learning-hub{
-  width:50%;
+  width:min(720px,96%);
   margin:4px auto 16px;
   display:grid;
-  grid-template-columns:1fr 1fr;
+  grid-template-columns:1fr 1fr 1fr;
   gap:12px;
   position:relative;
   z-index:20;
@@ -159055,6 +159805,11 @@ html,body{background:#fff !important;}
     border-color:#f9a8d4;
     box-shadow:0 0 12px rgba(236,72,153,.42),0 8px 22px rgba(219,39,119,.18);
     animation:ttcRadicalGlow 1.8s ease-in-out infinite;
+  }
+  .ttc-grammar-btn{
+    background:linear-gradient(135deg,#991b1b,#ef4444);
+    border-color:#fecaca;
+    box-shadow:0 0 12px rgba(220,38,38,.4),0 8px 22px rgba(153,27,27,.18);
   }
   .ttc-pron-btn{
     background:linear-gradient(135deg,#f97316,#ea580c);
@@ -159231,9 +159986,9 @@ html,body{background:#fff !important;}
   }
 @media(max-width:600px){
   .ttc-top-learning-hub{
-  width:calc(50% - 10px);
+  width:min(720px,96%);
   margin:3px auto 10px;
-  grid-template-columns:1fr 1fr;
+  grid-template-columns:1fr 1fr 1fr;
   gap:6px;
 }
   .ttc-top-learning-btn{
@@ -159295,7 +160050,8 @@ html,body{background:#fff !important;}
     host.className="ttc-top-learning-hub";
     host.innerHTML=
       '<button type="button" class="ttc-top-learning-btn ttc-radical-btn" id="ttcOpenRadicals">🌸 214 Bộ thủ</button>'+
-      '<button type="button" class="ttc-top-learning-btn ttc-pron-btn" id="ttcOpenPronunciation">🟠 Luyện phát âm</button>';
+      '<button type="button" class="ttc-top-learning-btn ttc-pron-btn" id="ttcOpenPronunciation">🟠 Luyện phát âm</button>'+
+      '<button type="button" class="ttc-top-learning-btn ttc-grammar-btn" id="ttcOpenGrammar">🧩 Ngữ pháp</button>';
     const nav=document.querySelector("nav");
     if(nav && nav.parentNode){
       nav.parentNode.insertBefore(host,nav);
@@ -159309,6 +160065,10 @@ html,body{background:#fff !important;}
     };
     document.getElementById("ttcOpenPronunciation").onclick=function(){
       if(requireLogin()) openPronunciation();
+    };
+    document.getElementById("ttcOpenGrammar").onclick=function(){
+      var launcher=document.getElementById("thttGrammarLauncher");
+      if(launcher) launcher.click();
     };
   }
 
@@ -161054,7 +161814,7 @@ const section=document.getElementById('ttcListeningSection');
 if(!launcher||!section)return;
 const $=id=>document.getElementById(id);
 const levels=$('ttcListenLevels'),nav=$('ttcListenNav'),navTitle=$('ttcListenNavTitle'),list=$('ttcListenList'),detail=$('ttcListenDetail');
-const editor=$('ttcListenEditor'),answer=$('ttcListenAnswer'),checkResult=$('ttcListenCheckResult'),liveResult=$('ttcListenLiveResult'),status=$('ttcListenStatus');
+const editor=$('ttcListenEditor'),mirror=$('ttcListenMirror'),field=$('ttcListenField'),answer=$('ttcListenAnswer'),status=$('ttcListenStatus');
 const engine=document.getElementById('ttc-reading-engine-v3');
 let bank={};
 try{
@@ -161073,7 +161833,7 @@ try{
  console.error('[TTC Listening] Không thể nạp nguồn bài đọc:',err);
  return;
 }
-let currentLevel=0,currentArticle=null,currentIndex=0,mode='segment',revealed=false,voices=[],selectedVoice='',sessionId=0,liveCheckEnabled=false;
+let currentLevel=0,currentArticle=null,voices=[],selectedVoice='',sessionId=0,liveCheckEnabled=false;
 let pairedSegments=[],segmentDrafts=[],wholeDraft='';
 const speechAvailable=()=>typeof window!=='undefined'&&'speechSynthesis'in window;
 function stopAudio(){sessionId++;if(speechAvailable())window.speechSynthesis.cancel();status.textContent='Đã dừng phát âm thanh.';}
@@ -161118,122 +161878,82 @@ function renderList(n){
  if(!articles.length)list.innerHTML='<p>Chưa có bài đọc ở cấp độ này.</p>';
  view('list');}
 function openArticle(article,index){
- stopAudio();currentArticle=article;currentIndex=0;mode='segment';revealed=false;liveCheckEnabled=false;pairedSegments=makeSegments(article);segmentDrafts=pairedSegments.map(()=> '');wholeDraft='';
- const savedRate=parseFloat(localStorage.getItem('ttcReadingRate')||localStorage.getItem('ttsRate')||'0.65');const rateSelect=$('ttcListenRate');rateSelect.value=Array.from(rateSelect.options).some(o=>Number(o.value)===savedRate)?String(savedRate):'0.65';$('ttcListenCheck').setAttribute('aria-pressed','false');$('ttcListenCheck').textContent='🧩 CHECK VAR trực tiếp: TẮT';
+ stopAudio();currentArticle=article;liveCheckEnabled=false;pairedSegments=makeSegments(article);
+ const savedRate=parseFloat(localStorage.getItem('ttcReadingRate')||localStorage.getItem('ttsRate')||'0.65');const rateSelect=$('ttcListenRate');rateSelect.value=Array.from(rateSelect.options).some(o=>Number(o.value)===savedRate)?String(savedRate):'0.65';
+ $('ttcListenCheck').setAttribute('aria-pressed','false');$('ttcListenCheck').textContent='🧩 CHECK VAR: TẮT';
  $('ttcListenArticleTitle').textContent='HSK '+article.level+' · Bài đọc số '+(index+1)+' · '+(article.title||'');
- editor.innerHTML='';checkResult.replaceChildren();checkResult.classList.remove('visible');liveResult.replaceChildren();liveResult.classList.remove('visible');answer.classList.remove('visible');
- $('ttcListenModeLabel').textContent='Chế độ nghe từng đoạn · Đoạn 1/'+pairedSegments.length;
- $('ttcListenNext').disabled=pairedSegments.length<=1;
- $('ttcListenReveal').textContent='👁 Bật xem';
- status.textContent='Nguồn bài đọc đã được nạp trực tiếp từ Khu luyện đọc HSK.';
- updateAnswer();updateModeButtons();view('detail');}
-function updateModeButtons(){
- $('ttcListenWhole').setAttribute('aria-pressed',String(mode==='whole'));
- $('ttcListenSegmentMode').setAttribute('aria-pressed',String(mode==='segment'));
- $('ttcListenNext').disabled=mode!=='segment'||pairedSegments.length<=1;
- $('ttcListenPrev').disabled=mode!=='segment'||pairedSegments.length<=1;
- $('ttcListenPrev').textContent=currentIndex===0?'↶ Về đoạn cuối':'⬅️ Đoạn phía trước';
- $('ttcListenNext').textContent=currentIndex>=pairedSegments.length-1?'↻ Về đoạn đầu':'➡️ Đoạn tiếp theo';
- $('ttcListenModeLabel').textContent=mode==='whole'?'Chế độ nghe cả bài · CHECK VAR đối chiếu toàn bài':'Chế độ nghe từng đoạn · Đoạn '+(currentIndex+1)+'/'+pairedSegments.length;
-}
+ editor.value='';paintMirror();field.classList.remove('ttc-checking');
+ status.textContent='Bài đọc đã mở. Nhìn mẫu phía trên và chép vào khung.';
+ updateAnswer();view('detail');}
 function updateAnswer(){
  if(!currentArticle)return;
- const items=mode==='whole'?pairedSegments:[pairedSegments[currentIndex]];
  answer.replaceChildren();
- items.forEach((item)=>{
+ pairedSegments.forEach((item)=>{
   if(!item)return;
   const block=document.createElement('div');block.className='ttc-listen-answer-pair';
   const zh=document.createElement('div');zh.className='zh';zh.textContent=item.zh||'';block.appendChild(zh);
-  if($('ttcListenShowPinyin').checked){const py=document.createElement('div');py.className='py';py.textContent=item.py||'Pinyin chưa có cho phần này.';block.appendChild(py);}
-  if($('ttcListenShowVi').checked){const vi=document.createElement('div');vi.className='vi';vi.textContent=item.vi||'Chưa có nghĩa tiếng Việt cho phần này.';block.appendChild(vi);}
+  if($('ttcListenShowPinyin').checked){const py=document.createElement('div');py.className='py';py.textContent=item.py||'';block.appendChild(py);}
+  if($('ttcListenShowVi').checked){const vi=document.createElement('div');vi.className='vi';vi.textContent=item.vi||'';block.appendChild(vi);}
   answer.appendChild(block);
  });
- answer.classList.toggle('visible',revealed);
- $('ttcListenReveal').textContent=revealed?'🙈 Ẩn nội dung':'👁 Bật xem';
 }
+function speakAll(){
+ if(!currentArticle||!speechAvailable()){status.textContent='Trình duyệt này không hỗ trợ đọc tiếng Trung. Hãy thử Chrome hoặc Edge.';return;}
+ window.speechSynthesis.cancel();const thisSession=++sessionId;
+ const parts=pairedSegments.map(s=>s.zh).filter(Boolean);
+ if(!parts.length)return;
+ let i=0;
+ function next(){
+  if(thisSession!==sessionId)return;
+  if(i>=parts.length){status.textContent='Đã đọc xong cả bài.';return;}
+  const utterance=new SpeechSynthesisUtterance(parts[i]);utterance.lang='zh-CN';utterance.rate=Number($('ttcListenRate').value)||0.65;
+  const readingVoice=document.getElementById('ttcReadingVoice');const sharedVoice=document.getElementById('whiteHatChineseSelectV6');const savedVoice=localStorage.getItem('ttsVoiceName')||(readingVoice&&readingVoice.value)||(sharedVoice&&sharedVoice.value)||'';
+  const voice=voices.find(v=>v.name===selectedVoice)||voices.find(v=>v.name===savedVoice)||voices.find(v=>/^zh-CN$/i.test(v.lang))||voices.find(v=>/^zh(-|_)/i.test(v.lang));
+  if(!voice){status.textContent='Không tìm thấy giọng tiếng Trung trên thiết bị.';return;}
+  utterance.voice=voice;utterance.lang=voice.lang||'zh-CN';
+  const n=i+1;
+  utterance.onstart=()=>{if(thisSession===sessionId)status.textContent='Đang đọc cả bài, đoạn '+n+'/'+parts.length+'…';};
+  utterance.onend=()=>{if(thisSession!==sessionId)return;i++;next();};
+  utterance.onerror=ev=>{if(thisSession===sessionId&&ev.error!=='canceled'&&ev.error!=='interrupted')status.textContent='Không phát được giọng đọc.';};
+  window.speechSynthesis.speak(utterance);
+ }
+ next();
+}
+function escapeCheck(ch){return String(ch).replace(/[&<>]/g,c=>c==='&'?'&amp;':c==='<'?'&lt;':'&gt;');}
+function paintMirror(){
+ if(!liveCheckEnabled||!currentArticle){mirror.innerHTML='';field.classList.remove('ttc-checking');return;}
+ field.classList.add('ttc-checking');
+ const expected=Array.from(String(currentArticle.zh||'').replace(/\s/g,''));
+ let at=0,html='';
+ for(const ch of editor.value){
+  if(/\s/.test(ch)){html+=escapeCheck(ch);continue;}
+  const want=expected[at++];
+  if(want==null||want!==ch) html+='<span class="bad" title="'+(want?'Đúng là '+escapeCheck(want):'Thừa chữ')+'">'+escapeCheck(ch)+'</span>';
+  else html+='<span class="ok">'+escapeCheck(ch)+'</span>';
+ }
+ mirror.innerHTML=html;mirror.scrollTop=editor.scrollTop;
+}
+launcher.addEventListener('click',()=>{const open=!section.classList.contains('ttc-listening-open');section.classList.toggle('ttc-listening-open',open);section.style.display=open?'block':'none';launcher.setAttribute('aria-expanded',String(open));if(!open)stopAudio();});
+$('ttcListenHelpBtn').addEventListener('click',()=>{$('ttcListenHelp').hidden=!$('ttcListenHelp').hidden;});
+$('ttcListenBackLevels').addEventListener('click',()=>{stopAudio();currentArticle=null;view('levels');});
+$('ttcListenWhole').addEventListener('click',()=>{if(!currentArticle)return;speakAll();});
+$('ttcListenStop').addEventListener('click',stopAudio);
+$('ttcListenCheck').addEventListener('click',()=>{if(!currentArticle)return;liveCheckEnabled=!liveCheckEnabled;$('ttcListenCheck').setAttribute('aria-pressed',String(liveCheckEnabled));$('ttcListenCheck').textContent=liveCheckEnabled?'🧩 CHECK VAR: BẬT':'🧩 CHECK VAR: TẮT';paintMirror();status.textContent=liveCheckEnabled?'CHECK VAR đang soi chính khung gõ. Đúng màu xanh, sai màu đỏ.':'Đã tắt CHECK VAR.';});
+$('ttcListenClear').addEventListener('click',()=>{if(!editor.value.trim())return;if(!confirm('Xóa toàn bộ nội dung đã gõ trong bài này?'))return;editor.value='';paintMirror();status.textContent='Đã xóa nội dung đang gõ.';});
+editor.addEventListener('input',paintMirror);
+editor.addEventListener('scroll',()=>{mirror.scrollTop=editor.scrollTop;});
+$('ttcListenShowPinyin').addEventListener('change',updateAnswer);$('ttcListenShowVi').addEventListener('change',updateAnswer);
+$('ttcListenRate').addEventListener('change',()=>{const rate=$('ttcListenRate').value;try{localStorage.setItem('ttcReadingRate',rate);localStorage.setItem('ttsRate',rate);}catch(e){}const shared=document.getElementById('whiteHatRateSelectV6');if(shared)shared.value=rate;status.textContent='Tốc độ mới sẽ áp dụng cho lần phát tiếp theo và được đồng bộ với Khu luyện đọc HSK.';});
+$('ttcListenVoice').addEventListener('change',()=>{selectedVoice=$('ttcListenVoice').value;try{if(selectedVoice)localStorage.setItem('ttsVoiceName',selectedVoice);}catch(e){}const shared=document.getElementById('whiteHatChineseSelectV6');if(shared&&selectedVoice){shared.value=selectedVoice;shared.dispatchEvent(new Event('change',{bubbles:true}));}status.textContent='Đã chọn giọng đọc cho lần phát tiếp theo.';});
 function populateVoices(){
  if(!speechAvailable())return;
  voices=window.speechSynthesis.getVoices().filter(v=>/^zh([_-]|$)/i.test(v.lang)||/chinese|mandarin|中文|普通话|中国/i.test(v.name));
- const select=$('ttcListenVoice');const readingVoice=document.getElementById('ttcReadingVoice');const sharedVoice=document.getElementById('whiteHatChineseSelectV6');const previous=selectedVoice||localStorage.getItem('ttsVoiceName')||(readingVoice&&readingVoice.value)||(sharedVoice&&sharedVoice.value)||select.value;select.replaceChildren();
+ const select=$('ttcListenVoice');if(!select)return;const readingVoice=document.getElementById('ttcReadingVoice');const sharedVoice=document.getElementById('whiteHatChineseSelectV6');const previous=selectedVoice||localStorage.getItem('ttsVoiceName')||(readingVoice&&readingVoice.value)||(sharedVoice&&sharedVoice.value)||select.value;select.replaceChildren();
  const auto=document.createElement('option');auto.value='';auto.textContent='Dùng giọng đã chọn ở Khu luyện đọc HSK';select.appendChild(auto);
  voices.forEach(v=>{const o=document.createElement('option');o.value=v.name;o.textContent=v.name+' · '+v.lang;select.appendChild(o);});
  if(voices.some(v=>v.name===previous))select.value=previous;else select.value='';
  selectedVoice=select.value;
 }
-function speak(text){
- if(!text||!speechAvailable()){status.textContent='Trình duyệt này không hỗ trợ đọc tiếng Trung. Hãy thử Chrome hoặc Edge và kiểm tra giọng đọc hệ thống.';return;}
- window.speechSynthesis.cancel();const thisSession=++sessionId;
- const utterance=new SpeechSynthesisUtterance(text);utterance.lang='zh-CN';utterance.rate=Number($('ttcListenRate').value)||0.65;
- const readingVoice=document.getElementById('ttcReadingVoice');const sharedVoice=document.getElementById('whiteHatChineseSelectV6');const savedVoice=localStorage.getItem('ttsVoiceName')||(readingVoice&&readingVoice.value)||(sharedVoice&&sharedVoice.value)||'';
- const voice=voices.find(v=>v.name===selectedVoice)||voices.find(v=>v.name===savedVoice)||voices.find(v=>/^zh-CN$/i.test(v.lang))||voices.find(v=>/^zh(-|_)/i.test(v.lang));
- if(voice){utterance.voice=voice;utterance.lang=voice.lang||'zh-CN';}else{status.textContent='Không tìm thấy giọng tiếng Trung trên thiết bị. Hãy chọn/cài giọng Mandarin trong cài đặt giọng đọc.';return;}
- utterance.onstart=()=>{if(thisSession===sessionId)status.textContent=mode==='whole'?'Đang nghe toàn bài…':'Đang nghe đoạn '+(currentIndex+1)+'/'+pairedSegments.length+'…';};
- utterance.onend=()=>{if(thisSession===sessionId)status.textContent='Đã nghe xong '+(mode==='whole'?'toàn bài.':'đoạn '+(currentIndex+1)+'. Anh/chị có thể nhấn Đoạn tiếp theo bất cứ lúc nào.');};
- utterance.onerror=ev=>{if(thisSession===sessionId&&ev.error!=='canceled'&&ev.error!=='interrupted')status.textContent='Không phát được giọng đọc. Thử chọn giọng khác hoặc kiểm tra cài đặt âm thanh.';};
- window.speechSynthesis.speak(utterance);
-}
-function plainEditorText(){return (editor.innerText||editor.textContent||'').replace(/\u00a0/g,' ').replace(/\s/g,'');}
-function renderDiff(expected,typed,target=checkResult,announce=true){
- const a=Array.from(String(expected||'').replace(/\s/g,'')),b=Array.from(String(typed||'').replace(/\s/g,''));
- const n=a.length,m=b.length,dp=Array.from({length:n+1},()=>new Uint32Array(m+1));
- for(let i=0;i<=n;i++)dp[i][0]=i;
- for(let j=0;j<=m;j++)dp[0][j]=j;
- for(let i=1;i<=n;i++)for(let j=1;j<=m;j++){
-  if(a[i-1]===b[j-1])dp[i][j]=dp[i-1][j-1];
-  else dp[i][j]=Math.min(dp[i-1][j-1]+1,dp[i-1][j]+1,dp[i][j-1]+1);
- }
- const ops=[];let i=n,j=m;
- while(i>0||j>0){
-  if(i>0&&j>0&&a[i-1]===b[j-1]&&dp[i][j]===dp[i-1][j-1]){ops.push({type:'ok',ch:b[j-1]});i--;j--;continue;}
-  if(i>0&&j>0&&dp[i][j]===dp[i-1][j-1]+1){ops.push({type:'wrong',ch:b[j-1],expected:a[i-1]});i--;j--;continue;}
-  if(i>0&&dp[i][j]===dp[i-1][j]+1){ops.push({type:'missing',ch:a[i-1]});i--;continue;}
-  if(j>0){ops.push({type:'extra',ch:b[j-1]});j--;continue;}
- }
- ops.reverse();
- // Không báo thiếu ở đuôi bài: người học có thể mới gõ đến đây và chưa hoàn tất.
- let lastTyped=-1;for(let k=0;k<ops.length;k++)if(ops[k].type!=='missing')lastTyped=k;
- const shown=ops.slice(0,lastTyped+1);
- const fragment=document.createDocumentFragment();let correct=0,wrong=0,missing=0,extra=0;
- for(let k=0;k<shown.length;k++){
-  const op=shown[k];
-  if(op.type==='missing'){
-   let count=1;while(k+1<shown.length&&shown[k+1].type==='missing'){count++;k++;}
-   const span=document.createElement('span');span.className='ttc-check-missing';span.textContent='?'.repeat(count);span.title='Thiếu '+count+' chữ';fragment.appendChild(span);missing+=count;continue;
-  }
-  const span=document.createElement('span');span.textContent=op.ch;
-  if(op.type==='ok'){span.className='ttc-check-correct';correct++;}
-  else if(op.type==='wrong'){span.className='ttc-check-wrong';span.title='Chữ đúng cần là: '+op.expected;wrong++;}
-  else {span.className='ttc-check-wrong';span.title='Chữ thừa';extra++;}
-  fragment.appendChild(span);
- }
- if(!shown.length){const hint=document.createElement('span');hint.textContent='Hãy gõ phần đã nghe để xem chữ đúng và chữ sai.';fragment.appendChild(hint);}
- target.replaceChildren(fragment);target.classList.add('visible');
- if(announce)status.textContent='Đối chiếu: '+correct+' chữ đúng · '+wrong+' chữ sai · '+missing+' chữ thiếu · '+extra+' chữ thừa. Chữ đúng màu xanh, chữ sai màu đỏ, dấu ? chỉ vị trí thiếu ở giữa phần đã gõ.';
-}
-function activeExpected(){return !currentArticle?'':(mode==='whole'?currentArticle.zh:(pairedSegments[currentIndex]?.zh||''));}
-function saveDraft(){if(!currentArticle)return;if(mode==='whole')wholeDraft=editor.innerHTML;else segmentDrafts[currentIndex]=editor.innerHTML;}
-function loadDraft(){editor.innerHTML=mode==='whole'?wholeDraft:(segmentDrafts[currentIndex]||'');checkResult.classList.remove('visible');refreshDiffOnEdit();}
-function refreshDiffOnEdit(){if(!liveCheckEnabled||!currentArticle){liveResult.classList.remove('visible');return;}renderDiff(activeExpected(),plainEditorText(),liveResult,false);}
-launcher.addEventListener('click',()=>{const open=!section.classList.contains('ttc-listening-open');section.classList.toggle('ttc-listening-open',open);section.style.display=open?'block':'none';launcher.setAttribute('aria-expanded',String(open));if(!open)stopAudio();});
-$('ttcListenHelpBtn').addEventListener('click',()=>{$('ttcListenHelp').hidden=!$('ttcListenHelp').hidden;});
-$('ttcListenBackLevels').addEventListener('click',()=>{stopAudio();currentArticle=null;view('levels');});
-$('ttcListenWhole').addEventListener('click',()=>{if(!currentArticle)return;saveDraft();mode='whole';currentIndex=0;revealed=false;loadDraft();updateAnswer();updateModeButtons();speak(currentArticle.zh);});
-$('ttcListenSegmentMode').addEventListener('click',()=>{if(!currentArticle)return;stopAudio();saveDraft();mode='segment';currentIndex=0;revealed=false;loadDraft();updateAnswer();updateModeButtons();speak(pairedSegments[0]?.zh||'');});
-$('ttcListenPlayCurrent').addEventListener('click',()=>{if(!currentArticle)return;speak(mode==='whole'?currentArticle.zh:(pairedSegments[currentIndex]?.zh||''));});
-$('ttcListenStop').addEventListener('click',stopAudio);
-$('ttcListenReveal').addEventListener('click',()=>{revealed=!revealed;updateAnswer();});
-function moveSegment(delta){if(mode!=='segment'||!pairedSegments.length)return;saveDraft();stopAudio();currentIndex=(currentIndex+delta+pairedSegments.length)%pairedSegments.length;revealed=false;loadDraft();updateAnswer();updateModeButtons();status.textContent='Đã chuyển sang đoạn '+(currentIndex+1)+'/'+pairedSegments.length+'. Nhấn “Nghe tiếp” để phát đoạn này.';}
-$('ttcListenPrev').addEventListener('click',()=>moveSegment(-1));
-$('ttcListenNext').addEventListener('click',()=>moveSegment(1));
-$('ttcListenCheck').addEventListener('click',()=>{if(!currentArticle)return;liveCheckEnabled=!liveCheckEnabled;$('ttcListenCheck').setAttribute('aria-pressed',String(liveCheckEnabled));$('ttcListenCheck').textContent=liveCheckEnabled?'🧩 CHECK VAR trực tiếp: BẬT':'🧩 CHECK VAR trực tiếp: TẮT';if(liveCheckEnabled){renderDiff(activeExpected(),plainEditorText(),liveResult,false);status.textContent='CHECK VAR trực tiếp đang bật: chữ sẽ được đối chiếu ngay khi gõ.';}else{liveResult.classList.remove('visible');status.textContent='CHECK VAR trực tiếp đã tắt.';}});
-$('ttcListenClear').addEventListener('click',()=>{if(!editor.textContent.trim())return;if(!confirm('Xóa toàn bộ nội dung đã gõ trong bài này?'))return;editor.innerHTML='';saveDraft();checkResult.replaceChildren();checkResult.classList.remove('visible');liveResult.replaceChildren();liveResult.classList.remove('visible');refreshDiffOnEdit();status.textContent='Đã xóa nội dung đang gõ.';});
-editor.addEventListener('input',()=>{saveDraft();refreshDiffOnEdit();});
-
-section.querySelectorAll('.ttc-listen-editor-toolbar [data-cmd]').forEach(btn=>btn.addEventListener('click',()=>{editor.focus();try{document.execCommand(btn.dataset.cmd,false,null);}catch(e){};}));
-section.querySelectorAll('.ttc-listen-editor-toolbar [data-insert]').forEach(btn=>btn.addEventListener('click',()=>{editor.focus();try{document.execCommand('insertText',false,btn.dataset.insert);}catch(e){editor.appendChild(document.createTextNode(btn.dataset.insert));}}));
-$('ttcListenShowPinyin').addEventListener('change',updateAnswer);$('ttcListenShowVi').addEventListener('change',updateAnswer);
-$('ttcListenRate').addEventListener('change',()=>{const rate=$('ttcListenRate').value;try{localStorage.setItem('ttcReadingRate',rate);localStorage.setItem('ttsRate',rate);}catch(e){}const shared=document.getElementById('whiteHatRateSelectV6');if(shared)shared.value=rate;status.textContent='Tốc độ mới sẽ áp dụng cho lần phát tiếp theo và được đồng bộ với Khu luyện đọc HSK.';});
-$('ttcListenVoice').addEventListener('change',()=>{selectedVoice=$('ttcListenVoice').value;try{if(selectedVoice)localStorage.setItem('ttsVoiceName',selectedVoice);}catch(e){}const shared=document.getElementById('whiteHatChineseSelectV6');if(shared&&selectedVoice){shared.value=selectedVoice;shared.dispatchEvent(new Event('change',{bubbles:true}));}status.textContent='Đã chọn giọng đọc cho lần phát tiếp theo.';});
 if(speechAvailable()){populateVoices();window.speechSynthesis.addEventListener?.('voiceschanged',populateVoices);}
 renderLevels();view('levels');
 })();
@@ -161597,6 +162317,123 @@ renderLevels();view('levels');
   #testSection #testResult.ttc-test-correct-only{font-size:23px !important}
 }
 </style>
+<script id="ttc-theme-and-lookup">
+(function(){
+  var root=document.documentElement;
+  var saved="";
+  try{saved=localStorage.getItem("ttc_theme_v1")||"";}catch(e){}
+  if(saved) root.setAttribute("data-theme",saved);
+  var themeButton=document.getElementById("ttcThemeButton");
+  var themeMenu=document.getElementById("ttcThemeMenu");
+  if(themeButton&&themeMenu){
+    themeButton.addEventListener("click",function(){
+      themeMenu.hidden=!themeMenu.hidden;
+      themeButton.setAttribute("aria-expanded",String(!themeMenu.hidden));
+    });
+    themeMenu.addEventListener("click",function(event){
+      var key=event.target&&event.target.getAttribute("data-theme");
+      if(!key) return;
+      if(key==="day") root.removeAttribute("data-theme");
+      else root.setAttribute("data-theme",key);
+      try{localStorage.setItem("ttc_theme_v1",key==="day"?"":key);}catch(e){}
+      themeMenu.hidden=true;
+      themeButton.setAttribute("aria-expanded","false");
+    });
+  }
+
+  var box=document.getElementById("ttcDrawBox");
+  var canvas=document.getElementById("ttcDrawCanvas");
+  var status=document.getElementById("ttcOcrStatus");
+  var search=document.getElementById("search");
+  var drawing=false;
+  var ctx=canvas?canvas.getContext("2d"):null;
+  function say(text){if(status) status.textContent=text;}
+  function prepareCanvas(){
+    if(!ctx) return;
+    ctx.fillStyle="#fff";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.strokeStyle="#111";
+    ctx.lineWidth=8;
+    ctx.lineCap="round";
+    ctx.lineJoin="round";
+  }
+  function point(event){
+    var rect=canvas.getBoundingClientRect();
+    var src=event.touches?event.touches[0]:event;
+    return {x:(src.clientX-rect.left)*canvas.width/rect.width,y:(src.clientY-rect.top)*canvas.height/rect.height};
+  }
+  if(canvas&&ctx){
+    prepareCanvas();
+    canvas.addEventListener("pointerdown",function(event){drawing=true;var p=point(event);ctx.beginPath();ctx.moveTo(p.x,p.y);});
+    canvas.addEventListener("pointermove",function(event){if(!drawing)return;var p=point(event);ctx.lineTo(p.x,p.y);ctx.stroke();});
+    window.addEventListener("pointerup",function(){drawing=false;});
+  }
+  function loadTesseract(){
+    if(window.Tesseract) return Promise.resolve();
+    return new Promise(function(resolve,reject){
+      var s=document.createElement("script");
+      s.src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";
+      s.onload=function(){resolve();};
+      s.onerror=function(){reject(new Error("ocr"));};
+      document.head.appendChild(s);
+    });
+  }
+  function useHanzi(text){
+    var found=String(text||"").match(/[\u3400-\u9fff]+/);
+    if(!found){say("Chưa nhận ra chữ Hán. Hãy vẽ to, đậm, hoặc chọn ảnh rõ hơn.");return;}
+    var word=found[0].slice(0,12);
+    if(search) search.value=word;
+    if(typeof searchWords==="function") searchWords();
+    say("Đã tra: "+word);
+  }
+  async function recognize(source){
+    say("Đang nhận chữ, lần đầu có thể mất một lúc…");
+    try{
+      await loadTesseract();
+      var result=await window.Tesseract.recognize(source,"chi_sim");
+      useHanzi(result&&result.data?result.data.text:"");
+    }catch(e){
+      say("Chưa nhận được chữ. Hãy kiểm tra mạng cho lần tải bộ nhận chữ, rồi thử lại.");
+    }
+  }
+  var drawButton=document.getElementById("ttcDrawSearch");
+  if(drawButton&&box) drawButton.addEventListener("click",function(){box.hidden=false;prepareCanvas();say("Vẽ một chữ Hán trong khung, rồi bấm Nhận chữ.");});
+  var clearButton=document.getElementById("ttcDrawClear");
+  if(clearButton) clearButton.addEventListener("click",function(){prepareCanvas();say("");});
+  var readButton=document.getElementById("ttcDrawRead");
+  if(readButton) readButton.addEventListener("click",function(){recognize(canvas);});
+  var closeButton=document.getElementById("ttcDrawClose");
+  if(closeButton&&box) closeButton.addEventListener("click",function(){box.hidden=true;});
+  var photoButton=document.getElementById("ttcPhotoSearch");
+  var photoFile=document.getElementById("ttcPhotoFile");
+  if(photoButton&&photoFile){
+    photoButton.addEventListener("click",function(){photoFile.click();});
+    photoFile.addEventListener("change",function(){
+      var file=photoFile.files&&photoFile.files[0];
+      if(!file) return;
+      var reader=new FileReader();
+      reader.onload=function(){recognize(reader.result);};
+      reader.readAsDataURL(file);
+    });
+  }
+  var voiceButton=document.getElementById("ttcVoiceSearch");
+  if(voiceButton){
+    voiceButton.addEventListener("click",function(){
+      var Rec=window.SpeechRecognition||window.webkitSpeechRecognition;
+      if(!Rec){alert("Trình duyệt này chưa có nhận giọng. Hãy dùng Chrome.");return;}
+      var rec=new Rec();
+      rec.lang="zh-CN";
+      rec.onresult=function(event){
+        var text=event.results&&event.results[0]&&event.results[0][0]?event.results[0][0].transcript:"";
+        if(search) search.value=text;
+        if(typeof searchWords==="function") searchWords();
+      };
+      rec.onerror=function(){alert("Chưa nghe được. Hãy cho phép micro rồi nói lại.");};
+      rec.start();
+    });
+  }
+})();
+</script>
 </body>
 </html>
 
