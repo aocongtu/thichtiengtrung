@@ -2790,6 +2790,32 @@ body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; 
    THÍCH TIẾNG TRUNG
 <span style="font-size:18px"></span>
 </h1>
+<div class="ttc-starter">
+  <button type="button" id="ttcStarterButton" aria-expanded="false" aria-controls="ttcStarterPanel">🌱 Cách học cho người mới</button>
+  <section id="ttcStarterPanel" hidden>
+    <p><strong>Làm quen trang này trong vài bước.</strong> Không cần biết tiếng Trung trước.</p>
+    <ol>
+      <li><strong>Chọn cấp độ.</strong> Người mới bắt đầu từ HSK 1. HSK 1 và HSK 2 học được sau khi đăng nhập. HSK 3 đến HSK 9 cần gói Premium.</li>
+      <li><strong>Học từ.</strong> Mở thẻ flashcard, hoặc bấm học tự động để nghe từ và câu ví dụ. Bấm lần nữa thì thu gọn.</li>
+      <li><strong>Xem video.</strong> Nút “Học tiếng Trung qua video” màu trắng khi chưa học. Bấm vào mới mở bài và nút chuyển đỏ.</li>
+      <li><strong>Đọc và nghe.</strong> Khu luyện đọc có bài theo cấp độ. Khu luyện nghe để nghe rồi gõ lại cho đúng chính tả.</li>
+      <li><strong>Luyện thi.</strong> Trong Khu luyện thi HSK, phần nghe có hình, câu chữ được giấu. Anh nghe rồi gõ lại câu, không nhìn sẵn đáp án.</li>
+      <li><strong>Tra từ.</strong> Ô tìm kiếm nhận Hán tự, pinyin hoặc tiếng Việt. Có thể vẽ, chụp ảnh hoặc nói.</li>
+    </ol>
+  </section>
+</div>
+<script>
+(function(){
+  var button = document.getElementById("ttcStarterButton");
+  var panel = document.getElementById("ttcStarterPanel");
+  if(!button || !panel) return;
+  button.addEventListener("click", function(){
+    var open = panel.hidden;
+    panel.hidden = !open;
+    button.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+})();
+</script>
 <div class="ttc-script-switch-wrap">
   <button type="button" id="ttcScriptSwitch" class="ttc-script-switch" aria-label="Chuyển toàn bộ nội dung giữa giản thể và phồn thể">简体 ⇄ 繁體</button>
 </div>
@@ -143007,7 +143033,16 @@ function startExam(){
           item.partTitle || "",
 
         partHint:
-          item.partHint || ""
+          item.partHint || "",
+
+        inputMode:
+          item.inputMode || "",
+
+        answerText:
+          item.answerText || "",
+
+        picture:
+          item.picture || null
 
       };
 
@@ -143352,6 +143387,15 @@ function renderQuestions(){
    📚 GIẢI THÍCH CHI TIẾT
 ========================================================= */
 
+function ttcDictationMatch(item, given){
+  function norm(value){
+    return String(value || "").replace(/[\s，。！？、,.!?;；：:""''“”‘’（）()]/g, "").toLowerCase();
+  }
+  const heard = norm(item && (item.answerText || item.audioText));
+  const typed = norm(given);
+  return !!heard && typed === heard;
+}
+
 function showPracticeFeedback(
   card,
   item,
@@ -143382,8 +143426,9 @@ function showPracticeFeedback(
 
 
   const isCorrect =
-    selected ===
-    item.answer;
+    item.inputMode === "dictation"
+      ? ttcDictationMatch(item, selected)
+      : selected === item.answer;
 
 
   if(isCorrect){
@@ -143402,6 +143447,20 @@ function showPracticeFeedback(
 
 
   let html = "";
+
+  if(item.inputMode === "dictation"){
+    html +=
+      "<div class='wh-hsk-feedback-title'>" +
+      (isCorrect ? "🎉 Chính xác!" : "❌ Chưa đúng câu vừa nghe") +
+      "</div>";
+    html +=
+      "<div><strong>✅ Câu đúng:</strong><br>" +
+      (item.answerText || item.audioText || "") +
+      "</div>";
+    feedback.innerHTML = html;
+    card.appendChild(feedback);
+    return;
+  }
 
 
   html +=
@@ -143711,8 +143770,9 @@ async function finishExam(
     function(item,index){
 
       if(
-        currentAnswers[index] ===
-        item.answer
+        item.inputMode === "dictation"
+          ? ttcDictationMatch(item, currentAnswers[index])
+          : currentAnswers[index] === item.answer
       ){
 
         correct++;
@@ -145643,7 +145703,9 @@ renderQuestions =
           "wh-hsk-q-text";
 
         q.textContent =
-          item.q;
+          item.inputMode === "dictation"
+            ? "Xem hình, nghe câu, rồi gõ lại câu tiếng Trung."
+            : item.q;
 
 
         /* =================================================
@@ -145682,6 +145744,11 @@ renderQuestions =
         /* =================================================
            THI THỬ
         ================================================= */
+
+        if(item.inputMode === "dictation"){
+          pinyin.style.display = "none";
+          meaning.style.display = "none";
+        }
 
         if(false){
 
@@ -145726,6 +145793,31 @@ renderQuestions =
         /* =================================================
            NÚT NGHE
         ================================================= */
+
+        if(
+          item.picture &&
+          item.picture.icon
+        ){
+
+          const picture =
+            document.createElement(
+              "div"
+            );
+
+          picture.className =
+            "wh-hsk-picture";
+
+          picture.innerHTML =
+            "<span>" +
+            item.picture.icon +
+            "</span>";
+
+          card.appendChild(
+            picture
+          );
+
+        }
+
 
         if(
           item.section === "listening" &&
@@ -145828,6 +145920,61 @@ renderQuestions =
         options.className =
           "wh-hsk-options";
 
+
+        if(item.inputMode === "dictation"){
+
+          const field =
+            document.createElement(
+              "textarea"
+            );
+
+          field.className =
+            "wh-hsk-dictation";
+
+          field.placeholder =
+            "Nghe xong, gõ câu tiếng Trung vào đây";
+
+          field.value =
+            typeof currentAnswers[index] === "string"
+              ? currentAnswers[index]
+              : "";
+
+          field.addEventListener(
+            "input",
+            function(){
+
+              currentAnswers[index] =
+                field.value;
+
+              updateProgress();
+
+            }
+          );
+
+          if(currentMode === "practice"){
+
+            field.addEventListener(
+              "blur",
+              function(){
+
+                if(!String(field.value || "").trim()) return;
+
+                showPracticeFeedback(
+                  card,
+                  item,
+                  field.value
+                );
+
+              }
+            );
+
+          }
+
+          options.appendChild(
+            field
+          );
+
+        }
 
         item.options.forEach(
 
@@ -164683,7 +164830,10 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
       partTitle: part[1],
       partHint: part[2],
       h: spec.h||"",
-      m: spec.m||""
+      m: spec.m||"",
+      inputMode: spec.inputMode||"",
+      answerText: spec.answerText||"",
+      picture: spec.picture||null
     };
   }
   function choices(correct, wrongs, rng, label){
@@ -164699,64 +164849,77 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
     };
   }
 
+  function pictureOf(word){
+    const text = (String(word.m||"")+" "+String(word.exampleMeaning||"")).toLowerCase();
+    const rows = [
+      [/ăn|cơm|thức ăn|đói|bữa/, "🍚"],
+      [/uống|nước|trà|cà phê|sữa/, "🥤"],
+      [/học|trường|lớp|sách|đọc|viết|chữ/, "📚"],
+      [/nhà|phòng|cửa|bàn|ghế/, "🏠"],
+      [/mẹ|bố|ba |cha |gia đình|bạn|con/, "👨‍👩‍👧"],
+      [/đi |xe|tàu|máy bay|đường|bus/, "🚌"],
+      [/mua|tiền|cửa hàng|giá/, "🛍️"],
+      [/giờ|ngày|tháng|năm|hôm|tuần|sáng|tối/, "⏰"],
+      [/thích|yêu|vui|buồn|đẹp/, "😊"],
+      [/bệnh|đau|bác sĩ|thuốc|khỏe/, "🩺"],
+      [/mưa|nắng|lạnh|nóng|trời/, "⛅"],
+      [/điện thoại|máy tính|mạng/, "📱"],
+      [/làm việc|công ty|văn phòng|nghề/, "💼"],
+      [/bóng|chạy|thể thao|bơi/, "⚽"],
+      [/mèo|chó|chim|cá|động vật/, "🐾"],
+      [/áo|quần|mặc|giày/, "👕"],
+      [/ngủ|giường|nghỉ/, "🛏️"],
+      [/chào|tên|gọi/, "👋"]
+    ];
+    for(let i=0;i<rows.length;i++){
+      if(rows[i][0].test(text)) return {icon: rows[i][1]};
+    }
+    const icons = ["🖼️","🌿","⭐","🎯","📘","🧩","🌸","🔔"];
+    const n = Array.from(String(word.h||"x")).reduce(function(sum, ch){ return sum + ch.charCodeAt(0); }, 0);
+    return {icon: icons[n % icons.length]};
+  }
+  function listeningQuestion(part, word, audio){
+    const heard = part.slice();
+    heard[2] = "Xem hình, bấm nghe, rồi gõ lại câu tiếng Trung. Câu không hiện sẵn.";
+    return pack(heard, {
+      q: "看图，听句子，然后写下你听到的句子。",
+      qMeaning: "Nghe xong hãy gõ lại đúng câu tiếng Trung vào ô bên dưới.",
+      options: [],
+      answer: 0,
+      analysis: ["Đáp án là câu vừa được đọc. Dấu câu không bắt buộc."],
+      audioText: audio,
+      inputMode: "dictation",
+      answerText: audio,
+      picture: pictureOf(word),
+      h: word.h,
+      m: word.m
+    });
+  }
   function make(type, word, pool, rng, part){
     const rest = others(pool, word, rng, 3);
     while(rest.length<3) rest.push(pool[rest.length%pool.length]);
-    if(type==="listen-tf" || type==="read-tf"){
+    if(type==="listen-tf") return listeningQuestion(part, word, zh(word));
+    if(type==="listen-meaning") return listeningQuestion(part, word, zh(word));
+    if(type==="listen-reply") return listeningQuestion(part, word, "请问，"+zh(word).replace(/[。！？]$/,"")+"吗？");
+    if(type==="listen-word") return listeningQuestion(part, word, zh(word));
+    if(type==="read-tf"){
       const truth = rng()<0.5;
       const statement = truth ? vi(word) : vi(rest[0]);
       const answer = truth ? 0 : 1;
       return pack(part, {
-        q: (type==="listen-tf"?"请听句子，判断意思对不对。":"读句子，判断意思对不对。")+"\n"+statement,
-        qMeaning: type==="listen-tf"?"Nghe rồi chọn 对 hoặc 错. Câu tiếng Việt ở trên là ý cần xét.":"Đọc câu tiếng Trung (bấm loa nếu cần) và xét câu tiếng Việt.",
+        q: "读句子，判断意思对不对。\n"+statement,
+        qMeaning: "Đọc câu tiếng Trung và xét câu tiếng Việt.",
         options:["对","错"],
         optionPinyin:["duì","cuò"],
         optionMeaning:["Đúng","Sai"],
         answer: answer,
-        audioText: type==="listen-tf"?zh(word):"",
-        qPinyin: type==="read-tf"?py(word):"",
+        audioText: "",
+        qPinyin: py(word),
         h: word.h, m: word.m,
         analysis:[
           answer===0?"ĐÚNG: ý tiếng Việt khớp với câu tiếng Trung.":"SAI: ý tiếng Việt không khớp, không chọn 对.",
           answer===1?"ĐÚNG: ý tiếng Việt không khớp câu tiếng Trung, nên chọn 错.":"SAI: ý tiếng Việt là đúng, không chọn 错."
         ]
-      });
-    }
-    if(type==="listen-meaning"){
-      const picked = choices(vi(word), rest.map(vi), rng, "nghĩa của câu vừa nghe");
-      return pack(part, {
-        q:"请听句子，选择正确的意思。",
-        qMeaning:"Chọn nghĩa tiếng Việt đúng với câu vừa nghe.",
-        options:picked.options, answer:picked.answer, analysis:picked.analysis,
-        optionMeaning:picked.options.slice(),
-        audioText:zh(word), h:word.h, m:word.m
-      });
-    }
-    if(type==="listen-reply"){
-      const correct = "是的，"+zh(word);
-      const wrongs = rest.map(function(w){return "不是，"+zh(w);});
-      const picked = choices(correct, wrongs, rng, "câu trả lời hợp với câu hỏi");
-      return pack(part, {
-        q:"请听问题，选择最合适的回答。",
-        qMeaning:"Nghe câu hỏi rồi chọn câu đáp.",
-        options:picked.options,
-        optionPinyin:["","","",""],
-        optionMeaning:["","","",""],
-        answer:picked.answer, analysis:picked.analysis,
-        audioText:"请问，"+zh(word).replace(/[。！？]$/,"")+"吗？",
-        h:word.h, m:word.m
-      });
-    }
-    if(type==="listen-word"){
-      const picked = choices(word.h, rest.map(function(w){return w.h;}), rng, "từ được nhắc trong câu");
-      return pack(part, {
-        q:"请听句子，选择句子里提到的词。",
-        qMeaning:"Chọn từ xuất hiện trong câu vừa nghe.",
-        options:picked.options,
-        optionPinyin:picked.options.map(function(){return "";}),
-        optionMeaning:picked.options.map(function(){return "";}),
-        answer:picked.answer, analysis:picked.analysis,
-        audioText:zh(word), h:word.h, m:word.m
       });
     }
     if(type==="word-meaning"){
@@ -164986,7 +165149,18 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
   .ttc-learn-group-body{display:flex;flex-direction:column;align-items:stretch;gap:8px}
   #ttcGroupLevel .ttc-hsk-frame,#ttcGroupLevel .ttc-type-frame,#ttcGroupPractice .ttc-action-frame{margin:0 auto;width:100%}
   #ttcGroupPractice #ttcReadingLauncher,#ttcGroupPractice #ttcListeningLauncher,#ttcGroupPractice #ttcMatchLauncher,#ttcGroupPractice #ttcListenLauncher,#ttcGroupPractice #ttcVideoLauncher,#ttcSpecialtyLauncher{width:min(100%,560px);margin:0 auto}
-  #ttcVideoLauncher{display:block;border:1px solid #fda4af;border-radius:16px;background:linear-gradient(135deg,#9f1239,#e11d48);color:#fff;font-size:17px;font-weight:700;padding:15px 20px;cursor:pointer}
+  #ttcVideoLauncher{display:block;border:1px solid #fecdd3;border-radius:16px;background:#fff;color:#9f1239;font-size:17px;font-weight:700;padding:15px 20px;cursor:pointer}
+  #ttcVideoLauncher[aria-expanded="true"]{background:linear-gradient(135deg,#9f1239,#e11d48);color:#fff;border-color:#9f1239}
+  .ttc-starter{width:min(720px,96%);margin:8px auto 0;text-align:center}
+  #ttcStarterButton{border:1px solid #86efac;background:#fff;color:#166534;border-radius:999px;padding:10px 16px;font-weight:800;cursor:pointer}
+  #ttcStarterButton[aria-expanded="true"]{background:#166534;color:#fff}
+  #ttcStarterPanel{margin-top:10px;padding:14px 16px;text-align:left;background:#f0fdf4;border:1px solid #86efac;border-radius:16px;color:#14532d}
+  #ttcStarterPanel[hidden]{display:none !important}
+  #ttcStarterPanel ol{margin:8px 0 0;padding-left:18px}
+  #ttcStarterPanel li{margin:6px 0;line-height:1.45}
+  .wh-hsk-picture{display:flex;align-items:center;justify-content:center;min-height:148px;margin:10px auto;border-radius:18px;background:linear-gradient(160deg,#fff7ed,#e0f2fe);border:1px solid #fed7aa}
+  .wh-hsk-picture span{font-size:72px;line-height:1}
+  .wh-hsk-dictation{width:100%;box-sizing:border-box;min-height:74px;margin-top:8px;padding:12px;border:1px solid #cbd5e1;border-radius:14px;font-size:22px;font-weight:700}
   #ttcVideoSection{width:min(560px,100%);max-width:100%;margin:8px auto 0;padding:14px;background:#fff;border:1px solid #fecdd3;border-radius:16px}
   #ttcVideoSection.ttc-video-watching{width:min(560px,100%);max-width:100%}
   #ttcVideoSection[hidden]{display:none !important}
