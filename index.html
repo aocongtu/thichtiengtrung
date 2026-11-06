@@ -146303,6 +146303,17 @@ ttcStandaloneRender = function(){
     part.textContent = q.partTitle;
     box.insertBefore(part, box.firstChild);
   }
+  if(q.picture && q.picture.kind){
+    var picture = document.createElement("div");
+    picture.className = "wh-hsk-picture";
+    picture.innerHTML =
+      "<div class='wh-hsk-picture-label'>Hình minh họa</div>" +
+      "<div class='wh-hsk-art wh-hsk-art-" + q.picture.kind + "'></div>" +
+      "<div class='wh-hsk-picture-name'>" + q.picture.name + "</div>";
+    var partEl = box.querySelector(".ttc-sm-part");
+    if(partEl) partEl.insertAdjacentElement("afterend", picture);
+    else box.insertBefore(picture, box.firstChild);
+  }
   if(q.audioText){
     var listen = document.createElement("button");
     listen.type = "button";
