@@ -163991,6 +163991,7 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
   .ttc-video-zh{font-size:22px;font-weight:700;line-height:1.45}
   .ttc-video-py{color:#1d4ed8;font-weight:700;line-height:1.45}
   .ttc-video-vi{color:#0f766e;font-weight:700;line-height:1.45}
+  .ttc-video-caption-note{margin:8px 0 0;color:#334155;font-weight:700;line-height:1.45}
   #ttcVideoMeta{margin:8px 0 0;color:#64748b;font-size:13px}
   #ttcTopLearningHub{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:8px auto}
   #whiteHatVoiceSystemV6{margin:8px auto 0}
@@ -164083,8 +164084,6 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
   var level = "1";
   var index = 0;
   var mode = "list";
-  var showPy = true;
-  var showVi = true;
   var seen = {};
   try { seen = JSON.parse(localStorage.getItem("ttcVideoSeen") || "{}") || {}; } catch (e) { seen = {}; }
 
@@ -164099,7 +164098,7 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
   section.innerHTML = "<p id='ttcVideoNote'></p><div id='ttcVideoLevels'></div><div id='ttcVideoStage'></div>";
   document.body.appendChild(btn);
   document.body.appendChild(section);
-  section.querySelector("#ttcVideoNote").textContent = "Mỗi cấp có 50 bài. Video phát từ YouTube của kênh công khai, trang không tải video về. Câu chữ, pinyin và tiếng Việt bên dưới là câu luyện cùng cấp trong kho từ của trang, không phải phụ đề gốc.";
+  section.querySelector("#ttcVideoNote").textContent = "Mỗi cấp có 50 bài. Video phát từ YouTube, trang không tải video về. Phụ đề tiếng Trung bật trên chính video và chạy theo lời đọc nếu video đó có phụ đề. Trang không chép nguyên lời thoại xuống bên dưới.";
 
   function lessons(){ return bank[level] || []; }
   function saveSeen(){ try { localStorage.setItem("ttcVideoSeen", JSON.stringify(seen)); } catch (e) {} }
@@ -164150,35 +164149,17 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
     seen[item.youtube] = 1;
     saveSeen();
     var stage = section.querySelector("#ttcVideoStage");
-    var lines = (item.lines || []).map(function(row, i){
-      return "<div class='ttc-video-line' data-i='" + i + "'><div class='ttc-video-zh'>" + esc(row[0]) + "</div>" +
-        (showPy ? "<div class='ttc-video-py'>" + esc(row[1]) + "</div>" : "") +
-        (showVi ? "<div class='ttc-video-vi'>" + esc(row[2]) + "</div>" : "") + "</div>";
-    }).join("");
     var existing = document.getElementById("ttcVideoFrame");
-    if (existing && existing.src.indexOf(item.youtube) >= 0 && stage.querySelector("#ttcVideoLines")) {
-      stage.querySelector("#ttcVideoPy").textContent = "Pinyin: " + (showPy ? "bật" : "tắt");
-      stage.querySelector("#ttcVideoVi").textContent = "Dịch tiếng Việt: " + (showVi ? "bật" : "tắt");
-      stage.querySelector("#ttcVideoLines").innerHTML = lines;
-      [].forEach.call(stage.querySelectorAll(".ttc-video-line"), function(line){
-        line.addEventListener("click", function(){
-          var row = item.lines[Number(line.getAttribute("data-i")) || 0];
-          if (row && typeof window.say === "function") window.say(row[0]);
-        });
-      });
-      return;
-    }
+    if (existing && existing.src.indexOf("/embed/" + item.youtube) >= 0) return;
     stage.innerHTML =
       "<div class='ttc-video-tools'>" +
         "<button type='button' id='ttcVideoBack'>← Danh sách</button>" +
         "<button type='button' id='ttcVideoPrev'>Bài trước</button>" +
         "<button type='button' id='ttcVideoNext'>Bài sau</button>" +
-        "<button type='button' id='ttcVideoPy'>Pinyin: " + (showPy ? "bật" : "tắt") + "</button>" +
-        "<button type='button' id='ttcVideoVi'>Dịch tiếng Việt: " + (showVi ? "bật" : "tắt") + "</button>" +
       "</div>" +
-      "<div class='ttc-video-frame'><iframe id='ttcVideoFrame' title='Bài học tiếng Trung trên YouTube' src='https://www.youtube-nocookie.com/embed/" + item.youtube + "?rel=0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' allowfullscreen></iframe></div>" +
+      "<div class='ttc-video-frame'><iframe id='ttcVideoFrame' title='Bài học tiếng Trung trên YouTube' src='https://www.youtube-nocookie.com/embed/" + item.youtube + "?rel=0&amp;cc_load_policy=1&amp;cc_lang_pref=zh-Hans&amp;hl=zh-CN' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' allowfullscreen></iframe></div>" +
       "<p id='ttcVideoMeta'>HSK " + level + " · Bài " + (index + 1) + "/" + rows.length + " · " + esc(item.title) + " · Kênh " + esc(item.channel) + "</p>" +
-      "<div id='ttcVideoLines'>" + lines + "</div>";
+      "<p class='ttc-video-caption-note'>Bấm phát. Chữ Hán trên video chạy theo lời đọc khi bài đó có phụ đề tiếng Trung.</p>";
     stage.querySelector("#ttcVideoBack").addEventListener("click", function(){
       var frame = document.getElementById("ttcVideoFrame");
       if (frame) frame.src = "about:blank";
@@ -164192,14 +164173,6 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
     stage.querySelector("#ttcVideoNext").addEventListener("click", function(){
       index = (index + 1) % rows.length;
       render();
-    });
-    stage.querySelector("#ttcVideoPy").addEventListener("click", function(){ showPy = !showPy; render(); });
-    stage.querySelector("#ttcVideoVi").addEventListener("click", function(){ showVi = !showVi; render(); });
-    [].forEach.call(stage.querySelectorAll(".ttc-video-line"), function(line){
-      line.addEventListener("click", function(){
-        var row = item.lines[Number(line.getAttribute("data-i")) || 0];
-        if (row && typeof window.say === "function") window.say(row[0]);
-      });
     });
     requestAnimationFrame(function(){
       var frame = stage.querySelector(".ttc-video-frame");
