@@ -159580,12 +159580,12 @@ html,body{background:#fff !important;}
     pronOverlay.addEventListener("click",e=>{if(e.target===pronOverlay)pronOverlay.classList.remove("open")});
     pronOverlay.querySelectorAll(".ttc-pron-tab").forEach(b=>b.onclick=()=>renderPronTab(b.dataset.tab));
   }
-  let pronPracticeList=[],pronPracticeIndex=0,pronPracticeLevel="all";
+  let pronPracticeList=[],pronPracticeIndex=0,pronPracticeLevel="1";
   function getPronPracticeWords(){
     const data=(typeof words!=="undefined"&&Array.isArray(words))?words:window.words;
     if(!Array.isArray(data))return [];
     return data.filter(w=>w && String(w.example||"").trim() && String(w.examplePinyin||"").trim())
-      .filter(w=>pronPracticeLevel==="all" || Number(w.hsk)===Number(pronPracticeLevel))
+      .filter(w=>Number(w.hsk)===Number(pronPracticeLevel))
       .map(w=>({h:String(w.example),p:String(w.examplePinyin),m:String(w.exampleMeaning||w.m||""),hsk:Number(w.hsk)||0}));
   }
   function ensurePronPracticeList(){
@@ -159601,13 +159601,23 @@ html,body{background:#fff !important;}
     ensurePronPracticeList();
     const box=document.getElementById("ttcPronContent"); if(!box)return;
     const item=pronPracticeList[pronPracticeIndex];
-    const opts='<option value="all">HSK 1 → HSK 9</option>'+Array.from({length:9},(_,i)=>'<option value="'+(i+1)+'">HSK '+(i+1)+'</option>').join("");
-    if(!item){box.innerHTML='<div class="ttc-pron-box">⚠️ Chưa có dữ liệu câu ví dụ để luyện trong cấp HSK đang chọn. Anh thử HSK khác hoặc HSK 1 → HSK 9 nhé.</div>';return;}
+    const opts=Array.from({length:9},(_,i)=>'<option value="'+(i+1)+'">HSK '+(i+1)+(i>=2?' · Premium':'')+'</option>').join("");
+    if(!item){box.innerHTML='<div class="ttc-pron-box">⚠️ Chưa có câu ví dụ ở HSK '+pronPracticeLevel+'.</div>';return;}
     box.innerHTML='<div class="ttc-practice-toolbar"><select id="ttcPracticeLevel" class="ttc-practice-select">'+opts+'</select><span class="ttc-practice-counter">Câu '+(pronPracticeIndex+1)+' / '+pronPracticeList.length+'</span></div>'+ 
       '<div class="ttc-practice-card"><div class="ttc-practice-hanzi">'+esc(item.h)+'</div><div class="ttc-practice-pinyin">'+esc(item.p)+'</div><div class="ttc-practice-meaning">🇻🇳 '+esc(item.m||"Đang cập nhật nghĩa tiếng Việt…")+'</div>'+ 
       '<div class="ttc-practice-actions"><button type="button" id="ttcPracticeModel">🔊 Nghe mẫu</button><button type="button" id="ttcPracticeRecord">🎤 Ghi âm</button></div><div class="ttc-practice-nav"><button type="button" id="ttcPracticePrev">← Câu trước</button><button type="button" id="ttcPracticeNext">Câu tiếp →</button></div><div class="ttc-practice-status" id="ttcPracticeStatus">Nghe mẫu → đọc theo → ghi âm. Máy sẽ chấm giọng sau khi dừng.</div><div id="ttcPracticeAudio"></div><div class="ttc-practice-source">Nguồn câu ví dụ: dữ liệu từ vựng HSK của TTC · HSK '+item.hsk+'</div></div>';
     const sel=document.getElementById("ttcPracticeLevel");sel.value=pronPracticeLevel;
-    sel.onchange=function(){pronPracticeLevel=this.value;pronPracticeIndex=0;renderPractice();};
+    sel.onchange=async function(){
+      var next=this.value;
+      if(Number(next)>=3){
+        var ok=false;
+        try{ ok=typeof checkPremiumAccess==="function" && await checkPremiumAccess(Number(next)); }catch(e){ ok=false; }
+        if(!ok){ this.value=pronPracticeLevel; return; }
+      }
+      pronPracticeLevel=next;
+      pronPracticeIndex=0;
+      renderPractice();
+    };
     document.getElementById("ttcPracticeModel").onclick=function(){speakHub(item.h);};
     document.getElementById("ttcPracticePrev").onclick=function(){if(pronPracticeList.length){pronPracticeIndex=(pronPracticeIndex-1+pronPracticeList.length)%pronPracticeList.length;renderPractice();}};
     document.getElementById("ttcPracticeNext").onclick=function(){if(pronPracticeList.length){pronPracticeIndex=(pronPracticeIndex+1)%pronPracticeList.length;renderPractice();}};
@@ -160904,7 +160914,7 @@ function showReadingTranslation(text,pairs,clickedCharacter){
  });
  const note=document.createElement('small');note.textContent='Tra cứu từ kho từ vựng HSK có sẵn trên website. Khi bôi đen cả cụm, hệ thống tách thành các mục từ thay vì hiển thị lại nguyên câu.';note.style.color='#64748b';box.append(note);document.body.appendChild(box);
 }
-const speechAvailable=()=>typeof window!=='undefined'&&'speechSynthesis'in window;let ttcReadingFallbackStartTimer=null,ttcReadingFallbackInterval=null,ttcReadingSession=0;function clearReadingFallback(){if(ttcReadingFallbackStartTimer!==null){clearTimeout(ttcReadingFallbackStartTimer);ttcReadingFallbackStartTimer=null}if(ttcReadingFallbackInterval!==null){clearInterval(ttcReadingFallbackInterval);ttcReadingFallbackInterval=null}}function stopReading(){ttcReadingSession++;clearReadingFallback();if(speechAvailable())window.speechSynthesis.cancel()}function getVoice(){if(!speechAvailable())return null;const vs=speechSynthesis.getVoices();return vs.find(v=>v.name===selectedVoiceName)||vs.find(v=>/^zh(-|_|$)/i.test(v.lang))||vs.find(v=>/chinese|mandarin|中文|普通话/i.test(v.name))||null}function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}function view(w){levels.hidden=w!=='levels';list.hidden=w!=='list';detail.hidden=w!=='detail';nav.hidden=w==='levels';document.body.classList.toggle('ttc-reading-open',section.classList.contains('ttc-open'));if(w==='levels')stopReading()}function renderLevels(){levels.innerHTML='';for(let n=1;n<=9;n++){const b=document.createElement('button');b.className='ttc-reading-level';b.type='button';b.innerHTML='HSK '+n+'<small>Danh sách bài đọc</small>';b.addEventListener('click',()=>renderList(n));levels.appendChild(b)}}function renderList(n){navTitle.textContent='Danh sách bài đọc · HSK '+n;list.innerHTML='';(bank[String(n)]||[]).forEach((a,i)=>{const b=document.createElement('button');b.type='button';b.className='ttc-reading-item';b.innerHTML='<strong>Bài đọc số '+(i+1)+'</strong>';b.addEventListener('click',async()=>{if(Number(n)>=3){const gate=typeof checkPremiumAccess==='function'?await checkPremiumAccess(Number(n)):false;if(!gate){if(typeof checkPremiumAccess!=='function')alert('🔒 Bài đọc HSK '+n+' dành cho thành viên Premium.');return}}renderDetail(a,i)});list.appendChild(b)});if(!(bank[String(n)]||[]).length)list.innerHTML='<p>Chưa có bài đọc ở cấp độ này.</p>';view('list');requestAnimationFrame(function(){list.style.scrollMarginTop='12px';list.scrollIntoView({behavior:'smooth',block:'start'})})}function renderDetail(a,i){stopReading();navTitle.textContent='HSK '+a.level+' · Bài đọc số '+(i+1);const chars=Array.from(String(a.zh||'').replace(/\s+/g,''));
+const speechAvailable=()=>typeof window!=='undefined'&&'speechSynthesis'in window;let ttcReadingFallbackStartTimer=null,ttcReadingFallbackInterval=null,ttcReadingSession=0;function clearReadingFallback(){if(ttcReadingFallbackStartTimer!==null){clearTimeout(ttcReadingFallbackStartTimer);ttcReadingFallbackStartTimer=null}if(ttcReadingFallbackInterval!==null){clearInterval(ttcReadingFallbackInterval);ttcReadingFallbackInterval=null}}function stopReading(){ttcReadingSession++;clearReadingFallback();if(speechAvailable())window.speechSynthesis.cancel()}function getVoice(){if(!speechAvailable())return null;const vs=speechSynthesis.getVoices();return vs.find(v=>v.name===selectedVoiceName)||vs.find(v=>/^zh(-|_|$)/i.test(v.lang))||vs.find(v=>/chinese|mandarin|中文|普通话/i.test(v.name))||null}function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}function view(w){levels.hidden=w!=='levels';list.hidden=w!=='list';detail.hidden=w!=='detail';nav.hidden=w==='levels';document.body.classList.toggle('ttc-reading-open',section.classList.contains('ttc-open'));if(w==='levels')stopReading()}function renderLevels(){levels.innerHTML='';for(let n=1;n<=9;n++){const b=document.createElement('button');b.className='ttc-reading-level';b.type='button';b.innerHTML='HSK '+n+'<small>'+(n>=3?'Premium · ':'')+'Danh sách bài đọc</small>';b.addEventListener('click',async()=>{if(Number(n)>=3){let ok=false;try{ok=typeof checkPremiumAccess==='function'&&await checkPremiumAccess(Number(n));}catch(e){ok=false}if(!ok)return;}renderList(n)});levels.appendChild(b)}}function renderList(n){navTitle.textContent='Danh sách bài đọc · HSK '+n;list.innerHTML='';(bank[String(n)]||[]).forEach((a,i)=>{const b=document.createElement('button');b.type='button';b.className='ttc-reading-item';b.innerHTML='<strong>Bài đọc số '+(i+1)+'</strong>';b.addEventListener('click',async()=>{if(Number(n)>=3){const gate=typeof checkPremiumAccess==='function'?await checkPremiumAccess(Number(n)):false;if(!gate){if(typeof checkPremiumAccess!=='function')alert('🔒 Bài đọc HSK '+n+' dành cho thành viên Premium.');return}}renderDetail(a,i)});list.appendChild(b)});if(!(bank[String(n)]||[]).length)list.innerHTML='<p>Chưa có bài đọc ở cấp độ này.</p>';view('list');requestAnimationFrame(function(){list.style.scrollMarginTop='12px';list.scrollIntoView({behavior:'smooth',block:'start'})})}function renderDetail(a,i){stopReading();navTitle.textContent='HSK '+a.level+' · Bài đọc số '+(i+1);const chars=Array.from(String(a.zh||'').replace(/\s+/g,''));
 function splitReadSentences(text){return String(text||'').match(/[^。！？!?；;.]+[。！？!?；;.]?/g)?.map(x=>x.trim()).filter(Boolean)||[String(text||'')]}
 function splitReadParagraphs(text){return String(text||'').split(/\n+/).map(x=>x.trim()).filter(Boolean)}
 function groupReadParts(parts,counts){let at=0;return counts.map(n=>{const out=parts.slice(at,at+n).join(' ');at+=n;return out})}
@@ -164428,10 +164438,23 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
     for (var n = 1; n <= 9; n++) {
       var b = document.createElement("button");
       b.type = "button";
-      b.textContent = "HSK " + n;
+      b.textContent = Number(n) <= 2 ? "HSK " + n : "HSK " + n + " · Premium";
       if (String(n) === level) b.className = "ttc-on";
       b.addEventListener("click", function(lv){
-        return function(){ stopStory(); level = lv; index = 0; storyLine = 0; mode = "list"; render(); };
+        return function(){
+          var apply = function(){
+            stopStory();
+            level = lv;
+            index = 0;
+            storyLine = 0;
+            mode = "list";
+            render();
+          };
+          if (Number(lv) <= 2) { apply(); return; }
+          Promise.resolve(typeof checkPremiumAccess === "function" ? checkPremiumAccess(Number(lv)) : false).then(function(ok){
+            if (ok) apply();
+          }).catch(function(){});
+        };
       }(String(n)));
       box.appendChild(b);
     }
