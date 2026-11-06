@@ -113750,32 +113750,62 @@ async function updateAccountUI(user){
 
 };
 
-  function membershipDurationLabel(membership){
+  function calendarRemaining(membership){
 
-    const end = membership.end_date ? new Date(membership.end_date) : null;
-
-    if(!end || Number.isNaN(end.getTime()) || end.getTime() <= Date.now()){
+    if(!membership || !membership.end_date){
       return "";
     }
 
-    const startRaw = membership.start_date || membership.created_at;
-    const start = startRaw ? new Date(startRaw) : null;
-    const days = start && !Number.isNaN(start.getTime())
-      ? Math.round((end.getTime() - start.getTime()) / 86400000)
-      : 0;
+    const end = new Date(membership.end_date);
 
-    if(days >= 3000 || membership.plan === "lifetime"){
+    if(Number.isNaN(end.getTime()) || end.getTime() <= Date.now()){
+      return "";
+    }
+
+    const span = end.getTime() - Date.now();
+
+    if(membership.plan === "lifetime" || span >= 3000 * 86400000){
       return "Vĩnh viễn";
     }
 
-    if(days > 0){
-      const months = Math.max(1, Math.round(days / 30));
-      if(months === 12) return "1 năm";
-      if(months > 12 && months % 12 === 0 && months < 120) return (months / 12) + " năm";
-      return months + " tháng";
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const finish = new Date(end);
+    finish.setHours(0, 0, 0, 0);
+
+    let months =
+      (finish.getFullYear() - today.getFullYear()) * 12 +
+      (finish.getMonth() - today.getMonth());
+
+    let days = finish.getDate() - today.getDate();
+
+    if(days < 0){
+      months -= 1;
+      days += new Date(finish.getFullYear(), finish.getMonth(), 0).getDate();
     }
 
-    return planNames[membership.plan] || membership.plan || "Premium";
+    if(months < 0){
+      return "";
+    }
+
+    const parts = [];
+
+    if(months > 0){
+      parts.push(months + " tháng");
+    }
+
+    if(days > 0){
+      parts.push(days + " ngày");
+    }
+
+    return parts.join(" ") || "Hết hạn hôm nay";
+
+  }
+
+  function membershipDurationLabel(membership){
+
+    return calendarRemaining(membership);
 
   }
 
@@ -113824,9 +113854,9 @@ async function updateAccountUI(user){
 
         💎 <b>THÀNH VIÊN PREMIUM</b><br>
 
-        📦 Gói: <b>${planName}</b><br>
+        📦 Thời hạn còn lại: <b>${planName}</b><br>
 
-        📅 Hạn sử dụng: <b>${endDate}</b>
+        📅 Hết hạn: <b>${endDate}</b>
 
       `;
 
@@ -165555,7 +165585,8 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
 <style id="ttc-chat-dock-v1">
 #ttcFloatingChatBtn{z-index:1000002 !important}
 #ttcChatV1.ttc-chat-open{z-index:1000001 !important}
-body.ttc-chat-is-open #whHskLauncher{z-index:1 !important;pointer-events:none !important}
+body.ttc-chat-is-open #whHskLauncher,
+body.ttc-chat-is-open #ttcExampleAutoV2{z-index:1 !important;pointer-events:none !important}
 #ttcFloatingChatBtn .ttc-chat-mini-mark{display:none}
 #ttcFloatingChatBtn.ttc-chat-mini{
   width:32px !important;height:32px !important;min-width:32px !important;
