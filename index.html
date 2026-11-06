@@ -155123,8 +155123,6 @@ if(
 -->
 <style>
 #ttcFloatingChatBtn{
-  top:18px !important;
-  bottom:auto !important;
   touch-action:none !important;
   user-select:none !important;
   -webkit-user-select:none !important;
@@ -164099,8 +164097,8 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
   #ttcGroupLevel .ttc-hsk-frame,#ttcGroupLevel .ttc-type-frame,#ttcGroupPractice .ttc-action-frame{margin:0 auto;width:100%}
   #ttcGroupPractice #ttcReadingLauncher,#ttcGroupPractice #ttcListeningLauncher,#ttcGroupPractice #ttcMatchLauncher,#ttcGroupPractice #ttcListenLauncher,#ttcGroupPractice #ttcVideoLauncher,#ttcSpecialtyLauncher{width:min(100%,560px);margin:0 auto}
   #ttcVideoLauncher{display:block;border:1px solid #fda4af;border-radius:16px;background:linear-gradient(135deg,#9f1239,#e11d48);color:#fff;font-size:17px;font-weight:700;padding:15px 20px;cursor:pointer}
-  #ttcVideoSection{width:min(980px,calc(100% - 20px));margin:8px auto 0;padding:14px;background:#fff;border:1px solid #fecdd3;border-radius:16px}
-  #ttcVideoSection.ttc-video-watching{width:min(560px,calc(100% - 20px))}
+  #ttcVideoSection{width:min(560px,100%);max-width:100%;margin:8px auto 0;padding:14px;background:#fff;border:1px solid #fecdd3;border-radius:16px}
+  #ttcVideoSection.ttc-video-watching{width:min(560px,100%);max-width:100%}
   #ttcVideoSection[hidden]{display:none !important}
   #ttcVideoWatch:fullscreen,#ttcVideoWatch:-webkit-full-screen{display:flex;flex-direction:column;width:100%;height:100%;box-sizing:border-box;background:#fff;padding:12px;overflow:auto}
   #ttcVideoWatch:fullscreen .ttc-video-frame,#ttcVideoWatch:-webkit-full-screen .ttc-video-frame{flex:1 1 auto;min-height:220px;padding-top:0}
@@ -164112,8 +164110,10 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
   #ttcVideoLessons{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
   #ttcVideoLessons button{border:1px solid #fecdd3;background:#fff;color:#9f1239;border-radius:999px;padding:8px 12px;font-weight:700;cursor:pointer}
   #ttcVideoLessons button.ttc-on{background:#9f1239;color:#fff;border-color:#9f1239}
-  .ttc-video-frame{position:relative;width:100%;padding-top:56.25%;background:#0f172a;border-radius:12px;overflow:hidden}
-  .ttc-video-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .ttc-video-frame{position:relative;width:100%;max-width:100%;padding-top:56.25%;background:#0f172a;border-radius:12px;overflow:hidden}
+  .ttc-video-frame iframe{position:absolute;inset:0;width:100%;height:100%;max-width:100%;border:0}
+  .ttc-video-overlay{position:absolute;z-index:5;left:8px;right:8px;top:8px;display:flex;gap:6px;flex-wrap:wrap}
+  .ttc-video-overlay button{border:0;border-radius:999px;background:#fff;color:#111;font-weight:800;padding:6px 10px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.28)}
   .ttc-video-tools{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
   .ttc-video-tools button{border:1px solid #e5e7eb;background:#fff;border-radius:999px;padding:7px 12px;font-weight:700;cursor:pointer}
   .ttc-video-line{padding:8px 0;border-top:1px solid #f1f5f9}
@@ -164229,7 +164229,7 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
   section.innerHTML = "<p id='ttcVideoNote'></p><div id='ttcVideoLevels'></div><div id='ttcVideoStage'></div>";
   document.body.appendChild(btn);
   document.body.appendChild(section);
-  section.querySelector("#ttcVideoNote").textContent = "Mỗi cấp có 50 bài. Video nằm trong khung của nút. Dùng nút Phóng to của trang để chữ, pinyin và tiếng Việt vẫn ở dưới video. Phụ đề trên video chạy theo lời đọc nếu bài đó có phụ đề tiếng Trung.";
+  section.querySelector("#ttcVideoNote").textContent = "Mỗi cấp có 50 bài. Video nằm trong khung nút. Pinyin, dịch tiếng Việt và Phóng to nằm trên video và vẫn còn khi phóng to.";
 
   function lessons(){ return bank[level] || []; }
   function saveSeen(){ try { localStorage.setItem("ttcVideoSeen", JSON.stringify(seen)); } catch (e) {} }
@@ -164300,33 +164300,34 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
     seen[item.youtube] = 1;
     saveSeen();
     var stage = section.querySelector("#ttcVideoStage");
-    var lines = lineHtml(item);
     var existing = document.getElementById("ttcVideoFrame");
-    if (existing && existing.src.indexOf("/embed/" + item.youtube) >= 0 && stage.querySelector("#ttcVideoLines")) {
+    if (existing && existing.src.indexOf("/embed/" + item.youtube) >= 0 && stage.querySelector("#ttcVideoOverlay")) {
       var py = stage.querySelector("#ttcVideoPy");
       var vi = stage.querySelector("#ttcVideoVi");
       var fs = stage.querySelector("#ttcVideoFs");
       if (py) py.textContent = "Pinyin: " + (showPy ? "bật" : "tắt");
-      if (vi) vi.textContent = "Dịch tiếng Việt: " + (showVi ? "bật" : "tắt");
+      if (vi) vi.textContent = "Dịch: " + (showVi ? "bật" : "tắt");
       if (fs) fs.textContent = fsLabel();
-      stage.querySelector("#ttcVideoLines").innerHTML = lines;
-      bindLines(item);
       return;
     }
-    var src = "https://www.youtube-nocookie.com/embed/" + item.youtube + "?rel=0&fs=0&cc_load_policy=1&cc_lang_pref=zh-Hans&hl=zh-CN";
+    var src = "https://www.youtube-nocookie.com/embed/" + item.youtube + "?rel=0&fs=0&modestbranding=1&cc_load_policy=1&cc_lang_pref=zh-Hans&hl=zh-CN";
     stage.innerHTML =
       "<div id='ttcVideoWatch'>" +
         "<div class='ttc-video-tools'>" +
           "<button type='button' id='ttcVideoBack'>← Danh sách</button>" +
           "<button type='button' id='ttcVideoPrev'>Bài trước</button>" +
           "<button type='button' id='ttcVideoNext'>Bài sau</button>" +
-          "<button type='button' id='ttcVideoPy'>Pinyin: " + (showPy ? "bật" : "tắt") + "</button>" +
-          "<button type='button' id='ttcVideoVi'>Dịch tiếng Việt: " + (showVi ? "bật" : "tắt") + "</button>" +
-          "<button type='button' id='ttcVideoFs'>" + fsLabel() + "</button>" +
         "</div>" +
-        "<div class='ttc-video-frame'><iframe id='ttcVideoFrame' title='Bài học tiếng Trung trên YouTube' src='" + src + "' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' allowfullscreen></iframe></div>" +
-        "<p id='ttcVideoMeta'>HSK " + level + " · Bài " + (index + 1) + "/" + rows.length + " · " + esc(item.title) + " · Kênh " + esc(item.channel) + "</p>" +
-        "<div id='ttcVideoLines'>" + lines + "</div>" +
+        "<div class='ttc-video-frame'>" +
+          "<iframe id='ttcVideoFrame' title='Bài học tiếng Trung trên YouTube' src='" + src + "' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'></iframe>" +
+          "<div id='ttcVideoOverlay' class='ttc-video-overlay'>" +
+            "<button type='button' id='ttcVideoPy'>Pinyin: " + (showPy ? "bật" : "tắt") + "</button>" +
+            "<button type='button' id='ttcVideoVi'>Dịch: " + (showVi ? "bật" : "tắt") + "</button>" +
+            "<button type='button' id='ttcVideoFs'>" + fsLabel() + "</button>" +
+          "</div>" +
+        "</div>" +
+        "<p id='ttcVideoMeta'>HSK " + level + " · Bài " + (index + 1) + "/" + rows.length + " · " + esc(item.title) + "</p>" +
+        "<p id='ttcVideoCaption' class='ttc-video-caption-note'>Chữ đang đọc nằm trên phụ đề của video. Khung này không gắn bài đọc HSK vào trong.</p>" +
       "</div>";
     stage.querySelector("#ttcVideoBack").addEventListener("click", function(){
       var watch = document.getElementById("ttcVideoWatch");
@@ -164363,7 +164364,6 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
       var fs = document.getElementById("ttcVideoFs");
       if (fs) fs.textContent = fsLabel();
     });
-    bindLines(item);
     requestAnimationFrame(function(){
       var frame = stage.querySelector(".ttc-video-frame");
       if (!frame) return;
@@ -164488,9 +164488,9 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
 body.ttc-chat-is-open #whHskLauncher{z-index:1 !important;pointer-events:none !important}
 #ttcFloatingChatBtn .ttc-chat-mini-mark{display:none}
 #ttcFloatingChatBtn.ttc-chat-mini{
-  width:48px !important;height:48px !important;min-width:48px !important;
+  width:32px !important;height:32px !important;min-width:32px !important;
   padding:0 !important;border-radius:50% !important;
-  font-size:28px !important;font-weight:800 !important;line-height:48px !important;
+  font-size:16px !important;font-weight:800 !important;line-height:32px !important;
 }
 #ttcFloatingChatBtn.ttc-chat-mini .ttc-chat-label{display:none !important}
 #ttcFloatingChatBtn.ttc-chat-mini .ttc-chat-mini-mark{display:block !important}
@@ -164547,9 +164547,10 @@ body.ttc-chat-is-open #whHskLauncher{z-index:1 !important;pointer-events:none !i
     btn.style.bottom = "auto";
   }
   function snap(btn, edge){
+    btn.dataset.edge = edge;
     btn.classList.add("ttc-chat-mini");
     requestAnimationFrame(function(){
-      var w = btn.offsetWidth || 48, h = btn.offsetHeight || 48;
+      var w = btn.offsetWidth || 32, h = btn.offsetHeight || 32;
       var rect = btn.getBoundingClientRect();
       var left = rect.left, top = rect.top;
       if(edge === "left") left = 8;
@@ -164566,7 +164567,15 @@ body.ttc-chat-is-open #whHskLauncher{z-index:1 !important;pointer-events:none !i
   function expand(btn){
     btn.classList.remove("ttc-chat-mini");
     btn.classList.remove("ttc-chat-alert");
+    btn.dataset.edge = "";
     save(btn, false, "");
+  }
+  function edgeGap(rect, edge){
+    if(edge === "left") return rect.left;
+    if(edge === "right") return window.innerWidth - rect.right;
+    if(edge === "top") return rect.top;
+    if(edge === "bottom") return window.innerHeight - rect.bottom;
+    return 999;
   }
   function nearestEdge(rect){
     var dist = {
@@ -164575,9 +164584,9 @@ body.ttc-chat-is-open #whHskLauncher{z-index:1 !important;pointer-events:none !i
       top: rect.top,
       bottom: window.innerHeight - rect.bottom
     };
-    var edge = "", best = 57;
+    var edge = "", best = 14;
     Object.keys(dist).forEach(function(key){
-      if(dist[key] < best){ best = dist[key]; edge = key; }
+      if(dist[key] <= best){ best = dist[key]; edge = key; }
     });
     return edge;
   }
@@ -164597,12 +164606,15 @@ body.ttc-chat-is-open #whHskLauncher{z-index:1 !important;pointer-events:none !i
     });
     btn.addEventListener("pointermove", function(e){
       if(Math.abs(e.clientX - sx) > 6 || Math.abs(e.clientY - sy) > 6) dragged = true;
+      if(!dragged || !btn.classList.contains("ttc-chat-mini")) return;
+      if(edgeGap(btn.getBoundingClientRect(), btn.dataset.edge) > 22) expand(btn);
     });
     btn.addEventListener("pointerup", function(){
       if(!dragged) return;
       var edge = nearestEdge(btn.getBoundingClientRect());
       if(edge) snap(btn, edge);
-      else expand(btn);
+      else if(btn.classList.contains("ttc-chat-mini")) expand(btn);
+      else save(btn, false, "");
     });
     try{
       var saved = JSON.parse(localStorage.getItem(KEY) || "null");
