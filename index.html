@@ -2735,6 +2735,21 @@ body.flashcard-mobile-mode #ttcFlashcardLauncherBar{display:none!important}
 }
 </style>
 
+
+<style id="ttc-global-readable-font-v1">
+/* Normalize typography site-wide without changing layout or app logic. */
+html, body, body * { font-weight: 600 !important; }
+body :is(h1,h2,h3,h4,h5,h6,strong,b,button,.hanzi,.ttc-reading-cn,.ttc-reading-char) { font-weight: 700 !important; }
+body :is(input,textarea,select,option) { font-weight: 600 !important; }
+body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+/* Reading HSK Chinese text uses one CJK font and weight for every character. */
+#ttcReadingSection .ttc-reading-cn,
+#ttcReadingSection .ttc-reading-cn .ttc-reading-char {
+ font-family: "Microsoft YaHei", "Microsoft YaHei UI", "SimHei", sans-serif !important;
+ font-weight: 700 !important; font-style: normal !important; font-synthesis: none !important;
+ -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+}
+</style>
 </head>
 
 <body>
@@ -4722,7 +4737,7 @@ body > .price-box{
 <main>
 <button type="button" id="ttcSpecialtyLauncher" aria-expanded="false">📚 Từ vựng chuyên ngành ✨</button>
 <button type="button" id="ttcReadingLauncher" aria-expanded="false">📖 Khu luyện đọc HSK</button>
-<section id="ttcReadingSection" aria-label="Khu luyện đọc HSK"><div class="ttc-reading-section-head"><h2>📖 Khu luyện đọc HSK</h2><button type="button" id="ttcReadingHelpBtn" class="ttc-reading-secondary">❔ Giải thích</button></div><div id="ttcReadingHelp" class="ttc-reading-help" hidden><strong>Cách sử dụng</strong><ol><li>Chọn HSK 1–9 để mở danh sách bài đọc.</li><li>Chọn bài đọc để mở riêng nội dung.</li><li>Dùng các nút phía trên bài để bật/tắt Pinyin, nghe bài, hiện nghĩa tiếng Việt ngay dưới từng câu, chọn màu và giọng đọc.</li><li>Nhấn chữ Hán bất kỳ để bắt đầu nghe từ vị trí đó; phần đã đọc sẽ được tô màu theo lựa chọn.</li></ol><p>Các bài bổ sung trong thư viện này được biên soạn mới cho mục đích học tập. Tài liệu tham khảo mở: <a href="https://bloomchinese.com/open-education-resources" target="_blank" rel="noopener noreferrer">BloomChinese OER (CC BY 4.0)</a>. Nội dung từ nguồn ngoài chỉ nên tái sử dụng khi giấy phép cho phép và có ghi công phù hợp.</p></div><div id="ttcReadingLevels" class="ttc-reading-levels"></div><div id="ttcReadingNav" class="ttc-reading-nav" hidden><button type="button" id="ttcReadingBackLevels" class="ttc-reading-secondary">← Tất cả cấp độ</button><span id="ttcReadingNavTitle"></span></div><div id="ttcReadingList" hidden></div><article id="ttcReadingDetail" hidden></article></section>
+<section id="ttcReadingSection" aria-label="Khu luyện đọc HSK"><div class="ttc-reading-section-head"><h2>📖 Khu luyện đọc HSK</h2><button type="button" id="ttcReadingHelpBtn" class="ttc-reading-secondary">❔ Giải thích</button></div><div id="ttcReadingHelp" class="ttc-reading-help" hidden><strong>Cách sử dụng</strong><ol><li>Chọn HSK 1–9 để mở danh sách bài đọc.</li><li>Chọn bài đọc để mở riêng nội dung.</li><li>Bôi đen chữ hoặc cụm chữ Hán trong bài: hệ thống tra nghĩa đúng phần đã chọn; trong khung tra cứu có thể nghe phát âm phần đó.</li><li>Dùng các nút phía trên bài để bật/tắt Pinyin, nghe bài, hiện nghĩa tiếng Việt ngay dưới từng câu, chọn màu và giọng đọc.</li><li>Nhấn chữ Hán bất kỳ để bắt đầu nghe từ vị trí đó; phần đã đọc sẽ được tô màu theo lựa chọn.</li></ol><p>Các bài bổ sung trong thư viện này được biên soạn mới cho mục đích học tập. Tài liệu tham khảo mở: <a href="https://bloomchinese.com/open-education-resources" target="_blank" rel="noopener noreferrer">BloomChinese OER (CC BY 4.0)</a>. Nội dung từ nguồn ngoài chỉ nên tái sử dụng khi giấy phép cho phép và có ghi công phù hợp.</p></div><div id="ttcReadingLevels" class="ttc-reading-levels"></div><div id="ttcReadingNav" class="ttc-reading-nav" hidden><button type="button" id="ttcReadingBackLevels" class="ttc-reading-secondary">← Tất cả cấp độ</button><span id="ttcReadingNavTitle"></span></div><div id="ttcReadingList" hidden></div><article id="ttcReadingDetail" hidden></article></section>
 <button type="button" id="ttcListeningLauncher" aria-expanded="false">🎧 Khu luyện nghe gõ theo HSK ✨</button>
 <section id="ttcListeningSection" aria-label="Khu luyện nghe gõ theo HSK" style="display:none">
   <div class="ttc-listen-head"><h2>🎧 Khu luyện nghe gõ theo HSK</h2><button type="button" class="ttc-listen-btn" id="ttcListenHelpBtn">❔ Cách học</button></div>
@@ -136202,7 +136217,7 @@ function showReadingTranslation(text,pairs,clickedCharacter){
  const head=document.createElement('div');head.style.cssText='display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:700;color:#166534';
  const title=document.createElement('strong');title.textContent='🔎 Tra từng chữ / từ vựng';title.style.flex='1';
  const close=document.createElement('button');close.type='button';close.textContent='✖ Đóng';close.style.cssText='background:#15803d;color:#fff;border:0;border-radius:8px;padding:8px 12px';close.onclick=()=>box.remove();head.append(title,close);box.append(head);
- const selected=document.createElement('div');selected.style.cssText='font-size:18px;font-weight:700;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere';selected.textContent='Đã chọn: '+text;box.append(selected);
+ const selected=document.createElement('div');selected.style.cssText='font-size:18px;font-weight:700;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere';selected.textContent='Đã chọn: '+text;box.append(selected);const speakSelected=document.createElement('button');speakSelected.type='button';speakSelected.textContent='🔊 Đọc phần đã chọn';speakSelected.style.cssText='align-self:flex-start;background:#15803d;color:#fff;border:0;border-radius:8px;padding:9px 13px;font-weight:700';speakSelected.addEventListener('click',()=>{if(!('speechSynthesis'in window)){alert('Trình duyệt chưa hỗ trợ đọc văn bản.');return}window.speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance(text);utterance.lang='zh-CN';utterance.rate=readingRate;const voice=getVoice();if(voice){utterance.voice=voice;utterance.lang=voice.lang||'zh-CN'}window.speechSynthesis.speak(utterance)});box.append(speakSelected);
  if(!entries.length){const note=document.createElement('p');note.textContent='Không tìm thấy chữ Hán trong phần đã chọn.';box.append(note)}
  entries.forEach((item,index)=>{
   const card=document.createElement('section');card.style.cssText='border:1px solid #d1fae5;border-radius:10px;padding:10px;background:#f0fdf4;display:flex;flex-direction:column;gap:5px';
