@@ -56,9 +56,12 @@ h1{
 .ttc-theme-menu{position:absolute;top:48px;z-index:30;display:grid;grid-template-columns:1fr 1fr;gap:6px;width:min(280px,90vw);padding:10px;border-radius:14px;background:#fff;border:1px solid #dbe4ee;box-shadow:0 12px 30px rgba(15,23,42,.16)}
 .ttc-theme-menu[hidden]{display:none !important}
 .ttc-theme-menu button{background:#f8fafc;color:#1e293b;border:1px solid #e2e8f0}
-.ttc-draw-box{max-width:900px;margin:10px auto 0;padding:10px;border:1px solid #dbe4ee;border-radius:14px;background:#fff}
-#ttcDrawCanvas{display:block;width:100%;height:180px;border:1px dashed #94a3b8;border-radius:12px;background:#fff;touch-action:none}
+.ttc-draw-box{width:min(1100px,70vw);max-width:1100px;margin:10px auto 0;padding:12px;border:1px solid #dbe4ee;border-radius:14px;background:#fff;box-sizing:border-box}
+#ttcDrawCanvas{display:block;width:100%;height:62vh;min-height:420px;max-height:720px;border:1px dashed #94a3b8;border-radius:12px;background:#fff;touch-action:none;box-sizing:border-box}
 .ttc-draw-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+#ttcDrawSuggestions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+#ttcDrawSuggestions button{min-width:64px !important;height:64px !important;padding:0 8px !important;border-radius:12px !important;border:1px solid #cbd5e1 !important;background:#fff !important;color:#111827 !important;-webkit-text-fill-color:#111827 !important;font-size:34px !important;font-family:"Microsoft YaHei UI","Microsoft YaHei","Segoe UI",sans-serif !important;line-height:1 !important;font-weight:700 !important}
+@media(max-width:800px){.ttc-draw-box{width:100%;max-width:none}#ttcDrawCanvas{height:58vh;min-height:280px;max-height:none}}
 #ttcOcrStatus{margin:8px 0 0;color:#475569;font-size:14px}
 html[data-theme="night"] body{background:#0b1220 !important;color:#e5e7eb !important}
 html[data-theme="night"] body :is(header,main,section,article,nav,.auto-learning,.search,.ttc-draw-box,.ttc-theme-menu){background:#111827 !important;color:#e5e7eb !important;border-color:#334155 !important}
@@ -2864,6 +2867,7 @@ body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; 
     <button type="button" id="ttcDrawClose">Đóng</button>
   </div>
   <p id="ttcOcrStatus"></p>
+  <div id="ttcDrawSuggestions"></div>
 </div>
 
 </header>
@@ -163081,29 +163085,103 @@ renderLevels();view('levels');
   var box=document.getElementById("ttcDrawBox");
   var canvas=document.getElementById("ttcDrawCanvas");
   var status=document.getElementById("ttcOcrStatus");
+  var suggestions=document.getElementById("ttcDrawSuggestions");
   var search=document.getElementById("search");
   var drawing=false;
+  var strokes=[];
+  var currentStroke=null;
+  var strokeStarted=0;
   var ctx=canvas?canvas.getContext("2d"):null;
   function say(text){if(status) status.textContent=text;}
+  function clearSuggestions(){if(suggestions) suggestions.innerHTML="";}
   function prepareCanvas(){
     if(!ctx) return;
     ctx.fillStyle="#fff";
     ctx.fillRect(0,0,canvas.width,canvas.height);
     ctx.strokeStyle="#111";
-    ctx.lineWidth=8;
+    ctx.lineWidth=Math.max(10, Math.round(canvas.width/70));
     ctx.lineCap="round";
     ctx.lineJoin="round";
+  }
+  function fitCanvas(){
+    if(!canvas||!ctx) return;
+    var rect=canvas.getBoundingClientRect();
+    var dpr=Math.min(window.devicePixelRatio||1, 2);
+    var w=Math.max(480, Math.round((rect.width||640)*dpr));
+    var h=Math.max(360, Math.round((rect.height||420)*dpr));
+    canvas.width=w;
+    canvas.height=h;
+    strokes=[];
+    currentStroke=null;
+    prepareCanvas();
+    clearSuggestions();
   }
   function point(event){
     var rect=canvas.getBoundingClientRect();
     var src=event.touches?event.touches[0]:event;
     return {x:(src.clientX-rect.left)*canvas.width/rect.width,y:(src.clientY-rect.top)*canvas.height/rect.height};
   }
+  function remember(p){
+    if(!currentStroke) return;
+    currentStroke.xs.push(Math.round(p.x));
+    currentStroke.ys.push(Math.round(p.y));
+    currentStroke.ts.push(Math.max(0, Date.now()-strokeStarted));
+  }
   if(canvas&&ctx){
     prepareCanvas();
-    canvas.addEventListener("pointerdown",function(event){drawing=true;var p=point(event);ctx.beginPath();ctx.moveTo(p.x,p.y);});
-    canvas.addEventListener("pointermove",function(event){if(!drawing)return;var p=point(event);ctx.lineTo(p.x,p.y);ctx.stroke();});
-    window.addEventListener("pointerup",function(){drawing=false;});
+    canvas.addEventListener("pointerdown",function(event){
+      event.preventDefault();
+      drawing=true;
+      if(!strokeStarted) strokeStarted=Date.now();
+      currentStroke={xs:[],ys:[],ts:[]};
+      strokes.push(currentStroke);
+      var p=point(event);
+      remember(p);
+      ctx.beginPath();
+      ctx.moveTo(p.x,p.y);
+      try{canvas.setPointerCapture(event.pointerId);}catch(e){}
+    });
+    canvas.addEventListener("pointermove",function(event){
+      if(!drawing) return;
+      event.preventDefault();
+      var p=point(event);
+      remember(p);
+      ctx.lineTo(p.x,p.y);
+      ctx.stroke();
+    });
+    function stopDraw(){drawing=false; currentStroke=null;}
+    canvas.addEventListener("pointerup",stopDraw);
+    canvas.addEventListener("pointercancel",stopDraw);
+  }
+  function chooseHanzi(ch){
+    if(search) search.value=ch;
+    if(typeof searchWords==="function") searchWords();
+    say("Đã tra: "+ch);
+  }
+  function showSuggestions(list){
+    clearSuggestions();
+    var seen={};
+    var hanzi=[];
+    (list||[]).forEach(function(item){
+      String(item||"").split("").forEach(function(ch){
+        if(seen[ch]||!/[\u3400-\u9fff]/.test(ch)) return;
+        seen[ch]=true;
+        hanzi.push(ch);
+      });
+    });
+    hanzi=hanzi.slice(0,12);
+    if(!hanzi.length||!suggestions){
+      say("Chưa nhận ra chữ Hán. Hãy vẽ to một chữ trong khung rồi nhận lại.");
+      return;
+    }
+    say("Chọn chữ gần nhất:");
+    hanzi.forEach(function(ch){
+      var button=document.createElement("button");
+      button.type="button";
+      button.textContent=ch;
+      button.addEventListener("click",function(){chooseHanzi(ch);});
+      suggestions.appendChild(button);
+    });
   }
   function loadTesseract(){
     if(window.Tesseract) return Promise.resolve();
@@ -163115,30 +163193,101 @@ renderLevels();view('levels');
       document.head.appendChild(s);
     });
   }
-  function useHanzi(text){
-    var found=String(text||"").match(/[\u3400-\u9fff]+/);
-    if(!found){say("Chưa nhận ra chữ Hán. Hãy vẽ to, đậm, hoặc chọn ảnh rõ hơn.");return;}
-    var word=found[0].slice(0,12);
-    if(search) search.value=word;
-    if(typeof searchWords==="function") searchWords();
-    say("Đã tra: "+word);
+  function croppedSquare(){
+    var minX=Infinity,minY=Infinity,maxX=0,maxY=0,n=0;
+    strokes.forEach(function(stroke){
+      stroke.xs.forEach(function(x,i){
+        var y=stroke.ys[i];
+        if(x<minX) minX=x;
+        if(y<minY) minY=y;
+        if(x>maxX) maxX=x;
+        if(y>maxY) maxY=y;
+        n++;
+      });
+    });
+    var out=document.createElement("canvas");
+    out.width=320;
+    out.height=320;
+    var g=out.getContext("2d");
+    g.fillStyle="#fff";
+    g.fillRect(0,0,320,320);
+    if(!n) return out;
+    var pad=24;
+    var bw=Math.max(1,maxX-minX);
+    var bh=Math.max(1,maxY-minY);
+    g.drawImage(canvas, Math.max(0,minX-pad), Math.max(0,minY-pad), bw+pad*2, bh+pad*2, 16, 16, 288, 288);
+    return out;
+  }
+  async function recognizeInk(){
+    var ink=strokes.filter(function(stroke){return stroke.xs.length>0;}).map(function(stroke){
+      return [stroke.xs, stroke.ys, stroke.ts];
+    });
+    if(!ink.length){
+      say("Hãy vẽ một chữ trong khung trước.");
+      return;
+    }
+    say("Đang tìm các chữ gần nhất…");
+    clearSuggestions();
+    try{
+      var response=await fetch("https://inputtools.google.com/request?ime=handwriting&app=mobilesearch&cs=1&oe=UTF-8",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+          options:"enable_pre_space",
+          requests:[{
+            writing_guide:{writing_area_width:canvas.width, writing_area_height:canvas.height},
+            ink:ink,
+            language:"zh_CN"
+          }]
+        })
+      });
+      var data=await response.json();
+      var list=data&&data[0]==="SUCCESS"&&data[1]&&data[1][0]?data[1][0][1]:[];
+      if(list&&list.length){
+        showSuggestions(list);
+        return;
+      }
+    }catch(e){}
+    try{
+      say("Đang nhận chữ dự phòng, lần đầu có thể mất một lúc…");
+      await loadTesseract();
+      var result=await window.Tesseract.recognize(croppedSquare(),"chi_sim",{tessedit_pageseg_mode:"10"});
+      var text=result&&result.data?result.data.text:"";
+      var symbols=result&&result.data&&result.data.symbols?result.data.symbols.map(function(symbol){return symbol.text;}):[];
+      showSuggestions([text].concat(symbols));
+    }catch(e){
+      say("Chưa nhận được chữ. Hãy kiểm tra mạng rồi vẽ lại.");
+    }
   }
   async function recognize(source){
     say("Đang nhận chữ, lần đầu có thể mất một lúc…");
     try{
       await loadTesseract();
       var result=await window.Tesseract.recognize(source,"chi_sim");
-      useHanzi(result&&result.data?result.data.text:"");
+      showSuggestions([result&&result.data?result.data.text:""]);
     }catch(e){
       say("Chưa nhận được chữ. Hãy kiểm tra mạng cho lần tải bộ nhận chữ, rồi thử lại.");
     }
   }
   var drawButton=document.getElementById("ttcDrawSearch");
-  if(drawButton&&box) drawButton.addEventListener("click",function(){box.hidden=false;prepareCanvas();say("Vẽ một chữ Hán trong khung, rồi bấm Nhận chữ.");});
+  if(drawButton&&box) drawButton.addEventListener("click",function(){
+    box.hidden=false;
+    requestAnimationFrame(function(){
+      fitCanvas();
+      say("Vẽ một chữ Hán trong khung, rồi bấm Nhận chữ và chọn chữ gần nhất.");
+    });
+  });
   var clearButton=document.getElementById("ttcDrawClear");
-  if(clearButton) clearButton.addEventListener("click",function(){prepareCanvas();say("");});
+  if(clearButton) clearButton.addEventListener("click",function(){
+    strokes=[];
+    currentStroke=null;
+    strokeStarted=0;
+    prepareCanvas();
+    clearSuggestions();
+    say("");
+  });
   var readButton=document.getElementById("ttcDrawRead");
-  if(readButton) readButton.addEventListener("click",function(){recognize(canvas);});
+  if(readButton) readButton.addEventListener("click",function(){recognizeInk();});
   var closeButton=document.getElementById("ttcDrawClose");
   if(closeButton&&box) closeButton.addEventListener("click",function(){box.hidden=true;});
   var photoButton=document.getElementById("ttcPhotoSearch");
