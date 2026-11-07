@@ -142290,7 +142290,7 @@ async function openTtcGeneratedExam(button){
   }
 }
 
-const TTC_HSK_EXAM_COUNTS = {1:40,2:60,3:80,4:100,5:100,6:101,7:98,8:98,9:98};
+const TTC_HSK_EXAM_COUNTS = {1:40,2:60,3:80,4:100,5:100,6:101,7:40,8:40,9:40};
 const TTC_EXAM_BANK = Object.create(null);
 
 function ttcBuildGeneratedTests(level,examNo){
@@ -146183,8 +146183,8 @@ if(
 
 }
 
-var hskPaperCounts = {1:40,2:60,3:80,4:100,5:100,6:101,7:98,8:98,9:98};
-var hskPaperMinutes = {1:40,2:55,3:90,4:105,5:125,6:140,7:150,8:160,9:170};
+var hskPaperCounts = {1:40,2:60,3:80,4:100,5:100,6:101,7:40,8:40,9:40};
+var hskPaperMinutes = {1:40,2:55,3:90,4:105,5:125,6:140,7:80,8:90,9:100};
 Object.keys(hskPaperCounts).forEach(function(key){
   var level = Number(key);
   TTC_HSK_EXAM_COUNTS[level] = hskPaperCounts[level];
@@ -165487,34 +165487,26 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
       ["reading","📖 阅读 · 第四部分（第81–100题）","Đọc hiểu, chọn ý đúng.",20,"read-choice"],
       ["writing","✍️ 书写 · 缩写（第101题）","Đọc đoạn và chọn câu tóm tắt đúng.",1,"summary"]
     ]},
-    7:{minutes:150,parts:[
-      ["listening","🎧 听力 · 第一部分（第1–15题）","Nghe câu, chọn câu nói đúng về từ.",15,"listen-reply"],
-      ["listening","🎧 听力 · 第二部分（第16–30题）","Nghe câu, chọn nghĩa đúng.",15,"listen-meaning"],
-      ["listening","🎧 听力 · 第三部分（第31–40题）","Nghe câu, chọn từ được nhắc.",10,"listen-word"],
-      ["reading","📖 阅读 · 第一部分（第41–55题）","Đọc câu, chọn ý đúng.",15,"read-choice"],
-      ["reading","📖 阅读 · 第二部分（第56–70题）","Điền từ vào chỗ trống.",15,"cloze"],
-      ["reading","📖 阅读 · 第三部分（第71–80题）","Chọn câu có lỗi dùng từ.",10,"error-spot"],
-      ["writing","✍️ 书写 · 第一部分（第81–90题）","Chọn câu dùng đúng từ.",10,"use-word"],
-      ["writing","✍️ 书写 · 第二部分（第91–98题）","Đọc câu và chọn câu tóm tắt đúng.",8,"summary"]
+    7:{minutes:80,parts:[
+      ["listening","🎧 听力 · 第一部分（第1–8题）","Nghe một đoạn hoàn chỉnh, chọn ý đúng của cả đoạn.",8,"listen-meaning"],
+      ["listening","🎧 听力 · 第二部分（第9–16题）","Nghe đoạn, trả lời một câu hỏi chi tiết.",8,"listen-reply"],
+      ["reading","📖 阅读 · 第一部分（第17–24题）","Đọc đoạn, chọn ý không có trong đoạn.",8,"read-infer"],
+      ["reading","📖 阅读 · 第二部分（第25–32题）","Đọc đoạn và điền từ đúng chỗ trống.",8,"cloze"],
+      ["writing","✍️ 书写 · 概括（第33–40题）","Chọn câu tóm tắt đúng cả đoạn.",8,"summary"]
     ]},
-    8:{minutes:160,parts:[
-      ["listening","🎧 听力 · 第一部分（第1–15题）","Nghe câu, chọn nghĩa đúng.",15,"listen-meaning"],
-      ["listening","🎧 听力 · 第二部分（第16–30题）","Nghe câu, chọn câu nói đúng về từ.",15,"listen-reply"],
-      ["listening","🎧 听力 · 第三部分（第31–40题）","Nghe câu, chọn từ được nhắc.",10,"listen-word"],
-      ["reading","📖 阅读 · 第一部分（第41–55题）","Đọc câu, chọn ý đúng.",15,"read-choice"],
-      ["reading","📖 阅读 · 第二部分（第56–70题）","Điền từ vào chỗ trống.",15,"cloze"],
-      ["reading","📖 阅读 · 第三部分（第71–80题）","Chọn câu sắp đúng ý.",10,"order"],
-      ["writing","✍️ 书写 · 第一部分（第81–90题）","Chọn câu dùng đúng từ.",10,"use-word"],
-      ["writing","✍️ 书写 · 第二部分（第91–98题）","Đọc câu và chọn câu tóm tắt đúng.",8,"summary"]
+    8:{minutes:90,parts:[
+      ["listening","🎧 听力 · 第一部分（第1–8题）","Nghe đoạn, chọn ý đúng của cả đoạn.",8,"listen-meaning"],
+      ["listening","🎧 听力 · 第二部分（第9–16题）","Nghe đoạn, trả lời câu hỏi chi tiết.",8,"listen-reply"],
+      ["reading","📖 阅读 · 第一部分（第17–24题）","Đọc đoạn, chọn ý không có trong đoạn.",8,"read-infer"],
+      ["reading","📖 阅读 · 第二部分（第25–32题）","Điền từ theo ý cả đoạn.",8,"cloze"],
+      ["writing","✍️ 书写 · 概括（第33–40题）","Chọn câu tóm tắt đúng.",8,"summary"]
     ]},
-    9:{minutes:170,parts:[
-      ["listening","🎧 听力 · 第一部分（第1–20题）","Nghe câu, chọn nghĩa đúng.",20,"listen-meaning"],
-      ["listening","🎧 听力 · 第二部分（第21–35题）","Nghe câu, chọn câu nói đúng về từ.",15,"listen-reply"],
-      ["reading","📖 阅读 · 第一部分（第36–50题）","Đọc câu, chọn ý đúng.",15,"read-choice"],
-      ["reading","📖 阅读 · 第二部分（第51–65题）","Điền từ vào chỗ trống.",15,"cloze"],
-      ["reading","📖 阅读 · 第三部分（第66–75题）","Chọn câu có lỗi dùng từ.",10,"error-spot"],
-      ["writing","✍️ 书写 · 第一部分（第76–88题）","Chọn câu dùng đúng từ.",13,"use-word"],
-      ["writing","✍️ 书写 · 第二部分（第89–98题）","Đọc câu và chọn câu tóm tắt đúng.",10,"summary"]
+    9:{minutes:100,parts:[
+      ["listening","🎧 听力 · 第一部分（第1–8题）","Nghe đoạn nghị luận ngắn, chọn ý đúng.",8,"listen-meaning"],
+      ["listening","🎧 听力 · 第二部分（第9–16题）","Nghe đoạn, trả lời câu hỏi chi tiết.",8,"listen-reply"],
+      ["reading","📖 阅读 · 第一部分（第17–24题）","Đọc đoạn, chọn ý không có trong đoạn.",8,"read-infer"],
+      ["reading","📖 阅读 · 第二部分（第25–32题）","Điền từ theo lập luận của đoạn.",8,"cloze"],
+      ["writing","✍️ 书写 · 概括（第33–40题）","Chọn câu tóm tắt đúng lập luận.",8,"summary"]
     ]}
   };
 
@@ -165980,7 +165972,146 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
       kind: kind
     };
   }
-  function make(type, word, pool, rng, part){
+  function sentenceOf(w){
+    const s = String(zh(w)||"").trim();
+    if(!s) return String(w && w.h || "")+"。";
+    return /[。！？]$/.test(s) ? s : (s+"。");
+  }
+  function makeFromPassage(type, word, pool, rng, part, level){
+    const size = level>=8 ? 4 : level>=6 ? 3 : 2;
+    const mates = distinctRest(pool, word, rng, size-1, zh);
+    if(mates.length<1) return null;
+    const group = [word].concat(mates).slice(0, size);
+    const outsiders = distinctRest(pool, word, rng, 8, vi).filter(function(w){
+      return group.indexOf(w)<0 && group.every(function(g){ return vi(g)!==vi(w) && zh(g)!==zh(w); });
+    });
+    if(outsiders.length<3) return null;
+    const passage = group.map(sentenceOf).join("");
+    const shot = pictureOf(word);
+    sceneForQuestion = shot;
+    const listening = part[0]==="listening";
+    const told = group.map(function(w){ return "«"+sentenceOf(w)+"» ("+vi(w)+")"; }).join(" ");
+    if(type==="cloze"){
+      const sentence = sentenceOf(word);
+      const blanked = sentence.indexOf(word.h)>=0 ? sentence.replace(word.h, "______") : ("______"+sentence);
+      const body = blanked + group.slice(1).map(sentenceOf).join("");
+      const rows = [{
+        t: word.h, py: word.p||"", vi: String(word.m||""), ok: true,
+        why: "ĐÚNG. Câu đủ là «"+sentence+"» ("+vi(word)+"). Chỗ trống là «"+word.h+"» ("+String(word.m||"")+"). Các câu quanh đó: "+group.slice(1).map(vi).join("; ")+"."
+      }].concat(outsiders.slice(0,3).map(function(w){
+        return {
+          t: w.h, py: w.p||"", vi: String(w.m||""), ok: false,
+          why: "SAI. «"+w.h+"» nghĩa là "+String(w.m||"")+". Điền từ này thì câu không còn nghĩa "+vi(word)+"."
+        };
+      }));
+      const mixed = hsk1Mix(rows, rng);
+      return pack(part, {
+        q: body,
+        qMeaning: "Đọc cả đoạn rồi điền từ đúng. Đoạn nói về: "+group.map(vi).join("; ")+".",
+        options: mixed.options, optionPinyin: mixed.optionPinyin, optionMeaning: mixed.optionMeaning,
+        answer: mixed.answer, analysis: mixed.analysis,
+        picture: shot, h: word.h, m: word.m
+      });
+    }
+    if(type==="error-spot"){
+      const foil = outsiders[0];
+      const good = sentenceOf(word);
+      const bad = good.indexOf(word.h)>=0 ? good.replace(word.h, foil.h) : (foil.h+good);
+      const goods = group.slice(1).concat(outsiders.slice(1)).slice(0,3);
+      const rows = [{
+        t: bad, py: "", vi: "", ok: true,
+        why: "ĐÚNG. Câu muốn nói "+vi(word)+", phải dùng «"+word.h+"» ("+String(word.m||"")+"), nhưng viết thành «"+foil.h+"» ("+String(foil.m||"")+"). Câu đúng là «"+good+"»."
+      }].concat(goods.map(function(w){
+        return {
+          t: sentenceOf(w), py: py(w), vi: vi(w), ok: false,
+          why: "SAI. «"+sentenceOf(w)+"» dùng đúng «"+w.h+"» ("+String(w.m||"")+"): "+vi(w)+"."
+        };
+      }));
+      const mixed = hsk1Mix(rows, rng);
+      return pack(part, {
+        q: "下面哪一句用词不合适？",
+        qMeaning: "Chọn câu dùng sai từ so với ý của chính câu đó.",
+        options: mixed.options, optionPinyin: mixed.optionPinyin, optionMeaning: mixed.optionMeaning,
+        answer: mixed.answer, analysis: mixed.analysis,
+        picture: shot, h: word.h, m: word.m
+      });
+    }
+    if(type==="order" || type==="use-word"){
+      const lead = group.slice(1);
+      const rows = [{
+        t: sentenceOf(word), py: py(word), vi: vi(word), ok: true,
+        why: "ĐÚNG. Đoạn trước nói: "+lead.map(vi).join("; ")+". Câu nối tiếp đúng là «"+sentenceOf(word)+"» ("+vi(word)+")."
+      }].concat(outsiders.slice(0,3).map(function(w){
+        return {
+          t: sentenceOf(w), py: py(w), vi: vi(w), ok: false,
+          why: "SAI. Câu này nói về «"+w.h+"» ("+String(w.m||"")+"): "+vi(w)+". Không nối với đoạn đang nói "+lead.map(vi).join("; ")+"."
+        };
+      }));
+      const mixed = hsk1Mix(rows, rng);
+      return pack(part, {
+        q: lead.map(sentenceOf).join("")+"\n哪一句最适合接在后面？",
+        qMeaning: "Chọn câu nối đúng sau đoạn.",
+        options: mixed.options, optionPinyin: mixed.optionPinyin, optionMeaning: mixed.optionMeaning,
+        answer: mixed.answer, analysis: mixed.analysis,
+        picture: shot, h: word.h, m: word.m
+      });
+    }
+    if(level>=7 && (type==="listen-word" || type==="read-infer")){
+      const rows = [{
+        t: vi(outsiders[0]), py: "", vi: vi(outsiders[0]), ok: true,
+        why: "ĐÚNG. Ý này không có trong đoạn. Đoạn chỉ nói: "+told+"."
+      }].concat(group.slice(0,3).map(function(w){
+        return {
+          t: vi(w), py: "", vi: vi(w), ok: false,
+          why: "SAI. Ý này có trong đoạn. «"+sentenceOf(w)+"» nghĩa là "+vi(w)+". Câu hỏi đang tìm ý không khớp."
+        };
+      }));
+      const mixed = hsk1Mix(rows, rng);
+      const heard = part.slice();
+      if(listening) heard[2] = "Nghe cả đoạn, chọn ý không có trong đoạn. Chữ không hiện sẵn.";
+      return pack(listening ? heard : part, {
+        q: listening ? "请听短文，选择与内容不符的一项。" : (passage+"\n下面哪一项和短文意思不符？"),
+        qMeaning: "Chọn ý không có trong đoạn.",
+        options: mixed.options, optionPinyin: mixed.optionPinyin, optionMeaning: mixed.optionMeaning,
+        answer: mixed.answer, analysis: mixed.analysis,
+        audioText: listening ? passage : "",
+        picture: shot, h: word.h, m: word.m
+      });
+    }
+    const detail = type==="listen-reply";
+    const focus = detail ? group[group.length-1] : word;
+    const rows = [{
+      t: vi(focus), py: "", vi: vi(focus), ok: true,
+      why: detail
+        ? "ĐÚNG. Đoạn có câu «"+sentenceOf(focus)+"», nghĩa: "+vi(focus)+". Cả đoạn: "+told+"."
+        : "ĐÚNG. Ý này có trong đoạn, câu «"+sentenceOf(word)+"» nghĩa là "+vi(word)+"."
+    }].concat(outsiders.slice(0,3).map(function(w){
+      return {
+        t: vi(w), py: "", vi: vi(w), ok: false,
+        why: "SAI. Đoạn không nói «"+vi(w)+"» (ý của «"+w.h+"»). Đoạn nói: "+group.map(vi).join("; ")+"."
+      };
+    }));
+    const mixed = hsk1Mix(rows, rng);
+    const heard = part.slice();
+    if(listening) heard[2] = detail ? "Nghe cả đoạn rồi chọn chi tiết có trong đoạn. Đoạn không hiện sẵn." : "Nghe cả đoạn rồi chọn ý chính. Đoạn không hiện sẵn.";
+    const stem = listening
+      ? (detail ? "请听短文，选择符合内容的一项。" : "请听短文，选择主要内容。")
+      : (type==="summary" ? (passage+"\n下面哪一项的意思在这段话里出现了？") : (passage+"\n下面哪一项的意思在这段话里出现了？"));
+    return pack(listening ? heard : part, {
+      q: stem,
+      qMeaning: (detail ? "Chọn chi tiết có trong đoạn. " : "Chọn ý thật sự xuất hiện trong đoạn. ")+"Đoạn gồm "+group.length+" câu.",
+      options: mixed.options, optionPinyin: mixed.optionPinyin, optionMeaning: mixed.optionMeaning,
+      answer: mixed.answer, analysis: mixed.analysis,
+      audioText: listening ? passage : "",
+      picture: shot, h: word.h, m: word.m
+    });
+  }
+  function make(type, word, pool, rng, part, level){
+    level = Number(level)||2;
+    if(level>=4 && type!=="write-hanzi" && type!=="listen-judge" && type!=="read-pic-tf" && type!=="read-tf" && !(type==="listen-word" && level<7)){
+      const built = makeFromPassage(type, word, pool, rng, part, level);
+      if(built) return built;
+    }
     const shot = pictureOf(word);
     sceneForQuestion = shot;
     const rest = others(pool, word, rng, 3);
@@ -166042,30 +166173,30 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
       });
     }
     if(type==="read-qa" || type==="listen-reply"){
-      const mates = distinctRest(pool, word, rng, 3, zh);
+      const mates = distinctRest(pool, word, rng, 3, vi);
+      const line = sentenceOf(word);
       const rows = [{
-        t: zh(word), py: py(word), vi: vi(word), ok: true,
-        why: "ĐÚNG. Câu hỏi hỏi về «"+word.h+"» ("+String(word.m||"")+"). Câu «"+zh(word)+"» nói đúng việc này: "+vi(word)+"."
+        t: vi(word), py: "", vi: vi(word), ok: true,
+        why: "ĐÚNG. Người nam nói «"+line+"», nghĩa: "+vi(word)+"."
       }].concat(mates.map(function(w){
         return {
-          t: zh(w), py: py(w), vi: vi(w), ok: false,
-          why: "SAI. Câu này nói về «"+w.h+"» ("+String(w.m||"")+"): "+vi(w)+". Không trả lời câu hỏi về «"+word.h+"»."
+          t: vi(w), py: "", vi: vi(w), ok: false,
+          why: "SAI. Người nam không nói việc này. Đây là ý của «"+w.h+"» ("+String(w.m||"")+"): "+vi(w)+"."
         };
       }));
       const mixed = hsk1Mix(rows, rng);
-      const ask = "关于「"+word.h+"」，哪一句说得对？";
       const heard = part.slice();
-      if(type==="listen-reply") heard[2] = "Nghe câu hỏi, xem hình, rồi chọn câu nói đúng về từ đó.";
+      if(type==="listen-reply") heard[2] = "Nghe hai câu hội thoại ngắn. Chọn ý người nam vừa nói. Câu không hiện sẵn.";
       return pack(type==="listen-reply" ? heard : part, {
-        q: type==="listen-reply" ? "请听问题，选择最合适的回答。" : ("问："+ask),
-        qPinyin: type==="listen-reply" ? "" : ("Guānyú 「"+word.h+"」，nǎ yí jù shuō de duì?"),
-        qMeaning: "Câu hỏi: về «"+word.h+"» ("+String(word.m||"")+"), câu nào nói đúng?",
+        q: type==="listen-reply" ? "请听对话，选择男的说了什么。" : ("男："+line+"\n男的说了什么？"),
+        qPinyin: "",
+        qMeaning: "Người nam nói một câu. Chọn đúng ý tiếng Việt.",
         options: mixed.options,
         optionPinyin: mixed.optionPinyin,
         optionMeaning: mixed.optionMeaning,
         answer: mixed.answer,
         analysis: mixed.analysis,
-        audioText: type==="listen-reply" ? ask : "",
+        audioText: type==="listen-reply" ? ("男："+line+"女：我知道了。") : "",
         picture: shot,
         h: word.h, m: word.m
       });
@@ -166501,12 +166632,110 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
     return {minutes:plan.minutes, questions:questions};
   }
 
+  function advancedPassages(level){
+    const common = function(row){ return row; };
+    const bank = {
+      7:[
+        common({shot:"Người đang làm việc trong văn phòng", lines:["公司这周要做一次客户调查。","小李打电话联系客户，小王把回答整理成表格。","他们连续加了三个晚上的班。","周五下午报告交了上去，经理说结果清楚多了。"], vi:["Công ty tuần này phải làm một cuộc khảo sát khách hàng.","Tiểu Lý gọi điện liên hệ khách, Tiểu Vương sắp câu trả lời thành bảng.","Họ tăng ca ba tối liền.","Chiều thứ Sáu báo cáo được nộp, quản lý nói kết quả rõ hơn nhiều."], main:"Nhóm đã nộp báo cáo khảo sát, và quản lý thấy kết quả rõ hơn.", mainWhy:"ĐÚNG. Đoạn nói thứ Sáu báo cáo đã nộp, quản lý khen kết quả rõ hơn.", mainBad:[["Họ không kịp nộp báo cáo.","SAI. Chiều thứ Sáu báo cáo đã được nộp."],["Quản lý chê kết quả kém hơn lần trước.","SAI. Quản lý nói kết quả rõ hơn nhiều, không phải kém hơn."],["Chỉ có Tiểu Lý làm việc này.","SAI. Tiểu Vương cũng sắp bảng, không phải một người."]], detailQ:"谁把回答整理成表格？", detailVi:"Ai sắp câu trả lời thành bảng?", detailOk:"小王。", detailOkVi:"Tiểu Vương.", detailWhy:"ĐÚNG. Đoạn nói Tiểu Vương sắp câu trả lời thành bảng. Tiểu Lý chỉ gọi điện.", detailBad:[["小李。","Tiểu Lý.","SAI. Tiểu Lý gọi điện liên hệ khách, không sắp bảng."],["经理。","Quản lý.","SAI. Quản lý nhận xét báo cáo, không làm bảng."],["客户自己整理。","Khách tự sắp.","SAI. Đoạn không nói khách tự làm bảng."]], notSaid:"Quản lý hủy cuộc khảo sát.", notWhy:"ĐÚNG. Đây là ý không có trong đoạn. Báo cáo đã được nộp, không bị hủy.", said:[["Tiểu Lý gọi điện cho khách.","SAI. Ý này có trong đoạn, không chọn."],["Họ tăng ca ba tối.","SAI. Đoạn nói rõ ba tối tăng ca."],["Kết quả rõ hơn nhiều.","SAI. Quản lý nói đúng ý này."]], cloze:"表格", clozePy:"biǎogé", clozeM:"bảng", clozeWhy:"ĐÚNG. Câu là «小王把回答整理成表格», Tiểu Vương sắp câu trả lời thành bảng.", clozeBad:[["电话","diànhuà","điện thoại","SAI. Điện thoại là thứ Tiểu Lý dùng để gọi. Câu này đang nói thành phẩm Tiểu Vương sắp ra."],["报告","bàogào","báo cáo","SAI. Báo cáo là bản nộp vào thứ Sáu. Chỗ trống là bảng câu trả lời."],["经理","jīnglǐ","quản lý","SAI. Quản lý là người nhận xét, không phải thứ được sắp thành."]], summary:"Họ tăng ca để kịp nộp báo cáo khảo sát, và kết quả được coi là rõ hơn.", summaryWhy:"ĐÚNG. Cả đoạn đi từ giao việc, tăng ca, đến lúc nộp và được khen rõ hơn.", summaryBad:[["Họ bỏ cuộc giữa chừng.","SAI. Báo cáo đã nộp, không bỏ cuộc."],["Khách hàng tự viết báo cáo.","SAI. Tiểu Lý và Tiểu Vương làm, không phải khách."],["Quản lý từ chối nhận báo cáo.","SAI. Quản lý đã xem và khen kết quả rõ hơn."]]}),
+        common({shot:"Bác sĩ đang khám cho bệnh nhân", lines:["小周最近总是头疼，而且晚上睡不着。","医生让他先停掉那种提神的饮料。","又开了一种温和的药，嘱咐他按时吃。","一周以后，小周说疼得轻多了。"], vi:["Tiểu Chu dạo này hay đau đầu và đêm không ngủ được.","Bác sĩ bảo anh ấy ngừng loại đồ uống gây tỉnh táo.","Rồi kê một loại thuốc nhẹ, dặn uống đúng giờ.","Một tuần sau, Tiểu Chu nói đỡ đau nhiều."], main:"Tiểu Chu nghe bác sĩ đổi thói quen và uống thuốc, một tuần sau đỡ đau đầu.", mainWhy:"ĐÚNG. Đoạn kể từ triệu chứng đến lúc ngừng đồ uống, uống thuốc và đỡ hơn.", mainBad:[["Bác sĩ bảo anh ấy uống thêm đồ uống gây tỉnh.","SAI. Bác sĩ bảo ngừng loại đồ uống đó."],["Một tuần sau bệnh nặng hơn.","SAI. Anh ấy nói đỡ đau nhiều."],["Anh ấy không đi khám.","SAI. Có bác sĩ kê thuốc và dặn uống đúng giờ."]], detailQ:"医生让小周先停掉什么？", detailVi:"Bác sĩ bảo Tiểu Chu ngừng thứ gì trước?", detailOk:"提神的饮料。", detailOkVi:"Đồ uống gây tỉnh táo.", detailWhy:"ĐÚNG. Bác sĩ bảo ngừng loại đồ uống gây tỉnh táo, rồi mới kê thuốc nhẹ.", detailBad:[["温和的药。","Thuốc nhẹ.","SAI. Thuốc nhẹ là thứ được kê để uống, không phải thứ phải ngừng."],["早饭。","Bữa sáng.","SAI. Đoạn không nói ngừng bữa sáng."],["工作。","Công việc.","SAI. Đoạn không bảo anh ấy nghỉ việc."]], notSaid:"Một tuần sau Tiểu Chu phải nhập viện.", notWhy:"ĐÚNG. Đoạn chỉ nói đỡ đau nhiều, không nói nhập viện.", said:[["Anh ấy hay đau đầu và mất ngủ.","SAI. Đây là triệu chứng mở đầu, có trong đoạn."],["Bác sĩ dặn uống thuốc đúng giờ.","SAI. Đoạn có câu dặn này."],["Anh ấy đỡ đau sau một tuần.","SAI. Câu cuối nói đúng ý này."]], cloze:"饮料", clozePy:"yǐnliào", clozeM:"đồ uống", clozeWhy:"ĐÚNG. Câu là «停掉那种提神的饮料», thứ cần ngừng là đồ uống gây tỉnh.", clozeBad:[["药","yào","thuốc","SAI. Thuốc là thứ được kê để uống, không phải thứ phải ngừng."],["医院","yīyuàn","bệnh viện","SAI. Đoạn không nói ngừng bệnh viện."],["晚上","wǎnshang","buổi tối","SAI. Buổi tối là lúc anh ấy mất ngủ, không phải vật cần ngừng."]], summary:"Vì đau đầu và mất ngủ, Tiểu Chu ngừng đồ uống gây tỉnh, uống thuốc đúng giờ rồi đỡ hơn.", summaryWhy:"ĐÚNG. Tóm tắt giữ đủ nguyên nhân, cách xử lý và kết quả.", summaryBad:[["Anh ấy tự mua thuốc mạnh và khỏi ngay.","SAI. Thuốc do bác sĩ kê, loại nhẹ, và đỡ sau một tuần."],["Bác sĩ không tìm ra cách nào.","SAI. Đã có hai việc cụ thể: ngừng đồ uống và uống thuốc."],["Bệnh không hề thay đổi.","SAI. Câu cuối nói đỡ đau nhiều."]]}),
+        common({shot:"Người đang chuyển nhà", lines:["小陈下个月要搬到离公司更近的小区。","新房子不大，可是走路十分钟就能到办公室。","他周末把书和冬天的衣服先装箱。","邻居答应搬家那天来帮忙抬桌子。"], vi:["Tiểu Trần tháng sau chuyển đến khu gần công ty hơn.","Nhà mới không lớn, nhưng đi bộ mười phút là tới văn phòng.","Cuối tuần anh ấy đóng hộp sách và áo mùa đông trước.","Hàng xóm nhận hôm chuyển nhà sẽ sang giúp khiêng bàn."], main:"Tiểu Trần sắp chuyển đến nhà gần công ty, và đã chuẩn bị đồ cùng người giúp.", mainWhy:"ĐÚNG. Đoạn nói nhà mới gần văn phòng, anh ấy đã đóng hộp và có hàng xóm giúp.", mainBad:[["Nhà mới rất rộng và ở rất xa công ty.","SAI. Nhà không lớn, đi bộ mười phút tới văn phòng."],["Không ai giúp anh ấy chuyển.","SAI. Hàng xóm nhận sang giúp khiêng bàn."],["Anh ấy đã chuyển xong từ tháng trước.","SAI. Việc chuyển là tháng sau, hiện mới đóng hộp."]], detailQ:"新房子离办公室有多远？", detailVi:"Nhà mới cách văn phòng bao xa?", detailOk:"走路十分钟。", detailOkVi:"Đi bộ mười phút.", detailWhy:"ĐÚNG. Đoạn nói đi bộ mười phút là tới văn phòng.", detailBad:[["开车一个小时。","Đi xe một giờ.","SAI. Đoạn nói đi bộ mười phút, không nói đi xe."],["走路三十分钟。","Đi bộ ba mươi phút.","SAI. Số trong đoạn là mười phút."],["就在公司楼上。","Ngay trên công ty.","SAI. Vẫn phải đi bộ mười phút, không phải ở trong công ty."]], notSaid:"Hàng xóm từ chối giúp chuyển bàn.", notWhy:"ĐÚNG. Ngược với đoạn. Hàng xóm nhận sẽ sang giúp khiêng bàn.", said:[["Nhà mới gần công ty hơn.","SAI. Câu đầu nói đúng ý này."],["Anh ấy đóng hộp sách và áo mùa đông.","SAI. Có trong đoạn."],["Đi bộ mười phút tới văn phòng.","SAI. Có trong đoạn."]], cloze:"桌子", clozePy:"zhuōzi", clozeM:"bàn", clozeWhy:"ĐÚNG. Câu là «帮忙抬桌子», hàng xóm giúp khiêng bàn.", clozeBad:[["书","shū","sách","SAI. Sách đã được đóng hộp trước, câu này đang nói món cần khiêng hôm chuyển."],["衣服","yīfu","quần áo","SAI. Áo mùa đông cũng đã đóng hộp, không phải thứ hàng xóm hứa khiêng."],["公司","gōngsī","công ty","SAI. Công ty là nơi làm việc, không phải đồ cần khiêng."]], summary:"Tiểu Trần chuyển đến nhà nhỏ nhưng gần công ty, đã xếp đồ và có hàng xóm giúp khiêng bàn.", summaryWhy:"ĐÚNG. Gồm lý do chuyển, việc chuẩn bị và người giúp.", summaryBad:[["Anh ấy chuyển vì nhà mới rộng hơn nhiều.","SAI. Đoạn nói nhà không lớn, lý do là gần công ty."],["Anh ấy một mình chuyển hết trong ngày.","SAI. Có hàng xóm giúp, và mới chỉ đóng hộp trước."],["Văn phòng cách nhà mới rất xa.","SAI. Chỉ mười phút đi bộ."]]}),
+        common({shot:"Học sinh đang thuyết trình trong lớp", lines:["周五的课上，小林要做一个五分钟的发言。","她选的题目是自己家乡的早餐。","前一天晚上她对着镜子说了两遍。","第二天同学都说听懂了，老师也让她把图片留下。"], vi:["Tiết thứ Sáu, Tiểu Lâm phải nói khoảng năm phút.","Cô chọn đề tài bữa sáng quê mình.","Tối hôm trước cô nói trước gương hai lần.","Hôm sau các bạn đều bảo nghe hiểu, thầy còn bảo cô để lại ảnh."], main:"Tiểu Lâm chuẩn bị bài nói về bữa sáng quê nhà và hôm sau mọi người nghe hiểu.", mainWhy:"ĐÚNG. Có đề tài, lần tập, và kết quả là bạn bè nghe hiểu, thầy giữ ảnh.", mainBad:[["Cô nói về lịch sử công ty.","SAI. Đề tài là bữa sáng quê cô."],["Cô không tập trước.","SAI. Tối trước cô đã nói trước gương hai lần."],["Cả lớp không nghe hiểu.","SAI. Các bạn nói nghe hiểu."]], detailQ:"小林发言的题目是什么？", detailVi:"Đề tài bài nói của Tiểu Lâm là gì?", detailOk:"家乡的早餐。", detailOkVi:"Bữa sáng quê nhà.", detailWhy:"ĐÚNG. Đoạn nói cô chọn bữa sáng của quê mình.", detailBad:[["公司的调查。","Khảo sát của công ty.","SAI. Không có việc này trong đoạn."],["五分钟的语法。","Ngữ pháp trong năm phút.","SAI. Năm phút là độ dài bài nói, không phải đề tài."],["老师的家乡。","Quê của thầy.","SAI. Quê được nói là quê của cô."]], notSaid:"Thầy bắt cô nói lại vì không ai hiểu.", notWhy:"ĐÚNG. Ngược đoạn. Mọi người nghe hiểu và thầy bảo để lại ảnh.", said:[["Bài nói dài khoảng năm phút.","SAI. Có trong câu đầu."],["Cô tập trước gương hai lần.","SAI. Có trong đoạn."],["Thầy bảo để lại ảnh.","SAI. Có trong câu cuối."]], cloze:"早餐", clozePy:"zǎocān", clozeM:"bữa sáng", clozeWhy:"ĐÚNG. Đề tài là «家乡的早餐», bữa sáng quê nhà.", clozeBad:[["镜子","jìngzi","gương","SAI. Gương là chỗ cô tập nói, không phải đề tài."],["图片","túpiàn","ảnh","SAI. Ảnh là thứ thầy bảo để lại sau bài nói."],["同学","tóngxué","bạn học","SAI. Bạn học là người nghe, không phải đề tài."]], summary:"Tiểu Lâm tập bài nói năm phút về bữa sáng quê nhà, và hôm sau lớp nghe hiểu.", summaryWhy:"ĐÚNG. Giữ đề tài, sự chuẩn bị và kết quả.", summaryBad:[["Cô bỏ bài nói vì quá dài.","SAI. Cô đã nói và được khen nghe hiểu."],["Thầy chọn đề tài giúp cô.","SAI. Cô tự chọn đề tài."],["Không ai kịp nghe bài của cô.","SAI. Cả lớp nói nghe hiểu."]]}),
+        common({shot:"Người đang đợi tàu ở ga", lines:["小赵早上要坐火车去见一个客户。","火车晚了四十分钟，他在车站给客户打了电话。","客户说会议可以改到下午。","小赵这才坐下，把要讨论的问题又看了一遍。"], vi:["Sáng nay Tiểu Triệu đi tàu để gặp một khách hàng.","Tàu muộn bốn mươi phút, anh gọi cho khách ngay ở ga.","Khách nói cuộc họp có thể chuyển sang buổi chiều.","Lúc đó Tiểu Triệu mới ngồi xuống và xem lại các vấn đề cần bàn."], main:"Vì tàu muộn, cuộc gặp được chuyển sang chiều và Tiểu Triệu tranh thủ xem lại việc cần bàn.", mainWhy:"ĐÚNG. Muộn bốn mươi phút, khách đồng ý đổi sang chiều, anh xem lại câu hỏi.", mainBad:[["Tàu đến sớm nên anh bỏ cuộc họp.","SAI. Tàu muộn, và cuộc họp được dời chứ không bị bỏ."],["Khách không nghe máy.","SAI. Khách đã trả lời và đổi giờ."],["Anh không chuẩn bị gì thêm.","SAI. Anh xem lại các vấn đề cần bàn."]], detailQ:"火车晚了多长时间？", detailVi:"Tàu muộn bao lâu?", detailOk:"四十分钟。", detailOkVi:"Bốn mươi phút.", detailWhy:"ĐÚNG. Đoạn nói tàu muộn bốn mươi phút.", detailBad:[["十分钟。","Mười phút.","SAI. Không phải số trong đoạn."],["一个上午。","Cả buổi sáng.","SAI. Đoạn chỉ nói muộn bốn mươi phút."],["没有晚。","Không muộn.","SAI. Tàu có muộn."]], notSaid:"Khách hủy hẳn cuộc gặp.", notWhy:"ĐÚNG. Khách không hủy, chỉ chuyển sang buổi chiều.", said:[["Tiểu Triệu đi tàu để gặp khách.","SAI. Có ở câu đầu."],["Anh gọi điện ngay ở ga.","SAI. Có trong đoạn."],["Anh xem lại vấn đề cần bàn.","SAI. Có ở câu cuối."]], cloze:"会议", clozePy:"huìyì", clozeM:"cuộc họp", clozeWhy:"ĐÚNG. Câu là «会议可以改到下午», cuộc họp chuyển sang chiều.", clozeBad:[["火车","huǒchē","tàu hỏa","SAI. Tàu là thứ bị muộn, không phải thứ được dời sang chiều."],["车站","chēzhàn","nhà ga","SAI. Ga là nơi anh gọi điện."],["问题","wèntí","vấn đề","SAI. Vấn đề là phần anh xem lại, câu đang nói cái được đổi giờ."]], summary:"Tàu muộn bốn mươi phút, cuộc gặp chuyển sang chiều, Tiểu Triệu xem lại nội dung cần bàn.", summaryWhy:"ĐÚNG. Đủ sự cố, cách xử lý và việc anh làm tiếp.", summaryBad:[["Anh bỏ tàu và hủy khách.","SAI. Anh vẫn đi gặp, chỉ đổi giờ."],["Cuộc họp vẫn giữ đúng buổi sáng.","SAI. Đã chuyển sang chiều."],["Anh không báo cho khách.","SAI. Anh đã gọi từ ga."]]}),
+        common({shot:"Người đang học bên cạnh một cuốn sách", lines:["小吴想在秋天报一个晚上的汉语班。","学费不便宜，所以他每个月先存一部分工资。","同事劝他干脆放弃，他没有同意。","报名那天，他终于把钱交上了。"], vi:["Tiểu Ngô muốn mùa thu ghi danh một lớp tiếng Trung buổi tối.","Học phí không rẻ, nên mỗi tháng anh để riêng một phần lương.","Đồng nghiệp khuyên bỏ, anh không đồng ý.","Ngày ghi danh, anh cũng nộp đủ tiền."], main:"Tiểu Ngô dành dụm lương để vẫn ghi danh lớp tiếng Trung buổi tối.", mainWhy:"ĐÚNG. Học phí cao, anh vẫn để tiền và nộp đúng ngày, dù bị khuyên bỏ.", mainBad:[["Anh bỏ lớp vì đồng nghiệp khuyên.","SAI. Anh không đồng ý bỏ, và đã nộp tiền."],["Lớp học miễn phí.","SAI. Học phí không rẻ."],["Anh chưa nộp được tiền.","SAI. Ngày ghi danh anh đã nộp."]], detailQ:"小吴想报的是什么班？", detailVi:"Tiểu Ngô muốn ghi danh lớp gì?", detailOk:"晚上的汉语班。", detailOkVi:"Lớp tiếng Trung buổi tối.", detailWhy:"ĐÚNG. Câu đầu nói lớp tiếng Trung buổi tối, học vào mùa thu.", detailBad:[["白天的数学班。","Lớp toán ban ngày.","SAI. Không phải môn và không phải buổi trong đoạn."],["免费的汉语班。","Lớp tiếng Trung miễn phí.","SAI. Học phí không rẻ."],["同事的培训班。","Lớp đào tạo của đồng nghiệp.","SAI. Đồng nghiệp chỉ khuyên anh bỏ."]], notSaid:"Anh đồng ý với đồng nghiệp và hủy ghi danh.", notWhy:"ĐÚNG. Ngược đoạn. Anh không đồng ý bỏ và đã nộp tiền.", said:[["Học phí không rẻ.","SAI. Có trong đoạn."],["Mỗi tháng anh để riêng một phần lương.","SAI. Có trong đoạn."],["Ngày ghi danh anh nộp đủ tiền.","SAI. Có ở câu cuối."]], cloze:"工资", clozePy:"gōngzī", clozeM:"lương", clozeWhy:"ĐÚNG. Câu là «存一部分工资», anh để riêng một phần lương.", clozeBad:[["学费","xuéfèi","học phí","SAI. Học phí là khoản phải đóng, không phải thứ anh để riêng mỗi tháng."],["同事","tóngshì","đồng nghiệp","SAI. Đồng nghiệp là người khuyên bỏ."],["秋天","qiūtiān","mùa thu","SAI. Mùa thu là thời điểm học, không phải thứ được để dành."]], summary:"Dù học phí cao và bị khuyên bỏ, Tiểu Ngô vẫn dành lương và nộp tiền học lớp buổi tối.", summaryWhy:"ĐÚNG. Giữ được mâu thuẫn và kết quả.", summaryBad:[["Anh được cấp học bổng toàn phần.","SAI. Anh tự để lương để đóng."],["Anh đổi sang lớp ban ngày.","SAI. Vẫn là lớp buổi tối."],["Đồng nghiệp nộp tiền giúp anh.","SAI. Không có chi tiết này."]]}),
+        common({shot:"Người đang đọc sách trong thư viện", lines:["小区新开了一间很小的图书馆。","工作日晚上七点到九点可以去借书。","管理员提醒大家看完把书放回原来的架子。","第一个月，小李就借了三本关于做饭的书。"], vi:["Khu nhà mới mở một thư viện rất nhỏ.","Tối ngày thường, từ bảy giờ đến chín giờ, có thể đến mượn sách.","Người quản lý nhắc đọc xong hãy trả sách về đúng kệ cũ.","Tháng đầu, Tiểu Lý đã mượn ba cuốn về nấu ăn."], main:"Thư viện nhỏ của khu mở cửa buổi tối, và Tiểu Lý đã mượn sách nấu ăn.", mainWhy:"ĐÚNG. Có giờ mở, quy định trả sách và việc Tiểu Lý mượn ba cuốn.", mainBad:[["Thư viện mở cả đêm.","SAI. Chỉ từ bảy giờ đến chín giờ tối ngày thường."],["Không được mang sách về.","SAI. Đoạn nói đi mượn sách, Tiểu Lý đã mượn ba cuốn."],["Tiểu Lý mượn sách lịch sử.","SAI. Ba cuốn là về nấu ăn."]], detailQ:"工作日晚上图书馆几点可以借书？", detailVi:"Tối ngày thường, mấy giờ được mượn sách?", detailOk:"七点到九点。", detailOkVi:"Từ bảy giờ đến chín giờ.", detailWhy:"ĐÚNG. Đoạn nói tối ngày thường từ bảy đến chín giờ.", detailBad:[["中午十二点。","Mười hai giờ trưa.","SAI. Không phải giờ trong đoạn."],["早上六点。","Sáu giờ sáng.","SAI. Giờ được nói là buổi tối."],["二十四小时。","Cả ngày đêm.","SAI. Chỉ một khoảng hai tiếng buổi tối."]], notSaid:"Người quản lý cho phép để sách tùy chỗ.", notWhy:"ĐÚNG. Ngược quy định. Phải trả về đúng kệ cũ.", said:[["Thư viện mới và rất nhỏ.","SAI. Có ở câu đầu."],["Tối ngày thường được đến mượn.","SAI. Có trong đoạn."],["Tiểu Lý mượn ba cuốn sách nấu ăn.","SAI. Có ở câu cuối."]], cloze:"架子", clozePy:"jiàzi", clozeM:"kệ", clozeWhy:"ĐÚNG. Câu là «放回原来的架子», trả về đúng kệ cũ.", clozeBad:[["书","shū","sách","SAI. Sách là thứ được trả, chỗ trống là nơi để trả về."],["晚上","wǎnshang","buổi tối","SAI. Buổi tối là thời gian mở cửa."],["小区","xiǎoqū","khu nhà","SAI. Khu nhà là nơi có thư viện, không phải chỗ để sách."]], summary:"Khu có thư viện nhỏ mở tối ngày thường, phải trả sách đúng kệ, và Tiểu Lý đã mượn sách nấu ăn.", summaryWhy:"ĐÚNG. Đủ nơi, giờ, quy định và ví dụ người mượn.", summaryBad:[["Thư viện đóng cửa suốt tháng đầu.","SAI. Tiểu Lý đã mượn được sách."],["Ai cũng được để sách lung tung.","SAI. Phải trả đúng kệ."],["Chỉ được đọc tại chỗ, không được mượn.","SAI. Đoạn nói mượn sách."]]}),
+        common({shot:"Người đang phỏng vấn xin việc", lines:["小周下午去一家小公司面试。","面试的人问他为什么想换工作。","他说现在的工作学不到新东西。","对方让他下周三再来看一次办公室。"], vi:["Chiều nay Tiểu Chu đi phỏng vấn ở một công ty nhỏ.","Người phỏng vấn hỏi vì sao anh muốn đổi việc.","Anh nói việc hiện tại không học được gì mới.","Họ bảo thứ Tư tuần sau anh đến xem văn phòng thêm một lần."], main:"Tiểu Chu đi phỏng vấn vì muốn học điều mới, và được hẹn xem văn phòng tuần sau.", mainWhy:"ĐÚNG. Có lý do đổi việc và bước tiếp theo là thứ Tư đến xem văn phòng.", mainBad:[["Anh được nhận việc ngay trong buổi chiều.","SAI. Chỉ được hẹn xem văn phòng, chưa nói nhận."],["Anh muốn đổi việc vì lương quá thấp.","SAI. Lý do anh nói là không học được điều mới."],["Công ty từ chối, không hẹn lại.","SAI. Có hẹn thứ Tư tuần sau."]], detailQ:"对方让小周什么时候再来？", detailVi:"Họ bảo Tiểu Chu khi nào đến lại?", detailOk:"下周三。", detailOkVi:"Thứ Tư tuần sau.", detailWhy:"ĐÚNG. Câu cuối nói thứ Tư tuần sau đến xem văn phòng.", detailBad:[["今天下午。","Chiều nay.","SAI. Chiều nay là buổi phỏng vấn đã diễn ra."],["下个月。","Tháng sau.","SAI. Không phải thời điểm trong đoạn."],["不用再来。","Không cần đến nữa.","SAI. Họ có bảo đến lại."]], notSaid:"Công ty hứa tăng lương gấp đôi.", notWhy:"ĐÚNG. Đoạn không nói lương. Chỉ hẹn xem văn phòng.", said:[["Anh phỏng vấn ở một công ty nhỏ.","SAI. Có trong câu đầu."],["Anh muốn học điều mới.","SAI. Đây là lý do anh đưa ra."],["Họ hẹn anh xem văn phòng.","SAI. Có ở câu cuối."]], cloze:"办公室", clozePy:"bàngōngshì", clozeM:"văn phòng", clozeWhy:"ĐÚNG. Câu là «再来看一次办公室», đến xem văn phòng thêm một lần.", clozeBad:[["工作","gōngzuò","công việc","SAI. Công việc là thứ anh muốn đổi, câu này đang nói nơi họ bảo anh đến xem."],["公司","gōngsī","công ty","SAI. Câu đã nói xem một nơi cụ thể, từ đúng là văn phòng."],["问题","wèntí","câu hỏi","SAI. Câu hỏi phỏng vấn đã hỏi ở câu trước."]], summary:"Tiểu Chu phỏng vấn vì việc cũ không còn gì để học, và được hẹn xem văn phòng vào thứ Tư.", summaryWhy:"ĐÚNG. Đủ lý do và kết quả của buổi phỏng vấn.", summaryBad:[["Anh quyết định ở lại việc cũ.","SAI. Anh đang đi tìm chỗ mới."],["Buổi phỏng vấn bị hủy.","SAI. Buổi phỏng vấn đã diễn ra."],["Họ nhận anh ngay và không cần gặp lại.","SAI. Còn một lần xem văn phòng."]]})
+      ],
+      8:[
+        {shot:"Người đang làm việc trên máy tính ở nhà", lines:["公司允许一部分人在家办公，可是每周必须视频开会两次。","小李一开始很高兴，后来发现自己容易把工作和休息混在一起。","他跟组长商量后，把上午定为不再看消息的时间。","一个月后，他交出的方案反而比在办公室时更完整。"], vi:["Công ty cho một số người làm ở nhà, nhưng mỗi tuần phải họp video hai lần.","Tiểu Lý lúc đầu vui, sau thấy mình dễ trộn việc với nghỉ.","Anh bàn với trưởng nhóm rồi dành buổi sáng để không xem tin nhắn.","Một tháng sau, phương án anh nộp lại đầy đủ hơn lúc còn ở văn phòng."], main:"Làm ở nhà chỉ ổn khi Tiểu Lý tách giờ làm và giờ nghỉ, và kết quả còn tốt hơn.", mainWhy:"ĐÚNG. Đoạn đi từ quy định, vấn đề bị trộn, cách sửa, đến kết quả đầy đủ hơn.", mainBad:[["Làm ở nhà nên anh không cần họp nữa.","SAI. Vẫn phải họp video hai lần mỗi tuần."],["Phương án của anh kém hơn lúc ở văn phòng.","SAI. Đoạn nói đầy đủ hơn."],["Anh cả ngày vừa làm vừa xem tin.","SAI. Anh đã đặt buổi sáng không xem tin nhắn."]], detailQ:"他们每周必须开几次视频会议？", detailVi:"Mỗi tuần họ phải họp video mấy lần?", detailOk:"两次。", detailOkVi:"Hai lần.", detailWhy:"ĐÚNG. Câu đầu nói mỗi tuần họp video hai lần.", detailBad:[["一次。","Một lần.","SAI. Không phải số trong đoạn."],["每天都开。","Ngày nào cũng họp.","SAI. Đoạn chỉ nói hai lần một tuần."],["不用开。","Không phải họp.","SAI. Họp là điều bắt buộc."]], notSaid:"Công ty cấm làm ở nhà.", notWhy:"ĐÚNG. Ngược đoạn. Công ty cho một số người làm ở nhà.", said:[["Mỗi tuần họp video hai lần.","SAI. Có trong đoạn."],["Anh tách buổi sáng để không xem tin.","SAI. Có trong đoạn."],["Phương án đầy đủ hơn trước.","SAI. Có ở câu cuối."]], cloze:"消息", clozePy:"xiāoxi", clozeM:"tin nhắn", clozeWhy:"ĐÚNG. Câu là «不再看消息», buổi sáng không xem tin nhắn.", clozeBad:[["方案","fāng'àn","phương án","SAI. Phương án là kết quả nộp sau một tháng, không phải thứ anh ngừng xem."],["办公室","bàngōngshì","văn phòng","SAI. Văn phòng là nơi so sánh, không điền vào chỗ này."],["组长","zǔzhǎng","trưởng nhóm","SAI. Trưởng nhóm là người anh bàn bạc."]], summary:"Làm ở nhà suýt làm Tiểu Lý lẫn việc và nghỉ, nhưng sau khi chặn tin nhắn buổi sáng thì bài nộp đầy đủ hơn.", summaryWhy:"ĐÚNG. Giữ vấn đề, cách sửa và kết quả.", summaryBad:[["Họp video làm anh bỏ việc.","SAI. Anh vẫn nộp phương án."],["Anh làm ở nhà mà không có quy định nào.","SAI. Có quy định họp hai lần."],["Kết quả không thay đổi.","SAI. Bài đầy đủ hơn lúc ở văn phòng."]]},
+        {shot:"Người đang phân loại rác", lines:["小区从本月开始要求把厨余和其他垃圾分开。","好多住户觉得麻烦，第一周还有人投错。","管理员没有罚款，而是在门口举了三天例子。","第二周，投错的袋子明显少了。"], vi:["Từ tháng này khu nhà yêu cầu tách rác nhà bếp và rác khác.","Nhiều hộ thấy phiền, tuần đầu vẫn bỏ nhầm.","Người quản lý không phạt, mà đứng ở cổng đưa ví dụ ba ngày.","Tuần thứ hai, túi bỏ nhầm ít đi rõ."], main:"Khu nhà không phạt người bỏ nhầm rác, mà hướng dẫn ba ngày, rồi số túi sai giảm.", mainWhy:"ĐÚNG. Đoạn đối lập phạt với việc làm mẫu, và có kết quả ở tuần sau.", mainBad:[["Ai bỏ nhầm đều bị phạt ngay.","SAI. Quản lý không phạt."],["Tuần sau số túi sai nhiều hơn.","SAI. Túi sai ít đi rõ."],["Khu nhà không đổi quy định.","SAI. Tháng này bắt đầu yêu cầu tách rác."]], detailQ:"管理员在门口做了几天示范？", detailVi:"Người quản lý làm mẫu ở cổng mấy ngày?", detailOk:"三天。", detailOkVi:"Ba ngày.", detailWhy:"ĐÚNG. Đoạn nói đứng ở cổng đưa ví dụ ba ngày.", detailBad:[["一周。","Một tuần.","SAI. Một tuần là thời gian người ta còn bỏ nhầm, không phải số ngày làm mẫu."],["一天。","Một ngày.","SAI. Đoạn nói ba ngày."],["没有示范。","Không làm mẫu.","SAI. Có làm mẫu."]], notSaid:"Tuần thứ hai mọi nhà đều bị phạt.", notWhy:"ĐÚNG. Không có chuyện phạt. Kết quả là túi sai ít hơn.", said:[["Phải tách rác nhà bếp.","SAI. Có trong câu đầu."],["Tuần đầu vẫn có người bỏ nhầm.","SAI. Có trong đoạn."],["Túi sai giảm ở tuần sau.","SAI. Có ở câu cuối."]], cloze:"垃圾", clozePy:"lājī", clozeM:"rác", clozeWhy:"ĐÚNG. Câu là «厨余和其他垃圾分开», tách rác nhà bếp và rác khác.", clozeBad:[["罚款","fákuǎn","tiền phạt","SAI. Quản lý không dùng phạt. Chỗ trống là thứ phải tách."],["门口","ménkǒu","cổng","SAI. Cổng là nơi làm mẫu."],["袋子","dàizi","túi","SAI. Túi là thứ đếm ở câu cuối, câu đầu đang nói loại rác."]], summary:"Quy định tách rác lúc đầu bị làm sai, nhưng nhờ làm mẫu chứ không phạt nên tuần sau đỡ nhầm.", summaryWhy:"ĐÚNG. Có vấn đề, cách xử lý và kết quả.", summaryBad:[["Cư dân đồng ý ngay từ ngày đầu.","SAI. Tuần đầu còn bỏ nhầm."],["Quản lý phạt nặng nên mọi người sợ.","SAI. Không phạt."],["Quy định bị hủy.","SAI. Tuần sau vẫn đang áp dụng và đỡ sai hơn."]]},
+        {shot:"Người già đang ngồi trong nhà", lines:["母亲一个人住，小陈每两周回去住一个周末。","他发现母亲常忘记关灶。","兄妹商量后，请邻居每天傍晚顺路看一次。","母亲起初不愿意，后来却主动给邻居留了水果。"], vi:["Mẹ ở một mình, Tiểu Trần hai tuần về ở một cuối tuần.","Anh thấy mẹ hay quên tắt bếp.","Anh chị em bàn rồi nhờ hàng xóm tối nào đi ngang thì ghé xem.","Lúc đầu mẹ không muốn, sau lại chủ động để hoa quả cho hàng xóm."], main:"Vì mẹ hay quên tắt bếp, các con nhờ hàng xóm ghé tối, và mẹ dần nhận sự giúp đó.", mainWhy:"ĐÚNG. Có nguy cơ, cách nhờ người, và thái độ của mẹ đổi từ từ chối sang để quả.", mainBad:[["Mẹ chuyển về ở hẳn với Tiểu Trần.","SAI. Mẹ vẫn ở một mình, con chỉ về cuối tuần."],["Không ai để ý việc tắt bếp.","SAI. Họ nhờ hàng xóm xem mỗi tối."],["Mẹ từ đầu đã vui vẻ nhận giúp.","SAI. Lúc đầu mẹ không muốn."]], detailQ:"小陈多久回去住一个周末？", detailVi:"Bao lâu Tiểu Trần về ở một cuối tuần?", detailOk:"每两周。", detailOkVi:"Hai tuần một lần.", detailWhy:"ĐÚNG. Câu đầu nói hai tuần về một cuối tuần.", detailBad:[["每天。","Mỗi ngày.","SAI. Mỗi ngày là lịch hàng xóm ghé, không phải lịch của con."],["每个月一次。","Mỗi tháng một lần.","SAI. Không phải khoảng trong đoạn."],["他搬回去住了。","Anh chuyển về hẳn.","SAI. Anh chỉ về cuối tuần."]], notSaid:"Mẹ không bao giờ nhận sự giúp của hàng xóm.", notWhy:"ĐÚNG. Ngược câu cuối. Mẹ đã để hoa quả cho hàng xóm.", said:[["Mẹ hay quên tắt bếp.","SAI. Có trong đoạn."],["Hàng xóm ghé vào mỗi tối.","SAI. Có trong đoạn."],["Lúc đầu mẹ không muốn.","SAI. Có trong đoạn."]], cloze:"灶", clozePy:"zào", clozeM:"bếp", clozeWhy:"ĐÚNG. Câu là «忘记关灶», quên tắt bếp.", clozeBad:[["水果","shuǐguǒ","hoa quả","SAI. Hoa quả là thứ mẹ để lại sau, không phải thứ bị quên tắt."],["周末","zhōumò","cuối tuần","SAI. Cuối tuần là lúc con về."],["邻居","línjū","hàng xóm","SAI. Hàng xóm là người được nhờ ghé."]], summary:"Mẹ ở một mình hay quên tắt bếp, con nhờ hàng xóm ghé tối, và mẹ sau đó chấp nhận.", summaryWhy:"ĐÚNG. Đủ vấn đề, cách lo và sự đổi thái độ.", summaryBad:[["Các con bỏ mặc mẹ.","SAI. Có lịch về và có người ghé."],["Hàng xóm từ chối giúp.","SAI. Họ được nhờ và mẹ còn để quả."],["Mẹ chưa từng quên tắt bếp.","SAI. Đó chính là việc con phát hiện."]]},
+        {shot:"Người đang xem triển lãm trong bảo tàng", lines:["市博物馆办了一个关于老手艺的展览。","很多工具没有中文说明，只有老师傅当场演示。","一位学生把过程录下来，做成三分钟的短片。","馆长决定下个月把短片放在入口循环播放。"], vi:["Bảo tàng thành phố mở triển lãm về nghề cũ.","Nhiều dụng cụ không có chú thích tiếng Trung, chỉ có thầy già làm mẫu tại chỗ.","Một sinh viên quay quá trình và dựng đoạn phim ba phút.","Giám đốc quyết định tháng sau chiếu vòng đoạn phim ở lối vào."], main:"Triển lãm nghề cũ thiếu chú thích, nên một đoạn phim làm mẫu sẽ được chiếu ở lối vào.", mainWhy:"ĐÚNG. Vấn đề là không có chú thích, cách giải là phim ba phút, và đã có quyết định chiếu.", mainBad:[["Mọi dụng cụ đều có chú thích đầy đủ.","SAI. Nhiều dụng cụ không có chú thích tiếng Trung."],["Giám đốc từ chối chiếu đoạn phim.","SAI. Tháng sau sẽ chiếu ở lối vào."],["Không ai được quay trong triển lãm.","SAI. Sinh viên đã quay và dựng phim."]], detailQ:"短片多长时间？", detailVi:"Đoạn phim dài bao lâu?", detailOk:"三分钟。", detailOkVi:"Ba phút.", detailWhy:"ĐÚNG. Đoạn nói sinh viên dựng phim ba phút.", detailBad:[["一个小时。","Một giờ.","SAI. Không phải độ dài trong đoạn."],["十分钟。","Mười phút.","SAI. Đoạn nói ba phút."],["没有短片。","Không có phim.","SAI. Có phim và sẽ được chiếu."]], notSaid:"Triển lãm bị đóng vì không có chú thích.", notWhy:"ĐÚNG. Triển lãm không đóng. Họ thêm phim ở lối vào.", said:[["Nhiều dụng cụ không có chú thích.","SAI. Có trong đoạn."],["Thầy già làm mẫu tại chỗ.","SAI. Có trong đoạn."],["Tháng sau phim chiếu ở lối vào.","SAI. Có ở câu cuối."]], cloze:"说明", clozePy:"shuōmíng", clozeM:"chú thích", clozeWhy:"ĐÚNG. Câu là «没有中文说明», không có chú thích tiếng Trung.", clozeBad:[["短片","duǎnpiàn","đoạn phim","SAI. Phim là cách bổ sung sau, câu này đang nói thứ bị thiếu."],["入口","rùkǒu","lối vào","SAI. Lối vào là nơi sẽ chiếu phim."],["工具","gōngjù","dụng cụ","SAI. Dụng cụ là chủ thể thiếu chú thích, không phải từ điền."]], summary:"Vì hiện vật thiếu chú thích, bảo tàng sẽ chiếu đoạn phim làm mẫu ba phút ở lối vào.", summaryWhy:"ĐÚNG. Nối được chỗ thiếu và quyết định sau đó.", summaryBad:[["Sinh viên bị cấm quay.","SAI. Phim của sinh viên được nhận để chiếu."],["Triển lãm chỉ kéo dài một ngày.","SAI. Không nói vậy, và tháng sau vẫn chiếu."],["Thầy già từ chối làm mẫu.","SAI. Thầy có làm mẫu tại chỗ."]]},
+        {shot:"Người đang bàn bạc trong một quán nhỏ", lines:["两个人开的小店，上个月几乎没有客人。","他们发现价格比旁边的店高，菜量却更少。","于是把套餐降价，又多加了一小碟青菜。","这个月周末开始要排队了。"], vi:["Quán nhỏ hai người mở, tháng trước gần như không có khách.","Họ thấy giá cao hơn quán bên cạnh mà suất lại ít hơn.","Thế là hạ giá suất và thêm một đĩa rau nhỏ.","Tháng này cuối tuần bắt đầu phải xếp hàng."], main:"Quán hết vắng khách sau khi hạ giá và thêm rau, vì trước đó giá cao mà suất ít.", mainWhy:"ĐÚNG. Có nguyên nhân vắng, việc sửa và kết quả phải xếp hàng cuối tuần.", mainBad:[["Họ tăng giá nên khách đông hơn.","SAI. Họ hạ giá."],["Tháng này vẫn không ai đến.","SAI. Cuối tuần đã phải xếp hàng."],["Quán bên cạnh đóng cửa giúp họ.","SAI. Đoạn không nói quán bên đóng."]], detailQ:"他们在套餐里多加了什么？", detailVi:"Họ thêm gì vào suất ăn?", detailOk:"一小碟青菜。", detailOkVi:"Một đĩa rau nhỏ.", detailWhy:"ĐÚNG. Đoạn nói thêm một đĩa rau nhỏ, đồng thời hạ giá.", detailBad:[["更多的肉。","Thêm thịt.","SAI. Không nói thêm thịt."],["免费的饮料。","Đồ uống miễn phí.","SAI. Không có chi tiết này."],["什么都没加。","Không thêm gì.","SAI. Có thêm rau."]], notSaid:"Tháng này quán phải đóng cửa vì vẫn không có khách.", notWhy:"ĐÚNG. Ngược kết quả. Cuối tuần đã phải xếp hàng.", said:[["Tháng trước gần như không có khách.","SAI. Có trong câu đầu."],["Giá cao hơn quán bên mà suất ít hơn.","SAI. Có trong đoạn."],["Cuối tuần bắt đầu xếp hàng.","SAI. Có ở câu cuối."]], cloze:"价格", clozePy:"jiàgé", clozeM:"giá", clozeWhy:"ĐÚNG. Câu là «价格比旁边的店高», giá cao hơn quán bên.", clozeBad:[["客人","kèrén","khách","SAI. Khách là kết quả, câu này đang so thứ làm quán kém hấp dẫn."],["青菜","qīngcài","rau","SAI. Rau là thứ thêm sau khi họ đã thấy vấn đề."],["周末","zhōumò","cuối tuần","SAI. Cuối tuần là lúc bắt đầu đông."]], summary:"Quán vắng vì đắt và ít đồ, hạ giá kèm thêm rau rồi cuối tuần bắt đầu đông khách.", summaryWhy:"ĐÚNG. Đủ nguyên nhân, điều chỉnh và kết quả.", summaryBad:[["Họ giữ nguyên giá và vẫn đông khách.","SAI. Họ đã hạ giá."],["Quán đóng cửa từ tháng trước.","SAI. Tháng này còn phải xếp hàng."],["Khách đông vì quán chuyển đi nơi khác.","SAI. Đoạn không nói chuyển quán."]]},
+        {shot:"Người đang đứng nói trước một nhóm", lines:["小周很怕在会上第一个开口。","同事建议她只准备三个要点，不背整篇稿子。","第一次她还是停了两秒，但把三个要点说完了。","组长事后说，这次比以前清楚。"], vi:["Tiểu Chu rất sợ nói trước trong cuộc họp.","Đồng nghiệp khuyên chỉ chuẩn bị ba ý, đừng học thuộc cả bài.","Lần đầu cô vẫn dừng hai giây, nhưng nói hết ba ý.","Trưởng nhóm sau đó nói lần này rõ hơn trước."], main:"Tiểu Chu bớt nói lan man bằng cách chỉ chuẩn bị ba ý, và được nhận là rõ hơn.", mainWhy:"ĐÚNG. Có nỗi sợ, cách chuẩn bị, lần nói và nhận xét rõ hơn.", mainBad:[["Cô học thuộc cả bài rồi nói rất dài.","SAI. Cô được khuyên không học thuộc cả bài."],["Cô bỏ cuộc, không nói ý nào.","SAI. Cô nói hết ba ý."],["Trưởng nhóm chê lần này rối hơn.","SAI. Lần này rõ hơn trước."]], detailQ:"同事建议她准备几个要点？", detailVi:"Đồng nghiệp khuyên chuẩn bị mấy ý?", detailOk:"三个。", detailOkVi:"Ba ý.", detailWhy:"ĐÚNG. Đoạn nói chỉ chuẩn bị ba ý chính.", detailBad:[["十个。","Mười ý.","SAI. Không phải số trong đoạn."],["一个字都不准备。","Không chuẩn bị gì.","SAI. Có chuẩn bị ba ý."],["整篇稿子。","Cả bài viết.","SAI. Đó là cách cô được khuyên không dùng."]], notSaid:"Trưởng nhóm bảo cô lần sau đừng nói nữa.", notWhy:"ĐÚNG. Ngược nhận xét. Trưởng nhóm nói lần này rõ hơn.", said:[["Cô sợ nói trước.","SAI. Có ở câu đầu."],["Cô dừng hai giây rồi nói hết.","SAI. Có trong đoạn."],["Lần này rõ hơn trước.","SAI. Có ở câu cuối."]], cloze:"稿子", clozePy:"gǎozi", clozeM:"bài viết", clozeWhy:"ĐÚNG. Câu là «不背整篇稿子», không học thuộc cả bài.", clozeBad:[["要点","yàodiǎn","ý chính","SAI. Ý chính là thứ cô nên chuẩn bị. Chỗ trống là thứ không nên học thuộc."],["会议","huìyì","cuộc họp","SAI. Cuộc họp là nơi cô phải nói."],["秒","miǎo","giây","SAI. Hai giây là lúc cô dừng, không phải từ điền."]], summary:"Thay vì học thuộc cả bài, Tiểu Chu nói ba ý trong họp và được khen rõ hơn.", summaryWhy:"ĐÚNG. Đúng cách làm và kết quả.", summaryBad:[["Cô từ chối mọi lời khuyên.","SAI. Cô làm theo cách ba ý."],["Cuộc họp bị hủy vì cô không nói.","SAI. Cô đã nói xong."],["Trưởng nhóm không nhận xét.","SAI. Có nhận xét rõ hơn trước."]]},
+        {shot:"Người đang ở trong một căn hộ", lines:["楼上每晚十一点还在搬家具，楼下的孩子睡不着。","小陈先写了一张客气的条子，没有直接去敲门。","对方第二天把搬家改到了周末下午。","孩子这周终于能在十点前睡着。"], vi:["Tầng trên mười một giờ đêm vẫn kê đồ, trẻ tầng dưới không ngủ được.","Tiểu Trần viết một mảnh giấy lịch sự trước, không gõ cửa ngay.","Bên kia hôm sau chuyển việc kê đồ sang chiều cuối tuần.","Tuần này đứa trẻ cũng ngủ được trước mười giờ."], main:"Một lời nhắn lịch sự khiến việc kê đồ đêm chuyển sang cuối tuần, và trẻ ngủ lại được.", mainWhy:"ĐÚNG. Có xung đột, cách nói chuyện, sự thay đổi giờ và kết quả giấc ngủ.", mainBad:[["Tiểu Trần gọi bảo vệ đến phạt ngay.","SAI. Anh chỉ viết giấy, không nói phạt."],["Tầng trên từ chối đổi giờ.","SAI. Họ chuyển sang chiều cuối tuần."],["Đứa trẻ vẫn không ngủ được.","SAI. Tuần này ngủ trước mười giờ."]], detailQ:"小陈首先做了什么？", detailVi:"Tiểu Trần làm gì trước?", detailOk:"写了一张客气的条子。", detailOkVi:"Viết một mảnh giấy lịch sự.", detailWhy:"ĐÚNG. Anh viết giấy trước, không gõ cửa ngay.", detailBad:[["直接去敲门。","Gõ cửa ngay.","SAI. Đoạn nói anh không gõ cửa ngay."],["报警。","Báo cảnh sát.","SAI. Không có việc này."],["自己也搬家具。","Tự kê đồ.","SAI. Anh không phải người gây ồn."]], notSaid:"Hai bên cãi nhau đến mức phải chuyển nhà.", notWhy:"ĐÚNG. Đoạn kết bằng việc đổi giờ và trẻ ngủ được, không có chuyện chuyển nhà.", said:[["Mười một giờ đêm vẫn còn tiếng kê đồ.","SAI. Có trong câu đầu."],["Giờ kê đồ chuyển sang chiều cuối tuần.","SAI. Có trong đoạn."],["Trẻ ngủ trước mười giờ.","SAI. Có ở câu cuối."]], cloze:"条子", clozePy:"tiáozi", clozeM:"mảnh giấy", clozeWhy:"ĐÚNG. Câu là «写了一张客气的条子», viết một mảnh giấy lịch sự.", clozeBad:[["家具","jiājù","đồ đạc","SAI. Đồ đạc là thứ gây ồn, không phải cách anh chọn để nói."],["孩子","háizi","đứa trẻ","SAI. Trẻ là người bị mất ngủ."],["周末","zhōumò","cuối tuần","SAI. Cuối tuần là giờ mới được dời sang."]], summary:"Nhờ một mảnh giấy lịch sự, tiếng kê đồ ban đêm được chuyển sang cuối tuần và trẻ ngủ lại được.", summaryWhy:"ĐÚNG. Đủ cách giải quyết và kết quả.", summaryBad:[["Không ai trả lời mảnh giấy.","SAI. Hôm sau họ đã đổi giờ."],["Tiểu Trần gõ cửa gây gỗ.","SAI. Anh cố tình không gõ cửa ngay."],["Tiếng ồn vẫn giữ nguyên mỗi đêm.","SAI. Đã chuyển sang chiều cuối tuần."]]},
+        {shot:"Người đang xem điện thoại và một món đồ", lines:["小李想买一个水壶，网上的好评几乎一样。","他让朋友把用了半年的那只带来对比。","实物的把手比照片上松，水也凉得更快。","他最后没有下单，还在评价下面写了自己试过的结果。"], vi:["Tiểu Lý muốn mua một ấm nước, đánh giá trên mạng gần như giống nhau.","Anh nhờ bạn mang chiếc đã dùng nửa năm để so.","Tay cầm thật lỏng hơn trong ảnh, nước cũng nguội nhanh hơn.","Cuối cùng anh không đặt mua, và viết kết quả mình đã thử bên dưới phần đánh giá."], main:"So với đồ thật, Tiểu Lý thấy đánh giá trên mạng không đủ, nên không mua và ghi lại việc mình thử.", mainWhy:"ĐÚNG. Có nghi ngờ, lần so sánh, lỗi của sản phẩm và quyết định không mua.", mainBad:[["Anh tin đánh giá và mua ngay.","SAI. Anh không đặt mua."],["Đồ thật chắc hơn ảnh.","SAI. Tay cầm lỏng hơn và nước nguội nhanh hơn."],["Anh không nói cho ai biết kết quả.","SAI. Anh viết kết quả dưới phần đánh giá."]], detailQ:"朋友的水壶用了多长时间？", detailVi:"Ấm của bạn đã dùng bao lâu?", detailOk:"半年。", detailOkVi:"Nửa năm.", detailWhy:"ĐÚNG. Đoạn nói chiếc đã dùng nửa năm.", detailBad:[["一天。","Một ngày.","SAI. Không phải thời gian trong đoạn."],["三年。","Ba năm.","SAI. Đoạn nói nửa năm."],["还没拆封。","Chưa mở hộp.","SAI. Đã được dùng để so."]], notSaid:"Anh đặt mua ngay vì ảnh đẹp.", notWhy:"ĐÚNG. Ngược quyết định. Anh không đặt mua sau khi so đồ thật.", said:[["Đánh giá trên mạng gần như giống nhau.","SAI. Có ở câu đầu."],["Tay cầm thật lỏng hơn ảnh.","SAI. Có trong đoạn."],["Anh ghi kết quả đã thử.","SAI. Có ở câu cuối."]], cloze:"把手", clozePy:"bǎshou", clozeM:"tay cầm", clozeWhy:"ĐÚNG. Câu là «实物的把手比照片上松», tay cầm thật lỏng hơn ảnh.", clozeBad:[["评价","píngjià","đánh giá","SAI. Đánh giá là phần trên mạng, câu này đang nói bộ phận của ấm."],["朋友","péngyou","bạn","SAI. Bạn là người mang ấm đến."],["结果","jiéguǒ","kết quả","SAI. Kết quả là điều anh viết sau, không phải bộ phận bị lỏng."]], summary:"Sau khi so ấm đã dùng thật, Tiểu Lý thấy khác ảnh nên không mua và viết lại kết quả.", summaryWhy:"ĐÚNG. Đủ lý do nghi ngờ, bằng chứng và việc anh làm.", summaryBad:[["Bạn khuyên anh cứ tin đánh giá.","SAI. Bạn mang đồ thật để so, và anh không mua."],["Nước trong ấm giữ nóng rất lâu.","SAI. Nước nguội nhanh hơn."],["Anh mua hai cái.","SAI. Anh không đặt mua."]]}
+      ],
+      9:[
+        {shot:"Người đang đọc tin trên điện thoại", lines:["一条消息早上发出，中午就被转了上万次。","很少有人点开原文，大多数只看了标题。","编辑部下午发现标题把“可能”写成了“已经”。","他们补了一则更短的说明，可是转发仍比更正多。"], vi:["Một tin buổi sáng đăng, trưa đã bị chuyển hơn vạn lần.","Ít người mở bài gốc, phần lớn chỉ đọc tiêu đề.","Chiều đó tòa soạn thấy tiêu đề viết “có thể” thành “đã”.","Họ đăng một lời đính chính ngắn hơn, nhưng lượt chuyển vẫn nhiều hơn lời sửa."], main:"Tin lan nhanh vì người đọc chỉ xem tiêu đề, và lời đính chính không đuổi kịp lượt chuyển.", mainWhy:"ĐÚNG. Đoạn chỉ ra lỗi đổi “có thể” thành “đã”, và việc sửa không lan bằng tin sai.", mainBad:[["Mọi người đều đọc hết bài gốc.","SAI. Phần lớn chỉ xem tiêu đề."],["Tiêu đề không có lỗi.","SAI. “Có thể” bị viết thành “đã”."],["Lời đính chính được chuyển nhiều hơn tin gốc.","SAI. Lượt chuyển vẫn nhiều hơn lời sửa."]], detailQ:"标题把哪个词写错了？", detailVi:"Tiêu đề viết sai từ nào?", detailOk:"把“可能”写成了“已经”。", detailOkVi:"Viết “có thể” thành “đã”.", detailWhy:"ĐÚNG. Tòa soạn phát hiện tiêu đề đổi “可能” thành “已经”.", detailBad:[["把数字写错了。","Viết sai con số.","SAI. Lỗi được nói là hai từ chỉ mức độ chắc chắn."],["没有写错。","Không viết sai.","SAI. Có lỗi."],["把作者的名字写错了。","Viết sai tên tác giả.","SAI. Đoạn không nói vậy."]], notSaid:"Lời đính chính lập tức được đọc nhiều hơn tin sai.", notWhy:"ĐÚNG. Ngược câu cuối. Lượt chuyển vẫn nhiều hơn lời sửa.", said:[["Tin bị chuyển hơn vạn lần.","SAI. Có trong câu đầu."],["Phần lớn chỉ đọc tiêu đề.","SAI. Có trong đoạn."],["Tòa soạn có đăng lời đính chính.","SAI. Có trong đoạn."]], cloze:"标题", clozePy:"biāotí", clozeM:"tiêu đề", clozeWhy:"ĐÚNG. Câu là «标题把可能写成了已经», chính tiêu đề gây hiểu sai.", clozeBad:[["原文","yuánwén","bài gốc","SAI. Ít người mở bài gốc. Câu này đang nói phần bị viết sai."],["说明","shuōmíng","lời giải thích","SAI. Lời giải thích là thứ đăng sau để sửa."],["编辑部","biānjí bù","tòa soạn","SAI. Tòa soạn là người phát hiện lỗi."]], summary:"Vì người đọc dừng ở tiêu đề sai, tin “đã xảy ra” lan nhanh hơn cả lời đính chính.", summaryWhy:"ĐÚNG. Giữ được cơ chế lan tin và giới hạn của việc sửa.", summaryBad:[["Không ai chuyển tin đó.","SAI. Trưa đã hơn vạn lượt."],["Tiêu đề thận trọng hơn bài gốc.","SAI. Tiêu đề nói chắc hơn sự thật."],["Lời đính chính xóa được ảnh hưởng.","SAI. Lượt chuyển vẫn nhiều hơn."]]},
+        {shot:"Người đang xem một món đồ thủ công", lines:["年轻设计师想把旧纹样用在新包上。","老师傅说纹样可以改大小，但不能改它原来的方向。","设计师听完后，只调整了颜色和比例。","展览上，老人一眼认出了自己的纹样，也接受了新的样子。"], vi:["Nhà thiết kế trẻ muốn đưa họa tiết cũ lên túi mới.","Thầy già nói họa tiết có thể đổi kích thước, nhưng không được đổi hướng vốn có.","Nghe xong, nhà thiết kế chỉ chỉnh màu và tỷ lệ.","Ở triển lãm, người già nhận ra họa tiết của mình ngay, và chấp nhận dáng mới."], main:"Đổi mới được chấp nhận vì giữ hướng họa tiết cũ, chỉ sửa màu và tỷ lệ.", mainWhy:"ĐÚNG. Giới hạn do thầy già đặt ra được giữ, và người già nhận ra rồi chấp nhận.", mainBad:[["Họ vứt họa tiết cũ, vẽ một hình hoàn toàn khác.","SAI. Họ giữ hướng cũ."],["Người già không nhận ra họa tiết.","SAI. Ông nhận ra ngay."],["Thầy già cấm mọi thay đổi.","SAI. Ông cho đổi kích thước, cấm đổi hướng."]], detailQ:"老师傅不允许改什么？", detailVi:"Thầy già không cho sửa gì?", detailOk:"纹样原来的方向。", detailOkVi:"Hướng vốn có của họa tiết.", detailWhy:"ĐÚNG. Có thể đổi kích thước, không được đổi hướng cũ.", detailBad:[["大小。","Kích thước.","SAI. Kích thước được phép đổi."],["颜色。","Màu.","SAI. Màu là thứ nhà thiết kế đã chỉnh, không phải điều bị cấm."],["所有东西。","Mọi thứ.","SAI. Không phải cấm hết."]], notSaid:"Người già từ chối túi mới vì không còn nhận ra họa tiết.", notWhy:"ĐÚNG. Ngược câu cuối. Ông nhận ra và chấp nhận dáng mới.", said:[["Họa tiết được đưa lên túi mới.","SAI. Có ở câu đầu."],["Nhà thiết kế chỉ sửa màu và tỷ lệ.","SAI. Có trong đoạn."],["Người già nhận ra họa tiết của mình.","SAI. Có ở câu cuối."]], cloze:"方向", clozePy:"fāngxiàng", clozeM:"hướng", clozeWhy:"ĐÚNG. Câu là «不能改它原来的方向», không được đổi hướng vốn có.", clozeBad:[["颜色","yánsè","màu","SAI. Màu là phần được phép chỉnh sau."],["包","bāo","túi","SAI. Túi là vật mới mang họa tiết."],["展览","zhǎnlǎn","triển lãm","SAI. Triển lãm là nơi người già xem."]], summary:"Túi mới được người giữ nghề chấp nhận vì họa tiết chỉ đổi màu và tỷ lệ, không đổi hướng.", summaryWhy:"ĐÚNG. Đúng điều kiện và kết quả ở triển lãm.", summaryBad:[["Hai bên không tìm được điểm giống nhau.","SAI. Người già nhận ra họa tiết ngay."],["Thầy già yêu cầu vẽ lại từ đầu.","SAI. Ông chỉ giữ hướng cũ."],["Nhà thiết kế bỏ họa tiết cũ.","SAI. Họa tiết cũ vẫn còn."]]},
+        {shot:"Người đang xem một báo cáo", lines:["一份小范围的实验被写成了“已经证明”。","实际上只观察了三十个人，而且没有对比组。","作者后来在文末补了一句限制。","读者如果只看开头，仍然会把它当成定论。"], vi:["Một thí nghiệm phạm vi nhỏ bị viết thành “đã chứng minh”.","Thực tế chỉ quan sát ba mươi người và không có nhóm đối chứng.","Tác giả sau thêm một câu về giới hạn ở cuối bài.","Người đọc nếu chỉ xem đầu bài vẫn sẽ coi đó là kết luận chắc."], main:"Một kết quả hạn chế bị viết như đã chứng minh, và câu giới hạn ở cuối không cứu người chỉ đọc mở bài.", mainWhy:"ĐÚNG. Đoạn phân biệt mẫu nhỏ, thiếu nhóm đối chứng, với cách viết quá chắc.", mainBad:[["Thí nghiệm có nhóm đối chứng lớn.","SAI. Không có nhóm đối chứng, chỉ ba mươi người."],["Câu giới hạn nằm ngay câu đầu.","SAI. Câu giới hạn được thêm ở cuối."],["Người chỉ đọc đầu bài sẽ thấy đúng mức thận trọng.","SAI. Họ vẫn coi đó là kết luận chắc."]], detailQ:"实验观察了多少人？", detailVi:"Thí nghiệm quan sát bao nhiêu người?", detailOk:"三十个人。", detailOkVi:"Ba mươi người.", detailWhy:"ĐÚNG. Đoạn nói chỉ quan sát ba mươi người.", detailBad:[["三百人。","Ba trăm người.","SAI. Không phải số trong đoạn."],["没有写人数。","Không viết số người.","SAI. Có viết ba mươi người."],["两组一样多的人。","Hai nhóm bằng nhau.","SAI. Không có nhóm đối chứng."]], notSaid:"Bài viết từ đầu đã nói rõ đây chưa phải kết luận.", notWhy:"ĐÚNG. Ngược cách viết. Đầu bài nói “đã chứng minh”, giới hạn chỉ ở cuối.", said:[["Chỉ có ba mươi người.","SAI. Có trong đoạn."],["Không có nhóm đối chứng.","SAI. Có trong đoạn."],["Người đọc mở bài dễ coi là kết luận chắc.","SAI. Có ở câu cuối."]], cloze:"限制", clozePy:"xiànzhì", clozeM:"giới hạn", clozeWhy:"ĐÚNG. Câu là «补了一句限制», thêm một câu về giới hạn.", clozeBad:[["定论","dìnglùn","kết luận chắc","SAI. Kết luận chắc là cách người đọc hiểu nhầm, không phải thứ tác giả thêm vào cuối."],["对比组","duìbǐ zǔ","nhóm đối chứng","SAI. Nhóm đối chứng là thứ thí nghiệm không có."],["开头","kāitóu","phần đầu","SAI. Phần đầu là chỗ gây hiểu nhầm."]], summary:"Thí nghiệm nhỏ bị viết như đã chứng minh, và người chỉ đọc đầu bài không thấy câu giới hạn ở cuối.", summaryWhy:"ĐÚNG. Đủ lỗi phương pháp và lỗi cách đọc.", summaryBad:[["Kết quả đủ mạnh để kết luận cho mọi người.","SAI. Mẫu nhỏ và không có nhóm đối chứng."],["Tác giả không sửa gì.","SAI. Có thêm một câu giới hạn."],["Đọc cuối bài hay đầu bài đều như nhau.","SAI. Đoạn nói chỉ đọc đầu sẽ hiểu sai."]]},
+        {shot:"Người đang dùng điện thoại để thanh toán", lines:["新的门禁用手机就能开，比带卡方便。","可是每次开门，系统都会记下时间和位置。","小区说这些记录只保存三十天。","仍有住户担心，方便的代价是自己的行踪被留下来。"], vi:["Cửa mới mở bằng điện thoại, tiện hơn mang thẻ.","Nhưng mỗi lần mở, hệ thống ghi lại giờ và vị trí.","Khu nhà nói các bản ghi chỉ giữ ba mươi ngày.","Vẫn có hộ lo cái giá của sự tiện là đường đi của mình bị lưu lại."], main:"Cửa điện thoại tiện hơn, nhưng sự tiện đi cùng việc lưu giờ và vị trí.", mainWhy:"ĐÚNG. Đoạn không phủ nhận tiện, mà đặt cạnh mối lo đường đi bị ghi.", mainBad:[["Hệ thống không lưu bất kỳ thông tin nào.","SAI. Mỗi lần mở đều ghi giờ và vị trí."],["Mọi hộ đều thấy không có gì đáng lo.","SAI. Vẫn có hộ lo."],["Cửa mới bất tiện hơn mang thẻ.","SAI. Đoạn nói tiện hơn mang thẻ."]], detailQ:"记录会保存多久？", detailVi:"Bản ghi được giữ bao lâu?", detailOk:"三十天。", detailOkVi:"Ba mươi ngày.", detailWhy:"ĐÚNG. Khu nhà nói chỉ giữ ba mươi ngày.", detailBad:[["一天。","Một ngày.","SAI. Không phải số trong đoạn."],["永远。","Mãi mãi.","SAI. Đoạn nói ba mươi ngày, dù người dân vẫn lo."],["不保存。","Không lưu.","SAI. Có lưu."]], notSaid:"Cư dân được chọn không để hệ thống ghi vị trí.", notWhy:"ĐÚNG. Đoạn không nói có lựa chọn tắt việc ghi. Họ chỉ được biết thời hạn lưu.", said:[["Mở cửa bằng điện thoại tiện hơn thẻ.","SAI. Có ở câu đầu."],["Mỗi lần mở đều ghi giờ và vị trí.","SAI. Có trong đoạn."],["Một số hộ vẫn lo đường đi bị lưu.","SAI. Có ở câu cuối."]], cloze:"位置", clozePy:"wèizhì", clozeM:"vị trí", clozeWhy:"ĐÚNG. Câu là «记下时间和位置», ghi lại giờ và vị trí.", clozeBad:[["门禁","ménjìn","cửa kiểm soát","SAI. Cửa là thiết bị, câu này đang nói dữ liệu bị ghi."],["手机","shǒujī","điện thoại","SAI. Điện thoại là thứ dùng để mở cửa."],["住户","zhùhù","cư dân","SAI. Cư dân là người lo lắng."]], summary:"Mở cửa bằng điện thoại tiện hơn thẻ, nhưng mỗi lần mở đều để lại giờ và vị trí.", summaryWhy:"ĐÚNG. Giữ cả lợi và cái giá.", summaryBad:[["Tiện lợi này không để lại dữ liệu.","SAI. Có ghi giờ và vị trí."],["Khu nhà lưu bản ghi vĩnh viễn.","SAI. Họ nói ba mươi ngày."],["Không hộ nào thắc mắc.","SAI. Vẫn có hộ lo."]]},
+        {shot:"Một con phố nhỏ có khách du lịch", lines:["小镇因为一幅照片突然来了很多游客。","餐馆周末排到街上，房租也跟着涨了。","原来清晨买菜的市场，现在一半摊位在卖纪念品。","本地人觉得热闹是好事，可是安静的早晨没有了。"], vi:["Thị trấn đột nhiên đông khách vì một bức ảnh.","Cuối tuần hàng quán xếp ra đường, tiền thuê nhà cũng tăng.","Chợ từng để mua rau buổi sớm, giờ một nửa sạp bán quà lưu niệm.","Người địa phương thấy náo nhiệt là tốt, nhưng buổi sáng yên tĩnh thì hết."], main:"Khách tăng làm phố sôi động và đắt hơn, đồng thời lấy mất buổi sáng yên tĩnh của người ở đó.", mainWhy:"ĐÚNG. Đoạn không chỉ khen đông khách. Có thuê nhà tăng, chợ đổi sạp, và mất buổi sáng yên.", mainBad:[["Khách đến nhưng cuộc sống địa phương không đổi.","SAI. Chợ, hàng quán và tiền thuê đều đổi."],["Người địa phương chỉ thấy thiệt, không thấy điều gì tốt.","SAI. Họ thấy náo nhiệt là tốt, đồng thời tiếc buổi sáng yên."],["Tiền thuê nhà giảm vì phố vắng.","SAI. Tiền thuê tăng, phố đông."]], detailQ:"原来的菜市场现在有什么变化？", detailVi:"Chợ rau trước kia giờ đổi thế nào?", detailOk:"一半摊位在卖纪念品。", detailOkVi:"Một nửa sạp bán quà lưu niệm.", detailWhy:"ĐÚNG. Đoạn nói một nửa sạp giờ bán quà.", detailBad:[["完全关闭了。","Đóng hẳn.","SAI. Chợ vẫn còn, nhưng đổi mặt hàng."],["所有摊位都还在卖菜。","Mọi sạp vẫn bán rau.","SAI. Một nửa đã bán quà."],["搬到了别的城市。","Chuyển sang thành phố khác.","SAI. Không nói vậy."]], notSaid:"Người địa phương muốn phố vắng lại như cũ và phản đối mọi khách.", notWhy:"ĐÚNG. Đoạn không nói họ chống hết khách. Họ thấy náo nhiệt tốt, chỉ mất buổi sáng yên.", said:[["Khách đông lên vì một bức ảnh.","SAI. Có ở câu đầu."],["Tiền thuê nhà tăng.","SAI. Có trong đoạn."],["Buổi sáng yên tĩnh không còn.","SAI. Có ở câu cuối."]], cloze:"房租", clozePy:"fángzū", clozeM:"tiền thuê nhà", clozeWhy:"ĐÚNG. Câu là «房租也跟着涨了», tiền thuê cũng tăng theo.", clozeBad:[["游客","yóukè","khách du lịch","SAI. Khách là nguyên nhân đông, câu này đang nói thứ tăng giá."],["纪念品","jìniànpǐn","quà lưu niệm","SAI. Quà là mặt hàng mới ở chợ."],["早晨","zǎochén","buổi sớm","SAI. Buổi sớm là khoảng thời gian bị mất sự yên tĩnh."]], summary:"Một bức ảnh làm phố đông, đắt và sống động hơn, nhưng người ở mất buổi sáng yên tĩnh.", summaryWhy:"ĐÚNG. Có cả mặt được và mặt mất.", summaryBad:[["Phố không có gì thay đổi.","SAI. Hàng, thuê nhà và chợ đều đổi."],["Khách làm tiền thuê giảm.","SAI. Tiền thuê tăng."],["Người địa phương chỉ vui, không thấy mất gì.","SAI. Họ tiếc buổi sáng yên."]]},
+        {shot:"Người đang dịch một trang giấy", lines:["他把一句笑话译成了另一种语言，意思是对的。","可是听的人没有笑。","朋友指出，好笑的地方在于语气，不在于字面。","他改译时加了一个停顿，对方才明白那是在开玩笑。"], vi:["Anh dịch một câu đùa sang ngôn ngữ khác, nghĩa thì đúng.","Nhưng người nghe không cười.","Bạn chỉ ra chỗ buồn cười nằm ở giọng, không nằm ở mặt chữ.","Khi dịch lại, anh thêm một chỗ ngắt, đối phương mới hiểu đó là nói đùa."], main:"Dịch đúng mặt chữ chưa đủ, vì tiếng cười nằm ở giọng và chỗ ngắt.", mainWhy:"ĐÚNG. Nghĩa đúng mà không ai cười, đến khi thêm chỗ ngắt thì người nghe hiểu là đùa.", mainBad:[["Câu dịch sai nghĩa nên không ai cười.","SAI. Nghĩa thì đúng."],["Thêm chỗ ngắt vẫn không ai hiểu.","SAI. Đối phương lúc đó mới hiểu là đùa."],["Tiếng cười chỉ phụ thuộc từ điển.","SAI. Bạn nói chỗ buồn cười nằm ở giọng."]], detailQ:"第二次翻译时加了什么？", detailVi:"Lần dịch sau thêm gì?", detailOk:"一个停顿。", detailOkVi:"Một chỗ ngắt.", detailWhy:"ĐÚNG. Anh thêm một chỗ ngắt thì người nghe mới hiểu.", detailBad:[["一个新笑话。","Một câu đùa khác.","SAI. Vẫn là câu đó, chỉ thêm chỗ ngắt."],["更长的解释。","Một lời giải thích dài hơn.","SAI. Đoạn không nói thêm bài giải thích."],["什么都没改。","Không sửa gì.","SAI. Có thêm chỗ ngắt."]], notSaid:"Người nghe cười ngay từ bản dịch sát nghĩa.", notWhy:"ĐÚNG. Ngược đoạn. Bản sát nghĩa không làm ai cười.", said:[["Nghĩa dịch ra là đúng.","SAI. Có trong câu đầu."],["Chỗ buồn cười nằm ở giọng.","SAI. Bạn chỉ ra điều này."],["Thêm chỗ ngắt thì người nghe hiểu.","SAI. Có ở câu cuối."]], cloze:"语气", clozePy:"yǔqì", clozeM:"giọng", clozeWhy:"ĐÚNG. Câu là «好笑的地方在于语气», chỗ buồn cười nằm ở giọng.", clozeBad:[["意思","yìsi","nghĩa","SAI. Nghĩa đã đúng mà vẫn không ai cười. Câu này đang nói thứ còn thiếu."],["停顿","tíngdùn","chỗ ngắt","SAI. Chỗ ngắt là cách sửa ở câu sau."],["语言","yǔyán","ngôn ngữ","SAI. Ngôn ngữ là nơi câu được dịch sang, không phải chỗ gây cười."]], summary:"Bản dịch đúng nghĩa vẫn mất tiếng cười, đến khi giữ được chỗ ngắt của giọng đùa thì người nghe mới hiểu.", summaryWhy:"ĐÚNG. Phân biệt nghĩa và giọng.", summaryBad:[["Chỉ cần đúng từ là người nghe sẽ cười.","SAI. Đúng từ rồi mà không ai cười."],["Anh không sửa bản dịch.","SAI. Anh thêm một chỗ ngắt."],["Bạn nói câu gốc vốn không buồn cười.","SAI. Bạn nói chỗ buồn cười nằm ở giọng."]]},
+        {shot:"Người đang xếp hàng", lines:["新规定说，谁先到谁先办，看起来很公平。","可是办事点早上八点才开门，远的人夜里就得出发。","住得近的人可以七点五十再出门。","同样的规则，给两种人留下的时间并不一样。"], vi:["Quy định mới nói ai đến trước được làm trước, trông thì công bằng.","Nhưng điểm làm việc tám giờ sáng mới mở, người ở xa phải đi từ đêm.","Người ở gần bảy giờ năm mươi mới cần ra khỏi nhà.","Cùng một quy tắc, thời gian còn lại cho hai nhóm người không giống nhau."], main:"Quy tắc ai đến trước trông công bằng, nhưng người ở xa phải trả bằng thời gian đi đường nhiều hơn.", mainWhy:"ĐÚNG. Đoạn so giờ xuất phát của người xa và người gần dưới cùng một quy tắc.", mainBad:[["Quy tắc này khiến mọi người mất cùng một khoảng thời gian.","SAI. Đoạn nói thời gian còn lại không giống nhau."],["Điểm làm việc mở cửa cả đêm.","SAI. Tám giờ sáng mới mở."],["Người ở xa có lợi hơn người ở gần.","SAI. Người ở xa phải đi từ đêm."]], detailQ:"办事点几点开门？", detailVi:"Điểm làm việc mấy giờ mở cửa?", detailOk:"早上八点。", detailOkVi:"Tám giờ sáng.", detailWhy:"ĐÚNG. Đoạn nói tám giờ sáng mới mở cửa.", detailBad:[["七点五十。","Bảy giờ năm mươi.","SAI. Đó là giờ người ở gần có thể ra khỏi nhà."],["午夜。","Nửa đêm.","SAI. Nửa đêm là lúc người ở xa có thể phải đi, không phải giờ mở cửa."],["下午。","Buổi chiều.","SAI. Đoạn nói buổi sáng."]], notSaid:"Quy tắc mới đã bù thời gian đi đường cho người ở xa.", notWhy:"ĐÚNG. Đoạn không nói có khoản bù. Nó chỉ ra thời gian hai nhóm không đều.", said:[["Ai đến trước được làm trước.","SAI. Có ở câu đầu."],["Người ở xa có khi phải đi từ đêm.","SAI. Có trong đoạn."],["Người ở gần có thể ra cửa muộn hơn.","SAI. Có trong đoạn."]], cloze:"公平", clozePy:"gōngpíng", clozeM:"công bằng", clozeWhy:"ĐÚNG. Câu là «看起来很公平», trông thì công bằng.", clozeBad:[["时间","shíjiān","thời gian","SAI. Thời gian là thứ đoạn sau cho thấy không đều. Câu đầu đang nói vẻ ngoài của quy tắc."],["规定","guīdìng","quy định","SAI. Quy định là chủ thể, không phải tính chất được nhận xét."],["门口","ménkǒu","cửa","SAI. Không có từ này trong câu cần điền."]], summary:"Luật ai đến trước nghe công bằng, nhưng người ở xa mất nhiều thời gian đi đường hơn người ở gần.", summaryWhy:"ĐÚNG. Đúng lập luận của cả đoạn.", summaryBad:[["Quy tắc này công bằng với mọi khoảng cách.","SAI. Đoạn kết luận thời gian không giống nhau."],["Người ở gần phải đi từ đêm.","SAI. Người phải đi từ đêm là người ở xa."],["Điểm làm việc mở cửa theo giờ của người xa nhất.","SAI. Cửa mở cố định lúc tám giờ."]]},
+        {shot:"Người đang sửa một bản thảo", lines:["两套方案都能用，快的那套当天就能上线。","慢的那套要多做一轮检查，还要改三个容易误点的按钮。","负责人选了慢的方案。","上线后投诉少了，因为用户不再点进错误的页面。"], vi:["Hai phương án đều dùng được, phương án nhanh có thể lên mạng ngay trong ngày.","Phương án chậm cần thêm một vòng kiểm tra và sửa ba nút dễ bấm nhầm.","Người phụ trách chọn phương án chậm.","Sau khi lên mạng, lời phàn nàn giảm vì người dùng không còn vào nhầm trang."], main:"Chọn cách chậm hơn để sửa nút dễ nhầm, nên sau đó người dùng ít vào nhầm trang.", mainWhy:"ĐÚNG. Có lựa chọn giữa nhanh và chậm, và kết quả là ít phàn nàn hơn.", mainBad:[["Họ chọn cách lên mạng ngay trong ngày.","SAI. Người phụ trách chọn phương án chậm."],["Sau khi lên mạng, lời phàn nàn tăng.","SAI. Lời phàn nàn giảm."],["Phương án chậm không sửa gì thêm.","SAI. Có thêm một vòng kiểm tra và ba nút."]], detailQ:"慢的方案要改几个按钮？", detailVi:"Phương án chậm phải sửa mấy nút?", detailOk:"三个。", detailOkVi:"Ba nút.", detailWhy:"ĐÚNG. Đoạn nói sửa ba nút dễ bấm nhầm.", detailBad:[["一个。","Một nút.","SAI. Không phải số trong đoạn."],["不用改。","Không phải sửa.","SAI. Có sửa nút."],["十个。","Mười nút.","SAI. Đoạn nói ba."]], notSaid:"Cách nhanh giúp người dùng ít nhầm hơn.", notWhy:"ĐÚNG. Kết quả ít nhầm thuộc về phương án chậm, không phải phương án nhanh.", said:[["Phương án nhanh có thể lên mạng trong ngày.","SAI. Có trong câu đầu."],["Họ chọn phương án chậm.","SAI. Có trong đoạn."],["Người dùng không còn vào nhầm trang.","SAI. Có ở câu cuối."]], cloze:"按钮", clozePy:"ànniǔ", clozeM:"nút bấm", clozeWhy:"ĐÚNG. Câu là «改三个容易误点的按钮», sửa ba nút dễ bấm nhầm.", clozeBad:[["方案","fāng'àn","phương án","SAI. Phương án là lựa chọn lớn. Chỗ trống là thứ cụ thể phải sửa."],["投诉","tóusù","lời phàn nàn","SAI. Phàn nàn là kết quả giảm sau này."],["页面","yèmiàn","trang","SAI. Trang là nơi người dùng từng vào nhầm."]], summary:"Họ chịu chậm hơn để sửa ba nút dễ nhầm, nên khi lên mạng người dùng ít phàn nàn.", summaryWhy:"ĐÚNG. Nối được quyết định và kết quả.", summaryBad:[["Lên mạng càng nhanh thì càng ít lỗi.","SAI. Cách nhanh không phải cách được chọn, và cách chậm mới giảm nhầm."],["Không có phương án nào dùng được.","SAI. Cả hai đều dùng được."],["Người phụ trách đổi ý chọn cách nhanh.","SAI. Ông chọn cách chậm."]]}
+      ]
+    };
+    return bank[Number(level)] || [];
+  }
+
+  function advancedAsk(kind, item, rng, part){
+    const text = item.lines.join("");
+    const gloss = item.vi.join(" ");
+    const shot = hsk1Shot(item.shot);
+    if(kind==="listen-meaning"){
+      const mixed = hsk1Mix([{t:item.main, py:"", vi:item.main, ok:true, why:item.mainWhy}].concat(item.mainBad.map(function(b){
+        return {t:b[0], py:"", vi:b[0], ok:false, why:b[1]};
+      })), rng);
+      const heard = part.slice();
+      heard[2] = "Nghe cả đoạn. Chọn ý khớp với cả đoạn. Chữ không hiện sẵn.";
+      return pack(heard, {q:"请听短文，选择与内容一致的一项。", qMeaning:gloss, options:mixed.options, optionPinyin:mixed.optionPinyin, optionMeaning:mixed.optionMeaning, answer:mixed.answer, analysis:mixed.analysis, audioText:text, picture:shot, h:item.lines[0], m:item.main});
+    }
+    if(kind==="listen-reply"){
+      const mixed = hsk1Mix([{t:item.detailOk, py:"", vi:item.detailOkVi, ok:true, why:item.detailWhy}].concat(item.detailBad.map(function(b){
+        return {t:b[0], py:"", vi:b[1], ok:false, why:b[2]};
+      })), rng);
+      const heard = part.slice();
+      heard[2] = "Nghe cả đoạn rồi trả lời câu hỏi. Đoạn không hiện sẵn.";
+      return pack(heard, {q:item.detailQ, qMeaning:item.detailVi, options:mixed.options, optionPinyin:mixed.optionPinyin, optionMeaning:mixed.optionMeaning, answer:mixed.answer, analysis:mixed.analysis, audioText:text, picture:shot, h:item.detailOk, m:item.detailOkVi});
+    }
+    if(kind==="read-infer"){
+      const mixed = hsk1Mix([{t:item.notSaid, py:"", vi:item.notSaid, ok:true, why:item.notWhy}].concat(item.said.map(function(b){
+        return {t:b[0], py:"", vi:b[0], ok:false, why:b[1]};
+      })), rng);
+      return pack(part, {q:text+"\n下面哪一项和短文意思不符？", qMeaning:gloss, options:mixed.options, optionPinyin:mixed.optionPinyin, optionMeaning:mixed.optionMeaning, answer:mixed.answer, analysis:mixed.analysis, picture:shot, h:item.lines[0], m:item.notSaid});
+    }
+    if(kind==="cloze"){
+      const mixed = hsk1Mix([{t:item.cloze, py:item.clozePy, vi:item.clozeM, ok:true, why:item.clozeWhy}].concat(item.clozeBad.map(function(b){
+        return {t:b[0], py:b[1], vi:b[2], ok:false, why:b[3]};
+      })), rng);
+      return pack(part, {q:text.replace(item.cloze, "______"), qMeaning:"Đọc cả đoạn rồi điền từ. "+gloss, options:mixed.options, optionPinyin:mixed.optionPinyin, optionMeaning:mixed.optionMeaning, answer:mixed.answer, analysis:mixed.analysis, picture:shot, h:item.cloze, m:item.clozeM});
+    }
+    const mixed = hsk1Mix([{t:item.summary, py:"", vi:item.summary, ok:true, why:item.summaryWhy}].concat(item.summaryBad.map(function(b){
+      return {t:b[0], py:"", vi:b[0], ok:false, why:b[1]};
+    })), rng);
+    return pack(part, {q:text+"\n最合适的概括是哪一项？", qMeaning:gloss, options:mixed.options, optionPinyin:mixed.optionPinyin, optionMeaning:mixed.optionMeaning, answer:mixed.answer, analysis:mixed.analysis, picture:shot, h:item.lines[0], m:item.summary});
+  }
+
+  function buildAdvancedPaper(level, examNo, salt){
+    const plan = PLANS[Number(level)];
+    sceneUsed = Number(salt)===2 ? new Set() : null;
+    sceneCursor = Number(salt)===2 ? {} : null;
+    const rng = rngOf((Number(examNo)||1)*10007 + Number(level)*97 + (Number(salt)||1)*13);
+    const order = shuffle(advancedPassages(level), rng);
+    const kinds = ["listen-meaning","listen-reply","read-infer","cloze","summary"];
+    const questions = [];
+    plan.parts.forEach(function(part, pi){
+      for(let i=0;i<part[3];i++) questions.push(advancedAsk(kinds[pi], order[i], rng, part));
+    });
+    sceneUsed = null; sceneCursor = null;
+    return {minutes:plan.minutes, questions:questions};
+  }
+
   function buildTtcHskPaper(pool, level, examNo, salt){
     const plan = PLANS[Number(level)];
     if(!plan) return null;
-    const usable = (pool||[]).filter(function(w){ return w && w.h && w.m; });
-    if(usable.length<4) return null;
+    let usable = (pool||[]).filter(function(w){ return w && w.h && w.m; });
     if(Number(level)===1) return buildHsk1Paper(examNo, salt);
+    if(Number(level)>=7) return buildAdvancedPaper(level, examNo, salt);
+    if(usable.length<4) return null;
+    if(Number(level)>=4){
+      const rich = usable.filter(function(w){
+        const ex = String(w.example||"");
+        return ex.length>=8 && ex.indexOf(String(w.h))>=0;
+      });
+      if(rich.length>=8) usable = rich;
+    }
     sceneUsed = Number(salt)===2 ? new Set() : null;
     sceneCursor = Number(salt)===2 ? {} : null;
     const rng = rngOf((Number(examNo)||1)*10007 + Number(level)*97 + (Number(salt)||1));
@@ -166520,7 +166749,7 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
     const questions = [];
     plan.parts.forEach(function(part){
       for(let i=0;i<part[3];i++){
-        questions.push(make(part[4], nextWord(), usable, rng, part));
+        questions.push(make(part[4], nextWord(), usable, rng, part, Number(level)));
       }
     });
     sceneUsed = null; sceneCursor = null;
@@ -166533,8 +166762,8 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
 
 (function(){
   "use strict";
-  var counts = {1:40,2:60,3:80,4:100,5:100,6:101,7:98,8:98,9:98};
-  var times = {1:40,2:55,3:90,4:105,5:125,6:140,7:150,8:160,9:170};
+  var counts = {1:40,2:60,3:80,4:100,5:100,6:101,7:40,8:40,9:40};
+  var times = {1:40,2:55,3:90,4:105,5:125,6:140,7:80,8:90,9:100};
   var sections = {
     1:"Nghe 20 · Đọc 20",
     2:"Nghe 35 · Đọc 25",
@@ -166542,9 +166771,9 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
     4:"Nghe 45 · Đọc 40 · Viết 15",
     5:"Nghe 45 · Đọc 45 · Viết 10",
     6:"Nghe 50 · Đọc 50 · Viết 1",
-    7:"Nghe 40 · Đọc 40 · Viết 18",
-    8:"Nghe 40 · Đọc 40 · Viết 18",
-    9:"Nghe 35 · Đọc 40 · Viết 23"
+    7:"Nghe đoạn 16 · Đọc đoạn 16 · Tóm tắt 8",
+    8:"Nghe đoạn 16 · Đọc đoạn 16 · Tóm tắt 8",
+    9:"Nghe đoạn 16 · Đọc đoạn 16 · Tóm tắt 8"
   };
   Object.keys(counts).forEach(function(key){
     var level = Number(key);
