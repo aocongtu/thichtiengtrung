@@ -2852,6 +2852,7 @@ body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; 
 <input
  id="search"
  placeholder="🔎 Tìm Hán tự, Pinyin, nghĩa tiếng Việt..."
+ onkeydown="if(event.key==='Enter'){event.preventDefault();searchWords();}"
 >
 <button onclick="searchWords()">Tìm</button>
 <button type="button" id="ttcDrawSearch">✍️ Vẽ</button>
@@ -108634,6 +108635,13 @@ function searchWords(){
 
   if(!keyword){
 
+    const vocabularySection =
+      document.getElementById("vocabularySection");
+
+    if(vocabularySection){
+      vocabularySection.classList.remove("hidden");
+    }
+
     render(currentList);
 
 if(typeof window.resetAutoLearningForCurrentHSK === "function"){
@@ -108712,10 +108720,20 @@ if(typeof window.refreshAutoLearning === "function"){
      🚀 UX: ĐƯA KẾT QUẢ TRA TỪ LÊN NGAY MÀN HÌNH
      Không bắt người học phải tự kéo xuống.
   ================================================== */
-  requestAnimationFrame(function(){
+  const vocabularySection =
+    document.getElementById("vocabularySection");
 
-    const vocabularySection =
-      document.getElementById("vocabularySection");
+  if(vocabularySection){
+    vocabularySection.classList.remove("hidden");
+  }
+
+  const testSection = document.getElementById("testSection");
+  if(testSection) testSection.classList.add("hidden");
+
+  const sentenceSection = document.getElementById("sentenceSection");
+  if(sentenceSection) sentenceSection.classList.add("hidden");
+
+  requestAnimationFrame(function(){
 
     if(vocabularySection){
       ttcAppearUnder(
