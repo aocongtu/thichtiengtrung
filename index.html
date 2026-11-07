@@ -2816,7 +2816,7 @@ body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; 
   <h3>6. Khu luyện nghe gõ</h3>
   <p>Nghe một bài đọc của cấp đang học, rồi gõ lại cho đúng chính tả. Bài hiện sẵn để đối chiếu. Có nút nghe cả bài. Chữ gõ đúng và chữ gõ sai được tô khác màu. HSK 3 đến HSK 9 cần Premium.</p>
   <h3>7. Khu luyện thi HSK</h3>
-  <p>Mỗi cấp HSK 1 đến HSK 6 có 20 đề. Có luyện tập và thi thử, có giờ. Phần nghe có hình minh họa một cảnh, giống tranh trong sách luyện nghe: nền trắng, một người và một việc rõ. Bấm Nghe câu. Câu tiếng Trung không hiện sẵn. Chọn Đúng nếu câu nghe khớp hình và câu tiếng Việt, chọn Sai nếu không. Các phần sau chọn nghĩa, chọn câu trả lời, chọn từ, rồi đọc và viết theo số câu của từng cấp. HSK 7 đến HSK 9 vẫn dùng bộ đề riêng của trang.</p>
+  <p>Mỗi cấp HSK 1 đến HSK 6 có 20 đề luyện và 20 đề thi thử, làm ngay trên trang, có giờ. Nghe có hình, câu tiếng Trung không hiện sẵn: chọn đúng hoặc sai, chọn nghĩa, chọn câu trả lời hoặc chọn từ. Phần đọc có điền từ, chọn ý và sắp câu. Từ HSK 3 có phần viết. HSK 7 đến HSK 9 vẫn dùng bộ đề riêng, sẽ làm lại sau.</p>
   <h3>8. Bốn bài luyện ngắn</h3>
   <p><strong>Test từ vựng:</strong> xem nghĩa, gõ chữ Hán. Đúng thì sang câu sau. Sai thì gõ lại.</p>
   <p><strong>Luyện câu:</strong> đặt câu với từ của cấp đang học.</p>
@@ -142644,65 +142644,16 @@ function openTestList(){
   selectLeaderboard.innerHTML = "";
 
   /*
-     🇨🇳 NGUỒN ĐỀ CHÍNH THỨC
-     Không sao chép nguyên văn đề có bản quyền vào HTML.
-     Người học mở trực tiếp PDF chính thức từ Chinese Test.
+     Đề HSK 1–6 làm trên trang. HSK 7–9 vẫn dùng bộ đề riêng, sẽ xây lại sau.
   */
-  const OFFICIAL = {
-    1:{
-      pdf:"https://admin.chinesetest.cn/userfiles/file/HSK/level1/H10901.pdf",
-      label:"HSK 1 · H10901 · 40 câu"
-    },
-    2:{
-      pdf:"https://admin.chinesetest.cn/userfiles/file/HSK/level2/H20901.pdf",
-      label:"HSK 2 · H20901 · 60 câu"
-    },
-    3:{
-      pdf:"https://admin.chinesetest.cn/userfiles/file/HSK/level3/H31001.pdf",
-      label:"HSK 3 · H31001"
-    },
-    4:{
-      pdf:"https://admin.chinesetest.cn/userfiles/file/HSK/level4/H41001.pdf",
-      label:"HSK 4 · H41001"
-    },
-    5:{
-      pdf:"https://admin.chinesetest.cn/userfiles/file/HSK/level5/H51001.pdf",
-      label:"HSK 5 · H51001"
-    },
-    6:{
-      pdf:"https://admin.chinesetest.cn/userfiles/file/HSK/level6/H61001.pdf",
-      label:"HSK 6 · H61001"
-    },
-    7:{
-      pdf:"https://admin.chinesetest.cn/userfiles/file/HSK/level7-9/HSK7-9.pdf",
-      label:"HSK 7–9 · Bộ mẫu chính thức"
-    },
-    8:{
-      pdf:"https://admin.chinesetest.cn/userfiles/file/HSK/level7-9/HSK7-9.pdf",
-      label:"HSK 7–9 · Bộ mẫu chính thức"
-    },
-    9:{
-      pdf:"https://admin.chinesetest.cn/userfiles/file/HSK/level7-9/HSK7-9.pdf",
-      label:"HSK 7–9 · Bộ mẫu chính thức"
-    }
-  };
 
-  const source = OFFICIAL[currentHsk];
-
-  /* =========================================================
-     🧪 TTC — NGÂN HÀNG 10 ĐỀ / CẤP
-     - Đề do TTC tự sinh từ kho từ vựng hiện có.
-     - Bám số câu theo cấu trúc tham khảo PREP.
-     - Không sao chép nguyên văn đề bên ngoài.
-     ========================================================= */
-  {
-    const ttcCount = TTC_HSK_EXAM_COUNTS[currentHsk] || 40;
+  const ttcCount = TTC_HSK_EXAM_COUNTS[currentHsk] || 40;
 
     const ttcHead=document.createElement("div");
     ttcHead.className="wh-hsk-ttc-note";
     ttcHead.innerHTML =
       `<strong>🧪 TTC ${currentMode==="mock"?"THI THỬ":"LUYỆN TẬP"} · HSK ${currentHsk}</strong>` +
-      ` · ${ttcCount} câu/đề · đúng các phần Nghe / Đọc / Viết của cấp này · 20 đề. ` +
+      ` · ${ttcCount} câu/đề · làm ngay trên trang · 20 đề. ` +
       `${currentMode==="mock"
         ? "Có đồng hồ, không hiện đáp án trong lúc thi."
         : "Có đáp án, pinyin và giải thích sau khi chọn."}`;
@@ -142751,64 +142702,6 @@ function openTestList(){
     testList.appendChild(examGrid);
 
     /* Bảng thành tích được tải sau khi người học chọn đúng đề thi. */
-  }
-
-  if(source){
-
-    const officialBtn =
-      document.createElement("button");
-
-    officialBtn.className =
-      "wh-hsk-test wh-hsk-official-test";
-
-    officialBtn.type = "button";
-    officialBtn.textContent =
-      "🇨🇳 MỞ " + source.label;
-
-    officialBtn.onclick = function(){
-      window.open(
-        source.pdf,
-        "_blank",
-        "noopener,noreferrer"
-      );
-    };
-
-    testList.appendChild(officialBtn);
-
-    const audioBtn =
-      document.createElement("button");
-
-    audioBtn.className =
-      "wh-hsk-test wh-hsk-official-test";
-
-    audioBtn.type = "button";
-    audioBtn.textContent =
-      "🎧 ÂM THANH / TÀI LIỆU CHÍNH THỨC";
-
-    audioBtn.onclick = function(){
-      window.open(
-        "https://admin.chinesetest.cn/audio.do",
-        "_blank",
-        "noopener,noreferrer"
-      );
-    };
-
-    testList.appendChild(audioBtn);
-
-    const note =
-      document.createElement("div");
-
-    note.className =
-      "wh-hsk-official-note";
-
-    note.innerHTML =
-      "Nguồn tham khảo: <strong>cấu trúc HSK chính thức</strong> · " +
-      "mở trực tiếp tài liệu chính thức để giữ nguyên " +
-      "cấu trúc đề, đáp án và phần nghe.";
-
-    testList.appendChild(note);
-
-  }
 
   showScreen(testSelect);
 
@@ -146277,29 +146170,29 @@ if(
 
 }
 
-var study4Counts = {1:40,2:60,3:80,4:100,5:100,6:101};
-var study4Minutes = {1:40,2:55,3:90,4:105,5:125,6:140};
-Object.keys(study4Counts).forEach(function(key){
+var hskPaperCounts = {1:40,2:60,3:80,4:100,5:100,6:101};
+var hskPaperMinutes = {1:40,2:55,3:90,4:105,5:125,6:140};
+Object.keys(hskPaperCounts).forEach(function(key){
   var level = Number(key);
-  TTC_HSK_EXAM_COUNTS[level] = study4Counts[level];
-  MOCK_TIME[level] = study4Minutes[level] * 60;
+  TTC_HSK_EXAM_COUNTS[level] = hskPaperCounts[level];
+  MOCK_TIME[level] = hskPaperMinutes[level] * 60;
 });
 
-var study4PrevBuild = ttcBuildGeneratedTests;
-var study4PrevStandalone = ttcStandaloneBuild;
-var study4PrevRender = ttcStandaloneRender;
+var hskPaperPrevBuild = ttcBuildGeneratedTests;
+var hskPaperPrevStandalone = ttcStandaloneBuild;
+var hskPaperPrevRender = ttcStandaloneRender;
 
 ttcBuildGeneratedTests = function(level, examNo){
   level = Number(level);
   examNo = Math.max(1, Number(examNo)||1);
-  if(level>6) return study4PrevBuild(level, examNo);
+  if(level>6) return hskPaperPrevBuild(level, examNo);
   var pool = ttcGetVocabularyPool(level);
   if(!pool || pool.length<4) return false;
   if(!TTC_EXAM_BANK[level]) TTC_EXAM_BANK[level] = Object.create(null);
   if(!TTC_EXAM_BANK[level][examNo]){
-    var practice = window.buildStudy4Paper(pool, level, examNo, 1);
-    var mock = window.buildStudy4Paper(pool, level, examNo, 2);
-    if(!practice || !mock || practice.questions.length!==study4Counts[level]) return false;
+    var practice = window.buildTtcHskPaper(pool, level, examNo, 1);
+    var mock = window.buildTtcHskPaper(pool, level, examNo, 2);
+    if(!practice || !mock || practice.questions.length!==hskPaperCounts[level]) return false;
     TTC_EXAM_BANK[level][examNo] = {practice:practice.questions, mock:mock.questions};
   }
   HSK_DATA[level] = TTC_EXAM_BANK[level][examNo];
@@ -146308,14 +146201,14 @@ ttcBuildGeneratedTests = function(level, examNo){
 
 ttcStandaloneBuild = function(level, examNo){
   level = Number(level);
-  if(level>6) return study4PrevStandalone(level, examNo);
+  if(level>6) return hskPaperPrevStandalone(level, examNo);
   var pool = ttcStandalonePool(level);
-  var paper = window.buildStudy4Paper(pool, level, examNo, 2);
+  var paper = window.buildTtcHskPaper(pool, level, examNo, 2);
   return paper && paper.questions.length>=10 ? paper.questions : null;
 };
 
 ttcStandaloneRender = function(){
-  study4PrevRender();
+  hskPaperPrevRender();
   var st = ttcStandaloneState;
   var boxRoot = document.getElementById("ttcStandaloneMock");
   if(!st || !boxRoot) return;
@@ -164750,64 +164643,65 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
     -webkit-text-stroke: 0 !important;
   }
 </style>
-<script id="ttc-study4-hsk16">/* Đề HSK 1–6 theo cấu trúc đề chính thức (cùng kiểu Study4): đủ phần, đủ số câu.
-   Câu được soạn từ kho từ của trang, không chép đề có bản quyền. */
+<script id="ttc-hsk16-papers">/* Đề luyện HSK 1–6, làm ngay trên trang.
+   Số phần và số câu theo đề cương công khai của 汉考国际 (Chinese Testing International).
+   Câu được soạn từ kho từ của trang. Không chép đề mẫu, không dẫn sang trang khác. */
 (function(root){
   const PLANS = {
     1:{minutes:40,parts:[
-      ["listening","🎧 听力 · 第一部分（第1–5题）","Nghe câu, rồi gõ đúng câu tiếng Trung vào ô phía dưới.",5,"listen-tf"],
-      ["listening","🎧 听力 · 第二部分（第6–10题）","Nghe câu, chọn nghĩa đúng.",5,"listen-meaning"],
+      ["listening","🎧 听力 · 第一部分（第1–5题）","Nghe câu, xem hình, chọn 对 nếu khớp và 错 nếu không.",5,"listen-judge"],
+      ["listening","🎧 听力 · 第二部分（第6–10题）","Nghe câu, xem hình, chọn nghĩa đúng.",5,"listen-meaning"],
       ["listening","🎧 听力 · 第三部分（第11–15题）","Nghe câu hỏi, chọn câu trả lời.",5,"listen-reply"],
       ["listening","🎧 听力 · 第四部分（第16–20题）","Nghe câu, chọn từ được nhắc tới.",5,"listen-word"],
-      ["reading","📖 阅读 · 第一部分（第21–25题）","Xem từ, chọn nghĩa đúng.",5,"word-meaning"],
+      ["reading","📖 阅读 · 第一部分（第21–25题）","Xem từ và hình, chọn 对 hoặc 错.",5,"read-pic-tf"],
       ["reading","📖 阅读 · 第二部分（第26–30题）","Chọn từ điền vào chỗ trống.",5,"cloze"],
-      ["reading","📖 阅读 · 第三部分（第31–35题）","Đọc câu tiếng Trung và câu tiếng Việt, chọn 对 hoặc 错.",5,"read-tf"],
+      ["reading","📖 阅读 · 第三部分（第31–35题）","Đọc câu hỏi, chọn câu trả lời.",5,"read-qa"],
       ["reading","📖 阅读 · 第四部分（第36–40题）","Đọc câu, chọn ý đúng.",5,"read-choice"]
     ]},
     2:{minutes:55,parts:[
-      ["listening","🎧 听力 · 第一部分（第1–10题）","Nghe câu, rồi gõ đúng câu tiếng Trung vào ô phía dưới.",10,"listen-tf"],
-      ["listening","🎧 听力 · 第二部分（第11–20题）","Nghe câu, chọn nghĩa đúng.",10,"listen-meaning"],
-      ["listening","🎧 听力 · 第三部分（第21–30题）","Nghe câu hỏi, chọn câu trả lời.",10,"listen-reply"],
+      ["listening","🎧 听力 · 第一部分（第1–10题）","Nghe câu, xem hình, chọn 对 hoặc 错.",10,"listen-judge"],
+      ["listening","🎧 听力 · 第二部分（第11–20题）","Nghe câu, xem hình, chọn nghĩa đúng.",10,"listen-meaning"],
+      ["listening","🎧 听力 · 第三部分（第21–30题）","Nghe hội thoại ngắn, chọn câu trả lời.",10,"listen-reply"],
       ["listening","🎧 听力 · 第四部分（第31–35题）","Nghe đoạn ngắn, chọn từ được nhắc.",5,"listen-word"],
-      ["reading","📖 阅读 · 第一部分（第36–40题）","Xem từ, chọn nghĩa.",5,"word-meaning"],
+      ["reading","📖 阅读 · 第一部分（第36–40题）","Xem câu và hình, chọn 对 hoặc 错.",5,"read-pic-tf"],
       ["reading","📖 阅读 · 第二部分（第41–45题）","Điền từ vào chỗ trống.",5,"cloze"],
-      ["reading","📖 阅读 · 第三部分（第46–50题）","Đọc và chọn 对 hoặc 错.",5,"read-tf"],
+      ["reading","📖 阅读 · 第三部分（第46–50题）","Đọc câu tiếng Trung và ý tiếng Việt, chọn 对 hoặc 错.",5,"read-tf"],
       ["reading","📖 阅读 · 第四部分（第51–60题）","Đọc câu, chọn ý đúng.",10,"read-choice"]
     ]},
     3:{minutes:90,parts:[
-      ["listening","🎧 听力 · 第一部分（第1–10题）","Nghe câu, rồi gõ đúng câu tiếng Trung vào ô phía dưới.",10,"listen-tf"],
-      ["listening","🎧 听力 · 第二部分（第11–20题）","Nghe câu, chọn nghĩa đúng.",10,"listen-meaning"],
+      ["listening","🎧 听力 · 第一部分（第1–10题）","Nghe câu, xem hình, chọn nghĩa đúng.",10,"listen-meaning"],
+      ["listening","🎧 听力 · 第二部分（第11–20题）","Nghe câu, xem hình, chọn 对 hoặc 错.",10,"listen-judge"],
       ["listening","🎧 听力 · 第三部分（第21–30题）","Nghe câu hỏi, chọn câu trả lời.",10,"listen-reply"],
       ["listening","🎧 听力 · 第四部分（第31–40题）","Nghe đoạn, chọn từ được nhắc.",10,"listen-word"],
-      ["reading","📖 阅读 · 第一部分（第41–50题）","Chọn câu có cùng ý với câu đã cho.",10,"read-choice"],
+      ["reading","📖 阅读 · 第一部分（第41–50题）","Đọc câu, chọn ý đúng.",10,"read-choice"],
       ["reading","📖 阅读 · 第二部分（第51–60题）","Điền từ vào chỗ trống.",10,"cloze"],
-      ["reading","📖 阅读 · 第三部分（第61–70题）","Đọc đoạn, chọn ý đúng.",10,"read-choice"],
-      ["writing","✍️ 书写 · 第一部分（第71–75题）","Chọn câu sắp xếp đúng.",5,"order"],
-      ["writing","✍️ 书写 · 第二部分（第76–80题）","Chọn câu dùng đúng từ đã cho.",5,"use-word"]
+      ["reading","📖 阅读 · 第三部分（第61–70题）","Đọc đoạn ngắn, chọn ý đúng.",10,"read-choice"],
+      ["writing","✍️ 书写 · 第一部分（第71–75题）","Chọn câu sắp đúng thứ tự.",5,"order"],
+      ["writing","✍️ 书写 · 第二部分（第76–80题）","Nhìn phiên âm, gõ đúng chữ Hán.",5,"write-hanzi"]
     ]},
     4:{minutes:105,parts:[
-      ["listening","🎧 听力 · 第一部分（第1–10题）","Nghe câu, rồi gõ đúng câu tiếng Trung vào ô phía dưới.",10,"listen-tf"],
-      ["listening","🎧 听力 · 第二部分（第11–25题）","Nghe và chọn câu trả lời.",15,"listen-reply"],
+      ["listening","🎧 听力 · 第一部分（第1–10题）","Nghe câu, chọn 对 hoặc 错.",10,"listen-judge"],
+      ["listening","🎧 听力 · 第二部分（第11–25题）","Nghe câu hỏi, chọn câu trả lời.",15,"listen-reply"],
       ["listening","🎧 听力 · 第三部分（第26–45题）","Nghe đoạn, chọn ý đúng.",20,"listen-meaning"],
       ["reading","📖 阅读 · 第一部分（第46–55题）","Điền từ vào chỗ trống.",10,"cloze"],
-      ["reading","📖 阅读 · 第二部分（第56–65题）","Chọn câu sắp xếp đúng.",10,"order"],
+      ["reading","📖 阅读 · 第二部分（第56–65题）","Chọn câu sắp đúng thứ tự.",10,"order"],
       ["reading","📖 阅读 · 第三部分（第66–85题）","Đọc và chọn ý đúng.",20,"read-choice"],
-      ["writing","✍️ 书写 · 第一部分（第86–95题）","Sắp xếp từ thành câu đúng.",10,"order"],
+      ["writing","✍️ 书写 · 第一部分（第86–95题）","Chọn câu viết đúng từ các từ đã cho.",10,"order"],
       ["writing","✍️ 书写 · 第二部分（第96–100题）","Dùng từ đã cho, chọn câu viết đúng.",5,"use-word"]
     ]},
     5:{minutes:125,parts:[
       ["listening","🎧 听力 · 第一部分（第1–20题）","Nghe hội thoại ngắn, chọn đáp án.",20,"listen-reply"],
       ["listening","🎧 听力 · 第二部分（第21–45题）","Nghe đoạn dài hơn, chọn ý đúng.",25,"listen-meaning"],
       ["reading","📖 阅读 · 第一部分（第46–60题）","Điền từ vào đoạn.",15,"cloze"],
-      ["reading","📖 阅读 · 第二部分（第61–70题）","Đọc đoạn ngắn, chọn ý đúng.",10,"read-choice"],
-      ["reading","📖 阅读 · 第三部分（第71–90题）","Đọc và chọn câu đúng.",20,"read-choice"],
+      ["reading","📖 阅读 · 第二部分（第61–70题）","Chọn thứ tự câu đúng.",10,"order"],
+      ["reading","📖 阅读 · 第三部分（第71–90题）","Đọc hiểu, chọn ý đúng.",20,"read-choice"],
       ["writing","✍️ 书写 · 第一部分（第91–98题）","Chọn câu viết đúng từ các từ đã cho.",8,"order"],
-      ["writing","✍️ 书写 · 第二部分（第99–100题）","Chọn câu tóm tắt đúng đoạn.",2,"summary"]
+      ["writing","✍️ 书写 · 第二部分（第99–100题）","Đọc đoạn và chọn câu tóm tắt đúng.",2,"summary"]
     ]},
     6:{minutes:140,parts:[
       ["listening","🎧 听力 · 第一部分（第1–15题）","Nghe đoạn ngắn, chọn đáp án.",15,"listen-reply"],
       ["listening","🎧 听力 · 第二部分（第16–30题）","Nghe hội thoại, chọn ý đúng.",15,"listen-meaning"],
-      ["listening","🎧 听力 · 第三部分（第31–50题）","Nghe bài dài, chọn ý đúng.",20,"listen-word"],
+      ["listening","🎧 听力 · 第三部分（第31–50题）","Nghe bài dài, chọn từ được nhắc.",20,"listen-word"],
       ["reading","📖 阅读 · 第一部分（第51–60题）","Chọn câu có lỗi.",10,"error-spot"],
       ["reading","📖 阅读 · 第二部分（第61–70题）","Điền từ vào đoạn.",10,"cloze"],
       ["reading","📖 阅读 · 第三部分（第71–80题）","Chọn từ đúng chỗ trống.",10,"cloze"],
@@ -164855,6 +164749,7 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
     }
     return out;
   }
+  let sceneForQuestion = null;
   function pack(part, spec){
     const options = spec.options;
     return {
@@ -164874,7 +164769,7 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
       m: spec.m||"",
       inputMode: spec.inputMode||"",
       answerText: spec.answerText||"",
-      picture: spec.picture||null
+      picture: spec.picture || sceneForQuestion
     };
   }
   function choices(correct, wrongs, rng, label){
@@ -164926,7 +164821,7 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
   function pickScene(text){
     const norm = normSceneText(text);
     const keys = [
-      ["sủi cảo","dumpling",30],["bánh chẻo","dumpling",30],["ăn trưa","rice",28],["đang ăn","rice",28],["món ăn","rice",26],["ngon","rice",18],["ăn","rice",16],["cơm","rice",30],["phở","noodle",30],["bún","noodle",30],["miến","noodle",30],["mì","noodle",30],
+      ["sủi cảo","dumpling",30],["bánh chẻo","dumpling",30],["bánh bao","dumpling",30],["bánh mì","rice",30],["ăn trưa","rice",28],["đang ăn","rice",28],["món ăn","rice",26],["ngon","rice",18],["ăn","rice",16],["cơm","rice",30],["phở","noodle",30],["bún","noodle",30],["miến","noodle",30],["mì","noodle",30],
       ["cà phê","coffee",30],["trà","tea",30],["chè","tea",30],["sữa","milk",30],["uống nước","cup",30],["nước lọc","cup",30],["cốc nước","cup",30],["cốc","cup",28],["ly","cup",24],["chén","cup",24],["trên bàn","table",26],["cái bàn","table",28],
       ["hoa quả","apple",30],["trái cây","apple",30],["quả táo","apple",30],["táo","apple",30],
       ["đọc sách","book",30],["quyển sách","book",30],["thư viện","book",30],["sách","book",30],["tờ báo","book",28],
@@ -164951,7 +164846,7 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
       ["công việc","work",30],["làm việc","work",30],["công ty","work",30],["nổi tiếng","star",30],["bận","work",20],
       ["rất lạnh","snow",28],["lạnh","snow",18],["mấy phút","clock",24],["phút","clock",12],["cuộc họp","work",28],["đang họp","work",28],["họp","work",16],
       ["tiếng trung","talk",30],["nói chuyện","talk",28],["đáp án","paper",26],["chữ hán","paper",28],["chữ","paper",24],["đọc","book",16],
-      ["tuổi","cake",22],["đồng hồ","clock",30],["mấy giờ","clock",28],["một trăm","money",24],["tiền","money",28],["đồng ý","talk",40],["đồng","money",18],
+      ["tuổi","cake",22],["sinh nhật","cake",30],["đồng hồ","clock",30],["mấy giờ","clock",28],["một trăm","money",24],["tiền","money",28],["đồng ý","talk",40],["đồng","money",18],
       ["trời mưa","rain",30],["mưa","rain",30],["tuyết","snow",30],["mùa đông","snow",24],["trời nắng","sun",30],["nắng","sun",26],["mùa hè","sun",22],
       ["bây giờ","clock",6],["hôm nay","clock",4],["ngày mai","clock",8],["hôm qua","clock",8],
       ["thích","cute",10],["yêu","cute",12],["vui","cute",12],["buồn","think",12],["không biết","think",8]
@@ -164969,8 +164864,11 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
   function sceneOf(word){
     return pickScene(word && word.exampleMeaning) || pickScene(word && word.m) || "talk";
   }
+  const SCENE_PHOTOS = {"rain":"https://upload.wikimedia.org/wikipedia/commons/7/70/Oxford_Street_in_the_Rain_-_geograph.org.uk_-_336737.jpg","shop":"https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a5/Cleaning_products_aisle_in_Coop_Extra_supermarket%2C_Bergen_Stormarked_Shopping_Mall%2C_Norway_2017-10-25.jpg/960px-Cleaning_products_aisle_in_Coop_Extra_supermarket%2C_Bergen_Stormarked_Shopping_Mall%2C_Norway_2017-10-25.jpg","rice":"https://thumb.wikimedia.org/wikipedia/commons/thumb/1/16/Rice_bowl_topped_with_minced_chicken%2C_egg_and_eggplant_%287472290460%29.jpg/960px-Rice_bowl_topped_with_minced_chicken%2C_egg_and_eggplant_%287472290460%29.jpg","noodle":"https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bf/Noodle_Bowl_%281%29.jpg/960px-Noodle_Bowl_%281%29.jpg","dumpling":"https://thumb.wikimedia.org/wikipedia/commons/thumb/5/55/Chinese_dumplings_%28Jiaozi%29_%282196005904%29.jpg/960px-Chinese_dumplings_%28Jiaozi%29_%282196005904%29.jpg","apple":"https://thumb.wikimedia.org/wikipedia/commons/thumb/1/15/Red_Apple.jpg/960px-Red_Apple.jpg","tea":"https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8a/Cup_of_black_tea.JPG/960px-Cup_of_black_tea.JPG","cup":"https://thumb.wikimedia.org/wikipedia/commons/thumb/1/11/Glass-of-water.jpg/960px-Glass-of-water.jpg","coffee":"https://thumb.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/960px-A_small_cup_of_coffee.JPG","milk":"https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d9/SLNSW_9536_Children_drink_milk_from_a_cow_being_milked_Dalwood_Home.jpg/960px-SLNSW_9536_Children_drink_milk_from_a_cow_being_milked_Dalwood_Home.jpg","book":"https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c7/Az_girl_reading_a_book._e-citizen.jpg/960px-Az_girl_reading_a_book._e-citizen.jpg","pencil":"https://thumb.wikimedia.org/wikipedia/commons/thumb/7/71/Dixon-Ticonderoga-Assorted-Pencils.jpg/960px-Dixon-Ticonderoga-Assorted-Pencils.jpg","paper":"https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3a/Writing-110764_1280.jpg/960px-Writing-110764_1280.jpg","school":"https://thumb.wikimedia.org/wikipedia/commons/thumb/0/02/Reading_Wikipedia_in_the_Classroom_for_Secondary_School_Students_83.jpg/960px-Reading_Wikipedia_in_the_Classroom_for_Secondary_School_Students_83.jpg","house":"https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d3/Benjamin_Harrison_Home_Exterior%2C_Indianapolis%2C_Indiana_-_Sarah_Stierch.jpg/960px-Benjamin_Harrison_Home_Exterior%2C_Indianapolis%2C_Indiana_-_Sarah_Stierch.jpg","family":"https://thumb.wikimedia.org/wikipedia/commons/thumb/8/86/Vintage_family_from_england.jpg/960px-Vintage_family_from_england.jpg","couple":"https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a3/MGD13_Wedding_Couple_Applause.JPG/960px-MGD13_Wedding_Couple_Applause.JPG","talk":"https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7d/People_talking_crowd.jpg/960px-People_talking_crowd.jpg","bus":"https://upload.wikimedia.org/wikipedia/commons/2/22/The_traditional_red_London_bus_-_geograph.org.uk_-_1380058.jpg","plane":"https://thumb.wikimedia.org/wikipedia/commons/thumb/9/90/Commercial_jet_airplane.jpg/960px-Commercial_jet_airplane.jpg","train":"https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fb/Pichi_Richi_Railway_diesel_locomotive_NSU52_crosses_Saltia_Bridge%2C_near_Quorn%2C_South_Australia%2C_with_passenger_train_on_26_Oct_2019_%28Caleb_Jenkins%29.jpg/960px-Pichi_Richi_Railway_diesel_locomotive_NSU52_crosses_Saltia_Bridge%2C_near_Quorn%2C_South_Australia%2C_with_passenger_train_on_26_Oct_2019_%28Caleb_Jenkins%29.jpg","money":"https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e3/Confederate_100_Dollars.jpg/960px-Confederate_100_Dollars.jpg","clock":"https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cf/Pendulum_clock_by_Jacob_Kock%2C_antique_furniture_photography%2C_IMG_0931_edit.jpg/960px-Pendulum_clock_by_Jacob_Kock%2C_antique_furniture_photography%2C_IMG_0931_edit.jpg","sun":"https://upload.wikimedia.org/wikipedia/commons/7/76/Bright_sunny_day_on_the_river_-_geograph.org.uk_-_594241.jpg","snow":"https://upload.wikimedia.org/wikipedia/commons/7/7b/Snow_falling_on_Edgar_Street%2C_Huncoat%2C_at_night_-_geograph.org.uk_-_276432.jpg","phone":"https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c0/White_smartphone_%28photo%29_on_a_hand_adult.jpg/960px-White_smartphone_%28photo%29_on_a_hand_adult.jpg","laptop":"https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ef/Desk-laptop-notebook-pen_%2823958719819%29.jpg/960px-Desk-laptop-notebook-pen_%2823958719819%29.jpg","doctor":"https://thumb.wikimedia.org/wikipedia/commons/thumb/6/67/A_physician_examines_a_patient%27s_tongue_Wellcome_V0011741.jpg/960px-A_physician_examines_a_patient%27s_tongue_Wellcome_V0011741.jpg","pill":"https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b9/Tablets_pills_medicine_medical_waste.jpg/960px-Tablets_pills_medicine_medical_waste.jpg","ball":"https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7f/Adidas_soccer_ball_on_a_grass_pitch_%28Unsplash%29.jpg/960px-Adidas_soccer_ball_on_a_grass_pitch_%28Unsplash%29.jpg","cat":"https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c1/Six_weeks_old_cat_%28aka%29.jpg/960px-Six_weeks_old_cat_%28aka%29.jpg","dog":"https://upload.wikimedia.org/wikipedia/commons/e/e2/Retriever_Du_Labrador.jpg","bird":"https://upload.wikimedia.org/wikipedia/commons/9/91/A_friendly_Robin_perched_on_our_wing_mirror._-_geograph.org.uk_-_120038.jpg","fish":"https://upload.wikimedia.org/wikipedia/commons/d/d4/Common_Goldfish_in_aquarium_%28%E9%87%91%E8%8B%B1%29.JPG","shirt":"https://thumb.wikimedia.org/wikipedia/commons/thumb/3/31/Jeans_and_brown_shirt_folded.jpg/960px-Jeans_and_brown_shirt_folded.jpg","shoe":"https://upload.wikimedia.org/wikipedia/commons/5/55/Adidas_sneakers_display_-_several_left_shoes.jpg","bed":"https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4b/Human_sleeping_on_a_bed_with_a_dog.jpg/960px-Human_sleeping_on_a_bed_with_a_dog.jpg","wave":"https://thumb.wikimedia.org/wikipedia/commons/thumb/1/18/Biker_Waving_Hello.jpg/960px-Biker_Waving_Hello.jpg","flower":"https://thumb.wikimedia.org/wikipedia/commons/thumb/3/34/Bouquet_of_Flowers_%28Bouquet_de_Fleurs%29.jpg/960px-Bouquet_of_Flowers_%28Bouquet_de_Fleurs%29.jpg","tree":"https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0c/Sawtooth_Oak_Quercus_acutissima_Dried_Leaves_2100px.jpg/960px-Sawtooth_Oak_Quercus_acutissima_Dried_Leaves_2100px.jpg","hills":"https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f2/Walking_path_in_Bowron_Lake_Provincial_Park_%28DSCF3150%29.jpg/960px-Walking_path_in_Bowron_Lake_Provincial_Park_%28DSCF3150%29.jpg","table":"https://thumb.wikimedia.org/wikipedia/commons/thumb/8/87/Dining_Table_MET_189122.jpg/960px-Dining_Table_MET_189122.jpg","movie":"https://thumb.wikimedia.org/wikipedia/commons/thumb/9/95/Edwards_Cinema_Temecula.jpg/960px-Edwards_Cinema_Temecula.jpg","sing":"https://thumb.wikimedia.org/wikipedia/commons/thumb/8/80/Patti_Smith_performing_in_Finland%2C_2007.jpg/960px-Patti_Smith_performing_in_Finland%2C_2007.jpg","photo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d4/A_set_of_five_digital_cameras..jpg/960px-A_set_of_five_digital_cameras..jpg","globe":"https://thumb.wikimedia.org/wikipedia/commons/thumb/f/ff/1794_Samuel_Dunn_Wall_Map_of_the_World_in_Hemispheres_-_Geographicus_-_World2-dunn-1794.jpg/960px-1794_Samuel_Dunn_Wall_Map_of_the_World_in_Hemispheres_-_Geographicus_-_World2-dunn-1794.jpg","work":"https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b8/Red_Office_2.JPG/960px-Red_Office_2.JPG","star":"https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e5/Metropolitan_Opera_House%2C_a_concert_by_pianist_Josef_Hofmann_-_NARA_541890_-_Edit.jpg/960px-Metropolitan_Opera_House%2C_a_concert_by_pianist_Josef_Hofmann_-_NARA_541890_-_Edit.jpg","cute":"https://upload.wikimedia.org/wikipedia/commons/5/5f/Smiling_child.jpg","think":"https://upload.wikimedia.org/wikipedia/commons/9/9a/Thinking_persons.jpg","walk":"https://upload.wikimedia.org/wikipedia/commons/e/e0/Nigel_Hall_Geograph-1210280-by-Walking-person.jpg","cake":"https://thumb.wikimedia.org/wikipedia/commons/thumb/9/91/Italy_-_birthday_cake_with_candles_1.jpg/960px-Italy_-_birthday_cake_with_candles_1.jpg"};
   function pictureOf(word){
     const kind = sceneOf(word) || "talk";
+    const src = SCENE_PHOTOS[kind] || SCENE_PHOTOS.talk;
+    return {html:'<img src="'+src+'" alt="" width="640" height="400" loading="lazy" referrerpolicy="no-referrer">', kind:kind};
     const ink = "#243044";
     const skin = "#f6c99a";
     function person(x, shirt){
@@ -165229,30 +165127,91 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
       const bg = '<rect width="360" height="200" fill="#fffdf8"/><ellipse cx="180" cy="186" rx="150" ry="10" fill="#f3e4d4"/>';
       return bg + '<g transform="translate(-48,0)">' + prop(kind) + '</g>' + people;
     }
-    const body = humanSketch(kind, word);
+    const body = plates[kind] || plates.talk;
     return {
       html: '<svg viewBox="0 0 360 200" width="360" height="200" role="img" aria-label="Hình minh họa">' + body + '</svg>',
       kind: kind
     };
   }
   function make(type, word, pool, rng, part){
+    sceneForQuestion = pictureOf(word);
     const rest = others(pool, word, rng, 3);
     while(rest.length<3) rest.push(pool[rest.length%pool.length]);
-    if(type==="listen-tf"){
+    if(type==="listen-judge"){
+      const truth = rng()<0.5;
       const heard = part.slice();
-      heard[2] = "Nghe câu, rồi gõ đúng câu tiếng Trung vào ô bên dưới.";
+      heard[2] = "Câu tiếng Trung không hiện sẵn. Nghe, xem hình, rồi chọn 对 hoặc 错.";
+      let foil = rest[0];
+      const mine = sceneOf(word);
+      for(const w of rest){ if(sceneOf(w) && sceneOf(w)!==mine){ foil = w; break; } }
+      const spoken = truth ? zh(word) : zh(foil);
+      const answer = truth ? 0 : 1;
       return pack(heard, {
-        q: "请听句子，把听到的句子打出来。",
-        qMeaning: "Bấm Nghe câu. Gõ đúng câu tiếng Trung vừa nghe vào ô phía dưới.",
+        q: "请听句子，判断与图片是否一致。",
+        qMeaning: "Chọn 对 nếu câu vừa nghe khớp hình. Chọn 错 nếu nói việc khác.",
+        options:["对    Đúng","错    Sai"],
+        optionPinyin:["duì","cuò"],
+        optionMeaning:["Câu khớp với hình","Câu không khớp với hình"],
+        answer: answer,
+        analysis:[
+          answer===0?"ĐÚNG: câu vừa nghe mô tả đúng cảnh trong hình.":"SAI: câu vừa nghe không nói về cảnh trong hình.",
+          answer===1?"ĐÚNG: câu vừa nghe nói một việc khác, nên chọn 错.":"SAI: câu có khớp hình, không chọn 错."
+        ],
+        audioText: spoken,
+        picture: pictureOf(word),
+        h: word.h, m: word.m
+      });
+    }
+    if(type==="read-pic-tf"){
+      const truth = rng()<0.5;
+      let foil = rest[0];
+      const mine = sceneOf(word);
+      for(const w of rest){ if(sceneOf(w) && sceneOf(w)!==mine){ foil = w; break; } }
+      const shown = truth ? word : foil;
+      const answer = truth ? 0 : 1;
+      return pack(part, {
+        q: shown.h+"\n这个词和图片一致吗？",
+        qPinyin: shown.p||"",
+        qMeaning: "Xem hình rồi xét từ tiếng Trung có đúng cảnh đó không.",
+        options:["对    Đúng","错    Sai"],
+        optionPinyin:["duì","cuò"],
+        optionMeaning:["Từ khớp hình","Từ không khớp hình"],
+        answer: answer,
+        analysis:[
+          answer===0?"ĐÚNG: từ này đúng với cảnh trong hình.":"SAI: từ này không phải cảnh trong hình.",
+          answer===1?"ĐÚNG: từ và hình không cùng một việc, chọn 错.":"SAI: từ có khớp hình, không chọn 错."
+        ],
+        picture: pictureOf(word),
+        h: word.h, m: word.m
+      });
+    }
+    if(type==="read-qa"){
+      const ask = "你觉得"+word.h+"怎么样？";
+      const picked = choices(zh(word), rest.map(zh), rng, "câu trả lời hợp với câu hỏi");
+      return pack(part, {
+        q: "问："+ask,
+        qPinyin: py(word),
+        qMeaning: "Chọn câu trả lời hợp lý nhất.",
+        options: picked.options,
+        optionPinyin: ["","","",""],
+        optionMeaning: ["","","",""],
+        answer: picked.answer,
+        analysis: picked.analysis,
+        h: word.h, m: word.m
+      });
+    }
+    if(type==="write-hanzi"){
+      return pack(part, {
+        q: "看拼音写汉字："+(word.p||py(word)||""),
+        qPinyin: word.p||"",
+        qMeaning: "Gõ đúng chữ Hán của phiên âm. Không cần gõ câu.",
         options: [],
         optionPinyin: [],
         optionMeaning: [],
         answer: 0,
-        analysis: ["Gõ đúng câu vừa nghe."],
-        audioText: zh(word),
+        analysis: ["Chữ đúng là "+word.h+" · "+(word.m||"")],
         inputMode: "dictation",
-        answerText: zh(word),
-        picture: pictureOf(word),
+        answerText: word.h,
         h: word.h, m: word.m
       });
     }
@@ -165269,8 +165228,8 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
       });
     }
     if(type==="listen-reply"){
-      const correct = "是的，"+zh(word);
-      const wrongs = rest.map(function(w){ return "不是，"+zh(w); });
+      const correct = zh(word);
+      const wrongs = rest.map(zh);
       const picked = choices(correct, wrongs, rng, "câu trả lời hợp với câu hỏi");
       const heard = part.slice();
       heard[2] = "Nghe câu hỏi, xem hình, rồi chọn câu trả lời.";
@@ -165281,7 +165240,7 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
         optionPinyin: ["","","",""],
         optionMeaning: ["","","",""],
         answer: picked.answer, analysis: picked.analysis,
-        audioText: "请问，"+zh(word).replace(/[。！？]$/,"")+"吗？",
+        audioText: "你觉得"+word.h+"怎么样？",
         picture: pictureOf(word), h: word.h, m: word.m
       });
     }
@@ -165304,7 +165263,7 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
       const statement = truth ? vi(word) : vi(rest[0]);
       const answer = truth ? 0 : 1;
       return pack(part, {
-        q: "读句子，判断意思对不对。\n"+statement,
+        q: zh(word)+"\n越南语："+statement+"\n意思对不对？",
         qMeaning: "Đọc câu tiếng Trung và xét câu tiếng Việt.",
         options:["对    Đúng","错    Sai"],
         optionPinyin:["duì","cuò"],
@@ -165372,7 +165331,8 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
       });
     }
     if(type==="error-spot"){
-      const bad = zh(word).replace(/。$/,"")+"的的。";
+      const body = zh(word).replace(/[。！？]$/,"");
+      const bad = body.slice(0,1)+body+"。";
       const goods = rest.map(zh);
       const rows = [{t:bad, ok:true}].concat(goods.map(function(t){return {t:t, ok:false};}));
       const mixed = shuffle(rows, rng);
@@ -165382,7 +165342,7 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
         qMeaning:"Chọn câu có lỗi.",
         options:mixed.map(function(x){return x.t;}),
         answer:answer,
-        analysis:mixed.map(function(x){return x.ok?"ĐÚNG: câu này cố ý viết thừa, là câu sai.":"SAI: câu này là câu ví dụ đúng.";}),
+        analysis:mixed.map(function(x){return x.ok?"ĐÚNG: câu này lặp chữ đầu, là câu sai.":"SAI: câu này viết đúng, không chọn.";}),
         h:word.h, m:word.m
       });
     }
@@ -165398,7 +165358,7 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
     });
   }
 
-  function buildStudy4Paper(pool, level, examNo, salt){
+  function buildTtcHskPaper(pool, level, examNo, salt){
     const plan = PLANS[Number(level)];
     if(!plan) return null;
     const usable = (pool||[]).filter(function(w){ return w && w.h && w.m; });
@@ -165420,8 +165380,8 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
     return {minutes:plan.minutes, questions:questions};
   }
 
-  root.TTC_STUDY4_PLANS = PLANS;
-  root.buildStudy4Paper = buildStudy4Paper;
+  root.TTC_HSK_PAPER_PLANS = PLANS;
+  root.buildTtcHskPaper = buildTtcHskPaper;
 })(typeof module!=="undefined" && module.exports ? module.exports : window);
 
 (function(){
@@ -165559,6 +165519,7 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
   #whHskRoot,#whHskExam,#whHskQuestions,.wh-hsk-question{max-width:100% !important;box-sizing:border-box !important}
   .wh-hsk-picture{display:block !important;width:100% !important;max-width:100% !important;box-sizing:border-box !important;margin:12px 0 !important;padding:0 !important;border-radius:12px !important;background:#fff !important;border:1px solid #d6d3d1 !important;overflow:hidden !important}
   html body .wh-hsk-picture svg{display:block !important;width:100% !important;height:200px !important;max-width:100% !important}
+  html body .wh-hsk-picture img{display:block !important;width:100% !important;height:200px !important;max-width:100% !important;object-fit:cover !important;background:#eee !important}
   .wh-hsk-picture-label{display:block !important;font-size:13px !important;font-weight:800 !important;color:#9a3412 !important}
   .wh-hsk-picture-name{display:block !important;margin-top:6px !important;font-size:18px !important;font-weight:800 !important;color:#9a3412 !important}
   .wh-hsk-art{display:block !important;position:relative !important;width:100% !important;height:150px !important;min-height:150px !important;margin-top:8px !important;border-radius:14px !important;overflow:hidden !important;background:#e0f2fe !important}
