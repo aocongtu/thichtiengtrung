@@ -155514,13 +155514,78 @@ function stageGif(url, name){
 let gifSearchPage = 1;
 let gifSearchTerm = "";
 
+const GIF_VI_EN = {
+  "mèo":"cat", "meo":"cat", "chó":"dog", "cho":"dog",
+  "cười":"laugh", "cuoi":"laugh", "cười lớn":"laugh",
+  "khóc":"cry", "khoc":"cry", "vui":"happy", "buồn":"sad", "buon":"sad",
+  "yêu":"love", "yeu":"love", "thả tim":"love", "tim":"heart",
+  "giận":"angry", "gian":"angry", "giận dữ":"angry",
+  "xin chào":"hello", "chào":"hello", "cảm ơn":"thanks", "cam on":"thanks",
+  "ngủ":"sleep", "ngu":"sleep", "ăn":"eat", "uống":"drink",
+  "mưa":"rain", "nắng":"sunny", "đêm":"night", "ok":"ok", "wow":"wow",
+  "vỗ tay":"clap", "nhảy":"dance", "sợ":"scared", "ngạc nhiên":"surprised"
+};
+
+async function gifEnglishQuery(raw){
+  const text = String(raw || "").trim();
+  const key = text.toLowerCase();
+  if(GIF_VI_EN[key]) return GIF_VI_EN[key];
+  const needsEnglish = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i.test(text);
+  if(!needsEnglish) return text;
+  try{
+    const response = await fetch(
+      "https://translate.googleapis.com/translate_a/single?client=gtx&sl=vi&tl=en&dt=t&q="
+      + encodeURIComponent(text)
+    );
+    const data = await response.json();
+    const english = data && data[0] && data[0][0] && data[0][0][0];
+    if(english && String(english).trim()) return String(english).trim();
+  }catch(e){}
+  return text;
+}
+
+async function gifRowsFromCommons(english){
+  const endpoint = "https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrnamespace=6&gsrlimit=30&gsrsearch="
+    + encodeURIComponent(String(english || "") + " gif")
+    + "&prop=imageinfo&iiprop=url|mime&iiurlwidth=320";
+  const response = await fetch(endpoint);
+  const data = await response.json();
+  const pages = data && data.query && data.query.pages ? Object.values(data.query.pages) : [];
+  const found = [];
+  pages.forEach(function(page){
+    const info = page.imageinfo && page.imageinfo[0];
+    if(!info) return;
+    const full = String(info.url || "");
+    if(String(info.mime || "") !== "image/gif" && !/\.gif($|\?)/i.test(full)) return;
+    found.push({url:full, thumb:info.thumburl || full, name:page.title || "gif"});
+  });
+  return found;
+}
+
+function gifRowsFromOpenverse(data){
+  const rows = Array.isArray(data && data.results) ? data.results : [];
+  const found = [];
+  rows.forEach(function(row){
+    const full = String(row.url || "");
+    if(!full) return;
+    const kind = String(row.filetype || "").toLowerCase();
+    if(kind && kind !== "gif" && !/\.gif($|\?)/i.test(full)) return;
+    found.push({url:full, thumb:full, name:row.title || "gif"});
+  });
+  return {found:found, pageCount:Number(data && data.page_count) || 1};
+}
+
 function appendGifChoice(item){
   const button = document.createElement("button");
   button.type = "button";
   button.title = "Chọn GIF này";
   const img = document.createElement("img");
+  img.referrerPolicy = "no-referrer";
   img.src = item.thumb || item.url;
   img.alt = "";
+  img.addEventListener("error", function(){
+    if(button.parentNode) button.remove();
+  });
   button.appendChild(img);
   button.addEventListener("click", function(event){
     event.preventDefault();
@@ -155538,33 +155603,33 @@ async function searchChatGifs(query, page){
     return;
   }
   page = page || 1;
-  gifSearchTerm = term;
+  const english = page === 1 ? await gifEnglishQuery(term) : (gifSearchTerm || term);
+  gifSearchTerm = english;
   gifSearchPage = page;
   const previousMore = gifResults.querySelector(".ttc-gif-more");
   if(previousMore) previousMore.remove();
   if(page === 1) gifResults.textContent = "Đang tìm GIF...";
   try{
-    const endpoint = "https://api.openverse.org/v1/images/?extension=gif&page_size=48&page="
+    const endpoint = "https://api.openverse.org/v1/images/?extension=gif&page_size=40&page="
       + page
       + "&q="
-      + encodeURIComponent(term);
+      + encodeURIComponent(english);
     const response = await fetch(endpoint);
     const data = await response.json();
-    const rows = Array.isArray(data.results) ? data.results : [];
-    const found = [];
-    rows.forEach(function(row){
-      const full = String(row.url || "");
-      if(!full) return;
-      if(String(row.filetype || "").toLowerCase() !== "gif" && !/\.gif($|\?)/i.test(full)) return;
-      found.push({url:full, thumb:full, name:row.title || "gif"});
-    });
+    const parsed = gifRowsFromOpenverse(data);
+    const found = parsed.found;
     if(page === 1) gifResults.innerHTML = "";
     if(!found.length && page === 1){
-      gifResults.textContent = "Chưa thấy GIF cho từ này. Thử từ khác hoặc chọn file trong máy.";
+      const extra = await gifRowsFromCommons(english);
+      if(extra.length){
+        extra.forEach(appendGifChoice);
+        return;
+      }
+      gifResults.textContent = "Chưa thấy GIF cho \"" + term + "\". Thử từ khác, ví dụ mèo, cười, hoặc chọn file trong máy.";
       return;
     }
     found.forEach(appendGifChoice);
-    const pageCount = Number(data.page_count) || page;
+    const pageCount = parsed.pageCount || page;
     if(page < pageCount){
       const more = document.createElement("button");
       more.type = "button";
