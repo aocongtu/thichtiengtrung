@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<script src="http://127.0.0.1:8766/?ttc-open=1"></script>
 <title>THÍCH TIẾNG TRUNG</title>
 
 <style>
@@ -2808,7 +2810,7 @@ body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; 
   <p><strong>Luyện phát âm:</strong> nghe mẫu, rồi ghi âm và chấm. Mỗi lần một cấp. HSK 3 trở lên cần Premium.</p>
   <p><strong>Ngữ pháp:</strong> mẫu câu theo từng cấp HSK, có giải thích tiếng Việt. HSK 1 mở sau khi đăng nhập. HSK 2 trở lên cần Premium.</p>
   <h3>4. Học tiếng Trung qua video</h3>
-  <p>Nút màu trắng khi chưa mở. Bấm vào mới hiện danh sách và nút chuyển đỏ. Mỗi cấp có bài trên YouTube xem tại trang, và video của trang đọc chính bài đọc HSK, có pinyin và tiếng Việt. Trên điện thoại khung video nằm gọn, ba nút chuyển bài nằm trên hình.</p>
+  <p>Nút màu trắng khi chưa mở. Bấm vào mới hiện danh sách và nút chuyển đỏ. Học theo YouTube chỉ xem video, phụ đề chữ Hán hoặc tiếng Việt nằm trên hình, không gắn câu HSK ở dưới. Video của trang mới đọc bài đọc HSK, có pinyin và tiếng Việt. Trên điện thoại khung video nằm gọn, ba nút chuyển bài nằm trên hình.</p>
   <h3>5. Khu luyện đọc</h3>
   <p>Chọn HSK 1 đến HSK 9 để mở danh sách bài. Chọn một bài để đọc. Bật pinyin, bật nghĩa tiếng Việt, nghe cả bài, hoặc bấm một chữ để nghe từ chỗ đó. Bôi đen một cụm chữ để tra đúng phần đã chọn. HSK 1 và 2 mở khi vào khu. HSK 3 trở lên cần Premium.</p>
   <h3>6. Khu luyện nghe gõ</h3>
@@ -142910,7 +142912,7 @@ function ttcStandaloneStopTimer(){
 async function ttcStandaloneSubmit(){
   const st=ttcStandaloneState; if(!st||st.submitted)return;
   st.submitted=true; ttcStandaloneStopTimer();
-  let score=0; st.questions.forEach((q,i)=>{if(st.answers[i]===q.answer)score++;});
+  let score=0; st.questions.forEach((q,i)=>{if(ttcStandaloneOk(q, st.answers[i]))score++;});
   const pct=Math.round(score/st.questions.length*100);
   const usedSeconds=Math.max(0, Math.max(10,st.questions.length*45)-st.remaining);
   /* Lưu kết quả thi thử bằng đúng RPC/bảng thành tích đang có; không thay engine chấm điểm. */
@@ -142929,7 +142931,7 @@ async function ttcStandaloneSubmit(){
 function ttcStandaloneReview(){
   const st=ttcStandaloneState; const root=document.getElementById("ttcStandaloneMock"); if(!st||!root)return;
   let html=`<div class="ttc-sm-review-list"><h3>📋 Kết quả chi tiết</h3>`;
-  st.questions.forEach((q,i)=>{const ok=st.answers[i]===q.answer; html+=`<div class="ttc-sm-review-item ${ok?"ok":"bad"}"><strong>${i+1}. ${q.h}</strong> · ${ok?"✅ Đúng":"❌ Sai"}<br><br>Nghĩa: ${q.m}</div>`;});
+  st.questions.forEach((q,i)=>{const ok=ttcStandaloneOk(q, st.answers[i]); html+=`<div class="ttc-sm-review-item ${ok?"ok":"bad"}"><strong>${i+1}. ${q.h}</strong> · ${ok?"✅ Đúng":"❌ Sai"}<br><br>Nghĩa: ${q.m}</div>`;});
   html+=`</div>`; root.querySelector(".ttc-sm-review").insertAdjacentHTML("afterend",html); root.querySelector(".ttc-sm-review").style.display="none";
 }
 
@@ -143416,6 +143418,11 @@ function ttcDictationMatch(item, given){
   const heard = norm(item && (item.answerText || item.audioText));
   const typed = norm(given);
   return !!heard && typed === heard;
+}
+
+function ttcStandaloneOk(q, given){
+  if(q && q.inputMode === "dictation") return ttcDictationMatch(q, given);
+  return given === q.answer;
 }
 
 function showPracticeFeedback(
@@ -145994,9 +146001,7 @@ renderQuestions =
             field
           );
 
-        }
-
-        item.options.forEach(
+        }else item.options.forEach(
 
           function(
             optionText,
@@ -146340,6 +146345,14 @@ ttcStandaloneRender = function(){
       if(typeof say==="function") say(q.audioText);
     };
     box.appendChild(listen);
+  }
+  if(q.inputMode === "dictation"){
+    var field = document.createElement("textarea");
+    field.className = "wh-hsk-dictation";
+    field.setAttribute("placeholder", "Nghe xong, gõ câu tiếng Trung vào đây");
+    field.value = typeof st.answers[st.index] === "string" ? st.answers[st.index] : "";
+    field.addEventListener("input", function(){ st.answers[st.index] = field.value; });
+    box.appendChild(field);
   }
 };
 
@@ -164742,7 +164755,7 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
 (function(root){
   const PLANS = {
     1:{minutes:40,parts:[
-      ["listening","🎧 听力 · 第一部分（第1–5题）","Nghe một câu, xem nghĩa tiếng Việt, chọn 对 hoặc 错.",5,"listen-tf"],
+      ["listening","🎧 听力 · 第一部分（第1–5题）","Nghe câu, rồi gõ đúng câu tiếng Trung vào ô phía dưới.",5,"listen-tf"],
       ["listening","🎧 听力 · 第二部分（第6–10题）","Nghe câu, chọn nghĩa đúng.",5,"listen-meaning"],
       ["listening","🎧 听力 · 第三部分（第11–15题）","Nghe câu hỏi, chọn câu trả lời.",5,"listen-reply"],
       ["listening","🎧 听力 · 第四部分（第16–20题）","Nghe câu, chọn từ được nhắc tới.",5,"listen-word"],
@@ -164752,7 +164765,7 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
       ["reading","📖 阅读 · 第四部分（第36–40题）","Đọc câu, chọn ý đúng.",5,"read-choice"]
     ]},
     2:{minutes:55,parts:[
-      ["listening","🎧 听力 · 第一部分（第1–10题）","Nghe câu, chọn 对 hoặc 错.",10,"listen-tf"],
+      ["listening","🎧 听力 · 第一部分（第1–10题）","Nghe câu, rồi gõ đúng câu tiếng Trung vào ô phía dưới.",10,"listen-tf"],
       ["listening","🎧 听力 · 第二部分（第11–20题）","Nghe câu, chọn nghĩa đúng.",10,"listen-meaning"],
       ["listening","🎧 听力 · 第三部分（第21–30题）","Nghe câu hỏi, chọn câu trả lời.",10,"listen-reply"],
       ["listening","🎧 听力 · 第四部分（第31–35题）","Nghe đoạn ngắn, chọn từ được nhắc.",5,"listen-word"],
@@ -164762,7 +164775,7 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
       ["reading","📖 阅读 · 第四部分（第51–60题）","Đọc câu, chọn ý đúng.",10,"read-choice"]
     ]},
     3:{minutes:90,parts:[
-      ["listening","🎧 听力 · 第一部分（第1–10题）","Nghe hội thoại ngắn, chọn 对 hoặc 错.",10,"listen-tf"],
+      ["listening","🎧 听力 · 第一部分（第1–10题）","Nghe câu, rồi gõ đúng câu tiếng Trung vào ô phía dưới.",10,"listen-tf"],
       ["listening","🎧 听力 · 第二部分（第11–20题）","Nghe câu, chọn nghĩa đúng.",10,"listen-meaning"],
       ["listening","🎧 听力 · 第三部分（第21–30题）","Nghe câu hỏi, chọn câu trả lời.",10,"listen-reply"],
       ["listening","🎧 听力 · 第四部分（第31–40题）","Nghe đoạn, chọn từ được nhắc.",10,"listen-word"],
@@ -164773,7 +164786,7 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
       ["writing","✍️ 书写 · 第二部分（第76–80题）","Chọn câu dùng đúng từ đã cho.",5,"use-word"]
     ]},
     4:{minutes:105,parts:[
-      ["listening","🎧 听力 · 第一部分（第1–10题）","Nghe câu, chọn 对 hoặc 错.",10,"listen-tf"],
+      ["listening","🎧 听力 · 第一部分（第1–10题）","Nghe câu, rồi gõ đúng câu tiếng Trung vào ô phía dưới.",10,"listen-tf"],
       ["listening","🎧 听力 · 第二部分（第11–25题）","Nghe và chọn câu trả lời.",15,"listen-reply"],
       ["listening","🎧 听力 · 第三部分（第26–45题）","Nghe đoạn, chọn ý đúng.",20,"listen-meaning"],
       ["reading","📖 阅读 · 第一部分（第46–55题）","Điền từ vào chỗ trống.",10,"cloze"],
@@ -164966,10 +164979,10 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
         + '<path d="M'+(x+2)+' 112 h16 v64 h-16 z" fill="#64748b" stroke="'+line+'" stroke-width="1.6"/>'
         + '<path d="M'+(x-22)+' 174 h22 v8 h-22 z M'+x+' 174 h22 v8 h-22 z" fill="#111827"/>'
         + '<path d="M'+(x-30)+' 68 h60 v48 h-60 z" fill="'+shirt+'" stroke="'+line+'" stroke-width="1.8"/>'
-        + '<path d="M'+(x-30)+' 80 h-22 v10 h22 z" fill="'+shirt+'" stroke="'+line+'" stroke-width="1.6"/>'
-        + '<path d="M'+(x+30)+' 80 h22 v10 h-22 z" fill="'+shirt+'" stroke="'+line+'" stroke-width="1.6"/>'
-        + '<circle cx="'+(x-46)+'" cy="96" r="6" fill="'+skin+'" stroke="'+line+'" stroke-width="1.4"/>'
-        + '<circle cx="'+(x+46)+'" cy="96" r="6" fill="'+skin+'" stroke="'+line+'" stroke-width="1.4"/>'
+        + '<path d="M'+(x-30)+' 76 h11 v40 h-11 z" fill="'+shirt+'" stroke="'+line+'" stroke-width="1.6"/>'
+        + '<path d="M'+(x+19)+' 76 h11 v40 h-11 z" fill="'+shirt+'" stroke="'+line+'" stroke-width="1.6"/>'
+        + '<circle cx="'+(x-24)+'" cy="120" r="6" fill="'+skin+'" stroke="'+line+'" stroke-width="1.4"/>'
+        + '<circle cx="'+(x+24)+'" cy="120" r="6" fill="'+skin+'" stroke="'+line+'" stroke-width="1.4"/>'
         + '<circle cx="'+x+'" cy="46" r="26" fill="'+skin+'" stroke="'+line+'" stroke-width="1.8"/>'
         + '<path d="M'+(x-26)+' 42 Q'+x+' 14 '+(x+26)+' 40 Q'+x+' 28 '+(x-26)+' 34 Z" fill="#3a2a22"/>'
         + '<path d="M'+(x-16)+' 34 Q'+x+' 42 '+(x+16)+' 34" fill="#3a2a22"/>'
@@ -165073,7 +165086,150 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
       walk: bgOut + actor(160, "#2563eb", 1) + '<path d="M40 170 h280" stroke="#64748b" stroke-width="4"/>',
       cake: bgIn + actor(90, "#f472b6", 0.85) + '<path d="M180 130 h120 v40 h-120 z" fill="#f9a8d4" stroke="'+ink+'" stroke-width="3"/><path d="M180 130 q15 -14 30 0 q15 -14 30 0 q15 -14 30 0 q15 -14 30 0" fill="#fff"/><path d="M214 130 v-22 M240 130 v-28 M266 130 v-22" stroke="'+ink+'" stroke-width="3"/>'
     };
-    const body = plates[kind] || plates.talk;
+    function animalStory(kind, word){
+      const ink = "#3f342c";
+      const said = String((word && (word.exampleMeaning || word.m)) || "").toLowerCase();
+      let mood = "happy";
+      if (/[?？]| à |không |sao |thế nào|đi đâu/.test(" " + said + " ")) mood = "ask";
+      if (/buồn|khóc|mệt|đau|xin lỗi/.test(said)) mood = "sad";
+      function eyes(x, y, m){
+        if (m === "ask") return '<ellipse cx="'+(x-7)+'" cy="'+y+'" rx="3.2" ry="4.2" fill="#1f2937"/><ellipse cx="'+(x+7)+'" cy="'+y+'" rx="3.2" ry="4.2" fill="#1f2937"/>';
+        if (m === "sad") return '<path d="M'+(x-10)+' '+(y+1)+' q4 -4 8 0 M'+(x+2)+' '+(y+1)+' q4 -4 8 0" fill="none" stroke="#1f2937" stroke-width="1.7" stroke-linecap="round"/>';
+        return '<circle cx="'+(x-7)+'" cy="'+y+'" r="2.4" fill="#1f2937"/><circle cx="'+(x+7)+'" cy="'+y+'" r="2.4" fill="#1f2937"/>';
+      }
+      function mouth(x, y, m){
+        if (m === "ask") return '<ellipse cx="'+x+'" cy="'+(y+12)+'" rx="4" ry="3.4" fill="#9f1239"/>';
+        if (m === "sad") return '<path d="M'+(x-6)+' '+(y+14)+' q6 -6 12 0" fill="none" stroke="#9f1239" stroke-width="1.6" stroke-linecap="round"/>';
+        return '<path d="M'+(x-6)+' '+(y+11)+' q6 7 12 0" fill="none" stroke="#9f1239" stroke-width="1.6" stroke-linecap="round"/>';
+      }
+      function cat(x, m){
+        return '<path d="M'+(x-26)+' 148 q-22 4 -8 18" fill="none" stroke="#fb923c" stroke-width="6" stroke-linecap="round"/>'
+          + '<ellipse cx="'+x+'" cy="152" rx="30" ry="18" fill="#fb923c" stroke="'+ink+'" stroke-width="1.7"/>'
+          + '<circle cx="'+x+'" cy="114" r="26" fill="#fdba74" stroke="'+ink+'" stroke-width="1.7"/>'
+          + '<path d="M'+(x-22)+' 102 L'+(x-16)+' 72 L'+(x-2)+' 100" fill="#fb923c" stroke="'+ink+'" stroke-width="1.5"/>'
+          + '<path d="M'+(x+22)+' 102 L'+(x+16)+' 72 L'+(x+2)+' 100" fill="#fb923c" stroke="'+ink+'" stroke-width="1.5"/>'
+          + eyes(x, 112, m) + mouth(x, 114, m)
+          + '<ellipse cx="'+(x-12)+'" cy="120" rx="4" ry="2.2" fill="#fecdd3"/><ellipse cx="'+(x+12)+'" cy="120" rx="4" ry="2.2" fill="#fecdd3"/>';
+      }
+      function dog(x, m){
+        return '<ellipse cx="'+x+'" cy="154" rx="34" ry="20" fill="#f6d2ae" stroke="'+ink+'" stroke-width="1.7"/>'
+          + '<circle cx="'+(x+6)+'" cy="114" r="24" fill="#f8d7b5" stroke="'+ink+'" stroke-width="1.7"/>'
+          + '<ellipse cx="'+(x-10)+'" cy="100" rx="9" ry="16" fill="#e7b489" stroke="'+ink+'" stroke-width="1.4"/>'
+          + '<ellipse cx="'+(x+22)+'" cy="98" rx="9" ry="16" fill="#e7b489" stroke="'+ink+'" stroke-width="1.4"/>'
+          + '<ellipse cx="'+(x+16)+'" cy="122" rx="9" ry="6" fill="#fff7ed" stroke="'+ink+'" stroke-width="1.3"/>'
+          + '<circle cx="'+(x+16)+'" cy="122" r="1.5" fill="'+ink+'"/>'
+          + eyes(x+4, 110, m) + mouth(x+8, 114, m);
+      }
+      function elephant(x, m){
+        return '<ellipse cx="'+x+'" cy="152" rx="38" ry="22" fill="#f8fafc" stroke="'+ink+'" stroke-width="1.7"/>'
+          + '<circle cx="'+x+'" cy="110" r="26" fill="#f8fafc" stroke="'+ink+'" stroke-width="1.7"/>'
+          + '<ellipse cx="'+(x-24)+'" cy="118" rx="14" ry="18" fill="#e2e8f0" stroke="'+ink+'" stroke-width="1.4"/>'
+          + '<ellipse cx="'+(x+24)+'" cy="118" rx="14" ry="18" fill="#e2e8f0" stroke="'+ink+'" stroke-width="1.4"/>'
+          + '<path d="M'+(x+8)+' 122 q18 26 2 42" fill="none" stroke="#94a3b8" stroke-width="5" stroke-linecap="round"/>'
+          + eyes(x-2, 108, m);
+      }
+      function pig(x, m){
+        return '<ellipse cx="'+x+'" cy="154" rx="32" ry="18" fill="#fda4af" stroke="'+ink+'" stroke-width="1.7"/>'
+          + '<circle cx="'+x+'" cy="116" r="24" fill="#fecdd3" stroke="'+ink+'" stroke-width="1.7"/>'
+          + '<ellipse cx="'+x+'" cy="124" rx="9" ry="6" fill="#fb7185" stroke="'+ink+'" stroke-width="1.3"/>'
+          + '<circle cx="'+(x-3)+'" cy="124" r="1.2" fill="'+ink+'"/><circle cx="'+(x+3)+'" cy="124" r="1.2" fill="'+ink+'"/>'
+          + eyes(x, 110, m) + '<path d="M'+(x-18)+' 100 l-6 -8 M'+(x+18)+' 100 l6 -8" stroke="#fb7185" stroke-width="2" stroke-linecap="round"/>';
+      }
+      function rhino(x, m){
+        return '<ellipse cx="'+x+'" cy="154" rx="36" ry="20" fill="#57534e" stroke="'+ink+'" stroke-width="1.7"/>'
+          + '<circle cx="'+(x+8)+'" cy="116" r="22" fill="#78716c" stroke="'+ink+'" stroke-width="1.7"/>'
+          + '<path d="M'+(x+24)+' 112 l12 -16" stroke="#1c1917" stroke-width="4" stroke-linecap="round"/>'
+          + eyes(x+4, 114, m);
+      }
+      function zebra(x, m){
+        return '<ellipse cx="'+x+'" cy="154" rx="34" ry="18" fill="#fff" stroke="'+ink+'" stroke-width="1.7"/>'
+          + '<path d="M'+(x-18)+' 148 h7 M'+(x-4)+' 144 h7 M'+(x+10)+' 150 h7" stroke="'+ink+'" stroke-width="2.4"/>'
+          + '<circle cx="'+x+'" cy="114" r="22" fill="#fff" stroke="'+ink+'" stroke-width="1.7"/>'
+          + '<path d="M'+(x-18)+' 98 h36" stroke="'+ink+'" stroke-width="5" stroke-linecap="round"/>'
+          + '<path d="M'+(x-8)+' 108 v10 M'+(x+6)+' 106 v12" stroke="'+ink+'" stroke-width="1.6"/>'
+          + eyes(x, 114, m) + mouth(x, 114, m);
+      }
+      function prop(name){
+        if (name==="shop" || name==="money") return '<path d="M286 112 h62 l-8 16 h-46 z" fill="#fb7185" stroke="'+ink+'" stroke-width="1.6"/><rect x="294" y="128" width="46" height="30" fill="#fff" stroke="'+ink+'" stroke-width="1.5"/><path d="M248 128 h16 l4 18 h-22 z" fill="#fde68a" stroke="'+ink+'" stroke-width="1.4"/>';
+        if (name==="cup" || name==="tea" || name==="coffee" || name==="milk") return '<path d="M250 116 h26 l-4 28 h-18 z" fill="#7dd3fc" stroke="'+ink+'" stroke-width="1.5"/><path d="M276 124 h8 v10 h-8" fill="none" stroke="'+ink+'" stroke-width="1.5"/>';
+        if (name==="rice" || name==="noodle" || name==="dumpling" || name==="apple" || name==="cake") return '<ellipse cx="268" cy="142" rx="24" ry="9" fill="#fff" stroke="'+ink+'" stroke-width="1.5"/><ellipse cx="268" cy="138" rx="15" ry="6" fill="#fde68a"/>';
+        if (name==="book" || name==="school" || name==="paper" || name==="pencil") return '<path d="M248 118 h24 v32 h-24 z" fill="#fff" stroke="'+ink+'" stroke-width="1.5"/><path d="M272 118 h24 v32 h-24 z" fill="#bfdbfe" stroke="'+ink+'" stroke-width="1.5"/>';
+        if (name==="rain" || name==="snow") return '<ellipse cx="250" cy="48" rx="36" ry="14" fill="#e2e8f0" stroke="'+ink+'" stroke-width="1.4"/><path d="M232 70 l-6 16 M250 66 l-6 16 M268 70 l-6 16" stroke="#0284c7" stroke-width="2" stroke-linecap="round"/>';
+        if (name==="house") return '<path d="M286 158 v-40 h52 v40" fill="#fff" stroke="'+ink+'" stroke-width="1.6"/><path d="M278 118 l36 -24 36 24" fill="#f87171" stroke="'+ink+'" stroke-width="1.5"/>';
+        if (name==="phone" || name==="laptop") return '<rect x="252" y="112" width="18" height="32" rx="3" fill="#e0f2fe" stroke="'+ink+'" stroke-width="1.5"/>';
+        if (name==="bus" || name==="plane" || name==="train") return '<rect x="270" y="124" width="72" height="30" rx="8" fill="#fde68a" stroke="'+ink+'" stroke-width="1.5"/><circle cx="286" cy="156" r="5" fill="#111"/><circle cx="326" cy="156" r="5" fill="#111"/>';
+        if (name==="bed") return '<path d="M240 158 h80 v-22 h-80 z" fill="#fff" stroke="'+ink+'" stroke-width="1.5"/>';
+        if (name==="ball") return '<circle cx="270" cy="140" r="16" fill="#fff" stroke="'+ink+'" stroke-width="1.6"/>';
+        if (name==="flower" || name==="cute" || name==="star") return '<circle cx="270" cy="132" r="9" fill="#f472b6" stroke="'+ink+'" stroke-width="1.4"/><circle cx="258" cy="142" r="7" fill="#f9a8d4" stroke="'+ink+'" stroke-width="1.2"/><circle cx="282" cy="142" r="7" fill="#f9a8d4" stroke="'+ink+'" stroke-width="1.2"/>';
+        if (name==="clock") return '<circle cx="270" cy="80" r="22" fill="#fff" stroke="'+ink+'" stroke-width="1.6"/><path d="M270 80 V66 M270 80 l10 8" stroke="'+ink+'" stroke-width="1.8" stroke-linecap="round"/>';
+        return "";
+      }
+      let hero = dog(196, "happy");
+      if (kind==="school" || kind==="book" || kind==="paper" || kind==="pencil") hero = zebra(196, "happy");
+      else if (kind==="rain" || kind==="snow" || kind==="sun") hero = elephant(196, mood==="sad"?"sad":"happy");
+      else if (kind==="rice" || kind==="noodle" || kind==="dumpling" || kind==="apple" || kind==="cake" || kind==="cup" || kind==="tea" || kind==="coffee" || kind==="milk") hero = pig(196, "happy");
+      else if (kind==="house") hero = rhino(210, "happy");
+      else if (kind==="family" || kind==="couple") hero = pig(168, "happy") + dog(250, "happy");
+      else if (kind==="bus" || kind==="plane" || kind==="train" || kind==="walk") hero = zebra(190, "happy");
+      const bg = '<rect width="360" height="200" fill="#fffaf3"/><ellipse cx="180" cy="180" rx="168" ry="14" fill="#d9f99d"/>';
+      return bg + prop(kind) + cat(72, mood) + hero;
+    }
+    function humanSketch(kind, word){
+      const ink = "#5c4033";
+      const skin = "#ffd8be";
+      const said = String((word && (word.exampleMeaning || word.m)) || "").toLowerCase();
+      let mood = "happy";
+      if (/[?？]| à |không |sao |thế nào|đi đâu/.test(" " + said + " ")) mood = "ask";
+      if (/buồn|khóc|mệt|đau|xin lỗi/.test(said)) mood = "sad";
+      function face(x, y, m){
+        const eyes = m === "sad"
+          ? '<path d="M'+(x-12)+' '+(y+2)+' q5 -5 10 0 M'+(x+2)+' '+(y+2)+' q5 -5 10 0" fill="none" stroke="#3f2a22" stroke-width="2" stroke-linecap="round"/>'
+          : '<ellipse cx="'+(x-8)+'" cy="'+y+'" rx="3.4" ry="4.2" fill="#3f2a22"/><ellipse cx="'+(x+8)+'" cy="'+y+'" rx="3.4" ry="4.2" fill="#3f2a22"/><circle cx="'+(x-7)+'" cy="'+(y-1)+'" r="1.1" fill="#fff"/><circle cx="'+(x+9)+'" cy="'+(y-1)+'" r="1.1" fill="#fff"/>';
+        const mouth = m === "ask"
+          ? '<ellipse cx="'+x+'" cy="'+(y+16)+'" rx="5" ry="4" fill="#c2415d"/>'
+          : m === "sad"
+            ? '<path d="M'+(x-7)+' '+(y+18)+' q7 -7 14 0" fill="none" stroke="#c2415d" stroke-width="2" stroke-linecap="round"/>'
+            : '<path d="M'+(x-8)+' '+(y+14)+' q8 9 16 0" fill="none" stroke="#c2415d" stroke-width="2.2" stroke-linecap="round"/>';
+        return eyes + '<ellipse cx="'+(x-16)+'" cy="'+(y+8)+'" rx="5" ry="3" fill="#fecdd3"/><ellipse cx="'+(x+16)+'" cy="'+(y+8)+'" rx="5" ry="3" fill="#fecdd3"/>' + mouth;
+      }
+      function person(x, shirt, m){
+        return '<ellipse cx="'+x+'" cy="178" rx="26" ry="6" fill="#f3e4d4"/>'
+          + '<path d="M'+(x-14)+' 136 q-4 26 0 36" stroke="#64748b" stroke-width="7" stroke-linecap="round" fill="none"/>'
+          + '<path d="M'+(x+14)+' 136 q4 26 0 36" stroke="#64748b" stroke-width="7" stroke-linecap="round" fill="none"/>'
+          + '<path d="M'+(x-18)+' 112 q-20 8 -6 26" stroke="'+shirt+'" stroke-width="9" stroke-linecap="round" fill="none"/>'
+          + '<path d="M'+(x+16)+' 108 q18 8 26 24" stroke="'+shirt+'" stroke-width="9" stroke-linecap="round" fill="none"/>'
+          + '<path d="M'+(x-22)+' 118 q22 26 44 0 v20 q-22 14 -44 0 z" fill="'+shirt+'" stroke="'+ink+'" stroke-width="1.6"/>'
+          + '<circle cx="'+x+'" cy="78" r="30" fill="'+skin+'" stroke="'+ink+'" stroke-width="1.7"/>'
+          + '<path d="M'+(x-28)+' 76 q4 -40 28 -40 q24 0 28 40 q-10 -12 -28 -8 q-18 -4 -28 8 z" fill="#3b2a22"/>'
+          + face(x, 80, m);
+      }
+      function prop(name){
+        if (name==="shop" || name==="money") return '<path d="M228 96 h92 l-12 22 h-68 z" fill="#fb7185" stroke="'+ink+'" stroke-width="1.7"/><rect x="240" y="118" width="68" height="42" fill="#fff" stroke="'+ink+'" stroke-width="1.6"/><path d="M248 150 h16 l5 16 h-24 z" fill="#fde68a" stroke="'+ink+'" stroke-width="1.4"/>';
+        if (name==="cup" || name==="tea" || name==="coffee" || name==="milk") return '<path d="M236 108 h40 l-6 42 h-28 z" fill="#7dd3fc" stroke="'+ink+'" stroke-width="1.7"/><path d="M276 120 h12 v16 h-12" fill="none" stroke="'+ink+'" stroke-width="1.7"/>';
+        if (name==="rice" || name==="noodle" || name==="dumpling" || name==="apple" || name==="cake") return '<ellipse cx="270" cy="142" rx="36" ry="14" fill="#fff" stroke="'+ink+'" stroke-width="1.7"/><ellipse cx="270" cy="134" rx="22" ry="10" fill="#fde68a" stroke="'+ink+'" stroke-width="1.3"/>';
+        if (name==="book" || name==="school" || name==="paper" || name==="pencil") return '<path d="M230 104 h36 v52 h-36 z" fill="#fff" stroke="'+ink+'" stroke-width="1.7"/><path d="M266 104 h36 v52 h-36 z" fill="#bfdbfe" stroke="'+ink+'" stroke-width="1.7"/>';
+        if (name==="rain" || name==="snow" || name==="sun") return '<ellipse cx="270" cy="52" rx="42" ry="16" fill="#e2e8f0" stroke="'+ink+'" stroke-width="1.5"/><path d="M246 78 l-8 22 M270 72 l-8 22 M294 78 l-8 22" stroke="#0284c7" stroke-width="3" stroke-linecap="round"/>';
+        if (name==="house") return '<path d="M230 164 v-52 h78 v52" fill="#fff" stroke="'+ink+'" stroke-width="1.7"/><path d="M218 112 l50 -32 52 32" fill="#f87171" stroke="'+ink+'" stroke-width="1.6"/>';
+        if (name==="phone" || name==="laptop") return '<rect x="244" y="100" width="28" height="48" rx="5" fill="#e0f2fe" stroke="'+ink+'" stroke-width="1.7"/><circle cx="258" cy="140" r="2.4" fill="'+ink+'"/>';
+        if (name==="bus" || name==="plane" || name==="train") return '<rect x="220" y="118" width="108" height="40" rx="10" fill="#fde68a" stroke="'+ink+'" stroke-width="1.7"/><circle cx="244" cy="162" r="7" fill="#111"/><circle cx="304" cy="162" r="7" fill="#111"/>';
+        if (name==="bed") return '<path d="M214 164 h110 v-28 h-110 z" fill="#fff" stroke="'+ink+'" stroke-width="1.6"/><rect x="224" y="124" width="28" height="16" rx="4" fill="#bfdbfe" stroke="'+ink+'" stroke-width="1.3"/>';
+        if (name==="ball") return '<circle cx="276" cy="132" r="26" fill="#fff" stroke="'+ink+'" stroke-width="1.7"/><path d="M250 132 h52 M276 106 c10 12 10 32 0 52 M276 106 c-10 12 -10 32 0 52" fill="none" stroke="'+ink+'" stroke-width="1.5"/>';
+        if (name==="flower" || name==="cute" || name==="star") return '<circle cx="276" cy="118" r="14" fill="#f472b6" stroke="'+ink+'" stroke-width="1.5"/><circle cx="258" cy="134" r="12" fill="#f9a8d4" stroke="'+ink+'" stroke-width="1.4"/><circle cx="294" cy="134" r="12" fill="#f9a8d4" stroke="'+ink+'" stroke-width="1.4"/><circle cx="276" cy="134" r="6" fill="#fde68a"/>';
+        if (name==="clock") return '<circle cx="276" cy="78" r="32" fill="#fff" stroke="'+ink+'" stroke-width="1.8"/><path d="M276 78 V56 M276 78 l16 12" stroke="'+ink+'" stroke-width="2.4" stroke-linecap="round"/>';
+        if (name==="doctor" || name==="pill") return '<rect x="236" y="108" width="78" height="22" rx="11" fill="#fff" stroke="'+ink+'" stroke-width="1.6"/><rect x="275" y="108" width="39" height="22" rx="11" fill="#fda4af"/>';
+        if (name==="cat") return '<circle cx="276" cy="136" r="18" fill="#fdba74" stroke="'+ink+'" stroke-width="1.5"/><path d="M260 128 l-6 -16 16 8 M292 128 l6 -16 -16 8" fill="#fb923c" stroke="'+ink+'" stroke-width="1.3"/>';
+        if (name==="dog") return '<ellipse cx="276" cy="142" rx="24" ry="16" fill="#f6d2ae" stroke="'+ink+'" stroke-width="1.5"/><ellipse cx="258" cy="124" rx="8" ry="14" fill="#e7b489" stroke="'+ink+'" stroke-width="1.3"/>';
+        if (name==="shirt" || name==="shoe") return '<path d="M230 108 l28 -16 28 16 16 22 -18 8 v36 h-52 v-36 l-18 -8 z" fill="#93c5fd" stroke="'+ink+'" stroke-width="1.6"/>';
+        if (name==="work") return '<rect x="228" y="112" width="86" height="46" rx="6" fill="#bfdbfe" stroke="'+ink+'" stroke-width="1.6"/>';
+        if (name==="movie") return '<rect x="224" y="100" width="100" height="58" rx="6" fill="#0f172a" stroke="'+ink+'" stroke-width="1.6"/><path d="M258 116 l28 14 -28 14 z" fill="#fff"/>';
+        return "";
+      }
+      let people = person(156, "#7ec8e3", mood);
+      if (kind==="family" || kind==="couple") people = person(118, "#7ec8e3", "happy") + person(186, "#f9a8d4", "happy");
+      const bg = '<rect width="360" height="200" fill="#fffdf8"/><ellipse cx="180" cy="186" rx="150" ry="10" fill="#f3e4d4"/>';
+      return bg + '<g transform="translate(-48,0)">' + prop(kind) + '</g>' + people;
+    }
+    const body = humanSketch(kind, word);
     return {
       html: '<svg viewBox="0 0 360 200" width="360" height="200" role="img" aria-label="Hình minh họa">' + body + '</svg>',
       kind: kind
@@ -165083,28 +165239,20 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
     const rest = others(pool, word, rng, 3);
     while(rest.length<3) rest.push(pool[rest.length%pool.length]);
     if(type==="listen-tf"){
-      let claimWord = word;
-      const heardScene = sceneOf(word);
-      const different = rest.find(function(w){ return sceneOf(w) !== heardScene; });
-      const truth = different ? rng()<0.5 : true;
-      if(!truth) claimWord = different;
-      const claim = vi(claimWord);
-      const answer = truth ? 0 : 1;
       const heard = part.slice();
-      heard[2] = "Hình vẽ đúng câu tiếng Việt bên dưới. Nghe rồi chọn Đúng hoặc Sai.";
+      heard[2] = "Nghe câu, rồi gõ đúng câu tiếng Trung vào ô bên dưới.";
       return pack(heard, {
-        q: "看图，听句子，判断对错。\n" + claim,
-        qMeaning: "Hình minh họa câu: " + claim + " — Chọn Đúng nếu câu nghe được nói đúng như vậy, Sai nếu không.",
-        options: ["对    Đúng", "错    Sai"],
-        optionPinyin: ["duì", "cuò"],
-        optionMeaning: ["Câu nghe được đúng với hình và câu tiếng Việt.", "Câu nghe được không đúng với hình."],
-        answer: answer,
-        analysis: [
-          answer===0 ? "ĐÚNG: câu vừa nghe nói đúng nội dung hình." : "SAI: câu vừa nghe không nói về hình này.",
-          answer===1 ? "ĐÚNG: câu vừa nghe không khớp hình, nên chọn Sai." : "SAI: câu vừa nghe khớp hình, không chọn Sai."
-        ],
+        q: "请听句子，把听到的句子打出来。",
+        qMeaning: "Bấm Nghe câu. Gõ đúng câu tiếng Trung vừa nghe vào ô phía dưới.",
+        options: [],
+        optionPinyin: [],
+        optionMeaning: [],
+        answer: 0,
+        analysis: ["Gõ đúng câu vừa nghe."],
         audioText: zh(word),
-        picture: pictureOf(claimWord),
+        inputMode: "dictation",
+        answerText: zh(word),
+        picture: pictureOf(word),
         h: word.h, m: word.m
       });
     }
@@ -165492,7 +165640,12 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
   .ttc-video-frame iframe{position:absolute;inset:0;width:100%;height:100%;max-width:100%;border:0}
   .ttc-video-overlay{position:absolute;z-index:5;left:8px;right:8px;top:8px;display:flex;gap:6px;flex-wrap:wrap}
   .ttc-video-overlay button{border:0;border-radius:999px;background:rgba(15,23,42,.9);color:#fff;font-weight:800;padding:7px 11px;cursor:pointer}
-  .ttc-video-tools{position:absolute;z-index:5;left:8px;right:8px;bottom:8px;display:flex;gap:6px;flex-wrap:wrap;margin:0;padding:6px;border-radius:12px;background:rgba(15,23,42,.88)}
+  .ttc-video-overlay button.ttc-on{background:#9f1239}
+  #ttcVideoLines{margin:8px 0 0;color:#64748b;font-size:14px;line-height:1.45}
+  .ttc-video-tools{position:static;z-index:1;display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 0;padding:6px;border-radius:12px;background:#0f172a}
+  .ttc-yt-open{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:center;color:#fff;text-decoration:none}
+  .ttc-yt-open img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .ttc-yt-open b{position:relative;z-index:1;margin:0 0 18px;background:#9f1239;border-radius:999px;padding:10px 16px}
   .ttc-video-tools button{border:1px solid rgba(255,255,255,.55);background:transparent;color:#fff;border-radius:999px;padding:7px 10px;font-weight:800;cursor:pointer}
   .ttc-video-line{padding:10px 0;border-top:1px solid #e2e8f0}
   .ttc-video-zh{font-size:30px;font-weight:800;line-height:1.4;color:#0f172a}
@@ -165600,6 +165753,8 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
   var mode = "list";
   var showPy = true;
   var showVi = true;
+  var capLang = "zh";
+  var ccOn = false;
   var seen = {};
   try { seen = JSON.parse(localStorage.getItem("ttcVideoSeen") || "{}") || {}; } catch (e) { seen = {}; }
 
@@ -165614,7 +165769,7 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
   section.innerHTML = "<p id='ttcVideoNote'></p><div id='ttcVideoSources'></div><div id='ttcVideoLevels'></div><div id='ttcVideoStage'></div>";
   document.body.appendChild(btn);
   document.body.appendChild(section);
-  section.querySelector("#ttcVideoNote").textContent = "Chọn một khu. Video của trang lấy bài đọc HSK của mình, đọc từng câu, có pinyin và tiếng Việt.";
+  section.querySelector("#ttcVideoNote").textContent = "Học theo YouTube chỉ có video và phụ đề của chính bài đó. Video của trang mới đọc bài HSK, có pinyin và tiếng Việt.";
   var source = "pick";
   var storyLine = 0;
   var storyToken = 0;
@@ -165865,37 +166020,30 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
     saveSeen();
     var stage = section.querySelector("#ttcVideoStage");
     var existing = document.getElementById("ttcVideoFrame");
-    var lines = lineHtml(item);
-    if (existing && existing.src.indexOf("/embed/" + item.youtube) >= 0 && stage.querySelector("#ttcVideoOverlay")) {
-      var py = stage.querySelector("#ttcVideoPy");
-      var vi = stage.querySelector("#ttcVideoVi");
+    var cap = capLang === "vi" ? "vi" : "zh-Hans";
+    var hl = capLang === "vi" ? "vi" : "zh-CN";
+    var src = "https://www.youtube-nocookie.com/embed/" + item.youtube + "?autoplay=1&rel=0&modestbranding=1&playsinline=1&enablejsapi=1&hl=" + hl + (ccOn ? "&cc_load_policy=1&cc_lang_pref=" + cap : "");
+    if (existing && existing.getAttribute("src") === src) {
       var fs = stage.querySelector("#ttcVideoFs");
-      if (py) py.textContent = "Pinyin: " + (showPy ? "bật" : "tắt");
-      if (vi) vi.textContent = "Dịch tiếng Việt: " + (showVi ? "bật" : "tắt");
       if (fs) fs.textContent = fsLabel();
-      var box = stage.querySelector("#ttcVideoLines");
-      if (box) box.innerHTML = lines;
-      bindLines(item);
       return;
     }
-    var src = "https://www.youtube-nocookie.com/embed/" + item.youtube + "?rel=0&fs=0&modestbranding=1&cc_load_policy=1&cc_lang_pref=zh-Hans&hl=zh-CN";
+    var player = "<iframe id='ttcVideoFrame' title='Bài học tiếng Trung trên YouTube' src='" + src + "' referrerpolicy='strict-origin-when-cross-origin' allow='autoplay; encrypted-media; picture-in-picture; fullscreen' allowfullscreen playsinline></iframe>";
     stage.innerHTML =
       "<div id='ttcVideoWatch'>" +
         "<div class='ttc-video-frame'>" +
-          "<iframe id='ttcVideoFrame' title='Bài học tiếng Trung trên YouTube' src='" + src + "' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'></iframe>" +
-          "<div id='ttcVideoOverlay' class='ttc-video-overlay'>" +
-            "<button type='button' id='ttcVideoPy'>Pinyin: " + (showPy ? "bật" : "tắt") + "</button>" +
-            "<button type='button' id='ttcVideoVi'>Dịch tiếng Việt: " + (showVi ? "bật" : "tắt") + "</button>" +
-            "<button type='button' id='ttcVideoFs'>" + fsLabel() + "</button>" +
+          player +
           "</div>" +
           "<div class='ttc-video-tools'>" +
             "<button type='button' id='ttcVideoBack'>← Danh sách</button>" +
             "<button type='button' id='ttcVideoPrev'>Bài trước</button>" +
             "<button type='button' id='ttcVideoNext'>Bài sau</button>" +
+            "<button type='button' id='ttcVideoZh'" + (ccOn && capLang !== "vi" ? " class='ttc-on'" : "") + ">Pinyin</button>" +
+            "<button type='button' id='ttcVideoVi'" + (ccOn && capLang === "vi" ? " class='ttc-on'" : "") + ">Dịch tiếng Việt</button>" +
+            "<button type='button' id='ttcVideoFs'>" + fsLabel() + "</button>" +
           "</div>" +
-        "</div>" +
         "<p id='ttcVideoMeta'>HSK " + level + " · Bài " + (index + 1) + "/" + rows.length + " · " + esc(item.title) + "</p>" +
-        "<div id='ttcVideoLines'>" + lines + "</div>" +
+        "<p id='ttcVideoLines'>Chọn bài là video phát ngay trong khung này.</p>" +
       "</div>";
     stage.querySelector("#ttcVideoBack").addEventListener("click", function(){
       var watch = document.getElementById("ttcVideoWatch");
@@ -165914,8 +166062,8 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
       index = (index + 1) % rows.length;
       render();
     });
-    stage.querySelector("#ttcVideoPy").addEventListener("click", function(){ showPy = !showPy; render(); });
-    stage.querySelector("#ttcVideoVi").addEventListener("click", function(){ showVi = !showVi; render(); });
+    stage.querySelector("#ttcVideoZh").addEventListener("click", function(){ capLang = "zh"; ccOn = true; render(); });
+    stage.querySelector("#ttcVideoVi").addEventListener("click", function(){ capLang = "vi"; ccOn = true; render(); });
     stage.querySelector("#ttcVideoFs").addEventListener("click", function(){
       var box = document.getElementById("ttcVideoWatch");
       if (!box) return;
@@ -165932,7 +166080,6 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
       var fs = document.getElementById("ttcVideoFs");
       if (fs) fs.textContent = fsLabel();
     });
-    bindLines(item);
     requestAnimationFrame(function(){
       var frame = stage.querySelector(".ttc-video-frame");
       if (!frame) return;
@@ -165943,7 +166090,11 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
   function render(){
     section.classList.toggle("ttc-video-watching", mode === "watch" && source !== "pick");
     renderSources();
-    if (source === "pick") { renderPick(); return; }
+    if (source === "pick") {
+      section.querySelector("#ttcVideoLevels").innerHTML = "";
+      section.querySelector("#ttcVideoStage").innerHTML = "";
+      return;
+    }
     renderLevels();
     if (source === "story") {
       if (mode === "watch") renderStoryWatch();
