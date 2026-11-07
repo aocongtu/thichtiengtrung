@@ -2664,10 +2664,10 @@ body.ttc-reading-open #thttGrammarLauncher{display:none!important;visibility:hid
 @media(max-width:600px){#ttcListeningSection{padding:13px}#ttcListeningSection .ttc-listen-levels{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}#ttcListeningSection .ttc-listen-mirror,#ttcListeningSection #ttcListenEditor{min-height:66vh;font-size:20px;padding:12px}#ttcListeningLauncher{font-size:15px;padding:13px}}
 </style>
 <style id="ttc-script-switch-style">
-.ttc-script-switch-wrap{display:flex;justify-content:center;align-items:center;width:100%;margin:-7px auto 16px}
+.ttc-script-switch-wrap{display:flex;justify-content:center;align-items:center;width:auto;margin:0;flex:0 0 auto}
 .ttc-script-switch{padding:10px 22px;border:2px solid #e5a0b3;border-radius:999px;background:#fff7fa;color:#a51f4b;font-weight:700;font-size:15px;box-shadow:0 3px 12px rgba(165,31,75,.12);white-space:nowrap}
 .ttc-script-switch:focus-visible{outline:3px solid #f5a2c0;outline-offset:3px}
-@media(max-width:550px){.ttc-script-switch-wrap{margin:-6px auto 13px}.ttc-script-switch{padding:9px 18px;font-size:14px}}
+@media(max-width:550px){.ttc-script-switch{padding:9px 12px;font-size:14px}}
 </style>
 <style id="ttc-reading-stop-nearby-fix-css">
 #ttcReadingStopNearby{position:fixed;right:16px;bottom:82px;z-index:9999;display:flex;justify-content:flex-end;pointer-events:none;margin:0}
@@ -2790,20 +2790,45 @@ body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; 
    THÍCH TIẾNG TRUNG
 <span style="font-size:18px"></span>
 </h1>
-<div class="ttc-starter">
-  <button type="button" id="ttcStarterButton" aria-expanded="false" aria-controls="ttcStarterPanel">🌱 Cách học cho người mới</button>
-  <section id="ttcStarterPanel" hidden>
-    <p><strong>Làm quen trang này trong vài bước.</strong> Không cần biết tiếng Trung trước.</p>
-    <ol>
-      <li><strong>Chọn cấp độ.</strong> Người mới bắt đầu từ HSK 1. HSK 1 và HSK 2 học được sau khi đăng nhập. HSK 3 đến HSK 9 cần gói Premium.</li>
-      <li><strong>Học từ.</strong> Mở thẻ flashcard, hoặc bấm học tự động để nghe từ và câu ví dụ. Bấm lần nữa thì thu gọn.</li>
-      <li><strong>Xem video.</strong> Nút “Học tiếng Trung qua video” màu trắng khi chưa học. Bấm vào mới mở bài và nút chuyển đỏ.</li>
-      <li><strong>Đọc và nghe.</strong> Khu luyện đọc có bài theo cấp độ. Khu luyện nghe để nghe rồi gõ lại cho đúng chính tả.</li>
-      <li><strong>Luyện thi.</strong> Trong Khu luyện thi HSK, phần nghe có hình minh họa. Câu được giấu. Anh nghe rồi chọn Đúng hoặc Sai, hoặc chọn đáp án phía dưới.</li>
-      <li><strong>Tra từ.</strong> Ô tìm kiếm nhận Hán tự, pinyin hoặc tiếng Việt. Có thể vẽ, chụp ảnh hoặc nói.</li>
-    </ol>
-  </section>
+<div class="ttc-top-actions">
+  <button type="button" id="ttcStarterButton" aria-expanded="false" aria-controls="ttcStarterPanel">Giải thích cách học</button>
+  <div class="ttc-script-switch-wrap">
+    <button type="button" id="ttcScriptSwitch" class="ttc-script-switch" aria-label="Chuyển toàn bộ nội dung giữa giản thể và phồn thể">简体 ⇄ 繁體</button>
+  </div>
 </div>
+<section id="ttcStarterPanel" hidden>
+  <p><strong>Trang này học từ HSK 1 đến HSK 9.</strong> Bấm từng nút là mở đúng khu đó. Bấm lần nữa thì thu lại. Trang không tự cuộn.</p>
+  <h3>1. Chọn cấp độ HSK</h3>
+  <p>Người mới bắt đầu ở HSK 1. Mỗi cấp có bộ từ riêng: HSK 1 khoảng 300 từ, rồi tăng dần đến HSK 9. Chọn một cấp trước, rồi mới học từ, xem video, đọc, nghe hoặc thi. Có thể lọc thêm Động từ, Danh từ, Tính từ, Đại từ, Số từ. HSK 1 và HSK 2 mở sau khi đăng nhập. HSK 3 đến HSK 9 cần gói Premium.</p>
+  <h3>2. Học từ</h3>
+  <p>Thẻ flashcard hiện chữ Hán, pinyin, nghĩa tiếng Việt, giải thích và câu ví dụ. Bật hoặc tắt pinyin ngay trên thẻ. Nút nghe đọc từ và câu. Học xong một thẻ thì lật sang thẻ sau.</p>
+  <p>Học tự động đọc lần lượt từ và câu ví dụ của cấp đang chọn. Chọn khoảng nghỉ 0 đến 7 giây. Bấm lần nữa để dừng và thu gọn. Có thêm khu học tự động câu ví dụ, chỉ luyện câu, không luyện thẻ từ.</p>
+  <h3>3. Ba nút phía trên khu luyện thi</h3>
+  <p><strong>214 bộ thủ:</strong> lật thẻ để nhớ mặt chữ và nghĩa bộ thủ.</p>
+  <p><strong>Luyện phát âm:</strong> nghe mẫu, rồi ghi âm và chấm. Mỗi lần một cấp. HSK 3 trở lên cần Premium.</p>
+  <p><strong>Ngữ pháp:</strong> mẫu câu theo từng cấp HSK, có giải thích tiếng Việt. HSK 1 mở sau khi đăng nhập. HSK 2 trở lên cần Premium.</p>
+  <h3>4. Học tiếng Trung qua video</h3>
+  <p>Nút màu trắng khi chưa mở. Bấm vào mới hiện danh sách và nút chuyển đỏ. Mỗi cấp có bài trên YouTube xem tại trang, và video của trang đọc chính bài đọc HSK, có pinyin và tiếng Việt. Trên điện thoại khung video nằm gọn, ba nút chuyển bài nằm trên hình.</p>
+  <h3>5. Khu luyện đọc</h3>
+  <p>Chọn HSK 1 đến HSK 9 để mở danh sách bài. Chọn một bài để đọc. Bật pinyin, bật nghĩa tiếng Việt, nghe cả bài, hoặc bấm một chữ để nghe từ chỗ đó. Bôi đen một cụm chữ để tra đúng phần đã chọn. HSK 1 và 2 mở khi vào khu. HSK 3 trở lên cần Premium.</p>
+  <h3>6. Khu luyện nghe gõ</h3>
+  <p>Nghe một bài đọc của cấp đang học, rồi gõ lại cho đúng chính tả. Bài hiện sẵn để đối chiếu. Có nút nghe cả bài. Chữ gõ đúng và chữ gõ sai được tô khác màu. HSK 3 đến HSK 9 cần Premium.</p>
+  <h3>7. Khu luyện thi HSK</h3>
+  <p>Mỗi cấp HSK 1 đến HSK 6 có 20 đề. Có luyện tập và thi thử, có giờ. Phần nghe có hình minh họa một cảnh, giống tranh trong sách luyện nghe: nền trắng, một người và một việc rõ. Bấm Nghe câu. Câu tiếng Trung không hiện sẵn. Chọn Đúng nếu câu nghe khớp hình và câu tiếng Việt, chọn Sai nếu không. Các phần sau chọn nghĩa, chọn câu trả lời, chọn từ, rồi đọc và viết theo số câu của từng cấp. HSK 7 đến HSK 9 vẫn dùng bộ đề riêng của trang.</p>
+  <h3>8. Bốn bài luyện ngắn</h3>
+  <p><strong>Test từ vựng:</strong> xem nghĩa, gõ chữ Hán. Đúng thì sang câu sau. Sai thì gõ lại.</p>
+  <p><strong>Luyện câu:</strong> đặt câu với từ của cấp đang học.</p>
+  <p><strong>Nối từ đúng:</strong> nối chữ Hán với nghĩa.</p>
+  <p><strong>Phản xạ đoán nghĩa:</strong> nghe rồi chọn nghĩa thật nhanh.</p>
+  <h3>9. Từ vựng chuyên ngành</h3>
+  <p>Chọn môn, rồi chọn ngành nhỏ. Mỗi từ có chữ Hán, pinyin, nghĩa, giải thích và câu ví dụ.</p>
+  <h3>10. Ô tìm kiếm</h3>
+  <p>Gõ chữ Hán, pinyin hoặc tiếng Việt. Vẽ nét để nhận chữ. Chụp ảnh chữ để nhận chữ. Nói để tìm. Kết quả hiện chữ, pinyin và nghĩa.</p>
+  <h3>11. Giản thể và phồn thể</h3>
+  <p>Nút cạnh «Giải thích cách học» đổi toàn bộ chữ trên trang giữa giản thể và phồn thể. Bấm lại để đổi về.</p>
+  <h3>12. Giao diện, tài khoản, chat</h3>
+  <p>Nút Giao diện ở trên cùng đổi nền: ban ngày, ban đêm, giấy, rừng, biển, hoàng hôn. Đăng nhập để học HSK 1 và 2. Gói Premium mở HSK 3 đến 9. Chat online kéo được, thu vào mép màn hình thành dấu chấm than khi có tin mới.</p>
+</section>
 <script>
 (function(){
   var button = document.getElementById("ttcStarterButton");
@@ -2816,9 +2841,6 @@ body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; 
   });
 })();
 </script>
-<div class="ttc-script-switch-wrap">
-  <button type="button" id="ttcScriptSwitch" class="ttc-script-switch" aria-label="Chuyển toàn bộ nội dung giữa giản thể và phồn thể">简体 ⇄ 繁體</button>
-</div>
 
 
 <div class="search">
@@ -164935,91 +164957,127 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
     return pickScene(word && word.exampleMeaning) || pickScene(word && word.m) || "talk";
   }
   function pictureOf(word){
-    const key = String(word.h||"")+"|"+String(word.example||"")+"|"+String(word.m||"");
-    let seed = 7;
-    for(let i=0;i<key.length;i++) seed = (Math.imul(seed, 33) + key.charCodeAt(i)) >>> 0;
-    const skies = ["#cfe8fb","#fde7c2","#e5f6cf","#fde2ee","#e4defb","#d9f4ef"];
-    const shirts = ["#3b82f6","#ef4444","#16a34a","#7c3aed","#ea580c","#0891b2","#db2777"];
-    const hairs = ["#3b2414","#1f2937","#92400e","#111827","#7c4a2d"];
-    const sky = skies[seed % skies.length];
-    const shirt = shirts[(seed >>> 3) % shirts.length];
-    const hair = hairs[(seed >>> 6) % hairs.length];
-    const lookRight = (seed >>> 9) % 2 === 0;
-    const px = lookRight ? 86 : 236;
-    const ox = lookRight ? 196 : 78;
-    const ink = "#2b2118";
-    function person(){
-      return '<ellipse cx="'+px+'" cy="162" rx="36" ry="7" fill="rgba(40,30,20,.16)"/>'
-        + '<path d="M'+(px-16)+' 52 Q'+px+' '+(34+(seed%8))+' '+(px+16)+' 52" fill="'+hair+'"/>'
-        + '<circle cx="'+px+'" cy="64" r="17" fill="#f4d2b4" stroke="'+ink+'" stroke-width="2.4"/>'
-        + '<circle cx="'+(px-6)+'" cy="64" r="1.7" fill="'+ink+'"/><circle cx="'+(px+5)+'" cy="64" r="1.7" fill="'+ink+'"/>'
-        + '<path d="M'+(px-6)+' 72 Q'+px+' 77 '+(px+6)+' 72" fill="none" stroke="'+ink+'" stroke-width="1.5" stroke-linecap="round"/>'
-        + '<path d="M'+(px-22)+' 90 Q'+px+' 80 '+(px+22)+' 90 L'+(px+16)+' 132 Q'+px+' 142 '+(px-16)+' 132 Z" fill="'+shirt+'" stroke="'+ink+'" stroke-width="2.4"/>'
-        + '<path d="M'+(px-18)+' 100 L'+(px-34)+' 122 M'+(px+18)+' 100 L'+(px+30)+' 118" fill="none" stroke="'+ink+'" stroke-width="2.5" stroke-linecap="round"/>'
-        + '<path d="M'+(px-14)+' 132 L'+(px-8)+' 164 M'+(px+14)+' 132 L'+(px+8)+' 164" fill="none" stroke="'+ink+'" stroke-width="2.7" stroke-linecap="round"/>';
+    const kind = sceneOf(word) || "talk";
+    const ink = "#243044";
+    const skin = "#f6c99a";
+    function person(x, shirt){
+      const line = "#222";
+      return '<path d="M'+(x-18)+' 112 h16 v64 h-16 z" fill="#64748b" stroke="'+line+'" stroke-width="1.6"/>'
+        + '<path d="M'+(x+2)+' 112 h16 v64 h-16 z" fill="#64748b" stroke="'+line+'" stroke-width="1.6"/>'
+        + '<path d="M'+(x-22)+' 174 h22 v8 h-22 z M'+x+' 174 h22 v8 h-22 z" fill="#111827"/>'
+        + '<path d="M'+(x-30)+' 68 h60 v48 h-60 z" fill="'+shirt+'" stroke="'+line+'" stroke-width="1.8"/>'
+        + '<path d="M'+(x-30)+' 80 h-22 v10 h22 z" fill="'+shirt+'" stroke="'+line+'" stroke-width="1.6"/>'
+        + '<path d="M'+(x+30)+' 80 h22 v10 h-22 z" fill="'+shirt+'" stroke="'+line+'" stroke-width="1.6"/>'
+        + '<circle cx="'+(x-46)+'" cy="96" r="6" fill="'+skin+'" stroke="'+line+'" stroke-width="1.4"/>'
+        + '<circle cx="'+(x+46)+'" cy="96" r="6" fill="'+skin+'" stroke="'+line+'" stroke-width="1.4"/>'
+        + '<circle cx="'+x+'" cy="46" r="26" fill="'+skin+'" stroke="'+line+'" stroke-width="1.8"/>'
+        + '<path d="M'+(x-26)+' 42 Q'+x+' 14 '+(x+26)+' 40 Q'+x+' 28 '+(x-26)+' 34 Z" fill="#3a2a22"/>'
+        + '<path d="M'+(x-16)+' 34 Q'+x+' 42 '+(x+16)+' 34" fill="#3a2a22"/>'
+        + '<circle cx="'+(x-8)+'" cy="48" r="2.1" fill="'+line+'"/><circle cx="'+(x+8)+'" cy="48" r="2.1" fill="'+line+'"/>'
+        + '<path d="M'+(x-6)+' 58 Q'+x+' 64 '+(x+6)+' 58" fill="none" stroke="'+line+'" stroke-width="1.5" stroke-linecap="round"/>'
+        + '<circle cx="'+(x-14)+'" cy="54" r="3" fill="#fecdd3" opacity=".8"/><circle cx="'+(x+14)+'" cy="54" r="3" fill="#fecdd3" opacity=".8"/>';
     }
-    const props = {
-      rice: function(){return '<ellipse cx="'+ox+'" cy="128" rx="42" ry="10" fill="#fff" stroke="'+ink+'" stroke-width="2.4"/><path d="M'+(ox-40)+' 128 Q'+ox+' 150 '+(ox+40)+' 128" fill="#f8fafc" stroke="'+ink+'" stroke-width="2.4"/><ellipse cx="'+ox+'" cy="124" rx="28" ry="8" fill="#f4e1b5"/><path d="M'+(ox-16)+' 108 L'+(ox+8)+' 78 M'+(ox+8)+' 108 L'+(ox-6)+' 76" stroke="'+ink+'" stroke-width="2.2" stroke-linecap="round"/><path d="M'+ox+' 96 q6 -10 0 -16" fill="none" stroke="#94a3b8" stroke-width="2"/>';},
-      noodle: function(){return '<path d="M'+(ox-36)+' 108 h72 v28 a36 16 0 0 1 -72 0 z" fill="#fff" stroke="'+ink+'" stroke-width="2.4"/><path d="M'+(ox-20)+' 118 q10 8 20 0 q10 8 20 0" fill="none" stroke="#f59e0b" stroke-width="3"/>';},
-      apple: function(){return '<circle cx="'+ox+'" cy="118" r="34" fill="#ef4444" stroke="'+ink+'" stroke-width="2.4"/><path d="M'+ox+' 86 q8 -16 18 -10" fill="none" stroke="'+ink+'" stroke-width="2"/><ellipse cx="'+(ox+10)+'" cy="78" rx="10" ry="5" fill="#22c55e" stroke="'+ink+'" stroke-width="1.6"/>';},
-      tea: function(){return '<path d="M'+(ox-24)+' 100 h52 l-6 40 h-40 z" fill="#bbf7d0" stroke="'+ink+'" stroke-width="2.4"/><path d="M'+(ox+28)+' 112 h14 v16 h-14" fill="none" stroke="'+ink+'" stroke-width="2.4"/><path d="M'+ox+' 88 q8 -12 0 -20" fill="none" stroke="#94a3b8" stroke-width="2"/>';},
-      cup: function(){return '<path d="M'+(ox-22)+' 96 h48 l-8 46 h-32 z" fill="#e0f2fe" stroke="'+ink+'" stroke-width="2.4"/><path d="M'+(ox+26)+' 108 h12 v18 h-12" fill="none" stroke="'+ink+'" stroke-width="2.4"/>';},
-      coffee: function(){return '<path d="M'+(ox-26)+' 102 h56 v34 a20 16 0 0 1 -56 0 z" fill="#fff" stroke="'+ink+'" stroke-width="2.4"/><ellipse cx="'+ox+'" cy="102" rx="28" ry="8" fill="#7c4a2d"/><path d="M'+(ox+28)+' 112 h12 a10 10 0 0 1 0 20 h-12" fill="none" stroke="'+ink+'" stroke-width="2.4"/>';},
-      milk: function(){return '<path d="M'+(ox-18)+' 78 h36 v16 l8 62 h-52 l8 -62 z" fill="#fff" stroke="'+ink+'" stroke-width="2.4"/><rect x="'+(ox-16)+'" y="96" width="32" height="16" fill="#bfdbfe" stroke="'+ink+'" stroke-width="1.6"/>';},
-      book: function(){return '<path d="M'+(ox-46)+' 96 h46 v52 h-46 z" fill="#fff" stroke="'+ink+'" stroke-width="2.4"/><path d="M'+ox+' 96 h46 v52 h-46 z" fill="#dbeafe" stroke="'+ink+'" stroke-width="2.4"/><path d="M'+(ox-34)+' 112 h24 M'+(ox-34)+' 126 h24 M'+(ox+12)+' 112 h24 M'+(ox+12)+' 126 h24" stroke="#64748b" stroke-width="2"/>';},
-      pencil: function(){return '<path d="M'+(ox-40)+' 140 L'+(ox+20)+' 78 l16 16 L'+(ox-24)+' 156 z" fill="#fde68a" stroke="'+ink+'" stroke-width="2.4"/><path d="M'+(ox+20)+' 78 l16 16 l10 -10 l-16 -16 z" fill="#f8fafc" stroke="'+ink+'" stroke-width="2"/>';},
-      school: function(){return '<path d="M'+(ox-50)+' 150 V90 h100 v60" fill="#fff" stroke="'+ink+'" stroke-width="2.4"/><path d="M'+(ox-58)+' 90 L'+ox+' 62 L'+(ox+58)+' 90" fill="#fecaca" stroke="'+ink+'" stroke-width="2.4"/><rect x="'+(ox-12)+'" y="112" width="24" height="38" fill="#bfdbfe" stroke="'+ink+'" stroke-width="2"/>';},
-      house: function(){return '<path d="M'+(ox-54)+' 150 V96 h108 v54" fill="#fff" stroke="'+ink+'" stroke-width="2.4"/><path d="M'+(ox-64)+' 98 L'+ox+' 58 L'+(ox+64)+' 98" fill="#f87171" stroke="'+ink+'" stroke-width="2.4"/><rect x="'+(ox-14)+'" y="112" width="28" height="38" fill="#fde68a" stroke="'+ink+'" stroke-width="2"/><rect x="'+(ox-40)+'" y="108" width="18" height="16" fill="#93c5fd" stroke="'+ink+'" stroke-width="2"/>';},
-      family: function(){return '<circle cx="'+(ox-24)+'" cy="96" r="16" fill="#f4d2b4" stroke="'+ink+'" stroke-width="2.2"/><circle cx="'+(ox+22)+'" cy="102" r="14" fill="#f4d2b4" stroke="'+ink+'" stroke-width="2.2"/><path d="M'+(ox-42)+' 150 v-24 q18 -16 36 0 v24 M'+(ox+4)+' 150 v-20 q16 -14 32 0 v20" fill="#bfdbfe" stroke="'+ink+'" stroke-width="2.2"/>';},
-      bus: function(){return '<rect x="'+(ox-58)+'" y="96" width="116" height="46" rx="10" fill="#fde68a" stroke="'+ink+'" stroke-width="2.4"/><rect x="'+(ox-44)+'" y="106" width="22" height="16" fill="#93c5fd" stroke="'+ink+'" stroke-width="1.8"/><circle cx="'+(ox-30)+'" cy="146" r="9" fill="#111827"/><circle cx="'+(ox+32)+'" cy="146" r="9" fill="#111827"/>';},
-      plane: function(){return '<path d="M'+(ox-60)+' 120 L'+(ox+50)+' 100 L'+(ox+20)+' 128 Z" fill="#fff" stroke="'+ink+'" stroke-width="2.4"/><path d="M'+ox+' 112 L'+(ox-10)+' 84 M'+ox+' 118 L'+(ox+8)+' 142" stroke="'+ink+'" stroke-width="2.4"/>';},
-      train: function(){return '<rect x="'+(ox-58)+'" y="96" width="70" height="48" rx="8" fill="#bfdbfe" stroke="'+ink+'" stroke-width="2.4"/><rect x="'+(ox+16)+'" y="108" width="46" height="36" fill="#fff" stroke="'+ink+'" stroke-width="2.4"/><circle cx="'+(ox-30)+'" cy="148" r="8" fill="#111827"/><circle cx="'+(ox+36)+'" cy="148" r="8" fill="#111827"/>';},
-      shop: function(){return '<path d="M'+(ox-50)+' 96 h100 l-12 22 h-76 z" fill="#fecaca" stroke="'+ink+'" stroke-width="2.4"/><rect x="'+(ox-40)+'" y="118" width="80" height="36" fill="#fff" stroke="'+ink+'" stroke-width="2.4"/><rect x="'+(ox-10)+'" y="128" width="20" height="26" fill="#fde68a" stroke="'+ink+'" stroke-width="2"/>';},
-      money: function(){return '<rect x="'+(ox-40)+'" y="100" width="78" height="42" rx="6" fill="#bbf7d0" stroke="'+ink+'" stroke-width="2.4"/><circle cx="'+ox+'" cy="121" r="12" fill="none" stroke="'+ink+'" stroke-width="2"/><circle cx="'+(ox+24)+'" cy="146" r="12" fill="#fde68a" stroke="'+ink+'" stroke-width="2"/>';},
-      clock: function(){return '<circle cx="'+ox+'" cy="116" r="40" fill="#fff" stroke="'+ink+'" stroke-width="2.6"/><path d="M'+ox+' 116 V90 M'+ox+' 116 L'+(ox+18)+' 128" stroke="'+ink+'" stroke-width="3" stroke-linecap="round"/>';},
-      sun: function(){return '<circle cx="'+ox+'" cy="108" r="28" fill="#facc15" stroke="'+ink+'" stroke-width="2.4"/>'+[0,45,90,135,180,225,270,315].map(function(d){const a=d*Math.PI/180; const x1=ox+Math.cos(a)*36, y1=108+Math.sin(a)*36, x2=ox+Math.cos(a)*48, y2=108+Math.sin(a)*48; return '<path d="M'+x1+' '+y1+' L'+x2+' '+y2+'" stroke="'+ink+'" stroke-width="2"/>';}).join("");},
-      rain: function(){return '<ellipse cx="'+ox+'" cy="100" rx="36" ry="18" fill="#fff" stroke="'+ink+'" stroke-width="2.2"/><path d="M'+(ox-16)+' 128 l-8 18 M'+ox+' 124 l-8 18 M'+(ox+16)+' 128 l-8 18" stroke="#0284c7" stroke-width="2.4" stroke-linecap="round"/>';},
-      snow: function(){return '<ellipse cx="'+ox+'" cy="100" rx="36" ry="18" fill="#fff" stroke="'+ink+'" stroke-width="2.2"/><circle cx="'+(ox-12)+'" cy="136" r="4" fill="#fff" stroke="'+ink+'"/><circle cx="'+ox+'" cy="148" r="4" fill="#fff" stroke="'+ink+'"/><circle cx="'+(ox+16)+'" cy="132" r="4" fill="#fff" stroke="'+ink+'"/>';},
-      phone: function(){return '<rect x="'+(ox-22)+'" y="78" width="44" height="76" rx="8" fill="#e0f2fe" stroke="'+ink+'" stroke-width="2.4"/><circle cx="'+ox+'" cy="142" r="4" fill="'+ink+'"/>';},
-      laptop: function(){return '<rect x="'+(ox-36)+'" y="90" width="72" height="46" rx="4" fill="#dbeafe" stroke="'+ink+'" stroke-width="2.4"/><path d="M'+(ox-48)+' 140 h96" stroke="'+ink+'" stroke-width="3" stroke-linecap="round"/>';},
-      doctor: function(){return '<rect x="'+(ox-16)+'" y="88" width="32" height="64" rx="6" fill="#fff" stroke="'+ink+'" stroke-width="2.4"/><path d="M'+ox+' 100 v28 M'+(ox-12)+' 114 h24" stroke="#ef4444" stroke-width="5" stroke-linecap="round"/>';},
-      pill: function(){return '<rect x="'+(ox-40)+'" y="108" width="80" height="28" rx="14" fill="#fff" stroke="'+ink+'" stroke-width="2.4"/><rect x="'+ox+'" y="108" width="40" height="28" rx="14" fill="#fca5a5"/>';},
-      ball: function(){return '<circle cx="'+ox+'" cy="118" r="36" fill="#fff" stroke="'+ink+'" stroke-width="2.4"/><path d="M'+(ox-36)+' 118 h72 M'+ox+' 82 c14 16 14 40 0 72 M'+ox+' 82 c-14 16 -14 40 0 72" fill="none" stroke="'+ink+'" stroke-width="2"/>';},
-      cat: function(){return '<circle cx="'+ox+'" cy="120" r="32" fill="#fdba74" stroke="'+ink+'" stroke-width="2.4"/><path d="M'+(ox-24)+' 98 L'+(ox-10)+' 78 L'+(ox-4)+' 100 M'+(ox+24)+' 98 L'+(ox+10)+' 78 L'+(ox+4)+' 100" fill="#fdba74" stroke="'+ink+'" stroke-width="2.2"/><circle cx="'+(ox-10)+'" cy="118" r="3" fill="'+ink+'"/><circle cx="'+(ox+10)+'" cy="118" r="3" fill="'+ink+'"/>';},
-      dog: function(){return '<ellipse cx="'+ox+'" cy="126" rx="40" ry="24" fill="#d6b08a" stroke="'+ink+'" stroke-width="2.4"/><circle cx="'+(ox+24)+'" cy="104" r="16" fill="#d6b08a" stroke="'+ink+'" stroke-width="2.2"/><ellipse cx="'+(ox+36)+'" cy="92" rx="6" ry="10" fill="#d6b08a" stroke="'+ink+'" stroke-width="2"/>';},
-      bird: function(){return '<ellipse cx="'+ox+'" cy="120" rx="28" ry="16" fill="#93c5fd" stroke="'+ink+'" stroke-width="2.2"/><path d="M'+(ox-8)+' 112 L'+(ox+8)+' 96 L'+(ox+4)+' 120" fill="#fde68a" stroke="'+ink+'" stroke-width="2"/><circle cx="'+(ox+20)+'" cy="116" r="3" fill="'+ink+'"/>';},
-      fish: function(){return '<ellipse cx="'+ox+'" cy="120" rx="40" ry="18" fill="#67e8f9" stroke="'+ink+'" stroke-width="2.4"/><path d="M'+(ox-36)+' 120 L'+(ox-58)+' 100 L'+(ox-58)+' 140 Z" fill="#67e8f9" stroke="'+ink+'" stroke-width="2.2"/><circle cx="'+(ox+16)+'" cy="116" r="2.4" fill="'+ink+'"/>';},
-      shirt: function(){return '<path d="M'+(ox-28)+' 96 l28 -16 28 16 16 22 -18 8 v40 h-52 v-40 l-18 -8 z" fill="#bfdbfe" stroke="'+ink+'" stroke-width="2.4"/>';},
-      shoe: function(){return '<path d="M'+(ox-40)+' 120 h50 l20 8 v16 h-86 v-12 z" fill="#fff" stroke="'+ink+'" stroke-width="2.4"/><path d="M'+(ox-40)+' 120 v-16 h22 v16" fill="#fecaca" stroke="'+ink+'" stroke-width="2"/>';},
-      bed: function(){return '<path d="M'+(ox-58)+' 150 h120" stroke="'+ink+'" stroke-width="3"/><path d="M'+(ox-48)+' 150 v-36 h96 v36" fill="#fff" stroke="'+ink+'" stroke-width="2.4"/><rect x="'+(ox-40)+'" y="96" width="28" height="18" rx="4" fill="#bfdbfe" stroke="'+ink+'" stroke-width="2"/>';},
-      wave: function(){return '<path d="M'+(ox-20)+' 140 q16 -28 8 -48 q20 8 28 -6" fill="none" stroke="'+ink+'" stroke-width="3" stroke-linecap="round"/><path d="M'+(ox-6)+' 92 q18 6 10 20" fill="none" stroke="'+ink+'" stroke-width="2.4"/>';},
-      talk: function(){return '<circle cx="'+(ox-18)+'" cy="108" r="14" fill="#f4d2b4" stroke="'+ink+'" stroke-width="2"/><circle cx="'+(ox+22)+'" cy="112" r="12" fill="#f4d2b4" stroke="'+ink+'" stroke-width="2"/><path d="M'+(ox-34)+' 150 v-18 q16 -12 32 0 v18 M'+(ox+8)+' 150 v-16 q14 -10 28 0 v16" fill="#bfdbfe" stroke="'+ink+'" stroke-width="2"/><path d="M'+(ox-8)+' 86 q14 -16 24 -2" fill="none" stroke="'+ink+'" stroke-width="2"/>';},
-      work: function(){return '<rect x="'+(ox-28)+'" y="108" width="56" height="36" rx="6" fill="#92400e" stroke="'+ink+'" stroke-width="2.2"/><path d="M'+(ox-12)+' 108 v-10 h24 v10" fill="none" stroke="'+ink+'" stroke-width="2.2"/><rect x="'+(ox-34)+'" y="96" width="22" height="28" fill="#fff" stroke="'+ink+'" stroke-width="2"/>';},
-      star: function(){return '<path d="M'+ox+' 78 l10 22 24 2 -18 16 6 24 -22 -14 -22 14 6 -24 -18 -16 24 -2 z" fill="#facc15" stroke="'+ink+'" stroke-width="2.2"/>';},
-      cute: function(){return '<path d="M'+ox+' 142 l-28 -24 a18 18 0 0 1 28 -22 a18 18 0 0 1 28 22 z" fill="#fb7185" stroke="'+ink+'" stroke-width="2.2"/>';},
-      paper: function(){return '<rect x="'+(ox-32)+'" y="86" width="64" height="72" rx="4" fill="#fff" stroke="'+ink+'" stroke-width="2.2"/><path d="M'+(ox-20)+' 106 h40 M'+(ox-20)+' 122 h40 M'+(ox-20)+' 138 h28" stroke="#94a3b8" stroke-width="2"/>';},
-      think: function(){return '<ellipse cx="'+ox+'" cy="100" rx="34" ry="22" fill="#fff" stroke="'+ink+'" stroke-width="2.2"/><circle cx="'+(ox-8)+'" cy="128" r="6" fill="#fff" stroke="'+ink+'"/><circle cx="'+(ox-18)+'" cy="140" r="4" fill="#fff" stroke="'+ink+'"/>';},
-      walk: function(){return '<path d="M'+(ox-50)+' 146 h100" stroke="'+ink+'" stroke-width="3" stroke-linecap="round"/><circle cx="'+(ox-16)+'" cy="118" r="10" fill="#f4d2b4" stroke="'+ink+'"/><path d="M'+(ox-16)+' 128 v16 M'+(ox-16)+' 136 l-12 14 M'+(ox-16)+' 136 l12 12" stroke="'+ink+'" stroke-width="2.2" stroke-linecap="round"/>';},
-      cake: function(){return '<path d="M'+(ox-36)+' 118 h72 v28 h-72 z" fill="#f9a8d4" stroke="'+ink+'" stroke-width="2.2"/><path d="M'+(ox-36)+' 118 q8 -10 18 0 q8 -10 18 0 q8 -10 18 0 q8 -10 18 0" fill="#fff" stroke="'+ink+'" stroke-width="1.6"/><path d="M'+(ox-12)+' 118 v-16 M'+ox+' 118 v-20 M'+(ox+12)+' 118 v-16" stroke="'+ink+'" stroke-width="2"/>';},
-      dumpling: function(){return '<path d="M'+(ox-34)+' 124 q34 -40 68 0 q-34 22 -68 0 z" fill="#fff" stroke="'+ink+'" stroke-width="2.2"/><path d="M'+(ox-8)+' 124 q10 -16 22 0" fill="none" stroke="'+ink+'" stroke-width="1.6"/>';},
-      couple: function(){return '<circle cx="'+(ox-16)+'" cy="100" r="14" fill="#f4d2b4" stroke="'+ink+'" stroke-width="2"/><circle cx="'+(ox+18)+'" cy="102" r="13" fill="#f4d2b4" stroke="'+ink+'" stroke-width="2"/><path d="M'+(ox-32)+' 150 v-22 q16 -14 32 0 v22 M'+(ox+4)+' 150 v-20 q14 -12 28 0 v20" fill="#fecdd3" stroke="'+ink+'" stroke-width="2"/>';},
-      table: function(){return '<path d="M'+(ox-46)+' 118 h92" stroke="'+ink+'" stroke-width="3"/><path d="M'+(ox-36)+' 118 v30 M'+(ox+36)+' 118 v30" stroke="'+ink+'" stroke-width="2.4"/>';},
-      movie: function(){return '<rect x="'+(ox-40)+'" y="88" width="80" height="48" rx="4" fill="#1e293b" stroke="'+ink+'" stroke-width="2.2"/><path d="M'+(ox-6)+' 102 l18 10 l-18 10 z" fill="#fff"/>';},
-      sing: function(){return '<rect x="'+(ox-8)+'" y="96" width="16" height="36" rx="8" fill="#94a3b8" stroke="'+ink+'" stroke-width="2"/><circle cx="'+ox+'" cy="92" r="10" fill="#cbd5e1" stroke="'+ink+'" stroke-width="2"/>';},
-      photo: function(){return '<rect x="'+(ox-34)+'" y="90" width="68" height="52" rx="4" fill="#fff" stroke="'+ink+'" stroke-width="2.2"/><circle cx="'+ox+'" cy="112" r="12" fill="#f4d2b4" stroke="'+ink+'"/><path d="M'+(ox-20)+' 132 l14 -16 10 10 8 -8 14 14" fill="#86efac"/>';},
-      globe: function(){return '<circle cx="'+ox+'" cy="112" r="32" fill="#7dd3fc" stroke="'+ink+'" stroke-width="2.2"/><ellipse cx="'+ox+'" cy="112" rx="14" ry="32" fill="none" stroke="#0369a1" stroke-width="2"/><path d="M'+(ox-32)+' 112 h64 M'+(ox-24)+' 96 h48 M'+(ox-24)+' 128 h48" fill="none" stroke="#0369a1" stroke-width="2"/>';},
-      flower: function(){return '<path d="M'+ox+' 150 V100" stroke="#166534" stroke-width="3"/><circle cx="'+ox+'" cy="92" r="10" fill="#f472b6" stroke="'+ink+'"/><circle cx="'+(ox-14)+'" cy="104" r="10" fill="#f9a8d4" stroke="'+ink+'"/><circle cx="'+(ox+14)+'" cy="104" r="10" fill="#f9a8d4" stroke="'+ink+'"/><circle cx="'+ox+'" cy="104" r="5" fill="#fde68a"/>';},
-      tree: function(){return '<rect x="'+(ox-6)+'" y="118" width="12" height="36" fill="#92400e"/><circle cx="'+ox+'" cy="100" r="28" fill="#22c55e" stroke="'+ink+'" stroke-width="2.2"/><circle cx="'+(ox-16)+'" cy="112" r="16" fill="#16a34a"/>';},
-      hills: function(){return '<path d="M'+(ox-70)+' 150 L'+(ox-20)+' 90 L'+ox+' 150 Z" fill="#86efac" stroke="'+ink+'" stroke-width="2"/><path d="M'+(ox-10)+' 150 L'+(ox+30)+' 78 L'+(ox+70)+' 150 Z" fill="#4ade80" stroke="'+ink+'" stroke-width="2"/><circle cx="'+(ox+48)+'" cy="70" r="12" fill="#facc15" stroke="'+ink+'" stroke-width="2"/>';}
+    function actor(x, shirt, sc){
+      sc = sc || 1;
+      const dy = 188 - 186 * sc;
+      return '<g transform="translate('+x+' '+dy+') scale('+sc+')">'+person(0, shirt)+'</g>';
+    }
+    const bgIn = '<rect width="360" height="200" fill="#fff"/>';
+    const bgOut = '<rect width="360" height="200" fill="#fff"/>';
+    function desk(){
+      return '<rect x="78" y="146" width="230" height="16" rx="3" fill="#e8b15a" stroke="'+ink+'" stroke-width="3"/>'
+        + '<path d="M100 162 v26 M286 162 v26" stroke="#b7791f" stroke-width="7" stroke-linecap="round"/>';
+    }
+    function bowl(x){
+      return '<ellipse cx="'+x+'" cy="136" rx="48" ry="14" fill="#fff" stroke="'+ink+'" stroke-width="3"/>'
+        + '<path d="M'+(x-46)+' 136 Q'+x+' 172 '+(x+46)+' 136" fill="#fff" stroke="'+ink+'" stroke-width="3"/>'
+        + '<ellipse cx="'+x+'" cy="132" rx="34" ry="11" fill="#f6d48a"/>'
+        + '<path d="M'+(x-16)+' 108 l10 24 M'+(x+16)+' 108 l-10 24" stroke="'+ink+'" stroke-width="3" stroke-linecap="round"/>';
+    }
+    function cup(x, y, fill){
+      return '<path d="M'+(x-30)+' '+y+' h60 l-8 50 h-44 z" fill="'+(fill||"#7dd3fc")+'" stroke="'+ink+'" stroke-width="3"/>'
+        + '<path d="M'+(x+30)+' '+(y+14)+' h18 v22 h-18" fill="none" stroke="'+ink+'" stroke-width="3"/>'
+        + '<ellipse cx="'+x+'" cy="'+y+'" rx="30" ry="8" fill="#e0f2fe" stroke="'+ink+'" stroke-width="3"/>';
+    }
+    function book(){
+      return '<path d="M150 118 h70 v52 h-70 z" fill="#fff" stroke="'+ink+'" stroke-width="3"/>'
+        + '<path d="M220 118 h70 v52 h-70 z" fill="#bfdbfe" stroke="'+ink+'" stroke-width="3"/>'
+        + '<path d="M166 134 h40 M166 148 h40 M236 134 h40 M236 148 h40" stroke="#64748b" stroke-width="3"/>';
+    }
+    function dog(){
+      return '<ellipse cx="214" cy="150" rx="78" ry="36" fill="#d8b07a" stroke="'+ink+'" stroke-width="3"/>'
+        + '<circle cx="286" cy="118" r="30" fill="#d8b07a" stroke="'+ink+'" stroke-width="3"/>'
+        + '<ellipse cx="304" cy="96" rx="10" ry="16" fill="#c4956a" stroke="'+ink+'" stroke-width="3"/>'
+        + '<circle cx="296" cy="116" r="3" fill="'+ink+'"/><ellipse cx="312" cy="126" rx="7" ry="5" fill="#111827"/>'
+        + '<path d="M150 150 q-30 -10 -20 16" fill="none" stroke="#d8b07a" stroke-width="8" stroke-linecap="round"/>'
+        + '<path d="M170 176 v16 M210 180 v14 M250 180 v14 M286 168 v18" stroke="#334155" stroke-width="6" stroke-linecap="round"/>';
+    }
+    function cat(){
+      return '<ellipse cx="214" cy="156" rx="70" ry="32" fill="#fb923c" stroke="'+ink+'" stroke-width="3"/>'
+        + '<circle cx="278" cy="124" r="28" fill="#fb923c" stroke="'+ink+'" stroke-width="3"/>'
+        + '<path d="M258 108 L250 82 L272 104 M298 108 L306 82 L284 104" fill="#fb923c" stroke="'+ink+'" stroke-width="3"/>'
+        + '<circle cx="270" cy="124" r="3" fill="'+ink+'"/><circle cx="288" cy="124" r="3" fill="'+ink+'"/>'
+        + '<path d="M150 160 q-24 8 -8 20" fill="none" stroke="#fb923c" stroke-width="7" stroke-linecap="round"/>';
+    }
+    const plates = {
+      rice: bgIn + actor(92, "#fb7185", 0.92) + desk() + bowl(236),
+      noodle: bgIn + actor(92, "#f59e0b", 0.92) + desk() + '<path d="M190 118 h100 v34 a50 18 0 0 1 -100 0 z" fill="#fff" stroke="'+ink+'" stroke-width="3"/><path d="M206 132 q16 12 28 0 q16 12 32 0 q12 10 24 0" fill="none" stroke="#f59e0b" stroke-width="4"/>',
+      dumpling: bgIn + actor(92, "#f472b6", 0.92) + desk() + '<path d="M190 150 q40 -46 84 0 q-42 24 -84 0 z" fill="#fff" stroke="'+ink+'" stroke-width="3"/><path d="M214 150 q16 -16 28 0" fill="none" stroke="'+ink+'" stroke-width="2"/>',
+      apple: bgIn + actor(100, "#22c55e", 0.9) + '<circle cx="230" cy="112" r="48" fill="#ef4444" stroke="'+ink+'" stroke-width="3"/><path d="M230 66 q16 -22 28 -8" fill="none" stroke="'+ink+'" stroke-width="3"/><ellipse cx="250" cy="62" rx="16" ry="8" fill="#22c55e" stroke="'+ink+'" stroke-width="3"/>',
+      tea: bgIn + actor(96, "#16a34a", 0.9) + desk() + cup(230, 86, "#86efac"),
+      cup: bgIn + actor(96, "#2563eb", 0.9) + desk() + cup(230, 84, "#7dd3fc"),
+      coffee: bgIn + actor(96, "#92400e", 0.9) + desk() + cup(230, 86, "#d6b08a"),
+      milk: bgIn + actor(96, "#38bdf8", 0.9) + '<path d="M210 70 h56 v22 l10 78 h-76 l10 -78 z" fill="#fff" stroke="'+ink+'" stroke-width="3"/><rect x="214" y="96" width="48" height="18" fill="#bfdbfe" stroke="'+ink+'" stroke-width="2"/>',
+      book: bgIn + actor(96, "#2563eb", 0.9) + book(),
+      pencil: bgIn + actor(90, "#eab308", 0.9) + '<path d="M150 160 L250 70 l22 22 L172 182 z" fill="#fde68a" stroke="'+ink+'" stroke-width="3"/><path d="M250 70 l22 22 l14 -14 l-22 -22 z" fill="#fff" stroke="'+ink+'" stroke-width="3"/>',
+      paper: bgIn + actor(96, "#64748b", 0.9) + '<rect x="168" y="78" width="110" height="90" rx="6" fill="#fff" stroke="'+ink+'" stroke-width="3"/><path d="M186 100 h74 M186 118 h74 M186 136 h50" stroke="#94a3b8" stroke-width="3"/>',
+      school: bgOut + '<path d="M36 150 V78 h150 v72" fill="#fff" stroke="'+ink+'" stroke-width="3"/><path d="M24 80 L111 40 L198 80" fill="#f87171" stroke="'+ink+'" stroke-width="3"/><rect x="90" y="108" width="36" height="42" fill="#fde68a" stroke="'+ink+'" stroke-width="3"/><rect x="52" y="96" width="26" height="20" fill="#93c5fd" stroke="'+ink+'" stroke-width="2"/><rect x="140" y="96" width="26" height="20" fill="#93c5fd" stroke="'+ink+'" stroke-width="2"/>' + actor(286, "#2563eb", 0.82),
+      house: bgOut + '<path d="M70 150 V86 h150 v64" fill="#fff" stroke="'+ink+'" stroke-width="3"/><path d="M52 88 L145 40 L238 88" fill="#f87171" stroke="'+ink+'" stroke-width="3"/><rect x="126" y="108" width="38" height="42" fill="#fde68a" stroke="'+ink+'" stroke-width="3"/><rect x="86" y="100" width="26" height="20" fill="#93c5fd" stroke="'+ink+'" stroke-width="2"/>' + actor(292, "#3b82f6", 0.8),
+      family: bgIn + actor(78, "#3b82f6", 1) + actor(180, "#f472b6", 0.72) + actor(278, "#a78bfa", 1),
+      couple: bgIn + actor(120, "#3b82f6", 1) + actor(230, "#f472b6", 1),
+      talk: bgIn + actor(110, "#3b82f6", 1) + actor(250, "#fb923c", 1),
+      bus: bgOut + '<rect x="36" y="78" width="230" height="78" rx="14" fill="#fde68a" stroke="'+ink+'" stroke-width="3"/><rect x="54" y="92" width="40" height="28" fill="#93c5fd" stroke="'+ink+'" stroke-width="2"/><rect x="104" y="92" width="40" height="28" fill="#93c5fd" stroke="'+ink+'" stroke-width="2"/><rect x="154" y="92" width="40" height="28" fill="#93c5fd" stroke="'+ink+'" stroke-width="2"/><circle cx="90" cy="162" r="14" fill="#111827"/><circle cx="210" cy="162" r="14" fill="#111827"/>' + actor(312, "#2563eb", 0.72),
+      plane: bgOut + '<path d="M40 120 L250 78 L210 132 Z" fill="#fff" stroke="'+ink+'" stroke-width="3"/><path d="M150 108 L110 70 M160 116 L190 150" stroke="'+ink+'" stroke-width="4" stroke-linecap="round"/>',
+      train: bgOut + '<rect x="40" y="86" width="120" height="70" rx="10" fill="#93c5fd" stroke="'+ink+'" stroke-width="3"/><rect x="168" y="102" width="120" height="54" fill="#fff" stroke="'+ink+'" stroke-width="3"/><circle cx="78" cy="164" r="12" fill="#111827"/><circle cx="220" cy="164" r="12" fill="#111827"/>',
+      shop: bgOut + '<path d="M70 86 h180 l-18 28 h-144 z" fill="#fb7185" stroke="'+ink+'" stroke-width="3"/><rect x="88" y="114" width="144" height="50" fill="#fff" stroke="'+ink+'" stroke-width="3"/><rect x="142" y="128" width="36" height="36" fill="#fde68a" stroke="'+ink+'" stroke-width="3"/>' + actor(300, "#2563eb", 0.7),
+      money: bgIn + actor(100, "#16a34a", 0.9) + '<rect x="176" y="96" width="120" height="58" rx="8" fill="#86efac" stroke="'+ink+'" stroke-width="3"/><circle cx="236" cy="125" r="16" fill="none" stroke="'+ink+'" stroke-width="3"/><circle cx="300" cy="160" r="16" fill="#fde68a" stroke="'+ink+'" stroke-width="3"/>',
+      clock: bgIn + '<circle cx="196" cy="100" r="62" fill="#fff" stroke="'+ink+'" stroke-width="4"/><path d="M196 100 V62 M196 100 L230 118" stroke="'+ink+'" stroke-width="5" stroke-linecap="round"/>' + actor(78, "#2563eb", 0.85),
+      sun: bgOut + '<circle cx="180" cy="96" r="42" fill="#fde047" stroke="'+ink+'" stroke-width="3"/>' + [0,45,90,135,180,225,270,315].map(function(d){ const a=d*Math.PI/180; return '<path d="M'+(180+Math.cos(a)*54)+' '+(96+Math.sin(a)*54)+' L'+(180+Math.cos(a)*72)+' '+(96+Math.sin(a)*72)+'" stroke="'+ink+'" stroke-width="3"/>'; }).join(""),
+      rain: '<rect width="360" height="200" fill="#d7e0ea"/><rect y="150" width="360" height="50" fill="#9fb59a"/>' + '<ellipse cx="150" cy="58" rx="78" ry="30" fill="#fff" stroke="'+ink+'" stroke-width="3"/>' + '<path d="M120 100 l-10 28 M160 96 l-10 28 M200 100 l-10 28 M240 110 l-10 22" stroke="#0284c7" stroke-width="4" stroke-linecap="round"/>' + '<path d="M250 86 q40 -28 70 8" fill="#f87171" stroke="'+ink+'" stroke-width="3"/>' + actor(286, "#2563eb", 0.78),
+      snow: '<rect width="360" height="200" fill="#e8eef5"/><rect y="150" width="360" height="50" fill="#e2e8f0"/>' + '<ellipse cx="150" cy="64" rx="70" ry="28" fill="#fff" stroke="'+ink+'" stroke-width="3"/>' + '<circle cx="120" cy="120" r="6" fill="#fff" stroke="'+ink+'"/><circle cx="160" cy="132" r="6" fill="#fff" stroke="'+ink+'"/><circle cx="200" cy="116" r="6" fill="#fff" stroke="'+ink+'"/>' + actor(286, "#64748b", 0.8),
+      phone: bgIn + actor(130, "#2563eb", 1) + '<rect x="196" y="78" width="46" height="78" rx="8" fill="#e0f2fe" stroke="'+ink+'" stroke-width="3"/><circle cx="219" cy="144" r="4" fill="'+ink+'"/>',
+      laptop: bgIn + actor(100, "#334155", 0.9) + desk() + '<rect x="176" y="96" width="100" height="52" rx="4" fill="#bfdbfe" stroke="'+ink+'" stroke-width="3"/><path d="M160 150 h140" stroke="'+ink+'" stroke-width="4" stroke-linecap="round"/>',
+      doctor: bgIn + actor(120, "#fff", 1) + '<rect x="210" y="78" width="70" height="90" rx="8" fill="#fff" stroke="'+ink+'" stroke-width="3"/><path d="M245 100 v46 M222 123 h46" stroke="#ef4444" stroke-width="8" stroke-linecap="round"/>',
+      pill: bgIn + actor(110, "#fff", 0.9) + '<rect x="180" y="118" width="130" height="36" rx="18" fill="#fff" stroke="'+ink+'" stroke-width="3"/><rect x="245" y="118" width="65" height="36" rx="18" fill="#fda4af"/>',
+      ball: bgOut + '<circle cx="200" cy="110" r="52" fill="#fff" stroke="'+ink+'" stroke-width="3"/><path d="M148 110 h104 M200 58 c18 20 18 64 0 104 M200 58 c-18 20 -18 64 0 104" fill="none" stroke="'+ink+'" stroke-width="3"/>' + actor(78, "#2563eb", 0.8),
+      cat: bgIn + cat() + actor(78, "#fb7185", 0.75),
+      dog: bgOut + dog() + actor(70, "#3b82f6", 0.75),
+      bird: bgOut + '<ellipse cx="200" cy="120" rx="56" ry="28" fill="#93c5fd" stroke="'+ink+'" stroke-width="3"/><path d="M160 110 L190 78 L176 124" fill="#fde68a" stroke="'+ink+'" stroke-width="3"/><circle cx="236" cy="116" r="4" fill="'+ink+'"/>',
+      fish: bgOut + '<ellipse cx="190" cy="116" rx="70" ry="32" fill="#67e8f9" stroke="'+ink+'" stroke-width="3"/><path d="M122 116 L78 88 L78 144 Z" fill="#67e8f9" stroke="'+ink+'" stroke-width="3"/><circle cx="220" cy="110" r="4" fill="'+ink+'"/>',
+      shirt: bgIn + '<path d="M130 70 l50 -24 50 24 28 36 -30 12 v70 h-96 v-70 l-30 -12 z" fill="#93c5fd" stroke="'+ink+'" stroke-width="3"/>' + actor(300, "#2563eb", 0.7),
+      shoe: bgIn + '<path d="M120 130 h120 l36 14 v22 h-180 v-18 z" fill="#fff" stroke="'+ink+'" stroke-width="3"/><path d="M120 130 v-28 h40 v28" fill="#fecaca" stroke="'+ink+'" stroke-width="3"/>' + actor(70, "#2563eb", 0.75),
+      bed: bgIn + '<path d="M40 168 h280" stroke="'+ink+'" stroke-width="4"/><path d="M60 168 v-56 h200 v56" fill="#fff" stroke="'+ink+'" stroke-width="3"/><rect x="78" y="92" width="54" height="24" rx="6" fill="#bfdbfe" stroke="'+ink+'" stroke-width="3"/>' + '<circle cx="250" cy="108" r="18" fill="'+skin+'" stroke="'+ink+'" stroke-width="3"/>',
+      wave: bgOut + actor(180, "#3b82f6", 1) + '<path d="M210 70 q30 -36 18 10" fill="none" stroke="'+ink+'" stroke-width="5" stroke-linecap="round"/>',
+      flower: bgOut + '<path d="M180 170 V100" stroke="#166534" stroke-width="5"/><circle cx="180" cy="78" r="16" fill="#f472b6" stroke="'+ink+'" stroke-width="3"/><circle cx="158" cy="98" r="16" fill="#f9a8d4" stroke="'+ink+'" stroke-width="3"/><circle cx="202" cy="98" r="16" fill="#f9a8d4" stroke="'+ink+'" stroke-width="3"/><circle cx="180" cy="98" r="8" fill="#fde68a"/>',
+      tree: bgOut + '<rect x="168" y="110" width="24" height="50" fill="#92400e"/><circle cx="180" cy="90" r="42" fill="#22c55e" stroke="'+ink+'" stroke-width="3"/>',
+      hills: bgOut + '<path d="M20 160 L110 70 L190 160 Z" fill="#86efac" stroke="'+ink+'" stroke-width="3"/><path d="M140 160 L230 60 L330 160 Z" fill="#4ade80" stroke="'+ink+'" stroke-width="3"/>',
+      table: bgIn + desk() + actor(70, "#2563eb", 0.85) + cup(230, 90, "#fff"),
+      movie: bgIn + '<rect x="70" y="48" width="220" height="110" rx="8" fill="#0f172a" stroke="'+ink+'" stroke-width="3"/><path d="M150 78 l48 26 l-48 26 z" fill="#fff"/>',
+      sing: bgIn + actor(150, "#a78bfa", 1) + '<rect x="210" y="100" width="22" height="58" rx="10" fill="#94a3b8" stroke="'+ink+'" stroke-width="3"/><circle cx="221" cy="94" r="14" fill="#cbd5e1" stroke="'+ink+'" stroke-width="3"/>',
+      photo: bgIn + '<rect x="90" y="48" width="180" height="120" rx="6" fill="#fff" stroke="'+ink+'" stroke-width="3"/><circle cx="180" cy="96" r="22" fill="'+skin+'" stroke="'+ink+'" stroke-width="3"/><path d="M120 150 l30 -36 24 24 20 -20 40 32" fill="#86efac"/>',
+      globe: bgIn + '<circle cx="180" cy="104" r="58" fill="#7dd3fc" stroke="'+ink+'" stroke-width="3"/><ellipse cx="180" cy="104" rx="24" ry="58" fill="none" stroke="#0369a1" stroke-width="3"/><path d="M124 104 h112 M136 78 h88 M136 130 h88" fill="none" stroke="#0369a1" stroke-width="3"/>',
+      work: bgIn + actor(100, "#1d4ed8", 0.9) + desk() + '<rect x="190" y="100" width="46" height="40" rx="4" fill="#fff" stroke="'+ink+'" stroke-width="3"/><rect x="246" y="118" width="54" height="28" rx="4" fill="#92400e" stroke="'+ink+'" stroke-width="3"/>',
+      star: bgIn + actor(120, "#f59e0b", 0.9) + '<path d="M250 48 l14 30 32 4 -24 20 8 32 -30 -18 -30 18 8 -32 -24 -20 32 -4 z" fill="#fde047" stroke="'+ink+'" stroke-width="3"/>',
+      cute: bgIn + actor(150, "#fb7185", 1) + '<path d="M250 150 l-36 -30 a24 24 0 0 1 36 -28 a24 24 0 0 1 36 28 z" fill="#fb7185" stroke="'+ink+'" stroke-width="3"/>',
+      think: bgIn + actor(130, "#64748b", 1) + '<ellipse cx="240" cy="70" rx="48" ry="28" fill="#fff" stroke="'+ink+'" stroke-width="3"/>',
+      walk: bgOut + actor(160, "#2563eb", 1) + '<path d="M40 170 h280" stroke="#64748b" stroke-width="4"/>',
+      cake: bgIn + actor(90, "#f472b6", 0.85) + '<path d="M180 130 h120 v40 h-120 z" fill="#f9a8d4" stroke="'+ink+'" stroke-width="3"/><path d="M180 130 q15 -14 30 0 q15 -14 30 0 q15 -14 30 0 q15 -14 30 0" fill="#fff"/><path d="M214 130 v-22 M240 130 v-28 M266 130 v-22" stroke="'+ink+'" stroke-width="3"/>'
     };
-    const chosen = (props[sceneOf(word)] ? sceneOf(word) : "talk");
-    const html = '<svg viewBox="0 0 320 180" width="320" height="180" role="img" aria-label="Hình phác họa">'
-      + '<rect width="320" height="180" rx="18" fill="'+sky+'"/>'
-      + '<path d="M0 138 Q80 128 160 140 T320 136 V180 H0 Z" fill="#d9edc4"/>'
-      + person()
-      + props[chosen]()
-      + '</svg>';
-    return {html: html, kind: chosen};
+    const body = plates[kind] || plates.talk;
+    return {
+      html: '<svg viewBox="0 0 360 200" width="360" height="200" role="img" aria-label="Hình minh họa">' + body + '</svg>',
+      kind: kind
+    };
   }
   function make(type, word, pool, rng, part){
     const rest = others(pool, word, rng, 3);
@@ -165342,16 +165400,17 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
   #ttcGroupPractice #ttcReadingLauncher,#ttcGroupPractice #ttcListeningLauncher,#ttcGroupPractice #ttcMatchLauncher,#ttcGroupPractice #ttcListenLauncher,#ttcGroupPractice #ttcVideoLauncher,#ttcSpecialtyLauncher{width:min(100%,560px);margin:0 auto}
   #ttcVideoLauncher{display:block;border:1px solid #fecdd3;border-radius:16px;background:#fff;color:#9f1239;font-size:17px;font-weight:700;padding:15px 20px;cursor:pointer}
   #ttcVideoLauncher[aria-expanded="true"]{background:linear-gradient(135deg,#9f1239,#e11d48);color:#fff;border-color:#9f1239}
-  .ttc-starter{width:min(720px,96%);margin:8px auto 0;text-align:center}
-  #ttcStarterButton{border:1px solid #86efac;background:#fff;color:#166534;border-radius:999px;padding:10px 16px;font-weight:800;cursor:pointer}
+  .ttc-top-actions{display:flex !important;flex-direction:row !important;flex-wrap:nowrap !important;justify-content:center !important;align-items:center !important;gap:10px !important;width:min(720px,96%);margin:8px auto 0;position:relative;z-index:3}
+  #ttcStarterButton{border:1px solid #86efac;background:#fff;color:#166534;border-radius:999px;padding:10px 16px;font-weight:800;cursor:pointer;position:static !important;white-space:nowrap}
   #ttcStarterButton[aria-expanded="true"]{background:#166534;color:#fff}
-  #ttcStarterPanel{margin-top:10px;padding:14px 16px;text-align:left;background:#f0fdf4;border:1px solid #86efac;border-radius:16px;color:#14532d}
+  #ttcStarterPanel{width:min(720px,96%);margin:10px auto 0;padding:14px 16px;text-align:left;background:#f0fdf4;border:1px solid #86efac;border-radius:16px;color:#14532d}
   #ttcStarterPanel[hidden]{display:none !important}
-  #ttcStarterPanel ol{margin:8px 0 0;padding-left:18px}
-  #ttcStarterPanel li{margin:6px 0;line-height:1.45}
+  #ttcStarterPanel h3{margin:12px 0 4px;font-size:16px;line-height:1.35}
+  #ttcStarterPanel p{margin:4px 0;line-height:1.5}
+  @media(max-width:420px){.ttc-top-actions{gap:6px !important}#ttcStarterButton,.ttc-script-switch{padding:8px 10px !important;font-size:13px !important}}
   #whHskRoot,#whHskExam,#whHskQuestions,.wh-hsk-question{max-width:100% !important;box-sizing:border-box !important}
-  .wh-hsk-picture{display:block !important;width:100% !important;max-width:100% !important;box-sizing:border-box !important;margin:12px 0 !important;padding:8px !important;border-radius:16px !important;background:#fffaf3 !important;border:2px solid #fdba74 !important;overflow:hidden !important}
-  html body .wh-hsk-picture svg{display:block !important;width:100% !important;height:180px !important;max-width:100% !important}
+  .wh-hsk-picture{display:block !important;width:100% !important;max-width:100% !important;box-sizing:border-box !important;margin:12px 0 !important;padding:0 !important;border-radius:12px !important;background:#fff !important;border:1px solid #d6d3d1 !important;overflow:hidden !important}
+  html body .wh-hsk-picture svg{display:block !important;width:100% !important;height:200px !important;max-width:100% !important}
   .wh-hsk-picture-label{display:block !important;font-size:13px !important;font-weight:800 !important;color:#9a3412 !important}
   .wh-hsk-picture-name{display:block !important;margin-top:6px !important;font-size:18px !important;font-weight:800 !important;color:#9a3412 !important}
   .wh-hsk-art{display:block !important;position:relative !important;width:100% !important;height:150px !important;min-height:150px !important;margin-top:8px !important;border-radius:14px !important;overflow:hidden !important;background:#e0f2fe !important}
