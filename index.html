@@ -2819,7 +2819,7 @@ body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; 
   <h3>6. Khu luyện nghe gõ</h3>
   <p>Nghe một bài đọc của cấp đang học, rồi gõ lại cho đúng chính tả. Bài hiện sẵn để đối chiếu. Có nút nghe cả bài. Chữ gõ đúng và chữ gõ sai được tô khác màu. HSK 3 đến HSK 9 cần Premium.</p>
   <h3>7. Khu luyện thi HSK</h3>
-  <p>Mỗi cấp HSK 1 đến HSK 6 có 20 đề luyện và 20 đề thi thử, làm ngay trên trang, có giờ. Nghe có hình, câu tiếng Trung không hiện sẵn: chọn đúng hoặc sai, chọn nghĩa, chọn câu trả lời hoặc chọn từ. Phần đọc có điền từ, chọn ý và sắp câu. Từ HSK 3 có phần viết. HSK 7 đến HSK 9 vẫn dùng bộ đề riêng, sẽ làm lại sau.</p>
+  <p>Mỗi cấp HSK 1 đến HSK 9 có 20 đề luyện và 20 đề thi thử, làm ngay trên trang, có giờ. Nghe có hình, câu tiếng Trung không hiện sẵn: chọn đúng hoặc sai, chọn nghĩa, chọn câu trả lời hoặc chọn từ. Phần đọc có điền từ, chọn ý và sắp câu. Từ HSK 3 có phần viết. Mỗi câu có một đáp án và lời giải tiếng Việt nói rõ vì sao đúng, vì sao sai.</p>
   <h3>8. Bốn bài luyện ngắn</h3>
   <p><strong>Test từ vựng:</strong> xem nghĩa, gõ chữ Hán. Đúng thì sang câu sau. Sai thì gõ lại.</p>
   <p><strong>Luyện câu:</strong> đặt câu với từ của cấp đang học.</p>
@@ -142657,7 +142657,7 @@ function openTestList(){
   selectLeaderboard.innerHTML = "";
 
   /*
-     Đề HSK 1–6 làm trên trang. HSK 7–9 vẫn dùng bộ đề riêng, sẽ xây lại sau.
+     Đề HSK 1–9 làm trên trang, cùng một máy đề.
   */
 
   const ttcCount = TTC_HSK_EXAM_COUNTS[currentHsk] || 40;
@@ -146183,8 +146183,8 @@ if(
 
 }
 
-var hskPaperCounts = {1:40,2:60,3:80,4:100,5:100,6:101};
-var hskPaperMinutes = {1:40,2:55,3:90,4:105,5:125,6:140};
+var hskPaperCounts = {1:40,2:60,3:80,4:100,5:100,6:101,7:98,8:98,9:98};
+var hskPaperMinutes = {1:40,2:55,3:90,4:105,5:125,6:140,7:150,8:160,9:170};
 Object.keys(hskPaperCounts).forEach(function(key){
   var level = Number(key);
   TTC_HSK_EXAM_COUNTS[level] = hskPaperCounts[level];
@@ -146198,7 +146198,6 @@ var hskPaperPrevRender = ttcStandaloneRender;
 ttcBuildGeneratedTests = function(level, examNo){
   level = Number(level);
   examNo = Math.max(1, Number(examNo)||1);
-  if(level>6) return hskPaperPrevBuild(level, examNo);
   var pool = ttcGetVocabularyPool(level);
   if(!pool || pool.length<4) return false;
   if(!TTC_EXAM_BANK[level]) TTC_EXAM_BANK[level] = Object.create(null);
@@ -146214,7 +146213,6 @@ ttcBuildGeneratedTests = function(level, examNo){
 
 ttcStandaloneBuild = function(level, examNo){
   level = Number(level);
-  if(level>6) return hskPaperPrevStandalone(level, examNo);
   var pool = ttcStandalonePool(level);
   var paper = window.buildTtcHskPaper(pool, level, examNo, 2);
   return paper && paper.questions.length>=10 ? paper.questions : null;
@@ -165424,7 +165422,7 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
     -webkit-text-stroke: 0 !important;
   }
 </style>
-<script id="ttc-hsk16-papers">/* Đề luyện HSK 1–6, làm ngay trên trang.
+<script id="ttc-hsk16-papers">/* Đề luyện HSK 1–9, làm ngay trên trang.
    Số phần và số câu theo đề cương công khai của 汉考国际 (Chinese Testing International).
    Câu được soạn từ kho từ của trang. Không chép đề mẫu, không dẫn sang trang khác. */
 (function(root){
@@ -165488,6 +165486,35 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
       ["reading","📖 阅读 · 第三部分（第71–80题）","Chọn từ đúng chỗ trống.",10,"cloze"],
       ["reading","📖 阅读 · 第四部分（第81–100题）","Đọc hiểu, chọn ý đúng.",20,"read-choice"],
       ["writing","✍️ 书写 · 缩写（第101题）","Đọc đoạn và chọn câu tóm tắt đúng.",1,"summary"]
+    ]},
+    7:{minutes:150,parts:[
+      ["listening","🎧 听力 · 第一部分（第1–15题）","Nghe câu, chọn câu nói đúng về từ.",15,"listen-reply"],
+      ["listening","🎧 听力 · 第二部分（第16–30题）","Nghe câu, chọn nghĩa đúng.",15,"listen-meaning"],
+      ["listening","🎧 听力 · 第三部分（第31–40题）","Nghe câu, chọn từ được nhắc.",10,"listen-word"],
+      ["reading","📖 阅读 · 第一部分（第41–55题）","Đọc câu, chọn ý đúng.",15,"read-choice"],
+      ["reading","📖 阅读 · 第二部分（第56–70题）","Điền từ vào chỗ trống.",15,"cloze"],
+      ["reading","📖 阅读 · 第三部分（第71–80题）","Chọn câu có lỗi dùng từ.",10,"error-spot"],
+      ["writing","✍️ 书写 · 第一部分（第81–90题）","Chọn câu dùng đúng từ.",10,"use-word"],
+      ["writing","✍️ 书写 · 第二部分（第91–98题）","Đọc câu và chọn câu tóm tắt đúng.",8,"summary"]
+    ]},
+    8:{minutes:160,parts:[
+      ["listening","🎧 听力 · 第一部分（第1–15题）","Nghe câu, chọn nghĩa đúng.",15,"listen-meaning"],
+      ["listening","🎧 听力 · 第二部分（第16–30题）","Nghe câu, chọn câu nói đúng về từ.",15,"listen-reply"],
+      ["listening","🎧 听力 · 第三部分（第31–40题）","Nghe câu, chọn từ được nhắc.",10,"listen-word"],
+      ["reading","📖 阅读 · 第一部分（第41–55题）","Đọc câu, chọn ý đúng.",15,"read-choice"],
+      ["reading","📖 阅读 · 第二部分（第56–70题）","Điền từ vào chỗ trống.",15,"cloze"],
+      ["reading","📖 阅读 · 第三部分（第71–80题）","Chọn câu sắp đúng ý.",10,"order"],
+      ["writing","✍️ 书写 · 第一部分（第81–90题）","Chọn câu dùng đúng từ.",10,"use-word"],
+      ["writing","✍️ 书写 · 第二部分（第91–98题）","Đọc câu và chọn câu tóm tắt đúng.",8,"summary"]
+    ]},
+    9:{minutes:170,parts:[
+      ["listening","🎧 听力 · 第一部分（第1–20题）","Nghe câu, chọn nghĩa đúng.",20,"listen-meaning"],
+      ["listening","🎧 听力 · 第二部分（第21–35题）","Nghe câu, chọn câu nói đúng về từ.",15,"listen-reply"],
+      ["reading","📖 阅读 · 第一部分（第36–50题）","Đọc câu, chọn ý đúng.",15,"read-choice"],
+      ["reading","📖 阅读 · 第二部分（第51–65题）","Điền từ vào chỗ trống.",15,"cloze"],
+      ["reading","📖 阅读 · 第三部分（第66–75题）","Chọn câu có lỗi dùng từ.",10,"error-spot"],
+      ["writing","✍️ 书写 · 第一部分（第76–88题）","Chọn câu dùng đúng từ.",13,"use-word"],
+      ["writing","✍️ 书写 · 第二部分（第89–98题）","Đọc câu và chọn câu tóm tắt đúng.",10,"summary"]
     ]}
   };
 
@@ -165552,6 +165579,27 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
       answerText: spec.answerText||"",
       picture: spec.picture || sceneForQuestion
     };
+  }
+  function distinctRest(pool, word, rng, n, textOf){
+    const bag = others(pool, word, rng, Math.max(12, n * 4));
+    const out = [];
+    const seen = new Set();
+    seen.add(String(textOf(word) || ""));
+    for(const w of bag){
+      const text = String(textOf(w) || "").trim();
+      if(!text || seen.has(text)) continue;
+      seen.add(text);
+      out.push(w);
+      if(out.length === n) break;
+    }
+    if(out.length < n){
+      for(const w of bag){
+        if(out.indexOf(w) >= 0) continue;
+        out.push(w);
+        if(out.length === n) break;
+      }
+    }
+    return out;
   }
   function choices(correct, wrongs, rng, label){
     const rows = [{t:correct, ok:true}].concat(wrongs.map(function(t){return {t:t, ok:false};}));
@@ -165652,9 +165700,20 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
     const list = PHOTO_LISTS[kind] && PHOTO_LISTS[kind].length ? PHOTO_LISTS[kind] : [SCENE_PHOTOS.talk];
     let src = list[0];
     if(sceneUsed){
-      const free = list.find(function(u){ return !sceneUsed.has(u); });
-      if(free){ src = free; sceneUsed.add(src); }
-      else { const i = sceneCursor[kind] || 0; src = list[i % list.length]; sceneCursor[kind] = i + 1; }
+      let free = list.find(function(u){ return !sceneUsed.has(u); });
+      if(!free){
+        const kinds = Object.keys(PHOTO_LISTS);
+        for(let k=0; k<kinds.length && !free; k++){
+          free = PHOTO_LISTS[kinds[k]].find(function(u){ return !sceneUsed.has(u); });
+        }
+      }
+      if(free) src = free;
+      else {
+        const i = sceneCursor[kind] || 0;
+        src = list[i % list.length];
+        sceneCursor[kind] = i + 1;
+      }
+      sceneUsed.add(src);
     }
     return {html:'<img src="'+src+'" alt="" width="640" height="400" loading="lazy" referrerpolicy="no-referrer">', kind:kind};
     const ink = "#243044";
@@ -165943,8 +166002,12 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
         optionMeaning:["Câu khớp với hình","Câu không khớp với hình"],
         answer: answer,
         analysis:[
-          answer===0?"ĐÚNG: câu vừa nghe mô tả đúng cảnh trong hình.":"SAI: câu vừa nghe không nói về cảnh trong hình.",
-          answer===1?"ĐÚNG: câu vừa nghe nói một việc khác, nên chọn 错.":"SAI: câu có khớp hình, không chọn 错."
+          answer===0
+            ? "ĐÚNG. Câu nghe được là «"+spoken+"» ("+vi(word)+"), đúng với hình về «"+word.h+"» ("+String(word.m||"")+")."
+            : "SAI. Câu nghe được là «"+spoken+"» ("+vi(foil)+"), nói về «"+foil.h+"» ("+String(foil.m||"")+"), không phải hình về «"+word.h+"» ("+String(word.m||"")+"). Không chọn 对.",
+          answer===1
+            ? "ĐÚNG. Câu nghe được là «"+spoken+"» ("+vi(foil)+"), nói về «"+foil.h+"» ("+String(foil.m||"")+"), khác hình về «"+word.h+"» ("+String(word.m||"")+")."
+            : "SAI. Câu nghe được là «"+spoken+"» ("+vi(word)+"), đúng với hình về «"+word.h+"». Không chọn 错."
         ],
         audioText: spoken,
         picture: shot,
@@ -165967,25 +166030,43 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
         optionMeaning:["Từ khớp hình","Từ không khớp hình"],
         answer: answer,
         analysis:[
-          answer===0?"ĐÚNG: từ này đúng với cảnh trong hình.":"SAI: từ này không phải cảnh trong hình.",
-          answer===1?"ĐÚNG: từ và hình không cùng một việc, chọn 错.":"SAI: từ có khớp hình, không chọn 错."
+          answer===0
+            ? "ĐÚNG. Từ «"+shown.h+"» ("+String(shown.m||"")+") đúng với hình về «"+word.h+"» ("+String(word.m||"")+")."
+            : "SAI. Từ trên hình là «"+shown.h+"» ("+String(shown.m||"")+"), còn hình nói về «"+word.h+"» ("+String(word.m||"")+"). Không chọn 对.",
+          answer===1
+            ? "ĐÚNG. Từ «"+shown.h+"» ("+String(shown.m||"")+") không phải việc trong hình («"+word.h+"» · "+String(word.m||"")+")."
+            : "SAI. Từ «"+shown.h+"» đúng với hình. Không chọn 错."
         ],
         picture: shot,
         h: word.h, m: word.m
       });
     }
-    if(type==="read-qa"){
-      const ask = "你觉得"+word.h+"怎么样？";
-      const picked = choices(zh(word), rest.map(zh), rng, "câu trả lời hợp với câu hỏi");
-      return pack(part, {
-        q: "问："+ask,
-        qPinyin: py(word),
-        qMeaning: "Chọn câu trả lời hợp lý nhất.",
-        options: picked.options,
-        optionPinyin: ["","","",""],
-        optionMeaning: ["","","",""],
-        answer: picked.answer,
-        analysis: picked.analysis,
+    if(type==="read-qa" || type==="listen-reply"){
+      const mates = distinctRest(pool, word, rng, 3, zh);
+      const rows = [{
+        t: zh(word), py: py(word), vi: vi(word), ok: true,
+        why: "ĐÚNG. Câu hỏi hỏi về «"+word.h+"» ("+String(word.m||"")+"). Câu «"+zh(word)+"» nói đúng việc này: "+vi(word)+"."
+      }].concat(mates.map(function(w){
+        return {
+          t: zh(w), py: py(w), vi: vi(w), ok: false,
+          why: "SAI. Câu này nói về «"+w.h+"» ("+String(w.m||"")+"): "+vi(w)+". Không trả lời câu hỏi về «"+word.h+"»."
+        };
+      }));
+      const mixed = hsk1Mix(rows, rng);
+      const ask = "关于「"+word.h+"」，哪一句说得对？";
+      const heard = part.slice();
+      if(type==="listen-reply") heard[2] = "Nghe câu hỏi, xem hình, rồi chọn câu nói đúng về từ đó.";
+      return pack(type==="listen-reply" ? heard : part, {
+        q: type==="listen-reply" ? "请听问题，选择最合适的回答。" : ("问："+ask),
+        qPinyin: type==="listen-reply" ? "" : ("Guānyú 「"+word.h+"」，nǎ yí jù shuō de duì?"),
+        qMeaning: "Câu hỏi: về «"+word.h+"» ("+String(word.m||"")+"), câu nào nói đúng?",
+        options: mixed.options,
+        optionPinyin: mixed.optionPinyin,
+        optionMeaning: mixed.optionMeaning,
+        answer: mixed.answer,
+        analysis: mixed.analysis,
+        audioText: type==="listen-reply" ? ask : "",
+        picture: shot,
         h: word.h, m: word.m
       });
     }
@@ -165998,58 +166079,77 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
         optionPinyin: [],
         optionMeaning: [],
         answer: 0,
-        analysis: ["Chữ đúng là "+word.h+" · "+(word.m||"")],
+        analysis: ["ĐÚNG khi gõ đúng «"+word.h+"». Phiên âm "+(word.p||"")+" là chữ này, nghĩa "+String(word.m||"")+". Câu ví dụ: "+zh(word)+" — "+vi(word)+"."],
         inputMode: "dictation",
         answerText: word.h,
         h: word.h, m: word.m
       });
     }
-    if(type==="listen-meaning"){
-      const picked = choices(vi(word), rest.map(vi), rng, "nghĩa của câu vừa nghe");
+    if(type==="listen-meaning" || type==="read-choice" || type==="word-meaning" || type==="summary"){
+      const meaningOf = type==="word-meaning" ? function(w){ return String(w.m||""); } : vi;
+      const mates = distinctRest(pool, word, rng, 3, meaningOf);
+      const rows = [{
+        t: meaningOf(word), py: "", vi: meaningOf(word), ok: true,
+        why: "ĐÚNG. «"+zh(word)+"» nói về «"+word.h+"» ("+String(word.m||"")+"), nghĩa là: "+meaningOf(word)+"."
+      }].concat(mates.map(function(w){
+        return {
+          t: meaningOf(w), py: "", vi: meaningOf(w), ok: false,
+          why: "SAI. Đây là nghĩa của «"+w.h+"» ("+String(w.m||"")+"): "+meaningOf(w)+". Câu đang hỏi không nói việc đó. Câu đúng là: "+meaningOf(word)+"."
+        };
+      }));
+      const mixed = hsk1Mix(rows, rng);
       const heard = part.slice();
-      heard[2] = "Xem hình, nghe câu, rồi chọn nghĩa đúng. Câu không hiện sẵn.";
-      return pack(heard, {
-        q: "请听句子，选择正确的意思。",
-        qMeaning: "Chọn nghĩa tiếng Việt đúng với câu vừa nghe.",
-        options: picked.options, answer: picked.answer, analysis: picked.analysis,
-        optionMeaning: picked.options.slice(),
-        audioText: zh(word), picture: shot, h: word.h, m: word.m
-      });
-    }
-    if(type==="listen-reply"){
-      const correct = zh(word);
-      const wrongs = rest.map(zh);
-      const picked = choices(correct, wrongs, rng, "câu trả lời hợp với câu hỏi");
-      const heard = part.slice();
-      heard[2] = "Nghe câu hỏi, xem hình, rồi chọn câu trả lời.";
-      return pack(heard, {
-        q: "请听问题，选择最合适的回答。",
-        qMeaning: "Nghe câu hỏi rồi chọn câu đáp.",
-        options: picked.options,
-        optionPinyin: ["","","",""],
-        optionMeaning: ["","","",""],
-        answer: picked.answer, analysis: picked.analysis,
-        audioText: "你觉得"+word.h+"怎么样？",
-        picture: shot, h: word.h, m: word.m
+      if(type==="listen-meaning") heard[2] = "Xem hình, nghe câu, rồi chọn nghĩa đúng. Câu không hiện sẵn.";
+      const prompt = type==="listen-meaning"
+        ? "请听句子，选择正确的意思。"
+        : (type==="summary"
+          ? (zh(word)+"\n这段话主要在说什么？")
+          : (type==="word-meaning" ? word.h : (zh(word)+"\n这句话是什么意思？")));
+      return pack(type==="listen-meaning" ? heard : part, {
+        q: prompt,
+        qPinyin: type==="listen-meaning" ? "" : (type==="word-meaning" ? (word.p||"") : py(word)),
+        qMeaning: type==="word-meaning" ? "Chọn nghĩa đúng của từ này." : "Chọn nghĩa tiếng Việt đúng của câu.",
+        options: mixed.options,
+        optionPinyin: mixed.optionPinyin,
+        optionMeaning: mixed.optionMeaning,
+        answer: mixed.answer,
+        analysis: mixed.analysis,
+        audioText: type==="listen-meaning" ? zh(word) : "",
+        picture: shot,
+        h: word.h, m: word.m
       });
     }
     if(type==="listen-word"){
-      const picked = choices(word.h, rest.map(function(w){ return w.h; }), rng, "từ được nhắc trong câu");
+      const mates = distinctRest(pool, word, rng, 3, function(w){ return w.h; });
+      const rows = [{
+        t: word.h, py: word.p||"", vi: String(word.m||""), ok: true,
+        why: "ĐÚNG. Câu «"+zh(word)+"» ("+vi(word)+") có nhắc «"+word.h+"» ("+String(word.m||"")+")."
+      }].concat(mates.map(function(w){
+        return {
+          t: w.h, py: w.p||"", vi: String(w.m||""), ok: false,
+          why: "SAI. Câu không nhắc «"+w.h+"» ("+String(w.m||"")+"). Từ được nhắc là «"+word.h+"» ("+String(word.m||"")+")."
+        };
+      }));
+      const mixed = hsk1Mix(rows, rng);
       const heard = part.slice();
       heard[2] = "Nghe câu, xem hình, rồi chọn từ được nhắc tới.";
       return pack(heard, {
         q: "请听句子，选择句子里提到的词。",
         qMeaning: "Chọn từ xuất hiện trong câu vừa nghe.",
-        options: picked.options,
-        optionPinyin: picked.options.map(function(){ return ""; }),
-        optionMeaning: picked.options.map(function(){ return ""; }),
-        answer: picked.answer, analysis: picked.analysis,
-        audioText: zh(word), picture: shot, h: word.h, m: word.m
+        options: mixed.options,
+        optionPinyin: mixed.optionPinyin,
+        optionMeaning: mixed.optionMeaning,
+        answer: mixed.answer,
+        analysis: mixed.analysis,
+        audioText: zh(word),
+        picture: shot,
+        h: word.h, m: word.m
       });
     }
     if(type==="read-tf"){
+      const foil = distinctRest(pool, word, rng, 1, vi)[0] || rest[0];
       const truth = rng()<0.5;
-      const statement = truth ? vi(word) : vi(rest[0]);
+      const statement = truth ? vi(word) : vi(foil);
       const answer = truth ? 0 : 1;
       return pack(part, {
         q: zh(word)+"\n越南语："+statement+"\n意思对不对？",
@@ -166062,88 +166162,99 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
         qPinyin: py(word),
         h: word.h, m: word.m,
         analysis:[
-          answer===0?"ĐÚNG: ý tiếng Việt khớp với câu tiếng Trung.":"SAI: ý tiếng Việt không khớp, không chọn 对.",
-          answer===1?"ĐÚNG: ý tiếng Việt không khớp câu tiếng Trung, nên chọn 错.":"SAI: ý tiếng Việt là đúng, không chọn 错."
+          answer===0
+            ? "ĐÚNG. «"+zh(word)+"» nghĩa là "+vi(word)+". Câu tiếng Việt viết đúng ý đó."
+            : "SAI. Câu tiếng Trung nghĩa là "+vi(word)+". Dòng tiếng Việt lại nói "+vi(foil)+". Không chọn 对.",
+          answer===1
+            ? "ĐÚNG. Dòng tiếng Việt nói "+vi(foil)+", còn câu «"+zh(word)+"» nghĩa là "+vi(word)+". Hai ý khác nhau, chọn 错."
+            : "SAI. Dòng tiếng Việt đúng là "+vi(word)+". Không chọn 错."
         ]
-      });
-    }
-    if(type==="word-meaning"){
-      const picked = choices(String(word.m), rest.map(function(w){return String(w.m);}), rng, "nghĩa của từ");
-      return pack(part, {
-        q:word.h,
-        qPinyin:word.p||"",
-        qMeaning:"Chọn nghĩa đúng của từ này.",
-        options:picked.options, answer:picked.answer, analysis:picked.analysis,
-        optionMeaning:picked.options.slice(),
-        h:word.h, m:word.m
       });
     }
     if(type==="cloze"){
       const sentence = zh(word);
-      const blank = sentence.indexOf(word.h)>=0 ? sentence.replace(word.h,"______") : ("我想说______。");
-      const picked = choices(word.h, rest.map(function(w){return w.h;}), rng, "từ điền vào chỗ trống");
+      const has = sentence.indexOf(word.h)>=0;
+      const blank = has ? sentence.replace(word.h, "______") : ("______："+vi(word)+"。");
+      const mates = distinctRest(pool, word, rng, 3, function(w){ return w.h; });
+      const rows = [{
+        t: word.h, py: word.p||"", vi: String(word.m||""), ok: true,
+        why: "ĐÚNG. Câu đủ là «"+sentence+"» ("+vi(word)+"). Chỗ trống là «"+word.h+"» ("+String(word.m||"")+")."
+      }].concat(mates.map(function(w){
+        return {
+          t: w.h, py: w.p||"", vi: String(w.m||""), ok: false,
+          why: "SAI. «"+w.h+"» nghĩa là "+String(w.m||"")+". Điền từ này thì câu không còn nghĩa "+vi(word)+"."
+        };
+      }));
+      const mixed = hsk1Mix(rows, rng);
       return pack(part, {
-        q:blank,
-        qPinyin:"",
-        qMeaning:"Chọn từ thích hợp điền vào chỗ trống.",
-        options:picked.options,
-        optionPinyin:picked.options.map(function(){return "";}),
-        optionMeaning:picked.options.map(function(){return "";}),
-        answer:picked.answer,
-        analysis:picked.analysis,
-        h:word.h, m:word.m
-      });
-    }
-    if(type==="read-choice"){
-      const picked = choices(vi(word), rest.map(vi), rng, "ý của câu");
-      return pack(part, {
-        q:zh(word)+"\n这句话是什么意思？",
-        qPinyin:py(word),
-        qMeaning:"Đọc câu và chọn nghĩa đúng.",
-        options:picked.options, answer:picked.answer, analysis:picked.analysis,
-        optionMeaning:picked.options.slice(),
-        h:word.h, m:word.m
+        q: blank,
+        qPinyin: "",
+        qMeaning: "Chọn từ thích hợp điền vào chỗ trống. Câu đầy đủ nói: "+vi(word)+".",
+        options: mixed.options,
+        optionPinyin: mixed.optionPinyin,
+        optionMeaning: mixed.optionMeaning,
+        answer: mixed.answer,
+        analysis: mixed.analysis,
+        h: word.h, m: word.m
       });
     }
     if(type==="order" || type==="use-word"){
-      const correct = zh(word);
-      const wrongs = rest.map(zh);
-      const bits = String(word.h).split("");
-      const picked = choices(correct, wrongs, rng, type==="order"?"câu sắp xếp đúng":"câu dùng đúng từ");
+      const mates = distinctRest(pool, word, rng, 3, zh);
+      const rows = [{
+        t: zh(word), py: py(word), vi: vi(word), ok: true,
+        why: "ĐÚNG. Câu «"+zh(word)+"» dùng «"+word.h+"» đúng với nghĩa "+String(word.m||"")+": "+vi(word)+"."
+      }].concat(mates.map(function(w){
+        return {
+          t: zh(w), py: py(w), vi: vi(w), ok: false,
+          why: "SAI. Câu này nói về «"+w.h+"» ("+String(w.m||"")+"): "+vi(w)+". Không phải câu dùng đúng «"+word.h+"» ("+String(word.m||"")+")."
+        };
+      }));
+      const mixed = hsk1Mix(rows, rng);
       return pack(part, {
-        q:(type==="order"?"把下面的内容组成正确的句子。":"用所给词语选择正确的句子。")+"\n词语："+bits.join(" / ")+" / "+String(word.m),
-        qMeaning:type==="order"?"Chọn câu có thứ tự đúng.":"Chọn câu dùng đúng từ đã cho.",
-        options:picked.options, answer:picked.answer, analysis:picked.analysis,
-        optionPinyin:["","","",""],
-        optionMeaning:["","","",""],
-        h:word.h, m:word.m
+        q: (type==="order" ? "选择正确的句子。" : "用所给词语选择正确的句子。")+"\n词语："+word.h+"（"+String(word.m||"")+"）",
+        qMeaning: type==="order" ? "Chọn câu nói đúng việc của từ đã cho." : "Chọn câu dùng đúng từ đã cho.",
+        options: mixed.options,
+        optionPinyin: mixed.optionPinyin,
+        optionMeaning: mixed.optionMeaning,
+        answer: mixed.answer,
+        analysis: mixed.analysis,
+        h: word.h, m: word.m
       });
     }
     if(type==="error-spot"){
-      const body = zh(word).replace(/[。！？]$/,"");
-      const bad = body.slice(0,1)+body+"。";
-      const goods = rest.map(zh);
-      const rows = [{t:bad, ok:true}].concat(goods.map(function(t){return {t:t, ok:false};}));
-      const mixed = shuffle(rows, rng);
-      const answer = mixed.findIndex(function(x){return x.ok;});
+      const foil = distinctRest(pool, word, rng, 1, function(w){ return w.h; })[0] || rest[0];
+      const good = zh(word);
+      const bad = good.indexOf(word.h)>=0 ? good.replace(word.h, foil.h) : (foil.h + good);
+      const mates = distinctRest(pool, foil, rng, 3, zh).filter(function(w){ return w!==word; }).slice(0, 3);
+      while(mates.length<3) mates.push(rest[mates.length % rest.length]);
+      const rows = [{
+        t: bad, py: "", vi: "", ok: true,
+        why: "ĐÚNG. Câu «"+bad+"» đang định nói "+vi(word)+", nhưng dùng «"+foil.h+"» ("+String(foil.m||"")+") thay cho «"+word.h+"» ("+String(word.m||"")+"). Đó là câu sai."
+      }].concat(mates.map(function(w){
+        return {
+          t: zh(w), py: py(w), vi: vi(w), ok: false,
+          why: "SAI. «"+zh(w)+"» nói đúng việc «"+w.h+"» ("+String(w.m||"")+"): "+vi(w)+". Câu này không có lỗi dùng từ."
+        };
+      }));
+      const mixed = hsk1Mix(rows, rng);
       return pack(part, {
-        q:"下面哪一句有错误？",
-        qMeaning:"Chọn câu có lỗi.",
-        options:mixed.map(function(x){return x.t;}),
-        answer:answer,
-        analysis:mixed.map(function(x){return x.ok?"ĐÚNG: câu này lặp chữ đầu, là câu sai.":"SAI: câu này viết đúng, không chọn.";}),
-        h:word.h, m:word.m
+        q: "下面哪一句有错误？",
+        qMeaning: "Chọn câu dùng sai từ.",
+        options: mixed.options,
+        optionPinyin: mixed.optionPinyin,
+        optionMeaning: mixed.optionMeaning,
+        answer: mixed.answer,
+        analysis: mixed.analysis,
+        h: word.h, m: word.m
       });
     }
-    const picked = choices(vi(word), rest.map(vi), rng, "câu tóm tắt");
-    const passage = [word].concat(rest.slice(0,2)).map(zh).join("");
     return pack(part, {
-      q:passage+"\n这段话主要在说什么？",
-      qPinyin:"",
-      qMeaning:"Chọn câu tóm tắt đúng nhất.",
-      options:picked.options, answer:picked.answer, analysis:picked.analysis,
-      optionMeaning:picked.options.slice(),
-      h:word.h, m:word.m
+      q: zh(word),
+      qMeaning: vi(word),
+      options: [word.h],
+      answer: 0,
+      analysis: ["ĐÚNG. «"+word.h+"» nghĩa là "+String(word.m||"")+"."],
+      h: word.h, m: word.m
     });
   }
 
@@ -166422,15 +166533,18 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
 
 (function(){
   "use strict";
-  var counts = {1:40,2:60,3:80,4:100,5:100,6:101};
-  var times = {1:40,2:55,3:90,4:105,5:125,6:140};
+  var counts = {1:40,2:60,3:80,4:100,5:100,6:101,7:98,8:98,9:98};
+  var times = {1:40,2:55,3:90,4:105,5:125,6:140,7:150,8:160,9:170};
   var sections = {
     1:"Nghe 20 · Đọc 20",
     2:"Nghe 35 · Đọc 25",
     3:"Nghe 40 · Đọc 30 · Viết 10",
     4:"Nghe 45 · Đọc 40 · Viết 15",
     5:"Nghe 45 · Đọc 45 · Viết 10",
-    6:"Nghe 50 · Đọc 50 · Viết 1"
+    6:"Nghe 50 · Đọc 50 · Viết 1",
+    7:"Nghe 40 · Đọc 40 · Viết 18",
+    8:"Nghe 40 · Đọc 40 · Viết 18",
+    9:"Nghe 35 · Đọc 40 · Viết 23"
   };
   Object.keys(counts).forEach(function(key){
     var level = Number(key);
