@@ -152285,6 +152285,31 @@ body.ttc-light-effect-off #ttcLightFallCanvas{
   border-radius:12px;
   background:#fff;
 }
+#ttcChatGifPanel[hidden],
+#ttcChatPreview[hidden]{
+  display:none !important;
+  margin:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  height:0 !important;
+  overflow:hidden !important;
+}
+#ttcChatGifPanel:not([hidden]){
+  display:flex !important;
+  flex-direction:column;
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:100%;
+  z-index:40;
+  width:100%;
+  max-height:min(72vh, 640px);
+  height:auto !important;
+  margin:0 0 8px !important;
+  padding:10px !important;
+  overflow:hidden !important;
+  box-shadow:0 16px 40px rgba(0,0,0,.18);
+}
 
 .ttc-chat-gif-bar{
   display:flex;
@@ -152311,23 +152336,36 @@ body.ttc-light-effect-off #ttcLightFallCanvas{
 }
 
 .ttc-chat-gif-bar button{
-  padding:7px 8px;
+  padding:7px 8px !important;
   white-space:nowrap;
+  color:#111827 !important;
+  -webkit-text-fill-color:#111827 !important;
+  background:#f8fafc !important;
 }
 
 .ttc-chat-gif-results{
-  display:flex;
-  flex-wrap:wrap;
-  gap:6px;
-  max-height:168px;
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(132px, 1fr));
+  gap:8px;
+  max-height:min(60vh, 540px);
   overflow:auto;
-  margin-top:6px;
+  margin-top:8px;
 }
 
+.ttc-chat-gif-results .ttc-gif-more{
+  grid-column:1 / -1;
+  width:100%;
+  height:auto;
+  min-height:40px;
+  padding:6px 10px !important;
+  color:#b91c1c !important;
+  -webkit-text-fill-color:#b91c1c !important;
+  background:#fff5f5 !important;
+}
 .ttc-chat-gif-results button{
-  width:76px;
-  height:76px;
-  padding:0;
+  width:100%;
+  height:132px;
+  padding:0 !important;
   overflow:hidden;
 }
 
@@ -152390,30 +152428,40 @@ body.ttc-light-effect-off #ttcLightFallCanvas{
 .ttc-chat-icon-btn{
   width:40px;
   height:40px;
+  min-width:40px;
   flex:0 0 40px;
+  padding:0 !important;
   border:1px solid var(--ttc-border);
-  background:#fff;
+  background:#fff !important;
+  color:#111827 !important;
+  -webkit-text-fill-color:#111827 !important;
   border-radius:10px;
   cursor:pointer;
   font-size:18px;
+  line-height:1;
 }
 
 .ttc-chat-icon-btn:hover{
-  background:#f8fafc;
+  background:#f8fafc !important;
 }
 
 #ttcChatGif{
   width:46px;
+  min-width:46px;
   flex-basis:46px;
   font-size:13px;
   font-weight:800;
   letter-spacing:.2px;
+  color:#b91c1c !important;
+  -webkit-text-fill-color:#b91c1c !important;
+  background:#fff5f5 !important;
 }
 
 .ttc-chat-send{
-  background:var(--ttc-red);
-  color:#fff;
-  border-color:var(--ttc-red);
+  background:#d71920 !important;
+  color:#fff !important;
+  -webkit-text-fill-color:#fff !important;
+  border-color:#d71920 !important;
 }
 
 .ttc-chat-new{
@@ -152440,10 +152488,13 @@ body.ttc-light-effect-off #ttcLightFallCanvas{
 }
 
 .ttc-chat-status{
-  min-height:18px;
+  min-height:0;
   font-size:11px;
   color:var(--ttc-muted);
-  padding:2px 4px 0;
+  padding:0 4px;
+}
+#ttcChatStatus:empty{
+  display:none !important;
 }
 
 .ttc-chat-status.error{
@@ -152657,7 +152708,7 @@ body.ttc-light-effect-off #ttcLightFallCanvas{
           <div id="ttcChatPreview" class="ttc-chat-preview" hidden></div>
           <div id="ttcChatGifPanel" class="ttc-chat-gif" hidden>
             <div class="ttc-chat-gif-bar">
-              <input id="ttcChatGifQuery" type="search" placeholder="Tìm GIF, ví dụ cười, mèo" maxlength="40">
+              <input id="ttcChatGifQuery" type="text" placeholder="Gõ từ rồi nhấn Tìm, ví dụ mèo, cười" maxlength="40" autocomplete="off">
               <button id="ttcChatGifSearch" type="button">Tìm</button>
               <button id="ttcChatGifLocal" type="button">Trong máy</button>
             </div>
@@ -152942,11 +152993,27 @@ async function getDisplayName(uid){
 
 async function openChat(){
 
+  if(chat.classList.contains("ttc-chat-open")){
+    return;
+  }
+
+  chat.classList.add("ttc-chat-open");
+  chat.setAttribute("aria-hidden","false");
+  setChatFullscreen(true);
+
+  if(TTC_CHAT.initialized && TTC_CHAT.currentRoom && TTC_CHAT.messages.length){
+    hideChatNotification();
+    scrollToBottom();
+    return;
+  }
+
 hideChatNotification();
 
   TTC_CHAT.client = findSupabaseClient();
 
   if(!TTC_CHAT.client){
+
+    closeChat();
 
     alert(
       "Chat V1 chưa tìm thấy kết nối Supabase hiện tại của website."
@@ -152963,6 +153030,8 @@ hideChatNotification();
 
     if(error || !data?.user){
 
+      closeChat();
+
       alert("Anh cần đăng nhập trước khi vào Chat Online nhé 🥰");
 
       return;
@@ -152973,17 +153042,16 @@ hideChatNotification();
 
   }catch(e){
 
+    closeChat();
+
     alert("Không thể kiểm tra tài khoản đăng nhập.");
 
     return;
 
   }
 
-  chat.classList.add("ttc-chat-open");
-  chat.setAttribute("aria-hidden","false");
-  setChatFullscreen(true);
-
   await initializeChat();
+  scrollToBottom();
 
 }
 
@@ -153103,12 +153171,8 @@ async function selectRoom(room){
 
   if(!room) return;
 
-  if(TTC_CHAT.currentRoom?.id === room.id){
-
-    await loadMessages();
-
+  if(TTC_CHAT.currentRoom && String(TTC_CHAT.currentRoom.id) === String(room.id)){
     return;
-
   }
 
   await cleanupRoomChannels();
@@ -153118,8 +153182,6 @@ async function selectRoom(room){
   roomName.textContent = room.name;
 
   renderRooms();
-
-  updateRoomURL(room.slug);
 
   replyingBox.classList.remove("show");
 
@@ -153240,6 +153302,8 @@ async function loadOlderMessages(){
 }
 
 messagesBox.addEventListener("scroll", function(){
+
+  if(TTC_CHAT.pinningBottom) return;
 
   if(messagesBox.scrollTop < 48){
     loadOlderMessages();
@@ -155224,12 +155288,27 @@ function isNearBottom(){
 
 function scrollToBottom(){
 
-  requestAnimationFrame(() => {
+  if(!messagesBox) return;
 
-    messagesBox.scrollTop =
-      messagesBox.scrollHeight;
+  TTC_CHAT.pinningBottom = true;
 
-  });
+  const jump = function(){
+    messagesBox.style.scrollBehavior = "auto";
+    const last = messagesBox.lastElementChild;
+    messagesBox.scrollTop = messagesBox.scrollHeight;
+    if(last && last.scrollIntoView){
+      last.scrollIntoView({block:"end", inline:"nearest"});
+    }
+  };
+
+  jump();
+  requestAnimationFrame(jump);
+  setTimeout(jump, 50);
+  setTimeout(jump, 180);
+  setTimeout(function(){
+    jump();
+    TTC_CHAT.pinningBottom = false;
+  }, 360);
 
 }
 
@@ -155319,6 +155398,24 @@ $("ttcChatSend").addEventListener(
   },
   true
 );
+
+window.ttcChatSendFromUx = function(){
+  sendText();
+};
+
+chat.addEventListener("submit", function(event){
+  event.preventDefault();
+  event.stopPropagation();
+}, true);
+
+chat.addEventListener("click", function(event){
+  const link = event.target && event.target.closest && event.target.closest("a");
+  if(!link || !chat.contains(link)) return;
+  const href = link.getAttribute("href") || "";
+  if(!href || href === "#" || href.charAt(0) === "?"){
+    event.preventDefault();
+  }
+}, true);
 
 $("ttcChatAudio").addEventListener(
   "click",
@@ -155414,44 +155511,74 @@ function stageGif(url, name){
   if(gifPanel) gifPanel.hidden = true;
 }
 
-async function searchChatGifs(query){
+let gifSearchPage = 1;
+let gifSearchTerm = "";
+
+function appendGifChoice(item){
+  const button = document.createElement("button");
+  button.type = "button";
+  button.title = "Chọn GIF này";
+  const img = document.createElement("img");
+  img.src = item.thumb || item.url;
+  img.alt = "";
+  button.appendChild(img);
+  button.addEventListener("click", function(event){
+    event.preventDefault();
+    event.stopPropagation();
+    stageGif(item.url, item.name);
+  });
+  gifResults.appendChild(button);
+}
+
+async function searchChatGifs(query, page){
   if(!gifResults) return;
-  gifResults.textContent = "Đang tìm GIF...";
+  const term = String(query || "").trim();
+  if(!term){
+    gifResults.textContent = "Gõ một từ, ví dụ mèo hoặc cười, rồi nhấn Tìm.";
+    return;
+  }
+  page = page || 1;
+  gifSearchTerm = term;
+  gifSearchPage = page;
+  const previousMore = gifResults.querySelector(".ttc-gif-more");
+  if(previousMore) previousMore.remove();
+  if(page === 1) gifResults.textContent = "Đang tìm GIF...";
   try{
-    const endpoint = "https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrnamespace=6&gsrlimit=18&gsrsearch="
-      + encodeURIComponent(String(query || "smile") + " gif")
-      + "&prop=imageinfo&iiprop=url|mime&iiurlwidth=240";
+    const endpoint = "https://api.openverse.org/v1/images/?extension=gif&page_size=48&page="
+      + page
+      + "&q="
+      + encodeURIComponent(term);
     const response = await fetch(endpoint);
     const data = await response.json();
-    const pages = data && data.query && data.query.pages ? Object.values(data.query.pages) : [];
+    const rows = Array.isArray(data.results) ? data.results : [];
     const found = [];
-    pages.forEach(function(page){
-      const info = page.imageinfo && page.imageinfo[0];
-      if(!info) return;
-      const full = String(info.url || "");
-      if(info.mime !== "image/gif" && !/\.gif$/i.test(full)) return;
-      found.push({url:full, thumb:info.thumburl || full, name:page.title || "gif"});
+    rows.forEach(function(row){
+      const full = String(row.url || "");
+      if(!full) return;
+      if(String(row.filetype || "").toLowerCase() !== "gif" && !/\.gif($|\?)/i.test(full)) return;
+      found.push({url:full, thumb:full, name:row.title || "gif"});
     });
-    gifResults.innerHTML = "";
-    if(!found.length){
-      gifResults.textContent = "Chưa thấy GIF. Thử từ khác hoặc chọn file trong máy.";
+    if(page === 1) gifResults.innerHTML = "";
+    if(!found.length && page === 1){
+      gifResults.textContent = "Chưa thấy GIF cho từ này. Thử từ khác hoặc chọn file trong máy.";
       return;
     }
-    found.forEach(function(item){
-      const button = document.createElement("button");
-      button.type = "button";
-      button.title = "Chọn GIF này";
-      const img = document.createElement("img");
-      img.src = item.thumb;
-      img.alt = "";
-      button.appendChild(img);
-      button.addEventListener("click", function(){
-        stageGif(item.url, item.name);
+    found.forEach(appendGifChoice);
+    const pageCount = Number(data.page_count) || page;
+    if(page < pageCount){
+      const more = document.createElement("button");
+      more.type = "button";
+      more.className = "ttc-gif-more";
+      more.textContent = "Xem thêm";
+      more.addEventListener("click", function(event){
+        event.preventDefault();
+        event.stopPropagation();
+        searchChatGifs(gifSearchTerm, gifSearchPage + 1);
       });
-      gifResults.appendChild(button);
-    });
+      gifResults.appendChild(more);
+    }
   }catch(error){
-    gifResults.textContent = "Không tìm được GIF lúc này. Anh chọn file GIF trong máy.";
+    if(page === 1) gifResults.textContent = "Không tìm được GIF lúc này. Anh chọn file GIF trong máy.";
   }
 }
 
@@ -155485,18 +155612,20 @@ if(gifButton && gifPanel){
   gifButton.addEventListener("click", function(event){
     event.preventDefault();
     gifPanel.hidden = !gifPanel.hidden;
-    if(!gifPanel.hidden && gifResults && !gifResults.childNodes.length){
-      searchChatGifs(gifQuery && gifQuery.value ? gifQuery.value : "smile");
+    if(!gifPanel.hidden && gifQuery){
+      gifQuery.focus();
     }
   });
-  $("ttcChatGifSearch").addEventListener("click", function(){
-    searchChatGifs(gifQuery.value.trim() || "smile");
+  $("ttcChatGifSearch").addEventListener("click", function(event){
+    event.preventDefault();
+    event.stopPropagation();
+    searchChatGifs(gifQuery.value.trim(), 1);
   });
   gifQuery.addEventListener("keydown", function(event){
     if(event.key === "Enter"){
       event.preventDefault();
       event.stopPropagation();
-      searchChatGifs(gifQuery.value.trim() || "smile");
+      searchChatGifs(gifQuery.value.trim(), 1);
     }
   });
   $("ttcChatGifLocal").addEventListener("click", function(){
@@ -155715,7 +155844,11 @@ button.appendChild(notificationDot);
 
   button.addEventListener(
     "click",
-    openChat
+    function(event){
+      event.preventDefault();
+      event.stopPropagation();
+      openChat();
+    }
   );
 
   document.body.appendChild(button);
@@ -159625,7 +159758,7 @@ if(
     if(
       form &&
       form.closest &&
-      form.closest("#ttcChat")
+      (form.closest("#ttcChatV1") || form.closest("#ttcChat"))
     ){
       event.preventDefault();
       event.stopPropagation();
@@ -159948,7 +160081,8 @@ body > .price-box summary{
    💬 CHAT — GIỮ VÙNG TIN NHẮN ỔN ĐỊNH
 ========================================================= */
 #ttcChatV1 .ttc-chat-messages{
-  overflow-anchor:auto !important;
+  overflow-anchor:none !important;
+  scroll-behavior:auto !important;
   overscroll-behavior:contain !important;
 }
 </style>
@@ -166877,7 +167011,11 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
 
 <style id="ttc-chat-dock-v1">
 #ttcFloatingChatBtn{z-index:1000002 !important}
-#ttcChatV1.ttc-chat-open{z-index:1000001 !important}
+#ttcChatV1.ttc-chat-open{z-index:1000010 !important}
+body.ttc-chat-is-open #ttcFloatingChatBtn{
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
 body.ttc-chat-is-open #whHskLauncher,
 body.ttc-chat-is-open #ttcExampleAutoV2{z-index:1 !important;pointer-events:none !important}
 #ttcFloatingChatBtn .ttc-chat-mini-mark{display:none}
