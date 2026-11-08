@@ -165560,7 +165560,217 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
     }
     return out;
   }
-  let sceneForQuestion = null, sceneUsed = null, sceneCursor = null;
+  let sceneForQuestion = null, sceneUsed = null, sceneCursor = null, sceneDeck = 0, sceneObject = 0;
+  let photoDeckCache = null;
+  const PHOTO_EXTRA = [
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f7/Ngoc_Ha_Market_Hanoi.JPG/960px-Ngoc_Ha_Market_Hanoi.JPG",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/14/Night_Market_on_Hang_Dao_%283694367833%29.jpg/960px-Night_Market_on_Hang_Dao_%283694367833%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a8/Hanoi%2C_Dong_Xuan_market_%286225885496%29.jpg/960px-Hanoi%2C_Dong_Xuan_market_%286225885496%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/15/Cho_Dong_Xuan%2C_Old_Quarter%2C_Hanoi%2C_Vietnam_%285245806573%29.jpg/960px-Cho_Dong_Xuan%2C_Old_Quarter%2C_Hanoi%2C_Vietnam_%285245806573%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b7/Lascar_Colourful_market_-_Pho_Gia_Ngu_%284551027476%29.jpg/960px-Lascar_Colourful_market_-_Pho_Gia_Ngu_%284551027476%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/ba/Lascar_Traditional_street_market_and_Dong_Xuan_Market_by_night_%284550974092%29.jpg/960px-Lascar_Traditional_street_market_and_Dong_Xuan_Market_by_night_%284550974092%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/65/Old_Hanoi_%287168872869%29.jpg/960px-Old_Hanoi_%287168872869%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2f/Hanoi_%284046986925%29.jpg/960px-Hanoi_%284046986925%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/02/Wet_market_%2821900292664%29.jpg/960px-Wet_market_%2821900292664%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5b/Bird_monger_in_Hanoi%2C_10_March_2019.jpg/960px-Bird_monger_in_Hanoi%2C_10_March_2019.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/26/Couple_at_Market_Stall_-_Old_Quarter_-_Hanoi_-_Vietnam_%2848071367577%29.jpg/960px-Couple_at_Market_Stall_-_Old_Quarter_-_Hanoi_-_Vietnam_%2848071367577%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/09/Performance_at_the_Hanoi_Night_Market.jpg/960px-Performance_at_the_Hanoi_Night_Market.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a9/Street_markets%2C_Urban_Discovery_Tour%2C_Hanoi_%287060671921%29.jpg/960px-Street_markets%2C_Urban_Discovery_Tour%2C_Hanoi_%287060671921%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7d/Local_neighbourhood_markets%2C_T%C3%A2y_H%E1%BB%93%2C_Hanoi_%287067698575%29.jpg/960px-Local_neighbourhood_markets%2C_T%C3%A2y_H%E1%BB%93%2C_Hanoi_%287067698575%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a3/Markets%2C_Urban_Discovery_Tour%2C_Hanoi_%287060670209%29.jpg/960px-Markets%2C_Urban_Discovery_Tour%2C_Hanoi_%287060670209%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e9/Roadside_market_on_Long_Bien_Bridge%2C_Hanoi%2C_Vietnam_%287060682485%29.jpg/960px-Roadside_market_on_Long_Bien_Bridge%2C_Hanoi%2C_Vietnam_%287060682485%29.jpg",
+    "https://upload.wikimedia.org/wikipedia/commons/7/78/A_rural_market_in_Hanoi%E2%80%99s_suburbs_-_L%C3%A9on_Busy_%281874-1951%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fc/Street_market_in_Hanoi%2C_2003_July_41.jpg/960px-Street_market_in_Hanoi%2C_2003_July_41.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f3/Bui_Vien_St.%E3%83%96%E3%82%A4%E3%83%B4%E3%82%A3%E3%82%A8%E3%83%B3%E9%80%9A%E3%82%8A_Th%C3%A0nh_ph%E1%BB%91_H%E1%BB%93_Ch%C3%AD_Minh_%E5%9F%8E%E8%88%97%E8%83%A1%E5%BF%97%E6%98%8E_%E3%83%9B%E3%83%BC%E3%83%81%E3%83%9F%E3%83%B3_DSCF1561.JPG/960px-Bui_Vien_St.%E3%83%96%E3%82%A4%E3%83%B4%E3%82%A3%E3%82%A8%E3%83%B3%E9%80%9A%E3%82%8A_Th%C3%A0nh_ph%E1%BB%91_H%E1%BB%93_Ch%C3%AD_Minh_%E5%9F%8E%E8%88%97%E8%83%A1%E5%BF%97%E6%98%8E_%E3%83%9B%E3%83%BC%E3%83%81%E3%83%9F%E3%83%B3_DSCF1561.JPG",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3c/Bui_Vien_St.%E3%83%96%E3%82%A4%E3%83%B4%E3%82%A3%E3%82%A8%E3%83%B3%E9%80%9A%E3%82%8A_Th%C3%A0nh_ph%E1%BB%91_H%E1%BB%93_Ch%C3%AD_Minh_%E5%9F%8E%E8%88%97%E8%83%A1%E5%BF%97%E6%98%8E_%E3%83%9B%E3%83%BC%E3%83%81%E3%83%9F%E3%83%B3_DSCF1562.JPG/960px-Bui_Vien_St.%E3%83%96%E3%82%A4%E3%83%B4%E3%82%A3%E3%82%A8%E3%83%B3%E9%80%9A%E3%82%8A_Th%C3%A0nh_ph%E1%BB%91_H%E1%BB%93_Ch%C3%AD_Minh_%E5%9F%8E%E8%88%97%E8%83%A1%E5%BF%97%E6%98%8E_%E3%83%9B%E3%83%BC%E3%83%81%E3%83%9F%E3%83%B3_DSCF1562.JPG",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d5/Bui_Vien_St.%E3%83%96%E3%82%A4%E3%83%B4%E3%82%A3%E3%82%A8%E3%83%B3%E9%80%9A%E3%82%8A_Th%C3%A0nh_ph%E1%BB%91_H%E1%BB%93_Ch%C3%AD_Minh_%E5%9F%8E%E8%88%97%E8%83%A1%E5%BF%97%E6%98%8E_%E3%83%9B%E3%83%BC%E3%83%81%E3%83%9F%E3%83%B3_DSCF1595.JPG/960px-Bui_Vien_St.%E3%83%96%E3%82%A4%E3%83%B4%E3%82%A3%E3%82%A8%E3%83%B3%E9%80%9A%E3%82%8A_Th%C3%A0nh_ph%E1%BB%91_H%E1%BB%93_Ch%C3%AD_Minh_%E5%9F%8E%E8%88%97%E8%83%A1%E5%BF%97%E6%98%8E_%E3%83%9B%E3%83%BC%E3%83%81%E3%83%9F%E3%83%B3_DSCF1595.JPG",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bd/Bui_Vien_St.%E3%83%96%E3%82%A4%E3%83%B4%E3%82%A3%E3%82%A8%E3%83%B3%E9%80%9A%E3%82%8A_Th%C3%A0nh_ph%E1%BB%91_H%E1%BB%93_Ch%C3%AD_Minh_%E5%9F%8E%E8%88%97%E8%83%A1%E5%BF%97%E6%98%8E_%E3%83%9B%E3%83%BC%E3%83%81%E3%83%9F%E3%83%B3_DSCF1599.JPG/960px-Bui_Vien_St.%E3%83%96%E3%82%A4%E3%83%B4%E3%82%A3%E3%82%A8%E3%83%B3%E9%80%9A%E3%82%8A_Th%C3%A0nh_ph%E1%BB%91_H%E1%BB%93_Ch%C3%AD_Minh_%E5%9F%8E%E8%88%97%E8%83%A1%E5%BF%97%E6%98%8E_%E3%83%9B%E3%83%BC%E3%83%81%E3%83%9F%E3%83%B3_DSCF1599.JPG",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b0/Bui_Vien_St.%E3%83%96%E3%82%A4%E3%83%B4%E3%82%A3%E3%82%A8%E3%83%B3%E9%80%9A%E3%82%8A_Th%C3%A0nh_ph%E1%BB%91_H%E1%BB%93_Ch%C3%AD_Minh_%E5%9F%8E%E8%88%97%E8%83%A1%E5%BF%97%E6%98%8E_%E3%83%9B%E3%83%BC%E3%83%81%E3%83%9F%E3%83%B3_DSCF1603.JPG/960px-Bui_Vien_St.%E3%83%96%E3%82%A4%E3%83%B4%E3%82%A3%E3%82%A8%E3%83%B3%E9%80%9A%E3%82%8A_Th%C3%A0nh_ph%E1%BB%91_H%E1%BB%93_Ch%C3%AD_Minh_%E5%9F%8E%E8%88%97%E8%83%A1%E5%BF%97%E6%98%8E_%E3%83%9B%E3%83%BC%E3%83%81%E3%83%9F%E3%83%B3_DSCF1603.JPG",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/54/Bui_Vien_St.%E3%83%96%E3%82%A4%E3%83%B4%E3%82%A3%E3%82%A8%E3%83%B3%E9%80%9A%E3%82%8A_Th%C3%A0nh_ph%E1%BB%91_H%E1%BB%93_Ch%C3%AD_Minh_%E5%9F%8E%E8%88%97%E8%83%A1%E5%BF%97%E6%98%8E_%E3%83%9B%E3%83%BC%E3%83%81%E3%83%9F%E3%83%B3_DSCF1620.JPG/960px-Bui_Vien_St.%E3%83%96%E3%82%A4%E3%83%B4%E3%82%A3%E3%82%A8%E3%83%B3%E9%80%9A%E3%82%8A_Th%C3%A0nh_ph%E1%BB%91_H%E1%BB%93_Ch%C3%AD_Minh_%E5%9F%8E%E8%88%97%E8%83%A1%E5%BF%97%E6%98%8E_%E3%83%9B%E3%83%BC%E3%83%81%E3%83%9F%E3%83%B3_DSCF1620.JPG",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/01/Bui_Vien_St.%E3%83%96%E3%82%A4%E3%83%B4%E3%82%A3%E3%82%A8%E3%83%B3%E9%80%9A%E3%82%8A_Th%C3%A0nh_ph%E1%BB%91_H%E1%BB%93_Ch%C3%AD_Minh_%E5%9F%8E%E8%88%97%E8%83%A1%E5%BF%97%E6%98%8E_%E3%83%9B%E3%83%BC%E3%83%81%E3%83%9F%E3%83%B3_DSCF1627.JPG/960px-Bui_Vien_St.%E3%83%96%E3%82%A4%E3%83%B4%E3%82%A3%E3%82%A8%E3%83%B3%E9%80%9A%E3%82%8A_Th%C3%A0nh_ph%E1%BB%91_H%E1%BB%93_Ch%C3%AD_Minh_%E5%9F%8E%E8%88%97%E8%83%A1%E5%BF%97%E6%98%8E_%E3%83%9B%E3%83%BC%E3%83%81%E3%83%9F%E3%83%B3_DSCF1627.JPG",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ed/Bui_Vien_St.%E3%83%96%E3%82%A4%E3%83%B4%E3%82%A3%E3%82%A8%E3%83%B3%E9%80%9A%E3%82%8A_Th%C3%A0nh_ph%E1%BB%91_H%E1%BB%93_Ch%C3%AD_Minh_%E5%9F%8E%E8%88%97%E8%83%A1%E5%BF%97%E6%98%8E_%E3%83%9B%E3%83%BC%E3%83%81%E3%83%9F%E3%83%B3_DSCF1628.JPG/960px-Bui_Vien_St.%E3%83%96%E3%82%A4%E3%83%B4%E3%82%A3%E3%82%A8%E3%83%B3%E9%80%9A%E3%82%8A_Th%C3%A0nh_ph%E1%BB%91_H%E1%BB%93_Ch%C3%AD_Minh_%E5%9F%8E%E8%88%97%E8%83%A1%E5%BF%97%E6%98%8E_%E3%83%9B%E3%83%BC%E3%83%81%E3%83%9F%E3%83%B3_DSCF1628.JPG",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1f/Bui_Vien_St.%E3%83%96%E3%82%A4%E3%83%B4%E3%82%A3%E3%82%A8%E3%83%B3%E9%80%9A%E3%82%8A_Th%C3%A0nh_ph%E1%BB%91_H%E1%BB%93_Ch%C3%AD_Minh_%E5%9F%8E%E8%88%97%E8%83%A1%E5%BF%97%E6%98%8E_%E3%83%9B%E3%83%BC%E3%83%81%E3%83%9F%E3%83%B3_DSCF1629.JPG/960px-Bui_Vien_St.%E3%83%96%E3%82%A4%E3%83%B4%E3%82%A3%E3%82%A8%E3%83%B3%E9%80%9A%E3%82%8A_Th%C3%A0nh_ph%E1%BB%91_H%E1%BB%93_Ch%C3%AD_Minh_%E5%9F%8E%E8%88%97%E8%83%A1%E5%BF%97%E6%98%8E_%E3%83%9B%E3%83%BC%E3%83%81%E3%83%9F%E3%83%B3_DSCF1629.JPG",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/37/Bui_Vien_St.%E3%83%96%E3%82%A4%E3%83%B4%E3%82%A3%E3%82%A8%E3%83%B3%E9%80%9A%E3%82%8A_Th%C3%A0nh_ph%E1%BB%91_H%E1%BB%93_Ch%C3%AD_Minh_%E5%9F%8E%E8%88%97%E8%83%A1%E5%BF%97%E6%98%8E_%E3%83%9B%E3%83%BC%E3%83%81%E3%83%9F%E3%83%B3_DSCF1638.JPG/960px-Bui_Vien_St.%E3%83%96%E3%82%A4%E3%83%B4%E3%82%A3%E3%82%A8%E3%83%B3%E9%80%9A%E3%82%8A_Th%C3%A0nh_ph%E1%BB%91_H%E1%BB%93_Ch%C3%AD_Minh_%E5%9F%8E%E8%88%97%E8%83%A1%E5%BF%97%E6%98%8E_%E3%83%9B%E3%83%BC%E3%83%81%E3%83%9F%E3%83%B3_DSCF1638.JPG",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/56/Bui_Vien_St.%E3%83%96%E3%82%A4%E3%83%B4%E3%82%A3%E3%82%A8%E3%83%B3%E9%80%9A%E3%82%8A_Th%C3%A0nh_ph%E1%BB%91_H%E1%BB%93_Ch%C3%AD_Minh_%E5%9F%8E%E8%88%97%E8%83%A1%E5%BF%97%E6%98%8E_%E3%83%9B%E3%83%BC%E3%83%81%E3%83%9F%E3%83%B3_DSCF1641.JPG/960px-Bui_Vien_St.%E3%83%96%E3%82%A4%E3%83%B4%E3%82%A3%E3%82%A8%E3%83%B3%E9%80%9A%E3%82%8A_Th%C3%A0nh_ph%E1%BB%91_H%E1%BB%93_Ch%C3%AD_Minh_%E5%9F%8E%E8%88%97%E8%83%A1%E5%BF%97%E6%98%8E_%E3%83%9B%E3%83%BC%E3%83%81%E3%83%9F%E3%83%B3_DSCF1641.JPG",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/20/Bui_Vien_St.%E3%83%96%E3%82%A4%E3%83%B4%E3%82%A3%E3%82%A8%E3%83%B3%E9%80%9A%E3%82%8A_Th%C3%A0nh_ph%E1%BB%91_H%E1%BB%93_Ch%C3%AD_Minh_%E5%9F%8E%E8%88%97%E8%83%A1%E5%BF%97%E6%98%8E_%E3%83%9B%E3%83%BC%E3%83%81%E3%83%9F%E3%83%B3_DSCF1644.JPG/960px-Bui_Vien_St.%E3%83%96%E3%82%A4%E3%83%B4%E3%82%A3%E3%82%A8%E3%83%B3%E9%80%9A%E3%82%8A_Th%C3%A0nh_ph%E1%BB%91_H%E1%BB%93_Ch%C3%AD_Minh_%E5%9F%8E%E8%88%97%E8%83%A1%E5%BF%97%E6%98%8E_%E3%83%9B%E3%83%BC%E3%83%81%E3%83%9F%E3%83%B3_DSCF1644.JPG",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f1/Bui_Vien_St.%E3%83%96%E3%82%A4%E3%83%B4%E3%82%A3%E3%82%A8%E3%83%B3%E9%80%9A%E3%82%8A_Th%C3%A0nh_ph%E1%BB%91_H%E1%BB%93_Ch%C3%AD_Minh_%E5%9F%8E%E8%88%97%E8%83%A1%E5%BF%97%E6%98%8E_%E3%83%9B%E3%83%BC%E3%83%81%E3%83%9F%E3%83%B3_DSCF1651.JPG/960px-Bui_Vien_St.%E3%83%96%E3%82%A4%E3%83%B4%E3%82%A3%E3%82%A8%E3%83%B3%E9%80%9A%E3%82%8A_Th%C3%A0nh_ph%E1%BB%91_H%E1%BB%93_Ch%C3%AD_Minh_%E5%9F%8E%E8%88%97%E8%83%A1%E5%BF%97%E6%98%8E_%E3%83%9B%E3%83%BC%E3%83%81%E3%83%9F%E3%83%B3_DSCF1651.JPG",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/49/Bui_Vien_St.%E3%83%96%E3%82%A4%E3%83%B4%E3%82%A3%E3%82%A8%E3%83%B3%E9%80%9A%E3%82%8A_Th%C3%A0nh_ph%E1%BB%91_H%E1%BB%93_Ch%C3%AD_Minh_%E5%9F%8E%E8%88%97%E8%83%A1%E5%BF%97%E6%98%8E_%E3%83%9B%E3%83%BC%E3%83%81%E3%83%9F%E3%83%B3_DSCF1679.JPG/960px-Bui_Vien_St.%E3%83%96%E3%82%A4%E3%83%B4%E3%82%A3%E3%82%A8%E3%83%B3%E9%80%9A%E3%82%8A_Th%C3%A0nh_ph%E1%BB%91_H%E1%BB%93_Ch%C3%AD_Minh_%E5%9F%8E%E8%88%97%E8%83%A1%E5%BF%97%E6%98%8E_%E3%83%9B%E3%83%BC%E3%83%81%E3%83%9F%E3%83%B3_DSCF1679.JPG",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a7/Vendedor_de_cocos%2C_Ciudad_Ho_Chi_Minh%2C_Vietnam%2C_2013-08-14%2C_DD_01.JPG/960px-Vendedor_de_cocos%2C_Ciudad_Ho_Chi_Minh%2C_Vietnam%2C_2013-08-14%2C_DD_01.JPG",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cb/Vendedor_callejero_de_gallinas%2C_Ciudad_Ho_Chi_Minh%2C_Vietnam%2C_2013-08-14%2C_DD_01.JPG/960px-Vendedor_callejero_de_gallinas%2C_Ciudad_Ho_Chi_Minh%2C_Vietnam%2C_2013-08-14%2C_DD_01.JPG",
+    "https://upload.wikimedia.org/wikipedia/commons/7/78/B%C3%A1nh_m%C3%AC_Vi%E1%BB%87t_Anh%2C_Th%C3%A0nh_ph%E1%BB%91_H%E1%BB%93_Ch%C3%AD_Minh.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/46/Strata_vendistino_de_man%C4%9Da%C4%B5oj_%28Ho-%C4%88i-Min-urbo%29_01.jpg/960px-Strata_vendistino_de_man%C4%9Da%C4%B5oj_%28Ho-%C4%88i-Min-urbo%29_01.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/ff/Stratvendisto_de_insignoj_en_Ho-%C4%88i-Min-urbo.jpg/960px-Stratvendisto_de_insignoj_en_Ho-%C4%88i-Min-urbo.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d1/Drinks_seller%2C_outside_Presidential_Palace%2C_Ho_Chi_Minh_City_%2849012792402%29.jpg/960px-Drinks_seller%2C_outside_Presidential_Palace%2C_Ho_Chi_Minh_City_%2849012792402%29.jpg",
+    "https://upload.wikimedia.org/wikipedia/commons/0/01/Hoi_An_Fish_Market%2C_Vietnam%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/20/Street_Scene_-_Hoi_An_-_Vietnam.JPG/960px-Street_Scene_-_Hoi_An_-_Vietnam.JPG",
+    "https://upload.wikimedia.org/wikipedia/commons/7/71/Hoi_An%2C_Vietnam_%283340067399%29.jpg",
+    "https://upload.wikimedia.org/wikipedia/commons/a/a7/Hoi_An%2C_Vietnam_%283340067177%29.jpg",
+    "https://upload.wikimedia.org/wikipedia/commons/c/c5/Hoi_An%2C_Vietnam_%283340894094%29.jpg",
+    "https://upload.wikimedia.org/wikipedia/commons/4/47/Hoi_An%2C_Vietnam_%283340066517%29.jpg",
+    "https://upload.wikimedia.org/wikipedia/commons/6/65/Hoi_An%2C_Vietnam_%283340066701%29.jpg",
+    "https://upload.wikimedia.org/wikipedia/commons/4/4f/Hoi_An%2C_Vietnam_%283340066243%29.jpg",
+    "https://upload.wikimedia.org/wikipedia/commons/e/e0/Hoi_An%2C_Vietnam_%283340066035%29.jpg",
+    "https://upload.wikimedia.org/wikipedia/commons/4/43/Hoi_An%2C_Vietnam_%283340065325%29.jpg",
+    "https://upload.wikimedia.org/wikipedia/commons/5/51/Hoi_An%2C_Vietnam_%283340890860%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/00/Templo-kunvenejo_oma%C4%9De_al_108_negocistoj_el_Hajnano_%28Hoi_An%29_04.jpg/960px-Templo-kunvenejo_oma%C4%9De_al_108_negocistoj_el_Hajnano_%28Hoi_An%29_04.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4f/Templo-kunvenejo_oma%C4%9De_al_108_negocistoj_el_Hajnano_%28Hoi_An%29_05.jpg/960px-Templo-kunvenejo_oma%C4%9De_al_108_negocistoj_el_Hajnano_%28Hoi_An%29_05.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/26/Evangelia_pre%C4%9Dejo_%28Hoi_An%29_02.jpg/960px-Evangelia_pre%C4%9Dejo_%28Hoi_An%29_02.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2c/Vojkruci%C4%9Do_%C4%89e_pluvego_en_Hoi_An.jpg/960px-Vojkruci%C4%9Do_%C4%89e_pluvego_en_Hoi_An.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/08/Hoi_An%2C_Vietnam_%2826246845121%29.jpg/960px-Hoi_An%2C_Vietnam_%2826246845121%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a2/Lanterns_in_Hoi_An%2C_Vietnam_%2825708206924%29.jpg/960px-Lanterns_in_Hoi_An%2C_Vietnam_%2825708206924%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b8/Hoi_An%2C_Vietnam_%2826312988105%29.jpg/960px-Hoi_An%2C_Vietnam_%2826312988105%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/15/Hoi_An%2C_Vietnam.jpg/960px-Hoi_An%2C_Vietnam.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/07/Streetmarket_Da_Nang_Vietnam%282%29.jpg/960px-Streetmarket_Da_Nang_Vietnam%282%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dd/Son-Tra-Peninsula_Da-Nang_Vietnam_Statue-of-the-Bodhisattva-of-Mercy-01.jpg/960px-Son-Tra-Peninsula_Da-Nang_Vietnam_Statue-of-the-Bodhisattva-of-Mercy-01.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fe/Son-Tra-Peninsula_Da-Nang_Vietnam_Linh-Ung-Pagoda-01.jpg/960px-Son-Tra-Peninsula_Da-Nang_Vietnam_Linh-Ung-Pagoda-01.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9e/Son-Tra-Peninsula_Da-Nang_Vietnam_Linh-Ung-Pagoda-02.jpg/960px-Son-Tra-Peninsula_Da-Nang_Vietnam_Linh-Ung-Pagoda-02.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/35/Son-Tra-Peninsula_Da-Nang_Vietnam_Linh-Ung-Pagoda-03.jpg/960px-Son-Tra-Peninsula_Da-Nang_Vietnam_Linh-Ung-Pagoda-03.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2e/Son-Tra-Peninsula_Da-Nang_Vietnam_Linh-Ung-Pagoda-08.jpg/960px-Son-Tra-Peninsula_Da-Nang_Vietnam_Linh-Ung-Pagoda-08.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b3/Da-Nang_Vietnam_Fisher-boats-01.jpg/960px-Da-Nang_Vietnam_Fisher-boats-01.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6c/Da-Nang_Vietnam_Fisher-boats-02.jpg/960px-Da-Nang_Vietnam_Fisher-boats-02.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/12/Da-Nang_Vietnam_Coracles-01.jpg/960px-Da-Nang_Vietnam_Coracles-01.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/78/Da-Nang_Vietnam_Coracles-02.jpg/960px-Da-Nang_Vietnam_Coracles-02.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/52/Da-Nang_Vietnam_KOMATSU-D60A-bulldozer-01.jpg/960px-Da-Nang_Vietnam_KOMATSU-D60A-bulldozer-01.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5b/Cu_%C4%90%C3%AA_River%2C_Da_Nang.jpg/960px-Cu_%C4%90%C3%AA_River%2C_Da_Nang.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a3/Street_market_-_Da_Nang%2C_Vietnam_-_DSC02400.JPG/960px-Street_market_-_Da_Nang%2C_Vietnam_-_DSC02400.JPG",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fe/Street_market_-_Da_Nang%2C_Vietnam_-_DSC02403.JPG/960px-Street_market_-_Da_Nang%2C_Vietnam_-_DSC02403.JPG",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4b/Street_scene_-_Da_Nang%2C_Vietnam_-_DSC02417.JPG/960px-Street_scene_-_Da_Nang%2C_Vietnam_-_DSC02417.JPG",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/14/Bright_Da_Nang_skyline_%28Unsplash%29.jpg/960px-Bright_Da_Nang_skyline_%28Unsplash%29.jpg",
+    "https://upload.wikimedia.org/wikipedia/commons/6/60/Main_Street%2C_Da_Nang%2C_Vietnam%2C_September_1965.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/66/7th_Fleet_Band_Performs_in_Da_Nang%2C_Vietnam_%289852139%29.jpg/960px-7th_Fleet_Band_Performs_in_Da_Nang%2C_Vietnam_%289852139%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/46/7th_Fleet_Band_Performs_in_Da_Nang%2C_Vietnam_%289852171%29.jpg/960px-7th_Fleet_Band_Performs_in_Da_Nang%2C_Vietnam_%289852171%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f2/7th_Fleet_Band_Performs_in_Da_Nang%2C_Vietnam_%289852176%29.jpg/960px-7th_Fleet_Band_Performs_in_Da_Nang%2C_Vietnam_%289852176%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/05/Dong_Ba_market%2C_Th%C3%A0nh_ph%E1%BB%91_Hu%E1%BA%BF%2C_Vietnam_%28Unsplash%29.jpg/960px-Dong_Ba_market%2C_Th%C3%A0nh_ph%E1%BB%91_Hu%E1%BA%BF%2C_Vietnam_%28Unsplash%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/46/Yellow_Gram_In_Dong_Ba_Market_%28Unsplash%29.jpg/960px-Yellow_Gram_In_Dong_Ba_Market_%28Unsplash%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ee/Ch%E1%BB%A3_%C4%90%C3%B4ng_Ba_v%E1%BB%81_%C4%91%C3%AAm.JPG/960px-Ch%E1%BB%A3_%C4%90%C3%B4ng_Ba_v%E1%BB%81_%C4%91%C3%AAm.JPG",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/71/Ch%E1%BB%A3_%C4%90%C3%B4ng_Ba.JPG/960px-Ch%E1%BB%A3_%C4%90%C3%B4ng_Ba.JPG",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d5/Dong_Ba_Market_%28Hue%29_-_Ch%E1%BB%A3_%C4%90%C3%B4ng_Ba_Hu%E1%BA%BF_%28July_2024%29_-_img_02.jpg/960px-Dong_Ba_Market_%28Hue%29_-_Ch%E1%BB%A3_%C4%90%C3%B4ng_Ba_Hu%E1%BA%BF_%28July_2024%29_-_img_02.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/36/Dong_Ba_Market_%28Hue%29_-_Ch%E1%BB%A3_%C4%90%C3%B4ng_Ba_Hu%E1%BA%BF_%28July_2024%29_-_img_03.jpg/960px-Dong_Ba_Market_%28Hue%29_-_Ch%E1%BB%A3_%C4%90%C3%B4ng_Ba_Hu%E1%BA%BF_%28July_2024%29_-_img_03.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/57/Dong_Ba_Market_%28Hue%29_-_Ch%E1%BB%A3_%C4%90%C3%B4ng_Ba_Hu%E1%BA%BF_%28July_2024%29_-_img_01.jpg/960px-Dong_Ba_Market_%28Hue%29_-_Ch%E1%BB%A3_%C4%90%C3%B4ng_Ba_Hu%E1%BA%BF_%28July_2024%29_-_img_01.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/88/Dong_Ba_Market_%28Hue%29_-_Ch%E1%BB%A3_%C4%90%C3%B4ng_Ba_Hu%E1%BA%BF_%28July_2024%29_-_img_05.jpg/960px-Dong_Ba_Market_%28Hue%29_-_Ch%E1%BB%A3_%C4%90%C3%B4ng_Ba_Hu%E1%BA%BF_%28July_2024%29_-_img_05.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b3/Dong_Ba_Market_%28Hue%29_-_Ch%E1%BB%A3_%C4%90%C3%B4ng_Ba_Hu%E1%BA%BF_%28July_2024%29_-_img_04.jpg/960px-Dong_Ba_Market_%28Hue%29_-_Ch%E1%BB%A3_%C4%90%C3%B4ng_Ba_Hu%E1%BA%BF_%28July_2024%29_-_img_04.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c4/Dong_Ba_Market_%28Hue%29_-_Ch%E1%BB%A3_%C4%90%C3%B4ng_Ba_Hu%E1%BA%BF_%28July_2024%29_-_img_06.jpg/960px-Dong_Ba_Market_%28Hue%29_-_Ch%E1%BB%A3_%C4%90%C3%B4ng_Ba_Hu%E1%BA%BF_%28July_2024%29_-_img_06.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/51/Dong_Ba_Market_%28Hue%29_-_Ch%E1%BB%A3_%C4%90%C3%B4ng_Ba_Hu%E1%BA%BF_%28July_2024%29_-_img_07.jpg/960px-Dong_Ba_Market_%28Hue%29_-_Ch%E1%BB%A3_%C4%90%C3%B4ng_Ba_Hu%E1%BA%BF_%28July_2024%29_-_img_07.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/06/Dong_Ba_Market_%28Hue%29_-_Ch%E1%BB%A3_%C4%90%C3%B4ng_Ba_Hu%E1%BA%BF_%28July_2024%29_-_img_08.jpg/960px-Dong_Ba_Market_%28Hue%29_-_Ch%E1%BB%A3_%C4%90%C3%B4ng_Ba_Hu%E1%BA%BF_%28July_2024%29_-_img_08.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d3/Dong_Ba_Market_%28Hue%29_-_Ch%E1%BB%A3_%C4%90%C3%B4ng_Ba_Hu%E1%BA%BF_%28July_2024%29_-_img_09.jpg/960px-Dong_Ba_Market_%28Hue%29_-_Ch%E1%BB%A3_%C4%90%C3%B4ng_Ba_Hu%E1%BA%BF_%28July_2024%29_-_img_09.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/04/B%C3%BAn_b%C3%B2_Hu%E1%BA%BF_-_Ch%E1%BB%A3_%C4%90%C3%B4ng_Ba_%282024%29_-_img_02.jpg/960px-B%C3%BAn_b%C3%B2_Hu%E1%BA%BF_-_Ch%E1%BB%A3_%C4%90%C3%B4ng_Ba_%282024%29_-_img_02.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/32/B%C3%BAn_b%C3%B2_Hu%E1%BA%BF_-_Ch%E1%BB%A3_%C4%90%C3%B4ng_Ba_%282024%29_-_img_03.jpg/960px-B%C3%BAn_b%C3%B2_Hu%E1%BA%BF_-_Ch%E1%BB%A3_%C4%90%C3%B4ng_Ba_%282024%29_-_img_03.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9c/B%C3%BAn_b%C3%B2_Hu%E1%BA%BF_-_Ch%E1%BB%A3_%C4%90%C3%B4ng_Ba_%282024%29_-_img_01.jpg/960px-B%C3%BAn_b%C3%B2_Hu%E1%BA%BF_-_Ch%E1%BB%A3_%C4%90%C3%B4ng_Ba_%282024%29_-_img_01.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/80/B%C3%BAn_b%C3%B2_Hu%E1%BA%BF_-_Ch%E1%BB%A3_%C4%90%C3%B4ng_Ba_%282024%29_-_img_04.jpg/960px-B%C3%BAn_b%C3%B2_Hu%E1%BA%BF_-_Ch%E1%BB%A3_%C4%90%C3%B4ng_Ba_%282024%29_-_img_04.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/83/B%C3%BAn_b%C3%B2_Hu%E1%BA%BF_-_Ch%E1%BB%A3_%C4%90%C3%B4ng_Ba_%282024%29_-_img_05.jpg/960px-B%C3%BAn_b%C3%B2_Hu%E1%BA%BF_-_Ch%E1%BB%A3_%C4%90%C3%B4ng_Ba_%282024%29_-_img_05.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0d/B%C3%BAn_b%C3%B2_Hu%E1%BA%BF_-_Ch%E1%BB%A3_%C4%90%C3%B4ng_Ba_%282024%29_-_img_06.jpg/960px-B%C3%BAn_b%C3%B2_Hu%E1%BA%BF_-_Ch%E1%BB%A3_%C4%90%C3%B4ng_Ba_%282024%29_-_img_06.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0c/B%C3%BAn_b%C3%B2_Hu%E1%BA%BF_-_Ch%E1%BB%A3_%C4%90%C3%B4ng_Ba_%282024%29_-_img_07.jpg/960px-B%C3%BAn_b%C3%B2_Hu%E1%BA%BF_-_Ch%E1%BB%A3_%C4%90%C3%B4ng_Ba_%282024%29_-_img_07.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/aa/Bangkok_P1100341.JPG/960px-Bangkok_P1100341.JPG",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/01/Bangkok_08_-_01_-_street_vendors_%283165967337%29.jpg/960px-Bangkok_08_-_01_-_street_vendors_%283165967337%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/29/Bangkok_street_food_vendor.jpg/960px-Bangkok_street_food_vendor.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/77/Bangkok_Thailand_Street_Food_Seller.JPG/960px-Bangkok_Thailand_Street_Food_Seller.JPG",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/55/Bangkok_Thailand_Random_Street_in_the_City.JPG/960px-Bangkok_Thailand_Random_Street_in_the_City.JPG",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8f/Popular_Food_Vendor_%2817963595645%29.jpg/960px-Popular_Food_Vendor_%2817963595645%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cb/2016_Bangkok%2C_Dystrykt_Phra_Nakhon%2C_Ulica_Chakrabongse%2C_Uliczne_jedzenie_%2804%29.jpg/960px-2016_Bangkok%2C_Dystrykt_Phra_Nakhon%2C_Ulica_Chakrabongse%2C_Uliczne_jedzenie_%2804%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/52/Woman_Vendor_in_Market_-_Chinatown_-_Bangkok_-_Thailand_-_02_%2834328644330%29.jpg/960px-Woman_Vendor_in_Market_-_Chinatown_-_Bangkok_-_Thailand_-_02_%2834328644330%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d1/Street_food_vendor%2C_rainy_afternoon%2C_Soi_Cowboy%2C_Bangkok_%2844473846425%29.jpg/960px-Street_food_vendor%2C_rainy_afternoon%2C_Soi_Cowboy%2C_Bangkok_%2844473846425%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/36/Street_food_vendor%2C_rainy_afternoon%2C_Soi_Cowboy%2C_Bangkok_%2830447226467%29.jpg/960px-Street_food_vendor%2C_rainy_afternoon%2C_Soi_Cowboy%2C_Bangkok_%2830447226467%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/76/Street_Food_Dinner_Bangkok_%2880298455%29.jpeg/960px-Street_Food_Dinner_Bangkok_%2880298455%29.jpeg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9d/Street_food_vendor_by_night_%286962509412%29.jpg/960px-Street_food_vendor_by_night_%286962509412%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f8/Sleeping_street_food_vendor_in_Bangkok.jpg/960px-Sleeping_street_food_vendor_in_Bangkok.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/51/Street_noodles_vendor_front_of_JJ_Mall.jpg/960px-Street_noodles_vendor_front_of_JJ_Mall.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/68/Street_noodles_vendor_front_of_JJ_Mall_%281%29.jpg/960px-Street_noodles_vendor_front_of_JJ_Mall_%281%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b6/Khanom_Chin_vendor_cart.jpg/960px-Khanom_Chin_vendor_cart.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/42/Chinatown%2C_Bangkok_%283%29.jpg/960px-Chinatown%2C_Bangkok_%283%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d3/Chiang_mai_sunday_evening_market_01.jpg/960px-Chiang_mai_sunday_evening_market_01.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1b/Chiang_Mai_sunday_evening_walking_street.jpg/960px-Chiang_Mai_sunday_evening_walking_street.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/70/CHIANG_MAI_MARKET_THAILLAND_FEB_2012_%286918106834%29.jpg/960px-CHIANG_MAI_MARKET_THAILLAND_FEB_2012_%286918106834%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/65/CHIANG_MAI_MARKET_THAILAND_FEB_2012_%287064180451%29.jpg/960px-CHIANG_MAI_MARKET_THAILAND_FEB_2012_%287064180451%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cf/NYE%2C_Chiang_Mai_markets_%2811900177053%29.jpg/960px-NYE%2C_Chiang_Mai_markets_%2811900177053%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3c/Chiang_Mai_%28170%29_%2828325959116%29.jpg/960px-Chiang_Mai_%28170%29_%2828325959116%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/46/Chiang_Mai_%28169%29_%2827743558384%29.jpg/960px-Chiang_Mai_%28169%29_%2827743558384%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/75/Chiang_Mai_%28171%29_%2828280982671%29.jpg/960px-Chiang_Mai_%28171%29_%2828280982671%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a8/Chiang_Mai_%28166%29_%2828077101650%29.jpg/960px-Chiang_Mai_%28166%29_%2828077101650%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a1/Chiang_Mai_%28164%29_%2828256136302%29.jpg/960px-Chiang_Mai_%28164%29_%2828256136302%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b4/Chiang_Mai_%28167%29_%2828280982881%29.jpg/960px-Chiang_Mai_%28167%29_%2828280982881%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f4/Chiang_Mai_%28158%29_%2828256137312%29.jpg/960px-Chiang_Mai_%28158%29_%2828256137312%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1c/Chiang_Mai_%28157%29_%2828280984331%29.jpg/960px-Chiang_Mai_%28157%29_%2828280984331%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5c/Chiang_Mai_%28150%29_%2828359529575%29.jpg/960px-Chiang_Mai_%28150%29_%2828359529575%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/ca/Chiang_Mai_%28149%29_%2828280985931%29.jpg/960px-Chiang_Mai_%28149%29_%2828280985931%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0e/Chiang_Mai_%2856%29_%2828256144952%29.jpg/960px-Chiang_Mai_%2856%29_%2828256144952%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0d/Chiang_Mai_%2855%29_%2827743569444%29.jpg/960px-Chiang_Mai_%2855%29_%2827743569444%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e6/Chiang_Mai_%2852%29_%2828280979701%29.jpg/960px-Chiang_Mai_%2852%29_%2828280979701%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/82/Sunset_at_Patong_beach_Phuket_Thailand.jpg/960px-Sunset_at_Patong_beach_Phuket_Thailand.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cf/Karon_Beach%2C_Phuket%2C_Thailand_%28173832203%29.jpg/960px-Karon_Beach%2C_Phuket%2C_Thailand_%28173832203%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c5/Thailand_phuket_beach.jpg/960px-Thailand_phuket_beach.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/ca/Girl_at_the_beach._Phuket%2C_Thailand_%2831594645344%29.jpg/960px-Girl_at_the_beach._Phuket%2C_Thailand_%2831594645344%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ef/Sunset_at_Nai_Harn_beach%2C_Phuket%2C_Thailand_%2831371170363%29.jpg/960px-Sunset_at_Nai_Harn_beach%2C_Phuket%2C_Thailand_%2831371170363%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6e/Kite_at_Nai_Harn_Beach%2C_Phuket%2C_Thailand_%2828913015653%29.jpg/960px-Kite_at_Nai_Harn_Beach%2C_Phuket%2C_Thailand_%2828913015653%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e4/Young_girl_at_the_beach._Phuket%2C_Thailand_%2831595312183%29.jpg/960px-Young_girl_at_the_beach._Phuket%2C_Thailand_%2831595312183%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2b/Young_girl_at_the_beach._Phuket%2C_Thailand_%2832256086962%29.jpg/960px-Young_girl_at_the_beach._Phuket%2C_Thailand_%2832256086962%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7e/Sunset_at_Nai_Harn_beach%2C_Phuket%2C_Thailand_%2832143407386%29.jpg/960px-Sunset_at_Nai_Harn_beach%2C_Phuket%2C_Thailand_%2832143407386%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/60/Girl_at_the_beach._Phuket%2C_Thailand_%2832286581512%29.jpg/960px-Girl_at_the_beach._Phuket%2C_Thailand_%2832286581512%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cc/Elephants_on_beach_in_Phuket_Thailand_%2845884609592%29.jpg/960px-Elephants_on_beach_in_Phuket_Thailand_%2845884609592%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/87/Elephants_on_beach_in_Phuket_Thailand_%2845021819215%29.jpg/960px-Elephants_on_beach_in_Phuket_Thailand_%2845021819215%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e7/Nai_Harn_beach%2C_Phuket_island%2C_Thailand_01.jpg/960px-Nai_Harn_beach%2C_Phuket_island%2C_Thailand_01.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dd/Nai_Harn_beach%2C_Phuket_island%2C_Thailand_04.jpg/960px-Nai_Harn_beach%2C_Phuket_island%2C_Thailand_04.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a6/Sunset_at_Nai_Harn_beach%2C_Phuket%2C_Thailand_01.jpg/960px-Sunset_at_Nai_Harn_beach%2C_Phuket%2C_Thailand_01.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cd/Sunset_at_Nai_Harn_beach%2C_Phuket%2C_Thailand_03.jpg/960px-Sunset_at_Nai_Harn_beach%2C_Phuket%2C_Thailand_03.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/97/Sunset_at_Nai_Harn_beach%2C_Phuket%2C_Thailand_02.jpg/960px-Sunset_at_Nai_Harn_beach%2C_Phuket%2C_Thailand_02.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e2/Sunset_at_Nai_Harn_beach%2C_Phuket%2C_Thailand_05.jpg/960px-Sunset_at_Nai_Harn_beach%2C_Phuket%2C_Thailand_05.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/52/Thailand%2C_Phuket_-_Karon_Beach_WMID2421656.jpg/960px-Thailand%2C_Phuket_-_Karon_Beach_WMID2421656.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f1/Thailand%2C_Phuket_-_Karon_Beach_WMID2669793.jpg/960px-Thailand%2C_Phuket_-_Karon_Beach_WMID2669793.jpg",
+    "https://upload.wikimedia.org/wikipedia/commons/5/5e/Jakarta_street_hawker.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8d/Nasi_vendor-1.JPG/960px-Nasi_vendor-1.JPG",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/af/Street_Dining_Jakarta_lesehan_food.jpg/960px-Street_Dining_Jakarta_lesehan_food.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9b/Seblak_street_vendor_1.jpg/960px-Seblak_street_vendor_1.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9c/Seblak_street_vendor_3.jpg/960px-Seblak_street_vendor_3.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/11/Seblak_street_vendor_2.jpg/960px-Seblak_street_vendor_2.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/67/Seblak_street_vendor_4.jpg/960px-Seblak_street_vendor_4.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b0/Seblak_street_vendor_5.jpg/960px-Seblak_street_vendor_5.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/65/Jakarta_street-side_Es_Cendol_2.jpg/960px-Jakarta_street-side_Es_Cendol_2.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c4/Jakarta_street-side_Es_Cendol_1.jpg/960px-Jakarta_street-side_Es_Cendol_1.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ea/Lesehan_Malioboro_Yogyakarta.jpg/960px-Lesehan_Malioboro_Yogyakarta.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0b/Malioboro_Yogyakarta_Java_Indonesia_APRIL_2010_%284590949321%29.jpg/960px-Malioboro_Yogyakarta_Java_Indonesia_APRIL_2010_%284590949321%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1b/Yogyakarta%2C_Jalan_Malioboro_-_Flickr_-_Jorge_Franganillo.jpg/960px-Yogyakarta%2C_Jalan_Malioboro_-_Flickr_-_Jorge_Franganillo.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f3/Malioboro_at_night.jpg/960px-Malioboro_at_night.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/96/Yogyakarta_Jalan_Malioboro_%2850779681536%29.jpg/960px-Yogyakarta_Jalan_Malioboro_%2850779681536%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d2/Yogyakarta_Jalan_Malioboro_%2850779791432%29.jpg/960px-Yogyakarta_Jalan_Malioboro_%2850779791432%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cf/Yogyakarta_Jalan_Malioboro_%2850778913833%29.jpg/960px-Yogyakarta_Jalan_Malioboro_%2850778913833%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/76/Yogyakarta_Jalan_Malioboro_%2850779791917%29.jpg/960px-Yogyakarta_Jalan_Malioboro_%2850779791917%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9d/Yogyakarta_Jalan_Malioboro_%2832179797167%29.jpg/960px-Yogyakarta_Jalan_Malioboro_%2832179797167%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d2/Yogyakarta_Jalan_Malioboro_%2832179797397%29.jpg/960px-Yogyakarta_Jalan_Malioboro_%2832179797397%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/06/Yogyakarta_Jalan_Malioboro_%2847121887061%29.jpg/960px-Yogyakarta_Jalan_Malioboro_%2847121887061%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/39/Yogyakarta_Jalan_Malioboro_%2847121886231%29.jpg/960px-Yogyakarta_Jalan_Malioboro_%2847121886231%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/11/Yogyakarta_Jalan_Malioboro_%2847121886721%29.jpg/960px-Yogyakarta_Jalan_Malioboro_%2847121886721%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/56/Yogyakarta_Jalan_Malioboro_%2846207939235%29.jpg/960px-Yogyakarta_Jalan_Malioboro_%2846207939235%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/73/Yogyakarta_Jalan_Malioboro_%2832179797897%29.jpg/960px-Yogyakarta_Jalan_Malioboro_%2832179797897%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1d/Yogyakarta_Jalan_Malioboro_%2832179799097%29.jpg/960px-Yogyakarta_Jalan_Malioboro_%2832179799097%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0c/Yogyakarta_Jalan_Malioboro_%2832179796957%29.jpg/960px-Yogyakarta_Jalan_Malioboro_%2832179796957%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ae/Yogyakarta_Jalan_Malioboro_%2832179798557%29.jpg/960px-Yogyakarta_Jalan_Malioboro_%2832179798557%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f1/Yogyakarta_Jalan_Malioboro_%2846207940175%29.jpg/960px-Yogyakarta_Jalan_Malioboro_%2846207940175%29.jpg",
+    "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dd/Yogyakarta_Jalan_Malioboro_%2832179800157%29.jpg/960px-Yogyakarta_Jalan_Malioboro_%2832179800157%29.jpg"
+  ];
+  function allPhotoDeck(){
+    if(photoDeckCache) return photoDeckCache;
+    const seen = Object.create(null);
+    const out = [];
+    function add(url){
+      if(!url || seen[url] || NOT_SEA.test(url)) return;
+      seen[url] = 1;
+      out.push(url);
+    }
+    seaPeopleList().forEach(add);
+    Object.keys(PHOTO_LISTS).forEach(function(kind){
+      (PHOTO_LISTS[kind]||[]).forEach(add);
+    });
+    (PHOTO_EXTRA||[]).forEach(add);
+    photoDeckCache = out;
+    return out;
+  }
+  function armScenes(level, examNo){
+    sceneUsed = new Set();
+    sceneCursor = {};
+    const need = {1:40,2:60,3:80,4:100,5:100,6:101,7:40,8:40,9:40}[Number(level)] || 60;
+    const n = Math.max(1, Number(examNo)||1);
+    sceneDeck = (n - 1) * (need + 8) + (Math.max(1, Number(level)||1) - 1) * 37;
+    sceneObject = (n - 1) * 7 + Number(level) * 3;
+  }
   function pack(part, spec){
     const options = spec.options;
     return {
@@ -165717,23 +165927,24 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
   }
   function pictureOf(word){
     const kind = sceneOf(word) || "talk";
-    const people = !!PEOPLE_KINDS[kind];
-    const keepObject = {snow:1,cat:1,apple:1,clock:1,phone:1,pill:1,fish:1,bird:1,pencil:1,cup:1,coffee:1,noodle:1,dumpling:1,shirt:1,shoe:1,flower:1,table:1,laptop:1,photo:1,globe:1,money:1};
-    const list = (PHOTO_LISTS[kind] && PHOTO_LISTS[kind].length ? PHOTO_LISTS[kind] : [SCENE_PHOTOS.talk]).filter(function(url){
+    const keepObject = {snow:1,cat:1,apple:1,clock:1,phone:1,pill:1,fish:1,bird:1,pencil:1,cup:1,coffee:1,noodle:1,dumpling:1,shirt:1,shoe:1,flower:1,table:1,laptop:1,photo:1,globe:1,money:1,rain:1,sun:1};
+    const list = (PHOTO_LISTS[kind] && PHOTO_LISTS[kind].length ? PHOTO_LISTS[kind] : []).filter(function(url){
       return keepObject[kind] || !NOT_SEA.test(url);
     });
-    const pool = people ? seaPeopleList() : list;
-    let src = (list[0] || pool[0]);
-    if(sceneUsed){
-      let free = list.find(function(u){ return !sceneUsed.has(u); });
-      if(!free) free = seaPeopleList().find(function(u){ return !sceneUsed.has(u); });
-      if(!free){
-        const kinds = Object.keys(PHOTO_LISTS);
-        for(let k=0;k<kinds.length && !free;k++){
-          free = (PHOTO_LISTS[kinds[k]]||[]).find(function(u){ return !sceneUsed.has(u) && !NOT_SEA.test(u); });
-        }
+    const deck = allPhotoDeck();
+    const mustMatch = !!keepObject[kind] && list.length;
+    const source = mustMatch ? list : deck;
+    let src = source[0] || deck[0] || SCENE_PHOTOS.talk;
+    if(sceneUsed && source.length){
+      const cursor = mustMatch ? ((sceneCursor[kind] = (sceneCursor[kind] || 0) + 1) - 1) : sceneUsed.size;
+      const start = ((mustMatch ? sceneObject * 3 : sceneDeck) + cursor) % source.length;
+      let found = "";
+      for(let i=0;i<source.length;i++){
+        const u = source[(start + i) % source.length];
+        if(!sceneUsed.has(u)){ found = u; break; }
       }
-      src = free || list[0] || pool[0];
+      if(!found) found = deck.find(function(u){ return !sceneUsed.has(u); }) || "";
+      src = found || source[start];
       sceneUsed.add(src);
     }
     return {html:'<img src="'+src+'" alt="" width="640" height="400" loading="lazy" referrerpolicy="no-referrer">', kind:kind};
@@ -166433,8 +166644,7 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
   }
   function buildHsk1Paper(examNo, salt){
     const plan = PLANS[1];
-    sceneUsed = Number(salt)===2 ? new Set() : null;
-    sceneCursor = Number(salt)===2 ? {} : null;
+    armScenes(1, examNo);
     const rng = rngOf((Number(examNo)||1)*10007 + 97 + (Number(salt)||1)*13);
     const scenes = [
       {zh:"今天下雨。", py:"Jīntiān xià yǔ.", vi:"Hôm nay trời mưa.", shot:"Hôm nay trời mưa."},
@@ -166753,8 +166963,7 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
   function buildAdvancedPaper(level, examNo, salt){
     const plan = PLANS[Number(level)];
     if(Number(examNo)>1) return null;
-    sceneUsed = Number(salt)===2 ? new Set() : null;
-    sceneCursor = Number(salt)===2 ? {} : null;
+    armScenes(level, examNo);
     const rng = rngOf((Number(examNo)||1)*10007 + Number(level)*97 + (Number(salt)||1)*13);
     const order = shuffle(advancedPassages(level), rng);
     const kinds = ["listen-meaning","listen-reply","read-infer","cloze","summary"];
@@ -166800,8 +167009,7 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
   }
   function buildHandPaper(level, examNo, salt, groups){
     const plan = PLANS[Number(level)];
-    sceneUsed = Number(salt)===2 ? new Set() : null;
-    sceneCursor = Number(salt)===2 ? {} : null;
+    armScenes(level, examNo);
     const rng = rngOf((Number(examNo)||1)*10007 + Number(level)*97 + (Number(salt)||1)*13);
     const questions = [];
     const used = new Set();
@@ -166829,6 +167037,910 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
     sceneUsed = null; sceneCursor = null;
     return {minutes:plan.minutes, questions:questions};
   }
+function hsk2ExtraBanks(){
+  const L = "Nghe, xem hình, rồi chọn 对 hoặc 错. Câu không hiện sẵn.";
+  const M = "Nghe câu vừa, xem hình, chọn đúng nghĩa tiếng Việt. Câu không hiện sẵn.";
+  const D = "Nghe hội thoại vừa. Chọn ý đúng. Hội thoại không hiện sẵn.";
+  const DIG = ["零","一","二","三","四","五","六","七","八","九"];
+  function cn(n){
+    n = Math.round(n);
+    if(n < 10) return DIG[n];
+    if(n < 20) return "十" + (n === 10 ? "" : DIG[n % 10]);
+    if(n < 100){
+      const t = Math.floor(n / 10), o = n % 10;
+      return DIG[t] + "十" + (o ? DIG[o] : "");
+    }
+    return String(n);
+  }
+  function cnHour(h){ return h === 2 ? "两" : cn(h); }
+  function yuan(n){ return (n === 2 ? "两" : cn(n)) + "块"; }
+  function mw(n, m){ return (n === 2 ? "两" : cn(n)) + m; }
+  function zhClock(h, m){
+    const ap = h < 12 ? "上午" : (h < 18 ? "下午" : "晚上");
+    let hh = h === 0 ? 12 : (h > 12 ? h - 12 : h);
+    return ap + cnHour(hh) + "点" + (m ? cn(m) + "分" : "");
+  }
+  function viClock(h, m){
+    const ap = h < 12 ? "sáng" : (h < 18 ? "chiều" : "tối");
+    let hh = h === 0 ? 12 : (h > 12 ? h - 12 : h);
+    return hh + " giờ" + (m ? " " + m : "") + " " + ap;
+  }
+  function roomNo(n){ return String(n).split("").map(function(d){ return DIG[Number(d)]; }).join(""); }
+  const days = [["星期一","thứ Hai"],["星期二","thứ Ba"],["星期三","thứ Tư"],["星期四","thứ Năm"],["星期五","thứ Sáu"],["星期六","thứ Bảy"],["星期日","Chủ nhật"]];
+  const listenPlaces = [
+    ["图书馆","thư viện","Học sinh đang đọc sách trong thư viện"],
+    ["药店","nhà thuốc","Người đang mua thuốc"],
+    ["银行","ngân hàng","Người đang làm việc ở ngân hàng"],
+    ["邮局","bưu điện","Người đang gửi thư"],
+    ["医院","bệnh viện","Bác sĩ đang khám bệnh"],
+    ["公园","công viên","Người đang đi bộ trong công viên"],
+    ["超市","siêu thị","Người đang mua sắm ở siêu thị"],
+    ["车站","xe buýt","Người đang đợi xe buýt"],
+    ["机场","sân bay","Người đang ở sân bay"],
+    ["饭店","nhà hàng","Người đang ăn cơm ở nhà hàng"],
+    ["书店","sách","Người đang mua sách"],
+    ["体育馆","quả bóng","Người đang chơi bóng"],
+    ["幼儿园","đứa trẻ","Một đứa trẻ đang ở trường"],
+    ["咖啡厅","cà phê","Người đang uống cà phê"],
+    ["食堂","cơm","Người đang ăn cơm"],
+    ["花店","bông hoa","Người đang mua hoa"],
+    ["公司","công ty","Người đang làm việc ở công ty"],
+    ["教室","lớp học","Học sinh đang ở lớp học"]
+  ];
+  const readPlaces = [
+    ["博物馆","bảo tàng","Một bảo tàng"],
+    ["游泳馆","hồ bơi","Một hồ bơi"],
+    ["牛奶店","sữa","Một cửa hàng sữa"],
+    ["水果店","quả táo","Một quầy trái cây"],
+    ["茶馆","trà","Một quán trà"],
+    ["面包店","bánh mì","Một tiệm bánh mì"],
+    ["服装店","áo","Một cửa hàng quần áo"],
+    ["鞋店","giày","Một cửa hàng giày"],
+    ["宠物店","con mèo","Một cửa hàng thú cưng"],
+    ["地铁站","tàu hỏa","Một ga tàu"],
+    ["电影院","phim","Một rạp chiếu phim"],
+    ["操场","quả bóng","Một sân chơi"],
+    ["厨房","cơm","Một căn bếp"],
+    ["阳台","cửa sổ","Một ban công"],
+    ["校门口","cửa","Cổng trường"],
+    ["三号楼","phòng","Một tòa nhà"],
+    ["北边空地","bản đồ","Một bãi trống"],
+    ["社区中心","nói chuyện","Một nhà sinh hoạt"]
+  ];
+  const limits = [
+    ["要先拿号","phải lấy số trước"],
+    ["只能用现金","chỉ nhận tiền mặt"],
+    ["不能带饮料进去","không được mang đồ uống vào"],
+    ["只能印黑白的","chỉ in được trắng đen"],
+    ["要换拖鞋","phải đổi dép"],
+    ["不能拍照","không được chụp ảnh"],
+    ["要自己带杯子","phải tự mang cốc"],
+    ["最后一小时不卖票","giờ cuối không bán vé"],
+    ["大箱子要走楼梯","thùng lớn phải đi thang bộ"],
+    ["今天不收信用卡","hôm nay không nhận thẻ"],
+    ["小孩要有大人陪","trẻ em phải có người lớn đi cùng"],
+    ["雨天不外借球","ngày mưa không cho mượn bóng"],
+    ["只能坐二十个人","chỉ ngồi được 20 người"],
+    ["外带要加一块","mang đi phải cộng thêm 1 tệ"],
+    ["热菜要等十分钟","món nóng phải đợi 10 phút"],
+    ["花不能放在太阳下","hoa không được để ngoài nắng"],
+    ["访客要在一楼登记","khách phải đăng ký ở tầng một"],
+    ["下课前不能离开","chưa tan học thì chưa được ra"]
+  ];
+  const hobbies = [
+    ["看书","đọc sách","Một người đang đọc sách"],
+    ["跑步","chạy bộ","Người đang chạy"],
+    ["画画","vẽ","Một đứa trẻ đang vẽ tranh"],
+    ["唱歌","hát","Người đang hát"],
+    ["游泳","bơi","Một hồ bơi"],
+    ["打球","chơi bóng","Người đang chơi bóng"],
+    ["做饭","nấu ăn","Người đang nấu ăn"],
+    ["喝茶","uống trà","Người đang uống trà"],
+    ["写汉字","viết chữ Hán","Người đang viết chữ"],
+    ["买花","mua hoa","Người đang mua hoa"],
+    ["听音乐","nghe nhạc","Người đang nghe điện thoại"],
+    ["踢足球","đá bóng","Người đang chơi bóng"],
+    ["学汉语","học tiếng Trung","Học sinh đang ở lớp học"],
+    ["看电影","xem phim","Một rạp chiếu phim"],
+    ["散步","đi bộ","Người đang đi bộ trong công viên"],
+    ["拍照","chụp ảnh","Một tấm ảnh"],
+    ["下棋","đánh cờ","Hai người đang nói chuyện"],
+    ["坐飞机","đi máy bay","Người đang ở sân bay"]
+  ];
+  const things = [
+    ["汉语书","sách tiếng Trung","本","Một quyển sách"],
+    ["感冒药","thuốc cảm","盒","Người đang mua thuốc"],
+    ["电影票","vé xem phim","张","Một rạp chiếu phim"],
+    ["信","thư","封","Người đang gửi thư"],
+    ["热水","nước nóng","杯","Một cốc nước"],
+    ["苹果","táo","个","Một quả táo"],
+    ["白衬衫","áo sơ mi trắng","件","Một chiếc áo"],
+    ["运动鞋","giày thể thao","双","Một đôi giày"],
+    ["红花","hoa đỏ","束","Một bó hoa"],
+    ["面包","bánh mì","个","Một ổ bánh mì"],
+    ["牛奶","sữa","盒","Một hộp sữa"],
+    ["地图","bản đồ","张","Một bản đồ"],
+    ["雨伞","ô","把","Người đi dưới mưa"],
+    ["杯子","cốc","个","Một cốc nước"],
+    ["黑包","túi đen","个","Một cái túi"],
+    ["今天的报纸","báo hôm nay","份","Người đang đọc sách"],
+    ["笔记本","vở","本","Người đang viết chữ"],
+    ["大门钥匙","chìa khóa cổng","把","Một chùm chìa khóa"]
+  ];
+  const owners = [
+    ["王老师","thầy Vương"],["张阿姨","cô Trương"],["李奶奶","bà Lý"],["小陈","Tiểu Trần"],
+    ["经理","quản lý"],["妹妹","em gái"],["弟弟","em trai"],["同学","bạn học"],
+    ["邻居","hàng xóm"],["服务员","nhân viên"],["司机","tài xế"],["医生","bác sĩ"],
+    ["爸爸","bố"],["妈妈","mẹ"],["爷爷","ông"],["奶奶","bà"],
+    ["朋友","bạn"],["老师","thầy"]
+  ];
+  const picPlaces = [
+    ["厨房","trong bếp"],["阳台","trên ban công"],["操场","trên sân"],["河边","bên sông"],
+    ["商场门口","trước cửa trung tâm thương mại"],["宿舍楼下","dưới ký túc xá"],["地铁口","cửa tàu điện"],["北门","cổng bắc"],
+    ["二楼","tầng hai"],["花园","trong vườn"],["停车场","bãi xe"],["候车室","phòng chờ"],
+    ["西门","cổng tây"],["天台","trên sân thượng"],["侧门","cửa bên"]
+  ];
+  const picActs = [
+    ["睡觉","đang ngủ","Người đang ngủ"],
+    ["唱歌","đang hát","Người đang hát"],
+    ["跑步","đang chạy","Người đang chạy"],
+    ["写字","đang viết","Người đang viết chữ"],
+    ["吃苹果","đang ăn táo","Một quả táo"],
+    ["喝茶","đang uống trà","Người đang uống trà"]
+  ];
+  const judge = [], meaning = [], reply = [], longer = [], pic = [], cloze = [], readTf = [], reading = [];
+  const picPool = [];
+  const picSubjects = ["他","她","这个人","图片里的人","孩子","那位先生","那位女士","这个孩子","那个人","左边的人","右边的人","这个女生","这个男生"];
+  const picAspects = ["在","正在"];
+  const picUsed = Object.create(null);
+  for(let n = 0; picPool.length < 90; n++){
+    const act = picActs[n % picActs.length];
+    const sub = picSubjects[Math.floor(n / picActs.length) % picSubjects.length];
+    const asp = picAspects[Math.floor(n / (picActs.length * picSubjects.length)) % picAspects.length];
+    const sent = "图里" + sub + asp + act[0] + "。";
+    if(picUsed[sent]) continue;
+    picUsed[sent] = 1;
+    picPool.push({sent:sent, act:act});
+  }
+  const seen = Object.create(null);
+  function mark(s){
+    if(seen[s]) throw new Error("trùng: " + s);
+    seen[s] = 1;
+  }
+  function jTrue(shot, audio, vi){
+    mark(audio);
+    return {shot:shot, q:"请听句子，判断与图片是否一致。", qVi:vi, audio:audio, tf:"对", hint:L, why:["ĐÚNG. «"+audio.replace(/。$/,"")+"» là "+vi+", khớp hình.","SAI. Câu và hình cùng một việc. Không chọn 错."]};
+  }
+  function jFalse(shot, audio, picVi, sentVi){
+    mark(audio);
+    return {shot:shot, q:"请听句子，判断与图片是否一致。", qVi:"Hình là "+picVi+". Câu nói "+sentVi+".", audio:audio, tf:"错", hint:L, why:["SAI. Câu «"+audio.replace(/。$/,"")+"» là "+sentVi+", hình là "+picVi+". Không chọn 对.","ĐÚNG. "+picVi+" và "+sentVi+" không phải một cảnh, chọn 错."]};
+  }
+  function choice(shot, q, qVi, audio, hint, ok, bad){
+    if(audio) mark(audio);
+    else mark(q);
+    const item = {shot:shot, q:q, qVi:qVi, audio:audio||"", ok:ok, bad:bad};
+    if(hint && q.indexOf("请听")===0) item.hint = hint;
+    return item;
+  }
+  function meanAt(shot, zh, vi, bad){
+    return choice(shot, "请听句子，选择正确的意思。", "Chọn nghĩa của câu vừa nghe.", zh, M,
+      [vi, "", vi, "ĐÚNG. «"+zh.replace(/。$/,"")+"» nghĩa là: "+vi],
+      bad.map(function(b){ return [b, "", "", "SAI. Câu không nói điều này. Ý đúng: "+vi]; }));
+  }
+  for(let e = 0; e < 18; e++){
+    const lp = listenPlaces[e], rp = readPlaces[e];
+    const male = e % 2 === 0;
+    const name = male ? "小周" : "小李";
+    const pro = male ? "他" : "她";
+    const nameVi = male ? "Tiểu Chu" : "Tiểu Lý";
+    const proVi = male ? "anh ấy" : "cô ấy";
+    const openH = 8 + (e % 3), closeH = 16 + (e % 3);
+    const arriveH = closeH - 1, arriveM = 10 + e;
+    const open = zhClock(openH, 0), close = zhClock(closeH, 0), arrive = zhClock(arriveH, arriveM);
+    const openVi = viClock(openH, 0), closeVi = viClock(closeH, 0), arriveVi = viClock(arriveH, arriveM);
+    const price = 18 + e * 3, priceB = price - 5;
+    const thing = things[e], hobby = hobbies[e], owner = owners[e], other = owners[(e + 5) % 18];
+    const limit = limits[e];
+    const day = days[e % 7], day2 = days[(e + 3) % 7], dayR = days[(e + 5) % 7];
+    const floor = 2 + (e % 3);
+    const room = roomNo(300 + e + 1);
+    const count = 2 + (e % 3);
+    const rOpenH = 7 + (e % 4), rCloseH = 19 + (e % 2);
+    const rOpen = zhClock(rOpenH, 0), rClose = zhClock(rCloseH, 0);
+    const rOpenVi = viClock(rOpenH, 0), rCloseVi = viClock(rCloseH, 0);
+    const rPrice = 70 + e * 2, rPriceB = rPrice + 8;
+    const lastH = 21, lastM = 5 + e;
+    const last = zhClock(lastH, lastM), lastVi = viClock(lastH, lastM);
+    const early = zhClock(lastH - 1, lastM), earlyVi = viClock(lastH - 1, lastM);
+
+    const rainWho = ["这个人","她","孩子","那位先生","那位女士","小周","小李","爸爸","妈妈","老师","哥哥","妹妹","同学","司机","服务员","医生","邻居","朋友"][e];
+    const clock = zhClock(openH, 11 + e);
+    const clockVi = viClock(openH, 11 + e);
+    function at(list){ return list[e]; }
+    const jPlace = at([
+      [pro+"正在"+lp[0]+"里。", proVi+" đang ở "+lp[1]],
+      ["你看，"+pro+"就在"+lp[0]+"。", proVi+" đang ở ngay "+lp[1]],
+      [lp[0]+"里面现在是"+pro+"。", "trong "+lp[1]+" bây giờ là "+proVi],
+      [pro+"没有离开"+lp[0]+"。", proVi+" chưa rời "+lp[1]],
+      ["现在"+pro+"人在"+lp[0]+"。", proVi+" hiện đang có mặt ở "+lp[1]],
+      [pro+"今天就待在"+lp[0]+"。", proVi+" hôm nay ở lì "+lp[1]],
+      ["别找了，"+pro+"在"+lp[0]+"里。", "khỏi tìm, "+proVi+" ở trong "+lp[1]],
+      [lp[0]+"开门以后，"+pro+"就进去了。", "sau khi "+lp[1]+" mở, "+proVi+" đã vào"],
+      [pro+"还在"+lp[0]+"，没有出来。", proVi+" vẫn ở "+lp[1]+" và chưa ra"],
+      ["大家在"+lp[0]+"，"+pro+"也在。", "mọi người ở "+lp[1]+", "+proVi+" cũng ở đó"],
+      [pro+"把包放在"+lp[0]+"，人也不走。", proVi+" để túi ở "+lp[1]+" và không đi"],
+      ["去"+lp[0]+"就能看见"+pro+"。", "đến "+lp[1]+" là thấy "+proVi],
+      [pro+"选择在"+lp[0]+"等消息。", proVi+" chọn đợi tin ở "+lp[1]],
+      [lp[0]+"就是"+pro+"现在待的地方。", lp[1]+" là chỗ "+proVi+" đang ở"],
+      [pro+"没去别的地方，就在"+lp[0]+"。", proVi+" không đi chỗ khác, chỉ ở "+lp[1]],
+      ["服务台的人说"+pro+"在"+lp[0]+"里。", "người ở quầy nói "+proVi+" đang ở "+lp[1]],
+      [lp[0]+"的大厅里坐着"+pro+"。", proVi+" đang ngồi trong sảnh "+lp[1]],
+      [pro+"进了"+lp[0]+"，还没办完事。", proVi+" đã vào "+lp[1]+" và chưa xong việc"]
+    ]);
+    const jHobby = at([
+      [name+"正在"+hobby[0]+"。", nameVi+" đang "+hobby[1]],
+      [name+"这个时候在"+hobby[0]+"。", "lúc này "+nameVi+" đang "+hobby[1]],
+      ["看，"+name+"开始"+hobby[0]+"了。", nameVi+" đã bắt đầu "+hobby[1]],
+      [name+"没有停，还在"+hobby[0]+"。", nameVi+" chưa dừng, vẫn đang "+hobby[1]],
+      [hobby[0]+"的人就是"+name+"。", "người đang "+hobby[1]+" chính là "+nameVi],
+      [name+"今天的安排是"+hobby[0]+"。", "việc hôm nay của "+nameVi+" là "+hobby[1]],
+      ["别叫"+name+"，"+pro+"正在"+hobby[0]+"。", "đừng gọi "+nameVi+", đang "+hobby[1]],
+      [name+"一有空就"+hobby[0]+"。", "rảnh là "+nameVi+" "+hobby[1]],
+      [name+"喜欢的事是"+hobby[0]+"，现在就在做。", nameVi+" thích "+hobby[1]+" và đang làm"],
+      ["现在能看见"+name+"在"+hobby[0]+"。", "bây giờ thấy "+nameVi+" đang "+hobby[1]],
+      [name+"放下别的事，去"+hobby[0]+"了。", nameVi+" bỏ việc khác để đi "+hobby[1]],
+      [hobby[0]+"占用了"+name+"现在的时间。", hobby[1]+" đang chiếm thời gian của "+nameVi],
+      [name+"告诉大家"+pro+"在"+hobby[0]+"。", nameVi+" báo mọi người là đang "+hobby[1]],
+      ["门口那个人在"+hobby[0]+"，是"+name+"。", "người ở cửa đang "+hobby[1]+", đó là "+nameVi],
+      [name+"没在休息，"+pro+"在"+hobby[0]+"。", nameVi+" không nghỉ, đang "+hobby[1]],
+      [name+"的动作是"+hobby[0]+"。", "động tác của "+nameVi+" là "+hobby[1]],
+      ["你听，"+name+"正在"+hobby[0]+"。", "nghe xem, "+nameVi+" đang "+hobby[1]],
+      [name+"完成工作以后就"+hobby[0]+"。", "xong việc thì "+nameVi+" đi "+hobby[1]]
+    ]);
+    const jThing = at([
+      ["这是"+thing[0]+"。", "đây là "+thing[1]],
+      ["桌子上放着"+thing[0]+"。", "trên bàn là "+thing[1]],
+      [thing[0]+"就在图片中间。", thing[1]+" ở giữa hình"],
+      ["你要找的是"+thing[0]+"。", "thứ cần tìm là "+thing[1]],
+      ["请看这个"+thing[0]+"。", "hãy nhìn "+thing[1]+" này"],
+      [thing[0]+"已经准备好了。", thing[1]+" đã chuẩn bị xong"],
+      ["别人拿走了别的，留下"+thing[0]+"。", "người khác lấy đồ khác, để lại "+thing[1]],
+      ["今天要带的就是"+thing[0]+"。", "hôm nay cần mang chính là "+thing[1]],
+      [thing[0]+"不是别的东西。", "đây là "+thing[1]+", không phải đồ khác"],
+      ["工作人员递过来的是"+thing[0]+"。", "người ta đưa là "+thing[1]],
+      ["包里只有"+thing[0]+"。", "trong túi chỉ có "+thing[1]],
+      [thing[0]+"放在左边。", thing[1]+" để bên trái"],
+      ["新买的是"+thing[0]+"。", "món mới mua là "+thing[1]],
+      [thing[0]+"还没被人拿走。", thing[1]+" chưa bị lấy đi"],
+      ["请把"+thing[0]+"拿给老师。", "hãy đưa "+thing[1]+" cho thầy"],
+      [thing[0]+"是这次要用的。", thing[1]+" là thứ lần này cần dùng"],
+      ["画面上清楚的是"+thing[0]+"。", "thứ rõ trên hình là "+thing[1]],
+      [thing[0]+"在门口等着人来取。", thing[1]+" ở cửa chờ người đến lấy"]
+    ]);
+    const jClock = at([
+      ["现在是"+clock+"。", "bây giờ là "+clockVi],
+      ["已经"+clock+"了。", "đã "+clockVi+" rồi"],
+      ["我的表是"+clock+"。", "đồng hồ của tôi chỉ "+clockVi],
+      ["到"+clock+"我们再走。", "đến "+clockVi+" rồi hãy đi"],
+      [clock+"了，商店该开门了。", clockVi+" rồi, cửa hàng phải mở"],
+      ["还差一会儿才到"+clock+"。", "còn một lát nữa mới đến "+clockVi],
+      ["闹钟响的时候是"+clock+"。", "chuông reo lúc "+clockVi],
+      ["会议从"+clock+"开始。", "cuộc họp bắt đầu lúc "+clockVi],
+      ["你"+clock+"到就行。", "bạn đến lúc "+clockVi+" là được"],
+      [clock+"以前请别离开。", "trước "+clockVi+" đừng rời đi"],
+      ["墙上的钟是"+clock+"。", "đồng hồ trên tường là "+clockVi],
+      ["我们"+clock+"在门口见。", "chúng ta gặp ở cửa lúc "+clockVi],
+      [clock+"的车还没来。", "xe lúc "+clockVi+" chưa đến"],
+      ["请把表拨到"+clock+"。", "hãy chỉnh đồng hồ thành "+clockVi],
+      ["广播说现在"+clock+"。", "loa báo bây giờ là "+clockVi],
+      [clock+"以后才能进去。", "sau "+clockVi+" mới được vào"],
+      ["我"+clock+"下班。", "tôi tan làm lúc "+clockVi],
+      ["票上写的时间是"+clock+"。", "giờ ghi trên vé là "+clockVi]
+    ]);
+    const jRain = at([
+      ["下雨了，"+rainWho+"没拿伞。", "trời mưa, "+rainWho+" không cầm ô"],
+      ["雨下得很大，"+rainWho+"还在外面。", "mưa to, "+rainWho+" vẫn ở ngoài"],
+      [rainWho+"被雨淋了，因为没带伞。", rainWho+" bị ướt vì không mang ô"],
+      ["外面有雨，"+rainWho+"忘了雨伞。", "ngoài trời có mưa, "+rainWho+" quên ô"],
+      [rainWho+"在雨里走路，手里没有伞。", rainWho+" đi dưới mưa, tay không có ô"],
+      ["开始下雨了，"+rainWho+"还没买伞。", "bắt đầu mưa, "+rainWho+" chưa mua ô"],
+      ["雨衣也没有，"+rainWho+"就这么走。", "không có cả áo mưa, "+rainWho+" cứ đi"],
+      [rainWho+"看着雨，决定不打伞。", rainWho+" nhìn mưa và quyết không che ô"],
+      ["雨越来越大，"+rainWho+"仍没找伞。", "mưa càng lúc càng to, "+rainWho+" vẫn không tìm ô"],
+      ["这会儿下雨，"+rainWho+"的伞在家里。", "lúc này đang mưa, ô của "+rainWho+" ở nhà"],
+      [rainWho+"没进店躲雨。", rainWho+" không vào cửa hàng trú mưa"],
+      ["路上都湿了，"+rainWho+"还在走。", "đường đã ướt, "+rainWho+" vẫn đang đi"],
+      ["雨声很大，"+rainWho+"没有伞。", "tiếng mưa to, "+rainWho+" không có ô"],
+      [rainWho+"的头发湿了，伞不在身边。", "tóc "+rainWho+" ướt, ô không ở bên"],
+      ["别等晴天了，雨已经下来，"+rainWho+"没伞。", "đừng đợi nắng, mưa đã xuống và "+rainWho+" không có ô"],
+      [rainWho+"问别人借伞，没借到。", rainWho+" hỏi mượn ô nhưng không mượn được"],
+      ["店员说外面在下雨，"+rainWho+"还是出去了。", "nhân viên nói ngoài đang mưa, "+rainWho+" vẫn đi ra"],
+      [rainWho+"把伞借给别人，自己淋雨。", rainWho+" cho người khác mượn ô và tự bị mưa"]
+    ]);
+    const jSleep = at([
+      [pro+"正在"+lp[0]+"跑步。", proVi+" đang chạy ở "+lp[1]],
+      [pro+"在床上踢足球。", proVi+" đang đá bóng trên giường"],
+      [pro+"一边睡觉一边游泳。", proVi+" vừa ngủ vừa bơi"],
+      ["图里的人在唱歌，声音很大。", "người trong hình đang hát rất to"],
+      [pro+"正在厨房做饭。", proVi+" đang nấu ăn trong bếp"],
+      [pro+"已经起床去"+lp[0]+"了。", proVi+" đã dậy và đi "+lp[1]],
+      ["这个人没睡觉，在打电话。", "người này không ngủ, đang gọi điện"],
+      [pro+"坐在教室里写字。", proVi+" đang ngồi viết trong lớp"],
+      ["图片里是一场篮球比赛。", "trong hình là một trận bóng rổ"],
+      [pro+"正在超市买水果。", proVi+" đang mua hoa quả ở siêu thị"],
+      ["孩子在公园里跑来跑去。", "đứa trẻ đang chạy trong công viên"],
+      [pro+"睁着眼看电视。", proVi+" đang mở mắt xem tivi"],
+      ["没有人睡觉，大家都在工作。", "không ai ngủ, mọi người đang làm việc"],
+      [pro+"站在车站等车。", proVi+" đang đứng đợi xe ở bến"],
+      ["图里的人在下雨天走路。", "người trong hình đang đi lúc mưa"],
+      [pro+"正在吃午饭。", proVi+" đang ăn trưa"],
+      ["这是早上，"+pro+"已经出门。", "đây là buổi sáng, "+proVi+" đã ra khỏi nhà"],
+      [pro+"在阳台上浇花。", proVi+" đang tưới hoa ở ban công"]
+    ]);
+    const jApple = at([
+      ["这是"+lp[0]+"的热茶。", "trà nóng của "+lp[1]],
+      ["盘子里是热面条。", "trong đĩa là mì nóng"],
+      ["这杯是咖啡，不是别的。", "cốc này là cà phê"],
+      ["图里有一只猫。", "trong hình có một con mèo"],
+      ["这是一把雨伞。", "đây là một cái ô"],
+      ["桌上放着手机。", "trên bàn là điện thoại"],
+      ["这是医院的药。", "đây là thuốc của bệnh viện"],
+      ["图里是一辆公共汽车。", "trong hình là một xe buýt"],
+      ["这是今天的报纸。", "đây là báo hôm nay"],
+      ["篮子里都是面包。", "trong giỏ toàn bánh mì"],
+      ["这是一双新鞋。", "đây là một đôi giày mới"],
+      ["墙上挂着地图。", "trên tường treo bản đồ"],
+      ["这是一束红花。", "đây là một bó hoa đỏ"],
+      ["杯子里是牛奶。", "trong cốc là sữa"],
+      ["这是教室的黑板。", "đây là bảng của lớp"],
+      ["图里是一座桥。", "trong hình là một cái cầu"],
+      ["这是冬天的雪。", "đây là tuyết mùa đông"],
+      ["门口停着自行车。", "trước cửa đỗ xe đạp"]
+    ]);
+    const jCat = at([
+      [name+"在"+lp[0]+"门口等汽车。", nameVi+" đang đợi xe trước "+lp[1]],
+      [name+"正在喂鸟。", nameVi+" đang cho chim ăn"],
+      ["一只狗在马路中间跑。", "một con chó đang chạy giữa đường"],
+      [name+"把鱼放进水里。", nameVi+" đang thả cá xuống nước"],
+      ["图里没有动物，只有一扇门。", "trong hình không có con vật, chỉ có một cánh cửa"],
+      [name+"正在骑自行车。", nameVi+" đang đi xe đạp"],
+      ["孩子抱着一只兔子。", "đứa trẻ đang ôm một con thỏ"],
+      [name+"在河边钓鱼。", nameVi+" đang câu cá bên sông"],
+      ["这是一只鸟，站在树上。", "đây là một con chim đứng trên cây"],
+      [name+"正在扫地。", nameVi+" đang quét nhà"],
+      ["车子里坐着"+name+"。", nameVi+" đang ngồi trong xe"],
+      ["图里是一匹马。", "trong hình là một con ngựa"],
+      [name+"把包放在椅子上。", nameVi+" để túi lên ghế"],
+      ["两个人在打球。", "hai người đang chơi bóng"],
+      [name+"正在开门。", nameVi+" đang mở cửa"],
+      ["这是一碗热汤。", "đây là một bát canh nóng"],
+      [name+"在窗边看书。", nameVi+" đang đọc sách bên cửa sổ"],
+      ["图里是一座很高的楼。", "trong hình là một tòa nhà cao"]
+    ]);
+    const jSnow = at([
+      ["外面下着大雪，只有"+cn(e + 1)+"度。", "tuyết rơi và chỉ "+(e + 1)+" độ"],
+      ["路上全是雪，车开得很慢。", "đường đầy tuyết, xe chạy rất chậm"],
+      ["今天下雪，大家穿得很厚。", "hôm nay có tuyết, mọi người mặc dày"],
+      ["雪已经盖住了椅子。", "tuyết đã phủ kín ghế"],
+      ["孩子在雪地里玩。", "trẻ con đang chơi trên tuyết"],
+      ["因为下雪，学校今天不开门。", "vì tuyết, hôm nay trường không mở"],
+      ["窗玻璃上都是雪。", "trên kính cửa sổ toàn tuyết"],
+      ["雪下了一晚上，树都白了。", "tuyết rơi cả đêm, cây trắng xóa"],
+      ["这么冷，一定是下雪的天。", "lạnh thế này chắc là ngày có tuyết"],
+      ["人们在扫门口的雪。", "mọi người đang quét tuyết trước cửa"],
+      ["雪很大，飞机晚了。", "tuyết to, máy bay bị muộn"],
+      ["地面结冰，还有雪。", "mặt đất đóng băng và có tuyết"],
+      ["预报说今天有大雪。", "dự báo hôm nay có tuyết lớn"],
+      ["雪停了，可是地上还是白的。", "tuyết tạnh nhưng đất vẫn trắng"],
+      ["他戴着帽子，因为外面在下雪。", "anh ấy đội mũ vì ngoài trời đang có tuyết"],
+      ["山上看见雪了。", "trên núi đã thấy tuyết"],
+      ["雪花落在外套上。", "bông tuyết rơi trên áo khoác"],
+      ["这场雪让路很滑。", "trận tuyết này làm đường trơn"]
+    ]);
+    const jPhone = at([
+      [pro+"在"+lp[0]+"看电视。", proVi+" đang xem tivi ở "+lp[1]],
+      [pro+"正在睡觉，手机在桌上。", proVi+" đang ngủ, điện thoại ở trên bàn"],
+      [pro+"在厨房洗碗。", proVi+" đang rửa bát trong bếp"],
+      ["图里的人在跑步，没有电话。", "người trong hình đang chạy, không có điện thoại"],
+      [pro+"正在写汉字。", proVi+" đang viết chữ Hán"],
+      [pro+"和朋友吃饭。", proVi+" đang ăn cơm với bạn"],
+      ["没有人打电话，大家都在看书。", "không ai gọi điện, mọi người đang đọc sách"],
+      [pro+"在车站买票。", proVi+" đang mua vé ở bến xe"],
+      [pro+"把手机放进包里，去散步。", proVi+" bỏ điện thoại vào túi rồi đi dạo"],
+      ["画面是一只猫。", "hình là một con mèo"],
+      [pro+"正在上课，不能接电话。", proVi+" đang học, không nghe máy"],
+      [pro+"在雨里走路。", proVi+" đang đi dưới mưa"],
+      ["这是一杯茶，不是电话。", "đây là một cốc trà, không phải điện thoại"],
+      [pro+"正在拍照。", proVi+" đang chụp ảnh"],
+      [pro+"坐在窗边，看着外面。", proVi+" ngồi bên cửa sổ nhìn ra ngoài"],
+      ["远处有人在打球，没人打电话。", "xa xa có người chơi bóng, không ai gọi điện"],
+      [pro+"已经到家，在休息。", proVi+" đã về nhà và đang nghỉ"],
+      [pro+"在超市排队。", proVi+" đang xếp hàng ở siêu thị"]
+    ]);
+    judge.push(jTrue(lp[2], jPlace[0], jPlace[1]));
+    judge.push(jTrue(hobby[2], jHobby[0], jHobby[1]));
+    judge.push(jTrue(thing[3], jThing[0], jThing[1]));
+    judge.push(jTrue("Đồng hồ mấy giờ", jClock[0], jClock[1]));
+    judge.push(jTrue("Trời mưa", jRain[0], jRain[1]));
+    judge.push(jFalse("Người đang ngủ", jSleep[0], "người đang ngủ", jSleep[1]));
+    judge.push(jFalse("Một quả táo", jApple[0], "một quả táo", jApple[1]));
+    judge.push(jFalse("Một con mèo đang ngồi", jCat[0], "một con mèo", jCat[1]));
+    judge.push(jFalse("Trời nắng", jSnow[0], "trời nắng", jSnow[1]));
+    judge.push(jFalse("Người đang gọi điện", jPhone[0], "người đang gọi điện", jPhone[1]));
+
+    const mOrder = at([
+      ["你先到"+lp[0]+"，再找"+owner[0]+"。", "Đến "+lp[1]+" trước, rồi mới tìm "+owner[1], ["Tìm người trước rồi mới đến", "Không cần đến đó", "Tìm xong thì về nhà"]],
+      ["找到"+owner[0]+"以前，你得先进"+lp[0]+"。", "Trước khi gặp "+owner[1]+" phải vào "+lp[1]+" đã", ["Gặp người ở cửa rồi mới vào", "Người đó đến nhà bạn", "Hôm nay không gặp"]],
+      [owner[0]+"在"+lp[0]+"里面，你进去才能见到。", owner[1]+" ở trong "+lp[1]+", vào mới gặp được", ["Người đó đứng ngoài đường", "Gọi điện là đủ, không cần đến", "Người đó đã về quê"]],
+      ["别在门口等，进"+lp[0]+"找"+owner[0]+"。", "Đừng đợi ngoài cửa, vào "+lp[1]+" tìm "+owner[1], ["Đợi ở cửa là đúng", "Tìm người ở bến xe", "Người đó không có ở đó"]],
+      ["到了"+lp[0]+"，问工作人员"+owner[0]+"在哪儿。", "Đến "+lp[1]+" thì hỏi nhân viên "+owner[1]+" ở đâu", ["Tự vào phòng, không cần hỏi", "Nhân viên chính là người cần tìm", "Hỏi xong thì đi chỗ khác"]],
+      [owner[0]+"今天在"+lp[0]+"，你直接过去。", "Hôm nay "+owner[1]+" ở "+lp[1]+", cứ đến thẳng", ["Người đó hôm nay nghỉ", "Hãy đi chỗ khác", "Ngày mai mới có mặt"]],
+      ["你从"+lp[0]+"的正门进，"+owner[0]+"在服务台。", "Vào cổng chính "+lp[1]+", "+owner[1]+" ở quầy", ["Người đó ở cổng sau", "Không có quầy", "Đừng vào cổng chính"]],
+      ["先给"+owner[0]+"打电话，再去"+lp[0]+"。", "Gọi cho "+owner[1]+" trước, rồi hãy đến "+lp[1], ["Đến trước rồi mới gọi", "Không cần gọi", "Gọi xong thì hủy"]],
+      [owner[0]+"不在家，去"+lp[0]+"才能见到。", owner[1]+" không ở nhà, đến "+lp[1]+" mới gặp", ["Người đó đang ở nhà", "Đến nhà là gặp", "Hôm nay không gặp được"]],
+      ["你到"+lp[0]+"以后，让"+owner[0]+"出来。", "Sau khi đến "+lp[1]+", gọi "+owner[1]+" ra", ["Người đó đã đứng sẵn ngoài cửa", "Bạn không cần đến", "Ra khỏi đó rồi hãy gọi"]],
+      [lp[0]+"开门了你再去，"+owner[0]+"在那儿。", "Chờ "+lp[1]+" mở cửa rồi hãy đi, "+owner[1]+" ở đó", ["Cửa đóng thì vẫn vào được", "Người đó không ở đó", "Đi lúc đang đóng cửa"]],
+      ["别找别人，"+owner[0]+"就在"+lp[0]+"。", "Đừng tìm người khác, "+owner[1]+" ở ngay "+lp[1], ["Phải tìm người khác", "Người đó đã chuyển đi", "Ở một nơi rất xa"]],
+      ["你在"+lp[0]+"的左边等，"+owner[0]+"会来。", "Đợi bên trái "+lp[1]+", "+owner[1]+" sẽ đến", ["Đợi bên phải", "Người đó không đến", "Bạn phải đi tìm ở nhà"]],
+      ["先登记，然后才能在"+lp[0]+"见"+owner[0]+"。", "Đăng ký trước rồi mới được gặp "+owner[1]+" ở "+lp[1], ["Gặp trước rồi đăng ký sau", "Không cần đăng ký", "Đăng ký ở nhà là đủ"]],
+      [owner[0]+"让你去"+lp[0]+"，别去别的地方。", owner[1]+" bảo bạn đến "+lp[1]+", đừng đi chỗ khác", ["Đi bất kỳ đâu cũng được", "Người đó bảo đừng đến", "Hôm nay đổi sang nhà"]],
+      ["你带着学生卡去"+lp[0]+"找"+owner[0]+"。", "Mang thẻ sinh viên đến "+lp[1]+" tìm "+owner[1], ["Không cần thẻ", "Để thẻ ở nhà rồi hãy đi", "Thẻ dùng để mua đồ"]],
+      [lp[0]+"的二楼有"+owner[0]+"，别在一楼找。", owner[1]+" ở tầng hai "+lp[1]+", đừng tìm ở tầng một", ["Người đó ở tầng một", "Tầng hai đóng cửa", "Không có tầng hai"]],
+      ["你到了跟"+owner[0]+"说一声，别自己走。", "Đến nơi thì nói với "+owner[1]+" một tiếng, đừng tự đi", ["Cứ tự đi, không cần nói", "Nói chuyện qua điện thoại là đủ", "Người đó không ở đó"]]
+    ]);
+    const mBoth = at([
+      [lp[0]+"不但离学校近，而且"+thing[0]+"只要"+yuan(priceB)+"。", lp[1]+" vừa gần trường, "+thing[1]+" chỉ "+priceB+" tệ", [lp[1]+" xa và đắt", "Gần nhưng đồ rất đắt", "Trường nằm trong đó"]],
+      [lp[0]+"离学校不远，"+thing[0]+"的价钱也不高，"+yuan(priceB)+"。", lp[1]+" không xa trường và "+thing[1]+" giá không cao, "+priceB+" tệ", ["Xa trường", "Giá rất cao", "Không bán món đó"]],
+      ["学校旁边就是"+lp[0]+"，"+thing[0]+"今天"+yuan(priceB)+"。", "ngay cạnh trường là "+lp[1]+", hôm nay "+thing[1]+" giá "+priceB+" tệ", ["Ở rất xa trường", "Hôm nay không bán", "Giá gấp đôi"]],
+      ["因为"+lp[0]+"近，"+name+"去买"+thing[0]+"，只要"+yuan(priceB)+"。", "vì "+lp[1]+" gần nên "+nameVi+" đi mua "+thing[1]+", chỉ "+priceB+" tệ", ["Vì xa nên không đi", "Giá cao nên không mua", "Người đó không mua"]],
+      [thing[0]+"在"+lp[0]+"卖，离学校近，"+yuan(priceB)+"就够。", thing[1]+" bán ở "+lp[1]+", gần trường, "+priceB+" tệ là đủ", ["Bán ở rất xa", "Cần nhiều tiền hơn nhiều", "Hôm nay hết hàng"]],
+      ["走到"+lp[0]+"很方便，"+thing[0]+"也便宜，"+yuan(priceB)+"。", "đi bộ đến "+lp[1]+" tiện, "+thing[1]+" cũng rẻ, "+priceB+" tệ", ["Đi rất mất công", "Đồ đắt", "Không bán"]],
+      [lp[0]+"近是真的，"+thing[0]+"便宜也是真的，"+yuan(priceB)+"。", "gần là thật, "+thing[1]+" rẻ cũng là thật, "+priceB+" tệ", ["Chỉ gần chứ không rẻ", "Chỉ rẻ chứ rất xa", "Cả hai đều sai"]],
+      ["学生都去"+lp[0]+"，因为近，"+thing[0]+"才"+yuan(priceB)+"。", "học sinh đều đến "+lp[1]+" vì gần, "+thing[1]+" chỉ "+priceB+" tệ", ["Học sinh không đến", "Giá cao", "Vì xa"]],
+      [name+"说"+lp[0]+"近，还说"+thing[0]+"只要"+yuan(priceB)+"。", nameVi+" nói "+lp[1]+" gần, và "+thing[1]+" chỉ "+priceB+" tệ", ["Nói là xa", "Nói là đắt", "Không nhắc giá"]],
+      ["从学校出来就能到"+lp[0]+"，"+thing[0]+"的价格是"+yuan(priceB)+"。", "ra khỏi trường là đến "+lp[1]+", giá "+thing[1]+" là "+priceB+" tệ", ["Phải đi rất lâu", "Không có giá", "Đắt hơn nhiều"]],
+      [lp[0]+"不远，所以"+thing[0]+"卖"+yuan(priceB)+"也有人买。", lp[1]+" không xa nên "+thing[1]+" giá "+priceB+" tệ vẫn có người mua", ["Vì xa nên không ai mua", "Không bán món đó", "Giá cao hơn nhiều"]],
+      ["近和便宜，"+lp[0]+"的"+thing[0]+"都占了，"+yuan(priceB)+"。", "gần và rẻ, "+thing[1]+" ở "+lp[1]+" đều có, "+priceB+" tệ", ["Xa và đắt", "Chỉ có một trong hai", "Hết hàng"]],
+      [thing[0]+"只要"+yuan(priceB)+"，地方又在学校附近的"+lp[0]+"。", thing[1]+" chỉ "+priceB+" tệ, chỗ lại là "+lp[1]+" gần trường", ["Đắt và xa", "Không gần trường", "Không bán"]],
+      ["大家觉得"+lp[0]+"近，"+thing[0]+"的"+yuan(priceB)+"也合适。", "mọi người thấy "+lp[1]+" gần, giá "+priceB+" tệ của "+thing[1]+" cũng hợp", ["Mọi người thấy xa", "Giá không hợp vì đắt", "Không ai nhắc món đó"]],
+      [lp[0]+"离学校只几步，"+thing[0]+"今天降到"+yuan(priceB)+"。", lp[1]+" cách trường vài bước, hôm nay "+thing[1]+" hạ còn "+priceB+" tệ", ["Cách rất xa", "Giá tăng", "Hôm nay không bán"]],
+      ["去"+lp[0]+"买"+thing[0]+"很合适，又近又只要"+yuan(priceB)+"。", "đến "+lp[1]+" mua "+thing[1]+" hợp, vừa gần vừa chỉ "+priceB+" tệ", ["Không hợp vì xa", "Đắt", "Phải đặt trước"]],
+      [name+"选"+lp[0]+"，理由是近，"+thing[0]+"也才"+yuan(priceB)+"。", nameVi+" chọn "+lp[1]+" vì gần, "+thing[1]+" cũng chỉ "+priceB+" tệ", ["Chọn vì xa", "Giá là lý do để không mua", "Không chọn chỗ đó"]],
+      ["学校门口的"+lp[0]+"卖"+thing[0]+"，"+yuan(priceB)+"，不远。", lp[1]+" ở cổng trường bán "+thing[1]+" giá "+priceB+" tệ, không xa", ["Ở cuối thành phố", "Không bán", "Rất đắt"]]
+    ]);
+    const mRainWait = at([
+      ["要是下雨，"+pro+"就在"+lp[0]+"里等。", "nếu mưa thì "+proVi+" đợi trong "+lp[1], ["Mưa thì ra đường", "Nắng thì hủy", "Đã rời đi từ sáng"]],
+      ["下雨的话，"+pro+"不出去，就在"+lp[0]+"等。", "nếu mưa, "+proVi+" không ra ngoài, đợi ở "+lp[1], ["Mưa thì vẫn ra ngoài", "Đợi ở ngoài đường", "Không liên quan đến mưa"]],
+      ["外面一下雨，"+pro+"就进"+lp[0]+"。", "vừa mưa là "+proVi+" vào "+lp[1], ["Mưa thì đứng ngoài", "Không vào", "Chỉ vào khi nắng"]],
+      [pro+"说了，雨不停就留在"+lp[0]+"。", proVi+" nói mưa chưa tạnh thì ở lại "+lp[1], ["Mưa thì rời đi", "Nắng mới ở lại", "Không nói về mưa"]],
+      ["只有下雨，"+pro+"才在"+lp[0]+"里等。", "chỉ khi mưa "+proVi+" mới đợi trong "+lp[1], ["Lúc nào cũng đợi trong đó", "Mưa thì không đợi", "Đợi ở nhà"]],
+      ["雨要是来了，别找"+pro+"，"+pro+"在"+lp[0]+"。", "nếu mưa đến thì đừng tìm, "+proVi+" ở "+lp[1], ["Mưa thì đi tìm ngoài đường", "Người đó về nhà", "Mưa thì đóng cửa"]],
+      [pro+"把伞忘了，所以下雨就在"+lp[0]+"等。", proVi+" quên ô nên trời mưa thì đợi ở "+lp[1], ["Có ô nên cứ đi", "Không đợi", "Quên ô nhưng vẫn đi"]],
+      ["看到雨，"+pro+"的办法是进"+lp[0]+"等。", "thấy mưa, cách của "+proVi+" là vào "+lp[1]+" đợi", ["Thấy mưa thì chạy ra", "Không có cách", "Về nhà ngay"]],
+      ["雨天的安排已经定了，"+pro+"在"+lp[0]+"等。", "kế hoạch ngày mưa đã chốt, "+proVi+" đợi ở "+lp[1], ["Ngày mưa thì hủy", "Đợi ở công viên", "Chưa quyết"]],
+      ["不下雨，"+pro+"就走。下雨就留在"+lp[0]+"。", "không mưa thì "+proVi+" đi, mưa thì ở lại "+lp[1], ["Mưa thì đi", "Không mưa thì ở lại", "Lúc nào cũng đi"]],
+      [pro+"不想淋雨，进了"+lp[0]+"再等。", proVi+" không muốn dầm mưa, vào "+lp[1]+" rồi hãy đợi", ["Cứ đứng dưới mưa", "Không vào", "Đợi ở bến xe"]],
+      ["气象说有雨，"+pro+"决定在"+lp[0]+"里等。", "dự báo có mưa, "+proVi+" quyết định đợi trong "+lp[1], ["Quyết định ra ngoài", "Không tin dự báo nên đi", "Đợi ở nhà bạn"]],
+      ["雨大的时候，"+pro+"不离开"+lp[0]+"。", "lúc mưa to, "+proVi+" không rời "+lp[1], ["Mưa to thì rời đi", "Lúc nắng mới ở lại", "Đã rời từ trước"]],
+      ["朋友告诉"+pro+"，下雨就在"+lp[0]+"会合。", "bạn bảo "+proVi+" trời mưa thì gặp nhau ở "+lp[1], ["Gặp nhau ngoài đường", "Mưa thì hủy gặp", "Gặp ở nhà"]],
+      [pro+"的计划很简单：下雨就等在"+lp[0]+"。", "kế hoạch của "+proVi+" đơn giản: mưa thì đợi ở "+lp[1], ["Mưa thì đổi chỗ", "Không có kế hoạch", "Đợi ở trường"]],
+      ["伞在家里，下雨时"+pro+"只能在"+lp[0]+"等。", "ô ở nhà, khi mưa "+proVi+" chỉ có thể đợi ở "+lp[1], ["Có ô nên đi tiếp", "Đợi ở nhà", "Mưa thì mua ô rồi đi"]],
+      ["工作人员让"+pro+"下雨时留在"+lp[0]+"。", "nhân viên bảo "+proVi+" khi mưa thì ở lại "+lp[1], ["Bảo ra ngoài", "Bảo về ngay", "Không ai nói gì"]],
+      ["雨一开始，"+pro+"就停止外面的事，回"+lp[0]+"等。", "mưa bắt đầu là "+proVi+" dừng việc ngoài và về "+lp[1]+" đợi", ["Mưa thì tiếp tục ở ngoài", "Không quay lại", "Đợi đến khi nắng"]]
+    ]);
+    meaning.push(meanAt(lp[2], mOrder[0], mOrder[1], mOrder[2]));
+    meaning.push(meanAt(lp[2], mBoth[0], mBoth[1], mBoth[2]));
+    meaning.push(meanAt("Trời mưa", mRainWait[0], mRainWait[1], mRainWait[2]));
+    const mCall = at([
+      ["别进去，"+name+"正在"+lp[0]+"打电话。", "Đừng vào, "+nameVi+" đang gọi điện ở "+lp[1], ["Cứ vào", "Gọi xong rồi", "Đang xem tivi"]],
+      [name+"在打电话，你在"+lp[0]+"门外等一会儿。", "Đợi ngoài cửa "+lp[1]+" vì "+nameVi+" đang gọi", ["Vào ngay", "Không có cuộc gọi", "Người đó đã rời đi"]],
+      ["听到电话声就先别敲门，"+name+"在"+lp[0]+"。", "Nghe tiếng điện thoại thì đừng gõ cửa, "+nameVi+" đang ở "+lp[1], ["Hãy gõ cửa ngay", "Người đó không ở đó", "Điện thoại đã tắt"]],
+      [lp[0]+"里先别出声，"+name+"的电话还没讲完。", "Trong "+lp[1]+" đừng lên tiếng, điện thoại của "+nameVi+" chưa nói xong", ["Cứ nói lớn", "Cuộc gọi đã kết thúc", "Không ai gọi điện"]],
+      [name+"用手示意：电话中，请在"+lp[0]+"外面等。", nameVi+" ra hiệu đang gọi, hãy đợi ngoài "+lp[1], ["Ra hiệu bảo vào", "Không có tín hiệu", "Bảo đi chỗ khác hẳn"]],
+      ["等"+name+"挂了电话，你再进"+lp[0]+"。", "Đợi "+nameVi+" cúp máy rồi hãy vào "+lp[1], ["Vào trước khi cúp máy", "Không cần đợi", "Người đó không có điện thoại"]],
+      [name+"今天的第一件事是在"+lp[0]+"打电话，别打扰。", "Việc đầu tiên hôm nay của "+nameVi+" là gọi điện ở "+lp[1]+", đừng làm phiền", ["Việc đầu là họp", "Có thể vào nói chuyện", "Người đó rảnh"]],
+      ["电话那头还在说，"+name+"人在"+lp[0]+"，你晚点儿来。", "Đầu dây bên kia vẫn đang nói, "+nameVi+" ở "+lp[1]+", bạn hãy đến muộn hơn", ["Đến ngay", "Người đó đã nói xong", "Người đó không ở đó"]],
+      [lp[0]+"的门先关着，因为"+name+"在打电话。", "Cửa "+lp[1]+" đang đóng vì "+nameVi+" đang gọi điện", ["Cửa mở vì không ai gọi", "Cửa hỏng", "Người đó đang ngủ"]],
+      ["你要找"+name+"，可是"+pro+"正在"+lp[0]+"讲电话。", "Bạn tìm "+nameVi+" nhưng đang nói chuyện điện thoại ở "+lp[1], ["Người đó rảnh để gặp ngay", "Không có cuộc gọi", "Người đó ở nhà"]],
+      ["讲电话的时候，"+name+"不让人进"+lp[0]+"。", "Khi đang gọi, "+nameVi+" không cho người khác vào "+lp[1], ["Ai vào cũng được", "Gọi điện ở ngoài đường", "Đã cho vào"]],
+      [name+"把手机贴在耳边，人在"+lp[0]+"，你先回去。", nameVi+" đang áp máy vào tai ở "+lp[1]+", bạn hãy về trước", ["Hãy đứng cạnh nói chuyện", "Điện thoại để trên bàn", "Người đó vẫy gọi vào"]],
+      ["先别推门，"+lp[0]+"里"+name+"的电话很重要。", "Đừng đẩy cửa, cuộc gọi của "+nameVi+" trong "+lp[1]+" quan trọng", ["Cứ đẩy cửa", "Cuộc gọi không quan trọng", "Trong đó không có ai"]],
+      [name+"说了声抱歉，电话还得在"+lp[0]+"继续。", nameVi+" nói xin lỗi, cuộc gọi còn phải tiếp ở "+lp[1], ["Cuộc gọi đã xong", "Xin lỗi vì đã rời đi", "Không có gì phải tiếp"]],
+      ["工作人员也出去了，只留下"+name+"在"+lp[0]+"打电话。", "Nhân viên cũng ra ngoài, chỉ còn "+nameVi+" gọi điện ở "+lp[1], ["Đông người bên trong", "Không ai gọi điện", "Nhân viên đang họp"]],
+      ["你的问题等一下，"+name+"先把"+lp[0]+"的电话打完。", "Câu hỏi của bạn để sau, "+nameVi+" gọi nốt điện thoại ở "+lp[1], ["Hỏi ngay bây giờ", "Không có điện thoại", "Người đó đang đợi bạn"]],
+      [lp[0]+"暂时不能进，理由是"+name+"在打电话。", lp[1]+" tạm thời không vào được vì "+nameVi+" đang gọi", ["Vào được bình thường", "Lý do là đang sửa cửa", "Người đó không ở trong"]],
+      ["挂电话以前，谁都别进"+lp[0]+"找"+name+"。", "Trước khi cúp máy, đừng ai vào "+lp[1]+" tìm "+nameVi, ["Cúp máy rồi vẫn không được vào", "Cứ vào tìm", "Người đó không nghe máy"]]
+    ]);
+    const mForget = at([
+      ["别忘了带"+thing[0]+"，"+lp[0]+close+"就关门。", "Đừng quên mang "+thing[1]+", "+lp[1]+" đóng lúc "+closeVi, ["Mở cả đêm", "Không cần mang", "Đóng lúc "+openVi]],
+      [thing[0]+"必须带上，因为"+lp[0]+close+"以后进不去。", "Phải mang "+thing[1]+" vì sau "+closeVi+" không vào "+lp[1]+" được", ["Không cần mang", "Cửa mở đến sáng", "Đóng lúc "+openVi]],
+      ["出门看一眼包里有没有"+thing[0]+"，"+lp[0]+"只开到"+close+"。", "Ra cửa hãy xem túi có "+thing[1]+" không, "+lp[1]+" chỉ mở đến "+closeVi, ["Mở cả ngày", "Không cần kiểm tra", "Đóng từ sáng"]],
+      [close+"一到，"+lp[0]+"就锁门，所以"+thing[0]+"现在就带。", "Đúng "+closeVi+" là "+lp[1]+" khóa cửa, nên mang "+thing[1]+" ngay", ["Khóa cửa lúc "+openVi, "Để ngày mai cũng được", "Không khóa cửa"]],
+      ["你要是落了"+thing[0]+"，"+close+"就赶不上"+lp[0]+"了。", "Nếu quên "+thing[1]+" thì đến "+closeVi+" sẽ lỡ "+lp[1], ["Quên cũng vẫn kịp", "Không có giờ đóng", "Mang hay không cũng được"]],
+      [lp[0]+"的门"+close+"关，"+thing[0]+"要提前拿好。", "Cửa "+lp[1]+" đóng lúc "+closeVi+", "+thing[1]+" phải cầm sẵn từ trước", ["Cầm sau khi đóng cửa", "Cửa không đóng", "Không cần đồ"]],
+      ["记得"+thing[0]+"，晚于"+close+"，"+lp[0]+"不接待。", "Nhớ "+thing[1]+", muộn hơn "+closeVi+" thì "+lp[1]+" không tiếp", ["Muộn vẫn được tiếp", "Không cần nhớ", "Giờ đóng là "+openVi]],
+      ["把"+thing[0]+"放在手边，"+lp[0]+"关门时间是"+close+"。", "Để "+thing[1]+" trong tầm tay, giờ đóng cửa của "+lp[1]+" là "+closeVi, ["Giờ đóng là buổi sáng sớm khác", "Đồ để ở nhà cũng được", "Không có giờ đóng"]],
+      [name+"提醒你带"+thing[0]+"，因为"+lp[0]+close+"结束。", nameVi+" nhắc mang "+thing[1]+" vì "+lp[1]+" kết thúc lúc "+closeVi, ["Nhắc không cần mang", "Kết thúc lúc "+openVi, "Không ai nhắc"]],
+      ["没有"+thing[0]+"就别出发，"+lp[0]+"最晚"+close+"。", "Không có "+thing[1]+" thì đừng đi, "+lp[1]+" muộn nhất "+closeVi, ["Cứ đi cũng được", "Mở đến nửa đêm", "Đồ không liên quan"]],
+      [thing[0]+"落在家的话，今天就进不了"+lp[0]+"，门"+close+"关。", "Nếu để "+thing[1]+" ở nhà thì hôm nay không vào "+lp[1]+" được, cửa đóng "+closeVi, ["Để ở nhà vẫn vào được", "Cửa không đóng", "Ngày mai mới cần"]],
+      ["先检查"+thing[0]+"，再看时间，"+lp[0]+close+"停止进入。", "Kiểm tra "+thing[1]+" trước rồi xem giờ, "+lp[1]+" ngừng cho vào lúc "+closeVi, ["Không cần kiểm tra", "Ngừng cho vào lúc "+openVi, "Cả đêm vẫn vào"]],
+      [lp[0]+"贴着通知："+close+"关门，请自带"+thing[0]+"。", lp[1]+" dán thông báo: đóng cửa "+closeVi+", hãy tự mang "+thing[1], ["Thông báo mở cả đêm", "Không cần tự mang", "Đóng lúc "+openVi]],
+      ["你只有到"+close+"以前的时间，而且要带着"+thing[0]+"去"+lp[0]+"。", "Bạn chỉ có thời gian trước "+closeVi+" và phải mang "+thing[1]+" đến "+lp[1], ["Sau "+closeVi+" vẫn được", "Không cần mang đồ", "Không có hạn giờ"]],
+      ["关门前的最后一件事：带上"+thing[0]+"，"+lp[0]+"是"+close+"关。", "Việc cuối trước khi đóng cửa: mang "+thing[1]+", "+lp[1]+" đóng lúc "+closeVi, ["Việc cuối là về nhà không mang gì", "Đóng lúc sáng", "Cửa không đóng"]],
+      [thing[0]+"不在身上就改天再去，因为"+lp[0]+close+"会锁门。", "Không có "+thing[1]+" trên người thì hôm khác hãy đi, vì "+lp[1]+" khóa lúc "+closeVi, ["Thiếu đồ vẫn cứ vào", "Không khóa cửa", "Khóa lúc "+openVi]],
+      ["请现在就把"+thing[0]+"拿出来，"+lp[0]+"不会开过"+close+"。", "Hãy lấy "+thing[1]+" ra ngay, "+lp[1]+" không mở quá "+closeVi, ["Mở qua giờ đó", "Không cần lấy ra", "Giờ đó mới mở"]],
+      [name+"的条子上写着：带"+thing[0]+"，"+close+"前到"+lp[0]+"。", "Mảnh giấy của "+nameVi+" ghi: mang "+thing[1]+", đến "+lp[1]+" trước "+closeVi, ["Ghi là không cần mang", "Đến sau "+closeVi, "Không có mảnh giấy"]]
+    ]);
+    const mHours = at([
+      [lp[0]+"从"+open+"开到"+close+"。", lp[1]+" mở từ "+openVi+" đến "+closeVi, ["Chỉ mở buổi tối", "Đến "+closeVi+" mới mở", "Hôm nay nghỉ"]],
+      [open+"开始营业，"+lp[0]+"在"+close+"结束。", "bắt đầu phục vụ lúc "+openVi+", "+lp[1]+" kết thúc lúc "+closeVi, ["Bắt đầu lúc "+closeVi, "Không có giờ kết thúc", "Hôm nay đóng cửa"]],
+      ["营业时间写在门上："+lp[0]+"，"+open+"至"+close+"。", "giờ mở ghi trên cửa: "+lp[1]+", từ "+openVi+" đến "+closeVi, ["Ghi là nghỉ", "Chỉ một giờ", "Mở lúc "+closeVi]],
+      ["你"+open+"以前去，"+lp[0]+"还没开，"+close+"才结束。", "đến trước "+openVi+" thì "+lp[1]+" chưa mở, đến "+closeVi+" mới kết thúc", ["Trước "+openVi+" đã mở", "Kết thúc lúc "+openVi, "Cả đêm mở"]],
+      [lp[0]+"一天的工作是"+open+"上班，"+close+"下班。", "một ngày làm việc của "+lp[1]+" là vào ca "+openVi+", tan "+closeVi, ["Tan ca lúc "+openVi, "Không có ca", "Chỉ làm buổi tối"]],
+      ["请在"+open+"和"+close+"之间来"+lp[0]+"。", "hãy đến "+lp[1]+" trong khoảng "+openVi+" và "+closeVi, ["Đến lúc nửa đêm", "Chỉ được đến đúng "+closeVi, "Khoảng đó đóng cửa"]],
+      [close+"一过，"+lp[0]+"就不再接待，早上"+open+"才开门。", "qua "+closeVi+" thì "+lp[1]+" không tiếp nữa, sáng "+openVi+" mới mở", ["Qua giờ vẫn tiếp", "Sáng không mở", "Mở cửa lúc "+closeVi]],
+      ["公告说"+lp[0]+"今日"+open+"开门，"+close+"关门。", "thông báo nói hôm nay "+lp[1]+" mở "+openVi+", đóng "+closeVi, ["Thông báo nghỉ cả ngày", "Mở lúc "+closeVi, "Không có thông báo"]],
+      [name+"告诉你，"+lp[0]+"的白天是从"+open+"到"+close+"。", nameVi+" nói ban ngày của "+lp[1]+" là từ "+openVi+" đến "+closeVi, ["Nói chỉ mở ban đêm", "Nói hôm nay nghỉ", "Không nói giờ"]],
+      ["想办事情就赶在"+close+"前，"+lp[0]+open+"已经可以进。", "muốn làm việc thì tranh thủ trước "+closeVi+", "+lp[1]+" từ "+openVi+" đã vào được", ["Trước "+closeVi+" không vào được", "Buổi sáng đóng", "Cả ngày đóng"]],
+      [lp[0]+"不提供夜间服务，只在"+open+"到"+close+"。", lp[1]+" không phục vụ ban đêm, chỉ từ "+openVi+" đến "+closeVi, ["Có phục vụ ban đêm", "Chỉ mở ban đêm", "Hôm nay không mở"]],
+      ["开门铃是"+open+"，关门铃是"+close+"，地方是"+lp[0]+"。", "chuông mở là "+openVi+", chuông đóng là "+closeVi+", chỗ là "+lp[1], ["Hai chuông cùng một giờ", "Không có chuông đóng", "Chỗ khác"]],
+      ["工作人员"+open+"到岗，"+close+"离开"+lp[0]+"。", "nhân viên vào ca "+openVi+" và rời "+lp[1]+" lúc "+closeVi, ["Rời đi lúc "+openVi, "Cả đêm có người", "Hôm nay không ai đến"]],
+      ["只有"+open+"以后、"+close+"以前，"+lp[0]+"才办业务。", "chỉ sau "+openVi+" và trước "+closeVi+" thì "+lp[1]+" mới làm thủ tục", ["Trước "+openVi+" đã làm", "Sau "+closeVi+" vẫn làm", "Hôm nay không làm"]],
+      [lp[0]+"的牌子上，开始是"+open+"，结束是"+close+"。", "trên bảng của "+lp[1]+", bắt đầu "+openVi+", kết thúc "+closeVi, ["Bảng ghi nghỉ", "Kết thúc lúc "+openVi, "Không có bảng"]],
+      ["早到没用，"+lp[0]+open+"才让进，"+close+"清场。", "đến sớm cũng vô ích, "+lp[1]+" đến "+openVi+" mới cho vào, "+closeVi+" thì mời ra", ["Đến sớm được vào", "Không mời ra", "Mời ra lúc "+openVi]],
+      [name+"把时间发在群里："+lp[0]+" "+open+"—"+close+"。", nameVi+" gửi giờ vào nhóm: "+lp[1]+" "+openVi+" đến "+closeVi, ["Gửi là nghỉ", "Gửi giờ ban đêm", "Không gửi giờ"]],
+      ["去"+lp[0]+"办这件事，记住一头"+open+"一头"+close+"。", "đến "+lp[1]+" làm việc này, nhớ một đầu "+openVi+" một đầu "+closeVi, ["Chỉ có một giờ", "Hai đầu đều là nửa đêm", "Hôm nay không làm việc đó"]]
+    ]);
+    const mHobby = at([
+      [name+"对"+hobby[0]+"很感兴趣，每星期"+day[0]+"都去。", nameVi+" rất thích "+hobby[1]+" và "+day[1]+" nào cũng đi", ["Không thích", "Một năm một lần", "Đang dạy người khác"]],
+      [day[0]+"是"+name+hobby[0]+"的固定日子，因为"+pro+"很喜欢。", day[1]+" là ngày cố định "+nameVi+" "+hobby[1]+" vì rất thích", ["Không thích", "Ngày đó nghỉ", "Chỉ đi một lần"]],
+      [name+"的爱好就是"+hobby[0]+"，所以"+day[0]+"一定有"+pro+"。", "sở thích của "+nameVi+" là "+hobby[1]+" nên "+day[1]+" chắc chắn có mặt", ["Không có sở thích đó", "Ngày đó không đi", "Ở nhà ngủ"]],
+      ["每到"+day[0]+"，"+name+"就去"+hobby[0]+"，"+pro+"放不下这件事。", "cứ đến "+day[1]+" là "+nameVi+" đi "+hobby[1]+", không bỏ được", ["Ngày đó làm việc khác", "Dễ bỏ", "Không bao giờ đi"]],
+      [hobby[0]+"让"+name+"很开心，"+day[0]+"的安排就是它。", hobby[1]+" làm "+nameVi+" vui, lịch "+day[1]+" chính là việc đó", ["Việc đó làm buồn", "Lịch ngày đó là đi làm thêm", "Không có lịch"]],
+      [name+"告诉朋友，"+pro+"迷上了"+hobby[0]+"，"+day[0]+"不见不散。", nameVi+" nói với bạn là mê "+hobby[1]+", "+day[1]+" không gặp không về", ["Không mê", "Hôm đó hủy", "Đi chỗ khác"]],
+      ["一周里，"+name+"最期待"+day[0]+"，因为可以"+hobby[0]+"。", "trong tuần "+nameVi+" mong "+day[1]+" nhất vì được "+hobby[1], ["Không mong ngày đó", "Ngày đó bận việc khác", "Không thích"]],
+      [day[0]+"的"+hobby[0]+"，"+name+"一次都没缺过。", hobby[1]+" vào "+day[1]+", "+nameVi+" chưa bỏ lần nào", ["Hay bỏ", "Không tham gia", "Một năm một lần"]],
+      [name+"的日历上，"+day[0]+"写着"+hobby[0]+"，这是"+pro+"的爱好。", "trên lịch của "+nameVi+", "+day[1]+" ghi "+hobby[1]+", đó là sở thích", ["Ghi là nghỉ", "Không phải sở thích", "Ghi ngày khác"]],
+      ["因为喜欢，"+name+"把"+hobby[0]+"放在每个"+day[0]+"。", "vì thích, "+nameVi+" đặt "+hobby[1]+" vào mỗi "+day[1], ["Vì ghét nên mới xếp", "Không xếp ngày nào", "Chỉ xếp một năm một lần"]],
+      [hobby[0]+"是"+name+"的乐趣，时间定在"+day[0]+"。", hobby[1]+" là niềm vui của "+nameVi+", giờ cố định vào "+day[1], ["Là việc bắt buộc ghét", "Không có ngày", "Đã bỏ"]],
+      [name+"一说起"+hobby[0]+"就笑，"+day[0]+"准能看见"+pro+"。", "nhắc đến "+hobby[1]+" là "+nameVi+" cười, "+day[1]+" chắc chắn thấy", ["Nhắc đến là buồn", "Ngày đó không có mặt", "Không cười vì không thích"]],
+      ["别约"+name+"在"+day[0]+"做别的，"+pro+"要"+hobby[0]+"。", "đừng hẹn "+nameVi+" làm việc khác vào "+day[1]+", phải đi "+hobby[1], ["Ngày đó rảnh", "Không có việc đó", "Có thể đổi sang việc khác"]],
+      [day[0]+"晚上，"+name+"的选择永远是"+hobby[0]+"。", "tối "+day[1]+", lựa chọn của "+nameVi+" luôn là "+hobby[1], ["Lựa chọn là ở nhà", "Không có lựa chọn cố định", "Đã đổi sở thích"]],
+      [name+"为了"+hobby[0]+"，把每个"+day[0]+"都空出来。", "để "+hobby[1]+", "+nameVi+" để trống mỗi "+day[1], ["Để trống để nghỉ", "Không để trống", "Không thích nên không xếp"]],
+      ["朋友都知道，"+day[0]+"找"+name+"就去"+hobby[0]+"的地方。", "bạn bè đều biết, "+day[1]+" tìm "+nameVi+" thì đến chỗ "+hobby[1], ["Ngày đó tìm ở nhà", "Không ai biết", "Người đó không đi"]],
+      [hobby[0]+"已经成了"+name+"的习惯，"+day[0]+"不会变。", hobby[1]+" đã thành thói quen của "+nameVi+", "+day[1]+" không đổi", ["Dễ đổi", "Không phải thói quen", "Ngày đó nghỉ thói quen"]],
+      [name+"说"+pro+"对"+hobby[0]+"的喜欢，就表现在每个"+day[0]+"。", nameVi+" nói sự thích "+hobby[1]+" thể hiện ở mỗi "+day[1], ["Thể hiện bằng cách không đi", "Không thích", "Chỉ nói chứ không đi"]]
+    ]);
+    const mZh = at([
+      [name+"会说一点儿汉语，可是在"+lp[0]+"写汉字写得慢。", nameVi+" nói được một chút tiếng Trung nhưng viết chữ ở "+lp[1]+" còn chậm", ["Viết rất nhanh", "Không nói được gì", "Đang học tiếng Anh"]],
+      ["口语上，"+name+"只是一点儿汉语。写字在"+lp[0]+"更慢。", "về nói, "+nameVi+" chỉ một chút tiếng Trung. Viết ở "+lp[1]+" còn chậm hơn", ["Nói rất lưu loát", "Viết rất nhanh", "Không học tiếng Trung"]],
+      [name+"能开口说几句汉语，一到"+lp[0]+"写字就跟不上。", nameVi+" nói được vài câu, đến "+lp[1]+" viết là không theo kịp", ["Viết theo kịp", "Không nói được câu nào", "Đang học môn khác"]],
+      ["在"+lp[0]+"，"+name+"说汉语还行，汉字写得很慢。", "ở "+lp[1]+", "+nameVi+" nói tiếng Trung tạm được, viết chữ rất chậm", ["Viết nhanh", "Nói không được", "Không ở đó học"]],
+      [name+"的汉语是听和说有一点，"+lp[0]+"的书写还差。", "tiếng Trung của "+nameVi+" là nghe nói có một chút, viết ở "+lp[1]+" còn kém", ["Viết tốt", "Nghe nói không có gì", "Đang học tiếng khác"]],
+      ["别以为"+name+"汉字很快，人在"+lp[0]+"写得其实慢，只会说一点儿。", "đừng tưởng "+nameVi+" viết nhanh, ở "+lp[1]+" viết thật ra chậm, chỉ nói được một chút", ["Viết nhanh", "Nói nhiều", "Không viết"]],
+      [lp[0]+"的练习里，"+name+"口语有一点儿，笔头慢。", "trong bài tập ở "+lp[1]+", "+nameVi+" nói được một chút, viết chậm", ["Viết nhanh", "Không nói được", "Không có bài tập"]],
+      [name+"自己也说，汉语只能讲一点，在"+lp[0]+"写字要很久。", nameVi+" cũng nói tiếng Trung chỉ nói được một chút, viết chữ ở "+lp[1]+" mất rất lâu", ["Viết rất nhanh", "Nói thành thạo", "Không thừa nhận"]],
+      ["说汉语，"+name+"有一点基础。写汉字，到了"+lp[0]+"就慢下来。", "nói tiếng Trung "+nameVi+" có một chút nền. Viết chữ đến "+lp[1]+" thì chậm lại", ["Viết không chậm", "Không có nền nói", "Đang học nơi khác"]],
+      [name+"在"+lp[0]+"常被提醒写快点，因为"+pro+"只会说一点儿汉语。", "ở "+lp[1]+" "+nameVi+" hay bị nhắc viết nhanh hơn vì chỉ nói được một chút tiếng Trung", ["Viết đã nhanh", "Nói nhiều nên không bị nhắc", "Không học ở đó"]],
+      ["汉语对"+name+"来说，嘴上会一点，"+lp[0]+"的纸上很慢。", "với "+nameVi+", miệng nói được một chút, trên giấy ở "+lp[1]+" rất chậm", ["Trên giấy rất nhanh", "Miệng không nói được", "Không liên quan tiếng Trung"]],
+      [name+"参加"+lp[0]+"的活动时能说几句，一写汉字就慢。", "khi tham gia hoạt động ở "+lp[1]+" "+nameVi+" nói được vài câu, vừa viết là chậm", ["Viết không chậm", "Không nói được", "Không tham gia"]],
+      ["老师觉得"+name+"口语有一点儿进步，可是在"+lp[0]+"写字仍慢。", "thầy thấy nói của "+nameVi+" tiến bộ một chút, nhưng viết ở "+lp[1]+" vẫn chậm", ["Viết cũng tiến bộ nhanh", "Nói không tiến bộ và không nói được", "Không học với thầy"]],
+      [name+"用汉语点菜可以，在"+lp[0]+"写名字却写得很慢。", nameVi+" gọi món bằng tiếng Trung được, nhưng viết tên ở "+lp[1]+" rất chậm", ["Viết tên rất nhanh", "Gọi món không được", "Không viết tên"]],
+      ["一点点汉语，"+name+"说得出来。汉字在"+lp[0]+"要一笔一笔慢慢写。", "một chút tiếng Trung "+nameVi+" nói ra được. Chữ Hán ở "+lp[1]+" phải viết từng nét rất chậm", ["Viết một mạch rất nhanh", "Không nói ra được", "Không viết chữ Hán"]],
+      [lp[0]+"让"+name+"先说再写。说只有一点儿，写更慢。", lp[1]+" bảo "+nameVi+" nói trước rồi viết. Nói chỉ một chút, viết còn chậm hơn", ["Viết nhanh hơn nói", "Nói rất nhiều", "Không có yêu cầu này"]],
+      [name+"的问题不在开口，而在"+lp[0]+"写汉字太慢，口语也只是一点儿。", "vấn đề của "+nameVi+" không phải mở miệng, mà viết chữ ở "+lp[1]+" quá chậm, nói cũng chỉ một chút", ["Viết không chậm", "Nói rất tốt và viết cũng tốt", "Vấn đề là môn khác"]],
+      ["虽然"+name+"会用汉语打招呼，到"+lp[0]+"写字的速度还是慢。", "dù "+nameVi+" chào bằng tiếng Trung được, tốc độ viết ở "+lp[1]+" vẫn chậm", ["Viết nhanh", "Không chào được", "Tốc độ viết rất cao"]]
+    ]);
+    const mFar = at([
+      [name+"觉得"+lp[0]+"离学校比较远，最好坐车，大概要"+mw(12+e,"分钟")+"。", nameVi+" thấy "+lp[1]+" khá xa trường, nên đi xe, khoảng "+(12+e)+" phút", ["Ngay cạnh trường", "Không được đi xe", "Đã đóng cửa"]],
+      ["从学校到"+lp[0]+"，"+name+"算过，坐车大约"+mw(12+e,"分钟")+"，不近。", "từ trường đến "+lp[1]+", "+nameVi+" tính đi xe khoảng "+(12+e)+" phút, không gần", ["Rất gần", "Đi bộ một phút", "Không cần xe"]],
+      [name+"不打算走去"+lp[0]+"，太远，车程大概"+mw(12+e,"分钟")+"。", nameVi+" không định đi bộ đến "+lp[1]+", quá xa, xe khoảng "+(12+e)+" phút", ["Định đi bộ vì gần", "Xe chỉ một phút", "Chỗ đó đóng"]],
+      ["学校和"+lp[0]+"之间有一段路，"+name+"说坐车要"+mw(12+e,"分钟")+"。", "giữa trường và "+lp[1]+" có một quãng, "+nameVi+" nói đi xe mất "+(12+e)+" phút", ["Không có quãng đường", "Đi bộ là đủ", "Không nhắc xe"]],
+      ["因为远，"+name+"选择坐车去"+lp[0]+"，时间大约"+mw(12+e,"分钟")+"。", "vì xa, "+nameVi+" chọn đi xe đến "+lp[1]+", khoảng "+(12+e)+" phút", ["Vì gần nên đi bộ", "Không chọn xe", "Mất cả buổi"]],
+      [lp[0]+"不在学校旁边。"+name+"的建议是坐车，约"+mw(12+e,"分钟")+"。", lp[1]+" không ở cạnh trường. Gợi ý của "+nameVi+" là đi xe, khoảng "+(12+e)+" phút", ["Ở cạnh trường", "Gợi ý đi bộ", "Không có gợi ý"]],
+      ["走着去"+lp[0]+"不现实，"+name+"估计车要"+mw(12+e,"分钟")+"。", "đi bộ đến "+lp[1]+" không thực tế, "+nameVi+" ước lượng xe mất "+(12+e)+" phút", ["Đi bộ rất thực tế", "Xe không cần", "Ước lượng một phút"]],
+      [name+"看了地图，"+lp[0]+"离学校远，坐车"+mw(12+e,"分钟")+"左右。", nameVi+" xem bản đồ, "+lp[1]+" xa trường, đi xe khoảng "+(12+e)+" phút", ["Bản đồ cho thấy rất gần", "Không xem bản đồ", "Đi bộ"]],
+      ["别走路去"+lp[0]+"。"+name+"说远，车程大概"+mw(12+e,"分钟")+"。", "đừng đi bộ đến "+lp[1]+". "+nameVi+" nói xa, xe khoảng "+(12+e)+" phút", ["Cứ đi bộ", "Rất gần", "Không có xe"]],
+      ["学校出发，坐车"+mw(12+e,"分钟")+"能到"+lp[0]+"，"+name+"觉得不算近。", "từ trường đi xe "+(12+e)+" phút đến "+lp[1]+", "+nameVi+" thấy không gọi là gần", ["Thấy rất gần", "Không đến được", "Đi bộ năm giây"]],
+      [name+"把"+lp[0]+"标成远的地方，交通方式是坐车，约"+mw(12+e,"分钟")+"。", nameVi+" đánh dấu "+lp[1]+" là chỗ xa, cách đi là xe, khoảng "+(12+e)+" phút", ["Đánh dấu là chỗ gần", "Cách đi là đi bộ", "Không mất thời gian"]],
+      ["如果去"+lp[0]+"，"+name+"会坐车，因为远，要"+mw(12+e,"分钟")+"。", "nếu đến "+lp[1]+", "+nameVi+" sẽ đi xe vì xa, mất "+(12+e)+" phút", ["Sẽ đi bộ vì gần", "Không đi", "Chỉ mất một phút"]],
+      [lp[0]+"那一头比较远。"+name+"算坐车需要"+mw(12+e,"分钟")+"。", "phía "+lp[1]+" khá xa. "+nameVi+" tính đi xe cần "+(12+e)+" phút", ["Phía đó rất gần", "Không cần tính", "Đi bộ"]],
+      ["坐车去"+lp[0]+"是"+name+"的办法，原因是远，时长约"+mw(12+e,"分钟")+"。", "đi xe đến "+lp[1]+" là cách của "+nameVi+", lý do là xa, khoảng "+(12+e)+" phút", ["Cách là đi bộ", "Lý do là gần", "Không có cách"]],
+      [name+"不建议步行到"+lp[0]+"。车大概"+mw(12+e,"分钟")+"，说明不近。", nameVi+" không khuyên đi bộ đến "+lp[1]+". Xe khoảng "+(12+e)+" phút, nghĩa là không gần", ["Khuyên đi bộ", "Nghĩa là rất gần", "Không nói thời gian"]],
+      ["从校门到"+lp[0]+"的车程，"+name+"说是"+mw(12+e,"分钟")+"，所以算远。", "xe từ cổng trường đến "+lp[1]+", "+nameVi+" nói "+(12+e)+" phút, nên tính là xa", ["Tính là gần", "Không có xe", "Một phút"]],
+      [name+"计划坐车，不去步行，"+lp[0]+"大约"+mw(12+e,"分钟")+"。", nameVi+" định đi xe, không đi bộ, "+lp[1]+" khoảng "+(12+e)+" phút", ["Định đi bộ", "Không có kế hoạch", "Chỗ đó sát trường"]],
+      ["远近已经清楚："+lp[0]+"远，"+name+"要坐"+mw(12+e,"分钟")+"的车。", "xa gần đã rõ: "+lp[1]+" xa, "+nameVi+" phải đi xe "+(12+e)+" phút", ["Rõ là rất gần", "Không phải đi xe", "Chưa rõ"]]
+    ]);
+    const mNum = at([
+      ["在"+lp[0]+"请先拿号，然后在左边等。", "ở "+lp[1]+" hãy lấy số trước rồi sang trái đợi", ["Đợi rồi mới lấy số", "Không cần số", "Lấy số rồi về"]],
+      ["进"+lp[0]+"的第一步是拿号，等的位置在左边。", "bước đầu vào "+lp[1]+" là lấy số, chỗ đợi ở bên trái", ["Bước đầu là đợi không lấy số", "Đợi bên phải", "Không cần đợi"]],
+      [lp[0]+"里，没号就不能等。拿到号去左边。", "trong "+lp[1]+", không có số thì không được đợi. Lấy số rồi sang trái", ["Không cần số", "Sang phải", "Lấy số rồi rời đi"]],
+      ["左边是等候区。去之前，要在"+lp[0]+"拿号。", "bên trái là khu chờ. Trước khi sang đó phải lấy số ở "+lp[1], ["Trước tiên sang chờ rồi mới lấy số", "Không có khu chờ", "Lấy số ở nhà"]],
+      ["拿了号，人去"+lp[0]+"左边。没拿号就先别过去。", "lấy số rồi hãy sang trái "+lp[1]+". Chưa lấy thì đừng sang", ["Chưa lấy số vẫn sang", "Sang bên phải", "Không phát số"]],
+      [name+"说，"+lp[0]+"要排队拿号，然后左等。", nameVi+" nói "+lp[1]+" phải xếp hàng lấy số rồi đợi bên trái", ["Không phải lấy số", "Đợi bên phải", "Lấy số xong thì về"]],
+      ["机器在"+lp[0]+"门口吐号，人拿了去左边坐。", "máy ở cửa "+lp[1]+" nhả số, lấy rồi sang trái ngồi", ["Không có máy số", "Ngồi bên phải", "Lấy số rồi đứng ngoài"]],
+      ["别插队。"+lp[0]+"的规矩是先拿号，再去左边等。", "đừng chen hàng. Quy tắc ở "+lp[1]+" là lấy số trước rồi sang trái đợi", ["Cứ chen", "Không cần số", "Đợi xong mới lấy số"]],
+      ["你的位置不在右边，在左边，但前提是已在"+lp[0]+"拿号。", "chỗ của bạn không ở bên phải mà ở bên trái, với điều kiện đã lấy số ở "+lp[1], ["Ở bên phải", "Không cần lấy số", "Lấy số ở chỗ khác"]],
+      [lp[0]+"叫号以前，人应该拿着号在左边。", "trước khi "+lp[1]+" gọi số, phải cầm số đứng bên trái", ["Không cầm số", "Đứng bên phải", "Gọi số xong mới lấy"]],
+      ["先去取号处，再找"+lp[0]+"左边的椅子。", "đến chỗ lấy số trước, rồi tìm ghế bên trái "+lp[1], ["Tìm ghế trước", "Ghế ở bên phải", "Không có số"]],
+      ["没有号，"+lp[0]+"左边也不让坐。先拿号。", "không có số thì bên trái "+lp[1]+" cũng không cho ngồi. Hãy lấy số trước", ["Không có số vẫn ngồi", "Ngồi bên phải", "Không phát số"]],
+      [name+"已经在"+lp[0]+"拿到号了，正在左边等。", nameVi+" đã lấy số ở "+lp[1]+" và đang đợi bên trái", ["Chưa lấy số", "Đợi bên phải", "Đã về"]],
+      ["取号、左等，这是"+lp[0]+"进门后的顺序。", "lấy số rồi đợi bên trái, đó là thứ tự sau khi vào "+lp[1], ["Thứ tự ngược lại", "Không có thứ tự", "Vào là được phục vụ ngay"]],
+      ["请到"+lp[0]+"取一个号，等候请靠左。", "hãy đến "+lp[1]+" lấy một số, khi chờ hãy sát bên trái", ["Không lấy số", "Sát bên phải", "Lấy số rồi rời đi"]],
+      ["左边的队伍只收已经拿号的人，号在"+lp[0]+"取。", "hàng bên trái chỉ nhận người đã lấy số, số lấy ở "+lp[1], ["Chưa có số vẫn vào hàng", "Hàng ở bên phải", "Không phát số"]],
+      ["进门看见号机就先按，然后到"+lp[0]+"左侧等。", "vào cửa thấy máy số thì bấm trước, rồi sang phía trái "+lp[1]+" đợi", ["Sang trái trước rồi mới bấm", "Đợi bên phải", "Không có máy"]],
+      [lp[0]+"的广播说：先取号，再在左边等候。", "loa "+lp[1]+" nói: lấy số trước, rồi chờ bên trái", ["Loa nói không cần số", "Chờ bên phải", "Loa nói về nhà"]]
+    ]);
+    meaning.push(meanAt("Người đang gọi điện", mCall[0], mCall[1], mCall[2]));
+    meaning.push(meanAt(thing[3], mForget[0], mForget[1], mForget[2]));
+    meaning.push(meanAt("Đồng hồ mấy giờ", mHours[0], mHours[1], mHours[2]));
+    meaning.push(meanAt(hobby[2], mHobby[0], mHobby[1], mHobby[2]));
+    meaning.push(meanAt("Học sinh đang ở lớp học", mZh[0], mZh[1], mZh[2]));
+    meaning.push(meanAt(lp[2], mFar[0], mFar[1], mFar[2]));
+    meaning.push(meanAt(lp[2], mNum[0], mNum[1], mNum[2]));
+
+    const v = e % 3;
+    const audioClose = v===0
+      ? "女："+lp[0]+"今天几点关门？男："+open+"开门，"+close+"关门。女：我"+arrive+"到，还开着吗？男：开着。不过"+limit[0]+"。问："+lp[0]+"几点关门？"
+      : v===1
+      ? "男：现在去"+lp[0]+"来得及吗？女：来得及。他们"+close+"才关门，"+open+"就开了。男：我大概"+arrive+"到。女：那没问题，可是"+limit[0]+"。问："+lp[0]+"几点关门？"
+      : "女：朋友让我去"+lp[0]+"。男：记住，"+close+"关门。女：我"+arrive+"到行吗？男：行，但是"+limit[0]+"。问："+lp[0]+"几点关门？";
+    reply.push(choice(lp[2], "请听对话，选择正确的答案。", lp[1]+" đóng cửa lúc mấy giờ?", audioClose, D,
+      [closeVi+". Đến lúc "+arriveVi+" vẫn còn mở, nhưng "+limit[1]+".","","Đóng lúc "+closeVi+".","ĐÚNG. Câu nói «"+close+"关门», và «"+limit[0]+"»."],
+      [[arriveVi+" đã đóng.","","","SAI. "+arriveVi+" là giờ người đó đến, cửa vẫn mở."],["Không cần "+limit[1]+".","","","SAI. Điều kiện được nói là «"+limit[0]+"»."],[lp[1]+" hôm nay không mở.","","","SAI. Câu nói có mở, từ "+openVi+"."]]));
+
+    const audioPrice = v===0
+      ? "女："+thing[0]+"多少钱？男："+yuan(price)+"。女：有点儿贵。旁边那种呢？男：那种"+yuan(priceB)+"，今天就这个价。女：那我买"+mw(count, thing[2])+"便宜的。问：她买了多少钱的？"
+      : v===1
+      ? "男：我想买"+thing[0]+"。女：这种"+yuan(price)+"，那种"+yuan(priceB)+"。男：我要便宜的，买"+mw(count, thing[2])+"。女：好。问：男的买的是哪种价格？"
+      : "女：便宜的"+thing[0]+"还有吗？男：有，"+yuan(priceB)+"一"+thing[2]+"。贵的是"+yuan(price)+"。女：请给我"+mw(count, thing[2])+"便宜的。问：她不要哪种？";
+    reply.push(choice(thing[3], "请听对话，选择正确的答案。", "Người mua chọn giá nào?", audioPrice, D,
+      ["Giá "+priceB+" tệ, mua "+count+" "+thing[1]+". Loại "+price+" tệ đắt hơn và không được chọn.","","Chọn loại "+priceB+" tệ.","ĐÚNG. Loại được mua là "+yuan(priceB)+", số lượng "+mw(count, thing[2])+thing[0]+"."],
+      [["Mua loại "+price+" tệ.","","","SAI. Loại "+yuan(price)+" bị coi là đắt và không được chọn."],["Chỉ mua một "+thing[1]+".","","","SAI. Số lượng là "+mw(count, thing[2])+"."],["Không mua gì.","","","SAI. Người mua đã chốt loại rẻ."]]));
+
+    const audioDay = "女："+hobby[0]+"还是"+day[0]+"吗？男：不，改到"+day2[0]+"了。女："+lp[0]+"变了吗？男：没变，还在"+lp[0]+"。问：现在改到哪一天？";
+    reply.push(choice(hobby[2], "请听对话，选择正确的答案。", hobby[1]+" đổi sang ngày nào?", audioDay, D,
+      [day2[1]+", vẫn ở "+lp[1]+". "+day[1]+" là lịch cũ.","","Đổi sang "+day2[1]+".","ĐÚNG. «改到"+day2[0]+"», «没变，还在"+lp[0]+"»."],
+      [["Vẫn là "+day[1]+".","","","SAI. "+day[1]+" là lịch cũ, nam nói không còn."],["Đổi sang chỗ khác, không còn ở "+lp[1]+".","","","SAI. Nam nói chỗ không đổi."],["Buổi đó bị hủy hẳn.","","","SAI. Chỉ đổi ngày."]]));
+
+    const audioOwner = "女：这个"+thing[0]+"是你的吗？男：不是。是"+owner[0]+"的。女：怎么在"+lp[0]+"？男："+other[0]+"拿来的，我只是看见。问："+thing[0]+"是谁的？";
+    reply.push(choice(thing[3], "请听对话，选择正确的答案。", thing[1]+" là của ai?", audioOwner, D,
+      ["Của "+owner[1]+". "+other[1]+" mang đến "+lp[1]+", nam chỉ nhìn thấy.","","Là của "+owner[1]+".","ĐÚNG. «是"+owner[0]+"的», không phải của nam."],
+      [["Của nam.","","","SAI. Nam nói «不是»."],["Của "+other[1]+".","","","SAI. "+other[1]+" chỉ mang đến, chủ là "+owner[1]+"."],["Không ai biết chủ.","","","SAI. Chủ được nói rõ là "+owner[1]+"."]]));
+
+    const audioRoom = at([
+      "女：我们在一楼见面吗？男：不在。改到"+cn(floor)+"楼"+room+"。女：房间大吗？男：不大，只能坐"+mw(count, "个")+"人。问：他们在哪个房间见面？",
+      "男：一楼取消了。女：改到哪儿？男：改到"+cn(floor)+"楼"+room+"。女：大吗？男：不大，只能坐"+mw(count, "个")+"人。问：现在在几楼见面？",
+      "女：房间号给我。男：别去一楼。改到"+cn(floor)+"楼"+room+"，只能坐"+mw(count, "个")+"人。问：哪个房间还能用？",
+      "男：人多吗？女：不多。改到"+cn(floor)+"楼"+room+"，只能坐"+mw(count, "个")+"人，一楼不用了。问：一楼还见面吗？",
+      "女：我在一楼等你。男：马上下来？不。你上来，改到"+cn(floor)+"楼"+room+"。女：坐得下吗？男：只能坐"+mw(count, "个")+"人。问：女的应该去哪儿？",
+      "男：通知写了，一楼关闭。女：那是改到"+cn(floor)+"楼"+room+"吗？男：对，而且只能坐"+mw(count, "个")+"人。问：通知把见面改到哪儿？",
+      "女：这么小的房间行吗？男：就它了。改到"+cn(floor)+"楼"+room+"，只能坐"+mw(count, "个")+"人，不在一楼。问：房间能坐几个人？",
+      "男：你先到一楼。女：不是说改了吗？男：对，改到"+cn(floor)+"楼"+room+"。女：大不大？男：不大，只能坐"+mw(count, "个")+"人。问：谁说错了楼层？",
+      "女：会议室换了没有？男：换了。改到"+cn(floor)+"楼"+room+"。女：还能再加人吗？男：不能，只能坐"+mw(count, "个")+"人。问：还能加人吗？",
+      "男：一楼太吵。女：那就改到"+cn(floor)+"楼"+room+"。男：那里只能坐"+mw(count, "个")+"人。女：够了。问：为什么离开一楼？",
+      "女：我记的是一楼。男：记错了。改到"+cn(floor)+"楼"+room+"，只能坐"+mw(count, "个")+"人。问：女的原来记成几楼？",
+      "男：门牌是"+room+"，在"+cn(floor)+"楼。女：一楼那个呢？男：取消。这个房间只能坐"+mw(count, "个")+"人。问：门牌在几楼？",
+      "女：咱们换个大房间吧。男：没有大的。改到"+cn(floor)+"楼"+room+"，只能坐"+mw(count, "个")+"人。问：有大房间吗？",
+      "男：你到了直接上楼。女：不是一楼？男：不在一楼。改到"+cn(floor)+"楼"+room+"，只能坐"+mw(count, "个")+"人。问：到了以后要做什么？",
+      "女：坐"+mw(count, "个")+"人够不够？男：够。所以改到"+cn(floor)+"楼"+room+"，一楼不要了。问：他们最后留在哪个房间？",
+      "男：我在"+room+"等你。女：一楼吗？男：不是。改到"+cn(floor)+"楼，只能坐"+mw(count, "个")+"人。问：男的在哪儿等？",
+      "女：人如果多怎么办？男：不会多。改到"+cn(floor)+"楼"+room+"，只能坐"+mw(count, "个")+"人，一楼关闭。问：人多的时候怎么办？",
+      "男：别订一楼。女：已经改到"+cn(floor)+"楼"+room+"了。男：房间只能坐"+mw(count, "个")+"人，你知道吧？女：知道。问：一楼还要订吗？"
+    ]);
+    reply.push(choice("Một phòng học", "请听对话，选择正确的答案。", "Họ gặp ở phòng nào?", audioRoom, D,
+      ["Tầng "+floor+", phòng "+(300+e+1)+", phòng nhỏ chỉ ngồi "+count+" người. Không còn ở tầng một.","","Phòng "+(300+e+1)+" tầng "+floor+".","ĐÚNG. «改到"+cn(floor)+"楼"+room+"», «只能坐"+mw(count, "个")+"人»."],
+      [["Vẫn ở tầng một.","","","SAI. Nam nói không ở tầng một."],["Phòng lớn trên tầng năm.","","","SAI. Là phòng nhỏ tầng "+floor+"."],["Cuộc hẹn bị hủy.","","","SAI. Chỉ đổi phòng."]]));
+
+    const audioNot = "男："+lp[0]+"的"+thing[0]+"我们买吗？女：别买，太重了。男：那买"+mw(count, "杯")+"茶吧。女：好，茶在左边。问：他们不买什么？";
+    reply.push(choice(thing[3], "请听对话，选择正确的答案。", "Họ không mua gì?", audioNot, D,
+      ["Không mua "+thing[1]+" vì nặng. Họ mua "+count+" cốc trà ở bên trái.","","Không mua "+thing[1]+".","ĐÚNG. «别买，太重了» nói về "+thing[0]+"."],
+      [["Không mua trà.","","","SAI. Họ đồng ý mua trà."],["Mua "+thing[1]+" vì nhẹ.","","","SAI. Lý do không mua là quá nặng."],["Họ không đến "+lp[1]+".","","","SAI. Họ đang chọn đồ ở đó."]]));
+
+    const audioWho = at([
+      "女：今晚我要去"+lp[0]+"，不能做饭。男：那晚饭怎么办？女：冰箱里有鸡蛋。你先做，我"+close+"左右回来。男：好，我做。问：晚饭谁做？",
+      "男：晚饭谁来做？女：我得去"+lp[0]+"。冰箱里有鸡蛋，你先做，我"+close+"左右回来。男：好，我做。问：冰箱里有什么？",
+      "女：鸡蛋在冰箱里。我"+close+"左右才从"+lp[0]+"回来，晚饭你先做。男：好，我做。问：女的什么时候回来？",
+      "男：你回来做晚饭吗？女：不行，我要去"+lp[0]+"。冰箱里有鸡蛋，你先做。男：好，我做。女：我"+close+"左右回来。问：男的答应了什么？",
+      "女：今晚别等我做饭。"+lp[0]+"有事，冰箱里有鸡蛋。男：那我做。女：对，我"+close+"左右回来。问：今晚为什么不等女的做饭？",
+      "男：冰箱里有鸡蛋，我来做晚饭。女：好，我去"+lp[0]+"，"+close+"左右回来。问：谁提出来做晚饭？",
+      "女：我"+close+"左右回来。晚饭用冰箱里的鸡蛋，你先做，我要去"+lp[0]+"。男：好，我做。问：晚饭用什么做？",
+      "男：去"+lp[0]+"的人还做饭吗？女：不做饭。冰箱里有鸡蛋，你先做，我"+close+"左右回来。男：好，我做。问：去那里的人还做饭吗？",
+      "女：你先看看冰箱，里面有鸡蛋。我去"+lp[0]+"，"+close+"左右回来，晚饭交给你。男：好，我做。问：女的让男的先看什么？",
+      "男：我"+close+"左右饿。女：那就你先做，冰箱里有鸡蛋。我去"+lp[0]+"。男：好，我做。问：男的几点会饿？",
+      "女：晚饭不要出去吃。冰箱里有鸡蛋，你做，我去"+lp[0]+"，"+close+"左右回来。男：好，我做。问：晚饭要不要出去吃？",
+      "男：鸡蛋是做晚饭用的吗？女：是。我去"+lp[0]+"，你先做，我"+close+"左右回来。男：好，我做。问：鸡蛋是做什么用的？",
+      "女：家里的晚饭拜托你。冰箱里有鸡蛋。我人在去"+lp[0]+"的路上，"+close+"左右回来。男：好，我做。问：女的拜托男的什么？",
+      "男：你不在家，晚饭怎么解决？女：冰箱里有鸡蛋，你先做。我去"+lp[0]+"，"+close+"左右回来。男：好，我做。问：人不在家时晚饭怎么解决？",
+      "女："+close+"左右你能吃上饭。材料是冰箱里的鸡蛋，你先做，我去"+lp[0]+"。男：好，我做。问：几点能吃上饭？",
+      "男：我不会等你回来再做。女：对，冰箱里有鸡蛋，你先做。我去"+lp[0]+"，"+close+"左右才回来。问：男的要不要等女的回来再做？",
+      "女：把冰箱里的鸡蛋做了当晚饭。我去"+lp[0]+"。男：好，我做。女：我"+close+"左右回来。问：晚饭的材料在哪儿？",
+      "男：去"+lp[0]+"之前把晚饭做了？女：不，你做。冰箱里有鸡蛋，我"+close+"左右回来。男：好，我做。问：出门之前是谁做饭？"
+    ]);
+    reply.push(choice("Người đang nấu ăn", "请听对话，选择正确的答案。", "Tối nay ai nấu cơm?", audioWho, D,
+      ["Nam nấu, dùng trứng trong tủ lạnh. Nữ khoảng "+closeVi+" mới về vì phải đến "+lp[1]+".","","Nam nấu tối nay.","ĐÚNG. Nam nói «好，我做». Nữ về khoảng "+close+"."],
+      [["Nữ về nấu lúc "+openVi+".","","","SAI. Nữ đi "+lp[1]+" và về khoảng "+closeVi+"."],["Tủ lạnh không có gì.","","","SAI. Có trứng."],["Họ ra "+lp[1]+" ăn.","","","SAI. Họ quyết định nam nấu ở nhà."]]));
+
+    const audioWhere = "男：我的"+thing[0]+"呢？女：早上在桌子上。男：现在没有了。女：在左边的椅子上，"+owner[0]+"拿过去了。问："+thing[0]+"现在在哪儿？";
+    reply.push(choice(thing[3], "请听对话，选择正确的答案。", thing[1]+" đang ở đâu?", audioWhere, D,
+      ["Trên ghế bên trái, vì "+owner[1]+" đã lấy qua. Sáng còn ở trên bàn.","","Bây giờ ở ghế bên trái.","ĐÚNG. «在左边的椅子上», «"+owner[0]+"拿过去了»."],
+      [["Vẫn ở trên bàn.","","","SAI. Nam nói bây giờ không còn trên bàn."],[" "+owner[1]+" mang đến "+lp[1]+" rồi.","","","SAI. Đồ đang trên ghế trái, không nói đã mang đi."],["Không tìm thấy.","","","SAI. Nữ đã thấy trên ghế trái."]]));
+
+    const audioCount = "女："+day[0]+"的票还有吗？男：有。一张"+yuan(priceB)+"。女：我要"+mw(count, "张")+"，一张给我"+other[0]+"。男：好。问：她买几张票？";
+    reply.push(choice("Người đang xếp hàng mua vé", "请听对话，选择正确的答案。", "Cô mua mấy vé?", audioCount, D,
+      [count+" vé, mỗi vé "+priceB+" tệ, một vé là của "+other[1]+". Ngày là "+day[1]+".","","Mua "+count+" vé.","ĐÚNG. «我要"+mw(count, "张")+"», trong đó một vé cho "+other[0]+"."],
+      [["Chỉ mua một vé.","","","SAI. Số vé là "+mw(count, "张")+"."],["Mỗi vé "+price+" tệ.","","","SAI. Giá được nói là "+yuan(priceB)+"."],["Hết vé ngày "+day[1]+".","","","SAI. Nam nói còn vé."]]));
+
+    const times = 2 + (e % 2);
+    const audioMed = "男："+lp[0]+"的"+thing[0]+"怎么吃？女：一天"+mw(times, "次")+"，饭后吃。男：中午吃行吗？女：不行，早上和晚上吃。问：一天吃几次？";
+    reply.push(choice("Người đang mua thuốc", "请听对话，选择正确的答案。", "Một ngày uống mấy lần?", audioMed, D,
+      [times+" lần, sau khi ăn, vào buổi sáng và buổi tối, không uống buổi trưa.","","Ngày "+times+" lần sau ăn.","ĐÚNG. «一天"+mw(times, "次")+"，饭后吃», và «早上和晚上吃»."],
+      [["Uống buổi trưa.","","","SAI. Nữ nói buổi trưa không được."],["Uống trước khi ăn.","","","SAI. Phải uống sau bữa ăn."],["Một ngày một lần.","","","SAI. Số lần là "+mw(times, "次")+"."]]));
+
+    const audioLong1 = "女："+lp[0]+"每天都开吗？男：不。"+day2[0]+"关门，别的天"+open+"到"+close+"。女：那我"+day[0]+"去。男："+day[0]+"可以，记得"+limit[0]+"。问：哪一天关门？";
+    longer.push(choice(lp[2], "请听对话，选择正确的答案。", "Ngày nào đóng cửa?", audioLong1, D,
+      [day2[1]+" đóng. Các ngày khác mở từ "+openVi+" đến "+closeVi+". "+day[1]+" vẫn đi được, nhưng "+limit[1]+".","","Đóng vào "+day2[1]+".","ĐÚNG. «"+day2[0]+"关门», các ngày khác vẫn mở."],
+      [[day[1]+" đóng.","","","SAI. "+day[1]+" là ngày nữ chọn để đi, nam nói đi được."],["Ngày nào cũng mở.","","","SAI. Có một ngày đóng là "+day2[1]+"."],["Không cần "+limit[1]+".","","","SAI. Nam nhắc «"+limit[0]+"»."]]));
+
+    const audioLong2 = "男：今晚谁去"+lp[0]+"？女：我和"+owner[0]+"去。男："+other[0]+"呢？女："+other[0]+"不去，他要在家看"+mw(count, thing[2])+thing[0]+"。问：谁不去？";
+    longer.push(choice(lp[2], "请听对话，选择正确的答案。", "Ai không đi?", audioLong2, D,
+      [other[1]+" không đi, ở nhà xem "+count+" "+thing[1]+". Nữ và "+owner[1]+" thì đi "+lp[1]+".",""," "+other[1]+" không đi.","ĐÚNG. «"+other[0]+"不去»."],
+      [[owner[1]+" không đi.","","","SAI. "+owner[1]+" đi cùng nữ."],[nameVi+" đi một mình.","","","SAI. Nữ đi cùng "+owner[1]+"."],[other[1]+" đến "+lp[1]+" xem "+thing[1]+".","","","SAI. "+other[1]+" ở nhà, không đến "+lp[1]+"."]]));
+
+    const audioLong3 = "女：我们去"+lp[0]+"买"+thing[0]+"吧。男：今天别买，"+yuan(price)+"太贵了。女：那买茶吗？男：买，"+mw(count, "杯")+"，在左边拿。问：他们今天买什么？";
+    longer.push(choice("Người đang uống trà", "请听对话，选择正确的答案。", "Hôm nay họ mua gì?", audioLong3, D,
+      ["Mua "+count+" cốc trà, lấy ở bên trái. Không mua "+thing[1]+" vì "+price+" tệ là đắt.","","Mua trà, không mua "+thing[1]+".","ĐÚNG. «今天别买» nói về "+thing[0]+", trà thì «买»."],
+      [["Mua "+thing[1]+" giá "+price+" tệ.","","","SAI. Nam nói hôm nay đừng mua vì đắt."],["Không mua trà.","","","SAI. Nam đồng ý mua trà."],["Trà để ở bên phải.","","","SAI. Lấy ở bên trái."]]));
+
+    const audioLong4 = at([
+      "男："+lp[0]+"从南门进吗？女：南门关了。走北门，再往左，"+room+"在"+cn(floor)+"楼。男：北门远吗？女：不远，走"+mw(count, "分钟")+"。问：他们从哪儿进？",
+      "女：南门关了，别走那儿。男：那怎么去"+lp[0]+"？女：走北门，再往左，"+room+"在"+cn(floor)+"楼，走"+mw(count, "分钟")+"。问：南门能不能走？",
+      "男：北门要走多久？女：不远，走"+mw(count, "分钟")+"。南门关了。进了北门再往左，"+room+"在"+cn(floor)+"楼。问：北门要走多久？",
+      "女："+room+"在"+cn(floor)+"楼。你走北门，再往左。南门关了，到"+lp[0]+"大约"+mw(count, "分钟")+"。问：房间在几楼？",
+      "男：我到南门了。女：南门关了。退回去走北门，再往左，"+room+"在"+cn(floor)+"楼，一共走"+mw(count, "分钟")+"。问：人已经走到哪儿了？",
+      "女：去"+lp[0]+"别找南门。男：北门远吗？女：不远，走"+mw(count, "分钟")+"，再往左，"+room+"在"+cn(floor)+"楼。问：应不应该找南门？",
+      "男：往左以后呢？女：就是"+cn(floor)+"楼的"+room+"。你先走北门，南门关了，路程"+mw(count, "分钟")+"。问：往左以后是什么？",
+      "女：路程不远，走"+mw(count, "分钟")+"到北门。南门关了。再往左，"+room+"在"+cn(floor)+"楼，"+lp[0]+"就到了。问：哪段路不远？",
+      "男：南门什么时候开？女：今天关了。走北门，再往左，"+room+"在"+cn(floor)+"楼，走"+mw(count, "分钟")+"到"+lp[0]+"。问：南门今天开不开？",
+      "女：记住顺序：北门、往左、"+cn(floor)+"楼"+room+"。南门关了，走"+mw(count, "分钟")+"。问：顺序的第一步是什么？",
+      "男："+lp[0]+"的"+room+"怎么找？女：别走南门，南门关了。走北门再往左，在"+cn(floor)+"楼，走"+mw(count, "分钟")+"。问：找房间时能不能走南门？",
+      "女：左拐之前先过北门。南门关了。"+room+"在"+cn(floor)+"楼，到"+lp[0]+"要"+mw(count, "分钟")+"。问：左拐之前先过哪儿？",
+      "男：走"+mw(count, "分钟")+"嫌远吗？女：不远。南门关了，走北门，再往左，"+room+"在"+cn(floor)+"楼。问：这段路算不算远？",
+      "女：楼层是"+cn(floor)+"楼，房间"+room+"。入口改到北门，因为南门关了，再往左，走"+mw(count, "分钟")+"。问：入口改到哪儿了？",
+      "男：我怕走错门。女：南门关了就对了，你走北门。再往左，"+room+"在"+cn(floor)+"楼，"+mw(count, "分钟")+"到"+lp[0]+"。问：走错的会是哪扇门？",
+      "女：北门进来看见左边的楼梯，上到"+cn(floor)+"楼就是"+room+"。南门关了，走"+mw(count, "分钟")+"。问：楼梯在哪一边？",
+      "男："+lp[0]+"今天只开一个门吗？女：对。南门关了，走北门，再往左，"+room+"在"+cn(floor)+"楼，大约"+mw(count, "分钟")+"。问：今天开几个门？",
+      "女：你要是从南门过来，白走。南门关了。改走北门，再往左，"+room+"在"+cn(floor)+"楼，要"+mw(count, "分钟")+"。问：从南门过来会怎样？"
+    ]);
+    longer.push(choice("Một bản đồ", "请听对话，选择正确的答案。", "Họ vào từ đâu?", audioLong4, D,
+      ["Cổng bắc, rồi rẽ trái. Phòng "+(300+e+1)+" ở tầng "+floor+". Cổng nam đang đóng. Đi khoảng "+count+" phút.","","Vào bằng cổng bắc.","ĐÚNG. «走北门，再往左», cổng nam đã đóng."],
+      [["Vào cổng nam.","","","SAI. Cổng nam đóng."],["Rẽ phải sau cổng bắc.","","","SAI. Câu nói rẽ trái."],["Phòng ở tầng một.","","","SAI. Phòng ở tầng "+floor+"."]]));
+
+    const audioLong5 = at([
+      "男：末班车是几点？女："+last+"。过了就没有了。男：我"+early+"到车站，赶得上吗？女：赶得上，但是别在"+lp[0]+"买东西。问："+early+"到还赶得上吗？",
+      "女：末班车"+last+"，过了就没有了。男："+early+"到车站来得及吗？女：赶得上。别在"+lp[0]+"买东西。问：过了末班车还有车吗？",
+      "男：我想在"+lp[0]+"买东西再去车站。女：别买。你"+early+"到就赶得上，末班车是"+last+"，过了就没有了。问：能不能先买东西？",
+      "女：你"+early+"到车站就行。末班是"+last+"，过了就没有了。男：那我先去"+lp[0]+"？女：别去，不然赶不上。问：女的让男的几点到车站？",
+      "男：末班车过了还有吗？女：没有。"+last+"就是最后，你"+early+"到车站赶得上，别在"+lp[0]+"买东西。问：最后一班是几点？",
+      "女：别在"+lp[0]+"买东西，直接去车站。男：我"+early+"到。女：赶得上，末班车"+last+"，过了就没有了。问：为什么别买东西？",
+      "男："+last+"的车是末班吗？女：是，过了就没有了。你"+early+"到车站赶得上，可别去"+lp[0]+"。问：那班车是不是末班？",
+      "女：时间够。"+early+"到车站，末班"+last+"，你赶得上。男：买东西呢？女：别在"+lp[0]+"买。问：时间够不够？",
+      "男：我要是去"+lp[0]+"，末班车还能坐吗？女：别去。你"+early+"直接到车站才赶得上，末班是"+last+"，过了就没有了。问：去那个地方还能坐末班吗？",
+      "女：赶得上的条件是"+early+"到车站，而且不去"+lp[0]+"。末班"+last+"，过了就没有了。问：赶得上要满足什么？",
+      "男：车站"+early+"见。女：可以，末班车"+last+"，你赶得上。过了就没有了，也别在"+lp[0]+"买东西。问：他们约在哪儿见面？",
+      "女：过了"+last+"就没有车了。男：那"+early+"到呢？女：赶得上。别顺便去"+lp[0]+"买东西。问：过了那个点还有车吗？",
+      "男：末班车会等我买完东西吗？女：不会。别在"+lp[0]+"买。你"+early+"到车站才赶得上"+last+"那班，过了就没有了。问：末班车会不会等人买东西？",
+      "女：你不用跑太早，"+early+"到车站就赶得上。末班是"+last+"。男："+lp[0]+"呢？女：别去买东西。问：要不要跑得更早？",
+      "男：没有末班以后的车，对吧？女：对，"+last+"过了就没有了。你"+early+"到赶得上，别在"+lp[0]+"买东西。问：男的说得对不对？",
+      "女：计划改一下：不去"+lp[0]+"，"+early+"到车站。末班"+last+"，这样赶得上，过了就没有了。问：计划改成什么？",
+      "男：赶得上的话我就"+early+"出发到车站。女：赶得上。末班"+last+"，过了就没有了。记住别在"+lp[0]+"买东西。问：男的打算几点到车站？",
+      "女：末班车不等人购物。"+last+"过了就没有了。你"+early+"到车站赶得上，离"+lp[0]+"远一点。问：末班车等人购物吗？"
+    ]);
+    longer.push(choice("Người đang đợi xe buýt", "请听对话，选择正确的答案。", earlyVi+" đến thì còn kịp không?", audioLong5, D,
+      ["Kịp. Chuyến cuối là "+lastVi+". Đừng ghé "+lp[1]+" mua đồ kẻo lỡ.",""," "+earlyVi+" vẫn kịp.","ĐÚNG. Nữ nói «赶得上», chuyến cuối là "+last+"."],
+      [["Không kịp vì chuyến cuối là "+earlyVi+".","","","SAI. "+earlyVi+" là giờ nam đến, chuyến cuối là "+lastVi+"."],["Sau "+lastVi+" vẫn còn chuyến.","","","SAI. Qua giờ thì hết."],["Phải vào "+lp[1]+" mua đồ rồi mới lên xe.","","","SAI. Nữ dặn đừng mua."]]));
+
+    const rName = e % 2 === 0 ? "小陈" : "小高";
+    const rPro = e % 2 === 0 ? "他" : "她";
+    const rNameVi = e % 2 === 0 ? "Tiểu Trần" : "Tiểu Cao";
+    const rProVi = e % 2 === 0 ? "anh ấy" : "cô ấy";
+    const rThing = things[(e + 9) % 18];
+    const rOwner = owners[(e + 9) % 18];
+    const rHobby = hobbies[(e + 9) % 18];
+    const rDay = dayR;
+    const rCount = 4 + (e % 3);
+    const rFloor = 4 + (e % 2);
+    const rRoom = roomNo(500 + e + 1);
+
+    for(let k = 0; k < 5; k++){
+      const n = e * 5 + k;
+      const said = picPool[n].act;
+      const shown = (n % 2 === 0) ? said : picActs[(picActs.indexOf(said) + 1) % picActs.length];
+      const sent = picPool[n].sent;
+      const q = sent + "\n这个句子和图片一致吗？";
+      mark(q);
+      if(shown[0] === said[0]){
+        pic.push({shot:shown[2], q:q, qVi:shown[1]+".", tf:"对", why:["ĐÚNG. «"+sent.replace(/。$/,"")+"» khớp hình "+shown[1]+".","SAI. Câu và hình cùng một việc. Không chọn 错."]});
+      }else{
+        pic.push({shot:shown[2], q:q, qVi:"Hình là "+shown[1]+". Câu nói "+said[1]+".", tf:"错", why:["SAI. Hình là "+shown[1]+", câu «"+sent.replace(/。$/,"")+"» là "+said[1]+". Không chọn 对.","ĐÚNG. "+shown[1]+" và "+said[1]+" khác nhau, chọn 错."]});
+      }
+    }
+
+    cloze.push(choice(rp[2], "你______到"+rp[0]+"，再找"+rOwner[0]+"。", "Đến "+rp[1]+" trước rồi mới tìm "+rOwner[1]+".", "", M,
+      ["先","xiān","trước","ĐÚNG. «先…再…» là đến "+rp[1]+" trước, tìm người sau."],
+      [["再","zài","rồi mới","SAI. 再 đứng ở vế sau. Vế đầu cần 先."],["就","jiù","thì","SAI. 就 không mở thứ tự hai việc theo kiểu này."],["从","cóng","từ","SAI. 从 cần một nơi hoặc một mốc giờ."]]));
+    cloze.push(choice(rp[2], rp[0]+"不但离学校近，______"+rThing[0]+"也不贵。", rp[1]+" vừa gần trường vừa bán "+rThing[1]+" không đắt.", "", M,
+      ["而且","érqiě","và còn","ĐÚNG. «不但…而且…» thêm một điều tốt nữa về "+rp[1]+"."],
+      [["但是","dànshì","nhưng","SAI. 但是 báo ý ngược, ở đây cả hai đều là lợi."],["因为","yīnwèi","vì","SAI. Vế sau không phải lý do của vế trước."],["要是","yàoshi","nếu","SAI. Câu không đặt điều kiện."]]));
+    cloze.push(choice("Trời mưa", "______下雨，我们就在"+rp[0]+"里等。", "Nếu mưa thì đợi trong "+rp[1]+".", "", M,
+      ["要是","yàoshi","nếu","ĐÚNG. «要是…就…» là nếu mưa thì ở trong "+rp[1]+"."],
+      [["虽然","suīrán","tuy","SAI. Vế sau dùng 就, không phải mẫu 虽然…但是."],["已经","yǐjīng","đã","SAI. 已经 không mở một điều kiện."],["别","bié","đừng","SAI. 别 là lời cấm, không hợp chỗ này."]]));
+    cloze.push(choice("Người đang gọi điện", rName+"______在"+rp[0]+"打电话，你先别进去。", rNameVi+" đang gọi điện ở "+rp[1]+".", "", M,
+      ["正在","zhèngzài","đang","ĐÚNG. «正在打电话» là cuộc gọi ở "+rp[1]+" chưa xong."],
+      [["已经","yǐjīng","đã","SAI. Nếu đã gọi xong thì không cần bảo đừng vào."],["先","xiān","trước","SAI. 先 không diễn tả việc đang xảy ra."],["比","bǐ","hơn","SAI. 比 dùng để so sánh."]]));
+    cloze.push(choice(rThing[3], "______忘了带"+rThing[0]+"，"+rp[0]+rClose+"就关门。", "Đừng quên mang "+rThing[1]+".", "", M,
+      ["别","bié","đừng","ĐÚNG. «别忘了» là đừng quên mang "+rThing[1]+" trước giờ "+rp[1]+" đóng."],
+      [["请","qǐng","xin mời","SAI. 请忘了 thành ra mời quên, ngược ý câu."],["在","zài","ở","SAI. 在 không đi với 忘了 theo cách này."],["对","duì","với","SAI. 对 không phải lời nhắc đừng quên."]]));
+
+    function tfItem(zh, viOk, viBad, flip, whyRight, whyWrong){
+      const vi = flip ? viBad : viOk;
+      const tf = flip ? "错" : "对";
+      const q = zh+"\n越南语："+vi+"。\n意思对不对？";
+      mark(q);
+      return {shot:rp[2], q:q, qVi: flip ? "Câu tiếng Việt không khớp." : "Xét câu tiếng Việt.", tf:tf, why: flip
+        ? ["SAI. "+whyWrong+" Không chọn 对.","ĐÚNG. "+whyWrong+" Chọn 错."]
+        : ["ĐÚNG. "+whyRight,"SAI. Câu tiếng Việt không thêm ý mới. Không chọn 错."]};
+    }
+    readTf.push(tfItem(rp[0]+"从"+rOpen+"开到"+rClose+"。", rp[1]+" mở từ "+rOpenVi+" đến "+rCloseVi, rp[1]+" mở từ "+rCloseVi+" đến "+rOpenVi, false, "Giờ mở và giờ đóng khớp câu tiếng Trung.", ""));
+    readTf.push(tfItem(rName+"每星期"+rDay[0]+"去"+rp[0]+"。", rNameVi+" "+rDay[1]+" nào cũng đến "+rp[1], rNameVi+" không bao giờ đến "+rp[1], true, "", "Tiếng Trung nói "+rNameVi+" đến "+rp[1]+" vào "+rDay[1]+", tiếng Việt nói không bao giờ đến."));
+    readTf.push(tfItem(rThing[0]+"只要"+yuan(rPrice)+"。", rThing[1]+" chỉ "+rPrice+" tệ", rThing[1]+" giá "+rPriceB+" tệ", e%2===0, "Giá "+rPrice+" tệ khớp "+yuan(rPrice)+".", "Giá trong tiếng Việt là "+rPriceB+" tệ, câu tiếng Trung là "+yuan(rPrice)+"。"));
+    readTf.push(tfItem("去"+rp[0]+"请走东门，再往右，服务台在"+cn(rFloor)+"楼。", "Đến "+rp[1]+" thì vào cổng đông rồi rẽ phải, quầy ở tầng "+rFloor, "Đến "+rp[1]+" thì vào cổng tây rồi rẽ trái, quầy ở tầng 1", false, "Cổng đông, rẽ phải và tầng "+rFloor+" đều có trong câu.", ""));
+    readTf.push(tfItem(rName+"买了"+mw(rCount, rThing[2])+rThing[0]+"，没有买贵的。", rNameVi+" mua "+rCount+" "+rThing[1]+" và không mua loại đắt", rNameVi+" mua loại đắt, không mua "+rThing[1], true, "", "Tiếng Trung nói đã mua "+rThing[1]+" và không mua loại đắt. Tiếng Việt nói ngược."));
+
+    reading.push(choice(rp[2], rp[0]+"从"+rOpen+"开到"+rClose+"。"+rDay[0]+"不开门。"+rName+"不知道，"+rDay[0]+"还去了。\n哪一天不开门？", "Ngày nào không mở cửa?", "", D,
+      [rDay[1]+" đóng. Các ngày khác mở từ "+rOpenVi+" đến "+rCloseVi+". "+rNameVi+" không biết nên vẫn đến.","","Đóng vào "+rDay[1]+".","ĐÚNG. «"+rDay[0]+"不开门»."],
+      [["Mở cửa vào "+rDay[1]+".","","","SAI. "+rDay[1]+" là ngày đóng."],["Cả tuần đều đóng.","","","SAI. Chỉ một ngày đóng, ngày khác vẫn có giờ mở."],[rNameVi+" biết trước nên không đi.","","","SAI. Đoạn nói "+rPro+" không biết và vẫn đến."]]));
+    reading.push(choice(rThing[3], rThing[0]+"便宜的"+yuan(rPrice)+"，贵的"+yuan(rPriceB)+"。"+rName+"买了"+mw(rCount, rThing[2])+"便宜的，没有买贵的。\n"+rPro+"买了多少钱的？", rProVi+" mua loại giá bao nhiêu?", "", D,
+      ["Loại "+rPrice+" tệ, mua "+rCount+" "+rThing[1]+". Loại "+rPriceB+" tệ không mua.","","Mua loại "+rPrice+" tệ.","ĐÚNG. «买了"+mw(rCount, rThing[2])+"便宜的», giá rẻ là "+yuan(rPrice)+"."],
+      [["Loại "+rPriceB+" tệ.","","","SAI. Đó là loại đắt, "+rProVi+" không mua."],["Chỉ mua một "+rThing[1]+".","","","SAI. Số lượng là "+mw(rCount, rThing[2])+"."],["Không mua gì.","","","SAI. "+rProVi+" đã mua loại rẻ."]]));
+    reading.push(choice(rp[2], "去"+rp[0]+"不要走西门。西门关了。请走东门，再往右，服务台在"+cn(rFloor)+"楼"+rRoom+"。走路要"+mw(rCount, "分钟")+"。\n服务台在哪儿？", "Quầy ở đâu?", "", D,
+      ["Tầng "+rFloor+", phòng "+(500+e+1)+", vào cổng đông rồi rẽ phải. Cổng tây đóng. Đi khoảng "+rCount+" phút.","","Quầy ở tầng "+rFloor+" phòng "+(500+e+1)+".","ĐÚNG. «服务台在"+cn(rFloor)+"楼"+rRoom+"»."],
+      [["Ở cổng tây.","","","SAI. Cổng tây đóng, không phải chỗ quầy."],["Rẽ trái sau cổng đông.","","","SAI. Câu nói rẽ phải."],["Đi mất một giờ.","","","SAI. Thời gian là "+mw(rCount, "分钟")+"."]]));
+    reading.push(choice(rHobby[2], rName+"对"+rHobby[0]+"很感兴趣，可是"+rDay[0]+"要去"+rp[0]+"，所以改到第二天。第二天"+rOpen+"开始。\n"+rPro+"哪一天不能做这件事？", "Ngày nào "+rProVi+" không làm được việc mình thích?", "", D,
+      [rDay[1]+", vì phải đến "+rp[1]+". Việc đó chuyển sang ngày hôm sau, bắt đầu lúc "+rOpenVi+".",""," "+rDay[1]+" không làm được.","ĐÚNG. «"+rDay[0]+"要去"+rp[0]+"，所以改到第二天»."],
+      [["Ngày hôm sau cũng không làm được.","","","SAI. Ngày hôm sau mới bắt đầu, lúc "+rOpenVi+"."],[rProVi+" không thích "+rHobby[1]+".","","","SAI. Câu nói rất có hứng thú."],[rProVi+" "+rDay[1]+" đến "+rp[1]+" để làm "+rHobby[1]+".","","","SAI. "+rDay[1]+" là ngày phải đi "+rp[1]+", nên việc yêu thích bị dời."]]));
+    reading.push(choice("Một mũ xanh ở quầy lễ tân", rp[0]+"的服务台捡到"+mw(rCount, rThing[2])+rThing[0]+"。请在"+rDay[0]+"前领取，过了就送到失物处。领取时要说"+rOwner[0]+"的名字。\n应该怎么领？", "Lĩnh đồ thế nào?", "", D,
+      ["Nói tên "+rOwner[1]+", lĩnh trước "+rDay[1]+". Quá hạn thì đồ bị chuyển sang chỗ đồ thất lạc. Có "+rCount+" "+rThing[1]+".","","Nói tên "+rOwner[1]+", trước "+rDay[1]+".","ĐÚNG. «领取时要说"+rOwner[0]+"的名字», «"+rDay[0]+"前»."],
+      [["Cứ lấy, không cần nói tên.","","","SAI. Phải nói tên "+rOwner[1]+"."],["Sau "+rDay[1]+" vẫn lĩnh được ở quầy.","","","SAI. Sau hạn, đồ không còn ở quầy."],["Đồ là của "+rNameVi+".","","","SAI. Tên cần nói là tên "+rOwner[1]+"."]]));
+    reading.push(choice(rThing[3], rName+"把"+rThing[0]+"放在"+rp[0]+"的蓝色篮子里。白色篮子是还没拿的。超过"+mw(rCount, "天")+"没取就清走。\n拿好的东西放在哪儿？", "Đồ đã xong để ở đâu?", "", D,
+      ["Trong giỏ xanh ở "+rp[1]+". Giỏ trắng là đồ chưa lấy. Quá "+rCount+" ngày không lấy thì bị dọn.","","Đồ xong ở giỏ xanh.","ĐÚNG. «放在蓝色篮子里»."],
+      [["Trong giỏ trắng.","","","SAI. Giỏ trắng là đồ chưa lấy."],["Để bao lâu cũng không bị dọn.","","","SAI. Quá "+rCount+" ngày thì bị lấy đi."],["Để ở cổng nam.","","","SAI. Đoạn nói giỏ xanh trong "+rp[1]+"."]]));
+    reading.push(choice("Người đang chơi bóng", rp[0]+"的桌子晚上才能用，从"+rClose+"开始，用一个小时。"+rThing[0]+"要自己带。坏了就写在本子上，不要自己修。\n东西坏了怎么办？", "Hỏng thì làm gì?", "", D,
+      ["Ghi vào sổ, không tự sửa. Chỗ này dùng từ "+rCloseVi+", trong một giờ. "+rThing[1]+" phải tự mang.","","Ghi sổ, không tự sửa.","ĐÚNG. «写在本子上，不要自己修»."],
+      [["Tự sửa cho nhanh.","","","SAI. Đoạn bảo không tự sửa."],["Quầy phát "+rThing[1]+" miễn phí.","","","SAI. Phải tự mang."],["Buổi sáng cũng mở.","","","SAI. Buổi tối mới dùng, từ "+rCloseVi+"."]]));
+    reading.push(choice("Một chỗ để xe có mái", "自行车要停在"+rp[0]+"的白线里。停在门口的，管理员会推到北边，不锁车。车主凭学生卡领回。没贴这个月纸条的，"+rDay[0]+"被挪走。\n停在门口会怎样？", "Đỗ trước cửa thì sao?", "", D,
+      ["Quản lý đẩy ra phía bắc và không khóa xe. Lĩnh lại bằng thẻ sinh viên. Xe không dán giấy tháng này thì "+rDay[1]+" bị chuyển.","","Xe bị đẩy ra phía bắc.","ĐÚNG. «推到北边，不锁车»."],
+      [["Bị khóa lại tại cửa.","","","SAI. Đoạn nói không khóa."],["Không ai đụng đến xe.","","","SAI. Quản lý sẽ đẩy đi."],[" "+rDay[1]+" mới được đỗ trước cửa.","","","SAI. "+rDay[1]+" là ngày xe không dán giấy bị chuyển, không phải ngày được đỗ cửa."]]));
+    reading.push(choice(rp[2], rName+"在"+rp[0]+"工作，从"+rOpen+"到"+rClose+"。"+rPro+"中午不回家，在那儿吃"+mw(rCount, "个")+"面包。周末去"+rHobby[0]+"，不加班。\n周末"+rPro+"做什么？", "Cuối tuần "+rProVi+" làm gì?", "", D,
+      ["Đi "+rHobby[1]+", không tăng ca. Ngày thường "+rProVi+" ở "+rp[1]+" từ "+rOpenVi+" đến "+rCloseVi+" và ăn "+rCount+" bánh mì.","","Cuối tuần đi "+rHobby[1]+".","ĐÚNG. «周末去"+rHobby[0]+"，不加班»."],
+      [["Cuối tuần tăng ca ở "+rp[1]+".","","","SAI. Đoạn nói không tăng ca."],["Trưa về nhà ăn.","","","SAI. Trưa không về, ăn bánh mì tại chỗ."],["Không làm ở "+rp[1]+".","","","SAI. "+rProVi+" làm việc ở đó."]]));
+    reading.push(choice("Người đang xếp hàng mua vé", rp[0]+rOpen+"开始卖第一批票，第二批"+rClose+"才卖。"+rName+"来晚了，第一批已经没了，"+rPro+"买了第二批的"+mw(rCount, "张")+"。会员卡不能用在第一批。\n"+rPro+"买了哪一批？", rProVi+" mua đợt nào?", "", D,
+      ["Đợt hai, "+rCount+" vé, bán lúc "+rCloseVi+". Đợt một lúc "+rProVi+" đến đã hết. Thẻ thành viên không dùng cho đợt một.","","Mua vé đợt hai.","ĐÚNG. «买了第二批的"+mw(rCount, "张")+"»."],
+      [["Mua đợt một.","","","SAI. Đợt một đã hết."],["Đợt hai bán lúc "+rOpenVi+".","","","SAI. "+rOpenVi+" là đợt một, đợt hai lúc "+rCloseVi+"."],["Dùng thẻ để mua đợt một.","","","SAI. Thẻ không dùng cho đợt một, và "+rProVi+" cũng không mua đợt đó."]]));
+  }
+  [judge, meaning, reply, longer, pic, cloze, readTf, reading].forEach(function(group){
+    const local = Object.create(null);
+    group.forEach(function(item){
+      const key = String(item.q||"")+"\n"+String(item.audio||"");
+      if(local[key]) throw new Error("trùng trong nhóm: "+key.slice(0,80));
+      local[key] = 1;
+    });
+  });
+  if(judge.length!==180||meaning.length!==180||reply.length!==180||longer.length!==90||pic.length!==90||cloze.length!==90||readTf.length!==90||reading.length!==180){
+    throw new Error("sai số câu "+[judge.length,meaning.length,reply.length,longer.length,pic.length,cloze.length,readTf.length,reading.length].join(","));
+  }
+  return [judge, meaning, reply, longer, pic, cloze, readTf, reading];
+}
   function buildHsk2Paper(examNo, salt){
     const L = "Nghe, xem hình, rồi chọn 对 hoặc 错. Câu không hiện sẵn.";
     const M = "Nghe câu vừa, xem hình, chọn đúng nghĩa tiếng Việt. Câu không hiện sẵn.";
@@ -166985,9 +168097,471 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
       {shot:"Một tiệm sửa giày", q:"鞋底开了可以补，二十块，两天取。鞋面破了就不补，只能换。小周的鞋是鞋底开了，所以他交了二十块。\n他的鞋怎么处理？", qVi:"Đôi giày của anh được xử lý thế nào?", ok:["Vá đế, 20 tệ, hai ngày sau lấy. Mặt giày rách thì tiệm không vá.","","Vá đế, lấy sau hai ngày.","ĐÚNG. Đế bị tách nên «交了二十块», lấy sau hai ngày."], bad:[["Phải đổi đôi mới vì mặt giày rách.","","","SAI. Hỏng ở đế, không phải mặt giày."],["Vá xong lấy ngay.","","","SAI. Mất hai ngày."],["Không mất tiền.","","","SAI. Anh đã trả 20 tệ."]]},
       {shot:"Một lò bánh mì buổi sáng", q:"面包店早上七点出第一炉，第二炉九点才出。小周来晚了，第一炉已经没了，他买了第二炉的两个。会员卡不能用在第一炉。\n他买了哪一炉？", qVi:"Anh ấy mua lò nào?", ok:["Lò thứ hai, hai ổ. Lò một lúc anh đến đã hết. Thẻ thành viên không dùng cho lò một.","","Mua bánh lò thứ hai.","ĐÚNG. «他买了第二炉的两个»."], bad:[["Mua lò thứ nhất.","","","SAI. Lò một đã hết khi anh đến."],["Lò hai ra lúc bảy giờ.","","","SAI. Bảy giờ là lò một, lò hai lúc chín giờ."],["Dùng thẻ thành viên để mua lò một.","","","SAI. Thẻ không dùng cho lò một, và anh cũng không mua lò đó."]]}
     ];
-    return buildHandPaper(2, examNo, salt, [judge.concat(judge2), meaning.concat(meaning2), reply.concat(reply2), longer.concat(longer2), pic.concat(pic2), cloze.concat(cloze2), readTf.concat(readTf2), reading.concat(reading2)]);
+    const more = hsk2ExtraBanks();
+    return buildHandPaper(2, examNo, salt, [judge.concat(judge2, more[0]), meaning.concat(meaning2, more[1]), reply.concat(reply2, more[2]), longer.concat(longer2, more[3]), pic.concat(pic2, more[4]), cloze.concat(cloze2, more[5]), readTf.concat(readTf2, more[6]), reading.concat(reading2, more[7])]);
   }
 
+function hsk3ExtraBanks(){
+  const L = "Nghe, xem hình, rồi chọn 对 hoặc 错. Câu không hiện sẵn.";
+  const M = "Nghe câu vừa, xem hình, chọn đúng nghĩa tiếng Việt. Câu không hiện sẵn.";
+  const D = "Nghe hội thoại vừa. Chọn ý đúng. Hội thoại không hiện sẵn.";
+  const DIG = ["零","一","二","三","四","五","六","七","八","九"];
+  function cn(n){
+    n = Math.round(n);
+    if(n < 10) return DIG[n];
+    if(n < 20) return "十" + (n === 10 ? "" : DIG[n % 10]);
+    if(n < 100) return DIG[Math.floor(n / 10)] + "十" + (n % 10 ? DIG[n % 10] : "");
+    if(n < 200){
+      const rest = n - 100;
+      if(rest === 0) return "一百";
+      if(rest < 10) return "一百零" + DIG[rest];
+      return "一百" + DIG[Math.floor(rest / 10)] + "十" + (rest % 10 ? DIG[rest % 10] : "");
+    }
+    return String(n);
+  }
+  function cnHour(h){ return h === 2 ? "两" : cn(h); }
+  function yuan(n){ return (n === 2 ? "两" : cn(n)) + "块"; }
+  function mw(n, m){ return (n === 2 ? "两" : cn(n)) + m; }
+  function zhClock(h, m){
+    const ap = h < 12 ? "上午" : (h < 18 ? "下午" : "晚上");
+    const hh = h === 0 ? 12 : (h > 12 ? h - 12 : h);
+    return ap + cnHour(hh) + "点" + (m ? cn(m) + "分" : "");
+  }
+  function viClock(h, m){
+    const ap = h < 12 ? "sáng" : (h < 18 ? "chiều" : "tối");
+    const hh = h === 0 ? 12 : (h > 12 ? h - 12 : h);
+    return hh + " giờ" + (m ? " " + m : "") + " " + ap;
+  }
+  const days = [["星期一","thứ Hai"],["星期二","thứ Ba"],["星期三","thứ Tư"],["星期四","thứ Năm"],["星期五","thứ Sáu"],["星期六","thứ Bảy"],["星期日","Chủ nhật"]];
+  const lp = [
+    ["培训班","lớp bồi dưỡng","Học sinh đang ở lớp học"],["社区医院","bệnh viện","Bác sĩ đang khám bệnh"],["城市图书馆","thư viện","Học sinh đang đọc sách"],
+    ["体育中心","quả bóng","Người đang chơi bóng"],["美术馆","bức ảnh","Một tấm ảnh"],["科技馆","máy tính","Người đang dùng máy tính"],
+    ["音乐厅","hát","Người đang hát"],["植物园","bông hoa","Một bó hoa"],["少年宫","đứa trẻ","Một đứa trẻ"],
+    ["会议中心","cuộc họp","Người đang làm việc"],["展览馆","bản đồ","Một bản đồ"],["游泳中心","hồ bơi","Một hồ bơi"],
+    ["老年大学","ông","Một người lớn tuổi"],["书店二楼","sách","Người đang mua sách"],["食堂西边","cơm","Người đang ăn cơm"],
+    ["邮局对面","bưu điện","Người đang gửi thư"],["银行门口","ngân hàng","Người đang làm việc ở ngân hàng"],["机场大厅","sân bay","Người đang ở sân bay"],
+    ["火车站台","tàu hỏa","Người đang đợi tàu"]
+  ];
+  const rp = [
+    ["文化宫","nhà văn hóa","Người đang nói chuyện"],["实验楼","lớp học","Học sinh đang ở lớp học"],["学生宿舍","phòng","Một căn phòng"],
+    ["校医院","thuốc","Người đang mua thuốc"],["语音室","điện thoại","Người đang nghe"],["打印店","chữ","Người đang viết chữ"],
+    ["自行车棚","xe đạp","Một chỗ để xe"],["西门超市","siêu thị","Người đang mua sắm"],["东门饭店","nhà hàng","Người đang ăn ở nhà hàng"],
+    ["北门车站","xe buýt","Người đang đợi xe buýt"],["南门咖啡店","cà phê","Người đang uống cà phê"],["湖边公园","công viên","Người đang đi bộ trong công viên"],
+    ["教学楼","trường","Một trường học"],["实习公司","công ty","Người đang làm việc ở công ty"],["家属院","nhà","Một ngôi nhà"],
+    ["礼堂","hát","Người đang hát"],["体育馆更衣室","áo","Một chiếc áo"],["实验室","cốc nước","Một cốc nước"],
+    ["档案室","sách","Một quyển sách"]
+  ];
+  const words = [
+    ["根据","gēn jù","căn cứ"],["关系","guān xi","quan hệ"],["关心","guān xīn","quan tâm"],["关于","guān yú","về việc"],["国家","guó jiā","đất nước"],
+    ["过去","guò qù","trước đây"],["还是","hái shì","vẫn"],["害怕","hài pà","sợ"],["年级","nián jí","khối lớp"],["年轻","nián qīng","trẻ"],
+    ["旁边","páng biān","bên cạnh"],["跑步","pǎo bù","chạy bộ"],["啤酒","pí jiǔ","bia"],["瓶子","píng zi","cái chai"],["其实","qí shí","thật ra"],
+    ["其他","qí tā","những cái khác"],["奇怪","qí guài","lạ"],["起飞","qǐ fēi","cất cánh"],["清楚","qīng chu","rõ"],["请假","qǐng jià","xin nghỉ"],
+    ["裙子","qún zi","váy"],["然后","rán hòu","sau đó"],["热情","rè qíng","nhiệt tình"],["认为","rèn wéi","cho rằng"],["认真","rèn zhēn","nghiêm túc"],
+    ["容易","róng yì","dễ"],["如果","rú guǒ","nếu"],["上网","shàng wǎng","lên mạng"],["生气","shēng qì","tức giận"],["声音","shēng yīn","giọng"],
+    ["世界","shì jiè","thế giới"],["舒服","shū fu","dễ chịu"],["数学","shù xué","toán"],["水平","shuǐ píng","trình độ"],["司机","sī jī","tài xế"],
+    ["特别","tè bié","đặc biệt"],["提高","tí gāo","nâng cao"],["体育","tǐ yù","thể dục"],["同事","tóng shì","đồng nghiệp"],["同意","tóng yì","đồng ý"],
+    ["头发","tóu fa","tóc"],["突然","tū rán","đột nhiên"],["完成","wán chéng","hoàn thành"],["忘记","wàng jì","quên"],["为了","wèi le","để"],
+    ["文化","wén huà","văn hóa"],["习惯","xí guàn","thói quen"],["洗手间","xǐ shǒu jiān","nhà vệ sinh"],["洗澡","xǐ zǎo","tắm"],["相信","xiāng xìn","tin"],
+    ["香蕉","xiāng jiāo","chuối"],["小心","xiǎo xīn","cẩn thận"],["校长","xiào zhǎng","hiệu trưởng"],["新闻","xīn wén","tin tức"],["新鲜","xīn xiān","tươi"],
+    ["信用卡","xìn yòng kǎ","thẻ ngân hàng"],["行李箱","xíng li xiāng","vali"],["兴趣","xìng qù","hứng thú"],["需要","xū yào","cần"],["选择","xuǎn zé","lựa chọn"],
+    ["要求","yāo qiú","yêu cầu"],["一定","yí dìng","nhất định"],["一共","yí gòng","tổng cộng"],["一样","yí yàng","giống nhau"],["以前","yǐ qián","trước đây"],
+    ["以为","yǐ wéi","tưởng rằng"],["一般","yì bān","thông thường"],["一直","yì zhí","suốt"],["影响","yǐng xiǎng","ảnh hưởng"],["有名","yǒu míng","nổi tiếng"],
+    ["遇到","yù dào","gặp phải"],["愿意","yuàn yì","sẵn lòng"],["着急","zháo jí","sốt ruột"],["照片","zhào piàn","ảnh"],["照顾","zhào gù","chăm sóc"],
+    ["重要","zhòng yào","quan trọng"],["周末","zhōu mò","cuối tuần"],["注意","zhù yì","chú ý"],["字典","zì diǎn","từ điển"],["总是","zǒng shì","luôn luôn"],
+    ["最近","zuì jìn","gần đây"],["作业","zuò yè","bài tập"],["季节","jì jié","mùa"],["检查","jiǎn chá","kiểm tra"],["简单","jiǎn dān","đơn giản"],
+    ["健康","jiàn kāng","sức khỏe"],["见面","jiàn miàn","gặp mặt"],["街道","jiē dào","đường phố"],["节目","jié mù","chương trình"],["节日","jié rì","ngày lễ"],
+    ["离开","lí kāi","rời khỏi"],["历史","lì shǐ","lịch sử"],["礼物","lǐ wù","quà"],["练习","liàn xí","luyện tập"],["了解","liǎo jiě","hiểu"]
+  ];
+  const meaning = [], judge = [], reply = [], longer = [], reading = [], cloze = [], passages = [], order = [], write = [];
+  const seen = Object.create(null);
+  function mark(s){ if(seen[s]) throw new Error("trùng: "+s.slice(0,80)); seen[s] = 1; }
+  function choice(shot, q, qVi, audio, hint, ok, bad){
+    if(audio) mark(audio); else mark(q);
+    const item = {shot:shot, q:q, qVi:qVi, audio:audio||"", ok:ok, bad:bad};
+    if(hint && q.indexOf("请听")===0) item.hint = hint;
+    return item;
+  }
+  function jTrue(shot, audio, vi){
+    mark(audio);
+    return {shot:shot, q:"请听句子，判断与图片是否一致。", qVi:vi, audio:audio, tf:"对", hint:L, why:["ĐÚNG. «"+audio.replace(/。$/,"")+"» là "+vi+", khớp hình.","SAI. Câu và hình cùng một việc. Không chọn 错."]};
+  }
+  function jFalse(shot, audio, picVi, sentVi){
+    mark(audio);
+    return {shot:shot, q:"请听句子，判断与图片是否一致。", qVi:"Hình là "+picVi+". Câu nói "+sentVi+".", audio:audio, tf:"错", hint:L, why:["SAI. Câu «"+audio.replace(/。$/,"")+"» là "+sentVi+", hình là "+picVi+". Không chọn 对.","ĐÚNG. Hai cảnh không khớp, chọn 错."]};
+  }
+  if(words.length !== 95) throw new Error("từ "+words.length);
+  for(let e = 0; e < 19; e++){
+    function at(list){ return list[e]; }
+    const place = lp[e], read = rp[e];
+    const male = e % 2 === 0;
+    const name = male ? "小周" : "小李";
+    const pro = male ? "他" : "她";
+    const nameVi = male ? "Tiểu Chu" : "Tiểu Lý";
+    const proVi = male ? "anh ấy" : "cô ấy";
+    const other = male ? "小高" : "小陈";
+    const otherVi = male ? "Tiểu Cao" : "Tiểu Trần";
+    const day = days[e % 7], day2 = days[(e + 3) % 7];
+    const openH = 7 + (e % 4), closeH = 16 + (e % 3);
+    const open = zhClock(openH, 0), close = zhClock(closeH, 10 + e);
+    const openVi = viClock(openH, 0), closeVi = viClock(closeH, 10 + e);
+    const earlyH = openH - 1;
+    const early = zhClock(earlyH < 7 ? 6 : earlyH, 20 + (e % 5));
+    const earlyVi = viClock(earlyH < 7 ? 6 : earlyH, 20 + (e % 5));
+    const price = 36 + e * 4, cheap = price - 9;
+    const times = 2 + (e % 3);
+    const floor = 2 + (e % 4);
+    const room = 210 + e;
+    const count = 3 + (e % 4);
+    const rOpen = zhClock(8 + (e % 3), 0), rClose = zhClock(18 + (e % 2), 15 + e);
+    const rOpenVi = viClock(8 + (e % 3), 0), rCloseVi = viClock(18 + (e % 2), 15 + e);
+    const rPrice = 88 + e * 3;
+    const word = words[e];
+
+    const classZh = at([
+      "为了赶上"+open+"的课，"+name+early+"就从家里出发了。",
+      name+early+"出门，就是为了不耽误"+open+"的课。",
+      "课是"+open+"，所以"+name+early+"就离开家了。",
+      name+"算过时间，"+early+"出发才赶得上"+open+"的课。",
+      "不想迟到，"+name+"把出门时间定在"+early+"，课在"+open+"。",
+      open+"上课，"+name+"决定"+early+"从家走。",
+      name+"对家人说，"+early+"走还来得及上"+open+"的课。",
+      "从家到教室要一段时间，"+name+early+"出发，赶上"+open+"的课。",
+      name+"没有睡懒觉，"+early+"就走，要上"+open+"的课。",
+      "闹钟响了以后，"+name+early+"出门，目标是"+open+"的课。",
+      open+"的课不能迟到，"+name+"因此"+early+"离开了家。",
+      name+"把书包背上，"+early+"出发，去上"+open+"的课。",
+      "家里的人看见"+name+early+"就出门了，因为"+open+"有课。",
+      name+"拒绝再等，"+early+"必须走，不然赶不上"+open+"的课。",
+      "路上可能堵车，"+name+"选择"+early+"出发，课是"+open+"。",
+      name+early+"锁上门，去赶"+open+"那节课。",
+      "为的是"+open+"能坐在教室里，"+name+early+"就动身了。",
+      name+"看了一眼表，"+early+"该走了，"+open+"要上课。",
+      "课表上是"+open+"，"+name+"的出发时间写成了"+early+"。"
+    ]);
+    meaning.push(choice(place[2], "请听句子，选择正确的意思。", "Chọn nghĩa của câu vừa nghe.", classZh, M,
+      ["Để kịp lớp lúc "+openVi+", "+nameVi+" ra khỏi nhà từ "+earlyVi+".","","Ra đi lúc "+earlyVi+" để kịp lớp "+openVi+".","ĐÚNG. Câu «"+classZh.replace(/。$/,"")+"» nghĩa là "+nameVi+" ra đi lúc "+earlyVi+" để kịp lớp "+openVi+"."],
+      [[nameVi+" "+openVi+" mới ra khỏi nhà.","","","SAI. "+openVi+" là giờ lớp, không phải giờ xuất phát."],[nameVi+" đi bộ cho vui, không cần kịp lớp.","","","SAI. Mục đích là kịp lớp."],["Lớp bị hủy nên "+proVi+" ở nhà.","","","SAI. Câu nói "+proVi+" đã xuất phát."]]));
+    meaning.push(choice("Trời mưa", "请听句子，选择正确的意思。", "Chọn nghĩa của câu vừa nghe.", "虽然雨下得很大，"+name+"还是决定去"+place[0]+"。", M,
+      ["Mưa rất to nhưng "+nameVi+" vẫn quyết định đến "+place[1]+".","","Mưa to mà vẫn đi.","ĐÚNG. «虽然…还是…» là tuy mưa to vẫn quyết định đi."],
+      [["Vì mưa to nên "+proVi+" hủy chuyến.","","","SAI. "+proVi+" vẫn đi."],["Trời nắng nên "+proVi+" đến "+place[1]+".","","","SAI. Câu nói mưa rất to."],[proVi+" chưa quyết định.","","","SAI. «决定去» là đã quyết định."]]));
+    meaning.push(choice("Người đang đọc sách", "请听句子，选择正确的意思。", "Chọn nghĩa của câu vừa nghe.", "这本"+word[2]+"的书"+name+"看了"+mw(times,"遍")+"，还是觉得很难。", M,
+      ["Cuốn sách về "+word[2]+" "+nameVi+" đọc "+times+" lần mà vẫn thấy khó.","","Đọc "+times+" lần vẫn thấy khó.","ĐÚNG. «看了"+mw(times,"遍")+"», «还是觉得很难»."],
+      [["Đọc một lần đã thấy dễ.","","","SAI. "+proVi+" vẫn thấy khó."],[nameVi+" chưa đọc cuốn này.","","","SAI. Đã đọc "+times+" lần."],[nameVi+" vứt sách vì không liên quan đến "+word[2]+".","","","SAI. Câu không nói vứt sách."]]));
+    meaning.push(choice(place[2], "请听句子，选择正确的意思。", "Chọn nghĩa của câu vừa nghe.", name+"不但在"+place[0]+"上课，而且每星期帮老师整理材料。", M,
+      [nameVi+" không chỉ học ở "+place[1]+" mà mỗi tuần còn giúp thầy sắp tài liệu.","","Vừa học vừa giúp sắp tài liệu.","ĐÚNG. «不但…而且…» thêm một việc nữa."],
+      [[nameVi+" chỉ học, không giúp thầy.","","","SAI. Vế sau là có giúp sắp tài liệu."],[nameVi+" không học ở "+place[1]+".","","","SAI. Vế trước nói "+proVi+" có học ở đó."],[nameVi+" mỗi ngày nghỉ học.","","","SAI. Câu không nói nghỉ."]]));
+    meaning.push(choice(place[2], "请听句子，选择正确的意思。", "Chọn nghĩa của câu vừa nghe.", "如果"+day[0]+"不加班，我们就在"+place[0]+"门口见面。", M,
+      ["Nếu "+day[1]+" không tăng ca thì chúng tôi gặp ở cổng "+place[1]+".","","Gặp ở cổng nếu không tăng ca.","ĐÚNG. «如果…就…» là điều kiện không tăng ca, nơi gặp là cổng "+place[1]+"."],
+      [["Dù tăng ca cũng gặp ở cổng.","","","SAI. Gặp khi không tăng ca."],["Họ gặp trong nhà ăn.","","","SAI. Nơi là cổng "+place[1]+"."],["Cuộc hẹn là tuần trước.","","","SAI. Ngày là "+day[1]+"."]]));
+    meaning.push(choice("Một chiếc cặp", "请听句子，选择正确的意思。", "Chọn nghĩa của câu vừa nghe.", name+"把"+mw(count,"张")+"票放进包里，结果把包忘在"+place[0]+"了。", M,
+      [nameVi+" bỏ "+count+" vé vào túi, rồi để quên cả túi ở "+place[1]+".","","Vé ở trong túi, túi bị quên ở "+place[1]+".","ĐÚNG. «把票放进包» rồi «把包忘在"+place[0]+"»."],
+      [[nameVi+" quên vé trên bàn lớp.","","","SAI. Vé đã vào túi, quên là quên cả túi."],["Túi vẫn ở trên người "+proVi+".","","","SAI. Túi bị để ở "+place[1]+"."],[nameVi+" không có vé.","","","SAI. Có "+count+" vé và đã cho vào túi."]]));
+    const openZh = at([
+      place[0]+"下午都开门，只有"+day[0]+"不开。",
+      day[0]+"下午请别去"+place[0]+"，别的下午都开。",
+      "一星期里，"+place[0]+"就"+day[0]+"下午休息，其余下午营业。",
+      name+"说"+place[0]+"的休息日是"+day[0]+"下午，别的下午都能去。",
+      "你"+day[0]+"下午到不了"+place[0]+"，因为那天不开，换个下午就行。",
+      place[0]+"的牌子写着："+day[0]+"下午休息，其他下午照常。",
+      "别把"+day[0]+"下午排进去，"+place[0]+"那天关门，旁的下午开着。",
+      "工作人员提醒，"+day[0]+"下午"+place[0]+"没人，其余下午欢迎来。",
+      day[0]+"是"+place[0]+"唯一不开门的下午。",
+      "想下午去"+place[0]+"，避开"+day[0]+"就都能进。",
+      place[0]+"不是每天都开：下午开，但"+day[0]+"例外。",
+      "日程表上，"+place[0]+"的"+day[0]+"下午被画掉了，别的下午还在。",
+      name+"改了计划，不在"+day[0]+"下午去"+place[0]+"，因为不开门。",
+      "下午想办事就选"+day[0]+"以外的日子，"+place[0]+"才开。",
+      place[0]+"下午的门，"+day[0]+"锁上，其他日子开。",
+      "大家知道"+day[0]+"下午别去"+place[0]+"，换一天的下午就可以。",
+      "只有下午，而且要躲开"+day[0]+"，"+place[0]+"才接待。",
+      day[0]+"下午"+place[0]+"贴出休息通知，第二天起的下午恢复。",
+      "去"+place[0]+"的人会说：下午来，可别挑"+day[0]+"。"
+    ]);
+    meaning.push(choice(place[2], "请听句子，选择正确的意思。", "Chọn nghĩa của câu vừa nghe.", openZh, M,
+      ["Trừ "+day[1]+", "+place[1]+" chiều nào cũng mở.",""," "+day[1]+" đóng, các chiều khác mở.","ĐÚNG. Câu «"+openZh.replace(/。$/,"")+"» nghĩa là "+day[1]+" đóng, các buổi chiều khác "+place[1]+" vẫn mở."],
+      [["Chỉ mở vào "+day[1]+".","","","SAI. "+day[1]+" là ngày ngoại lệ, không mở."],[place[1]+" đóng cả tuần.","","","SAI. Các ngày khác vẫn mở buổi chiều."],["Sáng nào cũng mở, chiều thì đóng.","","","SAI. Câu nói buổi chiều mở."]]));
+    meaning.push(choice("Người đang làm việc", "请听句子，选择正确的意思。", "Chọn nghĩa của câu vừa nghe.", name+"越来越忙，"+day2[0]+"也常常去"+place[0]+"加班。", M,
+      [nameVi+" càng ngày càng bận, "+day2[1]+" cũng hay đến "+place[1]+" tăng ca.","","Càng bận và "+day2[1]+" hay tăng ca.","ĐÚNG. «越来越忙», «"+day2[0]+"也常常…加班»."],
+      [[nameVi+" càng ngày càng rảnh.","","","SAI. Câu nói càng bận."],[proVi+" "+day2[1]+" không bao giờ làm.","","","SAI. "+day2[1]+" cũng hay tăng ca."],[proVi+" vừa nghỉ việc.","","","SAI. Đang bận và vẫn làm thêm."]]));
+    meaning.push(choice("Người đang họp", "请听句子，选择正确的意思。", "Chọn nghĩa của câu vừa nghe.", place[0]+"的报告必须"+close+"以前交，不能再等到"+day2[0]+"。", M,
+      ["Báo cáo của "+place[1]+" phải nộp trước "+closeVi+", không thể để đến "+day2[1]+".","","Phải nộp trước "+closeVi+".","ĐÚNG. «必须"+close+"以前交», «不能再等到"+day2[0]+"»."],
+      [["Có thể nộp vào "+day2[1]+".","","","SAI. Không được đợi đến "+day2[1]+"."],["Báo cáo hôm qua đã nộp.","","","SAI. Vẫn phải nộp trước "+closeVi+"."],["Không có báo cáo nào.","","","SAI. Có một báo cáo và có hạn nộp."]]));
+    meaning.push(choice(place[2], "请听句子，选择正确的意思。", "Chọn nghĩa của câu vừa nghe.", "我原来以为"+name+"不会来"+place[0]+"，可是"+pro+close+"就到了。", M,
+      ["Tôi tưởng "+nameVi+" không đến "+place[1]+", nhưng "+proVi+" đến lúc "+closeVi+".","","Tưởng không đến, hóa ra đến lúc "+closeVi+".","ĐÚNG. «原来以为» là tưởng ban đầu, «可是» đảo lại: đã đến."],
+      [[nameVi+" không đến, đúng như tôi đoán.","","","SAI. "+proVi+" đã đến."],["Tôi biết trước "+proVi+" sẽ đến sớm.","","","SAI. Ban đầu tôi tưởng "+proVi+" không đến."],[proVi+" đến vào "+day[1]+" tuần trước.","","","SAI. Mốc được nói là "+closeVi+"."]]));
+
+    judge.push(jTrue(place[2], name+"正在"+place[0]+"上课。", nameVi+" đang học ở "+place[1]));
+    judge.push(jTrue("Người đang viết chữ", name+"正在"+place[0]+"认真地写汉字。", nameVi+" đang viết chữ Hán một cách nghiêm túc ở "+place[1]));
+    judge.push(jTrue("Đồng hồ mấy giờ", "现在是"+open+"，"+place[0]+"刚开门。", "bây giờ là "+openVi+" và "+place[1]+" vừa mở"));
+    judge.push(jTrue("Trời mưa", "雨下得很大，"+name+"还是去"+place[0]+"了。", "mưa rất to nhưng "+nameVi+" vẫn đến "+place[1]));
+    judge.push(jTrue("Một chiếc cặp", "这是"+name+"放在"+place[0]+"的包，里面有"+mw(count,"张")+"票。", "đây là túi "+nameVi+" để ở "+place[1]+", trong túi có "+count+" vé"));
+    judge.push(jFalse("Người đang ngủ", name+"正在"+place[0]+"跑步。", "người đang ngủ", nameVi+" đang chạy ở "+place[1]));
+    judge.push(jFalse("Trời nắng", "外面下着大雪，"+place[0]+"今天不开门。", "trời nắng", "tuyết rơi và "+place[1]+" hôm nay đóng cửa"));
+    judge.push(jFalse("Một quả táo", pro+"把啤酒放在了"+place[0]+"的桌子上。", "một quả táo", proVi+" để bia lên bàn ở "+place[1]));
+    const pickZh = at([
+      [other+close+"在机场接人。", otherVi+" đón người ở sân bay lúc "+closeVi],
+      [close+"，"+other+"去机场接朋友。", "lúc "+closeVi+" "+otherVi+" ra sân bay đón bạn"],
+      [other+"没在家，"+close+"得到机场接人。", otherVi+" không ở nhà, "+closeVi+" phải ra sân bay đón người"],
+      ["接人的地点是机场，时间是"+close+"，去的人是"+other+"。", "chỗ đón là sân bay, giờ là "+closeVi+", người đi là "+otherVi],
+      [other+"看了航班，"+close+"到机场等人。", otherVi+" xem chuyến bay và "+closeVi+" đến sân bay đợi"],
+      ["机场出口"+close+"会看见"+other+"，"+other+"在接人。", "cửa ra sân bay lúc "+closeVi+" sẽ thấy "+otherVi+" đang đón người"],
+      [other+"请了假，"+close+"专门去机场接人。", otherVi+" xin nghỉ, "+closeVi+" dành để ra sân bay đón"],
+      ["别在公司找"+other+"，"+close+"人在机场接机。", "đừng tìm "+otherVi+" ở công ty, "+closeVi+" đang ở sân bay đón"],
+      [close+"的机场到达层，"+other+"举着名字接人。", "tầng đến sân bay lúc "+closeVi+", "+otherVi+" giơ tên để đón"],
+      [other+"说车子就停在机场，"+close+"接人。", otherVi+" nói xe đỗ ở sân bay, "+closeVi+" đón người"],
+      ["朋友的飞机"+close+"到，"+other+"已经在机场等着接。", "máy bay của bạn đến lúc "+closeVi+", "+otherVi+" đã đợi ở sân bay"],
+      [other+"从市区出发，为的是"+close+"赶到机场接人。", otherVi+" đi từ trong thành phố để "+closeVi+" kịp đến sân bay đón"],
+      ["接机这件事归"+other+"，时间定在"+close+"，地点是机场。", "việc đón máy bay là của "+otherVi+", giờ "+closeVi+", chỗ là sân bay"],
+      [close+"以前"+other+"必须到机场，晚了就接不到人。", "trước "+closeVi+" "+otherVi+" phải đến sân bay, muộn thì không đón được"],
+      [other+"一边看表一边往机场走，"+close+"要接人。", otherVi+" vừa xem giờ vừa đi sân bay, "+closeVi+" phải đón người"],
+      ["今天"+other+"的任务只有一件："+close+"去机场接人。", "hôm nay việc của "+otherVi+" chỉ có một: "+closeVi+" ra sân bay đón"],
+      [other+"把会议推了，"+close+"改去机场接人。", otherVi+" dời cuộc họp, "+closeVi+" đổi sang sân bay đón người"],
+      ["机场这么远，"+other+"还是"+close+"过去接人。", "sân bay xa thế, "+otherVi+" vẫn qua đón lúc "+closeVi],
+      [other+"在电话里确认："+close+"我在机场接你。", otherVi+" xác nhận trên điện thoại: "+closeVi+" tôi đón bạn ở sân bay"]
+    ]);
+    judge.push(jFalse("Một con mèo đang ngồi", pickZh[0], "một con mèo", pickZh[1]));
+    judge.push(jFalse("Người đang gọi điện", name+"在"+place[0]+"的宿舍看电视。", "người đang gọi điện", nameVi+" đang xem tivi ở ký túc của "+place[1]));
+
+    const v = e % 2;
+    reply.push(choice(place[2], "请听对话，选择正确的答案。", "Họ gặp lúc mấy giờ?", (v===0
+      ? "男："+day[0]+"的活动还去吗？女：去。原来是"+open+"，现在改到"+close+"。男：地方呢？女：还在"+place[0]+"门口。问：他们什么时候见面？"
+      : "女：我们还是"+open+"在"+place[0]+"见吗？男：不，改到"+close+"了。女："+day[0]+"来得及吗？男：来得及，就在门口。问：见面时间改到几点？"), D,
+      ["Đổi sang "+closeVi+", vẫn ở cổng "+place[1]+". "+openVi+" là giờ cũ.","","Gặp lúc "+closeVi+".","ĐÚNG. Giờ mới là "+close+", nơi vẫn là cổng "+place[0]+"."],
+      [["Vẫn gặp lúc "+openVi+".","","","SAI. "+openVi+" là giờ cũ."],["Đổi sang một quán khác.","","","SAI. Nơi không đổi, vẫn ở cổng."],["Họ hủy buổi "+day[1]+".","","","SAI. Chỉ đổi giờ."]]));
+    reply.push(choice("Bác sĩ đang khám bệnh", "请听对话，选择正确的答案。", "Thuốc uống thế nào?", "女：医生，我咳嗽"+mw(times,"天")+"了。男：先别自己吃药。这两天必须休息，药一天"+mw(times,"次")+"，饭后吃。女：要去"+place[0]+"上课吗？男：先别去。问：药一天吃几次？", D,
+      [times+" lần sau khi ăn, phải nghỉ, chưa đến "+place[1]+" học, và không tự uống thuốc trước.","","Ngày "+times+" lần sau ăn.","ĐÚNG. «一天"+mw(times,"次")+"，饭后吃», «先别自己吃药»."],
+      [["Uống trước ăn, ngày một lần.","","","SAI. Số lần là "+times+", uống sau ăn."],["Đến "+place[1]+" học bình thường.","","","SAI. Bác sĩ bảo chưa đi."],["Không cần nghỉ.","","","SAI. «必须休息»."]]));
+    reply.push(choice("Một phòng học", "请听对话，选择正确的答案。", "Chỗ ngồi mới ở đâu?", "男：老师，我想换座位。女：为什么？男：我坐在最后，黑板看不清楚。女：那你坐到第"+cn(floor)+"排吧，"+place[0]+"的灯比较亮。问：他要坐到第几排？", D,
+      ["Hàng thứ "+floor+", vì hàng cuối nhìn bảng không rõ. Đèn ở "+place[1]+" sáng hơn.","","Ngồi hàng "+floor+".","ĐÚNG. Thầy chỉ «第"+cn(floor)+"排»."],
+      [["Vẫn ngồi hàng cuối.","","","SAI. Nam xin đổi và đã được chỉ chỗ mới."],["Ngồi hàng một.","","","SAI. Hàng mới là hàng "+floor+"."],["Đổi vì bạn nam không đến.","","","SAI. Lý do là nhìn bảng không rõ."]]));
+    reply.push(choice("Người đang mua áo", "请听对话，选择正确的答案。", "Cô mua loại nào?", "女：这条裙子多少钱？男："+yuan(price)+"。女：有点儿贵。那件白衬衫呢？男："+yuan(cheap)+"，今天在"+place[0]+"打折。女：那我买衬衫。问：她花了多少钱？", D,
+      [cheap+" tệ cho áo sơ mi, vì hôm nay ở "+place[1]+" giảm giá. Váy "+price+" tệ cô không mua.","","Mua áo giá "+cheap+" tệ.","ĐÚNG. «"+yuan(cheap)+"» và «那我买衬衫»."],
+      [["Mua váy giá "+price+" tệ.","","","SAI. Cô nói váy hơi đắt và chuyển sang áo."],["Trả "+price+" tệ cho áo.","","","SAI. "+price+" là giá váy."],["Cô không mua gì.","","","SAI. Cô nói mua áo sơ mi."]]));
+    reply.push(choice("Một chiếc xe đạp", "请听对话，选择正确的答案。", "Ai đến sửa xe?", "女：你的自行车呢？男：坏了，今天我走路来"+place[0]+"。女：要不要我送你？男：不用，"+other+close+"来帮我修。问：谁来修车？", D,
+      [otherVi+" đến lúc "+closeVi+" để sửa. Hôm nay nam đi bộ đến "+place[1]+" vì xe hỏng.",""," "+otherVi+" đến lúc "+closeVi+".","ĐÚNG. «"+other+close+"来帮我修», nam nói «不用»."],
+      [["Nữ đưa nam về rồi sửa giúp.","","","SAI. Nam từ chối."],["Nam vẫn đi xe đạp.","","","SAI. Xe hỏng nên anh đi bộ."],["Không ai đến sửa.","","","SAI. "+otherVi+" đến lúc "+closeVi+"."]]));
+    const trainZh = at([
+      "男：火车票买到了吗？女：买到了，"+day[0]+open+"的。男：我们得早点儿到。女：对，"+early+"以前到车站，我还要把箱子放到你车上。问：他们几点前要到车站？",
+      "女：票买到了，是"+day[0]+open+"那趟。男：那我们"+early+"以前到车站。女：好，箱子我放到你车上。问：他们几点前要到车站？",
+      "男：箱子怎么运？女：放到你车上。票已经买到了，"+day[0]+open+"的，记得"+early+"以前到车站。问：他们几点前要到车站？",
+      "女："+early+"以前到车站来得及吗？男：来得及。票是"+day[0]+open+"的，已经买到了。女：箱子还要放到你车上。问：他们几点前要到车站？",
+      "男：我"+early+"以前到车站等你。女：好。票买到了，"+day[0]+open+"开车，箱子放到你车上。问：他们几点前要到车站？",
+      "女：别卡着点到。票是"+day[0]+open+"的，买到了。我们"+early+"以前到车站，箱子放你车上。问：他们几点前要到车站？",
+      "男：你的箱子重不重？女：放到你车上就行。我们"+early+"以前到车站，票是"+day[0]+open+"，已经买到了。问：他们几点前要到车站？",
+      "女：车站见。男：几点？女："+early+"以前。票买到了，"+day[0]+open+"的，箱子放你车上。问：他们几点前要到车站？",
+      "男：票的时间是"+day[0]+open+"。女：买到了。所以"+early+"以前到车站，我把箱子放到你车上。问：他们几点前要到车站？",
+      "女：我先把箱子放到你车上，人"+early+"以前到车站。男：票呢？女：买到了，"+day[0]+open+"。问：他们几点前要到车站？",
+      "男：我们是不是"+early+"以前到车站？女：是。票买到了，"+day[0]+open+"，箱子放你车上。问：他们几点前要到车站？",
+      "女：买到了两张，"+day[0]+open+"。男：那出发前，"+early+"以前到车站。女：箱子我放到你车上。问：他们几点前要到车站？",
+      "男：车子先去车站。女：对，"+early+"以前到。票是"+day[0]+open+"，买到了，箱子放车上。问：他们几点前要到车站？",
+      "女：别晚于"+early+"到车站。男：知道，票"+day[0]+open+"，你买到了。女：箱子放到你车上。问：他们几点前要到车站？",
+      "男：箱子已经放到我车上了吗？女：到车站再放。我们"+early+"以前到，票"+day[0]+open+"，买到了。问：他们几点前要到车站？",
+      "女：计划三件事：票买到了，是"+day[0]+open+"；人"+early+"以前到车站；箱子放你车上。问：他们几点前要到车站？",
+      "男：我怕迟到。女：不会，"+early+"以前到车站就行。票"+day[0]+open+"已经买到了，箱子放你车上。问：他们几点前要到车站？",
+      "女：你开车到车站接箱子。男：几点？女："+early+"以前。火车票买到了，"+day[0]+open+"。问：他们几点前要到车站？",
+      "男：确认一下。女：票买到了，"+day[0]+open+"。人要"+early+"以前到车站，箱子放你车上。问：他们几点前要到车站？"
+    ]);
+    reply.push(choice("Người đang đứng ở nhà ga", "请听对话，选择正确的答案。", "Phải đến ga trước giờ nào?", trainZh, D,
+      ["Trước "+earlyVi+". Tàu lúc "+openVi+" ngày "+day[1]+", và nữ còn phải để vali lên xe nam.","","Đến ga trước "+earlyVi+".","ĐÚNG. «"+early+"以前到车站», tàu là "+open+"."],
+      [["Đến đúng giờ tàu là đủ.","","","SAI. Họ phải đến trước "+earlyVi+"."],["Chưa mua được vé.","","","SAI. Nữ nói «买到了»."],["Vali để ở nhà.","","","SAI. Nữ phải để vali lên xe."]]));
+    reply.push(choice("Người đang họp", "请听对话，选择正确的答案。", "Cuộc họp đổi thế nào?", "女："+place[0]+"今天下午的会还开吗？男：改到"+day2[0]+close+"，还是在"+cn(floor)+"楼。女：那我告诉"+other+"。男：我已经告诉他了。问：会改到什么时候？", D,
+      [day2[1]+" lúc "+closeVi+", vẫn tầng "+floor+". Nam đã báo "+otherVi+".","","Đổi sang "+day2[1]+" "+closeVi+".","ĐÚNG. «改到"+day2[0]+close+"», «还是在"+cn(floor)+"楼»."],
+      [["Vẫn họp chiều nay.","","","SAI. Giờ cũ đã bị đổi."],["Đổi sang tầng một.","","","SAI. Vẫn tầng "+floor+"."],[otherVi+" chưa được báo.","","","SAI. Nam nói đã báo rồi."]]));
+    reply.push(choice("Người đang tìm một cuốn sách", "请听对话，选择正确的答案。", "Từ điển đang ở đâu?", "男：你看见我的字典了吗？女：早上在"+place[0]+"的桌子上。男：现在没有了。女：在沙发上，"+other+"拿去看了。问：字典现在在哪儿？", D,
+      ["Trên ghế sofa, vì "+otherVi+" đã lấy ra xem. Sáng nó còn ở bàn "+place[1]+".","","Bây giờ ở trên sofa.","ĐÚNG. «在沙发上», «"+other+"拿去看了»."],
+      [["Vẫn ở trên bàn "+place[1]+".","","","SAI. Nam nói bây giờ không còn ở bàn."],[otherVi+" mang đến một thành phố khác.","","","SAI. Sách đang trên sofa."],["Không tìm thấy.","","","SAI. Nữ đã thấy trên sofa."]]));
+    reply.push(choice("Người đang nấu ăn", "请听对话，选择正确的答案。", "Tối nay ai nấu?", "女：今晚我要去"+place[0]+"加班，不能早回来。男：那晚饭怎么办？女：冰箱里有面条和鸡蛋。你先做，我"+close+"左右到家。男：好，我做。问：晚饭谁做？", D,
+      ["Nam nấu mì và trứng. Nữ khoảng "+closeVi+" mới về vì tăng ca ở "+place[1]+".","","Nam nấu tối nay.","ĐÚNG. Nam nói «好，我做»."],
+      [["Nữ về nấu lúc "+openVi+".","","","SAI. Nữ về khoảng "+closeVi+"."],["Tủ lạnh không có đồ.","","","SAI. Có mì và trứng."],["Họ ăn ở "+place[1]+".","","","SAI. Nam nấu ở nhà."]]));
+    reply.push(choice("Người đang gọi điện", "请听对话，选择正确的答案。", "Họ gặp ở đâu?", "男：我打了"+mw(times,"个")+"电话，你怎么不接？女：不好意思，我正在"+place[0]+"上课。男：下课以后有空吗？女：有。我们在门口见吧。问：他们在哪儿见面？", D,
+      ["Ở cửa sau giờ học. Lúc nãy nữ không nghe máy vì đang học ở "+place[1]+". Nam đã gọi "+times+" cuộc.","","Gặp ở cửa.","ĐÚNG. «我们在门口见吧»."],
+      [["Gặp trong lớp đang học.","","","SAI. Họ gặp sau giờ học, ở cửa."],["Nữ cố ý không muốn nói chuyện.","","","SAI. Cô xin lỗi và giải thích đang học."],["Nam chưa gọi.","","","SAI. Nam gọi "+times+" cuộc."]]));
+
+    longer.push(choice("Người đang chuyển nhà", "请听对话，选择正确的答案。", "Vì sao anh chuyển nhà?", "女：你搬完家了吗？男：搬完了。为了上"+place[0]+"方便，我搬到了附近。女：新家大吗？男：不大，可是走路"+mw(count,"分钟")+"就能到。以前要坐一个小时。问：他为什么搬家？", D,
+      ["Để đến "+place[1]+" cho tiện. Nhà mới nhỏ nhưng chỉ "+count+" phút đi bộ, trước phải đi xe một giờ.","","Chuyển để gần "+place[1]+".","ĐÚNG. «为了上"+place[0]+"方便»."],
+      [["Vì nhà cũ quá nhỏ.","","","SAI. Lý do được nói là tiện đi học hoặc đi làm."],["Nhà mới cách đó một giờ đi bộ.","","","SAI. Một giờ là quãng xe cũ."],["Anh chuyển ra rất xa "+place[1]+".","","","SAI. Anh chuyển đến gần."]]));
+    longer.push(choice(place[2], "请听对话，选择正确的答案。", "Kỳ thi đổi đến khi nào?", "男："+place[0]+"的考试改时间了吗？女：改了。原来是"+day[0]+"，现在改到"+day2[0]+open+"。男：教室变了吗？女：没变，还是在"+cn(floor)+"楼。成绩"+mw(times,"个")+"星期以后才知道。问：考试改到哪一天？", D,
+      [day2[1]+" lúc "+openVi+", phòng vẫn tầng "+floor+". Điểm "+times+" tuần sau mới biết. "+day[1]+" là lịch cũ.","","Thi vào "+day2[1]+".","ĐÚNG. «改到"+day2[0]+open+"», phòng «没变»."],
+      [["Vẫn thi "+day[1]+".","","","SAI. "+day[1]+" là lịch cũ."],["Đổi sang tầng một.","","","SAI. Phòng không đổi."],["Điểm có ngay trong ngày thi.","","","SAI. Phải đợi "+times+" tuần."]]));
+    longer.push(choice("Người đang mua sắm", "请听对话，选择正确的答案。", "Họ không mua gì?", "女：我们去"+place[0]+"旁边的店买水果吧。男：苹果和香蕉都要。女：西瓜呢？男：太重了，还是别买。牛奶买"+mw(count,"盒")+"。问：他们不买什么？", D,
+      ["Không mua dưa hấu vì nặng. Có táo, chuối và "+count+" hộp sữa.","","Không mua dưa hấu.","ĐÚNG. «太重了，还是别买» nói về dưa hấu."],
+      [["Không mua sữa.","","","SAI. Họ mua "+count+" hộp sữa."],["Không mua táo.","","","SAI. Táo nằm trong danh sách mua."],["Họ không đi mua.","","","SAI. Nữ rủ đi và nam đồng ý."]]));
+    longer.push(choice("Người đang nghỉ vì đau", "请听对话，选择正确的答案。", "Tuần này nam phải làm gì?", "女：你脸色不太好。男：头疼，可能是昨天睡得太晚。女：那今天别去"+place[0]+"运动了。男：医生也说了，这周先休息，药一天"+mw(times,"次")+"。问：这周他应该怎么做？", D,
+      ["Nghỉ, chưa đến "+place[1]+" tập, uống thuốc ngày "+times+" lần. Đau đầu vì hôm qua ngủ muộn.","","Tuần này nghỉ.","ĐÚNG. «这周先休息», «别去"+place[0]+"运动»."],
+      [["Đến "+place[1]+" tập cho đổ mồ hôi.","","","SAI. Cả nữ và bác sĩ đều bảo nghỉ."],["Uống thuốc ngày một lần.","","","SAI. Số lần là "+times+"."],["Đau vì ăn quá no.","","","SAI. Nam đoán do ngủ muộn."]]));
+    longer.push(choice("Người đang xem lịch", "请听对话，选择正确的答案。", "Ai gặp khách?", "男："+close+"的客人谁接待？女：经理本来要去，可是他临时去机场了。男：那怎么办？女：他让我去。材料都在我包里，在"+place[0]+cn(floor)+"楼。问：谁去见客人？", D,
+      ["Nữ đi gặp lúc "+closeVi+" ở "+place[1]+" tầng "+floor+". Quản lý phải ra sân bay.","","Nữ gặp khách.","ĐÚNG. «他让我去», giờ là "+close+"."],
+      [["Quản lý tự đi gặp.","","","SAI. Quản lý ra sân bay."],["Họ gặp ở sân bay.","","","SAI. Cuộc gặp ở "+place[1]+"."],["Tài liệu bị quên.","","","SAI. Tài liệu đang trong túi của nữ."]]));
+    longer.push(choice(place[2], "请听对话，选择正确的答案。", "Bài tập nộp thế nào?", "女：老师，练习是今天交吗？男：不是。因为很多人没做完，改成"+day2[0]+"前交到"+place[0]+"。女：可以用电子邮件吗？男：可以。文件名要写自己的名字。问：练习应该怎么交？", D,
+      ["Nộp trước "+day2[1]+" cho "+place[1]+", có thể gửi email, tên tệp là tên mình.","","Nộp trước "+day2[1]+".","ĐÚNG. «改成"+day2[0]+"前交», «可以用电子邮件»."],
+      [["Phải nộp ngay hôm nay.","","","SAI. Hạn đã đổi."],["Không được gửi email.","","","SAI. Thầy nói được."],["Tên tệp viết tên thầy.","","","SAI. Tên tệp là tên học sinh."]]));
+    longer.push(choice("Người đang chuẩn bị vali", "请听对话，选择正确的答案。", "Cô không mang gì?", "男：你去"+place[0]+"出差带什么？女：电脑必须带，合同在电脑里。男：衣服呢？女：带"+mw(count,"件")+"就行。雨伞不用带，那边"+day[0]+"不下雨。问：她不带什么？", D,
+      ["Không mang ô vì "+day[1]+" chỗ đó không mưa. Máy tính phải mang, quần áo "+count+" bộ.","","Không mang ô.","ĐÚNG. «雨伞不用带»."],
+      [["Không mang máy tính.","","","SAI. Máy tính «必须带»."],["Mang rất nhiều áo.","","","SAI. Chỉ "+count+" bộ."],["Mang ô phòng khi mưa.","","","SAI. Cô nói không cần ô."]]));
+    longer.push(choice("Một bản đồ", "请听对话，选择正确的答案。", place[1]+" ở đâu?", "男：请问，"+place[0]+"怎么走？女：从这儿一直往前，到红绿灯向左，就在超市旁边。男：走路大概多久？女："+mw(count,"分钟")+"左右。问："+place[0]+"在什么地方？", D,
+      ["Đi thẳng đến đèn đỏ rồi rẽ trái, "+place[1]+" ở cạnh siêu thị, khoảng "+count+" phút.","","Ở cạnh siêu thị, rẽ trái ở đèn đỏ.","ĐÚNG. «到红绿灯向左», «超市旁边»."],
+      [["Rẽ phải ngay chỗ đang đứng.","","","SAI. Phải đi thẳng đến đèn đỏ rồi rẽ trái."],["Ở trong siêu thị.","","","SAI. Ở bên cạnh siêu thị."],["Đi mất một giờ.","","","SAI. Khoảng "+count+" phút."]]));
+    longer.push(choice("Người đang ăn cơm", "请听对话，选择正确的答案。", "Tối nay họ ăn ở đâu?", "女：晚上大家想去辣的那家。男：我不能吃辣。女：那我们换一家吧。男："+place[0]+"旁边新开的有米饭，也不辣。女：好，"+close+"在那儿见。问：他们晚上去哪儿吃饭？", D,
+      ["Quán mới cạnh "+place[1]+", lúc "+closeVi+", vì nam không ăn cay.","","Quán mới lúc "+closeVi+".","ĐÚNG. Quán cay bị đổi, quán mới «也不辣»."],
+      [["Vẫn ăn ở quán cay.","","","SAI. Họ đổi vì nam không ăn cay."],["Họ không ăn cùng nhau.","","","SAI. Đã chốt giờ gặp."],["Quán mới chỉ bán đồ cay.","","","SAI. Nam nói quán đó không cay."]]));
+    longer.push(choice("Một rạp chiếu phim", "请听对话，选择正确的答案。", "Họ mua suất nào?", "女："+place[0]+"旁边的电影有两场，"+open+"和"+close+"。男："+open+"人太多了。女：那我们看"+close+"的吧。男：好。买"+mw(count,"张")+"，还有一张给"+other+"。问：他们买哪一场、几张？", D,
+      ["Suất "+closeVi+", "+count+" vé, vì suất "+openVi+" đông và một vé là của "+otherVi+".","","Suất "+closeVi+", "+count+" vé.","ĐÚNG. «看"+close+"的», «买"+mw(count,"张")+"»."],
+      [["Suất "+openVi+", một vé.","","","SAI. Suất sớm bị loại vì đông."],["Không có vé cho "+otherVi+".","","","SAI. Có một vé cho "+otherVi+"."],["Họ không đi xem.","","","SAI. Đã chọn suất và số vé."]]));
+
+    const rName = e % 2 === 0 ? "小江" : "王静";
+    const rPro = e % 2 === 0 ? "他" : "她";
+    const rNameVi = e % 2 === 0 ? "Tiểu Giang" : "Vương Tĩnh";
+    const rProVi = e % 2 === 0 ? "anh ấy" : "cô ấy";
+    reading.push(choice(read[2], rName+"为了准备"+day[0]+"在"+read[0]+"的考试，这个周末没有出去玩。"+rPro+"不但复习了生词，而且把练习又做了"+mw(times,"遍")+"。\n"+rPro+"周末做了什么？", "Cuối tuần "+rProVi+" làm gì?", "", D,
+      ["Ở nhà ôn từ và làm lại bài "+times+" lần, để chuẩn bị thi ở "+read[1]+" vào "+day[1]+".","","Ôn từ và làm lại bài.","ĐÚNG. «没有出去玩», «复习了生词», «又做了"+mw(times,"遍")+"»."],
+      [["Đi chơi cả cuối tuần vì thi đã xong.","","","SAI. Thi vào "+day[1]+" và "+rProVi+" không đi chơi."],["Chỉ xem phim.","","","SAI. "+rProVi+" ôn từ và làm lại bài."],["Thi vào hôm qua.","","","SAI. Kỳ thi là "+day[1]+"."]]));
+    reading.push(choice("Người đang chuyển đồ", "为了离"+read[0]+"近一点儿，"+rName+"把家搬到了旁边。新家不大，可是走路"+mw(count,"分钟")+"能到，生活比以前方便。\n"+rPro+"为什么搬家？", "Vì sao "+rProVi+" chuyển nhà?", "", D,
+      ["Để gần "+read[1]+" hơn. Nhà mới nhỏ, đi bộ "+count+" phút là tới, tiện hơn trước.","","Chuyển để gần "+read[1]+".","ĐÚNG. «为了离"+read[0]+"近一点儿»."],
+      [["Vì muốn ở xa "+read[1]+".","","","SAI. Mục đích là gần hơn."],["Nhà mới rất rộng và phải đi một giờ.","","","SAI. Nhà không lớn, chỉ "+count+" phút."],[" "+rProVi+" chưa chuyển.","","","SAI. "+rProVi+" đã chuyển."]]));
+    reading.push(choice("Trời mưa", "今天下雨，"+rName+"没带伞，只好在车站等。去"+read[0]+"的车晚了"+mw(count,"分钟")+"。"+rPro+"打了电话，说明自己会迟到。\n车晚了多久？", "Xe muộn bao lâu?", "", D,
+      [count+" phút. Trời mưa, "+rNameVi+" không mang ô, và "+rProVi+" đã gọi báo muộn khi đi "+read[1]+".","","Xe muộn "+count+" phút.","ĐÚNG. «晚了"+mw(count,"分钟")+"»."],
+      [["Xe đến sớm.","","","SAI. Xe muộn "+count+" phút."],[rProVi+" cố ý không đi.","","","SAI. "+rProVi+" đang đợi và đã gọi."],[rProVi+" có ô nên đi bộ.","","","SAI. "+rProVi+" không mang ô."]]));
+    reading.push(choice("Bác sĩ đang khám bệnh", "医生告诉"+rName+"，这周必须好好休息，先别去"+read[0]+"跑步。药一天"+mw(times,"次")+"，一定要饭后吃。如果还发烧，就要再来。\n药应该怎么吃？", "Thuốc uống thế nào?", "", D,
+      ["Ngày "+times+" lần, sau khi ăn. Tuần này nghỉ, chưa chạy ở "+read[1]+". Còn sốt thì quay lại.","","Ngày "+times+" lần sau ăn.","ĐÚNG. «一天"+mw(times,"次")+"», «饭后吃»."],
+      [["Uống trước ăn, ngày một lần.","","","SAI. Số lần và thời điểm đều khác."],["Đi chạy mỗi sáng thay cho uống thuốc.","","","SAI. Bác sĩ bảo chưa chạy."],["Khỏi rồi thì không cần quay lại dù còn sốt.","","","SAI. Còn sốt thì phải đến lại."]]));
+    reading.push(choice("Người đang họp", "原来定在"+day[0]+"的会，被改到了"+day2[0]+rOpen+"。地点没变，还是在"+read[0]+cn(floor)+"楼。"+rName+"已经把新时间告诉了大家。\n会议有什么变化？", "Cuộc họp thay đổi gì?", "", D,
+      ["Đổi sang "+day2[1]+" lúc "+rOpenVi+", vẫn ở "+read[1]+" tầng "+floor+". "+rNameVi+" đã báo mọi người.","","Đổi giờ, không đổi chỗ.","ĐÚNG. «改到了"+day2[0]+rOpen+"», «地点没变»."],
+      [["Vẫn họp "+day[1]+".","","","SAI. "+day[1]+" là lịch cũ."],["Đổi sang tầng một.","","","SAI. Vẫn tầng "+floor+"."],["Chưa ai biết giờ mới.","","","SAI. "+rNameVi+" đã báo."]]));
+    reading.push(choice("Người đang mua áo", rName+"想买礼物。红的"+yuan(rPrice)+"，蓝的"+yuan(rPrice-12)+"。"+other+"平时喜欢蓝色，所以"+rPro+"买了蓝的，还写了一张卡。\n"+rPro+"为什么买蓝色？", "Vì sao mua màu xanh?", "", D,
+      ["Vì "+otherVi+" thường thích màu xanh. Áo xanh "+(rPrice-12)+" tệ, áo đỏ "+rPrice+" tệ, "+rProVi+" còn viết thiệp.","","Vì "+otherVi+" thích màu xanh.","ĐÚNG. «平时喜欢蓝色，所以买了蓝的»."],
+      [["Vì áo xanh đắt hơn.","","","SAI. Áo xanh rẻ hơn."],["Vì "+otherVi+" thích màu đỏ.","","","SAI. "+otherVi+" thích xanh."],[rProVi+" không mua, chỉ viết thiệp.","","","SAI. "+rProVi+" đã mua áo xanh."]]));
+    reading.push(choice(read[2], read[0]+"除了"+day[0]+"，每天"+rOpen+"到"+rClose+"都开门。借的东西用完要放回原来的地方。这个月"+rName+"借了"+mw(count,"本")+"书。\n"+day[0]+"怎么样？", day[1]+" chỗ này thế nào?", "", D,
+      [day[1]+" đóng. Các ngày khác mở từ "+rOpenVi+" đến "+rCloseVi+". Đồ dùng xong phải để lại chỗ cũ. "+rNameVi+" mượn "+count+" quyển.",""," "+day[1]+" không mở.","ĐÚNG. «除了"+day[0]+"»."],
+      [["Chỉ mở vào "+day[1]+".","","","SAI. "+day[1]+" là ngày ngoại lệ."],["Được mang đi và không cần trả chỗ.","","","SAI. Phải để lại chỗ cũ."],[rNameVi+" mượn một quyển.","","","SAI. Số lượng là "+count+" quyển."]]));
+    reading.push(choice("Người đang đi xe buýt", rName+"住得离"+read[0]+"比较远，每天要坐"+mw(count*10,"分钟")+"。为了利用路上的时间，"+rPro+"在车上听录音。"+mw(times,"个")+"月以后，听力好多了。\n"+rPro+"在车上做什么？", "Trên xe "+rProVi+" làm gì?", "", D,
+      ["Nghe ghi âm để dùng quỹ thời gian đi đường. Sau "+times+" tháng nghe hiểu hơn. Mỗi ngày đi khoảng "+(count*10)+" phút đến "+read[1]+".","","Nghe ghi âm.","ĐÚNG. «在车上听录音»."],
+      [["Ngủ suốt trên xe.","","","SAI. "+rProVi+" dùng giờ đó để nghe bài."],["Đi bộ đến "+read[1]+".","","","SAI. "+rProVi+" đi xe."],["Nghe kém đi sau "+times+" tháng.","","","SAI. Nghe «好多了»."]]));
+    reading.push(choice("Một em nhỏ đang làm bài", "弟弟把果汁打翻了，"+rName+"的练习也湿了。"+rPro+"帮弟弟擦干桌子，又在"+read[0]+"把练习重新写了"+mw(times,"遍")+"。弟弟说以后要小心。\n"+rName+"做了什么？", rNameVi+" đã làm gì?", "", D,
+      ["Lau bàn và viết lại bài "+times+" lần ở "+read[1]+". Em nói lần sau sẽ cẩn thận.","","Lau bàn và viết lại bài.","ĐÚNG. «擦干桌子», «重新写了"+mw(times,"遍")+"»."],
+      [[rNameVi+" mắng em rồi bỏ đi.","","","SAI. "+rProVi+" giúp lau và viết lại."],["Bài không bị ướt.","","","SAI. Nước quả làm ướt bài."],["Em không nhận là mình làm đổ.","","","SAI. Em nói sẽ cẩn thận hơn."]]));
+    reading.push(choice("Người đang ở sân bay", "去"+read[0]+"的飞机因为大雾晚了"+mw(count*10,"分钟")+"。"+rName+"先给同事发了短信，然后把明天的材料又看了一遍。"+rPro+"虽然着急，但是没有抱怨。\n"+rPro+"先做了什么？", rProVi+" làm gì trước?", "", D,
+      ["Nhắn cho đồng nghiệp trước, rồi xem lại tài liệu ngày mai. Máy bay đến "+read[1]+" muộn "+(count*10)+" phút vì sương mù.","","Nhắn đồng nghiệp trước.","ĐÚNG. «先给同事发了短信，然后…又看了一遍»."],
+      [["Máy bay cất cánh đúng giờ.","","","SAI. Muộn "+(count*10)+" phút."],[rProVi+" bỏ việc ngày mai.","","","SAI. "+rProVi+" xem lại tài liệu để dùng ngày mai."],[rProVi+" phàn nàn rất nhiều.","","","SAI. Đoạn nói "+rProVi+" không phàn nàn."]]));
+
+    const clozeWords = [
+      ["把","bǎ","đem","被","从","比"],
+      ["被","bèi","bị","把","为了","除了"],
+      ["而且","ér qiě","mà còn","但是","因为","然后"],
+      ["如果","rú guǒ","nếu","虽然","终于","其实"],
+      ["越来越","yuè lái yuè","càng ngày càng","一下子","差不多","终于"],
+      ["为了","wèi le","để","除了","被","从"],
+      ["除了","chú le","trừ","为了","如果","但是"],
+      ["终于","zhōng yú","cuối cùng","其实","把","比"],
+      ["必须","bì xū","phải","也许","除了","越来越"],
+      ["其实","qí shí","thật ra","为了","把","终于"]
+    ];
+    const clozeQ = [
+      "外面空气很好，"+rName+"在"+read[0]+"______窗户打开了。",
+      "去"+read[0]+"的自行车______雨淋湿了，所以"+rPro+"没骑。",
+      rName+"在"+read[0]+"不但发音清楚，______汉字也写得很整齐。",
+      "______"+day[0]+"不下雨，他们就去"+read[0]+"。",
+      "最近在"+read[0]+"的工作______忙，"+rPro+day2[0]+"也很少休息。",
+      "______少花时间在路上，"+rPro+"搬到了"+read[0]+"附近。",
+      "______"+day[0]+"，"+read[0]+"每天下午都开门。",
+      rPro+"在"+read[0]+"等了"+mw(count*10,"分钟")+"，车______来了。",
+      "交给"+read[0]+"的报告______在"+rClose+"以前交。",
+      "我以为"+rPro+"在"+read[0]+"生气了，______"+rPro+"只是太累了。"
+    ];
+    const clozeWhy = [
+      "«把窗户打开» là câu 把: cửa sổ là thứ được mở.",
+      "Xe là vật chịu tác động của mưa, dùng 被.",
+      "«不但…而且…» thêm một ưu điểm nữa.",
+      "«如果…就…» nêu điều kiện rồi nêu kết quả.",
+      "«越来越忙» là mức độ tăng dần.",
+      "«为了» nêu mục đích của việc chuyển đến gần "+read[1]+".",
+      "«除了"+day[0]+"» loại "+day[1]+" ra khỏi lịch mở cửa.",
+      "«终于» đánh dấu xe đến sau một lúc chờ.",
+      "«必须» là hạn nộp bắt buộc trước "+rCloseVi+".",
+      "«其实» sửa lại điều người nói tưởng."
+    ];
+    const clozeBadWhy = [
+      ["被 dùng khi chủ ngữ chịu tác động. Ở đây người là chủ ngữ.","从 cần điểm xuất phát.","比 dùng để so sánh."],
+      ["把 cần người làm đứng trước.","为了 nêu mục đích, không nêu bị động.","除了 dùng để loại trừ."],
+      ["但是 báo ý ngược. Viết đẹp không ngược với phát âm rõ.","因为 không nối hai khả năng cùng hướng.","然后 là trình tự, không phải hai khả năng."],
+      ["虽然 không đặt điều kiện cho một kế hoạch.","终于 kể việc đã xảy ra.","其实 sửa một hiểu nhầm, câu chưa có hiểu nhầm."],
+      ["一下子 chỉ một thay đổi rất nhanh.","差不多 không đứng trước tính từ để nói mức tăng.","终于 cần một việc hoàn thành."],
+      ["除了 không nêu mục đích.","被 không hợp một câu mục đích.","从 cần điểm bắt đầu."],
+      ["为了 không có nghĩa loại trừ.","如果 đang biến lịch cố định thành điều kiện.","但是 không đứng đầu để loại một ngày."],
+      ["其实 không nói kết quả vừa xảy ra sau khi chờ.","把 không đứng trước «来» theo kiểu này.","比 không hợp câu này."],
+      ["也许 là phỏng đoán, câu đang ra hạn.","除了 không có gì bị loại.","越来越 không đi với một hạn nộp."],
+      ["为了 không nối hai nhận định.","把 không sửa một suy đoán.","终于 không có quá trình chờ ở câu này."]
+    ];
+    for(let k = 0; k < 10; k++){
+      const w = clozeWords[k];
+      cloze.push(choice(read[2], clozeQ[k], "Chọn từ điền vào chỗ trống.", "", "",
+        [w[0], w[1], w[2], "ĐÚNG. "+clozeWhy[k]],
+        [[w[3], "", "", "SAI. "+clozeBadWhy[k][0]],[w[4], "", "", "SAI. "+clozeBadWhy[k][1]],[w[5], "", "", "SAI. "+clozeBadWhy[k][2]]]));
+    }
+
+    passages.push(choice(read[2], rName+"在城南住了两年。为了少花时间去"+read[0]+"，上个月"+rPro+"把家搬到了附近。新家只有一个房间，走路"+mw(count,"分钟")+"能到。同事还住在城南，每天要换两次车。\n根据短文，哪一项正确？", "Ý nào đúng với đoạn?", "", D,
+      [rNameVi+" chuyển đến gần "+read[1]+" tháng trước. Nhà mới một phòng, đi bộ "+count+" phút. Đồng nghiệp vẫn ở phía nam và phải đổi xe hai lần.","","Nhà mới gần "+read[1]+", một phòng.","ĐÚNG. Mục đích, thời điểm và "+count+" phút đều có trong đoạn."],
+      [[rNameVi+" vẫn ở phía nam thành phố.","","","SAI. "+rProVi+" đã chuyển tháng trước."],["Nhà mới rất rộng, phải đổi xe hai lần.","","","SAI. Đổi xe hai lần là lịch của đồng nghiệp."],["Đi đến "+read[1]+" mất một giờ.","","","SAI. Chỉ "+count+" phút đi bộ."]]));
+    passages.push(choice("Lớp học buổi tối", read[0]+"的课原来在"+day[0]+"。因为报名的人越来越多，又增加了"+day2[0]+"的班。"+rName+day2[0]+"要加班，所以还是选"+day[0]+"。老师要求每人准备一段自我介绍。\n"+rPro+"选了哪一天？", rProVi+" chọn ngày nào?", "", D,
+      [day[1]+", vì "+day2[1]+" "+rProVi+" phải tăng ca. Lớp "+day2[1]+" là lớp mới thêm. Bài là một đoạn tự giới thiệu.","","Chọn "+day[1]+".","ĐÚNG. «所以还是选"+day[0]+"»."],
+      [["Chọn "+day2[1]+" vì lớp đó mới mở.","","","SAI. "+rProVi+" không chọn lớp mới."],[rProVi+" nghỉ học vì tăng ca cả tuần.","","","SAI. "+rProVi+" vẫn học "+day[1]+"."],["Bài về nhà là viết một bức thư.","","","SAI. Bài là đoạn tự giới thiệu."]]));
+    passages.push(choice("Người đang xem đơn thuốc", rName+"感冒以后继续去"+read[0]+"上班，结果烧得更厉害。医生说"+rPro+"必须休息"+mw(times,"天")+"，药一天"+mw(times,"次")+"，饭后吃。如果最后一天还发烧，就要回医院。"+rPro+"让同事把"+day[0]+"的会改到下周。\n哪一项和短文一致？", "Ý nào khớp đoạn?", "", D,
+      ["Phải nghỉ "+times+" ngày, thuốc ngày "+times+" lần sau ăn. Còn sốt ngày cuối thì quay lại viện. Cuộc họp "+day[1]+" được nhờ chuyển sang tuần sau.","","Nghỉ "+times+" ngày và thuốc sau ăn.","ĐÚNG. Các yêu cầu của bác sĩ và việc đổi họp đều đúng đoạn."],
+      [["Đi làm sẽ giúp hết sốt nhanh hơn.","","","SAI. Đi làm tiếp đã làm sốt nặng hơn."],["Uống thuốc trước khi ăn.","","","SAI. Uống sau ăn."],["Cuộc họp "+day[1]+" vẫn giữ nguyên.","","","SAI. "+rProVi+" nhờ chuyển sang tuần sau."]]));
+    passages.push(choice("Người mẹ và hai con", "妈妈晚上要去"+read[0]+"开会，不能做饭。她把面条和鸡蛋放在桌上，让姐姐先做。弟弟负责洗碗。妈妈"+rClose+"左右回来，还要检查作业。\n弟弟负责什么？", "Em trai phụ trách gì?", "", D,
+      ["Rửa bát. Chị nấu mì và trứng. Mẹ về khoảng "+rCloseVi+" và kiểm tra bài.","","Em rửa bát.","ĐÚNG. «弟弟负责洗碗»."],
+      [["Em trai nấu mì.","","","SAI. Người nấu là chị."],["Mẹ về lúc "+rOpenVi+" để nấu.","","","SAI. Mẹ đi họp và về khoảng "+rCloseVi+"."],["Không ai cần kiểm tra bài.","","","SAI. Mẹ về sẽ kiểm tra bài."]]));
+    passages.push(choice("Một chuyến tàu bị muộn", "去"+read[0]+"的火车因为大雾晚了"+mw(count*10,"分钟")+"。"+rName+"已经把到达时间告诉了来接"+rPro+"的朋友，并把材料又看了一遍。朋友说可以在出口等。\n火车晚了多久？", "Tàu muộn bao lâu?", "", D,
+      [(count*10)+" phút vì sương mù. "+rNameVi+" đã báo bạn đón và xem lại tài liệu. Bạn đợi ở lối ra.","","Muộn "+(count*10)+" phút.","ĐÚNG. «晚了"+mw(count*10,"分钟")+"»."],
+      [["Muộn "+count+" phút.","","","SAI. Con số là "+(count*10)+" phút."],[rNameVi+" phàn nàn với nhân viên ga.","","","SAI. Đoạn không nói "+rProVi+" phàn nàn."],["Bạn đón đổi sang đợi ở nhà.","","","SAI. Bạn đợi ở lối ra."]]));
+    passages.push(choice("Người đang so hai khóa học", "培训班有两个时间。A班在"+day[0]+"晚上，一个月"+yuan(rPrice)+"。B班在"+day2[0]+"上午，一个月"+yuan(rPrice+15)+"。"+rName+day2[0]+"要照顾孩子，所以选了A班。"+rPro+"计划用"+mw(times,"个")+"月把会话学完。\n"+rPro+"为什么选A班？", "Vì sao chọn lớp A?", "", D,
+      ["Vì "+day2[1]+" "+rProVi+" phải trông con. Lớp A học tối "+day[1]+", một tháng "+rPrice+" tệ, rẻ hơn lớp B. Kế hoạch học "+times+" tháng.","","Vì "+day2[1]+" phải trông con.","ĐÚNG. «"+day2[0]+"要照顾孩子，所以选了A班»."],
+      [["Vì lớp A đắt hơn.","","","SAI. Lớp A là "+rPrice+" tệ, lớp B đắt hơn."],["Vì "+rProVi+" rảnh cả ngày "+day2[1]+".","","","SAI. "+day2[1]+" "+rProVi+" bận trông con."],[rProVi+" định học một tháng là đủ.","","","SAI. Kế hoạch là "+times+" tháng."]]));
+    passages.push(choice("Một cửa hàng buổi sáng", read[0]+"旁边的面包店除了"+day[0]+"，每天"+rOpen+"开门。"+rName+"最喜欢第二种，一个"+yuan(cheap)+"。今天第二种卖完了，店员建议试试新品，一个"+yuan(cheap+3)+"，"+rPro+"买了"+mw(count,"个")+"。\n今天"+rPro+"买了什么？", "Hôm nay "+rProVi+" mua gì?", "", D,
+      [count+" cái bánh mới, mỗi cái "+(cheap+3)+" tệ, vì loại hai đã hết. Loại hai giá "+cheap+" tệ. "+day[1]+" tiệm đóng.","","Mua bánh mới.","ĐÚNG. Loại hai hết, "+rProVi+" mua loại mới."],
+      [["Mua loại hai.","","","SAI. Loại hai hôm nay đã hết."],["Tiệm hôm nay đóng vì là "+day[1]+".","","","SAI. Đoạn nói hôm nay vẫn bán, không nói hôm nay là "+day[1]+"."],[rProVi+" không mua gì.","","","SAI. "+rProVi+" mua "+count+" cái."]]));
+    passages.push(choice("Người đang tập nghe", rName+"以前听汉语广播总是跟不上。后来老师建议"+rPro+"先听慢速的，把不懂的句子记下来，第二天再问。坚持了"+mw(times,"个")+"月，"+rPro+"终于能听懂去"+read[0]+"时的日常对话了。\n老师建议怎么练？", "Thầy khuyên luyện thế nào?", "", D,
+      ["Nghe bản chậm trước, ghi câu chưa hiểu, hôm sau hỏi lại. Sau "+times+" tháng "+rProVi+" nghe được hội thoại hằng ngày.","","Nghe chậm, ghi câu khó, hôm sau hỏi.","ĐÚNG. Đúng ba bước thầy khuyên."],
+      [["Nghe bản nhanh ngay từ đầu.","","","SAI. Thầy bảo nghe bản chậm trước."],["Không cần ghi câu khó.","","","SAI. Phải ghi những câu chưa hiểu."],["Sau "+times+" tháng "+rProVi+" vẫn không nghe được câu nào.","","","SAI. "+rProVi+" đã nghe được hội thoại hằng ngày."]]));
+    passages.push(choice("Người đang xếp hàng mua vé", "班里"+day[0]+"去"+read[0]+"。门票学生半价，"+yuan(cheap)+"。"+rName+"忘了带学生证，只好买全票"+yuan(cheap*2)+"。老师说第二天把学生证补上，可以退还差价。\n那天"+rPro+"花了多少钱？", "Hôm đó "+rProVi+" trả bao nhiêu?", "", D,
+      [(cheap*2)+" tệ vì quên thẻ học sinh. Vé học sinh là "+cheap+" tệ, hôm sau mang thẻ thì được trả phần chênh.","","Trả "+(cheap*2)+" tệ vì quên thẻ.","ĐÚNG. «忘了带学生证，只好买全票"+yuan(cheap*2)+"»."],
+      [[" "+cheap+" tệ, vì cửa vé tự biết "+rProVi+" là học sinh.","","","SAI. Không có thẻ nên phải mua vé đủ."],["Không được hoàn tiền.","","","SAI. Hôm sau mang thẻ thì được trả phần chênh."],["Cả lớp đều mua vé "+(cheap*2)+" tệ.","","","SAI. Vé học sinh là "+cheap+" tệ."]]));
+    passages.push(choice("Người đang đọc thông báo", read[0]+"通知：从下个月开始，每个人可以每星期有一天在家工作。但是"+day[0]+"的会必须到这儿参加。"+rName+"打算把在家的那一天用来写报告，这样周围就不会太吵。\n哪一项正确？", "Ý nào đúng?", "", D,
+      ["Mỗi tuần được làm ở nhà một ngày, nhưng họp "+day[1]+" phải đến "+read[1]+". "+rNameVi+" định dùng ngày ở nhà để viết báo cáo.",""," "+day[1]+" vẫn phải đến họp.","ĐÚNG. «"+day[0]+"的会必须到这儿参加»."],
+      [["Từ tháng sau được ở nhà cả tuần.","","","SAI. Chỉ một ngày mỗi tuần."],[day[1]+" cũng được họp qua mạng.","","","SAI. Họp "+day[1]+" bắt buộc đến nơi."],[rNameVi+" chọn ngày ở nhà để gặp khách.","","","SAI. "+rProVi+" dùng ngày đó để viết báo cáo."]]));
+
+    const orderOk = [
+      name+"把窗户打开了。",
+      "自行车被雨淋湿了。",
+      name+"不但会说汉语，而且会写汉字。",
+      "如果"+day[0]+"不下雨，我们就去"+place[0]+"。",
+      name+"等了"+mw(count*5,"分钟")+"，车终于来了。"
+    ];
+    const orderBad = [
+      [[name+"打开了把窗户。","把 phải đứng trước «窗户»."],[ "把"+name+"窗户打开了。","Thiếu chủ ngữ đúng vị trí."],["窗户"+name+"打开把了。","把 và 了 đặt sai chỗ."]],
+      [["雨被自行车淋湿了。","Đảo vật chịu tác động: mưa làm ướt xe, không phải xe làm ướt mưa."],["自行车雨被淋湿了。","被 phải đứng ngay sau chủ ngữ chịu tác động."],["被淋湿了自行车雨。","Câu không có chủ ngữ đứng trước 被."]],
+      [[name+"而且会说汉语，不但会写汉字。","不但 đứng ở vế trước, 而且 đứng ở vế sau."],["不但"+name+"会说汉语会写汉字而且。","而且 bị đẩy xuống cuối."],[name+"会不但说汉语，会而且写汉字。","不但 và 而且 không chen sau 会."]],
+      [["就我们去"+place[0]+"，如果"+day[0]+"不下雨。","Vế điều kiện phải đứng trước."],["我们如果不去"+place[0]+"，"+day[0]+"就不下雨。","Đảo nghĩa: việc đi không quyết định trời mưa."],["如果就"+day[0]+"去"+place[0]+"不下雨。","Các từ bị trộn, không thành câu."]],
+      [["终于"+name+"等了"+mw(count*5,"分钟")+"来了车。","终于 gắn với kết quả xe đến, không gắn với việc chờ."],["车等了"+mw(count*5,"分钟")+"，"+name+"终于来了。","Đảo người đợi và xe."],[name+"终于等了车，"+mw(count*5,"分钟")+"来了。","Tách số thời gian khỏi động từ chờ."]]
+    ];
+    const orderTopic = ["窗户","自行车","汉语课","见面","等车"];
+    for(let k = 0; k < 5; k++){
+      const q = "关于"+place[0]+"的"+orderTopic[k]+"，哪一句的语序是对的？";
+      order.push(choice(place[2], q, "Câu nào đúng thứ tự?", "", "",
+        [orderOk[k], "", orderOk[k], "ĐÚNG. Câu này đúng thứ tự và đúng nghĩa."],
+        orderBad[k].map(function(b){ return [b[0], "", "", "SAI. "+b[1]]; })));
+    }
+    for(let k = 0; k < 5; k++){
+      const w = words[e * 5 + k];
+      const q = "看拼音，写出汉字："+w[1]+"（"+read[0]+"）";
+      mark(q);
+      write.push({shot:read[2], q:q, qVi:"Gõ chữ Hán của phiên âm "+w[1].replace(/ /g,"")+". Nghĩa: "+w[2]+".", inputMode:"dictation", answerText:w[0], why:"ĐÚNG khi gõ "+w[0]+". "+w[1]+" là "+w[2]+".", h:w[0], m:w[2]});
+    }
+  }
+  const expect = [190,190,190,190,190,190,190,95,95];
+  const got = [meaning,judge,reply,longer,reading,cloze,passages,order,write].map(function(g){ return g.length; });
+  if(got.join(",") !== expect.join(",")) throw new Error("sai số "+got.join(","));
+  return [meaning, judge, reply, longer, reading, cloze, passages, order, write];
+}
   function buildHsk3Paper(examNo, salt){
     const M = "Nghe câu vừa, xem hình, chọn đúng nghĩa tiếng Việt. Câu không hiện sẵn.";
     const L = "Nghe, xem hình, rồi chọn 对 hoặc 错. Câu không hiện sẵn.";
@@ -167090,7 +168664,8 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
       {shot:"Người vừa hoàn thành một việc khó", q:"看拼音，写出汉字：zhōng yú", qVi:"Gõ chữ Hán của phiên âm zhōngyú. Nghĩa: cuối cùng cũng.", inputMode:"dictation", answerText:"终于", why:"ĐÚNG khi gõ 终于. zhōngyú là cuối cùng cũng, sau một lúc chờ hoặc cố.", h:"终于", m:"cuối cùng cũng"},
       {shot:"Một việc bắt buộc phải làm hôm nay", q:"看拼音，写出汉字：bì xū", qVi:"Gõ chữ Hán của phiên âm bìxū. Nghĩa: phải, bắt buộc.", inputMode:"dictation", answerText:"必须", why:"ĐÚNG khi gõ 必须. bìxū là phải, như «必须今天解决».", h:"必须", m:"phải"}
     ];
-    return buildHandPaper(3, examNo, salt, [meaning, judge, reply, longer, reading, cloze, passages, order, write]);
+    const more = hsk3ExtraBanks();
+    return buildHandPaper(3, examNo, salt, [meaning.concat(more[0]), judge.concat(more[1]), reply.concat(more[2]), longer.concat(more[3]), reading.concat(more[4]), cloze.concat(more[5]), passages.concat(more[6]), order.concat(more[7]), write.concat(more[8])]);
   }
 
   function buildHsk4Paper(examNo, salt){
@@ -167479,8 +169054,7 @@ const reading = [
       });
       if(rich.length>=8) usable = rich;
     }
-    sceneUsed = Number(salt)===2 ? new Set() : null;
-    sceneCursor = Number(salt)===2 ? {} : null;
+    armScenes(level, examNo);
     const rng = rngOf((Number(examNo)||1)*10007 + Number(level)*97 + (Number(salt)||1));
     const bag = shuffle(usable, rng);
     let cursor = 0;
