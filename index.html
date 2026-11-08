@@ -167462,9 +167462,18 @@ function hsk2ExtraBanks(){
     mark(audio);
     return {shot:shot, q:"请听句子，判断与图片是否一致。", qVi:"Hình là "+picVi+". Câu nói "+sentVi+".", audio:audio, tf:"错", hint:L, why:["SAI. Câu «"+audio.replace(/。$/,"")+"» là "+sentVi+", hình là "+picVi+". Không chọn 对.","ĐÚNG. "+picVi+" và "+sentVi+" không phải một cảnh, chọn 错."]};
   }
+  let spell = function(s){ return s; };
   function choice(shot, q, qVi, audio, hint, ok, bad){
     if(audio) mark(audio);
     else mark(q);
+    bad = (bad || []).map(function(b){
+      if(!b || !b[0] || /[\u4e00-\u9fff]/.test(b[0])) return b;
+      const next = String(spell(b[0], String(ok && ok[0] || "").length) || "").replace(/\s+/g, " ").trim();
+      if(!next || next === String(b[0]).replace(/\s+/g, " ").trim()) return b;
+      const copy = b.slice();
+      copy[0] = next;
+      return copy;
+    });
     const item = {shot:shot, q:q, qVi:qVi, audio:audio||"", ok:ok, bad:bad};
     if(hint && q.indexOf("请听")===0) item.hint = hint;
     return item;
@@ -167504,6 +167513,722 @@ function hsk2ExtraBanks(){
     const clock = zhClock(openH, 11 + e);
     const clockVi = viClock(openH, 11 + e);
     function at(list){ return list[e]; }
+    const place = lp[1], who = nameVi, person = owner[1], item = thing[1], like = hobby[1], dayName = day[1];
+    spell = function(raw, target){
+      const s = String(raw || "").replace(/\s+/g, " ").trim();
+      if(!s || /[\u4e00-\u9fff]/.test(s) || s.length >= target - 8) return s;
+      let out = "";
+      function put(t){ if(!out) out = t; }
+      if(/^Tìm người trước rồi mới đến$/.test(s)) put("Tìm "+person+" ở ngoài đường trước, rồi mới đi vào "+place);
+      if(/^Không cần đến đó$/.test(s)) put("Không cần đến "+place+", vì "+person+" sẽ tự sang chỗ bạn");
+      if(/^Tìm xong thì về nhà$/.test(s)) put("Tìm thấy "+person+" xong thì về nhà, không vào "+place);
+      if(/^Gặp người ở cửa rồi mới vào$/.test(s)) put("Gặp "+person+" ngay ở cửa, rồi hai người mới vào "+place);
+      if(/^Người đó đến nhà bạn$/.test(s)) put(person+" tự đến nhà bạn, bạn không phải sang "+place);
+      if(/^Hôm nay không gặp$/.test(s)) put("Hôm nay không gặp "+person+", dù có đến "+place);
+      if(/^Người đó đứng ngoài đường$/.test(s)) put(person+" đứng ngoài đường, không ở trong "+place);
+      if(/^Gọi điện là đủ, không cần đến$/.test(s)) put("Gọi điện cho "+person+" là đủ, không cần đến "+place);
+      if(/^Người đó đã về quê$/.test(s)) put(person+" đã về quê, không còn ở "+place);
+      if(/^Đợi ở cửa là đúng$/.test(s)) put("Đợi ở cửa "+place+" là đúng, không cần vào trong tìm "+person);
+      if(/^Tìm người ở bến xe$/.test(s)) put("Tìm "+person+" ở bến xe, không tìm trong "+place);
+      if(/^Người đó không có ở đó$/.test(s)) put(person+" không có ở "+place+" vào hôm nay");
+      if(/^Tự vào phòng, không cần hỏi$/.test(s)) put("Tự vào phòng trong "+place+", không cần hỏi nhân viên "+person+" ở đâu");
+      if(/^Nhân viên chính là người cần tìm$/.test(s)) put("Nhân viên quầy chính là "+person+", không phải người khác");
+      if(/^Hỏi xong thì đi chỗ khác$/.test(s)) put("Hỏi nhân viên xong thì đi chỗ khác, không ở lại "+place);
+      if(/^Người đó hôm nay nghỉ$/.test(s)) put(person+" hôm nay nghỉ, không có mặt ở "+place);
+      if(/^Hãy đi chỗ khác$/.test(s)) put("Hãy đi chỗ khác, đừng đến "+place+" tìm "+person);
+      if(/^Ngày mai mới có mặt$/.test(s)) put(person+" ngày mai mới có mặt, hôm nay không ở "+place);
+      if(/^Người đó ở cổng sau$/.test(s)) put(person+" đứng ở cổng sau, không ở quầy cổng chính "+place);
+      if(/^Không có quầy$/.test(s)) put(place+" không có quầy, nên không gặp "+person+" ở đó");
+      if(/^Đừng vào cổng chính$/.test(s)) put("Đừng vào cổng chính "+place+", "+person+" không ở lối đó");
+      if(/^Đến trước rồi mới gọi$/.test(s)) put("Đến "+place+" trước, rồi mới gọi cho "+person);
+      if(/^Không cần gọi$/.test(s)) put("Không cần gọi "+person+", cứ đến thẳng "+place);
+      if(/^Gọi xong thì hủy$/.test(s)) put("Gọi cho "+person+" xong thì hủy, không đến "+place+" nữa");
+      if(/^Người đó đang ở nhà$/.test(s)) put(person+" đang ở nhà, không phải ở "+place);
+      if(/^Đến nhà là gặp$/.test(s)) put("Đến nhà "+person+" là gặp, không cần sang "+place);
+      if(/^Hôm nay không gặp được$/.test(s)) put("Hôm nay không gặp được "+person+" dù đến "+place);
+      if(/^Người đó đã đứng sẵn ngoài cửa$/.test(s)) put(person+" đã đứng sẵn ngoài cửa, không cần gọi ra từ "+place);
+      if(/^Bạn không cần đến$/.test(s)) put("Bạn không cần đến "+place+", "+person+" tự ra ngoài");
+      if(/^Ra khỏi đó rồi hãy gọi$/.test(s)) put("Ra khỏi "+place+" rồi hãy gọi "+person);
+      if(/^Cửa đóng thì vẫn vào được$/.test(s)) put("Cửa "+place+" đóng thì vẫn vào được để gặp "+person);
+      if(/^Người đó không ở đó$/.test(s)) put(person+" không ở "+place+" vào giờ đó");
+      if(/^Đi lúc đang đóng cửa$/.test(s)) put("Đi lúc "+place+" đang đóng cửa vẫn gặp được "+person);
+      if(/^Phải tìm người khác$/.test(s)) put("Phải tìm người khác, "+person+" không ở "+place);
+      if(/^Người đó đã chuyển đi$/.test(s)) put(person+" đã chuyển đi, không còn ở "+place);
+      if(/^Ở một nơi rất xa$/.test(s)) put(person+" ở một nơi rất xa, không ở "+place);
+      if(/^Đợi bên phải$/.test(s)) put("Đợi bên phải "+place+", không phải bên trái, để gặp "+person);
+      if(/^Người đó không đến$/.test(s)) put(person+" không đến "+place+", đợi cũng không gặp");
+      if(/^Bạn phải đi tìm ở nhà$/.test(s)) put("Bạn phải đi tìm "+person+" ở nhà, không đợi ở "+place);
+      if(/^Gặp trước rồi đăng ký sau$/.test(s)) put("Gặp "+person+" ở "+place+" trước, rồi mới đăng ký sau");
+      if(/^Không cần đăng ký$/.test(s)) put("Không cần đăng ký, vào "+place+" là gặp "+person);
+      if(/^Đăng ký ở nhà là đủ$/.test(s)) put("Đăng ký ở nhà là đủ, không cần làm thủ tục ở "+place);
+      if(/^Đi bất kỳ đâu cũng được$/.test(s)) put("Đi bất kỳ đâu cũng gặp được "+person+", không nhất thiết đến "+place);
+      if(/^Người đó bảo đừng đến$/.test(s)) put(person+" bảo đừng đến "+place);
+      if(/^Hôm nay đổi sang nhà$/.test(s)) put("Hôm nay "+person+" đổi chỗ gặp sang nhà, không còn ở "+place);
+      if(/^Không cần thẻ$/.test(s)) put("Không cần thẻ sinh viên, vào "+place+" vẫn tìm được "+person);
+      if(/^Để thẻ ở nhà rồi hãy đi$/.test(s)) put("Để thẻ ở nhà rồi hãy đến "+place+" tìm "+person);
+      if(/^Thẻ dùng để mua đồ$/.test(s)) put("Thẻ chỉ dùng để mua đồ, không dùng khi tìm "+person+" ở "+place);
+      if(/^Người đó ở tầng một$/.test(s)) put(person+" ở tầng một "+place+", không ở tầng hai");
+      if(/^Tầng hai đóng cửa$/.test(s)) put("Tầng hai "+place+" đóng cửa, không gặp "+person+" ở đó");
+      if(/^Không có tầng hai$/.test(s)) put(place+" không có tầng hai, "+person+" không ở trên đó");
+      if(/^Cứ tự đi, không cần nói$/.test(s)) put("Cứ tự đi trong "+place+", không cần nói với "+person);
+      if(/^Nói chuyện qua điện thoại là đủ$/.test(s)) put("Nói chuyện qua điện thoại với "+person+" là đủ, không đến "+place);
+      if(place+" xa và đắt" === s) put(place+" vừa xa trường vừa bán "+item+" rất đắt");
+      if(/^Gần nhưng đồ rất đắt$/.test(s)) put(place+" thì gần trường, nhưng "+item+" bán rất đắt");
+      if(/^Trường nằm trong đó$/.test(s)) put("Trường nằm trong "+place+", không phải "+place+" nằm cạnh trường");
+      if(/^Xa trường$/.test(s)) put(place+" nằm xa trường, không đi bộ một quãng ngắn là tới");
+      if(/^Giá rất cao$/.test(s)) put(item+" ở "+place+" có giá rất cao, không phải mức rẻ");
+      if(/^Không bán món đó$/.test(s)) put(place+" không bán "+item+" vào hôm nay");
+      if(/^Ở rất xa trường$/.test(s)) put(place+" ở rất xa trường, phải đi một quãng dài mới tới");
+      if(/^Hôm nay không bán$/.test(s)) put("Hôm nay "+place+" không bán "+item);
+      if(/^Giá gấp đôi$/.test(s)) put(item+" ở "+place+" đang bán đắt gấp đôi, không còn là giá thấp");
+      if(/^Vì xa nên không đi$/.test(s)) put("Vì "+place+" xa nên "+who+" không đi mua "+item);
+      if(/^Giá cao nên không mua$/.test(s)) put("Giá "+item+" cao nên "+who+" không mua ở "+place);
+      if(/^Người đó không mua$/.test(s)) put(who+" không mua "+item+" ở "+place);
+      if(/^Bán ở rất xa$/.test(s)) put(item+" được bán ở một chỗ rất xa, không phải ở "+place);
+      if(/^Cần nhiều tiền hơn nhiều$/.test(s)) put("Mua "+item+" ở "+place+" cần một khoản tiền lớn, không phải giá thấp");
+      if(/^Hôm nay hết hàng$/.test(s)) put("Hôm nay "+place+" hết "+item+", không còn để bán");
+      if(/^Đi rất mất công$/.test(s)) put("Đi từ trường tới "+place+" rất mất công, không gần");
+      if(/^Đồ đắt$/.test(s)) put(item+" ở "+place+" thuộc loại đắt, không phải giá thấp");
+      if(/^Không bán$/.test(s)) put(place+" không bán "+item);
+      if(/^Chỉ gần chứ không rẻ$/.test(s)) put(place+" chỉ gần trường, còn "+item+" thì không rẻ");
+      if(/^Chỉ rẻ chứ rất xa$/.test(s)) put(item+" thì rẻ, nhưng "+place+" nằm rất xa trường");
+      if(/^Cả hai đều sai$/.test(s)) put(place+" không gần và "+item+" cũng không rẻ");
+      if(/^Học sinh không đến$/.test(s)) put("Học sinh không đến "+place+" mua "+item);
+      if(/^Giá cao$/.test(s)) put("Giá "+item+" ở "+place+" đang cao, không phải giá thấp");
+      if(/^Vì xa$/.test(s)) put("Học sinh đến "+place+" vì chỗ đó xa, không phải vì gần");
+      if(/^Nói là xa$/.test(s)) put(who+" nói "+place+" xa trường");
+      if(/^Nói là đắt$/.test(s)) put(who+" nói "+item+" ở "+place+" là đắt");
+      if(/^Không nhắc giá$/.test(s)) put(who+" không nhắc giá "+item+", chỉ nói về chỗ");
+      if(/^Phải đi rất lâu$/.test(s)) put("Từ trường phải đi rất lâu mới tới "+place);
+      if(/^Không có giá$/.test(s)) put(item+" ở "+place+" không ghi giá");
+      if(/^Đắt hơn nhiều$/.test(s)) put(item+" ở "+place+" đắt hơn nhiều, không còn là giá dễ mua");
+      if(/^Vì xa nên không ai mua$/.test(s)) put("Vì "+place+" xa nên không ai mua "+item);
+      if(/^Giá cao hơn nhiều$/.test(s)) put("Giá "+item+" ở "+place+" cao hơn nhiều, không phải giá thấp");
+      if(/^Xa và đắt$/.test(s)) put(item+" ở "+place+" vừa xa trường vừa đắt");
+      if(/^Chỉ có một trong hai$/.test(s)) put(place+" chỉ có một trong hai điều gần hoặc rẻ, không có cả hai");
+      if(/^Hết hàng$/.test(s)) put(place+" đã hết "+item);
+      if(/^Đắt và xa$/.test(s)) put(item+" đắt, và "+place+" cũng xa trường");
+      if(/^Không gần trường$/.test(s)) put(place+" không nằm gần trường");
+      if(/^Mọi người thấy xa$/.test(s)) put("Mọi người thấy "+place+" xa, không thấy gần");
+      if(/^Giá không hợp vì đắt$/.test(s)) put("Giá "+item+" không hợp vì đắt, không phải mức dễ mua");
+      if(/^Không ai nhắc món đó$/.test(s)) put("Không ai nhắc "+item+" khi nói về "+place);
+      if(/^Cách rất xa$/.test(s)) put(place+" cách trường rất xa, không phải vài bước");
+      if(/^Giá tăng$/.test(s)) put("Hôm nay giá "+item+" ở "+place+" tăng, không giảm");
+      if(/^Không hợp vì xa$/.test(s)) put("Đến "+place+" mua "+item+" không hợp vì xa");
+      if(/^Đắt$/.test(s)) put(item+" ở "+place+" thuộc hàng đắt");
+      if(/^Phải đặt trước$/.test(s)) put("Muốn mua "+item+" ở "+place+" phải đặt trước");
+      if(/^Chọn vì xa$/.test(s)) put(who+" chọn "+place+" vì xa, không phải vì gần");
+      if(/^Giá là lý do để không mua$/.test(s)) put("Giá "+item+" là lý do "+who+" không mua");
+      if(/^Không chọn chỗ đó$/.test(s)) put(who+" không chọn "+place+" để mua "+item);
+      if(/^Ở cuối thành phố$/.test(s)) put(place+" nằm ở cuối thành phố, không ở cổng trường");
+      if(/^Rất đắt$/.test(s)) put(item+" bán ở "+place+" với giá rất đắt");
+      if(/^Mưa thì ra đường$/.test(s)) put("Trời mưa thì "+proVi+" ra đường, không đợi trong "+place);
+      if(/^Nắng thì hủy$/.test(s)) put("Trời nắng thì "+proVi+" hủy việc đợi ở "+place);
+      if(/^Đã rời đi từ sáng$/.test(s)) put(proVi+" đã rời "+place+" từ sáng, không còn đợi");
+      if(/^Mưa thì vẫn ra ngoài$/.test(s)) put("Trời mưa thì "+proVi+" vẫn ra ngoài, không ở trong "+place);
+      if(/^Đợi ở ngoài đường$/.test(s)) put(proVi+" đợi ở ngoài đường khi mưa, không vào "+place);
+      if(/^Không liên quan đến mưa$/.test(s)) put("Việc "+proVi+" ở "+place+" không liên quan đến mưa");
+      if(/^Mưa thì đứng ngoài$/.test(s)) put("Trời mưa thì "+proVi+" đứng ngoài, không vào "+place);
+      if(/^Không vào$/.test(s)) put(proVi+" không vào "+place+" khi trời mưa");
+      if(/^Chỉ vào khi nắng$/.test(s)) put(proVi+" chỉ vào "+place+" khi nắng, mưa thì không vào");
+      if(/^Mưa thì rời đi$/.test(s)) put("Mưa chưa tạnh thì "+proVi+" rời "+place);
+      if(/^Nắng mới ở lại$/.test(s)) put("Chỉ khi nắng "+proVi+" mới ở lại "+place);
+      if(/^Không nói về mưa$/.test(s)) put(proVi+" không nói gì về mưa khi quyết định ở "+place);
+      if(/^Lúc nào cũng đợi trong đó$/.test(s)) put(proVi+" lúc nào cũng đợi trong "+place+", không chỉ khi mưa");
+      if(/^Mưa thì không đợi$/.test(s)) put("Khi mưa "+proVi+" không đợi trong "+place);
+      if(/^Đợi ở nhà$/.test(s)) put(proVi+" đợi mưa ở nhà, không đợi ở "+place);
+      if(/^Mưa thì đi tìm ngoài đường$/.test(s)) put("Khi mưa phải đi tìm "+proVi+" ngoài đường, không ở "+place);
+      if(/^Người đó về nhà$/.test(s)) put(proVi+" về nhà khi mưa, không ở "+place);
+      if(/^Mưa thì đóng cửa$/.test(s)) put("Khi mưa "+place+" đóng cửa, "+proVi+" không đợi ở đó");
+      if(/^Có ô nên cứ đi$/.test(s)) put(proVi+" có ô nên cứ đi, không đợi trong "+place);
+      if(/^Không đợi$/.test(s)) put(proVi+" không đợi trong "+place+" dù quên ô");
+      if(/^Quên ô nhưng vẫn đi$/.test(s)) put(proVi+" quên ô nhưng vẫn đi, không vào "+place);
+      if(/^Thấy mưa thì chạy ra$/.test(s)) put("Thấy mưa "+proVi+" chạy ra khỏi "+place);
+      if(/^Không có cách$/.test(s)) put(proVi+" không có cách nào khi mưa, không vào "+place);
+      if(/^Về nhà ngay$/.test(s)) put("Thấy mưa "+proVi+" về nhà ngay, không vào "+place);
+      if(/^Ngày mưa thì hủy$/.test(s)) put("Ngày mưa thì hủy, "+proVi+" không đợi ở "+place);
+      if(/^Đợi ở công viên$/.test(s)) put(proVi+" đợi ở công viên khi mưa, không đợi ở "+place);
+      if(/^Chưa quyết$/.test(s)) put(proVi+" chưa quyết sẽ đợi ở đâu khi mưa");
+      if(/^Mưa thì đi$/.test(s)) put("Trời mưa thì "+proVi+" đi, không ở lại "+place);
+      if(/^Không mưa thì ở lại$/.test(s)) put("Không mưa thì "+proVi+" ở lại "+place+", mưa thì đi");
+      if(/^Lúc nào cũng đi$/.test(s)) put(proVi+" lúc nào cũng đi, mưa hay không cũng không ở "+place);
+      if(/^Cứ đứng dưới mưa$/.test(s)) put(proVi+" cứ đứng dưới mưa, không vào "+place+" đợi");
+      if(/^Đợi ở bến xe$/.test(s)) put(proVi+" đợi mưa ở bến xe, không vào "+place);
+      if(/^Quyết định ra ngoài$/.test(s)) put(proVi+" quyết định ra ngoài khi có mưa, không đợi trong "+place);
+      if(/^Không tin dự báo nên đi$/.test(s)) put(proVi+" không tin dự báo mưa nên vẫn đi, không đợi ở "+place);
+      if(/^Đợi ở nhà bạn$/.test(s)) put(proVi+" đợi mưa ở nhà bạn, không đợi trong "+place);
+      if(/^Mưa to thì rời đi$/.test(s)) put("Mưa to thì "+proVi+" rời "+place);
+      if(/^Lúc nắng mới ở lại$/.test(s)) put("Lúc nắng "+proVi+" mới ở lại "+place);
+      if(/^Đã rời từ trước$/.test(s)) put(proVi+" đã rời "+place+" từ trước khi mưa to");
+      if(/^Gặp nhau ngoài đường$/.test(s)) put("Khi mưa họ gặp nhau ngoài đường, không gặp ở "+place);
+      if(/^Mưa thì hủy gặp$/.test(s)) put("Trời mưa thì hủy cuộc gặp ở "+place);
+      if(/^Gặp ở nhà$/.test(s)) put("Trời mưa thì họ gặp ở nhà, không gặp ở "+place);
+      if(/^Mưa thì đổi chỗ$/.test(s)) put("Trời mưa thì "+proVi+" đổi chỗ, không đợi ở "+place);
+      if(/^Không có kế hoạch$/.test(s)) put(proVi+" không có kế hoạch đợi ở "+place+" khi mưa");
+      if(/^Đợi ở trường$/.test(s)) put(proVi+" đợi mưa ở trường, không đợi ở "+place);
+      if(/^Có ô nên đi tiếp$/.test(s)) put(proVi+" có ô nên đi tiếp, không đợi ở "+place);
+      if(/^Mưa thì mua ô rồi đi$/.test(s)) put("Khi mưa "+proVi+" mua ô rồi đi, không đợi ở "+place);
+      if(/^Bảo ra ngoài$/.test(s)) put("Nhân viên bảo "+proVi+" ra ngoài khi mưa, không ở lại "+place);
+      if(/^Bảo về ngay$/.test(s)) put("Nhân viên bảo "+proVi+" về ngay khi mưa");
+      if(/^Không ai nói gì$/.test(s)) put("Không ai nói "+proVi+" phải ở lại "+place+" khi mưa");
+      if(/^Mưa thì tiếp tục ở ngoài$/.test(s)) put("Mưa bắt đầu thì "+proVi+" tiếp tục ở ngoài, không về "+place);
+      if(/^Không quay lại$/.test(s)) put(proVi+" không quay lại "+place+" khi mưa");
+      if(/^Đợi đến khi nắng$/.test(s)) put(proVi+" đợi đến khi nắng mới rời chỗ đang đứng, không về "+place);
+      if(/^Cứ vào$/.test(s)) put("Cứ vào "+place+", dù "+who+" đang gọi điện");
+      if(/^Gọi xong rồi$/.test(s)) put(who+" gọi điện xong rồi, có thể vào "+place);
+      if(/^Đang xem tivi$/.test(s)) put(who+" đang xem tivi ở "+place+", không gọi điện");
+      if(/^Vào ngay$/.test(s)) put("Vào "+place+" ngay, không cần đợi "+who+" gọi xong");
+      if(/^Không có cuộc gọi$/.test(s)) put(who+" không có cuộc gọi nào ở "+place);
+      if(/^Người đó đã rời đi$/.test(s)) put(who+" đã rời "+place+", không còn đứng gọi điện");
+      if(/^Hãy gõ cửa ngay$/.test(s)) put("Hãy gõ cửa "+place+" ngay, dù trong đó đang có tiếng điện thoại");
+      if(/^Điện thoại đã tắt$/.test(s)) put("Điện thoại của "+who+" đã tắt, không còn nói ở "+place);
+      if(/^Cứ nói lớn$/.test(s)) put("Cứ nói lớn trong "+place+", dù "+who+" chưa nói điện thoại xong");
+      if(/^Cuộc gọi đã kết thúc$/.test(s)) put("Cuộc gọi của "+who+" ở "+place+" đã kết thúc");
+      if(/^Không ai gọi điện$/.test(s)) put("Không ai gọi điện trong "+place);
+      if(/^Ra hiệu bảo vào$/.test(s)) put(who+" ra hiệu bảo vào "+place+", không bảo đợi ngoài");
+      if(/^Không có tín hiệu$/.test(s)) put(who+" không ra hiệu gì ở "+place);
+      if(/^Bảo đi chỗ khác hẳn$/.test(s)) put(who+" bảo đi chỗ khác hẳn, không đợi ngoài "+place);
+      if(/^Vào trước khi cúp máy$/.test(s)) put("Vào "+place+" trước khi "+who+" cúp máy");
+      if(/^Không cần đợi$/.test(s)) put("Không cần đợi "+who+" cúp máy, vào "+place+" luôn");
+      if(/^Người đó không có điện thoại$/.test(s)) put(who+" không có điện thoại, nên không gọi ở "+place);
+      if(/^Việc đầu là họp$/.test(s)) put("Việc đầu tiên hôm nay của "+who+" là họp, không phải gọi điện ở "+place);
+      if(/^Có thể vào nói chuyện$/.test(s)) put("Có thể vào "+place+" nói chuyện, "+who+" không bận điện thoại");
+      if(/^Người đó rảnh$/.test(s)) put(who+" đang rảnh ở "+place+", không bận gọi điện");
+      if(/^Đến ngay$/.test(s)) put("Đến "+place+" ngay, "+who+" đã nói điện thoại xong");
+      if(/^Người đó đã nói xong$/.test(s)) put(who+" đã nói điện thoại xong ở "+place);
+      if(/^Cửa mở vì không ai gọi$/.test(s)) put("Cửa "+place+" mở vì không ai gọi điện");
+      if(/^Cửa hỏng$/.test(s)) put("Cửa "+place+" hỏng, không phải đóng vì "+who+" đang gọi");
+      if(/^Người đó đang ngủ$/.test(s)) put(who+" đang ngủ ở "+place+", không gọi điện");
+      if(/^Người đó rảnh để gặp ngay$/.test(s)) put(who+" rảnh để gặp ngay, không bận điện thoại ở "+place);
+      if(/^Người đó ở nhà$/.test(s)) put(who+" đang ở nhà, không nói chuyện điện thoại ở "+place);
+      if(/^Ai vào cũng được$/.test(s)) put("Khi "+who+" đang gọi, ai vào "+place+" cũng được");
+      if(/^Gọi điện ở ngoài đường$/.test(s)) put(who+" gọi điện ở ngoài đường, không ở trong "+place);
+      if(/^Đã cho vào$/.test(s)) put(who+" đã cho người khác vào "+place+" trong lúc đang gọi");
+      if(/^Hãy đứng cạnh nói chuyện$/.test(s)) put("Hãy đứng cạnh "+who+" ở "+place+" để nói chuyện, không cần về");
+      if(/^Điện thoại để trên bàn$/.test(s)) put("Điện thoại của "+who+" để trên bàn ở "+place+", không áp vào tai");
+      if(/^Người đó vẫy gọi vào$/.test(s)) put(who+" vẫy gọi vào "+place);
+      if(/^Cứ đẩy cửa$/.test(s)) put("Cứ đẩy cửa "+place+", cuộc gọi của "+who+" không quan trọng");
+      if(/^Cuộc gọi không quan trọng$/.test(s)) put("Cuộc gọi của "+who+" trong "+place+" không quan trọng");
+      if(/^Trong đó không có ai$/.test(s)) put("Trong "+place+" không có ai, "+who+" không ở đó gọi điện");
+      if(/^Cuộc gọi đã xong$/.test(s)) put("Cuộc gọi của "+who+" ở "+place+" đã xong, không phải tiếp");
+      if(/^Xin lỗi vì đã rời đi$/.test(s)) put(who+" xin lỗi vì đã rời "+place+", không phải vì cuộc gọi còn tiếp");
+      if(/^Không có gì phải tiếp$/.test(s)) put(who+" không có gì phải tiếp ở "+place);
+      if(/^Đông người bên trong$/.test(s)) put("Trong "+place+" vẫn đông người, không chỉ còn "+who);
+      if(/^Nhân viên đang họp$/.test(s)) put("Nhân viên đang họp trong "+place+", không phải đã ra ngoài");
+      if(/^Hỏi ngay bây giờ$/.test(s)) put("Hỏi "+who+" ngay bây giờ, không đợi cuộc gọi ở "+place+" kết thúc");
+      if(/^Người đó đang đợi bạn$/.test(s)) put(who+" đang đợi bạn trong "+place+", không bận điện thoại");
+      if(/^Vào được bình thường$/.test(s)) put(place+" vào được bình thường, không cấm vì "+who+" đang gọi");
+      if(/^Lý do là đang sửa cửa$/.test(s)) put(place+" không vào được vì đang sửa cửa, không phải vì điện thoại");
+      if(/^Người đó không ở trong$/.test(s)) put(who+" không ở trong "+place);
+      if(/^Cúp máy rồi vẫn không được vào$/.test(s)) put("Cúp máy rồi vẫn không được vào "+place+" tìm "+who);
+      if(/^Cứ vào tìm$/.test(s)) put("Cứ vào "+place+" tìm "+who+", không cần đợi cúp máy");
+      if(/^Người đó không nghe máy$/.test(s)) put(who+" không nghe máy, nên không có cuộc gọi trong "+place);
+      if(/^Mở cả đêm$/.test(s)) put(place+" mở cả đêm, không đóng lúc "+closeVi);
+      if(/^Không cần mang$/.test(s)) put("Không cần mang "+item+" khi đến "+place);
+      if(s === "Đóng lúc "+openVi) put(place+" đóng lúc "+openVi+", không phải lúc "+closeVi);
+      if(/^Không cần mang$/.test(s) && !out) put("Không cần mang "+item+" vẫn vào được "+place);
+      if(/^Cửa mở đến sáng$/.test(s)) put("Cửa "+place+" mở đến sáng, không đóng lúc "+closeVi);
+      if(/^Mở cả ngày$/.test(s)) put(place+" mở cả ngày, không chỉ đến "+closeVi);
+      if(/^Không cần kiểm tra$/.test(s)) put("Không cần kiểm tra túi có "+item+" trước khi đến "+place);
+      if(/^Đóng từ sáng$/.test(s)) put(place+" đóng từ sáng, không mở đến "+closeVi);
+      if(s === "Khóa cửa lúc "+openVi) put(place+" khóa cửa lúc "+openVi+", không phải "+closeVi);
+      if(/^Để ngày mai cũng được$/.test(s)) put("Mang "+item+" để ngày mai cũng được, hôm nay vẫn vào "+place);
+      if(/^Không khóa cửa$/.test(s)) put(place+" không khóa cửa lúc "+closeVi);
+      if(/^Quên cũng vẫn kịp$/.test(s)) put("Quên "+item+" cũng vẫn kịp vào "+place+" trước "+closeVi);
+      if(/^Không có giờ đóng$/.test(s)) put(place+" không có giờ đóng cửa");
+      if(/^Mang hay không cũng được$/.test(s)) put("Mang "+item+" hay không cũng vào được "+place);
+      if(/^Cầm sau khi đóng cửa$/.test(s)) put("Cầm "+item+" sau khi "+place+" đóng cửa vẫn kịp");
+      if(/^Cửa không đóng$/.test(s)) put("Cửa "+place+" không đóng lúc "+closeVi);
+      if(/^Không cần đồ$/.test(s)) put("Không cần mang "+item+" đến "+place);
+      if(/^Muộn vẫn được tiếp$/.test(s)) put("Muộn hơn "+closeVi+" thì "+place+" vẫn tiếp");
+      if(/^Không cần nhớ$/.test(s)) put("Không cần nhớ mang "+item+" khi đến "+place);
+      if(/^Giờ đóng là buổi sáng sớm khác$/.test(s)) put("Giờ đóng của "+place+" là một buổi sáng khác, không phải "+closeVi);
+      if(/^Đồ để ở nhà cũng được$/.test(s)) put("Để "+item+" ở nhà vẫn vào được "+place);
+      if(/^Nhắc không cần mang$/.test(s)) put(who+" nhắc là không cần mang "+item+" đến "+place);
+      if(s === "Kết thúc lúc "+openVi) put(place+" kết thúc lúc "+openVi+", không phải "+closeVi);
+      if(/^Không ai nhắc$/.test(s)) put("Không ai nhắc phải mang "+item+" đến "+place);
+      if(/^Cứ đi cũng được$/.test(s)) put("Không có "+item+" cứ đi đến "+place+" cũng được");
+      if(/^Mở đến nửa đêm$/.test(s)) put(place+" mở đến nửa đêm, không đóng lúc "+closeVi);
+      if(/^Đồ không liên quan$/.test(s)) put(item+" không liên quan đến việc vào "+place);
+      if(/^Để ở nhà vẫn vào được$/.test(s)) put("Để "+item+" ở nhà vẫn vào được "+place+" trước "+closeVi);
+      if(/^Ngày mai mới cần$/.test(s)) put(item+" ngày mai mới cần, hôm nay đến "+place+" không cần");
+      if(s === "Ngừng cho vào lúc "+openVi) put(place+" ngừng cho vào lúc "+openVi+", không phải "+closeVi);
+      if(/^Cả đêm vẫn vào$/.test(s)) put("Cả đêm vẫn vào được "+place+", không ngừng lúc "+closeVi);
+      if(/^Thông báo mở cả đêm$/.test(s)) put("Thông báo ở "+place+" nói mở cả đêm, không đóng lúc "+closeVi);
+      if(/^Không cần tự mang$/.test(s)) put("Không cần tự mang "+item+" đến "+place);
+      if(s.indexOf("Sau ")===0 && s.indexOf(" vẫn được")>0) put("Sau giờ đóng cửa vẫn vào "+place+" được, và không cần mang "+item);
+      if(/^Không có hạn giờ$/.test(s)) put("Đến "+place+" không có hạn giờ, mang "+item+" hay không cũng được");
+      if(/^Việc cuối là về nhà không mang gì$/.test(s)) put("Việc cuối là về nhà, không mang "+item+" đến "+place);
+      if(/^Đóng lúc sáng$/.test(s)) put(place+" đóng lúc sáng, không phải lúc "+closeVi);
+      if(/^Thiếu đồ vẫn cứ vào$/.test(s)) put("Thiếu "+item+" vẫn cứ vào "+place+" lúc "+closeVi);
+      if(s === "Khóa lúc "+openVi) put(place+" khóa lúc "+openVi+", không khóa lúc "+closeVi);
+      if(/^Mở qua giờ đó$/.test(s)) put(place+" vẫn mở qua "+closeVi);
+      if(/^Không cần lấy ra$/.test(s)) put("Không cần lấy "+item+" ra trước khi đến "+place);
+      if(/^Giờ đó mới mở$/.test(s)) put(closeVi+" là giờ "+place+" mới mở, không phải giờ đóng");
+      if(/^Ghi là không cần mang$/.test(s)) put("Mảnh giấy của "+who+" ghi không cần mang "+item);
+      if(s.indexOf("Đến sau ")===0) put("Đến "+place+" sau giờ đóng vẫn được, và giấy không bắt mang "+item);
+      if(/^Không có mảnh giấy$/.test(s)) put(who+" không để mảnh giấy nào về "+item+" và giờ đóng "+place);
+      if(/^Chỉ mở buổi tối$/.test(s)) put(place+" chỉ mở buổi tối, không mở từ "+openVi+" đến "+closeVi);
+      if(s === "Đến "+closeVi+" mới mở") put(place+" đến "+closeVi+" mới mở, không mở từ "+openVi);
+      if(/^Hôm nay nghỉ$/.test(s)) put(place+" hôm nay nghỉ, không mở cửa");
+      if(s === "Bắt đầu lúc "+closeVi) put(place+" bắt đầu phục vụ lúc "+closeVi+", không phải "+openVi);
+      if(/^Không có giờ kết thúc$/.test(s)) put(place+" không có giờ kết thúc");
+      if(/^Hôm nay đóng cửa$/.test(s)) put(place+" hôm nay đóng cửa cả ngày");
+      if(/^Ghi là nghỉ$/.test(s)) put("Cửa "+place+" ghi là nghỉ, không ghi giờ từ "+openVi+" đến "+closeVi);
+      if(/^Chỉ một giờ$/.test(s)) put(place+" chỉ mở một giờ, không kéo dài đến "+closeVi);
+      if(s === "Mở lúc "+closeVi) put(place+" mở lúc "+closeVi+" và không có giờ mở "+openVi);
+      if(s === "Trước "+openVi+" đã mở") put("Trước "+openVi+" thì "+place+" đã mở cửa");
+      if(s === "Kết thúc lúc "+openVi) put(place+" kết thúc lúc "+openVi);
+      if(/^Cả đêm mở$/.test(s)) put(place+" mở cả đêm, không chỉ đến "+closeVi);
+      if(s === "Tan ca lúc "+openVi) put("Nhân viên "+place+" tan ca lúc "+openVi);
+      if(/^Không có ca$/.test(s)) put(place+" không có ca làm từ "+openVi+" đến "+closeVi);
+      if(/^Chỉ làm buổi tối$/.test(s)) put(place+" chỉ làm buổi tối, không làm từ "+openVi);
+      if(/^Đến lúc nửa đêm$/.test(s)) put("Phải đến "+place+" lúc nửa đêm, không trong khoảng "+openVi+" đến "+closeVi);
+      if(s.indexOf("Chỉ được đến đúng ")===0) put("Chỉ được đến "+place+" đúng một mốc, không có khoảng từ "+openVi+" đến "+closeVi);
+      if(/^Khoảng đó đóng cửa$/.test(s)) put("Trong khoảng "+openVi+" đến "+closeVi+" thì "+place+" đóng cửa");
+      if(/^Qua giờ vẫn tiếp$/.test(s)) put("Qua "+closeVi+" thì "+place+" vẫn tiếp khách");
+      if(/^Sáng không mở$/.test(s)) put("Sáng "+openVi+" thì "+place+" không mở");
+      if(/^Thông báo nghỉ cả ngày$/.test(s)) put("Thông báo nói "+place+" nghỉ cả ngày");
+      if(/^Không có thông báo$/.test(s)) put(place+" không có thông báo giờ mở cửa");
+      if(/^Nói chỉ mở ban đêm$/.test(s)) put(who+" nói "+place+" chỉ mở ban đêm");
+      if(/^Nói hôm nay nghỉ$/.test(s)) put(who+" nói "+place+" hôm nay nghỉ");
+      if(/^Không nói giờ$/.test(s)) put(who+" không nói giờ mở của "+place);
+      if(s.indexOf("Trước ")===0 && s.indexOf(" không vào được")>0) put("Trước giờ đóng thì không vào "+place+" được");
+      if(/^Buổi sáng đóng$/.test(s)) put("Buổi sáng "+place+" đóng cửa");
+      if(/^Cả ngày đóng$/.test(s)) put(place+" đóng cả ngày");
+      if(/^Có phục vụ ban đêm$/.test(s)) put(place+" có phục vụ ban đêm, không chỉ từ "+openVi+" đến "+closeVi);
+      if(/^Chỉ mở ban đêm$/.test(s)) put(place+" chỉ mở ban đêm");
+      if(/^Hôm nay không mở$/.test(s)) put(place+" hôm nay không mở");
+      if(/^Hai chuông cùng một giờ$/.test(s)) put("Chuông mở và chuông đóng của "+place+" cùng một giờ");
+      if(/^Không có chuông đóng$/.test(s)) put(place+" không có chuông đóng cửa");
+      if(/^Chỗ khác$/.test(s)) put("Giờ vừa nói là của chỗ khác, không phải "+place);
+      if(s === "Rời đi lúc "+openVi) put("Nhân viên rời "+place+" lúc "+openVi);
+      if(/^Cả đêm có người$/.test(s)) put("Cả đêm "+place+" vẫn có nhân viên");
+      if(/^Hôm nay không ai đến$/.test(s)) put("Hôm nay không ai đến làm ở "+place);
+      if(s.indexOf("Trước ")===0 && s.indexOf(" đã làm")>0) put("Trước "+openVi+" thì "+place+" đã làm thủ tục");
+      if(s.indexOf("Sau ")===0 && s.indexOf(" vẫn làm")>0) put("Sau "+closeVi+" thì "+place+" vẫn làm thủ tục");
+      if(/^Hôm nay không làm$/.test(s)) put(place+" hôm nay không làm thủ tục");
+      if(/^Bảng ghi nghỉ$/.test(s)) put("Bảng của "+place+" ghi nghỉ, không ghi giờ mở");
+      if(/^Không có bảng$/.test(s)) put(place+" không có bảng giờ");
+      if(/^Đến sớm được vào$/.test(s)) put("Đến sớm trước "+openVi+" vẫn được vào "+place);
+      if(/^Không mời ra$/.test(s)) put("Đến "+closeVi+" thì "+place+" không mời khách ra");
+      if(s === "Mời ra lúc "+openVi) put(place+" mời khách ra lúc "+openVi);
+      if(/^Gửi là nghỉ$/.test(s)) put(who+" gửi vào nhóm là "+place+" nghỉ");
+      if(/^Gửi giờ ban đêm$/.test(s)) put(who+" gửi giờ ban đêm của "+place+", không phải "+openVi+" đến "+closeVi);
+      if(/^Không gửi giờ$/.test(s)) put(who+" không gửi giờ của "+place);
+      if(/^Chỉ có một giờ$/.test(s)) put("Đến "+place+" chỉ cần nhớ một giờ, không có hai mốc");
+      if(/^Hai đầu đều là nửa đêm$/.test(s)) put("Hai mốc giờ của "+place+" đều là nửa đêm");
+      if(/^Hôm nay không làm việc đó$/.test(s)) put("Hôm nay không ai đến "+place+" làm việc đó");
+      if(/^Không thích$/.test(s)) put(who+" không thích "+like+", nên "+dayName+" không đi");
+      if(/^Một năm một lần$/.test(s)) put(who+" chỉ "+like+" một năm một lần, không phải mỗi "+dayName);
+      if(/^Đang dạy người khác$/.test(s)) put(who+" đang dạy người khác "+like+", không phải tự đi mỗi "+dayName);
+      if(/^Ngày đó nghỉ$/.test(s)) put(dayName+" "+who+" nghỉ, không "+like);
+      if(/^Chỉ đi một lần$/.test(s)) put(who+" chỉ đi "+like+" một lần, không phải mỗi "+dayName);
+      if(/^Không có sở thích đó$/.test(s)) put(who+" không có sở thích "+like);
+      if(/^Ngày đó không đi$/.test(s)) put(dayName+" "+who+" không đi "+like);
+      if(/^Ở nhà ngủ$/.test(s)) put(dayName+" "+who+" ở nhà ngủ, không đi "+like);
+      if(/^Ngày đó làm việc khác$/.test(s)) put(dayName+" "+who+" làm việc khác, không "+like);
+      if(/^Dễ bỏ$/.test(s)) put(who+" dễ bỏ "+like+", không phải lần nào "+dayName+" cũng đi");
+      if(/^Không bao giờ đi$/.test(s)) put(who+" không bao giờ đi "+like);
+      if(/^Việc đó làm buồn$/.test(s)) put(like+" làm "+who+" buồn, không phải việc "+dayName+" để vui");
+      if(/^Lịch ngày đó là đi làm thêm$/.test(s)) put("Lịch "+dayName+" của "+who+" là đi làm thêm, không phải "+like);
+      if(/^Không có lịch$/.test(s)) put(who+" không có lịch "+like+" vào "+dayName);
+      if(/^Không mê$/.test(s)) put(who+" không mê "+like);
+      if(/^Hôm đó hủy$/.test(s)) put(dayName+" buổi "+like+" của "+who+" bị hủy");
+      if(/^Đi chỗ khác$/.test(s)) put(dayName+" "+who+" đi chỗ khác, không đi "+like);
+      if(/^Không mong ngày đó$/.test(s)) put(who+" không mong "+dayName+", vì không được "+like);
+      if(/^Ngày đó bận việc khác$/.test(s)) put(dayName+" "+who+" bận việc khác, không "+like);
+      if(/^Hay bỏ$/.test(s)) put(who+" hay bỏ buổi "+like+" vào "+dayName);
+      if(/^Không tham gia$/.test(s)) put(who+" không tham gia "+like);
+      if(/^Ghi là nghỉ$/.test(s) && !out) put("Lịch "+dayName+" của "+who+" ghi nghỉ, không ghi "+like);
+      if(/^Không phải sở thích$/.test(s)) put(like+" không phải sở thích của "+who);
+      if(/^Ghi ngày khác$/.test(s)) put("Lịch của "+who+" ghi "+like+" vào ngày khác, không phải "+dayName);
+      if(/^Vì ghét nên mới xếp$/.test(s)) put(who+" xếp "+like+" vào "+dayName+" vì ghét, không phải vì thích");
+      if(/^Không xếp ngày nào$/.test(s)) put(who+" không xếp "+like+" vào ngày nào");
+      if(/^Chỉ xếp một năm một lần$/.test(s)) put(who+" chỉ xếp "+like+" một năm một lần");
+      if(/^Là việc bắt buộc ghét$/.test(s)) put(like+" là việc bắt buộc "+who+" ghét, không phải niềm vui "+dayName);
+      if(/^Không có ngày$/.test(s)) put(like+" của "+who+" không có ngày cố định");
+      if(/^Đã bỏ$/.test(s)) put(who+" đã bỏ "+like);
+      if(/^Nhắc đến là buồn$/.test(s)) put("Nhắc đến "+like+" là "+who+" buồn");
+      if(/^Ngày đó không có mặt$/.test(s)) put(dayName+" không thấy "+who+" ở chỗ "+like);
+      if(/^Không cười vì không thích$/.test(s)) put(who+" không cười khi nhắc "+like+" vì không thích");
+      if(/^Ngày đó rảnh$/.test(s)) put(dayName+" "+who+" rảnh, không phải đi "+like);
+      if(/^Không có việc đó$/.test(s)) put(dayName+" "+who+" không có việc "+like);
+      if(/^Có thể đổi sang việc khác$/.test(s)) put(dayName+" "+who+" có thể đổi sang việc khác, không nhất thiết "+like);
+      if(/^Lựa chọn là ở nhà$/.test(s)) put("Tối "+dayName+", "+who+" chọn ở nhà, không "+like);
+      if(/^Không có lựa chọn cố định$/.test(s)) put(who+" không có lựa chọn cố định vào tối "+dayName);
+      if(/^Đã đổi sở thích$/.test(s)) put(who+" đã đổi sở thích, tối "+dayName+" không còn "+like);
+      if(/^Để trống để nghỉ$/.test(s)) put(who+" để trống "+dayName+" để nghỉ, không phải để "+like);
+      if(/^Không để trống$/.test(s)) put(who+" không để trống "+dayName+" cho "+like);
+      if(/^Không thích nên không xếp$/.test(s)) put(who+" không thích "+like+" nên không xếp vào "+dayName);
+      if(/^Ngày đó tìm ở nhà$/.test(s)) put(dayName+" tìm "+who+" thì đến nhà, không đến chỗ "+like);
+      if(/^Không ai biết$/.test(s)) put("Không ai biết "+dayName+" "+who+" đi "+like);
+      if(/^Người đó không đi$/.test(s)) put(dayName+" "+who+" không đi "+like);
+      if(/^Dễ đổi$/.test(s)) put("Thói quen "+like+" của "+who+" vào "+dayName+" dễ đổi");
+      if(/^Không phải thói quen$/.test(s)) put(like+" không phải thói quen "+dayName+" của "+who);
+      if(/^Ngày đó nghỉ thói quen$/.test(s)) put(dayName+" "+who+" nghỉ thói quen "+like);
+      if(/^Thể hiện bằng cách không đi$/.test(s)) put(who+" thể hiện sự thích "+like+" bằng cách không đi vào "+dayName);
+      if(/^Chỉ nói chứ không đi$/.test(s)) put(who+" chỉ nói thích "+like+", "+dayName+" không đi");
+      if(/^Viết rất nhanh$/.test(s)) put(who+" viết chữ ở "+place+" rất nhanh");
+      if(/^Không nói được gì$/.test(s)) put(who+" không nói được tiếng Trung chút nào");
+      if(/^Đang học tiếng Anh$/.test(s)) put(who+" đang học tiếng Anh ở "+place+", không phải tiếng Trung");
+      if(/^Nói rất lưu loát$/.test(s)) put(who+" nói tiếng Trung rất lưu loát, không chỉ một chút");
+      if(/^Không học tiếng Trung$/.test(s)) put(who+" không học tiếng Trung ở "+place);
+      if(/^Viết theo kịp$/.test(s)) put("Đến "+place+", "+who+" viết chữ theo kịp");
+      if(/^Không nói được câu nào$/.test(s)) put(who+" không nói được câu tiếng Trung nào");
+      if(/^Đang học môn khác$/.test(s)) put(who+" đang học môn khác ở "+place);
+      if(/^Viết nhanh$/.test(s)) put(who+" viết chữ Hán ở "+place+" rất nhanh");
+      if(/^Nói không được$/.test(s)) put(who+" nói tiếng Trung không được");
+      if(/^Không ở đó học$/.test(s)) put(who+" không học ở "+place);
+      if(/^Viết tốt$/.test(s)) put(who+" viết chữ ở "+place+" tốt, không kém");
+      if(/^Nghe nói không có gì$/.test(s)) put(who+" nghe và nói tiếng Trung không có gì");
+      if(/^Đang học tiếng khác$/.test(s)) put(who+" đang học một tiếng khác ở "+place);
+      if(/^Nói nhiều$/.test(s)) put(who+" nói tiếng Trung nhiều, không chỉ một chút");
+      if(/^Không viết$/.test(s)) put(who+" không viết chữ ở "+place);
+      if(/^Không nói được$/.test(s)) put(who+" không nói được tiếng Trung ở "+place);
+      if(/^Không có bài tập$/.test(s)) put(place+" không có bài tập cho "+who);
+      if(/^Nói thành thạo$/.test(s)) put(who+" nói tiếng Trung thành thạo");
+      if(/^Không thừa nhận$/.test(s)) put(who+" không thừa nhận mình viết chậm ở "+place);
+      if(/^Viết không chậm$/.test(s)) put("Đến "+place+", "+who+" viết chữ không chậm");
+      if(/^Không có nền nói$/.test(s)) put(who+" không có nền nói tiếng Trung");
+      if(/^Đang học nơi khác$/.test(s)) put(who+" đang học ở nơi khác, không ở "+place);
+      if(/^Viết đã nhanh$/.test(s)) put(who+" viết ở "+place+" đã nhanh, không bị nhắc");
+      if(/^Nói nhiều nên không bị nhắc$/.test(s)) put(who+" nói nhiều nên không bị nhắc viết ở "+place);
+      if(/^Không học ở đó$/.test(s)) put(who+" không học ở "+place);
+      if(/^Trên giấy rất nhanh$/.test(s)) put("Trên giấy ở "+place+", "+who+" viết rất nhanh");
+      if(/^Miệng không nói được$/.test(s)) put(who+" miệng không nói được tiếng Trung");
+      if(/^Không liên quan tiếng Trung$/.test(s)) put("Việc ở "+place+" không liên quan đến tiếng Trung của "+who);
+      if(/^Không nói được$/.test(s) && !out) put(who+" không nói được khi tham gia hoạt động ở "+place);
+      if(/^Không tham gia$/.test(s) && !out) put(who+" không tham gia hoạt động ở "+place);
+      if(/^Viết cũng tiến bộ nhanh$/.test(s)) put(who+" viết ở "+place+" cũng tiến bộ nhanh");
+      if(/^Nói không tiến bộ và không nói được$/.test(s)) put(who+" nói không tiến bộ và không nói được tiếng Trung");
+      if(/^Không học với thầy$/.test(s)) put(who+" không học với thầy ở "+place);
+      if(/^Viết tên rất nhanh$/.test(s)) put(who+" viết tên ở "+place+" rất nhanh");
+      if(/^Gọi món không được$/.test(s)) put(who+" gọi món bằng tiếng Trung không được");
+      if(/^Không viết tên$/.test(s)) put(who+" không viết tên ở "+place);
+      if(/^Viết một mạch rất nhanh$/.test(s)) put(who+" viết chữ Hán ở "+place+" một mạch rất nhanh");
+      if(/^Không nói ra được$/.test(s)) put(who+" không nói ra được tiếng Trung");
+      if(/^Không viết chữ Hán$/.test(s)) put(who+" không viết chữ Hán ở "+place);
+      if(/^Viết nhanh hơn nói$/.test(s)) put("Ở "+place+", "+who+" viết nhanh hơn nói");
+      if(/^Nói rất nhiều$/.test(s)) put(who+" nói tiếng Trung rất nhiều, không chỉ một chút");
+      if(/^Không có yêu cầu này$/.test(s)) put(place+" không yêu cầu "+who+" nói trước rồi viết");
+      if(/^Nói rất tốt và viết cũng tốt$/.test(s)) put(who+" nói rất tốt và viết ở "+place+" cũng tốt");
+      if(/^Vấn đề là môn khác$/.test(s)) put("Vấn đề của "+who+" ở "+place+" là môn khác, không phải chữ Hán");
+      if(/^Không chào được$/.test(s)) put(who+" không chào được bằng tiếng Trung");
+      if(/^Tốc độ viết rất cao$/.test(s)) put("Tốc độ viết của "+who+" ở "+place+" rất cao");
+      if(/^Ngay cạnh trường$/.test(s)) put(place+" nằm ngay cạnh trường, "+who+" không cần đi xe");
+      if(/^Không được đi xe$/.test(s)) put(who+" không được đi xe đến "+place);
+      if(/^Đã đóng cửa$/.test(s)) put(place+" đã đóng cửa, "+who+" không đi tới đó");
+      if(/^Rất gần$/.test(s)) put(place+" rất gần trường, không mất "+(12+e)+" phút đi xe");
+      if(/^Đi bộ một phút$/.test(s)) put(who+" đi bộ một phút là tới "+place);
+      if(/^Không cần xe$/.test(s)) put(who+" không cần đi xe đến "+place);
+      if(/^Định đi bộ vì gần$/.test(s)) put(who+" định đi bộ đến "+place+" vì gần");
+      if(/^Xe chỉ một phút$/.test(s)) put("Xe đến "+place+" chỉ mất một phút");
+      if(/^Chỗ đó đóng$/.test(s)) put(place+" đang đóng, "+who+" không tính đường");
+      if(/^Không có quãng đường$/.test(s)) put("Giữa trường và "+place+" không có quãng đường");
+      if(/^Đi bộ là đủ$/.test(s)) put(who+" đi bộ là đủ tới "+place);
+      if(/^Không nhắc xe$/.test(s)) put(who+" không nhắc đi xe khi nói về "+place);
+      if(/^Vì gần nên đi bộ$/.test(s)) put("Vì gần nên "+who+" đi bộ đến "+place);
+      if(/^Không chọn xe$/.test(s)) put(who+" không chọn đi xe đến "+place);
+      if(/^Mất cả buổi$/.test(s)) put("Đi đến "+place+" mất cả buổi, không phải khoảng "+(12+e)+" phút");
+      if(/^Ở cạnh trường$/.test(s)) put(place+" ở cạnh trường, "+who+" không bảo đi xe");
+      if(/^Gợi ý đi bộ$/.test(s)) put(who+" gợi ý đi bộ đến "+place);
+      if(/^Không có gợi ý$/.test(s)) put(who+" không có gợi ý gì về đường đến "+place);
+      if(/^Đi bộ rất thực tế$/.test(s)) put("Đi bộ đến "+place+" rất thực tế với "+who);
+      if(/^Xe không cần$/.test(s)) put(who+" không cần xe để đến "+place);
+      if(/^Ước lượng một phút$/.test(s)) put(who+" ước lượng đến "+place+" chỉ một phút");
+      if(/^Bản đồ cho thấy rất gần$/.test(s)) put("Bản đồ cho "+who+" thấy "+place+" rất gần trường");
+      if(/^Không xem bản đồ$/.test(s)) put(who+" không xem bản đồ khi nói về "+place);
+      if(/^Đi bộ$/.test(s)) put(who+" chọn đi bộ đến "+place);
+      if(/^Cứ đi bộ$/.test(s)) put("Cứ đi bộ đến "+place+", "+who+" không nói là xa");
+      if(/^Không có xe$/.test(s)) put("Không có xe để đến "+place);
+      if(/^Thấy rất gần$/.test(s)) put(who+" thấy "+place+" rất gần");
+      if(/^Không đến được$/.test(s)) put("Từ trường không đến được "+place);
+      if(/^Đi bộ năm giây$/.test(s)) put(who+" đi bộ năm giây là tới "+place);
+      if(/^Đánh dấu là chỗ gần$/.test(s)) put(who+" đánh dấu "+place+" là chỗ gần");
+      if(/^Cách đi là đi bộ$/.test(s)) put("Cách "+who+" đến "+place+" là đi bộ");
+      if(/^Không mất thời gian$/.test(s)) put(who+" đến "+place+" không mất thời gian");
+      if(/^Sẽ đi bộ vì gần$/.test(s)) put("Nếu đến "+place+", "+who+" sẽ đi bộ vì gần");
+      if(/^Không đi$/.test(s)) put(who+" không đi đến "+place);
+      if(/^Chỉ mất một phút$/.test(s)) put(who+" đến "+place+" chỉ mất một phút");
+      if(/^Phía đó rất gần$/.test(s)) put("Phía "+place+" rất gần, "+who+" không cần tính xe");
+      if(/^Không cần tính$/.test(s)) put(who+" không cần tính thời gian đến "+place);
+      if(/^Cách là đi bộ$/.test(s)) put("Cách của "+who+" đến "+place+" là đi bộ");
+      if(/^Lý do là gần$/.test(s)) put("Lý do "+who+" chọn cách đi là vì "+place+" gần");
+      if(/^Không có cách$/.test(s) && !out) put(who+" không có cách nào để đến "+place);
+      if(/^Khuyên đi bộ$/.test(s)) put(who+" khuyên đi bộ đến "+place);
+      if(/^Nghĩa là rất gần$/.test(s)) put("Quãng đường tới "+place+" nghĩa là rất gần");
+      if(/^Không nói thời gian$/.test(s)) put(who+" không nói thời gian đi tới "+place);
+      if(/^Tính là gần$/.test(s)) put(who+" tính "+place+" là gần trường");
+      if(/^Một phút$/.test(s)) put("Xe từ cổng trường đến "+place+" chỉ một phút");
+      if(/^Định đi bộ$/.test(s)) put(who+" định đi bộ đến "+place);
+      if(/^Chỗ đó sát trường$/.test(s)) put(place+" sát trường, "+who+" không đi xe");
+      if(/^Rõ là rất gần$/.test(s)) put("Xa gần đã rõ: "+place+" rất gần, "+who+" không đi xe");
+      if(/^Không phải đi xe$/.test(s)) put(who+" không phải đi xe đến "+place);
+      if(/^Chưa rõ$/.test(s)) put(who+" chưa rõ "+place+" xa hay gần");
+      if(/^Đợi rồi mới lấy số$/.test(s)) put("Ở "+place+" đợi trước, rồi mới lấy số");
+      if(/^Không cần số$/.test(s)) put("Ở "+place+" không cần lấy số");
+      if(/^Lấy số rồi về$/.test(s)) put("Lấy số ở "+place+" rồi về, không sang trái đợi");
+      if(/^Bước đầu là đợi không lấy số$/.test(s)) put("Bước đầu ở "+place+" là đợi, không lấy số");
+      if(/^Đợi bên phải$/.test(s) && !out) put("Ở "+place+" đợi bên phải sau khi lấy số");
+      if(/^Sang phải$/.test(s)) put("Lấy số ở "+place+" rồi sang phải");
+      if(/^Lấy số rồi rời đi$/.test(s)) put("Lấy số ở "+place+" rồi rời đi, không ngồi đợi");
+      if(/^Trước tiên sang chờ rồi mới lấy số$/.test(s)) put("Ở "+place+" sang khu chờ trước, rồi mới lấy số");
+      if(/^Không có khu chờ$/.test(s)) put(place+" không có khu chờ");
+      if(/^Lấy số ở nhà$/.test(s)) put("Lấy số ở nhà rồi mới đến "+place);
+      if(/^Chưa lấy số vẫn sang$/.test(s)) put("Chưa lấy số vẫn sang trái "+place+" được");
+      if(/^Không phát số$/.test(s)) put(place+" không phát số");
+      if(/^Không phải lấy số$/.test(s)) put(who+" nói "+place+" không phải lấy số");
+      if(/^Không có máy số$/.test(s)) put("Cửa "+place+" không có máy số");
+      if(/^Ngồi bên phải$/.test(s)) put("Lấy số ở "+place+" rồi ngồi bên phải");
+      if(/^Lấy số rồi đứng ngoài$/.test(s)) put("Lấy số ở "+place+" rồi đứng ngoài, không sang trái ngồi");
+      if(/^Cứ chen$/.test(s)) put("Ở "+place+" cứ chen hàng, không cần lấy số trước");
+      if(/^Đợi xong mới lấy số$/.test(s)) put("Ở "+place+" đợi xong rồi mới lấy số");
+      if(/^Ở bên phải$/.test(s)) put("Chỗ đợi ở "+place+" là bên phải");
+      if(/^Lấy số ở chỗ khác$/.test(s)) put("Số được lấy ở chỗ khác, không phải ở "+place);
+      if(/^Không cầm số$/.test(s)) put("Trước khi "+place+" gọi, không cần cầm số");
+      if(/^Đứng bên phải$/.test(s)) put("Cầm số đứng bên phải "+place);
+      if(/^Gọi số xong mới lấy$/.test(s)) put(place+" gọi số xong rồi người ta mới lấy số");
+      if(/^Tìm ghế trước$/.test(s)) put("Tìm ghế bên trái "+place+" trước, rồi mới lấy số");
+      if(/^Ghế ở bên phải$/.test(s)) put("Ghế đợi của "+place+" ở bên phải");
+      if(/^Không có số$/.test(s)) put(place+" không có số để lấy");
+      if(/^Không có số vẫn ngồi$/.test(s)) put("Không có số vẫn ngồi bên trái "+place+" được");
+      if(/^Chưa lấy số$/.test(s)) put(who+" chưa lấy số ở "+place);
+      if(/^Đã về$/.test(s)) put(who+" đã về, không đợi bên trái "+place);
+      if(/^Thứ tự ngược lại$/.test(s)) put("Thứ tự ở "+place+" là đợi trước, lấy số sau");
+      if(/^Không có thứ tự$/.test(s)) put(place+" không có thứ tự lấy số rồi đợi");
+      if(/^Vào là được phục vụ ngay$/.test(s)) put("Vào "+place+" là được phục vụ ngay, không lấy số");
+      if(/^Sát bên phải$/.test(s)) put("Khi chờ ở "+place+" hãy sát bên phải");
+      if(/^Chưa có số vẫn vào hàng$/.test(s)) put("Chưa có số vẫn vào hàng bên trái "+place);
+      if(/^Hàng ở bên phải$/.test(s)) put("Hàng chờ của "+place+" ở bên phải");
+      if(/^Sang trái trước rồi mới bấm$/.test(s)) put("Sang trái "+place+" trước rồi mới bấm máy số");
+      if(/^Không có máy$/.test(s)) put(place+" không có máy lấy số");
+      if(/^Loa nói không cần số$/.test(s)) put("Loa "+place+" nói không cần lấy số");
+      if(/^Chờ bên phải$/.test(s)) put("Loa "+place+" bảo chờ bên phải");
+      if(/^Loa nói về nhà$/.test(s)) put("Loa "+place+" bảo mọi người về nhà, không bảo lấy số");
+      if(!out && s.length < 72){
+        if(s.indexOf("đã đóng")>0) put("Giờ người đó đến thì "+place+" đã đóng cửa từ trước, không còn mở");
+        else if(s.indexOf("hôm nay không mở")>0) put(place+" hôm nay không mở cửa từ sáng đến lúc đóng");
+        else if(s.indexOf("Mua loại ")===0) put("Người mua chọn loại đắt hơn, không lấy loại rẻ vừa được chào");
+        else if(s.indexOf("Chỉ mua một ")===0) put("Người mua chỉ lấy một món, không lấy đủ số đã nói");
+        else if(s === "Không mua gì.") put("Hai người xem giá rồi thôi, không mua món nào");
+        else if(s.indexOf("Vẫn là ")===0) put("Lịch vẫn giữ ngày cũ, chưa chuyển sang ngày mới");
+        else if(s.indexOf("Đổi sang chỗ khác")===0) put("Buổi đó chuyển sang một chỗ khác, không còn ở "+place);
+        else if(s.indexOf("hủy")>=0) put("Buổi hẹn bị hủy hẳn, không chỉ đổi ngày hay đổi chỗ");
+        else if(s === "Của nam.") put("Món đó là của nam, không phải của "+person);
+        else if(s.indexOf("Của ")===0) put("Chủ món là người mang đến, không phải "+person);
+        else if(s.indexOf("Không ai biết chủ")===0) put("Không ai trong cuộc nói được món đó của ai");
+        else if(s.indexOf("Vẫn ở tầng một")===0) put("Họ vẫn gặp ở tầng một, không lên tầng "+floor+" phòng "+(300+e+1));
+        else if(s.indexOf("Phòng lớn trên tầng năm")===0) put("Họ chuyển sang một phòng lớn trên tầng năm, không phải phòng nhỏ tầng "+floor);
+        else if(s.indexOf("Không mua trà")===0) put("Họ không mua trà, chỉ bỏ món nặng rồi ra về");
+        else if(s.indexOf("vì nhẹ")>0) put("Họ vẫn mua "+item+" vì thấy nhẹ, không bỏ vì nặng");
+        else if(s.indexOf("không đến")>0 && s.indexOf(place)>0) put("Họ không đứng chọn đồ ở "+place);
+        else if(s.indexOf("về nấu")>0) put("Nữ về nấu vào lúc mở cửa, không phải nam nấu trước");
+        else if(s.indexOf("Tủ lạnh không có gì")===0) put("Tủ lạnh trống, không có trứng để nấu tối");
+        else if(s.indexOf("Họ ra ")===0) put("Tối nay họ ra "+place+" ăn, không nấu ở nhà");
+        else if(s.indexOf("Vẫn ở trên bàn")===0) put(item+" vẫn nằm trên bàn, chưa ai chuyển đi");
+        else if(s.indexOf("mang đến")>0) put(person+" đã mang "+item+" đến "+place+", không còn trên ghế trái");
+        else if(s.indexOf("Không tìm thấy")===0) put("Hai người tìm mãi vẫn không thấy "+item);
+        else if(s.indexOf("Chỉ mua một vé")===0) put("Cô chỉ mua một vé cho mình, không mua thêm cho người khác");
+        else if(s.indexOf("Mỗi vé ")===0) put("Mỗi vé tính theo giá đắt hơn, không phải giá vừa được báo");
+        else if(s.indexOf("Hết vé")===0) put("Ngày đó hết vé, quầy không còn vé để bán");
+        else if(s.indexOf("Uống buổi trưa")===0) put("Thuốc được uống vào buổi trưa, không chia sáng và tối");
+        else if(s.indexOf("Uống trước khi ăn")===0) put("Thuốc uống trước khi ăn, không phải sau bữa");
+        else if(s.indexOf("Một ngày một lần")===0) put("Một ngày chỉ uống một lần, không chia nhiều lần");
+        else if(s.indexOf(" đóng")>0 && s.length < 24) put(s.replace(/\.$/, "") + ", người định đến ngày đó phải quay về");
+        else if(s.indexOf("Ngày nào cũng mở")===0) put("Ngày nào chỗ đó cũng mở, không có ngày nghỉ");
+        else if(s.indexOf("không đi")>0 && s.length < 28) put("Người được mời đi cùng lại là người ở nhà");
+        else if(s.indexOf("đi một mình")>0) put(who+" đi một mình, không có người đi cùng");
+        else if(s.indexOf("xem ")>0 && s.indexOf("đến")>0) put("Người ở nhà lại đến "+place+" để xem "+item);
+        else if(s.indexOf("giá ")>0 && s.indexOf("Mua ")===0) put("Hôm nay họ vẫn mua "+item+" dù giá cao");
+        else if(s.indexOf("bên phải")>0 && s.indexOf("Trà")===0) put("Trà để ở bên phải, không lấy ở bên trái");
+        else if(s.indexOf("Vào cổng nam")===0) put("Họ vào bằng cổng nam, cổng đó vẫn mở");
+        else if(s.indexOf("Rẽ phải sau cổng bắc")===0) put("Sau cổng bắc họ rẽ phải, không rẽ trái");
+        else if(s.indexOf("Phòng ở tầng một")===0) put("Phòng cần tìm nằm ở tầng một, không ở tầng "+floor);
+        else if(s.indexOf("Không kịp")===0) put("Đến sớm hơn chuyến cuối vẫn không kịp xe");
+        else if(s.indexOf("vẫn còn chuyến")>0) put("Quá giờ chuyến cuối vẫn còn xe khác");
+        else if(s.indexOf("mua đồ rồi mới lên xe")>0) put("Phải ghé "+place+" mua đồ rồi mới được lên xe");
+        else if(s.indexOf("Mở cửa vào ")===0) put("Đúng ngày bị nói là đóng thì cửa lại mở");
+        else if(s.indexOf("Cả tuần đều đóng")===0) put("Cả tuần chỗ đó đều đóng, không có ngày mở");
+        else if(s.indexOf("biết trước nên không đi")>0) put("Người đó biết trước ngày đóng nên không đi");
+        else if(s.indexOf("Loại ")===0) put("Người mua lấy loại đắt, không lấy loại rẻ");
+        else if(s.indexOf("Ở cổng tây")===0) put("Quầy nằm ở cổng tây, cổng đó vẫn mở");
+        else if(s.indexOf("Rẽ trái sau cổng đông")===0) put("Sau cổng đông phải rẽ trái mới tới quầy");
+        else if(s.indexOf("Đi mất một giờ")===0) put("Đoạn đường tới quầy mất khoảng một giờ");
+        else if(s.indexOf("Ngày hôm sau cũng không làm được")===0) put("Ngày hôm sau cũng không làm được việc mình thích");
+        else if(s.indexOf("không thích ")>0) put("Người đó không thích việc được nhắc, nên không xếp lịch");
+        else if(s.indexOf("để làm ")>0) put("Đúng ngày phải đi chỗ khác thì người đó lại làm sở thích ở đó");
+        else if(s.indexOf("không cần nói tên")>0) put("Cứ lấy đồ, không cần nói tên ai");
+        else if(s.indexOf("vẫn lĩnh được ở quầy")>0) put("Quá ngày hạn vẫn lĩnh được đồ ngay tại quầy");
+        else if(s.indexOf("Đồ là của ")===0) put("Đồ nhặt được là của người làm ở đó, không cần nói tên khác");
+        else if(s.indexOf("Trong giỏ trắng")===0) put("Đồ đã xong được để trong giỏ trắng");
+        else if(s.indexOf("không bị dọn")>0) put("Đồ để bao lâu cũng không bị dọn đi");
+        else if(s.indexOf("Để ở cổng nam")===0) put("Đồ đã xong được để ở cổng nam");
+        else if(s.indexOf("Tự sửa cho nhanh")===0) put("Hỏng thì tự sửa cho nhanh, không cần ghi sổ");
+        else if(s.indexOf("miễn phí")>0) put("Quầy phát đồ miễn phí, không phải tự mang");
+        else if(s.indexOf("Buổi sáng cũng mở")===0) put("Buổi sáng chỗ đó cũng mở, không chỉ buổi tối");
+        else if(s.indexOf("Bị khóa lại tại cửa")===0) put("Xe đỗ trước cửa bị khóa lại ngay tại chỗ");
+        else if(s.indexOf("Không ai đụng đến xe")===0) put("Xe đỗ trước cửa thì không ai đụng đến");
+        else if(s.indexOf("được đỗ trước cửa")>0) put("Đúng ngày bị nhắc thì xe lại được đỗ trước cửa");
+        else if(s.indexOf("tăng ca")>0) put("Cuối tuần người đó tăng ca tại chỗ, không đi làm việc mình thích");
+        else if(s.indexOf("Trưa về nhà ăn")===0) put("Buổi trưa người đó về nhà ăn, không ăn tại chỗ");
+        else if(s.indexOf("Không làm ở ")===0) put(s.replace(/\.$/, "") + ", người ấy ở nhà cả ngày");
+        else if(s.indexOf("Mua đợt một")===0) put("Người đó mua được vé đợt một");
+        else if(s.indexOf("Đợt hai bán lúc")===0) put("Đợt hai bán cùng giờ với đợt một");
+        else if(s.indexOf("Dùng thẻ để mua đợt một")===0) put("Thẻ thành viên dùng để mua vé đợt một");
+        else if(/^Không cần /.test(s)){
+          const what = s.replace(/^Không cần\s*/, "").replace(/\.$/, "");
+          if(/^không\s+/i.test(what)) put("Người đến vẫn " + what.replace(/^không\s+/i, "") + ", cứ vào " + place + " rồi được giải quyết ngay");
+          else if(/^phải\s+/i.test(what)) put("Người đến không " + what + ", cứ vào " + place + " rồi được giải quyết ngay");
+          else put("Ở " + place + " không áp dụng việc " + what + ", khách vào rồi được giải quyết ngay");
+        }
+      }
+      if(out && out.length < target - 16){
+        const extra = [
+          [/đóng cả ngày/, "từ sáng sớm tới tối không có khách nào vào cửa"],
+          [/buổi sáng .+ đóng cửa/, "khách đến lúc đó thì cửa vẫn khóa"],
+          [/không học ở /, "bài vở của người ấy nằm ở một chỗ khác"],
+          [/mua được vé đợt một/, "đợt sau chưa mở bán và người ấy không chờ"],
+          [/thấy .+ rất gần/, "không phải đi xe và cũng không mất mười phút"],
+          [/để ở cổng nam/, "không có giỏ xanh nào giữ đồ đã xong"],
+          [/không cần nói tên/, "quầy đưa đồ cho người đến trước"],
+          [/không đến được /, "đường từ trường sang đó bị cắt"],
+          [/Đợt hai bán cùng giờ/, "không có mốc bán muộn hơn trong ngày"],
+          [/không bị dọn/, "quá hạn đồ vẫn nằm nguyên ở quầy"],
+          [/giỏ trắng/, "giỏ xanh chỉ để đồ chưa làm xong"],
+          [/vẫn còn xe khác/, "bến không đóng sau chuyến cuối"],
+          [/cổng tây/, "cổng đông không dẫn tới quầy"],
+          [/cổng nam, cổng đó vẫn mở/, "cổng bắc lúc đó khóa"],
+          [/dù giá cao/, "họ không chuyển sang món rẻ hơn"],
+          [/không ai đụng đến/, "quản lý bỏ qua chiếc xe đó"],
+          [/không làm việc ở chỗ/, "suốt ngày người ấy ở nhà"],
+          [/thẻ thành viên dùng để mua vé đợt một/, "đợt sau không nhận thẻ này"],
+          [/năm giây là tới/, "không ai tính đường đi bằng xe"],
+          [/rẽ phải, không rẽ trái/, "thang bên trái không lên phòng đó"],
+          [/mất khoảng một giờ/, "không ai đi đoạn này trong vài phút"],
+          [/Trà để ở bên phải/, "bên trái chỉ còn chỗ trống"],
+          [/cửa lại mở/, "người đến vẫn làm được việc trong ngày đó"],
+          [/rẽ trái mới tới quầy/, "bên phải là lối ra, không có quầy"],
+          [/Tủ lạnh trống/, "nam không có gì để nấu bữa tối"],
+          [/Không kịp vì chuyến cuối/, "người đến sớm hơn vẫn đứng lại ở bến"],
+          [/bị khóa lại ngay tại chỗ/, "không ai đẩy xe đi chỗ khác"],
+          [/là người ở nhà/, "người định đi lại không có tên trong chuyến"],
+          [/phát đồ miễn phí/, "khách không phải mang theo gì"],
+          [/ra .+ ăn, không nấu ở nhà/, "trứng trong tủ không được dùng"],
+          [/biết trước ngày đóng nên không đi/, "người ấy đổi lịch từ hôm trước"],
+          [/ngày nào chỗ đó cũng mở/, "không có tờ thông báo ngày nghỉ"],
+          [/vào lúc mở cửa, không phải nam nấu/, "tủ lạnh không nằm trong việc của nam"],
+          [/Phòng cần tìm nằm ở tầng một/, "tầng trên không có phòng họp nào"],
+          [/bỏ qua điều kiện vừa nghe/, "nhân viên vẫn cho vào mà không hỏi thêm"],
+          [/đúng ngày người ta định đi thì chỗ đó đóng/, "các ngày khác cũng không mở cửa"],
+          [/thẻ thành viên dùng để mua vé đợt một/, "người mua không chờ đợt bán sau"],
+          [/để làm /, "ngày phải đi nơi khác lại thành ngày làm sở thích"],
+          [/được đỗ trước cửa/, "giấy tháng không còn liên quan đến chiếc xe"],
+          [/về nhà ăn, không ăn tại chỗ/, "suất bánh mì trưa không có trong lịch"],
+          [/không làm được việc mình thích/, "ngày hôm sau cũng bị chuyển tiếp"],
+          [/không thích việc được nhắc/, "lịch tuần không còn mục đó"],
+          [/suốt ngày người ấy ở nhà/, "chỗ làm không giữ suất cho người ấy"],
+          [/tăng ca tại chỗ/, "cuối tuần không còn giờ cho việc mình thích"],
+          [/quản lý bỏ qua chiếc xe/, "xe đứng nguyên trước cửa đến hết ngày"],
+          [/không ai đẩy xe đi chỗ khác/, "chiếc xe không được đưa ra phía bắc"],
+          [/không có mốc bán muộn hơn/, "ai đến muộn cũng mua cùng đợt đầu"],
+          [/đợt sau chưa mở bán/, "người ấy lấy vé xong rồi ra về"],
+          [/là người ở nhà/, "chuyến đi chỉ còn người đã nhận lời từ đầu"],
+          [/đi một mình/, "không có ai mang đồ hộ trên đường"],
+          [/để xem /, "người được phân công đi lại không có trong chuyến"],
+          [/làm sở thích ở đó/, "ngày hôm sau không còn được dùng để đổi lịch"],
+          [/không nói được câu/, "miệng không bật ra tiếng Trung"],
+          [/học môn khác/, "bài trên lớp không phải chữ Hán"],
+          [/viết chữ theo kịp/, "nét chữ không bị chậm"],
+          [/rồi sang phải/, "không có ghế bên trái"],
+          [/không cần lấy số/, "vào cửa là đến lượt"],
+          [/rồi rời đi/, "không ngồi lại đợi"],
+          [/không có quãng đường/, "cổng trường mở thẳng vào đó"],
+          [/không nhắc đi xe/, "chỉ nói đi bộ"],
+          [/đi bộ là đủ/, "không tính tiền xe"],
+          [/không có gì$/, "không nghe được câu nào"],
+          [/không kém$/, "thầy không chê chữ"],
+          [/tiếng khác/, "không cầm bút chữ Hán"],
+          [/rất nhanh$/, "không bị nhắc viết chậm"],
+          [/không viết chữ$/, "chỉ ngồi nghe"],
+          [/không chỉ một chút/, "nói cả đoạn dài"],
+          [/không bảo đi xe/, "chỗ đó sát cổng trường"],
+          [/không có gợi ý/, "không nói xe hay đi bộ"],
+          [/gợi ý đi bộ/, "không nhắc phút đi xe"],
+          [/Mở cửa lúc /, "buổi sáng không có khách"],
+          [/vẫn tiếp khách/, "đèn trong cửa vẫn sáng"],
+          [/không mở$/, "cửa khóa cả buổi sáng"],
+          [/không cần xe/, "đi bộ là tới"],
+          [/chỉ một phút$/, "không cần xem đồng hồ"],
+          [/rất thực tế/, "không ai bảo phải đi xe"],
+          [/thành thạo$/, "nói không vấp"],
+          [/không thừa nhận/, "không nhận mình viết chậm"],
+          [/mới lấy số/, "hàng đợi đứng trước máy số"],
+          [/cứ chen hàng/, "không có người phát số"],
+          [/hôm nay nghỉ$/, "cửa dán tờ nghỉ"],
+          [/chỉ mở ban đêm/, "ban ngày khóa cửa"],
+          [/không nói giờ mở/, "không nhắc sáng hay chiều"],
+          [/viết chữ không chậm/, "nét chữ đi đều"],
+          [/học ở nơi khác/, "không ngồi ở chỗ này"],
+          [/không có nền nói/, "nghe câu cũng không ra"],
+          [/không đóng lúc /, "cửa vẫn mở qua giờ đó"],
+          [/ngày mai mới cần/, "hôm nay để ở nhà cũng được"],
+          [/vẫn vào được /, "thiếu đồ không bị chặn"],
+          [/là đi bộ$/, "không đợi xe"],
+          [/không mất thời gian/, "vài bước là tới"],
+          [/là chỗ gần$/, "không ghi là xa"],
+          [/không tham gia /, "không có mặt ở buổi đó"],
+          [/không nói được tiếng Trung$/, "gặp người là im"],
+          [/ngồi bên phải/, "bên trái không có ghế"],
+          [/không phát số$/, "không có máy ở cửa"],
+          [/vẫn ngồi /, "không ai kiểm tra số"],
+          [/vẫn có nhân viên/, "đêm cũng có người trực"],
+          [/không ai đến làm/, "bảng phân ca để trống"],
+          [/đã làm thủ tục/, "sáng sớm đã có khách"],
+          [/không làm thủ tục/, "cả ngày không nhận hồ sơ"],
+          [/vẫn làm thủ tục/, "qua giờ vẫn nhận hồ sơ"],
+          [/không viết tên/, "giấy để trắng"],
+          [/viết tên ở .+ rất nhanh/, "khách không phải chờ"],
+          [/gọi món .+ không được/, "phải chỉ tay vào thực đơn"],
+          [/không nói ra được/, "câu chào cũng không ra"],
+          [/không viết chữ Hán$/, "giấy không có nét nào"],
+          [/một mạch rất nhanh/, "không viết từng nét"],
+          [/không nói thời gian/, "không nhắc phút nào"],
+          [/khuyên đi bộ/, "bảo không cần xe"],
+          [/nghĩa là rất gần/, "không ai nói là xa"],
+          [/vẫn cứ vào /, "thiếu đồ vẫn qua cửa"],
+          [/không khóa cửa lúc /, "khách vẫn vào được"],
+          [/không khóa lúc /, "giờ đó cửa vẫn mở"],
+          [/mời khách ra lúc /, "giờ mở lại là giờ đóng"],
+          [/không mời khách ra/, "khách ngồi qua giờ"],
+          [/vẫn được vào /, "đến sớm không bị chặn"],
+          [/không có xe để đến/, "không có chuyến nào"],
+          [/là gần trường$/, "không bảo phải đi xe"],
+          [/chỉ một phút$/, "ngắn hơn một bài hát"],
+          [/viết ở .+ cũng tốt/, "cả nói lẫn viết đều ổn"],
+          [/không phải chữ Hán/, "môn học là môn khác"],
+          [/rất cao$/, "viết không bị chậm"],
+          [/không chào được/, "gặp người thì im"],
+          [/được giải quyết ngay/, "không ai đứng cửa kiểm tra"],
+          [/phải quay về/, "các ngày khác cửa cũng khóa"],
+          [/không có tờ thông báo ngày nghỉ/, "khách đến ngày nào cũng vào được"]
+        ];
+        for(let i=0;i<extra.length;i++){
+          if(!new RegExp(extra[i][0].source, "i").test(out)) continue;
+          if(out.indexOf(extra[i][1]) >= 0) continue;
+          const next = out.replace(/[.]+$/, "") + ", " + extra[i][1];
+          if(next.length <= target + 18 && Math.abs(next.length - target) < Math.abs(out.length - target)){
+            out = next;
+            if(out.length >= target - 16) break;
+          }
+        }
+      }
+      if(!out) return s;
+      out = out.replace(/\s+/g, " ").trim();
+      if(out.length > target + 18) return s;
+      if(Math.abs(out.length - target) >= Math.abs(s.length - target)) return s;
+      return out.charAt(0).toUpperCase() + out.slice(1);
+    };
     const jPlace = at([
       [pro+"正在"+lp[0]+"里。", proVi+" đang ở "+lp[1]],
       ["你看，"+pro+"就在"+lp[0]+"。", proVi+" đang ở ngay "+lp[1]],
