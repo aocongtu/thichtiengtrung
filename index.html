@@ -145837,7 +145837,7 @@ renderQuestions =
 
         q.textContent =
           item.inputMode === "dictation"
-            ? "Xem hình, nghe câu, rồi gõ lại câu tiếng Trung."
+            ? "Nghe rồi gõ lại đúng chữ tiếng Trung. Câu không hiện sẵn."
             : item.q;
 
 
@@ -145927,7 +145927,25 @@ renderQuestions =
            NÚT NGHE
         ================================================= */
 
-        if(
+        if(item.gallery && item.gallery.length){
+          q.style.display = "none";
+          const board = document.createElement("div");
+          board.className = "wh-hsk-board";
+          item.gallery.forEach(function(html, i){
+            const cell = document.createElement("div");
+            cell.className = "wh-hsk-board-cell";
+            const letter = document.createElement("div");
+            letter.className = "wh-hsk-board-letter";
+            letter.textContent = "ABCDEF".charAt(i);
+            const frame = document.createElement("div");
+            frame.className = "wh-hsk-picture";
+            frame.innerHTML = html;
+            cell.appendChild(letter);
+            cell.appendChild(frame);
+            board.appendChild(cell);
+          });
+          card.appendChild(board);
+        }else if(
           item.picture &&
           item.picture.html
         ){
@@ -146430,7 +146448,28 @@ ttcStandaloneRender = function(){
     part.textContent = q.partTitle;
     box.insertBefore(part, box.firstChild);
   }
-  if(q.picture && q.picture.html){
+  if(q.gallery && q.gallery.length){
+    var board = document.createElement("div");
+    board.className = "wh-hsk-board";
+    q.gallery.forEach(function(html, i){
+      var cell = document.createElement("div");
+      cell.className = "wh-hsk-board-cell";
+      var letter = document.createElement("div");
+      letter.className = "wh-hsk-board-letter";
+      letter.textContent = "ABCDEF".charAt(i);
+      var frame = document.createElement("div");
+      frame.className = "wh-hsk-picture";
+      frame.innerHTML = html;
+      cell.appendChild(letter);
+      cell.appendChild(frame);
+      board.appendChild(cell);
+    });
+    var partEl0 = box.querySelector(".ttc-sm-part");
+    if(partEl0) partEl0.insertAdjacentElement("afterend", board);
+    else box.insertBefore(board, box.firstChild);
+    var stem = box.querySelector(".ttc-sm-q, .ttc-sm-hanzi");
+    if(stem) stem.style.display = "none";
+  }else if(q.picture && q.picture.html){
     var picture = document.createElement("div");
     picture.className = "wh-hsk-picture";
     picture.innerHTML = q.picture.html;
@@ -165691,7 +165730,7 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
       ["reading","📖 阅读 · 第四部分（第36–40题）","Đọc câu, chọn ý đúng.",5,"read-choice"]
     ]},
     2:{minutes:55,parts:[
-      ["listening","🎧 听力 · 第一部分（第1–10题）","Nghe câu, xem hình, chọn 对 hoặc 错.",10,"listen-judge"],
+      ["listening","🎧 听力 · 第一部分（第1–10题）","Câu 1–6: nghe rồi chọn ảnh A–F. Câu 7–10: nghe rồi chọn 对 hoặc 错.",10,"listen-judge"],
       ["listening","🎧 听力 · 第二部分（第11–20题）","Nghe câu, xem hình, chọn nghĩa đúng.",10,"listen-meaning"],
       ["listening","🎧 听力 · 第三部分（第21–30题）","Nghe hội thoại vừa, chọn câu trả lời.",10,"listen-reply"],
       ["listening","🎧 听力 · 第四部分（第31–35题）","Nghe đoạn hội thoại vừa, chọn ý đúng.",5,"listen-word"],
@@ -166032,7 +166071,8 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
       m: spec.m||"",
       inputMode: spec.inputMode||"",
       answerText: spec.answerText||"",
-      picture: spec.picture || sceneForQuestion
+      picture: spec.picture || sceneForQuestion,
+      gallery: spec.gallery || null
     };
   }
   function distinctRest(pool, word, rng, n, textOf){
@@ -167225,7 +167265,27 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
         options:[], optionPinyin:[], optionMeaning:[], answer:0,
         analysis:[item.why||"ĐÚNG khi gõ đúng chữ."],
         picture:shot, h:item.h||"", m:item.m||"",
-        inputMode:"dictation", answerText:item.answerText||""
+        inputMode:"dictation", answerText:item.answerText||item.audio||"",
+        audioText:item.audio||item.answerText||""
+      });
+    }
+    if((item.photos || item.board) && item.audio){
+      const letters = ["A","B","C","D","E","F"];
+      const gallery = (item.photos || []).length
+        ? item.photos.map(function(src){ return '<img src="'+src+'" alt="" width="640" height="400" loading="lazy" referrerpolicy="no-referrer">'; })
+        : item.board.map(function(one){ return hsk1Shot(one).html; });
+      const n = gallery.length;
+      const pick = Math.max(0, Math.min(n - 1, Number(item.pick) || 0));
+      return pack(host, {
+        q:item.q, qMeaning:item.qVi,
+        options:letters.slice(0, n).map(function(letter){ return "Ảnh " + letter; }),
+        optionPinyin:letters.slice(0, n).map(function(){ return ""; }),
+        optionMeaning:letters.slice(0, n).map(function(letter, i){ return i === pick ? "Đúng ảnh của câu vừa nghe." : "Ảnh này là việc khác."; }),
+        answer:pick,
+        analysis:letters.slice(0, n).map(function(letter, i){
+          return i === pick ? "ĐÚNG. Câu «"+item.audio+"» là "+item.said+". Ảnh "+letter+"." : "SAI. Ảnh "+letter+" không phải việc vừa nghe.";
+        }),
+        audioText:item.audio, gallery:gallery, picture:null, h:"", m:item.said||""
       });
     }
     if(item.tf){
@@ -168915,17 +168975,25 @@ function hsk2ExtraBanks(){
     const L = "Nghe, xem hình, rồi chọn 对 hoặc 错. Câu không hiện sẵn.";
     const M = "Nghe câu vừa, xem hình, chọn đúng nghĩa tiếng Việt. Câu không hiện sẵn.";
     const D = "Nghe hội thoại vừa. Chọn ý đúng. Hội thoại không hiện sẵn.";
+    const photos = [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Market_in_Ho_Chi_Minh.jpg/960px-Market_in_Ho_Chi_Minh.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Spring_rain_on_the_way_22-02-2026._H%E1%BB%8Dc_Phi_Street_E1.jpg/960px-Spring_rain_on_the_way_22-02-2026._H%E1%BB%8Dc_Phi_Street_E1.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Thai_Students.jpg/960px-Thai_Students.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Vietnam_08_-_69_-_Saigon_fruit_vendor_%283171353168%29.jpg/960px-Vietnam_08_-_69_-_Saigon_fruit_vendor_%283171353168%29.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Mother_and_newborn_sleeping_on_a_bamboo_bed_near_a_campfire_in_a_house_in_Don_Det_Laos.jpg/960px-Mother_and_newborn_sleeping_on_a_bamboo_bed_near_a_campfire_in_a_house_in_Don_Det_Laos.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/A_bubble_tea_shop%2C_304_Nguyen_Trai%2C_Thanh_Xuan_District%2C_Hanoi%2C_Vietnam.jpg/960px-A_bubble_tea_shop%2C_304_Nguyen_Trai%2C_Thanh_Xuan_District%2C_Hanoi%2C_Vietnam.jpg"
+    ];
     const judge = [
-      {shot:"Người đang mua táo trong siêu thị", q:"请听句子，判断与图片是否一致。", qVi:"Câu nói một người đang mua táo trong siêu thị.", audio:"她正在超市买苹果。", tf:"对", hint:L, why:["ĐÚNG. Câu nghe là «她正在超市买苹果», cô ấy đang mua táo trong siêu thị, khớp hình.","SAI. Câu và hình cùng một việc. Không chọn 错."]},
-      {shot:"Người đi dưới mưa không mang ô", q:"请听句子，判断与图片是否一致。", qVi:"Câu nói trời mưa và người đó không mang ô.", audio:"今天下雨了，他没有带伞。", tf:"对", hint:L, why:["ĐÚNG. «今天下雨了，他没有带伞» là trời mưa, anh ấy không mang ô. Khớp hình.","SAI. Hình đúng là mưa và không có ô. Không chọn 错."]},
-      {shot:"Một đứa trẻ đang đọc sách", q:"请听句子，判断与图片是否一致。", qVi:"Câu nói đứa trẻ đang đọc sách.", audio:"孩子正在看书。", tf:"对", hint:L, why:["ĐÚNG. «孩子正在看书» là đứa trẻ đang đọc sách, đúng hình.","SAI. Câu khớp hình. Không chọn 错."]},
-      {shot:"Người đang chơi bóng rổ", q:"请听句子，判断与图片是否一致。", qVi:"Câu nói họ đang chơi bóng rổ.", audio:"他们在打篮球。", tf:"对", hint:L, why:["ĐÚNG. «他们在打篮球» là họ đang chơi bóng rổ.","SAI. Không phải môn khác. Không chọn 错."]},
-      {shot:"Người đang nấu ăn trong bếp", q:"请听句子，判断与图片是否一致。", qVi:"Câu nói mẹ đang nấu ăn trong bếp.", audio:"妈妈在厨房做饭。", tf:"对", hint:L, why:["ĐÚNG. «妈妈在厨房做饭» là mẹ nấu ăn trong bếp.","SAI. Hình đúng việc đó. Không chọn 错."]},
+      {photos:photos, audio:"学生们在学校。", pick:2, said:"các học sinh đang ở trường", q:"请听句子，选择对应的图片。", qVi:"Sáu ảnh A đến F. Nghe câu rồi chọn đúng một ảnh. Câu không hiện sẵn.", hint:L},
+      {photos:photos, audio:"今天下雨了。", pick:1, said:"hôm nay trời mưa", q:"请听句子，选择对应的图片。", qVi:"Sáu ảnh A đến F. Nghe câu rồi chọn đúng một ảnh. Câu không hiện sẵn.", hint:L},
+      {photos:photos, audio:"她在卖水果。", pick:3, said:"cô ấy đang bán trái cây", q:"请听句子，选择对应的图片。", qVi:"Sáu ảnh A đến F. Nghe câu rồi chọn đúng một ảnh. Câu không hiện sẵn.", hint:L},
+      {photos:photos, audio:"她在茶馆喝茶。", pick:5, said:"cô ấy đang uống trà ở quán trà", q:"请听句子，选择对应的图片。", qVi:"Sáu ảnh A đến F. Nghe câu rồi chọn đúng một ảnh. Câu không hiện sẵn.", hint:L},
+      {photos:photos, audio:"孩子正在睡觉。", pick:4, said:"đứa trẻ đang ngủ", q:"请听句子，选择对应的图片。", qVi:"Sáu ảnh A đến F. Nghe câu rồi chọn đúng một ảnh. Câu không hiện sẵn.", hint:L},
+      {photos:photos, audio:"她在市场买东西。", pick:0, said:"cô ấy đang mua đồ ở chợ", q:"请听句子，选择对应的图片。", qVi:"Sáu ảnh A đến F. Nghe câu rồi chọn đúng một ảnh. Câu không hiện sẵn.", hint:L},
       {shot:"Người đang ngủ trên giường", q:"请听句子，判断与图片是否一致。", qVi:"Hình là người đang ngủ. Hãy xét câu nghe có phải việc đó không.", audio:"他正在游泳。", tf:"错", hint:L, why:["SAI. Câu «他正在游泳» là anh ấy đang bơi, còn hình là người đang ngủ. Không chọn 对.","ĐÚNG. Bơi và ngủ là hai việc khác nhau, nên chọn 错."]},
       {shot:"Người đang uống trà", q:"请听句子，判断与图片是否一致。", qVi:"Hình là người đang uống trà.", audio:"她在喝咖啡。", tf:"错", hint:L, why:["SAI. Câu nói uống cà phê, hình là uống trà. Không chọn 对.","ĐÚNG. Cà phê và trà khác nhau, chọn 错."]},
       {shot:"Một siêu thị đông người", q:"请听句子，判断与图片是否一致。", qVi:"Hình là siêu thị đông người.", audio:"火车站里人很多。", tf:"错", hint:L, why:["SAI. Câu nói nhà ga đông người, hình là siêu thị. Không chọn 对.","ĐÚNG. Ga và siêu thị là hai nơi khác nhau, chọn 错."]},
-      {shot:"Một con chó đang chạy", q:"请听句子，判断与图片是否一致。", qVi:"Hình là một con chó đang chạy.", audio:"猫在桌子上睡觉。", tf:"错", hint:L, why:["SAI. Câu nói con mèo ngủ trên bàn, hình là chó đang chạy. Không chọn 对.","ĐÚNG. Mèo ngủ và chó chạy không phải một cảnh, chọn 错."]},
-      {shot:"Hôm nay trời nắng đẹp", q:"请听句子，判断与图片是否一致。", qVi:"Hình là trời nắng.", audio:"外面正在下雪。", tf:"错", hint:L, why:["SAI. Câu nói bên ngoài đang có tuyết, hình là trời nắng. Không chọn 对.","ĐÚNG. Tuyết và nắng trái nhau, chọn 错."]}
+      {shot:"Một con chó đang chạy", q:"请听句子，判断与图片是否一致。", qVi:"Hình là một con chó đang chạy.", audio:"猫在桌子上睡觉。", tf:"错", hint:L, why:["SAI. Câu nói con mèo ngủ trên bàn, hình là chó đang chạy. Không chọn 对.","ĐÚNG. Mèo ngủ và chó chạy không phải một cảnh, chọn 错."]}
     ];
     const meaning = [
       {shot:"Người đang học bài vào buổi tối", q:"请听句子，选择正确的意思。", qVi:"Chọn nghĩa của câu vừa nghe.", audio:"因为明天要考试，所以他今晚不想出去。", hint:M, ok:["Vì ngày mai có thi, tối nay anh ấy không muốn ra ngoài.","","Vì ngày mai có thi, tối nay anh ấy không muốn ra ngoài.","ĐÚNG. «因为明天要考试，所以他今晚不想出去» nối lý do thi với việc ở nhà."], bad:[["Vì hôm nay đã thi xong, tối nay anh ấy muốn ra ngoài.","","","SAI. Thi là ngày mai, và anh ấy không muốn ra ngoài."],["Tối nay anh ấy ra ngoài học nhóm, vì bài thi hôm nay đã xong.","","","SAI. Câu không nói đi học nhóm."],["Ngày mai anh ấy không có bài thi, nên tối nay muốn ra ngoài.","","","SAI. Lý do của câu chính là ngày mai có thi."]]},
@@ -168956,7 +169024,7 @@ function hsk2ExtraBanks(){
       {shot:"Một cửa hàng hoa quả", q:"请听对话，选择正确的答案。", qVi:"Họ mua gì và còn thiếu gì?", audio:"女：我们晚上请小王吃饭，买点儿水果吧。男：苹果和香蕉都可以。西瓜呢？女：西瓜太重了，先不买。男：那再买一盒牛奶。问：他们不买什么？", hint:D, ok:["Không mua dưa hấu vì nặng. Họ mua táo hoặc chuối, và thêm một hộp sữa.","","Họ không mua dưa hấu.","ĐÚNG. Nữ nói «西瓜太重了，先不买». Sữa thì nam đề nghị mua."], bad:[["Họ không mua sữa, chỉ lấy táo, chuối và dưa hấu.","","","SAI. Nam nói mua thêm một hộp sữa."],["Họ không mua táo, chỉ lấy chuối, sữa và dưa hấu.","","","SAI. Táo và chuối đều được."],["Tối nay họ không mời Tiểu Vương, nên không mua hoa quả.","","","SAI. Bữa tối là để mời Tiểu Vương."]]},
       {shot:"Người đang xem lịch trên điện thoại", q:"请听对话，选择正确的答案。", qVi:"Cuộc họp đổi đến khi nào?", audio:"男：今天下午三点的会还开吗？女：不开了。经理说改到明天上午十点。男：在哪个房间？女：还是二楼左边的小房间。问：会议改到什么时候？", hint:D, ok:["Đổi sang 10 giờ sáng mai, vẫn phòng nhỏ bên trái tầng hai. Hôm nay 3 giờ không họp.","","Họp lúc 10 giờ sáng mai.","ĐÚNG. «改到明天上午十点», phòng «还是二楼左边的小房间»."], bad:[["Họp vẫn lúc 3 giờ chiều nay, ở phòng nhỏ bên trái tầng hai.","","","SAI. Nữ nói không họp giờ đó nữa."],["Họp đổi sang 10 giờ sáng mai, nhưng chuyển sang phòng bên phải.","","","SAI. Phòng vẫn là bên trái."],["Cuộc họp bị hủy hẳn, không còn giờ nào trong ngày mai.","","","SAI. Chỉ đổi giờ, không hủy."]]},
       {shot:"Người đang ở sân bay", q:"请听对话，选择正确的答案。", qVi:"Chị của nữ đến lúc mấy giờ và ai đi đón?", audio:"女：我姐姐的飞机是下午四点到。男：你去机场接她吗？女：我要上班，去不了。男：我有时间，我帮你去吧。问：谁去机场接她姐姐？", hint:D, ok:["Nam đi đón. Máy bay đến 4 giờ chiều. Nữ phải đi làm nên không đi được.","","Nam giúp đi đón chị của nữ.","ĐÚNG. Nữ nói «我要上班，去不了», nam nói «我帮你去吧»."], bad:[["Nữ tự đi đón chị lúc 4 giờ chiều, vì hôm đó nữ không phải đi làm.","","","SAI. Nữ không đi được vì phải làm."],["Không ai ra sân bay đón, máy bay đến lúc 4 giờ chiều.","","","SAI. Nam nhận đi giúp."],["Nam đi đón, nhưng máy bay của chị đến lúc 4 giờ sáng.","","","SAI. Là 4 giờ chiều, «下午四点»."]]},
-      {shot:"Một lớp học vào buổi tối", q:"请听对话，选择正确的答案。", qVi:"Vì sao nữ muốn đổi chỗ ngồi?", audio:"女：我可以坐前面一点儿吗？男：可以。你是不是看不清黑板？女：对，而且后边有点儿吵。男：那你坐我旁边吧。问：女的为什么想换座位？", hint:D, ok:["Vì nhìn bảng không rõ và phía sau hơi ồn. Nam bảo ngồi cạnh mình.","","Nữ đổi chỗ vì bảng không rõ và phía sau ồn.","ĐÚNG. Nữ xác nhận «看不清黑板», và nói «后边有点儿吵»."], bad:[["Cô ấy muốn đổi chỗ vì cần ra về sớm, không phải vì nhìn bảng.","","","SAI. Hội thoại chỉ nói chỗ ngồi."],["Cô ấy muốn đổi chỗ vì nam không muốn ngồi cạnh cô ấy.","","","SAI. Nam mời cô ngồi cạnh."],["Cô ấy muốn ngồi lên trước vì phía trước quá ồn, bảng thì nhìn rõ.","","","SAI. Ồn là phía sau, không phải phía trước."]]}
+      {shot:"Người đang đọc sách", q:"请听短文，把听到的内容写下来。", qVi:"Nghe đoạn một lần, rồi gõ lại đúng chữ. Không hiện sẵn câu.", audio:"我今天下午去学校。我想在图书馆看书。", inputMode:"dictation", answerText:"我今天下午去学校。我想在图书馆看书。", hint:"Nghe cả đoạn, rồi gõ lại từng chữ.", why:"ĐÚNG khi gõ đủ «我今天下午去学校。我想在图书馆看书。»."}
     ];
     const pic = [
       {shot:"Người đang đọc sách", q:"我在看书。\n这个句子和图片一致吗？", qVi:"Câu nói tôi đang đọc sách.", tf:"对", why:["ĐÚNG. «我在看书» khớp hình người đang đọc sách.","SAI. Câu và hình cùng một việc. Không chọn 错."]},
@@ -170372,6 +170440,11 @@ const reading = [
   .wh-hsk-picture{display:block !important;width:100% !important;max-width:100% !important;box-sizing:border-box !important;margin:12px 0 !important;padding:0 !important;border-radius:12px !important;background:#fff !important;border:1px solid #d6d3d1 !important;overflow:hidden !important}
   html body .wh-hsk-picture svg{display:block !important;width:100% !important;height:200px !important;max-width:100% !important}
   html body .wh-hsk-picture img{display:block !important;width:100% !important;height:200px !important;max-width:100% !important;object-fit:cover !important;background:#eee !important}
+  .wh-hsk-board{display:grid !important;grid-template-columns:1fr 1fr !important;gap:8px !important;margin:12px 0 !important}
+  .wh-hsk-board-cell{border:1px solid #d6d3d1 !important;border-radius:12px !important;overflow:hidden !important;background:#fff !important}
+  .wh-hsk-board-letter{padding:6px 10px !important;font-size:18px !important;font-weight:800 !important;color:#9a3412 !important;background:#fff7ed !important}
+  .wh-hsk-board .wh-hsk-picture{margin:0 !important;border:0 !important;border-radius:0 !important}
+  html body .wh-hsk-board .wh-hsk-picture img{height:120px !important}
   .wh-hsk-picture-label{display:block !important;font-size:13px !important;font-weight:800 !important;color:#9a3412 !important}
   .wh-hsk-picture-name{display:block !important;margin-top:6px !important;font-size:18px !important;font-weight:800 !important;color:#9a3412 !important}
   .wh-hsk-art{display:block !important;position:relative !important;width:100% !important;height:150px !important;min-height:150px !important;margin-top:8px !important;border-radius:14px !important;overflow:hidden !important;background:#e0f2fe !important}
