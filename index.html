@@ -166174,22 +166174,20 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
       return keepObject[kind] || !NOT_SEA.test(url);
     });
     const deck = allPhotoDeck();
-    const mustMatch = !!keepObject[kind] && list.length;
-    const source = mustMatch ? list : deck;
+    const source = list.length ? list : (deck.length ? deck : [SCENE_PHOTOS[kind] || SCENE_PHOTOS.talk]);
     let src = source[0] || deck[0] || SCENE_PHOTOS.talk;
     if(sceneUsed && source.length){
-      const cursor = mustMatch ? ((sceneCursor[kind] = (sceneCursor[kind] || 0) + 1) - 1) : sceneUsed.size;
-      const start = ((mustMatch ? sceneObject * 3 : sceneDeck) + cursor) % source.length;
+      const cursor = list.length ? ((sceneCursor[kind] = (sceneCursor[kind] || 0) + 1) - 1) : sceneUsed.size;
+      const start = ((list.length ? sceneObject * 3 : sceneDeck) + cursor) % source.length;
       let found = "";
       for(let i=0;i<source.length;i++){
         const u = source[(start + i) % source.length];
         if(!sceneUsed.has(u)){ found = u; break; }
       }
-      if(!found) found = deck.find(function(u){ return !sceneUsed.has(u); }) || "";
       src = found || source[start];
       sceneUsed.add(src);
     }
-    return {html:'<img src="'+src+'" alt="" width="640" height="400" loading="lazy" referrerpolicy="no-referrer">', kind:kind};
+    return {html:'<img src="'+src+'" alt="" data-scene="'+kind+'" width="640" height="400" loading="lazy" referrerpolicy="no-referrer">', kind:kind};
     const ink = "#243044";
     const skin = "#f6c99a";
     function person(x, shirt){
