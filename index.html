@@ -42,6 +42,30 @@ h1{
   flex-wrap:wrap;
   overflow-anchor:none;
 }
+#ttcRecentLookups{
+  position:relative;
+  z-index:6;
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  align-items:center;
+  width:min(900px,100%);
+  margin:8px auto 0;
+  background:transparent;
+}
+#ttcRecentLookups span{color:#64748b;font-size:13px;font-weight:700}
+#ttcRecentLookups button{
+  background:#fff7ed !important;
+  color:#9a3412 !important;
+  -webkit-text-fill-color:#9a3412 !important;
+  border:1px solid #fdba74 !important;
+  border-radius:999px !important;
+  padding:4px 10px !important;
+  font-size:16px !important;
+  line-height:1.3 !important;
+  font-weight:700 !important;
+  box-shadow:none !important;
+}
 #vocabularySection.ttc-search-results{
   width:min(900px,100%);
   max-height:min(52vh,480px);
@@ -71,7 +95,8 @@ h1{
 .ttc-draw-box{width:min(1100px,70vw);max-width:1100px;margin:10px auto 0;padding:12px;border:1px solid #dbe4ee;border-radius:14px;background:#fff;box-sizing:border-box}
 #ttcDrawCanvas{display:block;width:100%;height:62vh;min-height:420px;max-height:720px;border:1px dashed #94a3b8;border-radius:12px;background:#fff;touch-action:none;box-sizing:border-box}
 .ttc-draw-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-#ttcDrawSuggestions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+#ttcDrawSuggestions{display:flex;flex-wrap:wrap;gap:8px;min-height:64px;margin:0 0 8px;align-items:center}
+#ttcOcrStatus{margin:0 0 8px}
 #ttcDrawSuggestions button{min-width:64px !important;height:64px !important;padding:0 8px !important;border-radius:12px !important;border:1px solid #cbd5e1 !important;background:#fff !important;color:#111827 !important;-webkit-text-fill-color:#111827 !important;font-size:34px !important;font-family:"Microsoft YaHei UI","Microsoft YaHei","Segoe UI",sans-serif !important;line-height:1 !important;font-weight:700 !important}
 @media(max-width:800px){.ttc-draw-box{width:100%;max-width:none}#ttcDrawCanvas{height:58vh;min-height:280px;max-height:none}}
 #ttcOcrStatus{margin:8px 0 0;color:#475569;font-size:14px}
@@ -2873,14 +2898,14 @@ body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; 
 <input id="ttcPhotoFile" type="file" accept="image/*" hidden>
 </div>
 <div id="ttcDrawBox" class="ttc-draw-box" hidden>
+  <div id="ttcDrawSuggestions"></div>
+  <p id="ttcOcrStatus"></p>
   <canvas id="ttcDrawCanvas" width="640" height="220"></canvas>
   <div class="ttc-draw-actions">
     <button type="button" id="ttcDrawClear">Xóa nét</button>
     <button type="button" id="ttcDrawRead">Nhận chữ</button>
     <button type="button" id="ttcDrawClose">Đóng</button>
   </div>
-  <p id="ttcOcrStatus"></p>
-  <div id="ttcDrawSuggestions"></div>
 </div>
 
 </header>
@@ -108664,7 +108689,6 @@ function ttcRenderRecentLookups(){
   if(!box){
     box = document.createElement("div");
     box.id = "ttcRecentLookups";
-    box.style.cssText = "display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0 0;";
     searchBox.insertAdjacentElement("afterend", box);
     box.addEventListener("click", function(event){
       var button = event.target.closest("button[data-h]");
@@ -108674,11 +108698,14 @@ function ttcRenderRecentLookups(){
       searchWords();
     });
   }
+  if(box.previousElementSibling !== searchBox){
+    searchBox.insertAdjacentElement("afterend", box);
+  }
   var list = ttcLoadRecentLookups();
   box.innerHTML = list.length
-    ? '<span style="color:#64748b;font-size:13px;">Vừa tra:</span>' + list.map(function(item){
+    ? '<span>Vừa tra:</span>' + list.map(function(item){
         var hint = String(item.m || "").replace(/"/g, "");
-        return '<button type="button" data-h="' + item.h + '" title="' + hint + '" style="border:1px solid #e5e7eb;background:#fff;border-radius:999px;padding:4px 10px;cursor:pointer;font-size:16px;">' + item.h + '</button>';
+        return '<button type="button" data-h="' + item.h + '" title="' + hint + '">' + item.h + '</button>';
       }).join("")
     : "";
 }
@@ -108789,7 +108816,7 @@ TTC.vocabulary.searchActive = true;
     vocabularySection.classList.add("ttc-search-results");
     vocabularySection.style.overflowAnchor = "none";
     ttcAppearUnder(
-      document.querySelector(".search") || document.querySelector("header"),
+      document.getElementById("ttcRecentLookups") || document.querySelector(".search") || document.querySelector("header"),
       vocabularySection
     );
   }
