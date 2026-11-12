@@ -195244,7 +195244,7 @@ function buildTtcHskPaper(pool, level, examNo, salt){
     return copy;
   }
   var ACH_PAGE = 20;
-  var achUi = { view: "closed", level: null, offset: 0, rows: [], loading: false, error: "", unavailable: true, reason: "" };
+  var achUi = { view: "closed", level: null, offset: 0, rows: [], loading: false, error: "", unavailable: false, reason: "" };
 
   function sortAchievementRows(rows){
     return (rows || []).slice().sort(function(a, b){
@@ -195259,21 +195259,102 @@ function buildTtcHskPaper(pool, level, examNo, salt){
   }
 
   /*
-    Nguồn công khai hợp lệ cho bảng thành tích hiện CHƯA CÓ:
-    - Không có bảng/RPC công khai cho số từ thực sự ghi nhớ (theo dõi từng từ).
-    - ttc_hsk_path_state.xp chỉ SELECT của chính user, không phải bảng xếp hạng công khai.
-    - community_nicknames chỉ đọc khi authenticated, không mở cho anon.
-    - Không được suy từ EXP phiên Test / số câu đúng / word_index.
-    Khi chủ dự án phê duyệt nguồn + RLS/RPC, chỉ cần thay fetchHskAchievementPage.
+    Phase 3D — nguồn thật qua RPC ttc_hsk_achievement_board:
+    - ĐÃ THUỘC: count ttc_vocab_memory.status = 'mastered' theo hsk_level
+    - EXP: ttc_hsk_path_state.xp cùng cấp HSK
+    - Nickname: community_nicknames.display_name (RPC ẩn nếu có @)
+    RPC SECURITY DEFINER chỉ trả tổng hợp; không trả user_id/email/từ/event.
   */
+  var achFetchCache = Object.create(null);
+  var achFetchSeq = 0;
   function fetchHskAchievementPage(level, offset){
-    return Promise.resolve({
-      ok: false,
-      unavailable: true,
-      reason: "missing_public_mastered_words_and_exp_source",
-      rows: [],
-      hasMore: false,
-      message: "Dữ liệu thành tích đang được xây dựng. Chưa có nguồn công khai hợp lệ (số từ đã thành thạo theo lemma + EXP tích lũy + nickname). Không hiển thị thành viên mẫu hay số liệu giả."
+    var hsk = Number(level);
+    var off = Math.max(0, Number(offset) || 0);
+    if (!(hsk >= 1 && hsk <= 9)) {
+      return Promise.resolve({
+        ok: false,
+        message: "Cấp HSK không hợp lệ.",
+        rows: [],
+        hasMore: false
+      });
+    }
+    var cacheKey = hsk + ":" + off;
+    var hit = achFetchCache[cacheKey];
+    if (hit && (Date.now() - hit.at) < 30000 && hit.res && hit.res.ok) {
+      return Promise.resolve(hit.res);
+    }
+    var client = null;
+    try {
+      client = typeof getSupabaseClient === "function" ? getSupabaseClient() : (window.supabase || null);
+    } catch (e) {
+      client = window.supabase || null;
+    }
+    if (!client || typeof client.rpc !== "function") {
+      return Promise.resolve({
+        ok: false,
+        message: "Chưa kết nối được máy chủ.",
+        rows: [],
+        hasMore: false
+      });
+    }
+    var seq = ++achFetchSeq;
+    return client.rpc("ttc_hsk_achievement_board", {
+      p_hsk_level: hsk,
+      p_limit: ACH_PAGE,
+      p_offset: off
+    }).then(function(res){
+      if (seq !== achFetchSeq && off === 0) {
+        /* phản hồi cũ khi đổi cấp nhanh — vẫn parse an toàn bên dưới */
+      }
+      if (res && res.error) {
+        return {
+          ok: false,
+          message: (res.error && res.error.message) ? res.error.message : "Lỗi tải bảng thành tích.",
+          rows: [],
+          hasMore: false
+        };
+      }
+      var data = res && res.data;
+      if (!data || data.ok === false) {
+        return {
+          ok: false,
+          message: (data && (data.message || data.status)) ? String(data.message || data.status) : "Không lấy được dữ liệu thành tích.",
+          rows: [],
+          hasMore: false
+        };
+      }
+      var raw = Array.isArray(data.rows) ? data.rows : [];
+      var rows = [];
+      for (var i = 0; i < raw.length; i++) {
+        var r = raw[i] || {};
+        var nick = String(r.nickname || "").trim();
+        if (!nick || nick.indexOf("@") >= 0) nick = "Bạn học";
+        if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(nick)) {
+          nick = "Bạn học";
+        }
+        rows.push({
+          rank: Number(r.rank) || (off + i + 1),
+          nickname: nick.slice(0, 40),
+          hsk_level: Number(r.hsk_level) || hsk,
+          words_mastered: Math.max(0, Number(r.words_mastered) || 0),
+          xp: Math.max(0, Number(r.xp) || 0)
+        });
+      }
+      var out = {
+        ok: true,
+        rows: rows,
+        hasMore: !!data.has_more,
+        message: ""
+      };
+      achFetchCache[cacheKey] = { at: Date.now(), res: out };
+      return out;
+    }).catch(function(err){
+      return {
+        ok: false,
+        message: (err && err.message) ? err.message : "Lỗi mạng khi tải bảng thành tích.",
+        rows: [],
+        hasMore: false
+      };
     });
   }
 
@@ -195321,21 +195402,24 @@ function buildTtcHskPaper(pool, level, examNo, salt){
   window.ttcSortAchievementRows = sortAchievementRows;
   function renderAchievementRows(level, rows, offset){
     if (!rows || !rows.length) {
-      return "<p class='ttc-ach-empty'>Chưa có thành viên trên bảng HSK " + level + ".</p>";
+      return "<p class='ttc-ach-empty'>Chưa có dữ liệu thành tích cho HSK " + level + ".</p>";
     }
     rows = sortAchievementRows(rows);
     var html = "<div class='ttc-ach-table' role='table' aria-label='Bảng thành tích HSK " + level + "'>"
       + "<div class='ttc-ach-head' role='row'>"
-      + "<span>Hạng</span><span>Nickname</span><span>Từ ghi nhớ</span><span>EXP</span>"
+      + "<span>Hạng</span><span>Nickname</span><span>HSK</span><span>Đã thuộc</span><span>EXP</span>"
       + "</div>";
     for (var i = 0; i < rows.length; i++) {
-      var rank = offset + i + 1;
       var row = rows[i] || {};
+      var rank = Number(row.rank) || (offset + i + 1);
       var medal = medalForRank(rank);
       var top = rank <= 3 ? " ttc-ach-top" + rank : "";
+      var nick = String(row.nickname || "Bạn học");
+      if (nick.indexOf("@") >= 0) nick = "Bạn học";
       html += "<div class='ttc-ach-row" + top + "' role='row'>"
         + "<span class='ttc-ach-rank'>" + (medal ? medal + " " : "") + rank + "</span>"
-        + "<span class='ttc-ach-nick'>" + esc(row.nickname || "Bạn học") + "</span>"
+        + "<span class='ttc-ach-nick'>" + esc(nick) + "</span>"
+        + "<span class='ttc-ach-hsk'>HSK " + (Number(row.hsk_level) || level) + "</span>"
         + "<span class='ttc-ach-words'>" + (Number(row.words_mastered) || 0) + "</span>"
         + "<span class='ttc-ach-xp'>" + (Number(row.xp) || 0) + "</span>"
         + "</div>";
@@ -195385,9 +195469,18 @@ function buildTtcHskPaper(pool, level, examNo, salt){
     achUi.level = level;
     achUi.loading = true;
     achUi.error = "";
+    achUi.unavailable = false;
     if (!append) {
       achUi.offset = 0;
       achUi.rows = [];
+      try {
+        var ck;
+        for (ck in achFetchCache) {
+          if (Object.prototype.hasOwnProperty.call(achFetchCache, ck) && String(ck).indexOf(String(level) + ":") === 0) {
+            delete achFetchCache[ck];
+          }
+        }
+      } catch (eClr) {}
     }
     paintAchievementBoard(box);
     fetchHskAchievementPage(level, achUi.offset).then(function(res){
@@ -196832,15 +196925,16 @@ function buildTtcHskPaper(pool, level, examNo, salt){
 
 <style id="ttc-daily-vocab-css">
   #ttcPathShell{width:min(1100px,calc(100% - 20px));margin:8px auto 10px;box-sizing:border-box}
-  .ttc-path-ach-row{display:flex;flex-direction:row;align-items:flex-start;gap:12px;width:100%;box-sizing:border-box}
-  .ttc-path-col,.ttc-ach-col{flex:1 1 0;min-width:0;max-width:100%;box-sizing:border-box}
+  .ttc-path-ach-row{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(0,1fr);align-items:start;gap:12px;width:100%;box-sizing:border-box}
+  .ttc-path-col,.ttc-ach-col{min-width:0;max-width:100%;width:auto;box-sizing:border-box}
   #ttcAchHost.ttc-ach-host{width:100%;box-sizing:border-box;overflow-x:hidden;text-align:left}
   #ttcPathLauncher.ttc-path-launcher{display:block;width:100%;box-sizing:border-box;border:1px solid #fecdd3;border-radius:14px;background:#fff;color:#9f1239;font-weight:800;font-size:15px;padding:12px 14px;cursor:pointer;text-align:center;box-shadow:0 4px 12px rgba(159,18,57,.08)}
   #ttcPathLauncher.ttc-path-launcher[aria-expanded="true"]{background:#9f1239;color:#fff;border-color:#9f1239}
   #ttcPathPanel.ttc-path-panel{margin-top:8px}
   #ttcPathPanel.ttc-path-panel[hidden]{display:none !important}
   @media(max-width:760px){
-    .ttc-path-ach-row{flex-direction:column}
+    .ttc-path-ach-row{grid-template-columns:1fr;display:grid}
+    .ttc-path-col,.ttc-ach-col{width:100%;max-width:100%}
   }
   #ttcDailyVocab{position:relative;margin:0 auto 8px;padding:14px;padding-top:48px;border:1px solid #fecdd3;border-radius:16px;background:#fff7f8;text-align:center;box-sizing:border-box;max-width:100%;overflow-x:hidden}
   #ttcDailyVocab h3{margin:0 0 4px;color:#9f1239;font-size:20px;padding-right:7rem}
@@ -197003,12 +197097,13 @@ function buildTtcHskPaper(pool, level, examNo, salt){
   .ttc-ach-table{display:grid;gap:6px}
   .ttc-ach-head,.ttc-ach-row{
     display:grid;
-    grid-template-columns:64px minmax(0,1.4fr) 88px 72px;
+    grid-template-columns:56px minmax(0,1.3fr) 52px 72px 56px;
     gap:6px;
     align-items:center;
     padding:8px 10px;
     border-radius:12px;
   }
+  .ttc-ach-hsk{font-size:12px;font-weight:800;color:#9f1239;white-space:nowrap}
   .ttc-ach-head{
     background:#fff1f2;
     color:#9f1239;
@@ -197032,7 +197127,7 @@ function buildTtcHskPaper(pool, level, examNo, salt){
   .ttc-ach-more{width:100%;margin-top:8px}
   @media(max-width:520px){
     .ttc-ach-levels{grid-template-columns:repeat(3,minmax(0,1fr))}
-    .ttc-ach-head,.ttc-ach-row{grid-template-columns:52px minmax(0,1fr) 72px 56px;padding:8px;font-size:13px}
+    .ttc-ach-head,.ttc-ach-row{grid-template-columns:44px minmax(0,1fr) 44px 56px 48px;padding:8px;font-size:12px}
     .ttc-ach-launch-text{font-size:15px}
   }
   @media(max-width:420px){
