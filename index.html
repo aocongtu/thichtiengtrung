@@ -195888,7 +195888,14 @@ function buildTtcHskPaper(pool, level, examNo, salt){
         + syncNoticeHtml(level)
         + "<p class='ttc-daily-note'></p>"
         + goalsShell()
-        + "<div class='ttc-daily-card'></div><div class='ttc-daily-actions'></div><div id='ttcPathClass'></div>";
+        + "<div class='ttc-path-quiz'>"
+        +   "<div class='ttc-daily-card'></div>"
+        +   "<div class='ttc-path-choices' aria-label='Đáp án'></div>"
+        +   "<div class='ttc-path-controls' aria-label='Điều khiển'></div>"
+        + "</div>"
+        + "<div class='ttc-daily-actions'></div>"
+        + "<div id='ttcPathClass'></div>"
+        + "<button type='button' class='ttc-path-cancel'>Huỷ lộ trình</button>";
       var remText = reminder(state, list);
       window.__ttcLastVocabPathReminder = remText;
       box.querySelector(".ttc-daily-note").textContent = remText;
@@ -195906,16 +195913,13 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       });
       var card = box.querySelector(".ttc-daily-card");
       var actions = box.querySelector(".ttc-daily-actions");
-      var cancel = document.createElement("button");
-      cancel.type = "button";
-      cancel.textContent = "Huỷ lộ trình";
+      var cancel = box.querySelector(".ttc-path-cancel");
       cancel.addEventListener("click", function(){
         entry.on = false;
         putEntry(store, level, entry);
         box.dataset.ready = "";
         draw();
       });
-      actions.appendChild(cancel);
       syncBoard(state, box.querySelector("#ttcPathClass"));
       if (!list.length) {
         card.textContent = "Cấp này chưa có từ để học.";
@@ -195942,70 +195946,277 @@ function buildTtcHskPaper(pool, level, examNo, salt){
     }
     function miss(store, level, entry){
       var day = today();
-      entry.xp = Math.max(0, (Number(entry.xp) || 0) - 4);
+      entry.xp = Math.max(0, (Number(entry.xp) || 0) - 5);
       if (day) entry.lastDay = day;
       putEntry(store, level, entry);
       var score = box.querySelector(".ttc-path-score");
-      if (score) score.textContent = "Sai, trừ 4 điểm. Điểm kinh nghiệm HSK " + level + ": " + entry.xp;
+      if (score) score.textContent = "Sai, trừ 5 điểm. Điểm kinh nghiệm HSK " + level + ": " + entry.xp;
+    }
+    function pathQuizHosts(card, actions){
+      var quiz = card.parentNode && card.parentNode.querySelector
+        ? card.closest(".ttc-path-quiz") || card.parentNode
+        : null;
+      var choices = quiz && quiz.querySelector
+        ? quiz.querySelector(".ttc-path-choices")
+        : null;
+      var controls = quiz && quiz.querySelector
+        ? quiz.querySelector(".ttc-path-controls")
+        : null;
+      if (!choices) {
+        choices = document.createElement("div");
+        choices.className = "ttc-path-choices";
+        card.insertAdjacentElement("afterend", choices);
+      }
+      if (!controls) {
+        controls = document.createElement("div");
+        controls.className = "ttc-path-controls";
+        choices.insertAdjacentElement("afterend", controls);
+      }
+      choices.innerHTML = "";
+      controls.innerHTML = "";
+      if (actions) actions.innerHTML = "";
+      return { choices: choices, controls: controls };
+    }
+    function pathNormMeaning(s){
+      return String(s || "").normalize("NFC").trim().toLowerCase().replace(/\s+/g, " ");
+    }
+    function pathCollectMeaningOptions(list, word){
+      var correct = String(word.m || "").trim();
+      if (!correct) return [];
+      var seen = Object.create(null);
+      seen[pathNormMeaning(correct)] = true;
+      var sameType = [];
+      var other = [];
+      shuffle(list.slice()).forEach(function(item){
+        if (!item || !item.m) return;
+        if (item.h === word.h && pathNormMeaning(item.m) === pathNormMeaning(correct)) return;
+        var m = String(item.m).trim();
+        var key = pathNormMeaning(m);
+        if (!key || seen[key]) return;
+        seen[key] = true;
+        if (word.t && item.t && String(item.t) === String(word.t)) sameType.push(m);
+        else other.push(m);
+      });
+      var picks = sameType.concat(other);
+      var options = [correct];
+      for (var i = 0; i < picks.length && options.length < 5; i++) options.push(picks[i]);
+      return options;
     }
     function askMeaning(store, level, entry, list, word, card, actions){
+      var hosts = pathQuizHosts(card, actions);
       var hv = (typeof ttcHanVietName === "function") ? ttcHanVietName(word.h) : "";
-      card.innerHTML = "<p>Chọn từ vựng phía dưới phù hợp với nghĩa</p><b class='ttc-daily-hanzi'>" + esc(word.h) + (hv ? " <span class='ttc-han-viet'>[" + esc(hv) + "]</span>" : "") + "</b>";
-      var options = [word.m];
-      shuffle(list).forEach(function(item){
-        if (options.length >= 4) return;
-        if (item.m && options.indexOf(item.m) < 0) options.push(item.m);
-      });
-      shuffle(options).forEach(function(meaning){
+      var options = pathCollectMeaningOptions(list, word);
+      var selected = null;
+      var locked = false;
+      var done = false;
+      card.innerHTML = ""
+        + "<div class='ttc-path-q'>"
+        +   "<p class='ttc-path-q-label'>Chọn nghĩa tiếng Việt đúng</p>"
+        +   "<b class='ttc-daily-hanzi'>" + esc(word.h) + (hv ? " <span class='ttc-han-viet'>[" + esc(hv) + "]</span>" : "") + "</b>"
+        + "</div>";
+      if (options.length < 4) {
+        card.querySelector(".ttc-path-q").insertAdjacentHTML("beforeend",
+          "<p class='ttc-path-q-hint'>Không đủ đáp án nhiễu phù hợp — hãy nhập nghĩa tiếng Việt.</p>");
+        var input = document.createElement("input");
+        input.type = "text";
+        input.className = "ttc-path-input";
+        input.setAttribute("autocomplete", "off");
+        input.setAttribute("autocapitalize", "off");
+        input.placeholder = "Nhập nghĩa tiếng Việt";
+        hosts.choices.appendChild(input);
+        var btnDone = document.createElement("button");
+        btnDone.type = "button";
+        btnDone.className = "ttc-path-btn ttc-path-btn-done";
+        btnDone.textContent = "Chọn xong";
+        var btnConfirm = document.createElement("button");
+        btnConfirm.type = "button";
+        btnConfirm.className = "ttc-path-btn ttc-path-btn-confirm";
+        btnConfirm.textContent = "Xác nhận";
+        function gradeInput(){
+          if (done) return;
+          var typed = pathNormMeaning(input.value);
+          if (!typed) return;
+          done = true;
+          input.disabled = true;
+          btnDone.disabled = true;
+          btnConfirm.disabled = true;
+          if (typed === pathNormMeaning(word.m)) succeed(store, level, entry);
+          else {
+            miss(store, level, entry);
+            done = false;
+            input.disabled = false;
+            btnDone.disabled = false;
+            btnConfirm.disabled = false;
+            input.select();
+          }
+        }
+        btnDone.addEventListener("click", function(){
+          if (!pathNormMeaning(input.value)) return;
+          input.blur();
+          btnConfirm.focus();
+        });
+        btnConfirm.addEventListener("click", gradeInput);
+        input.addEventListener("keydown", function(ev){
+          if (ev.key === "Enter") { ev.preventDefault(); gradeInput(); }
+        });
+        hosts.controls.appendChild(btnDone);
+        hosts.controls.appendChild(btnConfirm);
+        return;
+      }
+      var letters = ["A", "B", "C", "D", "E"];
+      shuffle(options).forEach(function(meaning, idx){
         var button = document.createElement("button");
         button.type = "button";
-        button.textContent = meaning;
+        button.className = "ttc-path-choice";
+        button.setAttribute("data-meaning", meaning);
+        button.innerHTML = "<span class='ttc-path-choice-key'>" + letters[idx] + "</span><span class='ttc-path-choice-text'>" + esc(meaning) + "</span>";
         button.addEventListener("click", function(){
-          if (meaning === word.m) succeed(store, level, entry);
-          else { miss(store, level, entry); button.disabled = true; }
+          if (locked || done) return;
+          selected = meaning;
+          hosts.choices.querySelectorAll(".ttc-path-choice").forEach(function(el){
+            el.classList.toggle("ttc-path-choice-on", el === button);
+          });
         });
-        actions.insertBefore(button, actions.firstChild);
+        hosts.choices.appendChild(button);
       });
+      var btnDone2 = document.createElement("button");
+      btnDone2.type = "button";
+      btnDone2.className = "ttc-path-btn ttc-path-btn-done";
+      btnDone2.textContent = "Chọn xong";
+      var btnConfirm2 = document.createElement("button");
+      btnConfirm2.type = "button";
+      btnConfirm2.className = "ttc-path-btn ttc-path-btn-confirm";
+      btnConfirm2.textContent = "Xác nhận";
+      btnDone2.addEventListener("click", function(){
+        if (done || selected == null) return;
+        locked = true;
+        hosts.choices.querySelectorAll(".ttc-path-choice").forEach(function(el){ el.disabled = true; });
+        btnDone2.classList.add("ttc-path-btn-armed");
+      });
+      btnConfirm2.addEventListener("click", function(){
+        if (done || selected == null) return;
+        done = true;
+        locked = true;
+        hosts.choices.querySelectorAll(".ttc-path-choice").forEach(function(el){ el.disabled = true; });
+        btnDone2.disabled = true;
+        btnConfirm2.disabled = true;
+        if (selected === word.m) succeed(store, level, entry);
+        else {
+          miss(store, level, entry);
+          done = false;
+          locked = false;
+          btnDone2.disabled = false;
+          btnConfirm2.disabled = false;
+          btnDone2.classList.remove("ttc-path-btn-armed");
+          hosts.choices.querySelectorAll(".ttc-path-choice").forEach(function(el){
+            el.disabled = false;
+            if (el.getAttribute("data-meaning") === selected) el.disabled = true;
+          });
+          selected = null;
+          hosts.choices.querySelectorAll(".ttc-path-choice-on").forEach(function(el){ el.classList.remove("ttc-path-choice-on"); });
+        }
+      });
+      hosts.controls.appendChild(btnDone2);
+      hosts.controls.appendChild(btnConfirm2);
     }
     function askTiles(store, level, entry, list, word, card, actions){
-      card.innerHTML = "<p>" + esc(word.m) + "</p><p>Chọn từ vựng phía dưới phù hợp với nghĩa</p><p class='ttc-path-build'></p>";
+      var hosts = pathQuizHosts(card, actions);
+      card.innerHTML = "";
+      var q = document.createElement("div");
+      q.className = "ttc-path-q";
+      var qLabel = document.createElement("p");
+      qLabel.className = "ttc-path-q-label";
+      qLabel.textContent = "Ghép chữ Hán đúng với nghĩa";
+      var qMeaning = document.createElement("p");
+      qMeaning.className = "ttc-path-q-meaning";
+      qMeaning.textContent = word.m || "";
+      var line = document.createElement("p");
+      line.className = "ttc-path-build";
+      q.appendChild(qLabel);
+      q.appendChild(qMeaning);
+      q.appendChild(line);
+      card.appendChild(q);
       var tiles = Array.from(word.h);
-      shuffle(list).some(function(item){
-        Array.from(item.h).forEach(function(ch){
+      shuffle(list.slice()).some(function(item){
+        Array.from(item.h || "").forEach(function(ch){
           if (tiles.length < 10 && tiles.indexOf(ch) < 0) tiles.push(ch);
         });
         return tiles.length >= 10;
       });
       var built = "";
-      var line = card.querySelector(".ttc-path-build");
+      var locked = false;
+      var done = false;
       function paint(){ line.textContent = built || "…"; }
       paint();
+      var tileBox = document.createElement("div");
+      tileBox.className = "ttc-path-tiles";
       shuffle(tiles).forEach(function(ch){
         var button = document.createElement("button");
         button.type = "button";
         button.className = "ttc-daily-char";
         button.textContent = ch;
         button.addEventListener("click", function(){
+          if (locked || done) return;
           if (built.length >= word.h.length) return;
           built += ch;
           paint();
         });
-        actions.insertBefore(button, actions.firstChild);
+        tileBox.appendChild(button);
       });
-      var check = document.createElement("button");
-      check.type = "button";
-      check.textContent = "Xong";
-      check.addEventListener("click", function(){
+      hosts.choices.appendChild(tileBox);
+      var btnClear = document.createElement("button");
+      btnClear.type = "button";
+      btnClear.className = "ttc-path-btn ttc-path-btn-clear";
+      btnClear.textContent = "Xóa";
+      var btnDone = document.createElement("button");
+      btnDone.type = "button";
+      btnDone.className = "ttc-path-btn ttc-path-btn-done";
+      btnDone.textContent = "Chọn xong";
+      var btnConfirm = document.createElement("button");
+      btnConfirm.type = "button";
+      btnConfirm.className = "ttc-path-btn ttc-path-btn-confirm";
+      btnConfirm.textContent = "Xác nhận";
+      btnClear.addEventListener("click", function(){
+        if (done) return;
+        built = "";
+        locked = false;
+        paint();
+        btnDone.classList.remove("ttc-path-btn-armed");
+        tileBox.querySelectorAll("button").forEach(function(el){ el.disabled = false; });
+      });
+      btnDone.addEventListener("click", function(){
+        if (done || !built) return;
+        locked = true;
+        tileBox.querySelectorAll("button").forEach(function(el){ el.disabled = true; });
+        btnDone.classList.add("ttc-path-btn-armed");
+      });
+      btnConfirm.addEventListener("click", function(){
+        if (done || !built) return;
+        done = true;
+        locked = true;
+        tileBox.querySelectorAll("button").forEach(function(el){ el.disabled = true; });
+        btnDone.disabled = true;
+        btnConfirm.disabled = true;
+        btnClear.disabled = true;
         if (built === word.h) succeed(store, level, entry);
-        else { miss(store, level, entry); built = ""; paint(); }
+        else {
+          miss(store, level, entry);
+          built = "";
+          paint();
+          done = false;
+          locked = false;
+          btnDone.disabled = false;
+          btnConfirm.disabled = false;
+          btnClear.disabled = false;
+          btnDone.classList.remove("ttc-path-btn-armed");
+          tileBox.querySelectorAll("button").forEach(function(el){ el.disabled = false; });
+        }
       });
-      var clear = document.createElement("button");
-      clear.type = "button";
-      clear.textContent = "Xóa";
-      clear.addEventListener("click", function(){ built = ""; paint(); });
-      actions.insertBefore(check, actions.firstChild);
-      actions.insertBefore(clear, actions.firstChild);
+      hosts.controls.appendChild(btnClear);
+      hosts.controls.appendChild(btnDone);
+      hosts.controls.appendChild(btnConfirm);
     }
+
     function setup(store, level, entry){
       pickedLevel = level;
       if (entry && parseDaily(entry.daily) != null) pickedDaily = Number(entry.daily);
@@ -196071,13 +196282,38 @@ function buildTtcHskPaper(pool, level, examNo, salt){
 </script>
 
 <style id="ttc-daily-vocab-css">
-  #ttcDailyVocab{margin:0 auto 8px;padding:14px;border:1px solid #fecdd3;border-radius:16px;background:#fff7f8;text-align:center}
-  #ttcDailyVocab h3{margin:0 0 4px;color:#9f1239;font-size:20px}
+  #ttcDailyVocab{position:relative;margin:0 auto 8px;padding:14px;padding-top:48px;border:1px solid #fecdd3;border-radius:16px;background:#fff7f8;text-align:center;box-sizing:border-box;max-width:100%;overflow-x:hidden}
+  #ttcDailyVocab h3{margin:0 0 4px;color:#9f1239;font-size:20px;padding-right:7rem}
   #ttcDailyVocab .ttc-daily-note,#ttcDailyVocab .ttc-daily-meaning{margin:4px 0;color:#64748b;font-size:14px}
-  #ttcDailyVocab .ttc-daily-hanzi{display:block;font-size:64px;line-height:1.1;color:#0f172a}
-  #ttcDailyVocab .ttc-daily-py{margin:0;color:#1d4ed8;font-size:22px;font-weight:800}
+  #ttcDailyVocab .ttc-path-quiz{margin-top:10px;text-align:left}
+  #ttcDailyVocab .ttc-path-q{margin:0 0 12px;padding:14px 14px 16px;border-radius:16px;background:#0f766e;color:#fff;box-shadow:0 6px 16px rgba(15,118,110,.18)}
+  #ttcDailyVocab .ttc-path-q-label{margin:0 0 8px;font-size:15px;font-weight:800;letter-spacing:.02em;color:#ccfbf1}
+  #ttcDailyVocab .ttc-path-q-hint{margin:10px 0 0;font-size:13px;font-weight:700;color:#99f6e4}
+  #ttcDailyVocab .ttc-path-q-meaning{margin:0;font-size:22px;font-weight:800;line-height:1.45;color:#fff}
+  #ttcDailyVocab .ttc-daily-hanzi{display:block;font-size:56px;line-height:1.15;font-weight:800;color:#fff}
+  #ttcDailyVocab .ttc-path-q .ttc-han-viet{color:#a7f3d0;font-size:.55em;font-weight:700}
+  #ttcDailyVocab .ttc-daily-py{margin:8px 0 0;color:#99f6e4;font-size:20px;font-weight:800}
   #ttcDailyVocab .ttc-daily-sentence{margin:8px 0}
-  #ttcDailyVocab .ttc-daily-char{border:1px solid #fecdd3;background:#fff;color:#9f1239;border-radius:10px;font-size:28px;font-weight:800;margin:0 4px;padding:4px 8px;cursor:pointer}
+  #ttcDailyVocab .ttc-path-choices{display:flex;flex-direction:column;gap:10px;margin:0 0 12px;width:100%;box-sizing:border-box}
+  #ttcDailyVocab .ttc-path-choice{display:flex;align-items:flex-start;gap:12px;width:100%;box-sizing:border-box;margin:0;padding:14px 14px;border:2px solid #94a3b8;border-radius:14px;background:#f8fafc;color:#0f172a;font-size:17px;font-weight:700;line-height:1.45;text-align:left;cursor:pointer}
+  #ttcDailyVocab .ttc-path-choice-key{flex:0 0 auto;min-width:1.6em;height:1.6em;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;background:#e2e8f0;color:#1e293b;font-weight:800}
+  #ttcDailyVocab .ttc-path-choice-text{flex:1 1 auto;word-break:break-word}
+  #ttcDailyVocab .ttc-path-choice-on{border-color:#6d28d9;background:#ede9fe;color:#4c1d95;box-shadow:0 0 0 2px rgba(109,40,217,.22)}
+  #ttcDailyVocab .ttc-path-choice-on .ttc-path-choice-key{background:#6d28d9;color:#fff}
+  #ttcDailyVocab .ttc-path-choice:disabled{opacity:.72;cursor:default}
+  #ttcDailyVocab .ttc-path-tiles{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;padding:10px;border:1px solid #cbd5e1;border-radius:14px;background:#fff}
+  #ttcDailyVocab .ttc-daily-char{border:2px solid #64748b;background:#fff;color:#0f172a;border-radius:12px;font-size:28px;font-weight:800;margin:0;padding:10px 14px;cursor:pointer;min-width:48px;min-height:48px}
+  #ttcDailyVocab .ttc-daily-char:disabled{opacity:.55;cursor:default}
+  #ttcDailyVocab .ttc-path-build{font-size:34px;font-weight:800;letter-spacing:.12em;margin:10px 0 0;color:#ecfdf5;min-height:1.2em}
+  #ttcDailyVocab .ttc-path-input{width:100%;box-sizing:border-box;border:2px solid #64748b;border-radius:14px;padding:14px 12px;font-size:17px;font-weight:700;color:#0f172a;background:#fff}
+  #ttcDailyVocab .ttc-path-controls{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:4px 0 8px;padding:12px;border-radius:14px;background:#e2e8f0;border:1px solid #cbd5e1}
+  #ttcDailyVocab .ttc-path-btn{border:0;border-radius:14px;font-weight:800;font-size:16px;padding:14px 18px;cursor:pointer;min-height:48px;min-width:120px}
+  #ttcDailyVocab .ttc-path-btn-done{background:#d97706;color:#fff}
+  #ttcDailyVocab .ttc-path-btn-done.ttc-path-btn-armed{box-shadow:inset 0 0 0 2px #fff}
+  #ttcDailyVocab .ttc-path-btn-confirm{background:#15803d;color:#fff}
+  #ttcDailyVocab .ttc-path-btn-clear{background:#475569;color:#fff}
+  #ttcDailyVocab .ttc-path-btn:disabled{opacity:.55;cursor:default}
+  #ttcDailyVocab .ttc-path-cancel{position:absolute;top:10px;right:10px;z-index:2;border:2px solid #9f1239;border-radius:12px;background:#fff;color:#9f1239;font-weight:800;font-size:13px;padding:8px 12px;cursor:pointer;box-shadow:0 2px 8px rgba(15,23,42,.08);max-width:calc(100% - 24px)}
   #ttcDailyVocab .ttc-daily-actions{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:8px}
   #ttcDailyVocab .ttc-daily-actions button{border:0;border-radius:999px;background:#9f1239;color:#fff;font-weight:800;padding:8px 14px;cursor:pointer}
   #ttcDailyVocab .ttc-path-bar{height:8px;background:#ffe4e6;border-radius:99px;overflow:hidden;margin:8px auto;max-width:280px}
@@ -196096,7 +196332,6 @@ function buildTtcHskPaper(pool, level, examNo, salt){
   #ttcDailyVocab .ttc-path-daily-error{min-height:18px;margin:0;color:#b91c1c;font-size:13px;font-weight:700}
   #ttcDailyVocab .ttc-path-session-hint{margin:4px 0 0;color:#9f1239;font-size:13px;font-weight:700}
   #ttcDailyVocab .ttc-on{background:#9f1239!important;color:#fff!important}
-  #ttcDailyVocab .ttc-path-build{font-size:32px;font-weight:800;letter-spacing:.12em;margin:6px 0}
   #ttcPathClass{margin-top:12px;text-align:left}
   #ttcPathClass p{margin:3px 0}
   .ttc-ach-launch{
@@ -196197,10 +196432,15 @@ function buildTtcHskPaper(pool, level, examNo, salt){
     .ttc-ach-launch-text{font-size:15px}
   }
   @media(max-width:420px){
-    #ttcDailyVocab{padding:12px 10px}
+    #ttcDailyVocab{padding:12px 10px;padding-top:52px}
+    #ttcDailyVocab h3{padding-right:6.5rem;font-size:18px}
     #ttcDailyVocab .ttc-path-overview{grid-template-columns:1fr}
-    #ttcDailyVocab .ttc-daily-hanzi{font-size:48px}
+    #ttcDailyVocab .ttc-daily-hanzi{font-size:44px}
+    #ttcDailyVocab .ttc-path-q-meaning{font-size:18px}
     #ttcDailyVocab .ttc-path-build{font-size:26px}
+    #ttcDailyVocab .ttc-path-choice{font-size:16px;padding:12px}
+    #ttcDailyVocab .ttc-path-btn{min-width:108px;padding:12px 14px;font-size:15px}
+    #ttcDailyVocab .ttc-path-cancel{top:8px;right:8px;font-size:12px;padding:7px 10px}
   }
   #ttcDailyVocab .ttc-path-sync{margin:8px 0;text-align:left}
   #ttcDailyVocab .ttc-path-sync-note{margin:4px 0;color:#9f1239;font-size:13px;font-weight:700}
