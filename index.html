@@ -195120,10 +195120,22 @@ function buildTtcHskPaper(pool, level, examNo, salt){
     return html;
   }
 
+  function sortAchievementRows(rows){
+    return (rows || []).slice().sort(function(a, b){
+      var wa = Number(a && a.words_mastered) || 0;
+      var wb = Number(b && b.words_mastered) || 0;
+      if (wb !== wa) return wb - wa;
+      var xa = Number(a && a.xp) || 0;
+      var xb = Number(b && b.xp) || 0;
+      return xb - xa;
+    });
+  }
+  window.ttcSortAchievementRows = sortAchievementRows;
   function renderAchievementRows(level, rows, offset){
     if (!rows || !rows.length) {
       return "<p class='ttc-ach-empty'>Chưa có thành viên trên bảng HSK " + level + ".</p>";
     }
+    rows = sortAchievementRows(rows);
     var html = "<div class='ttc-ach-table' role='table' aria-label='Bảng thành tích HSK " + level + "'>"
       + "<div class='ttc-ach-head' role='row'>"
       + "<span>Hạng</span><span>Nickname</span><span>Từ ghi nhớ</span><span>EXP</span>"
@@ -195777,15 +195789,15 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       var pct = state.daily ? Math.round((state.todayDone / state.daily) * 100) : 0;
       var status = pathStatus(state, list);
       return ""
-        + "<div class='ttc-path-overview'>"
+        + "<aside class='ttc-path-overview ttc-path-overview-col' aria-label='Thống kê lộ trình'>"
+        +   "<div class='ttc-path-stat ttc-path-stat-xp' data-ttc-xp-target='1'><span>Tổng EXP</span><b class='ttc-path-xp-value'>" + esc(String(state.xp || 0)) + "</b></div>"
         +   "<div class='ttc-path-stat'><span>Chuỗi ngày</span><b>" + esc(streakText(state)) + "</b></div>"
-        +   "<div class='ttc-path-stat'><span>Tổng XP</span><b>" + esc(String(state.xp || 0)) + "</b></div>"
         +   "<div class='ttc-path-stat'><span>Tiến độ lộ trình</span><b>" + pathPos + "/" + total + " từ</b></div>"
         +   "<div class='ttc-path-stat'><span>Hôm nay</span><b>" + (state.todayDone || 0) + "/" + (state.daily || 0) + " · " + pct + "%</b></div>"
         +   "<div class='ttc-path-stat'><span>Trạng thái</span><b>" + esc(status) + "</b></div>"
-        + "</div>"
-        + "<p class='ttc-path-score'>Hôm nay " + (state.todayDone || 0) + "/" + (state.daily || 0) + " từ · " + pct + "% · Điểm kinh nghiệm HSK " + state.level + ": " + (state.xp || 0) + "</p>"
-        + "<div class='ttc-path-bar'><span style='width:" + Math.min(100, pct) + "%'></span></div>";
+        +   "<div class='ttc-path-bar'><span style='width:" + Math.min(100, pct) + "%'></span></div>"
+        +   "<p class='ttc-path-score'>HSK " + state.level + " · EXP " + (state.xp || 0) + "</p>"
+        + "</aside>";
     }
     function goalsShell(){
       return ""
@@ -195885,26 +195897,44 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       var state = viewState(level, entry);
       var list = levelWords(level);
       box.innerHTML = "<h3>Lộ trình HSK " + level + "</h3>"
-        + overviewHtml(state, list)
         + syncNoticeHtml(level)
-        + "<p class='ttc-daily-note'></p>"
         + "<div class='ttc-path-goals-bar'>"
         +   "<button type='button' class='ttc-path-goals-toggle' aria-expanded='" + (goalsPanelOpen ? "true" : "false") + "'>"
         +     (goalsPanelOpen ? "Thu gọn thiết lập" : "Chỉnh mục tiêu")
         +   "</button>"
         + "</div>"
         + (goalsPanelOpen ? goalsShell() : "")
-        + "<div class='ttc-path-quiz'>"
-        +   "<div class='ttc-daily-card'></div>"
-        +   "<div class='ttc-path-choices' aria-label='Đáp án'></div>"
-        +   "<div class='ttc-path-controls' aria-label='Điều khiển'></div>"
+        + "<div class='ttc-path-learn'>"
+        +   "<div class='ttc-path-main'>"
+        +     "<div class='ttc-path-explain-bar'>"
+        +       "<button type='button' class='ttc-path-explain-toggle' aria-expanded='false'>Giải thích</button>"
+        +       "<div class='ttc-path-explain-panel ttc-daily-note' hidden></div>"
+        +     "</div>"
+        +     "<div class='ttc-path-quiz'>"
+        +       "<div class='ttc-path-feedback-host' aria-live='polite'></div>"
+        +       "<div class='ttc-daily-card'></div>"
+        +       "<div class='ttc-path-choices' aria-label='Đáp án'></div>"
+        +       "<div class='ttc-path-controls' aria-label='Điều khiển'></div>"
+        +     "</div>"
+        +   "</div>"
+        +   overviewHtml(state, list)
         + "</div>"
         + "<div class='ttc-daily-actions'></div>"
         + "<div id='ttcPathClass'></div>"
         + "<button type='button' class='ttc-path-cancel'>Huỷ lộ trình</button>";
       var remText = reminder(state, list);
       window.__ttcLastVocabPathReminder = remText;
-      box.querySelector(".ttc-daily-note").textContent = remText;
+      var explainPanel = box.querySelector(".ttc-path-explain-panel");
+      if (explainPanel) explainPanel.textContent = remText;
+      var explainToggle = box.querySelector(".ttc-path-explain-toggle");
+      if (explainToggle && explainPanel) {
+        explainToggle.addEventListener("click", function(){
+          var open = explainToggle.getAttribute("aria-expanded") === "true";
+          open = !open;
+          explainToggle.setAttribute("aria-expanded", open ? "true" : "false");
+          explainPanel.hidden = !open;
+        });
+      }
       bindConflictActions(level);
       var goalsToggle = box.querySelector(".ttc-path-goals-toggle");
       if (goalsToggle) {
@@ -195935,7 +195965,7 @@ function buildTtcHskPaper(pool, level, examNo, salt){
         dlg.className = "ttc-path-cancel-dialog";
         dlg.setAttribute("role", "dialog");
         dlg.setAttribute("aria-modal", "true");
-        dlg.innerHTML = "<p class='ttc-path-cancel-dialog-text'>Bạn có chắc chắn muốn hủy lộ trình học hiện tại không?</p>"
+        dlg.innerHTML = "<p class='ttc-path-cancel-dialog-text'>Bạn có chắc chắn muốn hủy lộ trình học hiện tại không? EXP và thành tích đã lưu sẽ được giữ nguyên.</p>"
           + "<div class='ttc-path-cancel-dialog-actions'>"
           +   "<button type='button' class='ttc-path-cancel-no'>Không</button>"
           +   "<button type='button' class='ttc-path-cancel-yes'>Xác nhận hủy</button>"
@@ -195965,27 +195995,40 @@ function buildTtcHskPaper(pool, level, examNo, salt){
     }
     remountDraw = draw;
     function pathPaintScore(level, entry, delta){
+      var xpVal = box.querySelector(".ttc-path-xp-value");
+      if (xpVal) xpVal.textContent = String(entry.xp || 0);
+      var xpCard = box.querySelector(".ttc-path-stat-xp");
+      if (xpCard) {
+        xpCard.classList.remove("ttc-path-xp-pulse");
+        void xpCard.offsetWidth;
+        xpCard.classList.add("ttc-path-xp-pulse");
+      }
       var score = box.querySelector(".ttc-path-score");
       if (score) {
-        var daily = Number(entry.daily) || 0;
-        var done = Number(entry.todayDone) || 0;
-        var pct = daily ? Math.round((done / daily) * 100) : 0;
-        score.textContent = "Hôm nay " + done + "/" + daily + " từ · " + pct + "% · Điểm kinh nghiệm HSK " + level + ": " + (entry.xp || 0);
+        score.textContent = "HSK " + level + " · EXP " + (entry.xp || 0);
         score.classList.remove("ttc-path-score-flash");
         void score.offsetWidth;
         score.classList.add("ttc-path-score-flash");
       }
       if (!delta) return;
-      var quiz = box.querySelector(".ttc-path-quiz") || box;
+      var fromEl = box.querySelector(".ttc-path-feedback") || box.querySelector(".ttc-path-choices") || box.querySelector(".ttc-path-quiz") || box;
+      var toEl = xpCard || xpVal || score || box;
+      var from = fromEl.getBoundingClientRect ? fromEl.getBoundingClientRect() : { left: 0, top: 0, width: 40, height: 20 };
+      var to = toEl.getBoundingClientRect ? toEl.getBoundingClientRect() : from;
       var fly = document.createElement("span");
       fly.className = "ttc-path-xp-fly" + (delta > 0 ? " ttc-path-xp-fly-ok" : " ttc-path-xp-fly-bad");
-      fly.textContent = (delta > 0 ? "+" : "") + delta + " XP";
-      quiz.appendChild(fly);
+      fly.textContent = (delta > 0 ? "+" : "") + delta + " EXP";
+      fly.style.left = (from.left + from.width / 2) + "px";
+      fly.style.top = (from.top + from.height / 2) + "px";
+      document.body.appendChild(fly);
+      void fly.offsetWidth;
+      fly.style.transform = "translate(" + ((to.left + to.width / 2) - (from.left + from.width / 2)) + "px," + ((to.top + to.height / 2) - (from.top + from.height / 2)) + "px) scale(.85)";
+      fly.style.opacity = "0.15";
       setTimeout(function(){
         if (!fly.parentNode) return;
         if (typeof fly.parentNode.removeChild === "function") fly.parentNode.removeChild(fly);
         else if (typeof fly.remove === "function") fly.remove();
-      }, 1200);
+      }, 1100);
     }
     function pathGradeXp(store, level, entry, ok){
       var day = today();
@@ -196028,11 +196071,17 @@ function buildTtcHskPaper(pool, level, examNo, salt){
         panel.className = "ttc-path-feedback";
         host.appendChild(panel);
       }
-      panel.className = "ttc-path-feedback " + (ok ? "ttc-path-feedback-ok" : "ttc-path-feedback-bad");
+      panel.className = "ttc-path-feedback " + (ok ? "ttc-path-feedback-ok ttc-path-feedback-win" : "ttc-path-feedback-bad");
       panel.innerHTML = "";
+      if (ok) {
+        var glow = document.createElement("span");
+        glow.className = "ttc-path-win-glow";
+        glow.setAttribute("aria-hidden", "true");
+        panel.appendChild(glow);
+      }
       var title = document.createElement("p");
       title.className = "ttc-path-feedback-title";
-      title.textContent = ok ? "Chính xác!" : "Chưa chính xác!";
+      title.textContent = ok ? "Chúc mừng! Chính xác!" : "Chưa chính xác!";
       panel.appendChild(title);
       if (ok && answerLabel) {
         var ans = document.createElement("p");
@@ -196046,7 +196095,7 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       panel.appendChild(ex);
       var badge = document.createElement("span");
       badge.className = "ttc-path-xp-badge";
-      badge.textContent = ok ? "+10 XP" : "−5 XP";
+      badge.textContent = ok ? "+10 EXP" : "−5 EXP";
       panel.appendChild(badge);
       panel.hidden = false;
       return panel;
@@ -196056,9 +196105,20 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       var graded = false;
       var advanced = false;
       var lastOk = false;
-      var feedbackHost = document.createElement("div");
-      feedbackHost.className = "ttc-path-feedback-host";
-      hosts.controls.parentNode.insertBefore(feedbackHost, hosts.controls);
+      var quizRoot = hosts.controls.closest
+        ? (hosts.controls.closest(".ttc-path-quiz") || hosts.controls.parentNode)
+        : hosts.controls.parentNode;
+      var feedbackHost = quizRoot.querySelector
+        ? quizRoot.querySelector(".ttc-path-feedback-host")
+        : null;
+      if (!feedbackHost) {
+        feedbackHost = document.createElement("div");
+        feedbackHost.className = "ttc-path-feedback-host";
+        if (quizRoot.firstChild) quizRoot.insertBefore(feedbackHost, quizRoot.firstChild);
+        else quizRoot.appendChild(feedbackHost);
+      } else {
+        feedbackHost.innerHTML = "";
+      }
 
       var btnDone = document.createElement("button");
       btnDone.type = "button";
@@ -196457,6 +196517,40 @@ function buildTtcHskPaper(pool, level, examNo, salt){
   #ttcDailyVocab .ttc-path-btn-confirm{background:#15803d;color:#fff}
   #ttcDailyVocab .ttc-path-btn-clear{background:#475569;color:#fff}
   #ttcDailyVocab .ttc-path-btn:disabled{opacity:.55;cursor:default}
+  #ttcDailyVocab .ttc-path-learn{display:flex;align-items:flex-start;gap:10px;margin-top:8px;width:100%;box-sizing:border-box}
+  #ttcDailyVocab .ttc-path-main{flex:1 1 auto;min-width:0;text-align:left}
+  #ttcDailyVocab .ttc-path-overview-col{display:flex;flex-direction:column;gap:6px;flex:0 0 132px;width:132px;max-width:38%;margin:0;padding:8px;border:1px solid #fecdd3;border-radius:14px;background:#fff;box-sizing:border-box}
+  #ttcDailyVocab .ttc-path-stat-xp{border-color:#0f766e;background:linear-gradient(180deg,#ecfdf5,#fff);box-shadow:0 0 0 1px rgba(15,118,110,.12)}
+  #ttcDailyVocab .ttc-path-stat-xp span{color:#0f766e;font-size:12px}
+  #ttcDailyVocab .ttc-path-xp-value{color:#047857 !important;font-size:22px !important;font-weight:900 !important}
+  #ttcDailyVocab .ttc-path-xp-pulse{animation:ttcPathXpPulse .85s ease}
+  #ttcDailyVocab .ttc-path-explain-bar{margin:0 0 8px}
+  #ttcDailyVocab .ttc-path-explain-toggle{border:1px solid #94a3b8;border-radius:12px;background:#fff;color:#334155;font-weight:800;font-size:13px;padding:8px 12px;cursor:pointer}
+  #ttcDailyVocab .ttc-path-explain-toggle[aria-expanded="true"]{border-color:#0f766e;color:#0f766e}
+  #ttcDailyVocab .ttc-path-explain-panel{margin:8px 0 0;padding:10px 12px;border-radius:12px;background:#f8fafc;border:1px solid #e2e8f0;color:#475569;font-size:13px;font-weight:650;line-height:1.45;text-align:left}
+  #ttcDailyVocab .ttc-path-feedback-host{margin:0 0 10px;min-height:0}
+  #ttcDailyVocab .ttc-path-feedback{padding:12px 14px;border-radius:14px;text-align:left;position:relative;overflow:hidden}
+  #ttcDailyVocab .ttc-path-feedback-ok{background:linear-gradient(135deg,#ecfdf5,#d1fae5 55%,#fef9c3);border:2px solid #059669;box-shadow:0 0 0 4px rgba(16,185,129,.18),0 10px 28px rgba(5,150,105,.22),0 0 24px rgba(250,204,21,.25);animation:ttcPathCelebrate .75s ease}
+  #ttcDailyVocab .ttc-path-feedback-bad{background:#fff7ed;border:2px solid #ea580c}
+  #ttcDailyVocab .ttc-path-feedback-win{position:relative}
+  #ttcDailyVocab .ttc-path-win-glow{position:absolute;inset:-8px;border-radius:18px;background:radial-gradient(circle at 50% 30%,rgba(250,204,21,.45),rgba(16,185,129,.12) 45%,transparent 70%);pointer-events:none;animation:ttcPathWinGlow 1.1s ease}
+  #ttcDailyVocab .ttc-path-feedback-title{margin:0 0 6px;font-size:20px;font-weight:800}
+  #ttcDailyVocab .ttc-path-feedback-ok .ttc-path-feedback-title{color:#047857}
+  #ttcDailyVocab .ttc-path-feedback-bad .ttc-path-feedback-title{color:#c2410c}
+  #ttcDailyVocab .ttc-path-feedback-answer{margin:0 0 6px;font-size:16px;font-weight:800;color:#065f46}
+  #ttcDailyVocab .ttc-path-feedback-explain{margin:0;font-size:14px;font-weight:650;line-height:1.45;color:#334155}
+  #ttcDailyVocab .ttc-path-xp-badge{display:inline-block;margin-top:8px;padding:4px 10px;border-radius:999px;font-size:13px;font-weight:800;background:#0f172a;color:#fff}
+  #ttcDailyVocab .ttc-path-feedback-ok .ttc-path-xp-badge{background:#15803d}
+  #ttcDailyVocab .ttc-path-feedback-bad .ttc-path-xp-badge{background:#c2410c}
+  #ttcDailyVocab .ttc-path-score-flash{animation:ttcPathScoreFlash .8s ease}
+  #ttcDailyVocab .ttc-path-quiz{position:relative}
+  .ttc-path-xp-fly{position:fixed;z-index:1000050;font-size:22px;font-weight:900;pointer-events:none;transition:transform 1s cubic-bezier(.2,.8,.2,1),opacity 1s ease;white-space:nowrap}
+  .ttc-path-xp-fly-ok{color:#15803d;text-shadow:0 0 14px rgba(34,197,94,.55)}
+  .ttc-path-xp-fly-bad{color:#c2410c;text-shadow:0 0 14px rgba(234,88,12,.45)}
+  @keyframes ttcPathCelebrate{0%{transform:scale(.96);filter:brightness(1)}40%{transform:scale(1.02);filter:brightness(1.08)}100%{transform:scale(1);filter:brightness(1)}}
+  @keyframes ttcPathScoreFlash{0%{box-shadow:0 0 0 0 rgba(21,128,61,.0)}30%{box-shadow:0 0 0 6px rgba(21,128,61,.22);background:#ecfdf5}100%{box-shadow:0 0 0 0 rgba(21,128,61,.0);background:transparent}}
+  @keyframes ttcPathXpPulse{0%{transform:scale(1);box-shadow:0 0 0 0 rgba(5,150,105,.0)}40%{transform:scale(1.04);box-shadow:0 0 0 6px rgba(5,150,105,.22)}100%{transform:scale(1);box-shadow:0 0 0 0 rgba(5,150,105,.0)}}
+  @keyframes ttcPathWinGlow{0%{opacity:0;transform:scale(.9)}35%{opacity:1;transform:scale(1.02)}100%{opacity:.55;transform:scale(1)}}
   #ttcDailyVocab .ttc-path-cancel{position:absolute;top:10px;right:10px;z-index:2;border:2px solid #9f1239;border-radius:12px;background:#fff;color:#9f1239;font-weight:800;font-size:13px;padding:8px 12px;cursor:pointer;box-shadow:0 2px 8px rgba(15,23,42,.08);max-width:calc(100% - 24px)}
   #ttcDailyVocab .ttc-path-goals-bar{display:flex;justify-content:center;margin:8px 0 4px}
   #ttcDailyVocab .ttc-path-goals-toggle{border:1px solid #94a3b8;border-radius:12px;background:#fff;color:#334155;font-weight:800;font-size:13px;padding:8px 12px;cursor:pointer}
@@ -196472,9 +196566,9 @@ function buildTtcHskPaper(pool, level, examNo, salt){
   #ttcDailyVocab .ttc-path-bar span{display:block;height:100%;width:0;background:#9f1239}
   #ttcDailyVocab .ttc-path-score{margin:6px 0;font-weight:800;color:#9f1239}
   #ttcDailyVocab .ttc-path-overview{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0;text-align:left}
-  #ttcDailyVocab .ttc-path-stat{padding:10px;border:1px solid #fecdd3;border-radius:12px;background:#fff}
-  #ttcDailyVocab .ttc-path-stat span{display:block;color:#64748b;font-size:12px;margin-bottom:4px}
-  #ttcDailyVocab .ttc-path-stat b{display:block;color:#9f1239;font-size:14px;line-height:1.35}
+  #ttcDailyVocab .ttc-path-stat{padding:8px;border:1px solid #fecdd3;border-radius:10px;background:#fff}
+  #ttcDailyVocab .ttc-path-stat span{display:block;color:#64748b;font-size:11px;margin-bottom:2px;font-weight:700}
+  #ttcDailyVocab .ttc-path-stat b{display:block;color:#9f1239;font-size:13px;line-height:1.3}
   #ttcDailyVocab .ttc-path-goals{margin:10px 0;padding:10px;border:1px dashed #fecdd3;border-radius:14px;background:#fff}
   #ttcDailyVocab .ttc-path-goals-title{margin:0 0 6px;color:#9f1239;font-weight:800;font-size:14px}
   #ttcDailyVocab .ttc-path-levels,#ttcDailyVocab .ttc-path-counts{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:8px 0}
@@ -196586,6 +196680,10 @@ function buildTtcHskPaper(pool, level, examNo, salt){
   @media(max-width:420px){
     #ttcDailyVocab{padding:12px 10px;padding-top:52px}
     #ttcDailyVocab h3{padding-right:6.5rem;font-size:18px}
+    #ttcDailyVocab .ttc-path-learn{flex-direction:column}
+    #ttcDailyVocab .ttc-path-overview-col{flex:0 0 auto;width:100%;max-width:100%;flex-direction:row;flex-wrap:wrap}
+    #ttcDailyVocab .ttc-path-overview-col .ttc-path-stat{flex:1 1 42%}
+    #ttcDailyVocab .ttc-path-stat-xp{flex:1 1 100%}
     #ttcDailyVocab .ttc-path-overview{grid-template-columns:1fr}
     #ttcDailyVocab .ttc-daily-hanzi{font-size:44px}
     #ttcDailyVocab .ttc-path-q-meaning{font-size:18px}
