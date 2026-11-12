@@ -131868,16 +131868,33 @@ function getChineseVoices(){
   return voices.filter(function(voice){
 
     const lang =
-      (voice.lang || "").toLowerCase();
+      (voice.lang || "").toLowerCase().replace(/_/g, "-");
+    const name =
+      (voice.name || "").toLowerCase();
 
-    return (
-      lang.startsWith("zh-cn") ||
-      lang === "zh"
-    )
-    &&
-    !lang.startsWith("zh-tw")
-    &&
-    !lang.startsWith("zh-hk");
+    if (
+      lang.indexOf("zh-tw") === 0 ||
+      lang.indexOf("zh-hk") === 0 ||
+      lang.indexOf("zh-mo") === 0 ||
+      /taiwan|hong kong|cantonese|粵|粤|台灣|台湾/.test(name)
+    ) {
+      return false;
+    }
+
+    if (
+      lang === "zh" ||
+      lang.indexOf("zh-cn") === 0 ||
+      lang.indexOf("zh-hans") === 0 ||
+      lang.indexOf("cmn") === 0
+    ) {
+      return true;
+    }
+
+    if (lang.indexOf("zh") === 0) {
+      return true;
+    }
+
+    return /chinese\s*\(?\s*simplified|mandarin|普通话|中文\(简体|microsoft\s+(huihui|yaoyao|kangkang|xiaoxiao|xiaoyi)/.test(name);
 
   });
 
@@ -131979,6 +131996,8 @@ function loadChineseVoice(){
    🔊 ĐỌC TIẾNG TRUNG
    ===================================================== */
 
+var __ttcSayGen = 0;
+
 function say(text){
 
   if(!("speechSynthesis" in window)){
@@ -131994,7 +132013,9 @@ function say(text){
   if(!text) return;
 
 
-  speechSynthesis.cancel();
+  const gen = ++__ttcSayGen;
+
+  try{ speechSynthesis.cancel(); }catch(e){}
 
 
   loadChineseVoice();
@@ -132034,9 +132055,12 @@ function say(text){
   }
 
 
-  speechSynthesis.speak(
-    utterance
-  );
+  setTimeout(function(){
+    if(gen !== __ttcSayGen) return;
+    try{
+      speechSynthesis.speak(utterance);
+    }catch(e){}
+  }, 60);
 
 }
 
@@ -132500,28 +132524,19 @@ document.head.appendChild(voicePurpleStyle);
 
 
       /*
-       * 🔊 PREVIEW NGAY
-       *
-       * Không đi vòng qua say()
-       * để tránh mobile/iPhone bỏ mất
-       * thao tác phát âm vừa chọn.
+       * 🔊 PREVIEW NGAY (một lần, hủy hàng đợi cũ)
        */
       try{
 
         const synth =
           window.speechSynthesis;
 
-        synth.cancel();
+        window.__ttcVoicePreviewGen =
+          (window.__ttcVoicePreviewGen || 0) + 1;
+        const previewGen =
+          window.__ttcVoicePreviewGen;
 
-        if(
-          typeof synth.resume ===
-          "function"
-        ){
-
-          synth.resume();
-
-        }
-
+        try{ synth.cancel(); }catch(e){}
 
         const utterance =
           new SpeechSynthesisUtterance(
@@ -132555,9 +132570,10 @@ document.head.appendChild(voicePurpleStyle);
         utterance.volume = 1;
 
 
-        synth.speak(
-          utterance
-        );
+        setTimeout(function(){
+          if(previewGen !== window.__ttcVoicePreviewGen) return;
+          try{ synth.speak(utterance); }catch(e){}
+        }, 60);
 
 
       }catch(error){
@@ -132756,14 +132772,13 @@ function updateVoiceListAuto(){
 
 if("speechSynthesis" in window){
 
-  speechSynthesis.onvoiceschanged =
-    function(){
-
+  if(!window.__ttcBaseVoicesListener){
+    window.__ttcBaseVoicesListener = true;
+    speechSynthesis.addEventListener("voiceschanged", function(){
       loadChineseVoice();
-
       updateVoiceListAuto();
-
-    };
+    });
+  }
 
 }
 
@@ -137759,6 +137774,14 @@ function clearAutoLearningTimer(){
    5. NÓI TIẾNG TRUNG
    ========================================================= */
 
+function autoSafeTtsRate(){
+  var r = Number(typeof selectedRate === "number" ? selectedRate : parseFloat(selectedRate));
+  if (!Number.isFinite(r) || r <= 0) r = 0.65;
+  if (r < 0.1) r = 0.1;
+  if (r > 2) r = 2;
+  return r;
+}
+
 function autoSpeakChinese(){
 
   const list =
@@ -137950,7 +137973,7 @@ function autoSpeakCurrentWord(){
       );
 
     utter.lang = "zh-CN";
-    utter.rate = selectedRate;
+    utter.rate = autoSafeTtsRate();
     utter.pitch = 1;
 
     if(chineseVoice){
@@ -137979,7 +138002,7 @@ function autoSpeakCurrentWord(){
       );
 
     utter.lang = "zh-CN";
-    utter.rate = selectedRate;
+    utter.rate = autoSafeTtsRate();
     utter.pitch = 1;
 
     if(chineseVoice){
@@ -138073,6 +138096,7 @@ function scheduleAutoNext(){
       : 3000;
 
 
+  /* value "0" = nghỉ 0ms; không dùng || vì 0 bị coi là falsy */
   if(
     !Number.isFinite(delay) ||
     delay < 0
@@ -138080,6 +138104,10 @@ function scheduleAutoNext(){
 
     delay = 3000;
 
+  }
+
+  if (delay > 60000) {
+    delay = 60000;
   }
 
 
@@ -138352,15 +138380,22 @@ function changeAutoInterval(value){
 
 
   /*
-     Nếu AUTO đang chạy,
-     áp dụng thời gian mới ngay.
+     Chỉ đổi khoảng nghỉ giữa các từ.
+     Không đụng utterance.rate / selectedRate.
+     Nếu đang ĐỌC: chờ onend rồi schedule với delay mới.
+     Nếu đang CHỜ giữa hai từ (timer đang chạy): hẹn lại với delay mới,
+     không nhảy từ / không phát lại giữa chừng.
   */
 
-  if(autoLearningRunning){
+  if(autoLearningRunning && !autoLearningPaused){
 
-    clearAutoLearningTimer();
+    if(autoLearningTimer !== null){
 
-    scheduleAutoNext();
+      clearAutoLearningTimer();
+
+      scheduleAutoNext();
+
+    }
 
   }
 
@@ -155318,6 +155353,8 @@ function renderUnscramble(){
      🔊 ENGINE PHÁT ÂM MOBILE
      ========================================================= */
 
+  var __mobileSpeakGen = 0;
+
   function mobileSpeak(
     text,
     rate
@@ -155335,6 +155372,10 @@ function renderUnscramble(){
 
 
     try{
+
+      const gen = ++__mobileSpeakGen;
+      try{ window.__ttcSayGen = (window.__ttcSayGen || 0) + 1; }catch(e){}
+      try{ window.__ttcVoicePreviewGen = (window.__ttcVoicePreviewGen || 0) + 1; }catch(e){}
 
       /*
          Dừng câu trước.
@@ -155483,18 +155524,16 @@ function renderUnscramble(){
 
 
       /*
-         ⭐ QUAN TRỌNG:
-         KHÔNG setTimeout.
-         
-         speak() được gọi ngay.
+         Delay ngắn + token: hủy phát trễ khi đổi câu/giọng liên tục.
       */
 
-      synth.speak(
-        utterance
-      );
-
-
-      wakeSpeech();
+      setTimeout(function(){
+        if(gen !== __mobileSpeakGen) return;
+        try{
+          synth.speak(utterance);
+          wakeSpeech();
+        }catch(e){}
+      }, 60);
 
 
       return true;
@@ -172515,6 +172554,8 @@ Nút CTRL → ĐỌC ĐÁP ÁN
    🔊 VOICE SYSTEM V6
 ========================================================= */
 
+#whiteHatVoiceActionsV6{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+#whiteHatVoiceActionsV6 button{flex:1;min-width:120px;padding:10px 12px;border-radius:10px;border:1px solid #ddd;background:#fff;font-weight:700;cursor:pointer}
 #whiteHatVoiceSystemV6{
   width:50%;
   max-width:50%;
@@ -172774,25 +172815,8 @@ Nút CTRL → ĐỌC ĐÁP ÁN
           String(v.lang || "")
             .toLowerCase()
             .replace(/_/g,"-");
-
-        if(
-          !(
-            lang === "zh" ||
-            lang.startsWith("zh-")
-          )
-        ){
-
-          return false;
-
-        }
-
-
-        /*
-         * Không lấy:
-         * zh-TW
-         * zh-HK
-         * zh-MO
-         */
+        const name =
+          String(v.name || "").toLowerCase();
 
         if(
           lang === "zh-tw" ||
@@ -172800,15 +172824,27 @@ Nút CTRL → ĐỌC ĐÁP ÁN
           lang === "zh-hk" ||
           lang.startsWith("zh-hk-") ||
           lang === "zh-mo" ||
-          lang.startsWith("zh-mo-")
+          lang.startsWith("zh-mo-") ||
+          /taiwan|hong kong|cantonese/.test(name)
         ){
 
           return false;
 
         }
 
+        if(
+          lang === "zh" ||
+          lang.startsWith("zh-cn") ||
+          lang.startsWith("zh-hans") ||
+          lang.startsWith("cmn") ||
+          lang.startsWith("zh-")
+        ){
 
-        return true;
+          return true;
+
+        }
+
+        return /chinese\s*\(?\s*simplified|mandarin|microsoft\s+(huihui|yaoyao|kangkang|xiaoxiao|xiaoyi)/.test(name);
 
       }
     );
@@ -173043,6 +173079,11 @@ Nút CTRL → ĐỌC ĐÁP ÁN
 
         </div>
 
+        <div class="whiteHatVoiceRowV6" id="whiteHatVoiceActionsV6">
+          <button type="button" id="whiteHatVoicePreviewV6">🔊 Nghe thử</button>
+          <button type="button" id="whiteHatVoiceStopV6">⏹ Dừng</button>
+        </div>
+
       </div>
 
     `;
@@ -173167,9 +173208,9 @@ Nút CTRL → ĐỌC ĐÁP ÁN
           );
 
         var low = String(v.name || "").toLowerCase();
-        var who = /kangkang|yunxi|yunjian|yunyang|yunfeng|yunhao|namminh|male/.test(low)
-          ? "Nam"
-          : (/xiaoxiao|xiaoyi|xiaohan|xiaomeng|huihui|yaoyao|hoaimy|female/.test(low) ? "Nữ" : "Giọng");
+        var who = "";
+        if (/kangkang|yunxi|yunjian|yunyang|yunfeng|yunhao|namminh|male/.test(low)) who = "Nam · ";
+        else if (/xiaoxiao|xiaoyi|xiaohan|xiaomeng|huihui|yaoyao|hoaimy|female/.test(low)) who = "Nữ · ";
 
         option.value =
           v.name;
@@ -173178,8 +173219,8 @@ Nút CTRL → ĐỌC ĐÁP ÁN
           flag +
           " " +
           who +
-          " · máy · " +
-          v.name;
+          v.name +
+          " (" + (v.lang || "") + ")";
 
         select.appendChild(
           option
@@ -173280,10 +173321,12 @@ Nút CTRL → ĐỌC ĐÁP ÁN
 
     try{
       if(!localStorage.getItem(CHINESE_KEY)){
-        localStorage.setItem(CHINESE_KEY, "ttcnet:youdao-nu");
+        var deviceZh = chineseVoices();
+        if(deviceZh[0]) localStorage.setItem(CHINESE_KEY, deviceZh[0].name);
       }
       if(!localStorage.getItem(VIETNAMESE_KEY)){
-        localStorage.setItem(VIETNAMESE_KEY, "ttcnet:google-vi");
+        var deviceVi = vietnameseVoices();
+        if(deviceVi[0]) localStorage.setItem(VIETNAMESE_KEY, deviceVi[0].name);
       }
     }catch(error){}
 
@@ -173381,7 +173424,13 @@ Nút CTRL → ĐỌC ĐÁP ÁN
      🛑 DỪNG GIỌNG CŨ
   ========================================================= */
 
+  var sampleGen = 0;
+
   function stopSpeech(){
+
+    sampleGen++;
+    try{ window.__ttcSayGen = (window.__ttcSayGen || 0) + 1; }catch(e){}
+    try{ window.__ttcVoicePreviewGen = (window.__ttcVoicePreviewGen || 0) + 1; }catch(e){}
 
     try{
 
@@ -173401,27 +173450,21 @@ Nút CTRL → ĐỌC ĐÁP ÁN
     voice
   ){
 
-    if(!voice){
-      return;
-    }
+    const gen = ++sampleGen;
 
-
-    stopSpeech();
-
+    try{ synth.cancel(); }catch(error){}
 
     const utterance =
       new SpeechSynthesisUtterance(
         text
       );
 
-
-    utterance.voice =
-      voice;
-
-    utterance.lang =
-      voice.lang ||
-      "zh-CN";
-
+    if(voice){
+      utterance.voice = voice;
+      utterance.lang = voice.lang || "zh-CN";
+    }else{
+      utterance.lang = "zh-CN";
+    }
 
     const savedRate =
       parseFloat(
@@ -173439,14 +173482,10 @@ Nút CTRL → ĐỌC ĐÁP ÁN
     utterance.pitch = 1;
     utterance.volume = 1;
 
-
-    /*
-     * Delay nhỏ giúp iPhone/Safari
-     * nhận lệnh sau cancel().
-     */
-
     setTimeout(
       function(){
+
+        if(gen !== sampleGen) return;
 
         try{
 
@@ -173532,19 +173571,12 @@ Nút CTRL → ĐỌC ĐÁP ÁN
 
 
         /*
-         * Chọn xong → tự phát mẫu.
+         * Chọn xong → dừng hàng đợi cũ, phát mẫu một lần.
          */
-
-        if(String(name).indexOf("ttcnet:") === 0){
-          var sample = new SpeechSynthesisUtterance("你好，很高兴认识你。");
-          sample.lang = "zh-CN";
-          synth.speak(sample);
-        }else{
-          speakSample(
-            "你好，很高兴认识你。",
-            voice
-          );
-        }
+        speakSample(
+          "你好，很高兴认识你。",
+          voice
+        );
 
       }
     );
@@ -173616,19 +173648,12 @@ Nút CTRL → ĐỌC ĐÁP ÁN
 
 
         /*
-         * Chọn xong → tự phát mẫu.
+         * Chọn xong → dừng hàng đợi cũ, phát mẫu một lần.
          */
-
-        if(String(name).indexOf("ttcnet:") === 0){
-          var sampleVi = new SpeechSynthesisUtterance("Xin chào, rất vui được làm quen với bạn.");
-          sampleVi.lang = "vi-VN";
-          synth.speak(sampleVi);
-        }else{
-          speakSample(
-            "Xin chào, rất vui được làm quen với bạn.",
-            voice
-          );
-        }
+        speakSample(
+          "Xin chào, rất vui được làm quen với bạn.",
+          voice
+        );
 
       }
     );
@@ -173677,6 +173702,24 @@ Nút CTRL → ĐỌC ĐÁP ÁN
   }
 
 
+  function bindPreviewStop(){
+    var preview = document.getElementById("whiteHatVoicePreviewV6");
+    var stopBtn = document.getElementById("whiteHatVoiceStopV6");
+    if(preview && preview.dataset.bound !== "1"){
+      preview.dataset.bound = "1";
+      preview.addEventListener("click", function(){
+        var select = document.getElementById("whiteHatChineseSelectV6");
+        var name = select && select.value;
+        if(!name) return;
+        speakSample("你好，很高兴认识你。", findVoice(name));
+      });
+    }
+    if(stopBtn && stopBtn.dataset.bound !== "1"){
+      stopBtn.dataset.bound = "1";
+      stopBtn.addEventListener("click", function(){ stopSpeech(); });
+    }
+  }
+
   /* =========================================================
      🚀 INIT
   ========================================================= */
@@ -173695,6 +173738,8 @@ Nút CTRL → ĐỌC ĐÁP ÁN
 
     bindRate();
 
+    bindPreviewStop();
+
   }
 
 
@@ -173704,21 +173749,21 @@ Nút CTRL → ĐỌC ĐÁP ÁN
 
   try{
 
-    synth.addEventListener(
-      "voiceschanged",
-      function(){
-
-        setTimeout(
-          function(){
-
-            init();
-
-          },
-          100
-        );
-
-      }
-    );
+    if(!window.__ttcV6VoicesListener){
+      window.__ttcV6VoicesListener = true;
+      synth.addEventListener(
+        "voiceschanged",
+        function(){
+          setTimeout(function(){
+            if(document.getElementById("whiteHatVoiceSystemV6")){
+              refreshVoiceLists();
+            }else{
+              init();
+            }
+          }, 100);
+        }
+      );
+    }
 
   }catch(error){}
 
@@ -174316,53 +174361,14 @@ body.ttc-light-effect-off #ttcLightFallCanvas{
      trên iPhone/Safari.
   ========================================================= */
   function whiteHatFinalPreviewSelectedVoice(select){
-    if(!select || !select.value) return;
-    if(!("speechSynthesis" in window)) return;
-
-    var voices = window.speechSynthesis.getVoices() || [];
-    var selected = voices.find(function(v){
-      return v.name === select.value;
-    });
-
-    if(!selected){
-      return;
-    }
-
-    try{
-      window.speechSynthesis.cancel();
-
-      var utterance = new SpeechSynthesisUtterance(
-        "你好，很高兴认识你。"
-      );
-
-      utterance.voice = selected;
-      utterance.lang = selected.lang || "zh-CN";
-      utterance.rate =
-        (typeof window.selectedRate === "number")
-          ? window.selectedRate
-          : 0.85;
-      utterance.pitch = 1;
-      utterance.volume = 1;
-
-      /* Quan trọng: speak trực tiếp, không setTimeout trên mobile. */
-      window.speechSynthesis.speak(utterance);
-    }catch(error){
-      console.log("WHITE HAT FINAL VOICE PREVIEW:", error);
-    }
+    /* V6 / createVoiceSettings đã preview — không phát lần 2. */
+    return;
   }
 
   function whiteHatFinalBindVoice(){
     var select = document.getElementById("voiceSelectAuto");
     if(!select || select.dataset.whiteHatFinalBound === "1") return;
-
     select.dataset.whiteHatFinalBound = "1";
-
-    select.addEventListener("change", function(){
-      /* Cho handler gốc lưu selectedVoiceName trước. */
-      setTimeout(function(){
-        whiteHatFinalPreviewSelectedVoice(select);
-      }, 0);
-    });
   }
 
   function whiteHatFinalWatchVoice(){
@@ -183214,7 +183220,16 @@ if(
         utterance.rate =
           language === "vi-VN"
             ? 0.95
-            : 0.9;
+            : (function(){
+                var r = 0.9;
+                try{
+                  var saved = parseFloat(localStorage.getItem("ttsRate") || "0.9");
+                  if(Number.isFinite(saved) && saved > 0) r = saved;
+                }catch(e){}
+                if(r < 0.1) r = 0.1;
+                if(r > 2) r = 2;
+                return r;
+              })();
 
 
         const voice =
@@ -183479,7 +183494,7 @@ if(
           }
 
           const duration =
-            Math.max(0, Number(seconds) || 0) * 1000;
+            Math.max(0, (function(s){ s = Number(s); return Number.isFinite(s) ? s : 0; })(seconds)) * 1000;
 
           const deadline =
             Date.now() + duration;
@@ -184070,25 +184085,9 @@ if(
 
 
         /*
-         * Nếu đang chạy:
-         * hủy timer cũ rồi bắt đầu lại chu kỳ
-         * theo khoảng nghỉ mới.
+         * Chỉ lưu khoảng nghỉ (giây). Không restart TTS,
+         * không clear timer giữa Trung↔Việt — lần nghỉ sau dùng gap mới.
          */
-
-        if(running){
-
-          if(timer){
-
-            clearTimeout(timer);
-
-            timer = null;
-
-          }
-
-
-          startAutoSequence();
-
-        }
 
       }
     );
@@ -195681,6 +195680,11 @@ function buildTtcHskPaper(pool, level, examNo, salt){
   fetchServerToday();
   watchAuthForSync();
 
+  function pathCheckAccess(level){
+    if (typeof checkPremiumAccess !== "function") return Promise.resolve(false);
+    return Promise.resolve(checkPremiumAccess(Number(level))).then(function(ok){ return !!ok; }).catch(function(){ return false; });
+  }
+
   window.ttcEnsurePathShell = function(){
     var hub = document.getElementById("ttcTopLearningHub");
     var shell = document.getElementById("ttcPathShell");
@@ -195708,12 +195712,18 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       launcher.dataset.bound = "1";
       launcher.addEventListener("click", function(){
         var open = launcher.getAttribute("aria-expanded") === "true";
-        open = !open;
-        launcher.setAttribute("aria-expanded", open ? "true" : "false");
-        panel.hidden = !open;
-        launcher.textContent = open
-          ? "📚 LỘ TRÌNH HỌC HSK · Thu gọn lộ trình"
-          : "📚 LỘ TRÌNH HỌC HSK · Mở lộ trình";
+        if (open) {
+          launcher.setAttribute("aria-expanded", "false");
+          panel.hidden = true;
+          launcher.textContent = "📚 LỘ TRÌNH HỌC HSK · Mở lộ trình";
+          return;
+        }
+        pathCheckAccess(1).then(function(ok){
+          if (!ok) return;
+          launcher.setAttribute("aria-expanded", "true");
+          panel.hidden = false;
+          launcher.textContent = "📚 LỘ TRÌNH HỌC HSK · Thu gọn lộ trình";
+        });
       });
     }
     return panel;
@@ -195770,7 +195780,12 @@ function buildTtcHskPaper(pool, level, examNo, salt){
         button.type = "button";
         button.textContent = "HSK " + level;
         if (level === selected) button.classList.add("ttc-on");
-        button.addEventListener("click", function(){ onPick(level); });
+        button.addEventListener("click", function(){
+          pathCheckAccess(level).then(function(ok){
+            if (!ok) return;
+            onPick(level);
+          });
+        });
         host.appendChild(button);
       });
     }
@@ -195931,6 +195946,7 @@ function buildTtcHskPaper(pool, level, examNo, salt){
     function showMigrateError(code){
       box.innerHTML = "<h3>Lộ trình HSK</h3><p class='ttc-daily-note'>Không thể bảo toàn tiến độ cũ một cách chắc chắn (" + esc(code) + "). Dữ liệu localStorage không bị ghi đè. Vui lòng báo chủ dự án trước khi tiếp tục.</p>";
     }
+    var pathDrawSeq = 0;
     function draw(){
       var cur = current();
       if (cur.error) return showMigrateError(cur.error);
@@ -195938,6 +195954,14 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       var level = cur.level;
       var entry = cur.entry;
       if (!entry || !entry.on) return setup(store, level, entry);
+      var seq = ++pathDrawSeq;
+      pathCheckAccess(level).then(function(ok){
+        if (seq !== pathDrawSeq) return;
+        if (!ok) return setup(store, level, entry);
+        drawLearningUnlocked(store, level, entry);
+      });
+    }
+    function drawLearningUnlocked(store, level, entry){
       entry = freshDay(entry);
       putEntry(store, level, entry);
       var state = viewState(level, entry);
@@ -196532,26 +196556,30 @@ function buildTtcHskPaper(pool, level, examNo, salt){
           if (err) err.textContent = "Nhập số nguyên từ " + DAILY_MIN + " đến " + DAILY_MAX + ".";
           return;
         }
-        var day = today();
-        var next = entry ? entry : {
-          on: true,
-          daily: daily,
-          index: 0,
-          xp: 0,
-          today: day || "",
-          todayDone: 0,
-          lastDay: ""
-        };
-        next.on = true;
-        next.daily = daily;
-        if (next.index == null) next.index = 0;
-        if (next.xp == null) next.xp = 0;
-        if (next.todayDone == null) next.todayDone = 0;
-        if (!next.today && day) next.today = day;
-        if (next.lastDay == null) next.lastDay = "";
-        putEntry(store, pickedLevel, next);
-        goalsPanelOpen = false;
-        draw();
+        var levelToStart = pickedLevel;
+        pathCheckAccess(levelToStart).then(function(ok){
+          if (!ok) return;
+          var day = today();
+          var next = entry ? entry : {
+            on: true,
+            daily: daily,
+            index: 0,
+            xp: 0,
+            today: day || "",
+            todayDone: 0,
+            lastDay: ""
+          };
+          next.on = true;
+          next.daily = daily;
+          if (next.index == null) next.index = 0;
+          if (next.xp == null) next.xp = 0;
+          if (next.todayDone == null) next.todayDone = 0;
+          if (!next.today && day) next.today = day;
+          if (next.lastDay == null) next.lastDay = "";
+          putEntry(store, levelToStart, next);
+          goalsPanelOpen = false;
+          draw();
+        });
       });
       box.querySelector(".ttc-daily-actions").appendChild(start);
       syncBoard(viewState(level, entry || { daily: pickedDaily, xp: 0, todayDone: 0 }), box.querySelector("#ttcPathClass"));
