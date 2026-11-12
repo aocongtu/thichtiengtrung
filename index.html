@@ -195788,12 +195788,15 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       var pathPos = Math.max(0, Number(state.index) || 0);
       var pct = state.daily ? Math.round((state.todayDone / state.daily) * 100) : 0;
       var status = pathStatus(state, list);
+      var todayDone = Number(state.todayDone) || 0;
+      var daily = Number(state.daily) || 0;
       return ""
         + "<aside class='ttc-path-overview ttc-path-overview-col' aria-label='Thống kê lộ trình'>"
         +   "<div class='ttc-path-stat ttc-path-stat-xp' data-ttc-xp-target='1'><span>Tổng EXP</span><b class='ttc-path-xp-value'>" + esc(String(state.xp || 0)) + "</b></div>"
         +   "<div class='ttc-path-stat'><span>Chuỗi ngày</span><b>" + esc(streakText(state)) + "</b></div>"
+        +   "<div class='ttc-path-stat'><span>Đã học hôm nay</span><b>" + todayDone + " từ</b></div>"
         +   "<div class='ttc-path-stat'><span>Tiến độ lộ trình</span><b>" + pathPos + "/" + total + " từ</b></div>"
-        +   "<div class='ttc-path-stat'><span>Hôm nay</span><b>" + (state.todayDone || 0) + "/" + (state.daily || 0) + " · " + pct + "%</b></div>"
+        +   "<div class='ttc-path-stat'><span>Hôm nay</span><b>" + todayDone + "/" + daily + " · " + pct + "%</b></div>"
         +   "<div class='ttc-path-stat'><span>Trạng thái</span><b>" + esc(status) + "</b></div>"
         +   "<div class='ttc-path-bar'><span style='width:" + Math.min(100, pct) + "%'></span></div>"
         +   "<p class='ttc-path-score'>HSK " + state.level + " · EXP " + (state.xp || 0) + "</p>"
@@ -196089,10 +196092,12 @@ function buildTtcHskPaper(pool, level, examNo, salt){
         ans.textContent = "Đáp án đúng: " + answerLabel;
         panel.appendChild(ans);
       }
-      var ex = document.createElement("p");
-      ex.className = "ttc-path-feedback-explain";
-      ex.textContent = explain || "";
-      panel.appendChild(ex);
+      if (ok) {
+        var ex = document.createElement("p");
+        ex.className = "ttc-path-feedback-explain";
+        ex.textContent = explain || "";
+        panel.appendChild(ex);
+      }
       var badge = document.createElement("span");
       badge.className = "ttc-path-xp-badge";
       badge.textContent = ok ? "+10 EXP" : "−5 EXP";
@@ -196102,9 +196107,9 @@ function buildTtcHskPaper(pool, level, examNo, salt){
     }
     function pathMountStepControls(hosts, cfg){
       var phase = "A";
-      var graded = false;
+      var solved = false;
       var advanced = false;
-      var lastOk = false;
+      var busy = false;
       var quizRoot = hosts.controls.closest
         ? (hosts.controls.closest(".ttc-path-quiz") || hosts.controls.parentNode)
         : hosts.controls.parentNode;
@@ -196130,19 +196135,19 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       btnConfirm.textContent = "Xác nhận";
 
       function syncButtons(){
-        var canDone = phase === "B" && !graded;
-        var canConfirm = phase === "C" && graded && !advanced;
+        var canDone = phase === "B" && !solved && !busy && !advanced;
+        var canConfirm = phase === "D" && solved && !advanced;
         btnDone.disabled = !canDone;
         btnConfirm.disabled = !canConfirm;
         btnDone.setAttribute("aria-disabled", canDone ? "false" : "true");
         btnConfirm.setAttribute("aria-disabled", canConfirm ? "false" : "true");
-        btnDone.classList.toggle("ttc-path-btn-armed", phase === "B" && !graded);
+        btnDone.classList.toggle("ttc-path-btn-armed", phase === "B" && !solved && !busy);
         if (cfg.btnClear) {
-          cfg.btnClear.disabled = !((phase === "A" || phase === "B") && !graded);
+          cfg.btnClear.disabled = !((phase === "A" || phase === "B") && !solved && !advanced);
         }
       }
       function goSelected(){
-        if (graded || advanced) return;
+        if (solved || advanced || busy) return;
         if (phase !== "A" && phase !== "B") return;
         if (!cfg.isReady()) return;
         phase = "B";
@@ -196150,36 +196155,45 @@ function buildTtcHskPaper(pool, level, examNo, salt){
         syncButtons();
       }
       function goIdle(){
-        if (graded || advanced) return;
+        if (solved || advanced || busy) return;
         phase = "A";
         if (typeof cfg.onEnterIdle === "function") cfg.onEnterIdle();
         syncButtons();
       }
       btnDone.addEventListener("click", function(ev){
         if (ev) { ev.preventDefault(); ev.stopPropagation(); }
-        if (phase !== "B" || graded || advanced) return;
+        if (phase !== "B" || solved || advanced || busy) return;
         if (!cfg.isReady()) return;
-        graded = true;
-        phase = "C";
+        busy = true;
+        syncButtons();
         if (typeof cfg.lockAll === "function") cfg.lockAll();
         var ok = !!cfg.isCorrect();
-        lastOk = ok;
-        pathGradeXp(cfg.store, cfg.level, cfg.entry, ok);
-        pathShowFeedback(
-          feedbackHost,
-          ok,
-          ok ? cfg.answerLabel() : "",
-          ok ? pathExplainOk(cfg.word) : pathExplainBad(cfg.word)
-        );
+        if (ok) {
+          solved = true;
+          phase = "D";
+          pathGradeXp(cfg.store, cfg.level, cfg.entry, true);
+          pathShowFeedback(
+            feedbackHost,
+            true,
+            cfg.answerLabel(),
+            pathExplainOk(cfg.word)
+          );
+        } else {
+          pathGradeXp(cfg.store, cfg.level, cfg.entry, false);
+          pathShowFeedback(feedbackHost, false, "", "");
+          phase = "A";
+          if (typeof cfg.onWrongRetry === "function") cfg.onWrongRetry();
+        }
+        busy = false;
         syncButtons();
       });
       btnConfirm.addEventListener("click", function(ev){
         if (ev) { ev.preventDefault(); ev.stopPropagation(); }
-        if (phase !== "C" || !graded || advanced) return;
+        if (phase !== "D" || !solved || advanced || busy) return;
         advanced = true;
-        phase = "D";
+        phase = "E";
         syncButtons();
-        pathAdvanceAfterConfirm(cfg.store, cfg.level, cfg.entry, lastOk);
+        pathAdvanceAfterConfirm(cfg.store, cfg.level, cfg.entry, true);
       });
       btnDone.addEventListener("keydown", function(ev){
         if (btnDone.disabled && (ev.key === "Enter" || ev.key === " ")) {
@@ -196200,11 +196214,13 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       syncButtons();
       return {
         notifyReady: function(){
+          if (solved || advanced) return;
           if (cfg.isReady()) goSelected();
           else goIdle();
         },
         getPhase: function(){ return phase; },
-        isGraded: function(){ return graded; }
+        isGraded: function(){ return solved; },
+        isSolved: function(){ return solved; }
       };
     }
     function pathQuizHosts(card, actions){
@@ -196298,7 +196314,11 @@ function buildTtcHskPaper(pool, level, examNo, salt){
           isReady: function(){ return !!pathNormMeaning(input.value); },
           isCorrect: function(){ return pathNormMeaning(input.value) === pathNormMeaning(word.m); },
           answerLabel: function(){ return String(word.m || ""); },
-          lockAll: function(){ input.disabled = true; }
+          lockAll: function(){ input.disabled = true; },
+          onWrongRetry: function(){
+            input.disabled = false;
+            try { input.select(); } catch (e) {}
+          }
         });
         input.addEventListener("input", function(){ stepsIn.notifyReady(); });
         input.addEventListener("keydown", function(ev){
@@ -196323,6 +196343,14 @@ function buildTtcHskPaper(pool, level, examNo, salt){
         onEnterSelected: function(){
           lockedPick = true;
           choiceButtons.forEach(function(el){ el.disabled = true; });
+        },
+        onWrongRetry: function(){
+          selected = null;
+          lockedPick = false;
+          choiceButtons.forEach(function(el){
+            el.disabled = false;
+            el.classList.remove("ttc-path-choice-on");
+          });
         }
       });
       shuffle(options).forEach(function(meaning, idx){
@@ -196332,7 +196360,7 @@ function buildTtcHskPaper(pool, level, examNo, salt){
         button.setAttribute("data-meaning", meaning);
         button.innerHTML = "<span class='ttc-path-choice-key'>" + letters[idx] + "</span><span class='ttc-path-choice-text'>" + esc(meaning) + "</span>";
         button.addEventListener("click", function(){
-          if (lockedPick || stepsMcq.isGraded() || selected != null) return;
+          if (lockedPick || stepsMcq.isSolved() || selected != null) return;
           selected = meaning;
           choiceButtons.forEach(function(el){
             el.classList.toggle("ttc-path-choice-on", el === button);
@@ -196383,7 +196411,7 @@ function buildTtcHskPaper(pool, level, examNo, salt){
         button.className = "ttc-daily-char";
         button.textContent = ch;
         button.addEventListener("click", function(){
-          if (locked || !stepsTile || stepsTile.isGraded()) return;
+          if (locked || !stepsTile || stepsTile.isSolved()) return;
           if (built.length >= word.h.length) return;
           built += ch;
           paint();
@@ -196408,10 +196436,17 @@ function buildTtcHskPaper(pool, level, examNo, salt){
           tileButtons.forEach(function(el){ el.disabled = true; });
           btnClear.disabled = true;
         },
-        onEnterIdle: function(){ locked = false; }
+        onEnterIdle: function(){ locked = false; },
+        onWrongRetry: function(){
+          built = "";
+          locked = false;
+          paint();
+          tileButtons.forEach(function(el){ el.disabled = false; });
+          btnClear.disabled = false;
+        }
       });
       btnClear.addEventListener("click", function(){
-        if (stepsTile.isGraded()) return;
+        if (stepsTile.isSolved()) return;
         if (stepsTile.getPhase() !== "A" && stepsTile.getPhase() !== "B") return;
         built = "";
         locked = false;
@@ -196517,9 +196552,10 @@ function buildTtcHskPaper(pool, level, examNo, salt){
   #ttcDailyVocab .ttc-path-btn-confirm{background:#15803d;color:#fff}
   #ttcDailyVocab .ttc-path-btn-clear{background:#475569;color:#fff}
   #ttcDailyVocab .ttc-path-btn:disabled{opacity:.55;cursor:default}
-  #ttcDailyVocab .ttc-path-learn{display:flex;align-items:flex-start;gap:10px;margin-top:8px;width:100%;box-sizing:border-box}
-  #ttcDailyVocab .ttc-path-main{flex:1 1 auto;min-width:0;text-align:left}
-  #ttcDailyVocab .ttc-path-overview-col{display:flex;flex-direction:column;gap:6px;flex:0 0 132px;width:132px;max-width:38%;margin:0;padding:8px;border:1px solid #fecdd3;border-radius:14px;background:#fff;box-sizing:border-box}
+  #ttcDailyVocab .ttc-path-learn{display:flex;align-items:flex-start;gap:12px;margin-top:8px;width:100%;box-sizing:border-box}
+  #ttcDailyVocab .ttc-path-main{flex:1 1 auto;min-width:0;width:auto;text-align:left}
+  #ttcDailyVocab .ttc-path-overview.ttc-path-overview-col,
+  #ttcDailyVocab .ttc-path-overview-col{display:flex !important;flex-direction:column !important;flex-wrap:nowrap !important;align-items:stretch !important;gap:6px;flex:0 0 118px;width:118px;max-width:118px;margin:0;padding:8px;border:1px solid #fecdd3;border-radius:14px;background:#fff;box-sizing:border-box;grid-template-columns:none !important}
   #ttcDailyVocab .ttc-path-stat-xp{border-color:#0f766e;background:linear-gradient(180deg,#ecfdf5,#fff);box-shadow:0 0 0 1px rgba(15,118,110,.12)}
   #ttcDailyVocab .ttc-path-stat-xp span{color:#0f766e;font-size:12px}
   #ttcDailyVocab .ttc-path-xp-value{color:#047857 !important;font-size:22px !important;font-weight:900 !important}
@@ -196566,6 +196602,8 @@ function buildTtcHskPaper(pool, level, examNo, salt){
   #ttcDailyVocab .ttc-path-bar span{display:block;height:100%;width:0;background:#9f1239}
   #ttcDailyVocab .ttc-path-score{margin:6px 0;font-weight:800;color:#9f1239}
   #ttcDailyVocab .ttc-path-overview{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0;text-align:left}
+  #ttcDailyVocab .ttc-path-overview.ttc-path-overview-col{display:flex !important;flex-direction:column !important;grid-template-columns:none !important;margin:0;text-align:left}
+  #ttcDailyVocab .ttc-path-overview-col > .ttc-path-stat{width:100%;flex:0 0 auto;max-width:100%}
   #ttcDailyVocab .ttc-path-stat{padding:8px;border:1px solid #fecdd3;border-radius:10px;background:#fff}
   #ttcDailyVocab .ttc-path-stat span{display:block;color:#64748b;font-size:11px;margin-bottom:2px;font-weight:700}
   #ttcDailyVocab .ttc-path-stat b{display:block;color:#9f1239;font-size:13px;line-height:1.3}
@@ -196681,9 +196719,11 @@ function buildTtcHskPaper(pool, level, examNo, salt){
     #ttcDailyVocab{padding:12px 10px;padding-top:52px}
     #ttcDailyVocab h3{padding-right:6.5rem;font-size:18px}
     #ttcDailyVocab .ttc-path-learn{flex-direction:column}
-    #ttcDailyVocab .ttc-path-overview-col{flex:0 0 auto;width:100%;max-width:100%;flex-direction:row;flex-wrap:wrap}
-    #ttcDailyVocab .ttc-path-overview-col .ttc-path-stat{flex:1 1 42%}
-    #ttcDailyVocab .ttc-path-stat-xp{flex:1 1 100%}
+    #ttcDailyVocab .ttc-path-main{width:100%}
+    #ttcDailyVocab .ttc-path-overview.ttc-path-overview-col,
+    #ttcDailyVocab .ttc-path-overview-col{flex:0 0 auto;width:100%;max-width:100%;flex-direction:column !important;flex-wrap:nowrap !important}
+    #ttcDailyVocab .ttc-path-overview-col .ttc-path-stat{flex:0 0 auto;width:100%;max-width:100%}
+    #ttcDailyVocab .ttc-path-stat-xp{flex:0 0 auto;width:100%}
     #ttcDailyVocab .ttc-path-overview{grid-template-columns:1fr}
     #ttcDailyVocab .ttc-daily-hanzi{font-size:44px}
     #ttcDailyVocab .ttc-path-q-meaning{font-size:18px}
