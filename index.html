@@ -78,13 +78,60 @@ h1{
   padding:8px 10px 12px;
 }
 
+.search{position:relative}
+.ttc-search-field{position:relative;flex:1 1 280px;min-width:0;display:flex}
+.ttc-search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);display:flex;pointer-events:none}
 .search input{
   flex:1 1 220px;
-  padding:14px 18px;
-  border-radius:14px;
-  border:2px solid #a8d1ef;
-  font-size:17px;
+  width:100%;
+  min-width:0;
+  padding:12px 42px 12px 40px;
+  border-radius:16px;
+  border:1.5px solid #e5e7eb;
+  background:#fff;
+  color:#111827;
+  font-size:16px;
+  font-weight:700;
   outline:none;
+}
+.search input:focus{border-color:#e11d48;box-shadow:0 0 0 3px rgba(225,29,72,.14)}
+#ttcSearchClear{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:30px;height:30px;padding:0;border-radius:999px;background:#fff1f2;color:#e11d48;border:1px solid #fecdd3;font-size:18px;font-weight:800;line-height:1}
+#ttcSearchSuggest{flex:1 1 100%;max-height:42vh;overflow:auto;margin:0;padding:4px;border:1px solid #fecdd3;border-radius:16px;background:#fff;box-shadow:0 8px 18px rgba(15,23,42,.08)}
+#ttcSearchSuggest[hidden]{display:none !important}
+#ttcSearchSuggest .ttc-sg-empty{padding:10px 12px;color:#64748b;font-weight:700}
+#ttcSearchSuggest button{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px;width:100%;text-align:left;background:#fff;color:#111827;border-radius:12px;padding:8px 10px;box-shadow:none}
+#ttcSearchSuggest button.ttc-on{background:#fff1f2}
+.ttc-sg-hz{font-size:22px;font-weight:800;color:#111827}
+.ttc-sg-py{color:#e11d48;font-size:14px;font-weight:700}
+.ttc-sg-lv{margin-left:auto;background:#fff1f2;color:#be123c;border-radius:999px;padding:2px 8px;font-size:12px;font-weight:800;font-style:normal}
+.ttc-sg-mn{flex:1 0 100%;color:#334155;font-size:14px;font-weight:650}
+#ttcSearchStatus{flex:1 1 100%;margin:0;color:#be123c;font-size:13px;font-weight:800}
+#ttcSearchDetail{width:min(900px,100%);margin:8px auto 0;padding:0;background:transparent;border:0;text-align:left}
+#ttcSearchDetail[hidden]{display:none !important}
+.ttc-dict{background:#fff;border:1px solid #fecdd3;border-radius:18px;padding:12px 14px}
+.ttc-dict-head{display:flex;align-items:center;gap:10px}
+.ttc-dict .han{font-size:54px;line-height:1.05;font-weight:800;color:#111827}
+.ttc-dict-speak{margin-left:auto;background:#e11d48;color:#fff;border-radius:999px;padding:8px 14px;font-weight:800}
+.ttc-dict-py{margin-top:2px;color:#e11d48;font-size:22px;font-weight:800}
+.ttc-dict-sub{margin-top:4px;color:#64748b;font-size:14px;font-weight:700}
+.ttc-sense{margin-top:10px;padding-top:8px;border-top:1px solid #ffe4e6}
+.ttc-sense-top{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:4px}
+.ttc-pos{color:#be123c;font-weight:800}
+.ttc-hsk{background:#fff1f2;color:#be123c;border-radius:999px;padding:2px 8px;font-size:13px;font-weight:800}
+.ttc-mean{margin:0;padding-left:18px;color:#111827}
+.ttc-mean li{margin:2px 0}
+.ttc-note{margin:6px 0 0;color:#334155;font-weight:650}
+.ttc-ex{margin:8px 0 0;padding:8px 10px;border-left:3px solid #e11d48;background:#fff}
+.ttc-ex b{display:block;font-size:18px;color:#111827}
+.ttc-ex i{display:block;color:#e11d48;font-style:normal;font-weight:700}
+.ttc-rel{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:10px}
+.ttc-rel button{background:#fff;color:#be123c;border:1px solid #fecdd3;border-radius:999px;padding:4px 10px;font-weight:800}
+#vocabularySection.ttc-search-results{max-height:none;overflow:visible;background:transparent;border:0;padding:0}
+@media(max-width:700px){
+  .search{width:min(100%,calc(100% - 16px))}
+  .ttc-dict .han{font-size:42px}
+  .ttc-dict-py{font-size:18px}
+  .ttc-sg-hz{font-size:20px}
 }
 
 .ttc-theme-slot{position:relative;display:flex;justify-content:center;margin:0 auto 12px}
@@ -2893,14 +2940,25 @@ body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; 
 
 
 <div class="search">
+<label class="ttc-search-field">
+<span class="ttc-search-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18"><circle cx="10.5" cy="10.5" r="6.25" fill="none" stroke="#e11d48" stroke-width="2.2"/><path d="M15.2 15.2L20 20" fill="none" stroke="#e11d48" stroke-width="2.2" stroke-linecap="round"/></svg></span>
 <input
  id="search"
- placeholder="🔎 Tìm Hán tự, Pinyin, nghĩa tiếng Việt..."
+ aria-label="Tìm từ vựng"
+ placeholder="Nhập chữ Hán, pinyin hoặc nghĩa tiếng Việt..."
+ autocomplete="off"
+ enterkeyhint="search"
+ aria-autocomplete="list"
+ aria-controls="ttcSearchSuggest"
+ aria-expanded="false"
  onfocus="if(typeof ttcRenderRecentLookups==='function') ttcRenderRecentLookups()"
  onblur="setTimeout(function(){ if(typeof ttcRenderRecentLookups==='function') ttcRenderRecentLookups(); }, 160)"
- onkeydown="if(event.key==='Enter'){event.preventDefault();searchWords();}"
 >
-<button onclick="searchWords()">Tìm</button>
+<button type="button" id="ttcSearchClear" aria-label="Xóa nội dung tìm kiếm" hidden>×</button>
+</label>
+<div id="ttcSearchSuggest" role="listbox" hidden></div>
+<p id="ttcSearchStatus" hidden></p>
+<button type="button" onclick="searchWords()">Tìm</button>
 <button type="button" id="ttcDrawSearch">✍️ Vẽ</button>
 <button type="button" id="ttcPhotoSearch">📷 Ảnh</button>
 <button type="button" id="ttcVoiceSearch">🎤 Nói</button>
@@ -108711,6 +108769,11 @@ function ttcRenderRecentLookups(){
       if(event.target.closest("button[data-h]")) event.preventDefault();
     });
     box.addEventListener("click", function(event){
+      if(event.target.closest("[data-clear-recent]")){
+        try{ localStorage.removeItem("ttc_recent_lookup_v1"); }catch(e){}
+        ttcRenderRecentLookups();
+        return;
+      }
       var button = event.target.closest("button[data-h]");
       if(!button) return;
       var input = document.getElementById("search");
@@ -108729,111 +108792,284 @@ function ttcRenderRecentLookups(){
     ? '<span>Vừa tra:</span>' + list.map(function(item){
         var hint = String(item.m || "").replace(/"/g, "");
         return '<button type="button" data-h="' + item.h + '" title="' + hint + '">' + item.h + '</button>';
-      }).join("")
+      }).join("") + '<button type="button" data-clear-recent="1">Xóa lịch sử</button>'
     : "";
+}
+
+function ttcEsc(text){
+  return String(text || "").replace(/[&<>"]/g, function(ch){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[ch];
+  });
+}
+function ttcPinyinParts(folded){
+  var text = String(folded || "");
+  if(!text) return [];
+  if(!ttcPinyinParts.set){
+    ttcPinyinParts.set = {};
+    "a ai an ang ao ba bai ban bang bao bei ben beng bi bian biao bie bin bing bo bu ca cai can cang cao ce cei cen ceng cha chai chan chang chao che chen cheng chi chong chou chu chua chuai chuan chuang chui chun chuo ci cong cou cu cuan cui cun cuo da dai dan dang dao de dei den deng di dia dian diao die ding diu dong dou du duan dui dun duo e ei en eng er fa fan fang fei fen feng fo fou fu ga gai gan gang gao ge gei gen geng gong gou gu gua guai guan guang gui gun guo ha hai han hang hao he hei hen heng hong hou hu hua huai huan huang hui hun huo ji jia jian jiang jiao jie jin jing jiong jiu ju juan jue jun ka kai kan kang kao ke kei ken keng kong kou ku kua kuai kuan kuang kui kun kuo la lai lan lang lao le lei leng li lia lian liang liao lie lin ling liu lo long lou lu luan lue lun luo lv ma mai man mang mao me mei men meng mi mian miao mie min ming miu mo mou mu na nai nan nang nao ne nei nen neng ni nian niang niao nie nin ning niu nong nou nu nuan nue nun nuo nv o ou pa pai pan pang pao pei pen peng pi pian piao pie pin ping po pou pu qi qia qian qiang qiao qie qin qing qiong qiu qu quan que qun ran rang rao re ren reng ri rong rou ru rua ruan rui run ruo sa sai san sang sao se sen seng sha shai shan shang shao she shei shen sheng shi shou shu shua shuai shuan shuang shui shun shuo si song sou su suan sui sun suo ta tai tan tang tao te teng ti tian tiao tie ting tong tou tu tuan tui tun tuo wa wai wan wang wei wen weng wo wu xi xia xian xiang xiao xie xin xing xiong xiu xu xuan xue xun ya yan yang yao ye yi yin ying yo yong you yu yuan yue yun za zai zan zang zao ze zei zen zeng zha zhai zhan zhang zhao zhe zhei zhen zheng zhi zhong zhou zhu zhua zhuai zhuan zhuang zhui zhun zhuo zi zong zou zu zuan zui zun zuo".split(" ").forEach(function(item){ ttcPinyinParts.set[item] = 1; });
+  }
+  var parts = [];
+  var i = 0;
+  while(i < text.length){
+    var found = "";
+    var max = Math.min(6, text.length - i);
+    for(var size = max; size >= 1; size--){
+      var piece = text.slice(i, i + size);
+      if(ttcPinyinParts.set[piece]){ found = piece; break; }
+    }
+    if(!found) return null;
+    parts.push(found);
+    i += found.length;
+  }
+  return parts;
+}
+function ttcPartsPrefix(queryParts, wordParts){
+  if(!queryParts || !wordParts || !queryParts.length || queryParts.length > wordParts.length) return false;
+  for(var i = 0; i < queryParts.length; i++){
+    if(queryParts[i] !== wordParts[i]) return false;
+  }
+  return true;
+}
+function ttcFoldSearch(text){
+  return String(text || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[\s'’·.。,，、/／;；]+/g, "");
+}
+function ttcFoldLoose(text){
+  return String(text || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim();
+}
+function ttcEnsureSearchIndex(){
+  if(window.__ttcSearchIndex && window.__ttcSearchIndex.length === words.length) return window.__ttcSearchIndex;
+  window.__ttcSearchIndex = words.map(function(word, index){
+    var chars = Array.from(String(word.h || ""));
+    var map = window.TTC_HANVIET || {};
+    var parts = [];
+    var complete = chars.length > 0;
+    chars.forEach(function(ch){
+      if(map[ch]) parts.push(map[ch]);
+      else complete = false;
+    });
+    var hv = parts.join(" ");
+    return {
+      i: index,
+      word: word,
+      hFold: ttcFoldSearch(word.h),
+      pFold: ttcFoldSearch(word.p),
+      pParts: ttcPinyinParts(ttcFoldSearch(word.p)),
+      mLoose: ttcFoldLoose(word.m),
+      hvLoose: complete ? ttcFoldLoose(hv) : "",
+      hv: hv
+    };
+  });
+  return window.__ttcSearchIndex;
+}
+function ttcSearchForms(raw){
+  var text = String(raw || "").trim().replace(/\s+/g, " ");
+  var simp = text;
+  if(typeof window.__ttcSimplifyHanzi === "function"){
+    try { simp = window.__ttcSimplifyHanzi(text) || text; } catch(e){}
+  }
+  return {
+    raw: text,
+    fold: ttcFoldSearch(text),
+    loose: ttcFoldLoose(text),
+    simpFold: ttcFoldSearch(simp),
+    parts: ttcPinyinParts(ttcFoldSearch(simp)),
+    hanzi: /[\u3400-\u9fff]/.test(simp)
+  };
+}
+function ttcRankEntry(row, q){
+  var h = row.hFold, p = row.pFold, m = row.mLoose, hv = row.hvLoose;
+  var qh = q.simpFold, ql = q.loose;
+  if(!qh) return 99;
+  if(h === qh || p === qh || (ql && (m === ql || (row.hvLoose && hv === ql)))) return 0;
+  if(q.hanzi && h.indexOf(qh) === 0) return 1;
+  if(!q.hanzi && q.parts && row.pParts && q.parts.length && ttcPartsPrefix(q.parts, row.pParts)) return q.parts.length === row.pParts.length ? 0 : 2;
+  if(!q.hanzi && ql.length >= 2 && (m.indexOf(ql) === 0 || hv.indexOf(ql) === 0)) return 3;
+  if(!q.hanzi && ql.length >= 2 && ((" " + m + " ").indexOf(" " + ql + " ") >= 0 || (" " + hv + " ").indexOf(" " + ql + " ") >= 0)) return 4;
+  if(q.hanzi && h.indexOf(qh) > 0) return 5;
+  if(!q.hanzi && qh.length >= 3 && q.parts && p.indexOf(qh) > 0) return 6;
+  if(!q.hanzi && ql.length >= 2 && (m.indexOf(ql) >= 0 || hv.indexOf(ql) >= 0)) return 6;
+  return 99;
+}
+function ttcLookupWords(raw){
+  var q = ttcSearchForms(raw);
+  var cacheKey = q.simpFold + "|" + q.loose + "|" + q.hanzi;
+  if(window.__ttcSearchCache && window.__ttcSearchCache.key === cacheKey) return window.__ttcSearchCache.rows;
+  var rows = [];
+  ttcEnsureSearchIndex().forEach(function(row){
+    var rank = ttcRankEntry(row, q);
+    if(rank < 99) rows.push({ row: row, rank: rank });
+  });
+  rows.sort(function(a, b){
+    if(a.rank !== b.rank) return a.rank - b.rank;
+    var ah = String(a.row.word.h || "").length;
+    var bh = String(b.row.word.h || "").length;
+    if(ah !== bh) return ah - bh;
+    return a.row.i - b.row.i;
+  });
+  var seen = {};
+  var unique = [];
+  rows.forEach(function(item){
+    var word = item.row.word;
+    var key = word.h + "|" + item.row.pFold + "|" + item.row.mLoose;
+    if(seen[key]) return;
+    seen[key] = 1;
+    unique.push(item);
+  });
+  var strong = unique.filter(function(item){ return item.rank <= 4; });
+  var pool = strong.length ? strong : unique.filter(function(item){ return item.rank <= 6; }).slice(0, 8);
+  window.__ttcSearchCache = { key: cacheKey, rows: pool };
+  return pool;
+}
+function ttcHideSearchExtras(){
+  var suggest = document.getElementById("ttcSearchSuggest");
+  var status = document.getElementById("ttcSearchStatus");
+  var detail = document.getElementById("ttcSearchDetail");
+  var clearBtn = document.getElementById("ttcSearchClear");
+  var input = document.getElementById("search");
+  if(suggest){ suggest.hidden = true; suggest.innerHTML = ""; }
+  if(status){ status.hidden = true; status.textContent = ""; }
+  if(detail){ detail.hidden = true; detail.innerHTML = ""; }
+  if(clearBtn) clearBtn.hidden = !(input && input.value);
+  if(input) input.setAttribute("aria-expanded", "false");
+}
+function ttcPaintSuggestions(pool){
+  var box = document.getElementById("ttcSearchSuggest");
+  var input = document.getElementById("search");
+  if(!box) return;
+  if(!pool.length){
+    box.hidden = false;
+    box.innerHTML = "<div class=\"ttc-sg-empty\">Không thấy từ này trong kho HSK hiện có.</div>";
+    if(input) input.setAttribute("aria-expanded", "true");
+    return;
+  }
+  box.innerHTML = pool.slice(0, 8).map(function(item, index){
+    var word = item.row.word;
+    return "<button type=\"button\" role=\"option\" data-h=\"" + ttcEsc(word.h) + "\"" + (index === 0 ? " class=\"ttc-on\"" : "") + "><span class=\"ttc-sg-hz\">" + ttcEsc(word.h) + "</span>" + (word.p ? "<span class=\"ttc-sg-py\">" + ttcEsc(word.p) + "</span>" : "") + (word.hsk ? "<em class=\"ttc-sg-lv\">HSK " + ttcEsc(word.hsk) + "</em>" : "") + (word.m ? "<span class=\"ttc-sg-mn\">" + ttcEsc(word.m) + "</span>" : "") + "</button>";
+  }).join("");
+  box.hidden = false;
+  if(input) input.setAttribute("aria-expanded", "true");
+}
+function ttcSearchDetail(pool){
+  var box = document.getElementById("ttcSearchDetail");
+  if(!box){
+    box = document.createElement("div");
+    box.id = "ttcSearchDetail";
+    var cards = document.getElementById("cards");
+    if(cards && cards.parentNode) cards.parentNode.insertBefore(box, cards);
+  }
+  if(!pool.length){
+    box.hidden = true;
+    box.innerHTML = "";
+    return;
+  }
+  var top = pool[0].row;
+  var same = [];
+  pool.forEach(function(item){
+    if(item.row.word.h === top.word.h) same.push(item.row);
+  });
+  var trad = "";
+  if(typeof window.__ttcTraditionalHanzi === "function"){
+    try { trad = window.__ttcTraditionalHanzi(top.word.h) || ""; } catch(e){}
+  }
+  var html = "<article class=\"ttc-dict\"><div class=\"ttc-dict-head\"><div class=\"han\">" + ttcEsc(top.word.h) + "</div><button type=\"button\" class=\"ttc-dict-speak\" data-say=\"" + ttcEsc(top.word.h) + "\">Nghe</button></div>";
+  if(top.word.p) html += "<div class=\"ttc-dict-py\">" + ttcEsc(top.word.p) + "</div>";
+  if(trad && trad !== top.word.h) html += "<div class=\"ttc-dict-sub\">Phồn thể: " + ttcEsc(trad) + "</div>";
+  if(top.hvLoose) html += "<div class=\"ttc-dict-sub\">Hán Việt: " + ttcEsc(top.hv) + "</div>";
+  same.forEach(function(row){
+    var word = row.word;
+    var glosses = String(word.m || "").split(/\s*[;；/／、]\s*|\s*,\s*/).map(function(part){ return part.trim(); }).filter(Boolean);
+    html += "<section class=\"ttc-sense\">";
+    if(word.p && same.length > 1) html += "<div class=\"ttc-dict-py\">" + ttcEsc(word.p) + "</div>";
+    if(word.t || word.hsk){
+      html += "<div class=\"ttc-sense-top\">";
+      if(word.t) html += "<span class=\"ttc-pos\">" + ttcEsc(word.t) + "</span>";
+      if(word.hsk) html += "<span class=\"ttc-hsk\">HSK " + ttcEsc(word.hsk) + "</span>";
+      html += "</div>";
+    }
+    if(glosses.length){
+      html += "<ol class=\"ttc-mean\">" + glosses.map(function(part){ return "<li>" + ttcEsc(part) + "</li>"; }).join("") + "</ol>";
+    }
+    if(word.explanation) html += "<p class=\"ttc-note\">" + ttcEsc(word.explanation) + "</p>";
+    if(word.example || word.examplePinyin || word.exampleMeaning){
+      html += "<div class=\"ttc-ex\">";
+      if(word.example) html += "<b>" + ttcEsc(word.example) + "</b>";
+      if(word.examplePinyin) html += "<i>" + ttcEsc(word.examplePinyin) + "</i>";
+      if(word.exampleMeaning) html += "<span>" + ttcEsc(word.exampleMeaning) + "</span>";
+      html += "</div>";
+    }
+    html += "</section>";
+  });
+  var related = [];
+  pool.forEach(function(item){
+    var hanzi = item.row.word.h;
+    if(hanzi !== top.word.h && hanzi.indexOf(top.word.h) === 0 && related.length < 6) related.push(hanzi);
+  });
+  if(related.length){
+    html += "<div class=\"ttc-rel\"><span>Từ ghép</span>" + related.map(function(hanzi){
+      return "<button type=\"button\" data-h=\"" + ttcEsc(hanzi) + "\">" + ttcEsc(hanzi) + "</button>";
+    }).join("") + "</div>";
+  }
+  html += "</article>";
+  box.innerHTML = html;
+  box.hidden = false;
+  if(!box.dataset.bound){
+    box.dataset.bound = "1";
+    box.addEventListener("click", function(event){
+      var speak = event.target.closest("button[data-say]");
+      if(speak){
+        var voice = typeof say === "function" ? say : window.say;
+        if(typeof voice === "function") voice(speak.getAttribute("data-say") || "");
+        return;
+      }
+      var button = event.target.closest("button[data-h]");
+      if(!button) return;
+      var input = document.getElementById("search");
+      if(input) input.value = button.getAttribute("data-h") || "";
+      searchWords();
+    });
+  }
 }
 
 function searchWords(){
 
-  const input =
-    document.getElementById("search");
+  const input = document.getElementById("search");
+  if(!input) return;
 
-  if(!input){
-    return;
-  }
-
-
-  const keyword =
-    input.value
-      .trim()
-      .toLowerCase();
-
-
-  /* ==================================================
-     KHÔNG NHẬP GÌ
-     → HIỆN LẠI HSK HIỆN TẠI
-  ================================================== */
+  const keyword = input.value.trim().replace(/\s+/g, " ");
+  const clearBtn = document.getElementById("ttcSearchClear");
+  if(clearBtn) clearBtn.hidden = !input.value;
+  const status = document.getElementById("ttcSearchStatus");
+  if(status){ status.hidden = true; status.textContent = ""; }
 
   if(!keyword){
-
     TTC.search.keyword = "";
     TTC.search.results = [];
     TTC.vocabulary.searchActive = false;
-
     const cards = document.getElementById("cards");
     if(cards) cards.innerHTML = "";
-
-    const vocabularySection =
-      document.getElementById("vocabularySection");
-
+    const vocabularySection = document.getElementById("vocabularySection");
     if(vocabularySection){
       vocabularySection.classList.add("hidden");
       vocabularySection.classList.remove("ttc-search-results");
     }
-
     const title = document.getElementById("title");
     if(title) title.textContent = "Tra từ";
-
+    ttcHideSearchExtras();
     if(typeof ttcRenderRecentLookups === "function") ttcRenderRecentLookups();
-
     return;
   }
 
+  const pool = ttcLookupWords(keyword);
+  const result = pool.slice(0, 24).map(function(item){ return item.row.word; });
+  ttcPaintSuggestions(pool.slice(0, 8));
+  ttcSearchDetail(pool.slice(0, 24));
 
-  /* ==================================================
-     BỎ DẤU ĐỂ TÌM DỄ HƠN
-  ================================================== */
+  currentList = result;
+  TTC.search.keyword = keyword;
+  TTC.search.results = result;
+  TTC.vocabulary.searchActive = true;
 
-  function normalizeText(text){
-
-    return String(text || "")
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g,"");
-
-  }
-
-
-  const searchKey =
-    normalizeText(keyword);
-
-
-  /* ==================================================
-     🔎 TÌM TRONG TOÀN BỘ KHO TỪ
-  ================================================== */
-
-  const result =
-    words.filter(function(word){
-      const hanzi = normalizeText(word.h);
-      const pinyin = normalizeText(word.p);
-      const meaning = normalizeText(word.m);
-      return hanzi.includes(searchKey) || pinyin.includes(searchKey) || meaning.includes(searchKey);
-    }).sort(function(a,b){
-      function rank(word){
-        const h=normalizeText(word.h), p=normalizeText(word.p), m=normalizeText(word.m);
-        if(h===searchKey || p===searchKey || m===searchKey) return 0;
-        if(h.startsWith(searchKey) || p.startsWith(searchKey) || m.startsWith(searchKey)) return 1;
-        if(h.includes(searchKey)) return 2;
-        if(p.includes(searchKey)) return 3;
-        return 4;
-      }
-      return rank(a)-rank(b);
-    }).slice(0, 24);
-
-
-  /* ==================================================
-     HIỂN THỊ KẾT QUẢ
-  ================================================== */
-
-currentList = result;
-
-TTC.search.keyword = keyword;
-TTC.search.results = result;
-TTC.vocabulary.searchActive = true;
-
-  const vocabularySection =
-    document.getElementById("vocabularySection");
-
+  const vocabularySection = document.getElementById("vocabularySection");
   if(vocabularySection){
     vocabularySection.classList.remove("hidden");
     vocabularySection.classList.add("ttc-search-results");
@@ -108846,63 +109082,28 @@ TTC.vocabulary.searchActive = true;
 
   const testSection = document.getElementById("testSection");
   if(testSection) testSection.classList.add("hidden");
-
   const sentenceSection = document.getElementById("sentenceSection");
   if(sentenceSection) sentenceSection.classList.add("hidden");
 
   render(result);
+  if(typeof window.refreshAutoLearning === "function") window.refreshAutoLearning(true);
 
-if(typeof window.refreshAutoLearning === "function"){
-  window.refreshAutoLearning(true);
-}
+  document.getElementById("title").textContent = result.length
+    ? ("🔎 " + result.length + " từ khớp")
+    : "Không thấy từ này";
 
-  document.getElementById("title").textContent =
-    result.length ? ("🔎 " + result.length + " từ khớp") : "Không thấy từ này";
+  if(pool[0] && pool[0].rank === 0) ttcRememberLookup(pool[0].row.word);
 
-  if(result[0]){
-    var topWord = result[0];
-    if(
-      normalizeText(topWord.h) === searchKey ||
-      normalizeText(topWord.p) === searchKey ||
-      topWord.h === keyword.trim()
-    ){
-      ttcRememberLookup(topWord);
-    }
-  }
-
-  /* Giữ ô tìm và kết quả trong tầm mắt. Không kéo trang xuống dưới kết quả. */
   ttcPinSearchResults();
   requestAnimationFrame(function(){
     ttcPinSearchResults();
     requestAnimationFrame(ttcPinSearchResults);
   });
 
-
-  /* ==================================================
-     KHÔNG TÌM THẤY
-  ================================================== */
-
   if(result.length === 0){
-
-    document.getElementById("cards").innerHTML = `
-      <div
-        style="
-          grid-column:1/-1;
-          text-align:center;
-          padding:30px;
-          font-size:18px;
-          color:#777;
-        "
-      >
-        🔎 Không tìm thấy từ
-        <strong>${keyword}</strong>
-      </div>
-    `;
-
+    document.getElementById("cards").innerHTML = "<div style=\"grid-column:1/-1;text-align:center;padding:30px;font-size:18px;color:#777\">Không thấy <strong>" + ttcEsc(keyword) + "</strong> trong kho HSK hiện có.</div>";
     updateTtcVocabularyPositionDisplay(0, 0);
-
   }
-
 }
 
 /* =========================================================
@@ -109550,11 +109751,14 @@ function ttcPinSearchResults(){
   const anchor = document.querySelector(".search") || document.getElementById("search");
   const panel = document.getElementById("vocabularySection");
   if(!anchor) return;
+  const account = document.getElementById("accountSystem");
+  const accountBottom = account ? account.getBoundingClientRect().bottom : 0;
+  const clearance = Math.max(8, Math.round(accountBottom) + 8);
   const anchorTop = anchor.getBoundingClientRect().top;
   const panelTop = panel ? panel.getBoundingClientRect().top : anchorTop;
   const viewHeight = window.innerHeight || 800;
-  if(anchorTop < 0 || anchorTop > 90 || panelTop > viewHeight - 40){
-    const y = Math.max(0, window.pageYOffset + anchor.getBoundingClientRect().top - 8);
+  if(anchorTop < clearance || anchorTop > clearance + 80 || panelTop > viewHeight - 40){
+    const y = Math.max(0, window.pageYOffset + anchor.getBoundingClientRect().top - clearance);
     window.scrollTo(0, y);
   }
 }
@@ -164557,6 +164761,14 @@ renderLevels();view('levels');
   const fallbackMap={'汉':'漢','语':'語','这':'這','个':'個','们':'們','学':'學','习':'習','国':'國','门':'門','书':'書','车':'車','时':'時','间':'間','听':'聽','说':'說','话':'話','请':'請','谢':'謝','爱':'愛','见':'見','开':'開','关':'關','发':'發','后':'後','里':'裡','东':'東','长':'長','来':'來','气':'氣','电':'電','脑':'腦','饭':'飯','妈':'媽','爷':'爺','对':'對','为':'為','会':'會','过':'過','还':'還','没':'沒','现':'現','经':'經','动':'動','实':'實','体':'體','万':'萬','与':'與','从':'從','无':'無','声':'聲','边':'邊','点':'點','员':'員','师':'師','问':'問','风':'風','云':'雲','鱼':'魚','鸟':'鳥','马':'馬','难':'難','头':'頭','脸':'臉','阳':'陽','阴':'陰','写':'寫','读':'讀','画':'畫','买':'買','卖':'賣','钱':'錢','欢':'歡','乐':'樂','亲':'親','级':'級','题':'題','远':'遠','进':'進','让':'讓','认':'認','识':'識','种':'種','样':'樣','处':'處','岁':'歲','复':'復','温':'溫','热':'熱','园':'園','树':'樹','叶':'葉','红':'紅','绿':'綠','蓝':'藍','黄':'黃','线':'線','鸡':'雞','面':'麵','医':'醫','药':'藥','课':'課','钟':'鐘','济':'濟','系':'係','应':'應','该':'該','尽':'盡','场':'場','广':'廣','图':'圖','馆':'館','厅':'廳','楼':'樓','层':'層','队':'隊','吗':'嗎'};
   const reverseMap={};
   Object.keys(fallbackMap).forEach(k=>{if(!reverseMap[fallbackMap[k]])reverseMap[fallbackMap[k]]=k;});
+  window.__ttcSimplifyHanzi=function(value){
+    var converter=window.__ttcOpenCC&&window.__ttcOpenCC.t2s;
+    return convertString(value,converter,false);
+  };
+  window.__ttcTraditionalHanzi=function(value){
+    var converter=window.__ttcOpenCC&&window.__ttcOpenCC.s2t;
+    return convertString(value,converter,true);
+  };
   function convertString(value,converter,toTraditional){
     if(!value)return value;
     if(converter){try{return converter(value);}catch(e){}}
@@ -164924,11 +165136,67 @@ renderLevels();view('levels');
     search.dataset.ttcLive="1";
     var searchTimer=0;
     search.addEventListener("input", function(){
+      var clearBtn=document.getElementById("ttcSearchClear");
+      if(clearBtn) clearBtn.hidden=!search.value;
+      var status=document.getElementById("ttcSearchStatus");
+      if(status){
+        var pending=search.value.trim();
+        status.hidden=!pending;
+        status.textContent=pending?"Đang tìm…":"";
+      }
       clearTimeout(searchTimer);
       searchTimer=setTimeout(function(){
         if(typeof searchWords==="function") searchWords();
       }, 140);
     });
+    search.addEventListener("keydown", function(event){
+      var box=document.getElementById("ttcSearchSuggest");
+      var items=box&&!box.hidden?Array.prototype.slice.call(box.querySelectorAll("button[data-h]")):[];
+      var active=-1;
+      items.forEach(function(button,index){ if(button.classList.contains("ttc-on")) active=index; });
+      if(event.key==="Escape"){
+        if(box){ box.hidden=true; box.innerHTML=""; }
+        search.setAttribute("aria-expanded","false");
+        return;
+      }
+      if((event.key==="ArrowDown"||event.key==="ArrowUp")&&items.length){
+        event.preventDefault();
+        var next=event.key==="ArrowDown"?active+1:active-1;
+        if(next<0) next=items.length-1;
+        if(next>=items.length) next=0;
+        items.forEach(function(button,index){ button.classList.toggle("ttc-on", index===next); });
+        if(items[next].scrollIntoView) items[next].scrollIntoView({block:"nearest"});
+        return;
+      }
+      if(event.key==="Enter"){
+        event.preventDefault();
+        if(active>=0) search.value=items[active].getAttribute("data-h")||search.value;
+        if(typeof searchWords==="function") searchWords();
+      }
+    });
+    var suggest=document.getElementById("ttcSearchSuggest");
+    if(suggest&&!suggest.dataset.bound){
+      suggest.dataset.bound="1";
+      suggest.addEventListener("mousedown", function(event){
+        if(event.target.closest("button")) event.preventDefault();
+      });
+      suggest.addEventListener("click", function(event){
+        var button=event.target.closest("button[data-h]");
+        if(!button) return;
+        search.value=button.getAttribute("data-h")||"";
+        if(typeof searchWords==="function") searchWords();
+      });
+    }
+    var clearBtn=document.getElementById("ttcSearchClear");
+    if(clearBtn&&!clearBtn.dataset.bound){
+      clearBtn.dataset.bound="1";
+      clearBtn.addEventListener("click", function(){
+        search.value="";
+        clearBtn.hidden=true;
+        search.focus();
+        if(typeof searchWords==="function") searchWords();
+      });
+    }
     search.addEventListener("pointerdown", function(){
       window.__ttcRecentHold = true;
       if(typeof ttcRenderRecentLookups==="function") ttcRenderRecentLookups();
@@ -164949,8 +165217,13 @@ renderLevels();view('levels');
     document.addEventListener("pointerdown", function(event){
       var box = document.getElementById("ttcRecentLookups");
       var target = event.target;
+      var bar=search.closest?search.closest(".search"):null;
       if(target === search || (search.contains && search.contains(target))) return;
+      if(bar && bar.contains(target)) return;
       if(box && box.contains(target)) return;
+      var suggestBox=document.getElementById("ttcSearchSuggest");
+      if(suggestBox){ suggestBox.hidden=true; suggestBox.innerHTML=""; }
+      search.setAttribute("aria-expanded","false");
       window.__ttcRecentHold = false;
       if(typeof ttcRenderRecentLookups==="function") ttcRenderRecentLookups();
     });
