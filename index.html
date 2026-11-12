@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<script src="http://127.0.0.1:8766/?ttc-open=1"></script>
 <title>THÍCH TIẾNG TRUNG</title>
 
 <style>
@@ -112334,6 +112333,44 @@ accountStyle.textContent = `
 
 }
 
+.account-links{
+  margin-top:8px;
+  padding-top:6px;
+  border-top:1px solid #f1f5f9;
+}
+.account-links-title{
+  margin:0 0 4px;
+  color:#9f1239;
+  font-size:12px;
+  font-weight:800;
+}
+.account-link-row{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  margin-top:4px;
+}
+.account-link-name{
+  flex:1;
+  color:#333;
+  font-size:13px;
+  font-weight:700;
+}
+.account-link-state{
+  color:#64748b;
+  font-size:12px;
+}
+.account-link-row button{
+  border:1px solid #e2e8f0;
+  background:#fff;
+  color:#9f1239;
+  border-radius:7px;
+  padding:4px 8px;
+  font-size:12px;
+  font-weight:700;
+  cursor:pointer;
+}
+
 
 .account-action{
 
@@ -112806,6 +112843,11 @@ function createAccountSystem(){
           >
             💎 Nâng cấp Premium <span aria-hidden="true">›</span>
           </button>
+
+          <div class="account-links" id="accountLinkBox">
+            <p class="account-links-title">LIÊN KẾT TÀI KHOẢN</p>
+            <div id="accountLinkList"></div>
+          </div>
 
           <div
             class="account-actions">
@@ -113779,6 +113821,332 @@ showAccountMessage(
 
 
   /* =======================================================
+     LIÊN KẾT OAUTH VÀO TÀI KHOẢN ĐANG ĐĂNG NHẬP
+     ======================================================= */
+
+  var TTC_LINK_KEY = "ttc_oauth_link";
+  var ttcLinkInFlight = false;
+
+  var TTC_LINK_PROVIDERS = [
+    { id:"google", name:"Google" },
+    { id:"facebook", name:"Facebook" },
+    { id:"apple", name:"Apple" },
+    { id:"azure", name:"Microsoft" }
+  ];
+
+  function ttcReadLinkGuard(){
+
+    try{
+      var raw = sessionStorage.getItem(TTC_LINK_KEY);
+      if(!raw) return null;
+      var parsed = JSON.parse(raw);
+      if(!parsed || !parsed.userId || !parsed.provider) return null;
+      return parsed;
+    }catch(e){
+      return null;
+    }
+
+  }
+
+  function ttcClearLinkGuard(){
+
+    try{ sessionStorage.removeItem(TTC_LINK_KEY); }catch(e){}
+
+  }
+
+  function ttcAccountRedirectUrl(){
+
+    if(!window.location || window.location.origin === "null" || !window.location.origin){
+      return "";
+    }
+
+    return window.location.origin + window.location.pathname;
+
+  }
+
+  function ttcLinkErrorText(error){
+
+    var msg = String(error && error.message || "").toLowerCase();
+
+    if(msg.indexOf("manual linking") >= 0 || msg.indexOf("manual_linking") >= 0){
+      return "Cấu hình liên kết chưa hoàn tất. Manual linking chưa được bật.";
+    }
+
+    if(msg.indexOf("not enabled") >= 0 || msg.indexOf("unsupported provider") >= 0 || msg.indexOf("provider") >= 0 && msg.indexOf("disabled") >= 0){
+      return "Nhà cung cấp này chưa được cấu hình xong.";
+    }
+
+    if(msg.indexOf("already") >= 0 && (msg.indexOf("identity") >= 0 || msg.indexOf("link") >= 0 || msg.indexOf("exist") >= 0)){
+      return "Danh tính này đã thuộc tài khoản khác. Không thể liên kết.";
+    }
+
+    return "Liên kết thất bại. Tài khoản email hiện tại vẫn giữ nguyên.";
+
+  }
+
+  function ttcReadOAuthReturnError(){
+
+    var params = new URLSearchParams(window.location.search);
+    var code = params.get("error");
+
+    if(!code) return null;
+
+    var description = params.get("error_description") || "";
+    params.delete("error");
+    params.delete("error_code");
+    params.delete("error_description");
+
+    var next = window.location.pathname + (params.toString() ? "?" + params.toString() : "") + window.location.hash;
+    history.replaceState(null, "", next);
+
+    return { code:code, description:description };
+
+  }
+
+  async function ttcLoadLinkIdentities(){
+
+    var result = await window.supabase.auth.getUserIdentities();
+
+    if(result.error){
+      return { ok:false, identities:[], error:result.error };
+    }
+
+    var identities = result.data && result.data.identities || [];
+    return { ok:true, identities:identities, error:null };
+
+  }
+
+  function ttcRenderAccountLinks(user){
+
+    var list = document.getElementById("accountLinkList");
+
+    if(!list) return;
+
+    list.textContent = "";
+
+    if(!user || !window.supabase || !window.supabase.auth){
+      return;
+    }
+
+    var note = document.createElement("p");
+    note.className = "account-link-state";
+    note.textContent = "Đang lấy trạng thái liên kết...";
+    list.appendChild(note);
+
+    ttcLoadLinkIdentities().then(function(loaded){
+
+      if(!window.currentUser || window.currentUser.id !== user.id){
+        return;
+      }
+
+      list.textContent = "";
+
+      var linked = {};
+
+      if(loaded.ok){
+        loaded.identities.forEach(function(identity){
+          if(identity && identity.provider && (!identity.user_id || identity.user_id === user.id)){
+            linked[identity.provider] = true;
+          }
+        });
+      }else{
+        var fail = document.createElement("p");
+        fail.className = "account-link-state";
+        fail.textContent = "Chưa lấy được trạng thái liên kết.";
+        list.appendChild(fail);
+      }
+
+      TTC_LINK_PROVIDERS.forEach(function(provider){
+
+        var row = document.createElement("div");
+        row.className = "account-link-row";
+
+        var name = document.createElement("span");
+        name.className = "account-link-name";
+        name.textContent = provider.name;
+
+        var state = document.createElement("span");
+        state.className = "account-link-state";
+
+        row.appendChild(name);
+        row.appendChild(state);
+
+        if(linked[provider.id]){
+          state.textContent = "Đã liên kết";
+        }else if(!loaded.ok){
+          state.textContent = "Chưa rõ";
+        }else{
+          state.textContent = "Chưa liên kết";
+          var button = document.createElement("button");
+          button.type = "button";
+          button.textContent = "Liên kết";
+          button.addEventListener("click", function(event){
+            event.stopPropagation();
+            ttcStartAccountLink(provider.id, button, state);
+          });
+          row.appendChild(button);
+        }
+
+        list.appendChild(row);
+
+      });
+
+    }).catch(function(){
+
+      list.textContent = "";
+      var fail = document.createElement("p");
+      fail.className = "account-link-state";
+      fail.textContent = "Chưa lấy được trạng thái liên kết.";
+      list.appendChild(fail);
+
+    });
+
+  }
+
+  async function ttcStartAccountLink(provider, button, state){
+
+    if(ttcLinkInFlight) return;
+    ttcLinkInFlight = true;
+    if(button) button.disabled = true;
+
+    function releaseLink(){
+      ttcLinkInFlight = false;
+      if(button) button.disabled = false;
+    }
+
+    try{
+
+    if(!window.supabase || !window.supabase.auth){
+      releaseLink();
+      showAccountMessage("Chưa kết nối được máy chủ đăng nhập.", "error");
+      return;
+    }
+
+    var current = await window.supabase.auth.getUser();
+
+    if(current.error || !current.data || !current.data.user){
+      releaseLink();
+      showAccountMessage("Bạn cần đăng nhập bằng email trước khi liên kết.", "error");
+      return;
+    }
+
+    var user = current.data.user;
+
+    if(window.currentUser && window.currentUser.id !== user.id){
+      releaseLink();
+      showAccountMessage("Phiên đăng nhập không khớp. Hãy đăng nhập lại bằng email.", "error");
+      return;
+    }
+
+    var redirectTo = ttcAccountRedirectUrl();
+
+    if(!redirectTo){
+      releaseLink();
+      showAccountMessage("Trang này chưa có địa chỉ redirect hợp lệ để liên kết.", "error");
+      return;
+    }
+
+    var before = await ttcLoadLinkIdentities();
+
+    if(!before.ok){
+      releaseLink();
+      showAccountMessage("Chưa xác minh được trạng thái liên kết. Chưa thực hiện liên kết.", "error");
+      return;
+    }
+
+    var hadProvider = before.identities.some(function(identity){
+      return identity && identity.provider === provider && (!identity.user_id || identity.user_id === user.id);
+    });
+
+    if(hadProvider){
+      releaseLink();
+      ttcRenderAccountLinks(user);
+      showAccountMessage(
+        provider === "google"
+          ? "Google đã được liên kết với tài khoản này."
+          : "Phương thức này đã được liên kết với tài khoản này.",
+        ""
+      );
+      return;
+    }
+
+    if(state) state.textContent = "Đang liên kết";
+
+    try{
+      sessionStorage.setItem(TTC_LINK_KEY, JSON.stringify({
+        userId:user.id,
+        provider:provider,
+        alreadyLinked:false
+      }));
+    }catch(e){
+      releaseLink();
+      showAccountMessage("Không lưu được bước kiểm tra liên kết trên trình duyệt này.", "error");
+      if(state) state.textContent = "Chưa liên kết";
+      return;
+    }
+
+    var linked = await window.supabase.auth.linkIdentity({
+      provider:provider,
+      options:{
+        redirectTo:redirectTo
+      }
+    });
+
+    if(linked.error){
+      ttcClearLinkGuard();
+      releaseLink();
+      if(state) state.textContent = "Liên kết thất bại";
+      showAccountMessage(ttcLinkErrorText(linked.error), "error");
+    }
+
+    }catch(e){
+      ttcClearLinkGuard();
+      releaseLink();
+      if(state) state.textContent = "Liên kết thất bại";
+      showAccountMessage("Liên kết thất bại. Tài khoản email hiện tại vẫn giữ nguyên.", "error");
+    }
+
+  }
+
+  async function ttcFinishAccountLink(user, guard){
+
+    var returnedError = ttcReadOAuthReturnError();
+    var loaded = await ttcLoadLinkIdentities();
+
+    ttcClearLinkGuard();
+
+    if(!loaded.ok){
+      showAccountMessage("Chưa xác nhận được danh tính vừa liên kết. Tài khoản hiện tại vẫn giữ nguyên.", "error");
+      ttcRenderAccountLinks(user);
+      return;
+    }
+
+    var matched = loaded.identities.some(function(identity){
+      return identity && identity.provider === guard.provider && (!identity.user_id || identity.user_id === user.id);
+    });
+
+    if(user.id !== guard.userId){
+      showAccountMessage("Liên kết bị dừng vì tài khoản sau khi quay lại không khớp tài khoản ban đầu.", "error");
+    }else if(guard.alreadyLinked === true){
+      showAccountMessage(
+        guard.provider === "google"
+          ? "Google đã được liên kết với tài khoản này."
+          : "Phương thức này đã được liên kết với tài khoản này.",
+        ""
+      );
+    }else if(guard.alreadyLinked === false && matched){
+      showAccountMessage("Đã liên kết thêm phương thức đăng nhập vào đúng tài khoản hiện tại.", "success");
+    }else if(returnedError){
+      showAccountMessage("Liên kết chưa hoàn tất. Tài khoản hiện tại vẫn giữ nguyên.", "error");
+    }else{
+      showAccountMessage("Chưa xác minh được liên kết mới. Không báo thành công.", "error");
+    }
+
+    ttcRenderAccountLinks(user);
+
+  }
+
+  /* =======================================================
      🚪 ĐĂNG XUẤT
      ======================================================= */
 
@@ -113964,6 +114332,33 @@ function closePasswordBox(){
    + HIỂN THỊ FREE TRIAL 5 GIỜ
    ======================================================= */
 
+function ttcWithTimeout(promise, ms){
+
+  return new Promise(function(resolve, reject){
+
+    var timer = setTimeout(function(){
+
+      reject(new Error("timeout"));
+
+    }, ms);
+
+    Promise.resolve(promise).then(function(value){
+
+      clearTimeout(timer);
+      resolve(value);
+
+    }, function(reason){
+
+      clearTimeout(timer);
+      reject(reason);
+
+    });
+
+  });
+
+}
+
+
 async function updateAccountUI(user){
 
   const tabs =
@@ -114020,6 +114415,13 @@ async function updateAccountUI(user){
         "none";
 
 
+    const linkList =
+      document.getElementById("accountLinkList");
+
+    if(linkList)
+      linkList.textContent = "";
+
+
     return;
 
   }
@@ -114051,6 +114453,9 @@ async function updateAccountUI(user){
   if(accountUser)
     accountUser.style.display =
       "block";
+
+
+  ttcRenderAccountLinks(user);
 
 
   /* =====================================================
@@ -114102,24 +114507,46 @@ async function updateAccountUI(user){
      KIỂM TRA MEMBERSHIP
      ===================================================== */
 
-  const {
-    data,
-    error
-  } =
-    await window.supabase
-      .from("memberships")
-      .select("*")
-      .eq(
-        "user_id",
-        user.id
-      )
-      .order(
-        "created_at",
-        {
-          ascending:false
-        }
-      )
-      .limit(1);
+  let data = null;
+  let error = null;
+
+  try{
+
+    const membershipResult =
+      await ttcWithTimeout(
+        window.supabase
+          .from("memberships")
+          .select("*")
+          .eq(
+            "user_id",
+            user.id
+          )
+          .order(
+            "created_at",
+            {
+              ascending:false
+            }
+          )
+          .limit(1),
+        12000
+      );
+
+    data = membershipResult.data;
+    error = membershipResult.error;
+
+  }catch(loadError){
+
+    console.error(
+      "TTC membership:",
+      loadError
+    );
+
+    statusBox.innerHTML =
+      "⚠️ Chưa tải được thông tin tài khoản.<br>Bạn vẫn đang đăng nhập.";
+
+    return;
+
+  }
 
 
   /* =====================================================
@@ -114284,8 +114711,32 @@ async function updateAccountUI(user){
      → KIỂM TRA FREE TRIAL 5 GIỜ
      ===================================================== */
 
-  const trial =
-    await checkFreeTrial();
+  let trial = {
+    allowed:false,
+    remaining:0
+  };
+
+  try{
+
+    trial =
+      await ttcWithTimeout(
+        checkFreeTrial(),
+        12000
+      );
+
+  }catch(trialError){
+
+    console.error(
+      "TTC trial:",
+      trialError
+    );
+
+    statusBox.innerHTML =
+      "⚠️ Chưa tải được thông tin tài khoản.<br>Bạn vẫn đang đăng nhập.";
+
+    return;
+
+  }
 
 
   /* =====================================================
@@ -114512,6 +114963,38 @@ function startAccountTrialCountdown(
 
     try{
 
+      const linkGuard = ttcReadLinkGuard();
+
+      if(linkGuard){
+
+        if(!session.user || linkGuard.userId !== session.user.id){
+
+          ttcClearLinkGuard();
+
+          showAccountMessage(
+            "Liên kết bị dừng vì tài khoản sau khi quay lại không khớp tài khoản ban đầu.",
+            "error"
+          );
+
+          await window.supabase.auth.signOut({
+            scope:"local"
+          });
+
+          window.currentUser = null;
+          updateAccountUI(null);
+
+          return;
+
+        }
+
+        window.currentUser = session.user;
+        updateAccountUI(session.user);
+        await ttcFinishAccountLink(session.user, linkGuard);
+
+        return;
+
+      }
+
       const deviceResult =
         await registerTtcDevice();
 
@@ -114591,30 +115074,62 @@ function startAccountTrialCountdown(
 
   async function checkCurrentSession(){
 
-    const {
-      data
-    } =
-      await window.supabase.auth.getSession();
+    try{
+
+      const sessionResult =
+        await ttcWithTimeout(
+          window.supabase.auth.getSession(),
+          12000
+        );
+
+      const data =
+        sessionResult &&
+        sessionResult.data;
 
 
-    if(
-      data &&
-      data.session
-    ){
-
-      await handleTtcSession(
+      if(
+        data &&
         data.session
+      ){
+
+        await handleTtcSession(
+          data.session
+        );
+
+      }else if(!window.currentUser){
+
+        window.currentUser =
+          null;
+
+
+        updateAccountUI(
+          null
+        );
+
+      }
+
+    }catch(sessionError){
+
+      console.error(
+        "TTC session check:",
+        sessionError
       );
 
-    }else{
+      if(!window.currentUser){
 
-      window.currentUser =
-        null;
+        window.currentUser =
+          null;
 
+        updateAccountUI(
+          null
+        );
 
-      updateAccountUI(
-        null
-      );
+        showAccountMessage(
+          "Chưa kiểm tra được phiên đăng nhập. Hãy đăng nhập bằng email và mật khẩu.",
+          "error"
+        );
+
+      }
 
     }
 
