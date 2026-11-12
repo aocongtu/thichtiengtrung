@@ -195792,14 +195792,15 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       var daily = Number(state.daily) || 0;
       return ""
         + "<aside class='ttc-path-overview ttc-path-overview-col' aria-label='Thống kê lộ trình'>"
-        +   "<div class='ttc-path-stat ttc-path-stat-xp' data-ttc-xp-target='1'><span>Tổng EXP</span><b class='ttc-path-xp-value'>" + esc(String(state.xp || 0)) + "</b></div>"
         +   "<div class='ttc-path-stat'><span>Chuỗi ngày</span><b>" + esc(streakText(state)) + "</b></div>"
         +   "<div class='ttc-path-stat'><span>Đã học hôm nay</span><b>" + todayDone + " từ</b></div>"
-        +   "<div class='ttc-path-stat'><span>Tiến độ lộ trình</span><b>" + pathPos + "/" + total + " từ</b></div>"
         +   "<div class='ttc-path-stat'><span>Hôm nay</span><b>" + todayDone + "/" + daily + " · " + pct + "%</b></div>"
-        +   "<div class='ttc-path-stat'><span>Trạng thái</span><b>" + esc(status) + "</b></div>"
+        +   "<div class='ttc-path-stat ttc-path-stat-status'><span>Trạng thái</span><b>" + esc(status) + "</b>"
+        +     "<p class='ttc-path-score'>HSK " + state.level + " · EXP " + (state.xp || 0) + "</p>"
+        +   "</div>"
+        +   "<div class='ttc-path-stat'><span>Tiến độ lộ trình</span><b>" + pathPos + "/" + total + " từ</b></div>"
         +   "<div class='ttc-path-bar'><span style='width:" + Math.min(100, pct) + "%'></span></div>"
-        +   "<p class='ttc-path-score'>HSK " + state.level + " · EXP " + (state.xp || 0) + "</p>"
+        +   "<div class='ttc-path-stat ttc-path-stat-xp' data-ttc-xp-target='1'><span>Tổng EXP</span><b class='ttc-path-xp-value'>" + esc(String(state.xp || 0)) + "</b></div>"
         + "</aside>";
     }
     function goalsShell(){
@@ -196552,10 +196553,10 @@ function buildTtcHskPaper(pool, level, examNo, salt){
   #ttcDailyVocab .ttc-path-btn-confirm{background:#15803d;color:#fff}
   #ttcDailyVocab .ttc-path-btn-clear{background:#475569;color:#fff}
   #ttcDailyVocab .ttc-path-btn:disabled{opacity:.55;cursor:default}
-  #ttcDailyVocab .ttc-path-learn{display:flex;align-items:flex-start;gap:12px;margin-top:8px;width:100%;box-sizing:border-box}
+  #ttcDailyVocab .ttc-path-learn{display:flex;align-items:stretch;gap:12px;margin-top:8px;width:100%;box-sizing:border-box}
   #ttcDailyVocab .ttc-path-main{flex:1 1 auto;min-width:0;width:auto;text-align:left}
   #ttcDailyVocab .ttc-path-overview.ttc-path-overview-col,
-  #ttcDailyVocab .ttc-path-overview-col{display:flex !important;flex-direction:column !important;flex-wrap:nowrap !important;align-items:stretch !important;gap:6px;flex:0 0 118px;width:118px;max-width:118px;margin:0;padding:8px;border:1px solid #fecdd3;border-radius:14px;background:#fff;box-sizing:border-box;grid-template-columns:none !important}
+  #ttcDailyVocab .ttc-path-overview-col{display:flex !important;flex-direction:column !important;flex-wrap:nowrap !important;align-items:stretch !important;align-self:flex-end;gap:6px;flex:0 0 124px;width:124px;max-width:124px;margin:0;margin-top:auto;padding:8px;border:1px solid #fecdd3;border-radius:14px;background:#fff;box-sizing:border-box;grid-template-columns:none !important}
   #ttcDailyVocab .ttc-path-stat-xp{border-color:#0f766e;background:linear-gradient(180deg,#ecfdf5,#fff);box-shadow:0 0 0 1px rgba(15,118,110,.12)}
   #ttcDailyVocab .ttc-path-stat-xp span{color:#0f766e;font-size:12px}
   #ttcDailyVocab .ttc-path-xp-value{color:#047857 !important;font-size:22px !important;font-weight:900 !important}
@@ -196600,7 +196601,10 @@ function buildTtcHskPaper(pool, level, examNo, salt){
   #ttcDailyVocab .ttc-daily-actions button{border:0;border-radius:999px;background:#9f1239;color:#fff;font-weight:800;padding:8px 14px;cursor:pointer}
   #ttcDailyVocab .ttc-path-bar{height:8px;background:#ffe4e6;border-radius:99px;overflow:hidden;margin:8px auto;max-width:280px}
   #ttcDailyVocab .ttc-path-bar span{display:block;height:100%;width:0;background:#9f1239}
-  #ttcDailyVocab .ttc-path-score{margin:6px 0;font-weight:800;color:#9f1239}
+  #ttcDailyVocab .ttc-path-score{margin:4px 0 0;font-weight:800;color:#9f1239;font-size:12px;line-height:1.35}
+  #ttcDailyVocab .ttc-path-stat-status .ttc-path-score{display:block}
+  #ttcDailyVocab .ttc-path-stat > span + b{display:block}
+  #ttcDailyVocab .ttc-path-overview-col .ttc-path-bar{margin:2px 0;max-width:100%}
   #ttcDailyVocab .ttc-path-overview{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0;text-align:left}
   #ttcDailyVocab .ttc-path-overview.ttc-path-overview-col{display:flex !important;flex-direction:column !important;grid-template-columns:none !important;margin:0;text-align:left}
   #ttcDailyVocab .ttc-path-overview-col > .ttc-path-stat{width:100%;flex:0 0 auto;max-width:100%}
@@ -196718,10 +196722,10 @@ function buildTtcHskPaper(pool, level, examNo, salt){
   @media(max-width:420px){
     #ttcDailyVocab{padding:12px 10px;padding-top:52px}
     #ttcDailyVocab h3{padding-right:6.5rem;font-size:18px}
-    #ttcDailyVocab .ttc-path-learn{flex-direction:column}
+    #ttcDailyVocab .ttc-path-learn{flex-direction:column;align-items:stretch}
     #ttcDailyVocab .ttc-path-main{width:100%}
     #ttcDailyVocab .ttc-path-overview.ttc-path-overview-col,
-    #ttcDailyVocab .ttc-path-overview-col{flex:0 0 auto;width:100%;max-width:100%;flex-direction:column !important;flex-wrap:nowrap !important}
+    #ttcDailyVocab .ttc-path-overview-col{flex:0 0 auto;align-self:stretch;width:100%;max-width:100%;margin-top:8px;flex-direction:column !important;flex-wrap:nowrap !important}
     #ttcDailyVocab .ttc-path-overview-col .ttc-path-stat{flex:0 0 auto;width:100%;max-width:100%}
     #ttcDailyVocab .ttc-path-stat-xp{flex:0 0 auto;width:100%}
     #ttcDailyVocab .ttc-path-overview{grid-template-columns:1fr}
