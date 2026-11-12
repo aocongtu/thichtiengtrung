@@ -196553,10 +196553,11 @@ function buildTtcHskPaper(pool, level, examNo, salt){
   #ttcDailyVocab .ttc-path-btn-confirm{background:#15803d;color:#fff}
   #ttcDailyVocab .ttc-path-btn-clear{background:#475569;color:#fff}
   #ttcDailyVocab .ttc-path-btn:disabled{opacity:.55;cursor:default}
-  #ttcDailyVocab .ttc-path-learn{display:flex;align-items:stretch;gap:12px;margin-top:8px;width:100%;box-sizing:border-box}
+  #ttcDailyVocab .ttc-path-learn{display:flex;align-items:flex-start;gap:12px;margin-top:8px;width:100%;box-sizing:border-box}
   #ttcDailyVocab .ttc-path-main{flex:1 1 auto;min-width:0;width:auto;text-align:left}
   #ttcDailyVocab .ttc-path-overview.ttc-path-overview-col,
-  #ttcDailyVocab .ttc-path-overview-col{display:flex !important;flex-direction:column !important;flex-wrap:nowrap !important;align-items:stretch !important;align-self:flex-end;gap:6px;flex:0 0 124px;width:124px;max-width:124px;margin:0;margin-top:auto;padding:8px;border:1px solid #fecdd3;border-radius:14px;background:#fff;box-sizing:border-box;grid-template-columns:none !important}
+  #ttcDailyVocab .ttc-path-overview-col{display:flex !important;flex-direction:column !important;flex-wrap:nowrap !important;align-items:stretch !important;align-self:flex-start;gap:6px;flex:0 0 124px;width:124px;max-width:124px;margin:0;padding:8px;border:1px solid #fecdd3;border-radius:14px;background:#fff;box-sizing:border-box;grid-template-columns:none !important}
+  #ttcDailyVocab .ttc-path-learn > .ttc-path-overview-col{margin-top:calc(13px + 16px + 2px + 8px)}
   #ttcDailyVocab .ttc-path-stat-xp{border-color:#0f766e;background:linear-gradient(180deg,#ecfdf5,#fff);box-shadow:0 0 0 1px rgba(15,118,110,.12)}
   #ttcDailyVocab .ttc-path-stat-xp span{color:#0f766e;font-size:12px}
   #ttcDailyVocab .ttc-path-xp-value{color:#047857 !important;font-size:22px !important;font-weight:900 !important}
@@ -196725,7 +196726,8 @@ function buildTtcHskPaper(pool, level, examNo, salt){
     #ttcDailyVocab .ttc-path-learn{flex-direction:column;align-items:stretch}
     #ttcDailyVocab .ttc-path-main{width:100%}
     #ttcDailyVocab .ttc-path-overview.ttc-path-overview-col,
-    #ttcDailyVocab .ttc-path-overview-col{flex:0 0 auto;align-self:stretch;width:100%;max-width:100%;margin-top:8px;flex-direction:column !important;flex-wrap:nowrap !important}
+    #ttcDailyVocab .ttc-path-overview-col,
+    #ttcDailyVocab .ttc-path-learn > .ttc-path-overview-col{flex:0 0 auto;align-self:stretch;width:100%;max-width:100%;margin-top:8px;margin-bottom:0;flex-direction:column !important;flex-wrap:nowrap !important}
     #ttcDailyVocab .ttc-path-overview-col .ttc-path-stat{flex:0 0 auto;width:100%;max-width:100%}
     #ttcDailyVocab .ttc-path-stat-xp{flex:0 0 auto;width:100%}
     #ttcDailyVocab .ttc-path-overview{grid-template-columns:1fr}
