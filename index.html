@@ -167960,6 +167960,164 @@ async function getCurrentUser(){
 
 
 /* =========================================================
+   Phase 3C: GHI BỘ NHỚ TỪ VỰNG (RPC ttc_vocab_memory_record)
+   Không sửa XP / điểm Test. Guest không ghi. Retry giữ cùng client_event_id.
+========================================================= */
+window.__ttcVocabMemPending = window.__ttcVocabMemPending || Object.create(null);
+
+function ttcVocabMemUuidOk(id){
+  return typeof id === "string" &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id);
+}
+
+function ttcVocabMemNewClientEventId(){
+  try{
+    if(window.crypto && typeof window.crypto.randomUUID === "function"){
+      return "vm-" + window.crypto.randomUUID();
+    }
+  }catch(e){}
+  return "vm-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 12) + "-" + Math.random().toString(36).slice(2, 8);
+}
+
+function ttcVocabMemShowNote(msg, isError){
+  var el = document.getElementById("ttcVocabMemSyncNote");
+  if(!el){
+    el = document.createElement("div");
+    el.id = "ttcVocabMemSyncNote";
+    el.setAttribute("role", "status");
+    el.setAttribute("aria-live", "polite");
+    el.style.cssText = "display:none;position:fixed;z-index:1000060;left:50%;bottom:18px;transform:translateX(-50%);max-width:min(420px,calc(100% - 24px));padding:10px 14px;border-radius:12px;border:1px solid #fecdd3;background:#fff;color:#9f1239;font-size:13px;font-weight:700;box-shadow:0 8px 20px rgba(15,23,42,.12);text-align:center;";
+    document.body.appendChild(el);
+  }
+  if(!msg){
+    el.style.display = "none";
+    el.textContent = "";
+    return;
+  }
+  el.textContent = msg;
+  el.style.display = "block";
+  el.style.borderColor = isError ? "#fca5a5" : "#fecdd3";
+  el.style.color = isError ? "#b91c1c" : "#9f1239";
+  clearTimeout(el._ttcHide);
+  el._ttcHide = setTimeout(function(){
+    el.style.display = "none";
+  }, 4500);
+}
+
+async function ttcVocabMemoryRecord(opts){
+  if(!opts || !opts.attemptKey){
+    return { ok:false, status:"bad_args" };
+  }
+  var pending = window.__ttcVocabMemPending;
+  var slot = pending[opts.attemptKey];
+  if(slot && slot.status === "done"){
+    return { ok:true, status:"already_done" };
+  }
+  if(slot && slot.status === "sending"){
+    return { ok:false, status:"in_flight" };
+  }
+
+  var lemmaId = String(opts.lemmaId || "");
+  var hskLevel = Number(opts.hskLevel);
+  var mode = String(opts.mode || "").trim();
+  var result = opts.result === "correct" ? "correct" : (opts.result === "wrong" ? "wrong" : "");
+
+  if(!ttcVocabMemUuidOk(lemmaId)){
+    console.warn("ttcVocabMemoryRecord: invalid lemma_id", lemmaId);
+    return { ok:false, status:"invalid_lemma" };
+  }
+  if(!(hskLevel >= 1 && hskLevel <= 9)){
+    console.warn("ttcVocabMemoryRecord: invalid hsk", hskLevel);
+    return { ok:false, status:"invalid_hsk" };
+  }
+  if(!mode || mode.length > 40 || !result){
+    return { ok:false, status:"bad_args" };
+  }
+
+  var user = null;
+  try{
+    user = await getCurrentUser();
+  }catch(e){
+    user = null;
+  }
+  if(!user){
+    return { ok:false, status:"guest" };
+  }
+
+  if(!slot){
+    slot = {
+      clientEventId: ttcVocabMemNewClientEventId(),
+      lemmaId: lemmaId,
+      hskLevel: hskLevel,
+      mode: mode,
+      result: result,
+      status: "pending"
+    };
+    pending[opts.attemptKey] = slot;
+  }
+
+  var client = getSupabaseClient();
+  if(!client || typeof client.rpc !== "function"){
+    slot.status = "pending";
+    ttcVocabMemShowNote("Chưa đồng bộ bộ nhớ từ (mất kết nối). XP/điểm không đổi.", true);
+    if(!opts._retried){
+      opts._retried = true;
+      setTimeout(function(){ ttcVocabMemoryRecord(opts); }, 2000);
+    }
+    return { ok:false, status:"no_client" };
+  }
+
+  slot.status = "sending";
+  try{
+    var res = await client.rpc("ttc_vocab_memory_record", {
+      p_lemma_id: slot.lemmaId,
+      p_hsk_level: slot.hskLevel,
+      p_mode: slot.mode,
+      p_result: slot.result,
+      p_client_event_id: slot.clientEventId
+    });
+    if(res && res.error){
+      slot.status = "pending";
+      ttcVocabMemShowNote("Chưa đồng bộ bộ nhớ từ. Sẽ gửi lại cùng sự kiện; XP/điểm không đổi.", true);
+      console.warn("ttcVocabMemoryRecord rpc error:", res.error);
+      if(!opts._retried){
+        opts._retried = true;
+        setTimeout(function(){ ttcVocabMemoryRecord(opts); }, 2000);
+      }
+      return { ok:false, status:"rpc_error", error: res.error };
+    }
+    var data = res && res.data;
+    if(data && data.ok === false){
+      if(data.status === "not_authenticated"){
+        slot.status = "pending";
+        return { ok:false, status:"not_authenticated" };
+      }
+      if(data.status === "duplicate"){
+        slot.status = "done";
+        return { ok:true, status:"duplicate", data: data };
+      }
+      slot.status = "pending";
+      ttcVocabMemShowNote("Chưa đồng bộ bộ nhớ từ (" + String(data.message || data.status || "lỗi") + ").", true);
+      return { ok:false, status:"rejected", data: data };
+    }
+    slot.status = "done";
+    return { ok:true, status:"ok", data: data };
+  }catch(err){
+    slot.status = "pending";
+    ttcVocabMemShowNote("Chưa đồng bộ bộ nhớ từ (lỗi mạng). XP/điểm không đổi.", true);
+    console.warn("ttcVocabMemoryRecord network:", err);
+    if(!opts._retried){
+      opts._retried = true;
+      setTimeout(function(){ ttcVocabMemoryRecord(opts); }, 2000);
+    }
+    return { ok:false, status:"network", error: err };
+  }
+}
+
+window.ttcVocabMemoryRecord = ttcVocabMemoryRecord;
+
+
+/* =========================================================
    🏆 SAVE MOCK
 ========================================================= */
 
@@ -171915,6 +172073,21 @@ Nút CTRL → ĐỌC ĐÁP ÁN
       whiteHatSessionCorrectStreak++;
       whiteHatSessionWrongStreak = 0;
       delete whiteHatExcludeModeForWord[whiteHatWordKey(w)];
+      (function whMemCorrect(){
+        var lemma = w && w.lemma_id;
+        var hsk = Number(w && w.hsk);
+        var memMode = String(mode || "meaning_to_hanzi").slice(0, 40);
+        var attemptKey = "wh:" + memMode + ":correct:" + String(lemma || "") + ":" + String(testIndex) + ":" + Date.now().toString(36);
+        if (typeof window.ttcVocabMemoryRecord === "function") {
+          window.ttcVocabMemoryRecord({
+            lemmaId: lemma,
+            hskLevel: hsk,
+            mode: memMode,
+            result: "correct",
+            attemptKey: attemptKey
+          });
+        }
+      })();
 
       whiteHatFeedbackCorrect(w);
       whiteHatUpdateScoreLabel();
@@ -171947,6 +172120,21 @@ Nút CTRL → ĐỌC ĐÁP ÁN
     whiteHatSessionCorrectStreak = 0;
     whiteHatPenalizeOnce(w);
     whiteHatQueueRetry(w, mode);
+    (function whMemWrong(){
+      var lemma = w && w.lemma_id;
+      var hsk = Number(w && w.hsk);
+      var memMode = String(mode || "meaning_to_hanzi").slice(0, 40);
+      var attemptKey = "wh:" + memMode + ":wrong:" + String(lemma || "") + ":" + String(testIndex) + ":" + Date.now().toString(36);
+      if (typeof window.ttcVocabMemoryRecord === "function") {
+        window.ttcVocabMemoryRecord({
+          lemmaId: lemma,
+          hskLevel: hsk,
+          mode: memMode,
+          result: "wrong",
+          attemptKey: attemptKey
+        });
+      }
+    })();
     whiteHatFeedbackWrong(w);
     whiteHatUpdateScoreLabel();
     whiteHatRefreshPracticeMeta();
@@ -195085,7 +195273,7 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       reason: "missing_public_mastered_words_and_exp_source",
       rows: [],
       hasMore: false,
-      message: "Bảng thành tích công khai chưa có nguồn dữ liệu hợp lệ (số từ ghi nhớ từng từ + EXP tích lũy + nickname công khai). Chưa tải danh sách thành viên giả."
+      message: "Dữ liệu thành tích đang được xây dựng. Chưa có nguồn công khai hợp lệ (số từ đã thành thạo theo lemma + EXP tích lũy + nickname). Không hiển thị thành viên mẫu hay số liệu giả."
     });
   }
 
@@ -195688,23 +195876,50 @@ function buildTtcHskPaper(pool, level, examNo, salt){
   window.ttcEnsurePathShell = function(){
     var hub = document.getElementById("ttcTopLearningHub");
     var shell = document.getElementById("ttcPathShell");
+    function buildShellHtml(){
+      return ""
+        + "<div class='ttc-path-ach-row'>"
+        +   "<div class='ttc-path-col'>"
+        +     "<button type='button' id='ttcPathLauncher' class='ttc-path-launcher' aria-expanded='false' aria-controls='ttcPathPanel'>"
+        +       "📚 LỘ TRÌNH HỌC HSK · Mở lộ trình"
+        +     "</button>"
+        +     "<div id='ttcPathPanel' class='ttc-path-panel' hidden></div>"
+        +   "</div>"
+        +   "<div class='ttc-ach-col'>"
+        +     "<div id='ttcAchHost' class='ttc-ach-host'></div>"
+        +   "</div>"
+        + "</div>";
+    }
     if (!shell) {
       shell = document.createElement("div");
       shell.id = "ttcPathShell";
       shell.className = "ttc-path-shell";
-      shell.innerHTML = ""
-        + "<button type='button' id='ttcPathLauncher' class='ttc-path-launcher' aria-expanded='false' aria-controls='ttcPathPanel'>"
-        +   "📚 LỘ TRÌNH HỌC HSK · Mở lộ trình"
-        + "</button>"
-        + "<div id='ttcPathPanel' class='ttc-path-panel' hidden></div>";
+      shell.innerHTML = buildShellHtml();
       if (hub && hub.parentNode) hub.insertAdjacentElement("afterend", shell);
       else {
         var main = document.querySelector("main");
         if (main && main.firstChild) main.insertBefore(shell, main.firstChild);
         else document.body.insertBefore(shell, document.body.firstChild);
       }
-    } else if (hub && shell.previousElementSibling !== hub && hub.parentNode) {
-      hub.insertAdjacentElement("afterend", shell);
+    } else {
+      if (hub && shell.previousElementSibling !== hub && hub.parentNode) {
+        hub.insertAdjacentElement("afterend", shell);
+      }
+      if (!shell.querySelector(".ttc-path-ach-row") || !document.getElementById("ttcAchHost")) {
+        var oldDaily = document.getElementById("ttcDailyVocab");
+        var wasOpen = false;
+        var oldLauncher = document.getElementById("ttcPathLauncher");
+        if (oldLauncher) wasOpen = oldLauncher.getAttribute("aria-expanded") === "true";
+        shell.innerHTML = buildShellHtml();
+        var newPanel = document.getElementById("ttcPathPanel");
+        if (oldDaily && newPanel) newPanel.appendChild(oldDaily);
+        var launcherFix = document.getElementById("ttcPathLauncher");
+        if (launcherFix && wasOpen) {
+          launcherFix.setAttribute("aria-expanded", "true");
+          launcherFix.textContent = "📚 LỘ TRÌNH HỌC HSK · Thu gọn lộ trình";
+          if (newPanel) newPanel.hidden = false;
+        }
+      }
     }
     var launcher = document.getElementById("ttcPathLauncher");
     var panel = document.getElementById("ttcPathPanel");
@@ -195725,6 +195940,11 @@ function buildTtcHskPaper(pool, level, examNo, salt){
           launcher.textContent = "📚 LỘ TRÌNH HỌC HSK · Thu gọn lộ trình";
         });
       });
+    }
+    var achHost = document.getElementById("ttcAchHost");
+    if (achHost && achHost.dataset.ready !== "1") {
+      achHost.dataset.ready = "1";
+      paintAchievementBoard(achHost);
     }
     return panel;
   };
@@ -195990,7 +196210,6 @@ function buildTtcHskPaper(pool, level, examNo, salt){
         +   overviewHtml(state, list)
         + "</div>"
         + "<div class='ttc-daily-actions'></div>"
-        + "<div id='ttcPathClass'></div>"
         + "<button type='button' class='ttc-path-cancel'>Huỷ lộ trình</button>";
       var remText = reminder(state, list);
       window.__ttcLastVocabPathReminder = remText;
@@ -196052,7 +196271,7 @@ function buildTtcHskPaper(pool, level, examNo, salt){
           draw();
         });
       });
-      syncBoard(state, box.querySelector("#ttcPathClass"));
+      syncBoard(state, document.getElementById("ttcAchHost"));
       if (!list.length) {
         card.textContent = "Cấp này chưa có từ để học.";
         return;
@@ -196251,6 +196470,24 @@ function buildTtcHskPaper(pool, level, examNo, salt){
           phase = "A";
           if (typeof cfg.onWrongRetry === "function") cfg.onWrongRetry();
         }
+        (function pathMemAfterGrade(){
+          var w = cfg.word;
+          var lemma = w && w.lemma_id;
+          var hsk = Number(cfg.level);
+          if (!(hsk >= 1 && hsk <= 9) && w) hsk = Number(w.hsk);
+          var mode = String(cfg.memoryMode || "path_quiz").slice(0, 40);
+          var result = ok ? "correct" : "wrong";
+          var attemptKey = "path:" + mode + ":" + String(lemma || "") + ":" + result + ":" + Date.now().toString(36) + ":" + Math.random().toString(36).slice(2, 9);
+          if (typeof window.ttcVocabMemoryRecord === "function") {
+            window.ttcVocabMemoryRecord({
+              lemmaId: lemma,
+              hskLevel: hsk,
+              mode: mode,
+              result: result,
+              attemptKey: attemptKey
+            });
+          }
+        })();
         busy = false;
         syncButtons();
       });
@@ -196378,6 +196615,7 @@ function buildTtcHskPaper(pool, level, examNo, salt){
         hosts.choices.appendChild(input);
         var stepsIn = pathMountStepControls(hosts, {
           store: store, level: level, entry: entry, word: word,
+          memoryMode: "path_ask_meaning",
           isReady: function(){ return !!pathNormMeaning(input.value); },
           isCorrect: function(){ return pathNormMeaning(input.value) === pathNormMeaning(word.m); },
           answerLabel: function(){ return String(word.m || ""); },
@@ -196400,6 +196638,7 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       var choiceButtons = [];
       var stepsMcq = pathMountStepControls(hosts, {
         store: store, level: level, entry: entry, word: word,
+        memoryMode: "path_ask_meaning",
         isReady: function(){ return selected != null; },
         isCorrect: function(){ return selected === word.m; },
         answerLabel: function(){ return String(word.m || ""); },
@@ -196494,6 +196733,7 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       btnClear.textContent = "Xóa";
       stepsTile = pathMountStepControls(hosts, {
         store: store, level: level, entry: entry, word: word,
+        memoryMode: "path_ask_tiles",
         btnClear: btnClear,
         isReady: function(){ return built.length === word.h.length && built.length > 0; },
         isCorrect: function(){ return built === word.h; },
@@ -196534,8 +196774,7 @@ function buildTtcHskPaper(pool, level, examNo, salt){
           ? "Cấp HSK " + level + " còn tiến độ đã lưu. Bấm Tiếp tục để học tiếp, không mất XP hay vị trí cũ."
           : "Chọn cấp và số từ mỗi ngày. Bắt đầu thì mới mở bài. Huỷ thì dừng nhắc.") + "</p>"
         + goalsShell()
-        + "<div class='ttc-daily-actions'></div>"
-        + "<div id='ttcPathClass'></div>";
+        + "<div class='ttc-daily-actions'></div>";
       bindConflictActions(level);
       bindLevelButtons(box.querySelector(".ttc-path-levels"), pickedLevel, function(nextLevel){
         store.activeLevel = nextLevel;
@@ -196582,7 +196821,7 @@ function buildTtcHskPaper(pool, level, examNo, salt){
         });
       });
       box.querySelector(".ttc-daily-actions").appendChild(start);
-      syncBoard(viewState(level, entry || { daily: pickedDaily, xp: 0, todayDone: 0 }), box.querySelector("#ttcPathClass"));
+      syncBoard(viewState(level, entry || { daily: pickedDaily, xp: 0, todayDone: 0 }), document.getElementById("ttcAchHost"));
     }
     draw();
   };
@@ -196592,11 +196831,17 @@ function buildTtcHskPaper(pool, level, examNo, salt){
 </script>
 
 <style id="ttc-daily-vocab-css">
-  #ttcPathShell{width:min(980px,calc(100% - 20px));margin:8px auto 10px;box-sizing:border-box}
-  #ttcPathLauncher.ttc-path-launcher{display:block;width:100%;box-sizing:border-box;border:1px solid #fecdd3;border-radius:14px;background:linear-gradient(180deg,#fff 0%,#fff5f5 100%);color:#9f1239;font-weight:800;font-size:15px;padding:12px 14px;cursor:pointer;text-align:center;box-shadow:0 4px 12px rgba(159,18,57,.08)}
-  #ttcPathLauncher.ttc-path-launcher[aria-expanded="true"]{background:linear-gradient(135deg,#9f1239,#e11d48);color:#fff;border-color:#9f1239}
+  #ttcPathShell{width:min(1100px,calc(100% - 20px));margin:8px auto 10px;box-sizing:border-box}
+  .ttc-path-ach-row{display:flex;flex-direction:row;align-items:flex-start;gap:12px;width:100%;box-sizing:border-box}
+  .ttc-path-col,.ttc-ach-col{flex:1 1 0;min-width:0;max-width:100%;box-sizing:border-box}
+  #ttcAchHost.ttc-ach-host{width:100%;box-sizing:border-box;overflow-x:hidden;text-align:left}
+  #ttcPathLauncher.ttc-path-launcher{display:block;width:100%;box-sizing:border-box;border:1px solid #fecdd3;border-radius:14px;background:#fff;color:#9f1239;font-weight:800;font-size:15px;padding:12px 14px;cursor:pointer;text-align:center;box-shadow:0 4px 12px rgba(159,18,57,.08)}
+  #ttcPathLauncher.ttc-path-launcher[aria-expanded="true"]{background:#9f1239;color:#fff;border-color:#9f1239}
   #ttcPathPanel.ttc-path-panel{margin-top:8px}
   #ttcPathPanel.ttc-path-panel[hidden]{display:none !important}
+  @media(max-width:760px){
+    .ttc-path-ach-row{flex-direction:column}
+  }
   #ttcDailyVocab{position:relative;margin:0 auto 8px;padding:14px;padding-top:48px;border:1px solid #fecdd3;border-radius:16px;background:#fff7f8;text-align:center;box-sizing:border-box;max-width:100%;overflow-x:hidden}
   #ttcDailyVocab h3{margin:0 0 4px;color:#9f1239;font-size:20px;padding-right:7rem}
   #ttcDailyVocab .ttc-daily-note,#ttcDailyVocab .ttc-daily-meaning{margin:4px 0;color:#64748b;font-size:14px}
@@ -196696,8 +196941,6 @@ function buildTtcHskPaper(pool, level, examNo, salt){
   #ttcDailyVocab .ttc-path-daily-error{min-height:18px;margin:0;color:#b91c1c;font-size:13px;font-weight:700}
   #ttcDailyVocab .ttc-path-session-hint{margin:4px 0 0;color:#9f1239;font-size:13px;font-weight:700}
   #ttcDailyVocab .ttc-on{background:#9f1239!important;color:#fff!important}
-  #ttcPathClass{margin-top:12px;text-align:left}
-  #ttcPathClass p{margin:3px 0}
   .ttc-ach-launch{
     width:100%;
     display:flex;
@@ -196706,21 +196949,18 @@ function buildTtcHskPaper(pool, level, examNo, salt){
     justify-content:center;
     gap:8px 12px;
     border:1px solid #fecdd3;
-    background:linear-gradient(180deg,#fff 0%,#fff5f5 100%);
+    background:#fff;
     color:#9f1239;
     border-radius:16px;
     padding:14px 16px;
     cursor:pointer;
     font-weight:800;
     box-shadow:0 6px 16px rgba(159,18,57,.08);
-    transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
   }
   .ttc-ach-launch:hover{
-    transform:translateY(-1px);
     border-color:#fb7185;
-    box-shadow:0 10px 22px rgba(159,18,57,.12);
+    box-shadow:0 8px 18px rgba(159,18,57,.12);
   }
-  .ttc-ach-launch:active{transform:translateY(0) scale(.99)}
   .ttc-ach-cup{font-size:28px;line-height:1}
   .ttc-ach-launch-text{font-size:16px;letter-spacing:.04em}
   .ttc-ach-launch-hint{width:100%;font-size:12px;font-weight:600;color:#be123c;opacity:.85}
