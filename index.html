@@ -148447,6 +148447,80 @@ Nút CTRL → ĐỌC ĐÁP ÁN
   font-weight:700;
 }
 
+#ttcVocabQuizChoices{
+  display:none;
+  margin:12px auto 8px;
+  max-width:700px;
+  padding:0;
+  text-align:center;
+}
+
+#ttcVocabQuizChoices.show{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+@media (max-width:560px){
+  #ttcVocabQuizChoices.show{
+    grid-template-columns:1fr;
+  }
+}
+
+#ttcVocabQuizChoices button.ttc-quiz-choice{
+  appearance:none;
+  border:2px solid #cbd5e1;
+  background:#fff;
+  color:#0f172a;
+  border-radius:14px;
+  padding:12px 10px;
+  font-size:18px;
+  font-weight:700;
+  line-height:1.35;
+  cursor:pointer;
+  min-height:52px;
+}
+
+#ttcVocabQuizChoices button.ttc-quiz-choice:hover:not(:disabled){
+  border-color:#86efac;
+  background:#f0fdf4;
+}
+
+#ttcVocabQuizChoices button.ttc-quiz-choice:disabled{
+  cursor:default;
+  opacity:.92;
+}
+
+#ttcVocabQuizChoices button.ttc-quiz-choice.is-correct{
+  border-color:#16a34a;
+  background:#dcfce7;
+  color:#14532d;
+}
+
+#ttcVocabQuizChoices button.ttc-quiz-choice.is-wrong{
+  border-color:#dc2626;
+  background:#fee2e2;
+  color:#7f1d1d;
+}
+
+#ttcVocabQuizAudioBtn{
+  display:none;
+  margin:8px auto 4px;
+  appearance:none;
+  border:2px solid #93c5fd;
+  background:#eff6ff;
+  color:#1d4ed8;
+  border-radius:14px;
+  padding:10px 16px;
+  font-size:16px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+#ttcVocabQuizAudioBtn.show{
+  display:inline-block;
+}
+
 </style>
 
 
@@ -148459,11 +148533,11 @@ Nút CTRL → ĐỌC ĐÁP ÁN
      🛡️ CHỐNG CHẠY LẶP
   ===================================================== */
 
-  if(window.__WHITE_HAT_TEST_V3__){
+  if(window.__WHITE_HAT_TEST_V4__){
     return;
   }
 
-  window.__WHITE_HAT_TEST_V3__ = true;
+  window.__WHITE_HAT_TEST_V4__ = true;
 
 
   /* =====================================================
@@ -148472,11 +148546,448 @@ Nút CTRL → ĐỌC ĐÁP ÁN
 
   let whiteHatTestStage = 0;
   /*
-    0 = chưa kiểm tra
-    1 = đã đúng → Enter lần 2 sang câu
+    0 = chưa trả lời
+    1 = đã đúng → được sang câu tiếp
+    2 = đã sai (đã hiện đáp án) → được sang câu tiếp, không cộng điểm
   */
 
   let whiteHatTestWrongSaved = false;
+  let whiteHatAnswerLocked = false;
+  let whiteHatCurrentMode = "meaning_to_hanzi";
+  let whiteHatCurrentChoices = null;
+  let whiteHatLastModes = [];
+  let whiteHatModeCursor = 0;
+  let whiteHatSessionCorrectStreak = 0;
+  let whiteHatSessionWrongStreak = 0;
+  let whiteHatScoredKeys = Object.create(null);
+  let whiteHatPenalizedKeys = Object.create(null);
+  let whiteHatSessionExp = 0;
+  let whiteHatRetryQueue = [];
+  let whiteHatExcludeModeForWord = Object.create(null);
+  const WHITE_HAT_SCORE_HIT = 1;
+  const WHITE_HAT_SCORE_MISS = 1;
+  const WHITE_HAT_EXP_HIT = 5;
+
+
+  /* =====================================================
+     🧠 PHASE 2 — helpers (modes / distractors / scoring)
+  ===================================================== */
+
+  function whiteHatWordKey(w){
+    if(!w) return "";
+    return [
+      String(w.hsk || ""),
+      String(w.h || ""),
+      String(w.p || ""),
+      String(w.m || "")
+    ].join("|");
+  }
+
+  function whiteHatCanSpeak(){
+    return (
+      typeof window.say === "function" &&
+      typeof window.speechSynthesis !== "undefined"
+    );
+  }
+
+  function whiteHatNormText(s){
+    return String(s || "")
+      .normalize("NFC")
+      .trim()
+      .replace(/\s+/g, "");
+  }
+
+  function whiteHatNormHanzi(s){
+    return whiteHatNormText(s);
+  }
+
+  function whiteHatNormPinyin(s){
+    return String(s || "")
+      .normalize("NFC")
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, "")
+      .replace(/ü/g, "v")
+      .replace(/ǚ/g, "v̌")
+      .replace(/ǖ/g, "v̄")
+      .replace(/ǘ/g, "v́")
+      .replace(/ǜ/g, "v̀");
+  }
+
+  function whiteHatMeaningConflict(a, b){
+    const ma = String(a || "").trim().toLowerCase();
+    const mb = String(b || "").trim().toLowerCase();
+    if(!ma || !mb) return true;
+    if(ma === mb) return true;
+    if(ma.indexOf(mb) >= 0 || mb.indexOf(ma) >= 0) return true;
+    return false;
+  }
+
+  function whiteHatShuffleInPlace(arr){
+    for(let i = arr.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      const t = arr[i];
+      arr[i] = arr[j];
+      arr[j] = t;
+    }
+    return arr;
+  }
+
+  function whiteHatPoolSameLevel(target){
+    const src = Array.isArray(testQuestions) && testQuestions.length
+      ? testQuestions
+      : (Array.isArray(words) ? words : []);
+    const hsk = Number(target && target.hsk);
+    return src.filter(function(w){
+      return (
+        w &&
+        w !== target &&
+        Number(w.hsk) === hsk &&
+        w.h &&
+        w.m
+      );
+    });
+  }
+
+  function whiteHatPickDistractors(target, kind){
+    if(!target) return null;
+    const pool = whiteHatPoolSameLevel(target);
+    let candidates = pool.filter(function(w){
+      if(kind === "meaning"){
+        if(!w.m) return false;
+        if(whiteHatMeaningConflict(w.m, target.m)) return false;
+        if(w.h === target.h) return false;
+        return true;
+      }
+      if(kind === "hanzi"){
+        if(!w.h || w.h === target.h) return false;
+        if(whiteHatMeaningConflict(w.m, target.m)) return false;
+        return true;
+      }
+      if(kind === "pinyin"){
+        if(!w.p) return false;
+        if(whiteHatNormPinyin(w.p) === whiteHatNormPinyin(target.p)) return false;
+        if(w.h === target.h) return false;
+        if(whiteHatMeaningConflict(w.m, target.m)) return false;
+        return true;
+      }
+      return false;
+    });
+
+    const samePos = candidates.filter(function(w){
+      return target.t && w.t && String(w.t) === String(target.t);
+    });
+
+    const picked = [];
+    const seen = Object.create(null);
+
+    function take(list, n){
+      const copy = whiteHatShuffleInPlace(list.slice());
+      for(let i = 0; i < copy.length && picked.length < n; i++){
+        const key = whiteHatWordKey(copy[i]);
+        if(seen[key]) continue;
+        seen[key] = true;
+        picked.push(copy[i]);
+      }
+    }
+
+    take(samePos, 3);
+    if(picked.length < 3){
+      take(candidates, 3);
+    }
+
+    if(picked.length < 3) return null;
+    return picked.slice(0, 3);
+  }
+
+  function whiteHatBuildChoices(correctValue, distractorValues){
+    const items = [{ value: correctValue, correct: true }].concat(
+      distractorValues.map(function(v){
+        return { value: v, correct: false };
+      })
+    );
+    return whiteHatShuffleInPlace(items);
+  }
+
+  function whiteHatModeAvailable(mode, w){
+    if(!w || !w.h) return false;
+    if(mode === "hanzi_to_meaning"){
+      return !!(w.m && whiteHatPickDistractors(w, "meaning"));
+    }
+    if(mode === "meaning_to_hanzi"){
+      return !!(w.m && (whiteHatPickDistractors(w, "hanzi") || whiteHatNormHanzi(w.h)));
+    }
+    if(mode === "audio_to_hanzi"){
+      return !!(whiteHatCanSpeak() && whiteHatPickDistractors(w, "hanzi"));
+    }
+    if(mode === "audio_to_pinyin"){
+      return !!(whiteHatCanSpeak() && w.p && whiteHatNormPinyin(w.p));
+    }
+    if(mode === "pinyin_to_hanzi"){
+      return !!(w.p && (whiteHatPickDistractors(w, "hanzi") || whiteHatNormHanzi(w.h)));
+    }
+    if(mode === "hanzi_to_pinyin"){
+      return !!(w.p && whiteHatPickDistractors(w, "pinyin"));
+    }
+    return false;
+  }
+
+  function whiteHatPreferredModes(){
+    if(whiteHatSessionWrongStreak >= 2){
+      return [
+        "hanzi_to_meaning",
+        "meaning_to_hanzi",
+        "pinyin_to_hanzi",
+        "hanzi_to_pinyin",
+        "audio_to_hanzi",
+        "audio_to_pinyin"
+      ];
+    }
+    if(whiteHatSessionCorrectStreak >= 3){
+      return [
+        "audio_to_pinyin",
+        "hanzi_to_pinyin",
+        "pinyin_to_hanzi",
+        "audio_to_hanzi",
+        "meaning_to_hanzi",
+        "hanzi_to_meaning"
+      ];
+    }
+    return [
+      "meaning_to_hanzi",
+      "hanzi_to_meaning",
+      "audio_to_hanzi",
+      "pinyin_to_hanzi",
+      "hanzi_to_pinyin",
+      "audio_to_pinyin"
+    ];
+  }
+
+  function whiteHatPickMode(w){
+    const key = whiteHatWordKey(w);
+    const exclude = whiteHatExcludeModeForWord[key] || null;
+    const last = whiteHatLastModes.length
+      ? whiteHatLastModes[whiteHatLastModes.length - 1]
+      : null;
+    const preferred = whiteHatPreferredModes();
+    const available = preferred.filter(function(mode){
+      if(exclude && mode === exclude) return false;
+      return whiteHatModeAvailable(mode, w);
+    });
+
+    if(!available.length){
+      return "meaning_to_hanzi";
+    }
+
+    /*
+      Round-robin theo cursor để luân phiên đủ dạng có dữ liệu,
+      tránh kẹt vòng 3 dạng đầu danh sách ưu tiên.
+    */
+    for(let offset = 0; offset < available.length; offset++){
+      const idx =
+        (whiteHatModeCursor + offset) %
+        available.length;
+      const mode = available[idx];
+      if(mode !== last){
+        whiteHatModeCursor = idx + 1;
+        return mode;
+      }
+    }
+
+    const fallback =
+      available[whiteHatModeCursor % available.length];
+    whiteHatModeCursor++;
+    return fallback;
+  }
+
+  function whiteHatAwardScoreOnce(w){
+    const key = whiteHatWordKey(w);
+    if(!key) return false;
+    if(whiteHatScoredKeys[key]) return false;
+    whiteHatScoredKeys[key] = true;
+    testScore += WHITE_HAT_SCORE_HIT;
+    whiteHatSessionExp += WHITE_HAT_EXP_HIT;
+    return true;
+  }
+
+  function whiteHatPenalizeOnce(w){
+    const key = whiteHatWordKey(w);
+    if(!key) return false;
+    if(whiteHatScoredKeys[key]) return false;
+    if(whiteHatPenalizedKeys[key]) return false;
+    whiteHatPenalizedKeys[key] = true;
+    testScore = Math.max(0, Number(testScore || 0) - WHITE_HAT_SCORE_MISS);
+    return true;
+  }
+
+  function whiteHatQueueRetry(w, failedMode){
+    if(!w) return;
+    const key = whiteHatWordKey(w);
+    if(whiteHatScoredKeys[key]) return;
+    whiteHatExcludeModeForWord[key] = failedMode || null;
+    for(let i = 0; i < whiteHatRetryQueue.length; i++){
+      if(whiteHatWordKey(whiteHatRetryQueue[i]) === key) return;
+    }
+    whiteHatRetryQueue.push(w);
+  }
+
+  function whiteHatClearChoices(){
+    const box = document.getElementById("ttcVocabQuizChoices");
+    if(box){
+      box.innerHTML = "";
+      box.classList.remove("show");
+    }
+    const audioBtn = document.getElementById("ttcVocabQuizAudioBtn");
+    if(audioBtn){
+      audioBtn.classList.remove("show");
+    }
+    whiteHatCurrentChoices = null;
+  }
+
+  function whiteHatRenderChoices(choices, displayFn){
+    const box = document.getElementById("ttcVocabQuizChoices");
+    if(!box) return;
+    box.innerHTML = "";
+    whiteHatCurrentChoices = choices;
+    choices.forEach(function(item, idx){
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "ttc-quiz-choice";
+      btn.setAttribute("data-choice-index", String(idx));
+      btn.textContent = displayFn ? displayFn(item.value) : String(item.value);
+      btn.addEventListener("click", function(){
+        whiteHatSelectChoice(idx);
+      });
+      box.appendChild(btn);
+    });
+    box.classList.add("show");
+  }
+
+  function whiteHatSelectChoice(idx){
+    if(whiteHatAnswerLocked || whiteHatTestStage !== 0) return;
+    if(!whiteHatCurrentChoices || !whiteHatCurrentChoices[idx]) return;
+    const input = document.getElementById("testInput");
+    if(input){
+      input.value = String(whiteHatCurrentChoices[idx].value || "");
+    }
+    whiteHatCheckTest();
+  }
+
+  function whiteHatMarkChoiceButtons(selectedIdx, correct){
+    const box = document.getElementById("ttcVocabQuizChoices");
+    if(!box || !whiteHatCurrentChoices) return;
+    const buttons = box.querySelectorAll("button.ttc-quiz-choice");
+    buttons.forEach(function(btn, i){
+      btn.disabled = true;
+      const item = whiteHatCurrentChoices[i];
+      if(!item) return;
+      if(item.correct) btn.classList.add("is-correct");
+      if(i === selectedIdx && !correct) btn.classList.add("is-wrong");
+    });
+  }
+
+  function whiteHatUpdateScoreLabel(){
+    const score = document.getElementById("score");
+    if(!score) return;
+    const pct =
+      typeof window.getTestScorePercent === "function"
+        ? window.getTestScorePercent()
+        : 0;
+    score.textContent =
+      "Điểm: " + pct + " / 100 · EXP phiên: " + whiteHatSessionExp +
+      " (không phải số từ đã thuộc)";
+  }
+
+  function whiteHatEnableNext(isLast){
+    const nextButton = document.getElementById("whiteHatTestNextButton");
+    if(!nextButton) return;
+    nextButton.disabled = false;
+    nextButton.textContent = isLast ? "🏁 Xem kết quả" : "➡️ Câu tiếp";
+  }
+
+  function whiteHatDisableNext(){
+    const nextButton = document.getElementById("whiteHatTestNextButton");
+    if(!nextButton) return;
+    nextButton.disabled = true;
+    nextButton.textContent = "➡️ Câu tiếp";
+  }
+
+  function whiteHatFeedbackCorrect(w){
+    const result = document.getElementById("testResult");
+    if(!result) return;
+    const py = w && w.p ? " · " + w.p : "";
+    result.textContent =
+      "Chính xác" + py + " · +" + WHITE_HAT_SCORE_HIT + " điểm · +" + WHITE_HAT_EXP_HIT + " EXP";
+    result.classList.add("ttc-test-correct-only");
+    result.style.color = "#087536";
+    result.style.fontSize = "22px";
+    result.style.fontWeight = "900";
+  }
+
+  function whiteHatFeedbackWrong(w){
+    const result = document.getElementById("testResult");
+    if(!result) return;
+    const hanzi = w && w.h ? w.h : "";
+    const py = w && w.p ? w.p : "";
+    const meaning = w && w.m ? w.m : "";
+    result.classList.remove("ttc-test-correct-only");
+    result.innerHTML =
+      '<div style="font-size:20px;font-weight:800;color:#dc2626;margin:6px 0;">❌ Chưa đúng · −' + WHITE_HAT_SCORE_MISS + ' điểm</div>' +
+      '<div style="font-size:18px;font-weight:700;color:#0f172a;line-height:1.45;">' +
+      "Đáp án: " + hanzi +
+      (py ? " · <span style=\"color:#2563eb\">" + py + "</span>" : "") +
+      (meaning ? "<br>" + meaning : "") +
+      "</div>";
+  }
+
+  function whiteHatIsMcqMode(mode){
+    return (
+      mode === "hanzi_to_meaning" ||
+      mode === "audio_to_hanzi" ||
+      mode === "hanzi_to_pinyin" ||
+      (mode === "meaning_to_hanzi" && whiteHatCurrentChoices) ||
+      (mode === "pinyin_to_hanzi" && whiteHatCurrentChoices)
+    );
+  }
+
+
+  function whiteHatReadPathReminderText(){
+    try{
+      if(typeof window.ttcGetVocabPathReminder === "function"){
+        return window.ttcGetVocabPathReminder();
+      }
+    }catch(e){}
+    return "";
+  }
+
+  function whiteHatRefreshPracticeMeta(){
+    const rem = document.getElementById("ttcVocabPracticeReminder");
+    const board = document.getElementById("ttcVocabPracticeBoard");
+    if(rem){
+      const text = whiteHatReadPathReminderText();
+      if(text){
+        rem.textContent = "📌 " + text;
+        rem.style.display = "";
+      }else{
+        rem.textContent = "";
+        rem.style.display = "none";
+      }
+    }
+    if(board){
+      const nick =
+        (window.currentUser &&
+          window.currentUser.user_metadata &&
+          (window.currentUser.user_metadata.display_name ||
+            window.currentUser.user_metadata.nickname ||
+            window.currentUser.user_metadata.full_name)) ||
+        (window.currentUser ? "Bạn học" : "Khách");
+      board.innerHTML =
+        "Thành tích phiên Test · " + String(nick).replace(/</g, "") +
+        " · điểm " + (typeof window.getTestScorePercent === "function" ? window.getTestScorePercent() : 0) +
+        "/100 · EXP phiên " + whiteHatSessionExp +
+        "<div style=\"margin-top:4px;font-weight:600;color:#64748b;\">Bảng xếp hạng online theo cấp HSK đang chờ phê duyệt bảng dữ liệu (không tự tạo số liệu giả).</div>";
+    }
+  }
 
 
   /* =====================================================
@@ -148511,6 +149022,45 @@ Nút CTRL → ĐỌC ĐÁP ÁN
 
     if(!input){
       return;
+    }
+
+
+    /* ---------------------------------------------
+       NÚT NGHE / MCQ (Phase 2)
+    --------------------------------------------- */
+
+    if(!document.getElementById("ttcVocabQuizAudioBtn")){
+      const audioBtn = document.createElement("button");
+      audioBtn.type = "button";
+      audioBtn.id = "ttcVocabQuizAudioBtn";
+      audioBtn.textContent = "🔊 Nghe lại";
+      audioBtn.addEventListener("click", function(){
+        const w = testQuestions[testIndex];
+        if(w) whiteHatTestSpeak(w);
+      });
+      input.insertAdjacentElement("beforebegin", audioBtn);
+    }
+
+    if(!document.getElementById("ttcVocabQuizChoices")){
+      const choices = document.createElement("div");
+      choices.id = "ttcVocabQuizChoices";
+      input.insertAdjacentElement("beforebegin", choices);
+    }
+
+    if(!document.getElementById("ttcVocabPracticeMeta")){
+      const meta = document.createElement("div");
+      meta.id = "ttcVocabPracticeMeta";
+      meta.style.cssText =
+        "max-width:700px;margin:8px auto 0;padding:10px 12px;border-radius:14px;background:#f8fafc;border:1px solid #e2e8f0;color:#334155;font-size:14px;line-height:1.45;text-align:left;";
+      meta.innerHTML =
+        '<div id="ttcVocabPracticeReminder" style="margin-bottom:6px;"></div>' +
+        '<div id="ttcVocabPracticeBoard" style="font-weight:700;"></div>';
+      const number = document.getElementById("testNumber");
+      if(number){
+        number.insertAdjacentElement("afterend", meta);
+      }else{
+        input.insertAdjacentElement("beforebegin", meta);
+      }
     }
 
 
@@ -148602,7 +149152,8 @@ Nút CTRL → ĐỌC ĐÁP ÁN
         function(){
 
           if(
-            whiteHatTestStage !== 1
+            whiteHatTestStage !== 1 &&
+            whiteHatTestStage !== 2
           ){
 
             const result =
@@ -148613,7 +149164,7 @@ Nút CTRL → ĐỌC ĐÁP ÁN
             if(result){
 
               result.textContent =
-                "👉 Hãy trả lời đúng câu này trước nhé!";
+                "👉 Hãy trả lời câu này trước nhé!";
 
               result.style.color =
                 "#d08a00";
@@ -148710,6 +149261,8 @@ Nút CTRL → ĐỌC ĐÁP ÁN
     if(finished){
       finished.classList.remove("show");
     }
+
+    whiteHatClearChoices();
 
   }
 
@@ -148865,6 +149418,28 @@ Nút CTRL → ĐỌC ĐÁP ÁN
 
     whiteHatTestWrongSaved = false;
 
+    whiteHatAnswerLocked = false;
+
+    whiteHatCurrentMode = "meaning_to_hanzi";
+
+    whiteHatLastModes = [];
+
+    whiteHatModeCursor = 0;
+
+    whiteHatSessionCorrectStreak = 0;
+
+    whiteHatSessionWrongStreak = 0;
+
+    whiteHatScoredKeys = Object.create(null);
+
+    whiteHatPenalizedKeys = Object.create(null);
+
+    whiteHatSessionExp = 0;
+
+    whiteHatRetryQueue = [];
+
+    whiteHatExcludeModeForWord = Object.create(null);
+
 
     whiteHatTestClearAnswer();
 
@@ -148931,11 +149506,12 @@ Nút CTRL → ĐỌC ĐÁP ÁN
 
 
     /*
-      CHỈ CHO ĐI TIẾP KHI ĐÚNG
+      Cho đi tiếp khi đã đúng (1) hoặc đã xem đáp án sai (2)
     */
 
     if(
-      whiteHatTestStage !== 1
+      whiteHatTestStage !== 1 &&
+      whiteHatTestStage !== 2
     ){
 
       return;
@@ -148947,13 +149523,36 @@ Nút CTRL → ĐỌC ĐÁP ÁN
 
 
     /*
-      HẾT BÀI
+      HẾT BÀI — gắn thêm từ sai để kiểm tra lại bằng dạng khác
     */
 
     if(
       testIndex >=
       testQuestions.length
     ){
+
+      if(whiteHatRetryQueue.length){
+        const extra = [];
+        const seen = Object.create(null);
+        while(whiteHatRetryQueue.length){
+          const item = whiteHatRetryQueue.shift();
+          const key = whiteHatWordKey(item);
+          if(!key || whiteHatScoredKeys[key] || seen[key]) continue;
+          seen[key] = true;
+          extra.push(item);
+        }
+        if(extra.length){
+          testQuestions = testQuestions.concat(extra);
+          whiteHatTestStage = 0;
+          whiteHatTestWrongSaved = false;
+          whiteHatAnswerLocked = false;
+          whiteHatTestClearAnswer();
+          if(typeof window.showTestQuestion === "function"){
+            window.showTestQuestion();
+          }
+          return;
+        }
+      }
 
       whiteHatTestFinish();
 
@@ -148965,6 +149564,8 @@ Nút CTRL → ĐỌC ĐÁP ÁN
     whiteHatTestStage = 0;
 
     whiteHatTestWrongSaved = false;
+
+    whiteHatAnswerLocked = false;
 
 
     whiteHatTestClearAnswer();
@@ -149203,295 +149804,138 @@ Nút CTRL → ĐỌC ĐÁP ÁN
       return;
     }
 
-
-    const inputElement =
-      document.getElementById(
-        "testInput"
-      );
-
-    const result =
-      document.getElementById(
-        "testResult"
-      );
-
-
-    const w =
-      testQuestions[testIndex];
-
-
-    if(
-      !inputElement ||
-      !w
-    ){
+    if(whiteHatAnswerLocked && whiteHatTestStage !== 0){
+      if(whiteHatTestStage === 1 || whiteHatTestStage === 2){
+        whiteHatTestGoNext();
+      }
       return;
     }
 
+    if(whiteHatTestStage === 1 || whiteHatTestStage === 2){
+      whiteHatTestGoNext();
+      return;
+    }
 
-    const input =
-      inputElement.value.trim();
+    const inputElement = document.getElementById("testInput");
+    const result = document.getElementById("testResult");
+    const w = testQuestions[testIndex];
 
+    if(!w){
+      return;
+    }
 
-    /*
-      CHƯA NHẬP
-    */
+    const mode = whiteHatCurrentMode || "meaning_to_hanzi";
+    const isMcq = whiteHatIsMcqMode(mode);
+    const inputRaw = inputElement ? String(inputElement.value || "") : "";
+    const input = inputRaw.trim();
 
     if(!input){
-
       if(result){
-
-        result.textContent =
-          "⚠️ Anh hãy nhập Hán tự trước nhé!";
-
-        result.style.color =
-          "#d08a00";
-
+        result.classList.remove("ttc-test-correct-only");
+        result.textContent = isMcq
+          ? "⚠️ Anh hãy chọn một đáp án nhé!"
+          : (mode === "audio_to_pinyin"
+            ? "⚠️ Anh hãy nhập pinyin trước nhé!"
+            : "⚠️ Anh hãy nhập Hán tự trước nhé!");
+        result.style.color = "#d08a00";
       }
-
       return;
-
     }
 
+    whiteHatAnswerLocked = true;
 
-    /*
-      ĐÃ ĐÚNG
-      Không kiểm tra lại.
-      Enter lần 2 sẽ đi câu tiếp.
-    */
-
-    if(
-      whiteHatTestStage === 1
-    ){
-
-      whiteHatTestGoNext();
-
-      return;
-
+    let correct = false;
+    if(mode === "hanzi_to_meaning"){
+      correct = String(input) === String(w.m || "");
+    }else if(mode === "audio_to_pinyin" || mode === "hanzi_to_pinyin"){
+      correct = whiteHatNormPinyin(input) === whiteHatNormPinyin(w.p);
+    }else{
+      correct = whiteHatNormHanzi(input) === whiteHatNormHanzi(w.h);
     }
 
-
-    const cleanInput =
-      input.replace(
-        /\s+/g,
-        ""
-      );
-
-
-    const cleanAnswer =
-      String(w.h || "")
-        .trim()
-        .replace(
-          /\s+/g,
-          ""
-        );
-
-
-    const correct =
-      cleanInput ===
-      cleanAnswer;
-
-
-    /* =================================================
-       ✅ ĐÚNG
-    ================================================= */
+    if(isMcq && whiteHatCurrentChoices){
+      let selectedIdx = -1;
+      for(let i = 0; i < whiteHatCurrentChoices.length; i++){
+        if(String(whiteHatCurrentChoices[i].value) === String(input)){
+          selectedIdx = i;
+          break;
+        }
+      }
+      whiteHatMarkChoiceButtons(selectedIdx, correct);
+    }
 
     if(correct){
-
-      testScore++;
-
+      whiteHatAwardScoreOnce(w);
       testAnswered = true;
-
       whiteHatTestStage = 1;
-
       whiteHatTestWrongSaved = false;
+      whiteHatSessionCorrectStreak++;
+      whiteHatSessionWrongStreak = 0;
+      delete whiteHatExcludeModeForWord[whiteHatWordKey(w)];
 
+      whiteHatFeedbackCorrect(w);
+      whiteHatUpdateScoreLabel();
+      whiteHatRefreshPracticeMeta();
 
-      /*
-        Chỉ hiện một thông báo ngắn gọn.
-        Không bật thẻ đáp án/chúc mừng lớn để tránh chiếm màn hình.
-      */
-
-      if(result){
-
-        result.textContent = "Chính xác" + (w.p ? " · " + w.p : "");
-        result.classList.add("ttc-test-correct-only");
-        result.style.color = "#087536";
-        result.style.fontSize = "24px";
-        result.style.fontWeight = "900";
-
+      if(typeof window.saveTestProgress === "function"){
+        try{
+          window.saveTestProgress(currentHSK, testIndex + 1, false);
+        }catch(e){}
       }
 
+      setTimeout(function(){
+        whiteHatTestSpeak(w);
+      }, 120);
 
-      /*
-        Cập nhật điểm
-      */
-
-      if(
-        typeof window.getTestScorePercent ===
-        "function"
-      ){
-
-        const score =
-          document.getElementById(
-            "score"
-          );
-
-        if(score){
-
-          score.textContent =
-            `Điểm hiện tại: ${
-              window.getTestScorePercent()
-            } / 100`;
-
-        }
-
-      }
-
-
-      /*
-        🔊 ĐỌC NGAY
-      */
-
-      setTimeout(
-        function(){
-
-          whiteHatTestSpeak(w);
-
-        },
-        120
+      whiteHatEnableNext(
+        testIndex === testQuestions.length - 1 && !whiteHatRetryQueue.length
       );
 
-
-      /*
-        MỞ NÚT CÂU TIẾP
-      */
-
-      const nextButton =
-        document.getElementById(
-          "whiteHatTestNextButton"
-        );
-
-      if(nextButton){
-
-        nextButton.disabled = false;
-
-        nextButton.textContent =
-          testIndex ===
-          testQuestions.length - 1
-            ? "🏁 Xem kết quả"
-            : "➡️ Câu tiếp";
-
+      if(inputElement && !isMcq){
+        inputElement.disabled = true;
       }
-
-
       return;
-
     }
 
-
-    /* =================================================
-       ❌ SAI
-       → KHÔNG ĐƯỢC CHUYỂN CÂU
-    ================================================= */
-
+    /* SAI */
     testAnswered = false;
-
-    whiteHatTestStage = 0;
-
-
-    if(result){
-
-      result.innerHTML = `
-
-        <div
-          style="
-            font-size:21px;
-            font-weight:700;
-            color:#dc2626;
-            margin:8px 0;
-          "
-        >
-          ❌ CHƯA ĐÚNG!
-        </div>
-
-        <div
-          style="
-            font-size:16px;
-            color:#7f1d1d;
-          "
-        >
-          👉 Hãy nhập lại Hán tự rồi nhấn Enter.
-        </div>
-
-      `;
-
-      result.style.color =
-        "#dc2626";
-
-    }
-
-
-    /*
-      Lưu từ sai đúng 1 lần
-    */
+    whiteHatTestStage = 2;
+    whiteHatSessionWrongStreak++;
+    whiteHatSessionCorrectStreak = 0;
+    whiteHatPenalizeOnce(w);
+    whiteHatQueueRetry(w, mode);
+    whiteHatFeedbackWrong(w);
+    whiteHatUpdateScoreLabel();
+    whiteHatRefreshPracticeMeta();
 
     if(
       !whiteHatTestWrongSaved &&
-      typeof window.saveTestWrongWord ===
-      "function"
+      typeof window.saveTestWrongWord === "function"
     ){
-
       try{
-
         window.saveTestWrongWord(w);
-
         whiteHatTestWrongSaved = true;
-
       }catch(error){
-
-        console.warn(
-          "WHITE HAT SAVE WRONG:",
-          error
-        );
-
+        console.warn("WHITE HAT SAVE WRONG:", error);
       }
-
     }
 
+    setTimeout(function(){
+      whiteHatTestSpeak(w);
+    }, 120);
 
-    /*
-      🔊 Đọc đáp án đúng
-      nhưng KHÔNG hiện đáp án trên màn hình.
-      Người học phải tự nhập lại.
-    */
-
-    setTimeout(
-      function(){
-
-        whiteHatTestSpeak(w);
-
-      },
-      120
+    whiteHatEnableNext(
+      testIndex === testQuestions.length - 1 && !whiteHatRetryQueue.length
     );
 
-
-    const nextButton =
-      document.getElementById(
-        "whiteHatTestNextButton"
-      );
-
-    if(nextButton){
-
-      nextButton.disabled = true;
-
-      nextButton.textContent =
-        "➡️ Câu tiếp";
-
+    if(inputElement && !isMcq){
+      inputElement.disabled = true;
     }
 
   }
 
 
-  /* =====================================================
+    /* =====================================================
      🔊 NÚT NGHE
   ===================================================== */
 
@@ -149516,55 +149960,194 @@ Nút CTRL → ĐỌC ĐÁP ÁN
   function whiteHatPatchShowQuestion(){
 
     whiteHatTestStage = 0;
-
     whiteHatTestWrongSaved = false;
-
+    whiteHatAnswerLocked = false;
     whiteHatTestClearAnswer();
+    whiteHatRefreshPracticeMeta();
 
-
-    const input =
-      document.getElementById(
-        "testInput"
-      );
-
-    if(input){
-
-      input.disabled = false;
-
-    }
-
-
-    const result =
-      document.getElementById(
-        "testResult"
-      );
+    const w = testQuestions && testQuestions[testIndex];
+    const input = document.getElementById("testInput");
+    const result = document.getElementById("testResult");
+    const question = document.getElementById("testQuestion");
+    const hint = document.getElementById("testHint");
+    const audioBtn = document.getElementById("ttcVocabQuizAudioBtn");
 
     if(result){
-
-      result.className =
-        "test-result";
-
+      result.className = "test-result";
+      result.textContent = "";
     }
 
+    whiteHatDisableNext();
 
-    const nextButton =
-      document.getElementById(
-        "whiteHatTestNextButton"
-      );
+    if(!w || testFinished){
+      if(input){
+        input.disabled = false;
+        input.style.display = "";
+      }
+      if(audioBtn) audioBtn.classList.remove("show");
+      return;
+    }
 
-    if(nextButton){
+    const mode = whiteHatPickMode(w);
+    whiteHatCurrentMode = mode;
+    whiteHatLastModes.push(mode);
+    if(whiteHatLastModes.length > 10){
+      whiteHatLastModes.shift();
+    }
 
-      nextButton.disabled = true;
+    let useMcq = false;
+    let choices = null;
 
-      nextButton.textContent =
-        "➡️ Câu tiếp";
+    if(mode === "hanzi_to_meaning"){
+      const dist = whiteHatPickDistractors(w, "meaning");
+      if(dist){
+        useMcq = true;
+        choices = whiteHatBuildChoices(
+          w.m,
+          dist.map(function(d){ return d.m; })
+        );
+      }
+      if(question){
+        question.innerHTML =
+          '<div style="font-size:clamp(42px,9vw,72px);font-weight:800;line-height:1.2;">' +
+          String(w.h) +
+          "</div>";
+      }
+      if(hint){
+        hint.textContent = "Chọn nghĩa tiếng Việt đúng của chữ trên.";
+      }
+    }else if(mode === "meaning_to_hanzi"){
+      const dist = whiteHatPickDistractors(w, "hanzi");
+      if(dist){
+        useMcq = true;
+        choices = whiteHatBuildChoices(
+          w.h,
+          dist.map(function(d){ return d.h; })
+        );
+      }
+      if(question){
+        question.textContent = w.m || "";
+      }
+      if(hint){
+        hint.textContent = useMcq
+          ? "Chọn Hán tự đúng với nghĩa trên."
+          : "✍️ Hãy nhập Hán tự tiếng Trung của nghĩa trên.";
+      }
+    }else if(mode === "audio_to_hanzi"){
+      const dist = whiteHatPickDistractors(w, "hanzi");
+      if(dist){
+        useMcq = true;
+        choices = whiteHatBuildChoices(
+          w.h,
+          dist.map(function(d){ return d.h; })
+        );
+      }
+      if(question){
+        question.textContent = "🔊 Nghe và chọn Hán tự";
+      }
+      if(hint){
+        hint.textContent = "Nhấn Nghe lại nếu cần, rồi chọn đáp án.";
+      }
+    }else if(mode === "audio_to_pinyin"){
+      if(question){
+        question.textContent = "🔊 Nghe và nhập pinyin";
+      }
+      if(hint){
+        hint.textContent = "Nhập pinyin có thanh điệu (ví dụ: nǐhǎo).";
+      }
+    }else if(mode === "pinyin_to_hanzi"){
+      const dist = whiteHatPickDistractors(w, "hanzi");
+      if(dist){
+        useMcq = true;
+        choices = whiteHatBuildChoices(
+          w.h,
+          dist.map(function(d){ return d.h; })
+        );
+      }
+      if(question){
+        question.innerHTML =
+          '<div style="font-size:clamp(28px,6vw,42px);font-weight:800;color:#2563eb;line-height:1.3;">' +
+          String(w.p || "") +
+          "</div>";
+      }
+      if(hint){
+        hint.textContent = useMcq
+          ? "Chọn Hán tự đúng với pinyin trên."
+          : "Nhập Hán tự đúng với pinyin trên.";
+      }
+    }else if(mode === "hanzi_to_pinyin"){
+      const dist = whiteHatPickDistractors(w, "pinyin");
+      if(dist){
+        useMcq = true;
+        choices = whiteHatBuildChoices(
+          w.p,
+          dist.map(function(d){ return d.p; })
+        );
+      }
+      if(question){
+        question.innerHTML =
+          '<div style="font-size:clamp(42px,9vw,72px);font-weight:800;line-height:1.2;">' +
+          String(w.h) +
+          "</div>";
+      }
+      if(hint){
+        hint.textContent = "Chọn pinyin đúng của chữ trên.";
+      }
+    }
 
+    if(input){
+      input.value = "";
+      input.disabled = false;
+      if(useMcq){
+        input.style.display = "none";
+        if(mode === "hanzi_to_meaning"){
+          input.placeholder = "Chọn nghĩa...";
+        }else if(mode === "hanzi_to_pinyin"){
+          input.placeholder = "Chọn pinyin...";
+        }else{
+          input.placeholder = "请输入汉字...";
+        }
+      }else{
+        input.style.display = "";
+        if(mode === "audio_to_pinyin"){
+          input.placeholder = "Nhập pinyin...";
+        }else{
+          input.placeholder = "请输入汉字...";
+        }
+      }
+    }
+
+    if(useMcq && choices){
+      whiteHatRenderChoices(choices);
+    }else{
+      whiteHatClearChoices();
+      /* typing fallback: keep mode but ensure input visible */
+      if(input){
+        input.style.display = "";
+      }
+    }
+
+    if(audioBtn){
+      if(mode === "audio_to_hanzi" || mode === "audio_to_pinyin"){
+        audioBtn.classList.add("show");
+        setTimeout(function(){
+          whiteHatTestSpeak(w);
+        }, 180);
+      }else{
+        audioBtn.classList.remove("show");
+      }
+    }
+
+    if(input && input.style.display !== "none"){
+      setTimeout(function(){
+        try{ input.focus(); }catch(e){}
+      }, 60);
     }
 
   }
 
 
-  /* =====================================================
+    /* =====================================================
      🔄 GHI ĐÈ HÀM CHECK TEST
   ===================================================== */
 
@@ -149584,7 +150167,8 @@ Nút CTRL → ĐỌC ĐÁP ÁN
     function(){
 
       if(
-        whiteHatTestStage === 1
+        whiteHatTestStage === 1 ||
+        whiteHatTestStage === 2
       ){
 
         whiteHatTestGoNext();
@@ -149599,7 +150183,7 @@ Nút CTRL → ĐỌC ĐÁP ÁN
         if(result){
 
           result.textContent =
-            "👉 Hãy trả lời đúng câu này trước nhé!";
+            "👉 Hãy trả lời câu này trước nhé!";
 
           result.style.color =
             "#d08a00";
@@ -149707,11 +150291,12 @@ Nút CTRL → ĐỌC ĐÁP ÁN
 
         /*
           Enter lần 2
-          → câu tiếp
+          → câu tiếp (đúng hoặc đã xem đáp án sai)
         */
 
         if(
-          whiteHatTestStage === 1
+          whiteHatTestStage === 1 ||
+          whiteHatTestStage === 2
         ){
 
           whiteHatTestGoNext();
@@ -149725,12 +150310,15 @@ Nút CTRL → ĐỌC ĐÁP ÁN
 
       /* ---------------------------------------------
          SPACE
-         → CHỈ CHO ĐI TIẾP KHI ĐÃ ĐÚNG
+         → Cho đi tiếp khi đã trả lời (đúng hoặc đã xem đáp án)
       --------------------------------------------- */
 
       if(
         event.code === "Space" &&
-        whiteHatTestStage === 1
+        (
+          whiteHatTestStage === 1 ||
+          whiteHatTestStage === 2
+        )
       ){
 
         event.preventDefault();
@@ -149806,7 +150394,8 @@ Nút CTRL → ĐỌC ĐÁP ÁN
       ){
 
         if(
-          whiteHatTestStage === 1
+          whiteHatTestStage === 1 ||
+          whiteHatTestStage === 2
         ){
 
           event.preventDefault();
@@ -172426,15 +173015,20 @@ function buildTtcHskPaper(pool, level, examNo, salt){
     var now = today();
     if (!now) return "Chưa lấy được ngày máy chủ. Tiến độ đang giữ nguyên, sẽ thử lại khi có kết nối.";
     var gap = gapDays(state.lastDay, now);
-    if (state.index >= list.length) return "Tốt lắm. Bạn đã chinh phục HSK " + state.level + ".";
-    if (state.today === now && state.todayDone >= state.daily) return "Bạn làm rất tốt. Hôm nay đã xong số từ đã chọn.";
-    if (state.today === now && state.todayDone > 0) return "Học tập hôm nay bạn có muốn tiếp tục? Còn " + (state.daily - state.todayDone) + " từ.";
-    if (gap >= 10) return "Bạn đã bỏ " + gap + " ngày. Hôm nay học một đoạn ngắn là đủ để nối lại.";
-    if (gap >= 5) return "Bạn đã bỏ " + gap + " ngày. Vào lại lộ trình hôm nay, đừng bắt đầu từ đầu.";
-    if (gap >= 2) return "Bạn đã bỏ " + gap + " ngày. Hôm nay học tiếp đúng số từ đã chọn.";
-    if (gap === 1) return "Bạn đã bỏ 1 ngày. Hôm nay học tiếp nhé.";
+    if (state.index >= list.length) return "Tốt lắm. Bạn đã chinh phục HSK " + state.level + ". Có thể luyện thêm ở Test từ vựng.";
+    if (state.today === now && state.todayDone >= state.daily) return "Bạn làm rất tốt. Hôm nay đã xong mục tiêu " + state.daily + " từ HSK " + state.level + ".";
+    if (state.today === now && state.todayDone > 0) return "Còn " + (state.daily - state.todayDone) + "/" + state.daily + " từ mục tiêu hôm nay. Quay lại lộ trình hoặc luyện Test từ vựng nhé.";
+    if (gap >= 10) return "Bạn đã bỏ " + gap + " ngày. Hôm nay học một đoạn ngắn trên lộ trình là đủ để nối lại.";
+    if (gap >= 5) return "Bạn đã bỏ " + gap + " ngày. Vào lại lộ trình hôm nay — đừng reset từ đầu.";
+    if (gap >= 2) return "Bạn đã bỏ " + gap + " ngày. Hôm nay hoàn thành đúng " + state.daily + " từ đã chọn.";
+    if (gap === 1) return "Bạn bỏ lỡ 1 ngày. Hôm nay học tiếp mục tiêu " + state.daily + " từ nhé.";
+    if (state.on) return "Chưa xong mục tiêu hôm nay: 0/" + state.daily + " từ HSK " + state.level + ". Vào lộ trình để bắt đầu.";
     return "Hôm nay bạn học " + state.daily + " từ HSK " + state.level + ".";
   }
+
+  window.ttcGetVocabPathReminder = function(){
+    return window.__ttcLastVocabPathReminder || "";
+  };
   function nick(){
     var user = window.currentUser;
     var meta = user && user.user_metadata || {};
@@ -173089,7 +173683,9 @@ function buildTtcHskPaper(pool, level, examNo, salt){
         + "<p class='ttc-daily-note'></p>"
         + goalsShell()
         + "<div class='ttc-daily-card'></div><div class='ttc-daily-actions'></div><div id='ttcPathClass'></div>";
-      box.querySelector(".ttc-daily-note").textContent = reminder(state, list);
+      var remText = reminder(state, list);
+      window.__ttcLastVocabPathReminder = remText;
+      box.querySelector(".ttc-daily-note").textContent = remText;
       bindConflictActions(level);
       bindLevelButtons(box.querySelector(".ttc-path-levels"), level, function(nextLevel){
         store.activeLevel = nextLevel;
