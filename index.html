@@ -114003,6 +114003,8 @@ showAccountMessage(
 
   }
 
+  window.ttcRenderAccountLinks = ttcRenderAccountLinks;
+
   async function ttcStartAccountLink(provider, button, state){
 
     if(ttcLinkInFlight) return;
@@ -114455,9 +114457,6 @@ async function updateAccountUI(user){
       "block";
 
 
-  ttcRenderAccountLinks(user);
-
-
   /* =====================================================
      TÊN TÀI KHOẢN
      ===================================================== */
@@ -114478,6 +114477,24 @@ async function updateAccountUI(user){
 
     nameBox.textContent =
       "👤 " + name + " ▾";
+
+  }
+
+
+  try{
+
+    if(typeof window.ttcRenderAccountLinks === "function"){
+
+      window.ttcRenderAccountLinks(user);
+
+    }
+
+  }catch(linkRenderError){
+
+    console.error(
+      "TTC link render:",
+      linkRenderError
+    );
 
   }
 
