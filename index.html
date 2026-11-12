@@ -194652,7 +194652,7 @@ function buildTtcHskPaper(pool, level, examNo, salt){
     var oldTools = document.getElementById("ttcGroupTools");
     if(oldTools) oldTools.remove();
     var level = ensureGroup("ttcGroupLevel", "1. Chọn cấp độ", "Chọn HSK, rồi có thể lọc theo loại từ.");
-    var study = ensureGroup("ttcGroupStudy", "2. Học từ", "Làm bài từ hôm nay, rồi xem thẻ, nghe và học tự động.");
+    var study = ensureGroup("ttcGroupStudy", "2. Học từ", "Xem thẻ flashcard, nghe và học tự động.");
     var practice = ensureGroup("ttcGroupPractice", "3. Luyện tập", "Thi thử, đọc, nghe, đặt câu, kiểm tra, nối từ và phản xạ.");
     var header = document.querySelector("header");
     var voice = document.getElementById("whiteHatVoiceSystemV6");
@@ -194682,7 +194682,8 @@ function buildTtcHskPaper(pool, level, examNo, salt){
     });
     put(level, document.getElementById("ttcHskFrame"));
     put(level, document.getElementById("ttcTypeFrame"));
-    if(typeof window.ttcMountDailyVocab === "function") window.ttcMountDailyVocab(study);
+    if(typeof window.ttcEnsurePathShell === "function") window.ttcEnsurePathShell();
+    if(typeof window.ttcMountDailyVocab === "function") window.ttcMountDailyVocab();
     put(study, document.getElementById("ttcFlashcardLauncherBar"));
     put(study, document.getElementById("autoLearning"));
     put(study, document.getElementById("ttcExampleAutoV2"));
@@ -195680,15 +195681,56 @@ function buildTtcHskPaper(pool, level, examNo, salt){
   fetchServerToday();
   watchAuthForSync();
 
-  window.ttcMountDailyVocab = function(study){
-    if (!study) return;
+  window.ttcEnsurePathShell = function(){
+    var hub = document.getElementById("ttcTopLearningHub");
+    var shell = document.getElementById("ttcPathShell");
+    if (!shell) {
+      shell = document.createElement("div");
+      shell.id = "ttcPathShell";
+      shell.className = "ttc-path-shell";
+      shell.innerHTML = ""
+        + "<button type='button' id='ttcPathLauncher' class='ttc-path-launcher' aria-expanded='false' aria-controls='ttcPathPanel'>"
+        +   "📚 LỘ TRÌNH HỌC HSK · Mở lộ trình"
+        + "</button>"
+        + "<div id='ttcPathPanel' class='ttc-path-panel' hidden></div>";
+      if (hub && hub.parentNode) hub.insertAdjacentElement("afterend", shell);
+      else {
+        var main = document.querySelector("main");
+        if (main && main.firstChild) main.insertBefore(shell, main.firstChild);
+        else document.body.insertBefore(shell, document.body.firstChild);
+      }
+    } else if (hub && shell.previousElementSibling !== hub && hub.parentNode) {
+      hub.insertAdjacentElement("afterend", shell);
+    }
+    var launcher = document.getElementById("ttcPathLauncher");
+    var panel = document.getElementById("ttcPathPanel");
+    if (launcher && panel && launcher.dataset.bound !== "1") {
+      launcher.dataset.bound = "1";
+      launcher.addEventListener("click", function(){
+        var open = launcher.getAttribute("aria-expanded") === "true";
+        open = !open;
+        launcher.setAttribute("aria-expanded", open ? "true" : "false");
+        panel.hidden = !open;
+        launcher.textContent = open
+          ? "📚 LỘ TRÌNH HỌC HSK · Thu gọn lộ trình"
+          : "📚 LỘ TRÌNH HỌC HSK · Mở lộ trình";
+      });
+    }
+    return panel;
+  };
+
+  window.ttcMountDailyVocab = function(){
+    var panel = typeof window.ttcEnsurePathShell === "function"
+      ? window.ttcEnsurePathShell()
+      : document.getElementById("ttcPathPanel");
+    if (!panel) return;
     var box = document.getElementById("ttcDailyVocab");
     if (!box) {
       box = document.createElement("section");
       box.id = "ttcDailyVocab";
-      study.insertBefore(box, study.firstChild);
-    } else if (box.parentNode !== study) {
-      study.insertBefore(box, study.firstChild);
+      panel.appendChild(box);
+    } else if (box.parentNode !== panel) {
+      panel.appendChild(box);
     }
     mountBox = box;
     if (box.dataset.ready === "1") return;
@@ -196522,6 +196564,11 @@ function buildTtcHskPaper(pool, level, examNo, salt){
 </script>
 
 <style id="ttc-daily-vocab-css">
+  #ttcPathShell{width:min(980px,calc(100% - 20px));margin:8px auto 10px;box-sizing:border-box}
+  #ttcPathLauncher.ttc-path-launcher{display:block;width:100%;box-sizing:border-box;border:1px solid #fecdd3;border-radius:14px;background:linear-gradient(180deg,#fff 0%,#fff5f5 100%);color:#9f1239;font-weight:800;font-size:15px;padding:12px 14px;cursor:pointer;text-align:center;box-shadow:0 4px 12px rgba(159,18,57,.08)}
+  #ttcPathLauncher.ttc-path-launcher[aria-expanded="true"]{background:linear-gradient(135deg,#9f1239,#e11d48);color:#fff;border-color:#9f1239}
+  #ttcPathPanel.ttc-path-panel{margin-top:8px}
+  #ttcPathPanel.ttc-path-panel[hidden]{display:none !important}
   #ttcDailyVocab{position:relative;margin:0 auto 8px;padding:14px;padding-top:48px;border:1px solid #fecdd3;border-radius:16px;background:#fff7f8;text-align:center;box-sizing:border-box;max-width:100%;overflow-x:hidden}
   #ttcDailyVocab h3{margin:0 0 4px;color:#9f1239;font-size:20px;padding-right:7rem}
   #ttcDailyVocab .ttc-daily-note,#ttcDailyVocab .ttc-daily-meaning{margin:4px 0;color:#64748b;font-size:14px}
@@ -196721,6 +196768,8 @@ function buildTtcHskPaper(pool, level, examNo, salt){
     .ttc-ach-launch-text{font-size:15px}
   }
   @media(max-width:420px){
+    #ttcPathShell{width:calc(100% - 16px);margin:6px auto 8px}
+    #ttcPathLauncher.ttc-path-launcher{font-size:13px;padding:10px 12px}
     #ttcDailyVocab{padding:12px 10px;padding-top:52px}
     #ttcDailyVocab h3{padding-right:6.5rem;font-size:18px}
     #ttcDailyVocab .ttc-path-learn{flex-direction:column;align-items:stretch}
