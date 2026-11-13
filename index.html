@@ -59,22 +59,22 @@ h1{
 .ttc-search-actions{
   display:flex;
   flex-wrap:wrap;
-  gap:6px;
+  gap:8px;
   align-items:center;
+  justify-content:center;
+  width:100%;
   min-width:0;
 }
 .ttc-search-actions > button{
   flex:0 0 auto;
-  border-radius:14px;
-  padding:11px 14px;
-  font-weight:800;
-  font-size:13px;
+  width:auto;
+  min-height:40px;
+  border-radius:10px;
+  padding:8px 14px;
+  font-weight:600;
+  font-size:15px;
   line-height:1.2;
   white-space:nowrap;
-}
-.ttc-search-actions > button[onclick="searchWords()"]{
-  background:#e11d48;
-  color:#fff;
 }
 .ttc-search-actions > button#ttcDrawSearch,
 .ttc-search-actions > button#ttcPhotoSearch,
@@ -121,26 +121,41 @@ h1{
   padding:8px 10px 12px;
 }
 
-.search{position:relative}
-.ttc-search-field{position:relative;flex:1 1 240px;min-width:0;display:flex}
-.ttc-search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);display:flex;pointer-events:none;z-index:1}
+.search{position:relative;width:min(560px,100%);margin:0 auto;padding:0}
+.ttc-search-field{position:relative;flex:1 1 180px;min-width:0;display:flex}
+.ttc-search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:1;width:18px;height:18px}
 .search input{
-  flex:1 1 220px;
+  flex:1 1 160px;
   width:100%;
   min-width:0;
-  padding:14px 44px 14px 44px;
-  border-radius:16px;
+  padding:10px 40px 10px 36px;
+  border-radius:12px;
   border:1.5px solid #fda4af;
   background:#fff;
   color:#0f172a;
-  font-size:16px;
+  font-size:15px;
   font-weight:700;
   outline:none;
   box-sizing:border-box;
+  min-height:42px;
 }
 .search input::placeholder{color:#94a3b8;font-weight:600}
-.search input:focus{border-color:#e11d48;box-shadow:0 0 0 4px rgba(225,29,72,.14)}
-#ttcSearchClear{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:32px;height:32px;padding:0;border-radius:999px;background:#fff1f2;color:#e11d48;border:1px solid #fecdd3;font-size:18px;font-weight:800;line-height:1;z-index:1}
+.search input:focus{border-color:#e11d48;box-shadow:0 0 0 3px rgba(225,29,72,.12)}
+#ttcSearchClear{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:28px;height:28px;padding:0;border-radius:999px;background:#fff1f2;color:#e11d48;border:1px solid #fecdd3;font-size:16px;font-weight:800;line-height:1;z-index:1}
+.ttc-search-kinds{flex:1 1 100%;margin:6px 0 0;padding:0;min-width:0}
+.ttc-search-kinds[hidden]{display:none !important}
+.ttc-search-kinds-hint{margin:0 0 6px;color:#be123c;font-size:13px;font-weight:500;line-height:1.3;text-align:center}
+.ttc-search-kinds-row{
+  display:flex;flex-wrap:nowrap;gap:8px;align-items:center;justify-content:center;
+  overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:thin;
+  padding:0 1px 4px;max-width:100%;margin:0 auto;
+}
+.ttc-search-kinds-row button{
+  flex:0 0 auto;border:1px solid #fecdd3;border-radius:10px;background:#fff;
+  color:#9f1239 !important;-webkit-text-fill-color:#9f1239 !important;font-weight:600;font-size:14px;line-height:1.2;padding:8px 12px;
+  min-height:38px;white-space:nowrap;cursor:pointer;box-shadow:none;
+}
+.ttc-search-kinds-row button.is-on{background:#e11d48;color:#fff !important;-webkit-text-fill-color:#fff !important;border-color:#be123c}
 #ttcSearchSuggest{flex:1 1 100%;max-height:min(46vh,360px);overflow:auto;margin:0;padding:6px;border:1px solid #fecdd3;border-radius:16px;background:#fff;box-shadow:0 10px 24px rgba(15,23,42,.08)}
 #ttcSearchSuggest[hidden]{display:none !important}
 #ttcSearchSuggest .ttc-sg-empty{padding:12px 14px;color:#64748b;font-weight:700}
@@ -237,10 +252,15 @@ h1{
   #vocabularySection.ttc-search-results .cards{grid-template-columns:1fr 1fr}
 }
 @media(max-width:700px){
-  .search{width:100%;max-width:100%;margin:8px 0 0;padding:10px}
-  .ttc-search-bar{flex-direction:column}
-  .ttc-search-actions{width:100%}
-  .ttc-search-actions > button{flex:1 1 calc(50% - 6px);text-align:center}
+  .search{width:100%;max-width:100%;margin:6px 0 0;padding:6px 8px;box-sizing:border-box}
+  .ttc-search-bar{flex-direction:row;flex-wrap:wrap;gap:6px;align-items:center}
+  .ttc-search-field{flex:1 1 100%}
+  .search input{padding:9px 36px 9px 34px;font-size:14px;min-height:40px;border-radius:11px}
+  .ttc-search-actions{width:100%;gap:8px;justify-content:center}
+  .ttc-search-actions > button{flex:0 0 auto;width:auto;text-align:center;padding:8px 12px;font-size:14px;border-radius:10px;min-height:40px}
+  .ttc-search-kinds-hint{font-size:12px;margin:0 0 5px}
+  .ttc-search-kinds-row{gap:8px;justify-content:center}
+  .ttc-search-kinds-row button{font-size:13px;padding:7px 11px;min-height:38px}
   .ttc-dict .han{font-size:44px}
   .ttc-dict-py{font-size:18px}
   .ttc-sg-hz{font-size:22px}
@@ -2906,6 +2926,7 @@ body.ttc-reading-open #thttGrammarLauncher{display:none!important;visibility:hid
 }
 #ttcTopLearningHub .ttc-radical-btn.ttc-user-glow{background:linear-gradient(135deg,#ec4899,#db2777)!important;border-color:#f9a8d4!important;box-shadow:0 0 14px rgba(236,72,153,.62),0 0 25px rgba(219,39,119,.28)!important}
 #ttcTopLearningHub .ttc-pron-btn.ttc-user-glow{background:linear-gradient(135deg,#ea580c,#fb923c)!important;border-color:#fdba74!important;box-shadow:0 0 14px rgba(249,115,22,.62),0 0 25px rgba(249,115,22,.28)!important}
+#ttcTopLearningHub .ttc-grammar-btn.ttc-user-glow{background:linear-gradient(135deg,#991b1b,#ef4444)!important;border-color:#fecaca!important;box-shadow:0 0 14px rgba(220,38,38,.58),0 0 25px rgba(153,27,27,.28)!important;color:#fff!important;-webkit-text-fill-color:#fff!important}
 #ttcTypeFrame .ttc-type-buttons button.ttc-user-glow{background:linear-gradient(135deg,#2563eb,#1d4ed8)!important;border-color:#93c5fd!important;box-shadow:0 0 13px rgba(37,99,235,.55)!important}
 #ttcSpecialtyLauncher.ttc-user-glow{background:linear-gradient(135deg,#6d28d9,#a855f7)!important;border-color:#c084fc!important;box-shadow:0 0 14px rgba(168,85,247,.58)!important}
 #ttcReadingLauncher.ttc-user-glow{background:linear-gradient(135deg,#047857,#22c55e)!important;border-color:#86efac!important;box-shadow:0 0 14px rgba(34,197,94,.58)!important}
@@ -2963,17 +2984,32 @@ body.flashcard-mobile-mode #ttcFlashcardLauncherBar{display:none!important}
 
 
 <style id="ttc-global-readable-font-v1">
-/* Normalize typography site-wide without changing layout or app logic. */
-html, body, body * { font-weight: 700 !important; }
-body :is(h1,h2,h3,h4,h5,h6,strong,b,button,.hanzi,.ttc-reading-cn,.ttc-reading-char) { font-weight: 700 !important; }
-body :is(input,textarea,select,option) { font-weight: 700 !important; }
-body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
-/* Reading HSK Chinese text uses one CJK font and weight for every character. */
+/* Dashboard typography hierarchy */
+html, body {
+  font-family: "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
+  font-weight: 500;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  color: #17324d;
+}
+h1 .title-main { font-size: 26px; font-weight: 700; }
+h1 .title-sub { font-size: 14px; font-weight: 500; }
+.ttc-learn-group > h2 { font-size: 19px; font-weight: 700; }
+.ttc-learn-group > .ttc-learn-note { font-size: 14px; font-weight: 500; }
+button, .ttc-top-learning-btn, .ttc-path-launcher, .ttc-ach-launch { font-weight: 600; }
+body :is(input, textarea, select, option) { font-weight: 500; }
+body :is(strong, b, .hanzi) { font-weight: 700; }
 #ttcReadingSection .ttc-reading-cn,
 #ttcReadingSection .ttc-reading-cn .ttc-reading-char {
  font-family: "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif !important;
  font-weight: 700 !important; font-style: normal !important; font-synthesis: none !important;
  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+}
+@media (max-width: 700px) {
+  h1 .title-main { font-size: 21px; }
+  h1 .title-sub { font-size: 13px; }
+  .ttc-learn-group > h2 { font-size: 17px; }
+  .ttc-learn-group > .ttc-learn-note { font-size: 13px; }
 }
 </style>
 </head>
@@ -3056,23 +3092,32 @@ body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; 
 <div class="search ttc-dict-search">
 <div class="ttc-search-bar">
 <label class="ttc-search-field">
-<span class="ttc-search-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18"><circle cx="10.5" cy="10.5" r="6.25" fill="none" stroke="#e11d48" stroke-width="2.2"/><path d="M15.2 15.2L20 20" fill="none" stroke="#e11d48" stroke-width="2.2" stroke-linecap="round"/></svg></span>
+<span class="ttc-search-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.25" fill="none" stroke="#e11d48" stroke-width="2.2"/><path d="M15.2 15.2L20 20" fill="none" stroke="#e11d48" stroke-width="2.2" stroke-linecap="round"/></svg></span>
 <input
  id="search"
  aria-label="Tìm từ vựng"
- placeholder="Nhập chữ Hán, pinyin hoặc nghĩa tiếng Việt..."
+ placeholder="Tìm Hán tự, pinyin, nghĩa..."
  autocomplete="off"
  enterkeyhint="search"
  aria-autocomplete="list"
  aria-controls="ttcSearchSuggest"
  aria-expanded="false"
- onfocus="if(typeof ttcRenderRecentLookups==='function') ttcRenderRecentLookups()"
- onblur="setTimeout(function(){ if(typeof ttcRenderRecentLookups==='function') ttcRenderRecentLookups(); }, 160)"
+ onfocus="if(typeof ttcOnSearchFocus==='function') ttcOnSearchFocus(); else if(typeof ttcRenderRecentLookups==='function') ttcRenderRecentLookups()"
+ onblur="setTimeout(function(){ if(typeof ttcOnSearchBlur==='function') ttcOnSearchBlur(); else if(typeof ttcRenderRecentLookups==='function') ttcRenderRecentLookups(); }, 160)"
 >
 <button type="button" id="ttcSearchClear" aria-label="Xóa nội dung tìm kiếm" hidden>×</button>
 </label>
+<div id="ttcSearchKinds" class="ttc-search-kinds" hidden>
+<p class="ttc-search-kinds-hint">Bạn muốn tra cứu gì?</p>
+<div class="ttc-search-kinds-row" role="listbox" aria-label="Loại tra cứu">
+<button type="button" role="option" data-kind="vocab" class="is-on">Từ vựng</button>
+<button type="button" role="option" data-kind="hanzi">Hán tự</button>
+<button type="button" role="option" data-kind="grammar">Ngữ pháp</button>
+<button type="button" role="option" data-kind="sentence">Mẫu câu</button>
+<button type="button" role="option" data-kind="collocation">Kết hợp từ</button>
+</div>
+</div>
 <div class="ttc-search-actions">
-<button type="button" onclick="searchWords()">Tìm</button>
 <button type="button" id="ttcDrawSearch">✍️ Vẽ</button>
 <button type="button" id="ttcPhotoSearch">📷 Ảnh</button>
 <button type="button" id="ttcVoiceSearch">🎤 Nói</button>
@@ -3137,8 +3182,10 @@ h1{
 
 h1 .title-main{
   display:block;
-  font-size:32px;
+  font-size:26px;
   font-weight:700;
+  line-height:1.25;
+  text-align:center;
 
   background:linear-gradient(
     90deg,
@@ -3158,15 +3205,17 @@ h1 .title-main{
   background-clip:text;
   -webkit-text-fill-color:transparent;
 
-  animation:rainbowText 5s linear infinite;
+  animation:rainbowText 8s linear infinite;
 }
 
 h1 .title-sub{
   display:block;
-  margin-top:5px;
-  font-size:17px;
-  font-weight:bold;
+  margin-top:6px;
+  font-size:14px;
+  font-weight:500;
   color:#52718a;
+  text-align:center;
+  line-height:1.35;
 }
 
 @keyframes rainbowText{
@@ -3191,11 +3240,11 @@ h1 .title-sub{
 
 @keyframes titleGlow{
   from{
-    box-shadow:0 0 8px rgba(255,0,80,.18);
+    box-shadow:0 0 8px rgba(255,0,80,.12);
   }
 
   to{
-    box-shadow:0 0 22px rgba(180,0,255,.35);
+    box-shadow:0 0 12px rgba(180,0,255,.16);
   }
 }
 
@@ -3357,11 +3406,11 @@ h1 .title-sub{
   }
 
   h1 .title-main{
-    font-size:25px;
+    font-size:21px;
   }
 
   h1 .title-sub{
-    font-size:14px;
+    font-size:13px;
   }
 
   .price-box{
@@ -131042,6 +131091,96 @@ function ttcLookupWords(raw){
   window.__ttcSearchCache = { key: cacheKey, rows: pool };
   return pool;
 }
+window.__ttcSearchKind = window.__ttcSearchKind || "vocab";
+function ttcGetSearchKind(){
+  return window.__ttcSearchKind || "vocab";
+}
+function ttcShowSearchKinds(show){
+  var box = document.getElementById("ttcSearchKinds");
+  if(!box) return;
+  box.hidden = !show;
+}
+function ttcOnSearchFocus(){
+  ttcShowSearchKinds(true);
+  if(typeof ttcRenderRecentLookups === "function") ttcRenderRecentLookups();
+}
+function ttcOnSearchBlur(){
+  var input = document.getElementById("search");
+  var kinds = document.getElementById("ttcSearchKinds");
+  var active = document.activeElement;
+  if(kinds && active && kinds.contains(active)) return;
+  if(input && document.activeElement === input) return;
+  if(!(input && String(input.value || "").trim())) ttcShowSearchKinds(false);
+  if(typeof ttcRenderRecentLookups === "function") ttcRenderRecentLookups();
+}
+function ttcBindSearchKinds(){
+  var row = document.querySelector(".ttc-search-kinds-row");
+  if(!row || row.dataset.bound === "1") return;
+  row.dataset.bound = "1";
+  row.addEventListener("mousedown", function(ev){ ev.preventDefault(); });
+  row.addEventListener("click", function(ev){
+    var btn = ev.target.closest("button[data-kind]");
+    if(!btn) return;
+    var kind = btn.getAttribute("data-kind") || "vocab";
+    window.__ttcSearchKind = kind;
+    row.querySelectorAll("button[data-kind]").forEach(function(el){
+      el.classList.toggle("is-on", el === btn);
+    });
+    ttcShowSearchKinds(true);
+    if(kind === "grammar"){
+      var g = document.getElementById("ttcOpenGrammar");
+      if(g) g.click();
+      return;
+    }
+    var input = document.getElementById("search");
+    if(input && String(input.value || "").trim()) searchWords();
+    else if(input) input.focus();
+  });
+}
+function ttcFilterPoolByKind(pool, keyword, kind){
+  var list = pool || [];
+  var q = ttcSearchForms(keyword);
+  if(kind === "hanzi"){
+    return list.filter(function(item){
+      var h = String(item.row.word.h || "");
+      if(h.length === 1) return true;
+      return !!(q.hanzi && h.indexOf(q.raw) >= 0);
+    });
+  }
+  if(kind === "collocation"){
+    return list.filter(function(item){
+      var h = String(item.row.word.h || "");
+      return h.length > 1 && ((q.hanzi && h.indexOf(q.raw) >= 0) || (!q.hanzi && list.length));
+    }).filter(function(item){
+      var h = String(item.row.word.h || "");
+      return h.length > 1;
+    });
+  }
+  if(kind === "sentence"){
+    var rows = [];
+    var seen = {};
+    ttcEnsureSearchIndex().forEach(function(row){
+      var w = row.word || {};
+      var eg = String(w.example || "");
+      var egPy = String(w.examplePinyin || "");
+      var egVi = String(w.exampleMeaning || "");
+      var hit = false;
+      if(q.hanzi && (eg.indexOf(q.raw) >= 0 || eg.indexOf(keyword) >= 0)) hit = true;
+      else if(!q.hanzi && q.loose){
+        var blob = ttcFoldLoose(eg + " " + egPy + " " + egVi);
+        if(blob.indexOf(q.loose) >= 0) hit = true;
+      }
+      if(!hit) return;
+      var key = w.h + "|" + eg;
+      if(seen[key]) return;
+      seen[key] = 1;
+      rows.push({ row: row, rank: 2 });
+    });
+    return rows.slice(0, 24);
+  }
+  return list;
+}
+ttcBindSearchKinds();
 function ttcHideSearchExtras(){
   var suggest = document.getElementById("ttcSearchSuggest");
   var status = document.getElementById("ttcSearchStatus");
@@ -131188,10 +131327,17 @@ function searchWords(){
     return;
   }
 
-  const pool = ttcLookupWords(keyword);
+  var kind = typeof ttcGetSearchKind === "function" ? ttcGetSearchKind() : "vocab";
+  if(kind === "grammar"){
+    var gBtn = document.getElementById("ttcOpenGrammar");
+    if(gBtn) gBtn.click();
+  }
+  var pool = ttcLookupWords(keyword);
+  if(typeof ttcFilterPoolByKind === "function") pool = ttcFilterPoolByKind(pool, keyword, kind);
   const result = pool.slice(0, 24).map(function(item){ return item.row.word; });
   ttcPaintSuggestions(pool.slice(0, 8));
   ttcSearchDetail(pool.slice(0, 24));
+  ttcShowSearchKinds(true);
 
   currentList = result;
   TTC.search.keyword = keyword;
@@ -185686,42 +185832,58 @@ html,body{background:#fff !important;}
 <style id="ttcWhiteHatIntegrityAndHubV1">
   .ttc-top-learning-hub{
   width:min(720px,96%);
-  margin:4px auto 16px;
-  display:grid;
-  grid-template-columns:1fr 1fr 1fr;
-  gap:12px;
+  margin:16px auto;
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  align-items:stretch;
+  gap:8px;
   position:relative;
   z-index:20;
 }
   .ttc-top-learning-btn{
-    min-height:18px;
-    border-radius:16px;
-    border:2px solid transparent;
-    color:#fff !important;
-    font-size:13px;
-    font-weight:700;
+    min-height:42px;
+    border-radius:10px;
+    border:1px solid #d8e1e9;
+    color:#34465a !important;
+    -webkit-text-fill-color:#34465a;
+    font-size:15px;
+    font-weight:600;
     letter-spacing:.1px;
     cursor:pointer;
-    transition:transform .18s ease,box-shadow .18s ease,filter .18s ease;
+    transition:box-shadow .18s ease,border-color .18s ease,color .18s ease;
   }
-  .ttc-top-learning-btn:hover{transform:translateY(-2px);filter:brightness(1.04)}
-  .ttc-top-learning-btn:active{transform:scale(.98)}
+  .ttc-top-learning-btn:hover{filter:brightness(1.02)}
+  .ttc-top-learning-btn:active{transform:none}
   .ttc-radical-btn{
-    background:linear-gradient(135deg,#ec4899,#db2777);
+    background:#fff;
     border-color:#f9a8d4;
-    box-shadow:0 0 12px rgba(236,72,153,.42),0 8px 22px rgba(219,39,119,.18);
-    animation:ttcRadicalGlow 1.8s ease-in-out infinite;
+    box-shadow:0 2px 7px rgba(20,45,70,.07);
+    animation:none;
   }
   .ttc-grammar-btn{
-    background:linear-gradient(135deg,#991b1b,#ef4444);
+    background:#fff;
     border-color:#fecaca;
-    box-shadow:0 0 12px rgba(220,38,38,.4),0 8px 22px rgba(153,27,27,.18);
+    box-shadow:0 2px 7px rgba(20,45,70,.07);
+  }
+  /* Polish CSS ép nền trắng + glow thiếu nền đỏ → chữ trắng trên trắng. Khóa tương phản riêng cho Ngữ pháp. */
+  #ttcTopLearningHub #ttcOpenGrammar.ttc-grammar-btn{
+    background:#fff !important;background-image:none !important;
+    color:#9f1239 !important;-webkit-text-fill-color:#9f1239 !important;
+    border:1px solid #fda4af !important;
+    box-shadow:0 2px 7px rgba(20,45,70,.07) !important;
+  }
+  #ttcTopLearningHub #ttcOpenGrammar.ttc-grammar-btn.ttc-user-glow{
+    background:linear-gradient(135deg,#991b1b,#ef4444) !important;
+    color:#fff !important;-webkit-text-fill-color:#fff !important;
+    border-color:#fecaca !important;
+    box-shadow:0 0 14px rgba(220,38,38,.58),0 0 25px rgba(153,27,27,.28) !important;
   }
   .ttc-pron-btn{
-    background:linear-gradient(135deg,#f97316,#ea580c);
+    background:#fff;
     border-color:#fdba74;
-    box-shadow:0 0 12px rgba(249,115,22,.42),0 8px 22px rgba(234,88,12,.18);
-    animation:ttcPronGlow 1.8s ease-in-out infinite;
+    box-shadow:0 2px 7px rgba(20,45,70,.07);
+    animation:none;
   }
   @keyframes ttcRadicalGlow{50%{box-shadow:0 0 24px rgba(236,72,153,.68),0 10px 26px rgba(219,39,119,.24)}}
   @keyframes ttcPronGlow{50%{box-shadow:0 0 24px rgba(249,115,22,.68),0 10px 26px rgba(234,88,12,.24)}}
@@ -189073,6 +189235,7 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
 #ttcFlashcardLauncherBar #flashcardToggleButton.ttc-user-glow{color:#fff !important}
 #ttcTopLearningHub .ttc-radical-btn.ttc-user-glow{background:linear-gradient(135deg,#ec4899,#db2777)!important;border-color:#f9a8d4!important;box-shadow:0 0 14px rgba(236,72,153,.62),0 0 25px rgba(219,39,119,.28)!important}
 #ttcTopLearningHub .ttc-pron-btn.ttc-user-glow{background:linear-gradient(135deg,#ea580c,#fb923c)!important;border-color:#fdba74!important;box-shadow:0 0 14px rgba(249,115,22,.62),0 0 25px rgba(249,115,22,.28)!important}
+#ttcTopLearningHub .ttc-grammar-btn.ttc-user-glow{background:linear-gradient(135deg,#991b1b,#ef4444)!important;border-color:#fecaca!important;box-shadow:0 0 14px rgba(220,38,38,.58),0 0 25px rgba(153,27,27,.28)!important;color:#fff!important;-webkit-text-fill-color:#fff!important}
 #ttcTypeFrame .ttc-type-buttons button.ttc-user-glow{background:linear-gradient(135deg,#2563eb,#1d4ed8)!important;border-color:#93c5fd!important;box-shadow:0 0 13px rgba(37,99,235,.55)!important}
 #ttcActionFrame .ttc-action-buttons button.ttc-user-glow,#ttcMatchLauncher.ttc-user-glow,#ttcListenLauncher.ttc-user-glow{background:linear-gradient(135deg,#0f766e,#14b8a6)!important;border-color:#99f6e4!important;box-shadow:0 0 14px rgba(20,184,166,.5)!important}
 #ttcSpecialtyLauncher.ttc-user-glow{background:linear-gradient(135deg,#6d28d9,#a855f7)!important;border-color:#c084fc!important;box-shadow:0 0 14px rgba(168,85,247,.58)!important}
@@ -189090,6 +189253,52 @@ body.flashcard-mobile-mode #flashcardSection .flashcard-header{padding-top:52px 
 #ttcSentenceWordBank .ttc-word-bank-footer{display:flex!important;justify-content:flex-end!important;align-items:center!important;gap:7px!important;width:100%!important;margin-top:12px!important;padding:8px!important;background:#f8fafc!important;border:1px solid #e2e8f0!important;border-radius:10px!important}
 #ttcSentenceWordBank .ttc-word-bank-footer button{flex:0 0 auto!important;width:auto!important;min-width:0!important;padding:5px 9px!important;font-size:11px!important;line-height:1.2!important;border-radius:8px!important;font-weight:700!important}
 @media(max-width:600px){#ttcSentenceWordBank .ttc-word-chip{font-size:clamp(27px,7.4vw,35px)!important;min-height:50px!important;padding:8px 12px!important}#ttcSentenceWordBank .ttc-word-bank-footer{margin-top:10px!important;padding:7px!important}#ttcSentenceWordBank .ttc-word-bank-footer button{font-size:11px!important;padding:5px 8px!important}}
+/* Ngữ pháp: polish ép nền trắng; khi glow thiếu nền đỏ → chữ/fill trắng trên nền trong suốt/trắng */
+#ttcTopLearningHub #ttcOpenGrammar.ttc-grammar-btn{
+  background-color:#fff !important;
+  background-image:none !important;
+  color:#9f1239 !important;
+  -webkit-text-fill-color:#9f1239 !important;
+  border:1px solid #fda4af !important;
+}
+#ttcTopLearningHub #ttcOpenGrammar.ttc-grammar-btn.ttc-user-glow{
+  background-color:#b91c1c !important;
+  background-image:linear-gradient(135deg,#991b1b,#ef4444) !important;
+  color:#fff !important;
+  -webkit-text-fill-color:#fff !important;
+  border-color:#fecaca !important;
+}
+/* Dashboard cascade: override stretch / space-between leftovers for homepage clusters */
+#ttcGroupPractice .ttc-action-buttons,
+#ttcGroupPractice .ttc-dash-btn-row,
+#ttcTopLearningHub,
+.ttc-path-ach-row,
+#ttcGroupLevel .ttc-hsk-buttons,
+#ttcGroupLevel .ttc-type-buttons,
+.ttc-search-actions,
+.ttc-search-kinds-row{
+  justify-content:center !important;
+}
+#ttcGroupPractice .ttc-action-buttons button,
+#ttcGroupPractice .ttc-dash-btn-row > button,
+#ttcTopLearningHub .ttc-top-learning-btn{
+  flex:0 0 auto !important;
+  width:auto !important;
+  max-width:100% !important;
+}
+#ttcPathShell{margin:16px auto}
+.ttc-path-ach-row{justify-content:center !important;align-items:center !important}
+.ttc-path-col,.ttc-ach-col,#ttcAchHost.ttc-ach-host{width:auto !important;max-width:100% !important;flex:0 1 auto !important}
+#ttcPathLauncher.ttc-path-launcher,#ttcAchOpen.ttc-ach-launch{
+  width:auto !important;max-width:100% !important;align-self:center !important;
+  min-height:42px !important;height:auto !important;
+}
+@media(max-width:700px){
+  #ttcPathShell{margin:14px auto}
+  #ttcGroupPractice .ttc-action-buttons{flex-wrap:wrap !important;overflow:visible !important}
+  #ttcGroupPractice .ttc-action-buttons button{flex:0 0 auto !important;min-width:0 !important}
+  #ttcPathLauncher.ttc-path-launcher,#ttcAchOpen.ttc-ach-launch{min-height:42px !important}
+}
 </style>
 <script id="ttc-final-toggle-v5">
 (function(){
@@ -195027,22 +195236,76 @@ function buildTtcHskPaper(pool, level, examNo, salt){
   .ttc-sm-listen{margin-top:10px;border:0;border-radius:999px;background:#d40000;color:#fff;padding:8px 14px;cursor:pointer}
 </style>
 <style id="ttc-learn-path">
-  .ttc-learn-group{width:min(980px,calc(100% - 20px));margin:12px auto;padding:14px 14px 8px;background:#fff;border:1px solid #e5e7eb;border-radius:18px;box-shadow:0 4px 16px rgba(15,23,42,.04)}
-  .ttc-learn-group h2{margin:0 0 2px;font-size:18px;line-height:1.3;color:#9f1239}
-  .ttc-learn-group>.ttc-learn-note{margin:0 0 10px;color:#64748b;font-size:13px;line-height:1.4}
-  .ttc-learn-group-body{display:flex;flex-direction:column;align-items:stretch;gap:8px}
-  #ttcGroupLevel .ttc-hsk-frame,#ttcGroupLevel .ttc-type-frame,#ttcGroupPractice .ttc-action-frame{margin:0 auto;width:100%}
-  #ttcGroupPractice #whHskLauncher,#ttcGroupPractice #ttcReadingLauncher,#ttcGroupPractice #ttcListeningLauncher,#ttcGroupPractice #ttcMatchLauncher,#ttcGroupPractice #ttcListenLauncher,#ttcSpecialtyLauncher,#ttcVideoLauncher{width:min(100%,560px);margin:0 auto}
-  #ttcGroupPractice #whHskLauncher{position:static !important;z-index:auto !important}
-  #ttcVideoLauncher{display:block;border:1px solid #fecdd3;border-radius:16px;background:#fff;color:#9f1239;font-size:17px;font-weight:700;padding:15px 20px;cursor:pointer}
-  #ttcVideoLauncher[aria-expanded="true"]{background:linear-gradient(135deg,#9f1239,#e11d48);color:#fff;border-color:#9f1239}
-  .ttc-top-actions{display:flex !important;flex-direction:row !important;flex-wrap:nowrap !important;justify-content:center !important;align-items:center !important;gap:10px !important;width:min(720px,96%);margin:8px auto 0;position:relative;z-index:3}
-  #ttcStarterButton{border:1px solid #86efac;background:#fff;color:#166534;border-radius:999px;padding:10px 16px;font-weight:800;cursor:pointer;position:static !important;white-space:nowrap}
+  /* Dashboard zones: clear groups, centered clusters, shared button metrics */
+  .ttc-learn-group{width:min(980px,calc(100% - 20px));margin:20px auto;padding:16px 14px 12px;background:#fff;border:1px solid #e5e7eb;border-radius:14px;box-shadow:0 2px 10px rgba(15,23,42,.04);box-sizing:border-box}
+  .ttc-learn-group h2{margin:0 0 4px;font-size:19px;line-height:1.3;font-weight:700;color:#9f1239;text-align:center}
+  .ttc-learn-group>.ttc-learn-note{margin:0 0 12px;color:#64748b;font-size:14px;font-weight:500;line-height:1.4;text-align:center}
+  .ttc-learn-group-body{display:flex;flex-direction:column;align-items:center;gap:10px}
+  .ttc-dash-btn-row{display:flex;flex-wrap:wrap;justify-content:center;align-items:stretch;gap:8px;width:100%;max-width:100%;box-sizing:border-box}
+  #ttcGroupLevel .ttc-hsk-frame,#ttcGroupLevel .ttc-type-frame,#ttcGroupPractice .ttc-action-frame{margin:0 auto;width:100%;max-width:100%;background:transparent !important;border:0 !important;box-shadow:none !important;padding:0}
+  #ttcGroupLevel .ttc-hsk-buttons,#ttcGroupLevel .ttc-type-buttons{
+    display:flex !important;flex-wrap:nowrap !important;justify-content:center !important;align-items:center !important;
+    gap:8px !important;width:100% !important;max-width:100% !important;overflow-x:auto !important;overflow-y:hidden !important;
+    -webkit-overflow-scrolling:touch;scrollbar-width:thin;padding:2px 1px 6px !important;box-sizing:border-box;
+  }
+  #ttcGroupLevel .ttc-hsk-buttons button,#ttcGroupLevel .ttc-type-buttons button{
+    flex:0 0 auto !important;width:auto !important;min-width:0 !important;min-height:40px !important;
+    padding:8px 12px !important;border-radius:10px !important;font-size:15px !important;font-weight:600 !important;
+    white-space:nowrap !important;box-sizing:border-box;
+  }
+  #ttcGroupPractice .ttc-action-buttons{
+    display:flex !important;flex-wrap:wrap !important;justify-content:center !important;align-items:stretch !important;
+    gap:8px !important;width:100% !important;max-width:100% !important;overflow:visible !important;
+  }
+  #ttcGroupPractice .ttc-action-buttons button{
+    flex:0 0 auto !important;width:auto !important;min-width:0 !important;max-width:100% !important;min-height:42px !important;
+    padding:9px 14px !important;border-radius:10px !important;font-size:15px !important;font-weight:600 !important;
+    white-space:normal !important;overflow-wrap:anywhere;
+  }
+  #ttcGroupPractice .ttc-dash-btn-row > button,
+  #ttcGroupPractice #whHskLauncher,
+  #ttcGroupPractice #ttcReadingLauncher,
+  #ttcGroupPractice #ttcListeningLauncher,
+  #ttcGroupPractice #ttcMatchLauncher,
+  #ttcGroupPractice #ttcListenLauncher,
+  #ttcGroupPractice #ttcSpecialtyLauncher{
+    position:static !important;z-index:auto !important;
+    display:inline-flex !important;align-items:center;justify-content:center;
+    width:auto !important;max-width:100% !important;min-height:42px !important;
+    margin:0 !important;padding:9px 14px !important;border-radius:10px !important;
+    font-size:15px !important;font-weight:600 !important;line-height:1.25 !important;
+    white-space:normal;overflow-wrap:anywhere;box-sizing:border-box;
+  }
+  #ttcVideoLauncher{display:block;width:auto;max-width:min(100%,420px);margin:16px auto 0;border:1px solid #fecdd3;border-radius:12px;background:#fff;color:#9f1239;font-size:15px;font-weight:600;padding:12px 16px;cursor:pointer;min-height:44px}
+  #ttcVideoLauncher[aria-expanded="true"]{background:#9f1239;color:#fff;border-color:#9f1239}
+  #ttcTopLearningHub.ttc-top-learning-hub,#ttcTopLearningHub{
+    display:flex !important;flex-wrap:wrap !important;justify-content:center !important;align-items:stretch !important;
+    gap:8px !important;width:min(720px,96%);margin:16px auto;padding:0;box-sizing:border-box;
+  }
+  #ttcTopLearningHub .ttc-top-learning-btn{
+    flex:0 0 auto !important;width:auto !important;min-height:42px !important;
+    padding:9px 14px !important;border-radius:10px !important;
+    font-size:15px !important;font-weight:600 !important;line-height:1.25 !important;
+    animation:none !important;transform:none !important;
+  }
+  .ttc-top-actions{display:flex !important;flex-direction:row !important;flex-wrap:wrap !important;justify-content:center !important;align-items:center !important;gap:8px !important;width:min(720px,96%);margin:8px auto 0;position:relative;z-index:3}
+  #ttcStarterButton{border:1px solid #86efac;background:#fff;color:#166534;border-radius:10px;padding:9px 14px;font-weight:600;font-size:14px;cursor:pointer;position:static !important;white-space:nowrap;min-height:40px}
   #ttcStarterButton[aria-expanded="true"]{background:#166534;color:#fff}
-  #ttcStarterPanel{width:min(720px,96%);margin:10px auto 0;padding:14px 16px;text-align:left;background:#f0fdf4;border:1px solid #86efac;border-radius:16px;color:#14532d}
+  #ttcStarterPanel{width:min(720px,96%);margin:10px auto 0;padding:14px 16px;text-align:left;background:#f0fdf4;border:1px solid #86efac;border-radius:12px;color:#14532d}
   #ttcStarterPanel[hidden]{display:none !important}
-  #ttcStarterPanel h3{margin:12px 0 4px;font-size:16px;line-height:1.35}
-  #ttcStarterPanel p{margin:4px 0;line-height:1.5}
+  #ttcStarterPanel h3{margin:12px 0 4px;font-size:16px;font-weight:700;line-height:1.35}
+  #ttcStarterPanel p{margin:4px 0;line-height:1.5;font-size:14px;font-weight:500}
+  @media(max-width:700px){
+    .ttc-learn-group{margin:14px auto;padding:14px 12px 10px}
+    .ttc-learn-group h2{font-size:17px}
+    .ttc-learn-group>.ttc-learn-note{font-size:13px}
+    #ttcGroupLevel .ttc-hsk-buttons button,#ttcGroupLevel .ttc-type-buttons button,
+    #ttcGroupPractice .ttc-action-buttons button,
+    #ttcGroupPractice .ttc-dash-btn-row > button,
+    #ttcGroupPractice #whHskLauncher,#ttcGroupPractice #ttcReadingLauncher,#ttcGroupPractice #ttcListeningLauncher,
+    #ttcGroupPractice #ttcMatchLauncher,#ttcGroupPractice #ttcListenLauncher,#ttcGroupPractice #ttcSpecialtyLauncher,
+    #ttcTopLearningHub .ttc-top-learning-btn{font-size:14px !important;padding:8px 12px !important;min-height:40px !important}
+  }
   @media(max-width:420px){.ttc-top-actions{gap:6px !important}#ttcStarterButton,.ttc-script-switch{padding:8px 10px !important;font-size:13px !important}}
   #whHskRoot,#whHskExam,#whHskQuestions,.wh-hsk-question{max-width:100% !important;box-sizing:border-box !important}
   .wh-hsk-picture{display:block !important;width:100% !important;max-width:100% !important;box-sizing:border-box !important;margin:12px 0 !important;padding:0 !important;border-radius:12px !important;background:#fff !important;border:1px solid #d6d3d1 !important;overflow:hidden !important}
@@ -195222,19 +195485,37 @@ function buildTtcHskPaper(pool, level, examNo, salt){
     put(study, document.getElementById("ttcFlashcardLauncherBar"));
     put(study, document.getElementById("autoLearning"));
     put(study, document.getElementById("ttcExampleAutoV2"));
-    putPair(practice, document.getElementById("whHskLauncher"), document.getElementById("whHskRoot"));
-    putPair(practice, document.getElementById("ttcReadingLauncher"), document.getElementById("ttcReadingSection"));
-    putPair(practice, document.getElementById("ttcListeningLauncher"), document.getElementById("ttcListeningSection"));
-    put(practice, document.getElementById("ttcActionFrame"));
-    put(practice, document.getElementById("ttcMatchLauncher"));
-    put(practice, document.getElementById("ttcListenLauncher"));
-    var spec = document.getElementById("ttcSpecialtyLauncher");
-    var specSection = document.getElementById("ttcSpecialtySection");
-    var practiceGroup = practice.parentNode;
-    if(practiceGroup && spec && spec.previousElementSibling !== practiceGroup){
-      practiceGroup.insertAdjacentElement("afterend", spec);
+    function ensureDashRow(id, parent){
+      var row = document.getElementById(id);
+      if(!row){
+        row = document.createElement("div");
+        row.id = id;
+        row.className = "ttc-dash-btn-row";
+      }
+      if(parent && row.parentNode !== parent) parent.appendChild(row);
+      return row;
     }
-    if(spec && specSection && specSection.previousElementSibling !== spec) spec.insertAdjacentElement("afterend", specSection);
+    var rowCore = ensureDashRow("ttcPracticeRowCore", practice);
+    var rowExam = ensureDashRow("ttcPracticeRowExam", practice);
+    var rowQuick = ensureDashRow("ttcPracticeRowQuick", practice);
+    var rowSpec = ensureDashRow("ttcPracticeRowSpec", practice);
+    put(rowCore, document.getElementById("ttcActionFrame"));
+    put(rowExam, document.getElementById("whHskLauncher"));
+    put(rowExam, document.getElementById("ttcReadingLauncher"));
+    put(rowExam, document.getElementById("ttcListeningLauncher"));
+    var examRoot = document.getElementById("whHskRoot");
+    var readSec = document.getElementById("ttcReadingSection");
+    var listenSec = document.getElementById("ttcListeningSection");
+    if(rowExam && examRoot && examRoot.previousElementSibling !== rowExam) rowExam.insertAdjacentElement("afterend", examRoot);
+    if(examRoot && readSec && readSec.previousElementSibling !== examRoot) examRoot.insertAdjacentElement("afterend", readSec);
+    else if(rowExam && readSec && !examRoot && readSec.previousElementSibling !== rowExam) rowExam.insertAdjacentElement("afterend", readSec);
+    if(readSec && listenSec && listenSec.previousElementSibling !== readSec) readSec.insertAdjacentElement("afterend", listenSec);
+    else if(examRoot && listenSec && !readSec && listenSec.previousElementSibling !== examRoot) examRoot.insertAdjacentElement("afterend", listenSec);
+    put(rowQuick, document.getElementById("ttcMatchLauncher"));
+    put(rowQuick, document.getElementById("ttcListenLauncher"));
+    put(rowSpec, document.getElementById("ttcSpecialtyLauncher"));
+    var specSection = document.getElementById("ttcSpecialtySection");
+    if(rowSpec && specSection && specSection.previousElementSibling !== rowSpec) rowSpec.insertAdjacentElement("afterend", specSection);
     var videoBtn = document.getElementById("ttcVideoLauncher");
     var videoSection = document.getElementById("ttcVideoSection");
     if(videoBtn) main.appendChild(videoBtn);
@@ -196350,18 +196631,20 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       }
       if (!shell.querySelector(".ttc-path-ach-row") || !document.getElementById("ttcAchHost")) {
         var oldDaily = document.getElementById("ttcDailyVocab");
-        var wasOpen = false;
-        var oldLauncher = document.getElementById("ttcPathLauncher");
-        if (oldLauncher) wasOpen = oldLauncher.getAttribute("aria-expanded") === "true";
         shell.innerHTML = buildShellHtml();
         var newPanel = document.getElementById("ttcPathPanel");
         if (oldDaily && newPanel) newPanel.appendChild(oldDaily);
         var launcherFix = document.getElementById("ttcPathLauncher");
-        if (launcherFix && wasOpen) {
-          launcherFix.setAttribute("aria-expanded", "true");
-          launcherFix.textContent = "📚 LỘ TRÌNH · Thu gọn / thoát toàn màn hình";
-          if (newPanel) newPanel.hidden = false;
+        if (launcherFix) {
+          launcherFix.setAttribute("aria-expanded", "false");
+          launcherFix.textContent = "Học từ vựng theo lộ trình";
         }
+        if (newPanel) newPanel.hidden = true;
+        try {
+          document.body.classList.remove("ttc-path-fs-lock");
+          newPanel && newPanel.classList.remove("ttc-path-fs");
+          if (window.__ttcPathFsState) window.__ttcPathFsState.open = false;
+        } catch (eShellFs) {}
       }
     }
     var pathFsState = window.__ttcPathFsState || (window.__ttcPathFsState = { open: false, scrollY: 0 });
@@ -196475,7 +196758,7 @@ function buildTtcHskPaper(pool, level, examNo, salt){
         if (!window.__ttcPathFsState || !window.__ttcPathFsState.open) return;
         if (typeof window.ttcExitPathFullscreen === "function") {
           ev.preventDefault();
-          window.ttcExitPathFullscreen(false);
+          window.ttcExitPathFullscreen(true);
         }
       });
     }
@@ -196537,7 +196820,7 @@ function buildTtcHskPaper(pool, level, examNo, salt){
         btn.textContent = "✕";
         btn.addEventListener("click", function(ev){
           if (ev) { ev.preventDefault(); ev.stopPropagation(); }
-          exitPathFullscreen(false);
+          exitPathFullscreen(true);
         });
       }
       if (btn.parentNode !== bar) bar.appendChild(btn);
@@ -196562,10 +196845,13 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       var y = pathFsState.scrollY || 0;
       var wasOpen = pathFsState.open;
       pathFsState.open = false;
-      if (alsoCollapse && panelEl && launcherEl) {
-        launcherEl.setAttribute("aria-expanded", "false");
-        panelEl.hidden = true;
-        launcherEl.textContent = "Học từ vựng theo lộ trình";
+      // Bắt buộc: thoát = đóng hẳn, không giữ khung học thu nhỏ.
+      if (alsoCollapse !== false) {
+        if (panelEl) panelEl.hidden = true;
+        if (launcherEl) {
+          launcherEl.setAttribute("aria-expanded", "false");
+          launcherEl.textContent = "Học từ vựng theo lộ trình";
+        }
       }
       if (wasOpen) {
         requestAnimationFrame(function(){
@@ -196580,22 +196866,14 @@ function buildTtcHskPaper(pool, level, examNo, salt){
     if (launcher && panel && launcher.dataset.bound !== "1") {
       launcher.dataset.bound = "1";
       launcher.addEventListener("click", function(){
-        var open = launcher.getAttribute("aria-expanded") === "true";
-        if (open) {
-          exitPathFullscreen(true);
-          return;
-        }
         pathCheckAccess(1).then(function(ok){
           if (!ok) return;
           launcher.setAttribute("aria-expanded", "true");
+          launcher.textContent = "Học từ vựng theo lộ trình";
           panel.hidden = false;
-          launcher.textContent = "📚 LỘ TRÌNH · Thu gọn / thoát toàn màn hình";
           enterPathFullscreen();
         });
       });
-    }
-    if (panel && launcher && launcher.getAttribute("aria-expanded") === "true" && !panel.hidden) {
-      enterPathFullscreen();
     }
     var achHost = document.getElementById("ttcAchHost");
     if (achHost && achHost.dataset.ready !== "1") {
@@ -198137,30 +198415,42 @@ function buildTtcHskPaper(pool, level, examNo, salt){
 <style id="ttc-daily-vocab-css">
   #ttcPathShell{width:min(1100px,calc(100% - 20px));margin:8px auto 10px;box-sizing:border-box}
   .ttc-path-ach-row{
-    display:grid;
-    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
-    align-items:start;
-    gap:10px 12px;
+    display:flex;
+    flex-wrap:nowrap;
+    align-items:stretch;
+    justify-content:center;
+    gap:8px;
     width:100%;
     box-sizing:border-box;
   }
   .ttc-path-col,.ttc-ach-col{
+    flex:0 1 auto;
     min-width:0;
     max-width:100%;
     width:auto;
     box-sizing:border-box;
+    display:flex;
+    align-items:center;
+    justify-content:center;
   }
-  #ttcAchHost.ttc-ach-host{width:100%;box-sizing:border-box;overflow-x:hidden;text-align:left}
+  #ttcAchHost.ttc-ach-host{width:auto;max-width:100%;box-sizing:border-box;overflow-x:hidden;text-align:center;display:flex;align-items:center;justify-content:center}
+  #ttcPathLauncher.ttc-path-launcher,
+  #ttcAchOpen.ttc-ach-launch{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:auto;max-width:100%;min-height:44px;box-sizing:border-box;
+    border-radius:10px;padding:9px 14px;margin:0;
+    font-weight:600;font-size:15px;line-height:1.25;text-align:center;
+    white-space:normal;overflow-wrap:anywhere;word-break:break-word;
+    cursor:pointer;
+  }
   #ttcPathLauncher.ttc-path-launcher{
-    display:block;width:100%;max-width:100%;box-sizing:border-box;border:0;border-radius:14px;
     background:linear-gradient(90deg,#ef4444,#f97316,#eab308,#22c55e,#06b6d4,#3b82f6,#a855f7,#ef4444);
     background-size:300% 100%;
-    color:#fff;font-weight:900;font-size:14px;line-height:1.35;padding:10px 12px;cursor:pointer;text-align:center;
-    text-shadow:0 1px 2px rgba(15,23,42,.55);
-    white-space:normal;overflow-wrap:anywhere;word-break:break-word;
-    box-shadow:0 6px 0 rgba(15,23,42,.18),0 10px 22px rgba(15,23,42,.16);
-    animation:ttcPathRainbowShift 4.5s linear infinite, ttcPathSoftBlink 1.8s ease-in-out infinite;
-    transform:translateZ(0);transition:transform .12s ease, box-shadow .12s ease, filter .12s ease;
+    color:#fff;
+    text-shadow:0 1px 2px rgba(15,23,42,.45);
+    box-shadow:0 2px 8px rgba(15,23,42,.12);
+    animation:ttcPathRainbowShift 8s linear infinite;
+    transform:none;transition:filter .12s ease, box-shadow .12s ease;
   }
   #ttcPathLauncher.ttc-path-launcher:hover{filter:brightness(1.06);box-shadow:0 7px 0 rgba(15,23,42,.2),0 14px 26px rgba(15,23,42,.2)}
   #ttcPathLauncher.ttc-path-launcher:active{transform:translateY(3px);box-shadow:0 3px 0 rgba(15,23,42,.18),0 6px 14px rgba(15,23,42,.16)}
@@ -198369,11 +198659,17 @@ function buildTtcHskPaper(pool, level, examNo, salt){
   #ttcDailyVocab .ttc-path-guide li{margin:3px 0}
   #ttcDailyVocab .ttc-path-nick{white-space:normal !important;overflow:visible !important;overflow-wrap:anywhere;word-break:break-word;font-size:13px !important;line-height:1.35}
   @media(max-width:760px){
-    .ttc-path-ach-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr);display:grid;gap:8px;align-items:stretch}
-    .ttc-path-col,.ttc-ach-col{width:auto;max-width:100%;min-width:0}
-    #ttcPathLauncher.ttc-path-launcher{font-size:12px;line-height:1.3;padding:9px 8px;min-height:100%}
-    #ttcAchHost.ttc-ach-host{font-size:12px}
-    #ttcAchHost .ttc-ach-open,#ttcAchHost button{font-size:12px;padding:9px 8px;width:100%;box-sizing:border-box;white-space:normal;overflow-wrap:anywhere}
+    .ttc-path-ach-row{display:flex;flex-wrap:nowrap;gap:8px;align-items:center;justify-content:center}
+    .ttc-path-col,.ttc-ach-col{flex:0 1 auto;width:auto;max-width:none;min-width:0;align-items:center}
+    #ttcPathLauncher.ttc-path-launcher,
+    #ttcAchOpen.ttc-ach-launch{
+      font-size:14px;line-height:1.25;padding:8px 12px;min-height:42px;width:auto;max-width:100%;
+      white-space:normal;overflow-wrap:anywhere;
+    }
+    #ttcAchOpen .ttc-ach-launch-text{font-size:14px}
+    #ttcAchOpen .ttc-ach-launch-hint{font-size:12px}
+    #ttcAchOpen .ttc-ach-cup{font-size:14px}
+    #ttcAchHost.ttc-ach-host{font-size:11px;width:auto}
     .ttc-path-vault-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}
     .ttc-path-vault-tab{font-size:11px;padding:8px 6px}
     #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar{
@@ -198511,22 +198807,24 @@ function buildTtcHskPaper(pool, level, examNo, salt){
   #ttcDailyVocab .ttc-path-session-hint{margin:4px 0 0;color:#9f1239;font-size:13px;font-weight:700}
   #ttcDailyVocab .ttc-on{background:#9f1239!important;color:#fff!important}
   .ttc-ach-launch{
-    width:100%;
+    width:auto;
     max-width:100%;
     box-sizing:border-box;
-    display:flex;
+    display:inline-flex;
     flex-wrap:wrap;
     align-items:center;
     justify-content:center;
-    gap:6px 8px;
+    gap:4px 6px;
     border:1px solid #fecdd3;
     background:#fff;
     color:#9f1239;
-    border-radius:14px;
-    padding:10px 12px;
+    border-radius:12px;
+    padding:8px 12px;
+    min-height:44px;
     cursor:pointer;
-    font-weight:800;
-    line-height:1.35;
+    font-weight:900;
+    font-size:13px;
+    line-height:1.3;
     white-space:normal;
     overflow-wrap:anywhere;
     word-break:break-word;
@@ -198536,9 +198834,9 @@ function buildTtcHskPaper(pool, level, examNo, salt){
     border-color:#fb7185;
     box-shadow:0 8px 18px rgba(159,18,57,.12);
   }
-  .ttc-ach-cup{font-size:22px;line-height:1;flex:0 0 auto}
-  .ttc-ach-launch-text{font-size:14px;letter-spacing:.02em;flex:1 1 auto;min-width:0;text-align:center}
-  .ttc-ach-launch-hint{width:100%;font-size:12px;font-weight:600;color:#be123c;opacity:.85;text-align:center}
+  .ttc-ach-cup{font-size:16px;line-height:1;flex:0 0 auto}
+  .ttc-ach-launch-text{font-size:13px;letter-spacing:.02em;flex:0 1 auto;min-width:0;text-align:center;font-weight:900}
+  .ttc-ach-launch-hint{width:auto;font-size:11px;font-weight:700;color:#be123c;opacity:.9;text-align:center}
   .ttc-ach-panel{
     border:1px solid #fecdd3;
     background:#fff;
@@ -198615,7 +198913,7 @@ function buildTtcHskPaper(pool, level, examNo, salt){
   }
   @media(max-width:420px){
     #ttcPathShell{width:calc(100% - 16px);margin:6px auto 8px}
-    #ttcPathLauncher.ttc-path-launcher{font-size:13px;padding:10px 12px}
+    #ttcPathLauncher.ttc-path-launcher,#ttcAchOpen.ttc-ach-launch{font-size:14px;padding:8px 12px;min-height:42px}
     #ttcDailyVocab{padding:12px 10px;padding-top:52px}
     #ttcDailyVocab h3{padding-right:6.5rem;font-size:18px}
     #ttcDailyVocab .ttc-path-learn{flex-direction:column;align-items:stretch}
