@@ -131130,6 +131130,14 @@ function ttcSearchDetail(pool){
       return "<button type=\"button\" data-h=\"" + ttcEsc(hanzi) + "\">" + ttcEsc(hanzi) + "</button>";
     }).join("") + "</div>";
   }
+  html += "<div class=\"ttc-dict-community\" data-lemma=\"" + ttcEsc(String(top.word.lemma_id || "")) + "\" data-hanzi=\"" + ttcEsc(top.word.h || "") + "\">"
+    + "<p class=\"ttc-dict-community-title\">Góp ý cộng đồng · gắn với từ đang tra</p>"
+    + "<p class=\"ttc-dict-community-body\">Từ: <b>" + ttcEsc(top.word.h || "") + "</b>"
+    + (top.word.p ? (" · " + ttcEsc(String(top.word.p))) : "")
+    + (top.word.m ? (" · «" + ttcEsc(String(top.word.m)) + "»") : "")
+    + ". Nếu nghĩa tiếng Việt, Pinyin hoặc thông tin từ bị sai, góp ý tại đây (gắn lemma đang xem). "
+    + "<b>Chưa mở gửi góp ý thật</b> — chưa có bảng/API lưu góp ý; chờ chủ dự án xác nhận. Không phải bình luận lộ trình học.</p>"
+    + "</div>";
   html += "</article>";
   box.innerHTML = html;
   box.hidden = false;
@@ -196473,19 +196481,14 @@ function buildTtcHskPaper(pool, level, examNo, salt){
     }
     function ensurePathFsExitBtn(panelEl){
       if (!panelEl) return;
-      var btn = panelEl.querySelector("#ttcPathFsExit");
-      if (!btn) {
-        btn = document.createElement("button");
-        btn.type = "button";
-        btn.id = "ttcPathFsExit";
-        btn.className = "ttc-path-fs-exit";
-        btn.setAttribute("aria-label", "Thoát toàn màn hình lộ trình");
-        btn.textContent = "✕ THOÁT";
-        panelEl.insertBefore(btn, panelEl.firstChild);
-        btn.addEventListener("click", function(ev){
-          if (ev) { ev.preventDefault(); ev.stopPropagation(); }
-          exitPathFullscreen(false);
-        });
+      var bar = panelEl.querySelector("#ttcPathFsToolbar");
+      if (!bar) {
+        bar = document.createElement("div");
+        bar.id = "ttcPathFsToolbar";
+        bar.className = "ttc-path-fs-toolbar";
+        bar.setAttribute("role", "toolbar");
+        bar.setAttribute("aria-label", "Điều khiển lộ trình");
+        panelEl.insertBefore(bar, panelEl.firstChild);
       }
       var sfxBtn = panelEl.querySelector("#ttcPathSfxBtn");
       if (!sfxBtn) {
@@ -196495,7 +196498,6 @@ function buildTtcHskPaper(pool, level, examNo, salt){
         sfxBtn.className = "ttc-path-sfx-btn";
         sfxBtn.setAttribute("aria-label", "Bật tắt âm thanh game");
         sfxBtn.textContent = pathSfx.muted ? "🔇 Âm thanh" : "🔊 Âm thanh";
-        panelEl.insertBefore(sfxBtn, panelEl.firstChild);
         sfxBtn.addEventListener("click", function(ev){
           if (ev) { ev.preventDefault(); ev.stopPropagation(); }
           var on = window.ttcPathSfxToggle();
@@ -196504,6 +196506,7 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       } else {
         sfxBtn.textContent = pathSfx.muted ? "🔇 Âm thanh" : "🔊 Âm thanh";
       }
+      if (sfxBtn.parentNode !== bar) bar.appendChild(sfxBtn);
       var volWrap = panelEl.querySelector("#ttcPathSfxVolWrap");
       if (!volWrap) {
         volWrap = document.createElement("label");
@@ -196511,7 +196514,6 @@ function buildTtcHskPaper(pool, level, examNo, salt){
         volWrap.className = "ttc-path-sfx-vol-wrap";
         volWrap.setAttribute("aria-label", "Âm lượng game lộ trình");
         volWrap.innerHTML = "<span class='ttc-path-sfx-vol-lab'>Vol</span><input id='ttcPathSfxVol' class='ttc-path-sfx-vol' type='range' min='5' max='70' step='5' />";
-        panelEl.insertBefore(volWrap, panelEl.firstChild);
         var volInput = volWrap.querySelector("#ttcPathSfxVol");
         if (volInput) {
           volInput.value = String(Math.round((pathSfx.vol || 0.32) * 100));
@@ -196524,6 +196526,21 @@ function buildTtcHskPaper(pool, level, examNo, salt){
         var volInput2 = volWrap.querySelector("#ttcPathSfxVol");
         if (volInput2) volInput2.value = String(Math.round((pathSfx.vol || 0.32) * 100));
       }
+      if (volWrap.parentNode !== bar) bar.appendChild(volWrap);
+      var btn = panelEl.querySelector("#ttcPathFsExit");
+      if (!btn) {
+        btn = document.createElement("button");
+        btn.type = "button";
+        btn.id = "ttcPathFsExit";
+        btn.className = "ttc-path-fs-exit";
+        btn.setAttribute("aria-label", "Thoát toàn màn hình lộ trình");
+        btn.textContent = "✕ Thoát";
+        btn.addEventListener("click", function(ev){
+          if (ev) { ev.preventDefault(); ev.stopPropagation(); }
+          exitPathFullscreen(false);
+        });
+      }
+      if (btn.parentNode !== bar) bar.appendChild(btn);
       return btn;
     }
     function enterPathFullscreen(){
@@ -196699,17 +196716,41 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       mark(selected);
       paintHint(selected);
     }
+    function goalRemindDismissKey(level){
+      return "ttcPathGoalRemindDismissed:" + String(today() || "") + ":HSK" + String(level || 0);
+    }
     function goalReminderHtml(state){
-      if (!state || !state.on || !(Number(state.daily) > 0)) {
-        return "<div class='ttc-path-goal-remind' id='ttcPathGoalRemind' role='status'>👉 Hãy thiết lập mục tiêu học tập để bắt đầu.</div>";
-      }
-      var daily = Number(state.daily) || 0;
-      var done = Number(state.todayDone) || 0;
-      var left = Math.max(0, daily - done);
+      var level = state && state.level != null ? state.level : pickedLevel;
+      try {
+        if (localStorage.getItem(goalRemindDismissKey(level)) === "1") return "";
+      } catch (eDismiss) {}
       var text;
-      if (left <= 0) text = "🎉 Bạn đã hoàn thành mục tiêu học hôm nay!";
-      else text = "📚 Hôm nay bạn còn " + left + " từ nữa để hoàn thành mục tiêu!";
-      return "<div class='ttc-path-goal-remind' id='ttcPathGoalRemind' role='status'>" + esc(text) + "</div>";
+      if (!state || !state.on || !(Number(state.daily) > 0)) {
+        text = "👉 Hãy thiết lập mục tiêu học tập để bắt đầu.";
+      } else {
+        var daily = Number(state.daily) || 0;
+        var done = Number(state.todayDone) || 0;
+        var left = Math.max(0, daily - done);
+        if (left <= 0) text = "🎉 Bạn đã hoàn thành mục tiêu học hôm nay!";
+        else text = "📚 Hôm nay bạn còn " + left + " từ nữa để hoàn thành mục tiêu!";
+      }
+      return "<div class='ttc-path-goal-remind' id='ttcPathGoalRemind' role='status' data-level='" + esc(String(level)) + "'>"
+        + "<span class='ttc-path-goal-remind-text'>" + esc(text) + "</span>"
+        + "<button type='button' class='ttc-path-goal-ok'>OK, HIỂU</button></div>";
+    }
+    function bindGoalRemindOk(level){
+      var okBtn = box.querySelector(".ttc-path-goal-ok");
+      if (!okBtn) return;
+      okBtn.addEventListener("click", function(ev){
+        if (ev) { ev.preventDefault(); ev.stopPropagation(); }
+        try { localStorage.setItem(goalRemindDismissKey(level), "1"); } catch (eOk) {}
+        var el = document.getElementById("ttcPathGoalRemind");
+        if (el) {
+          el.hidden = true;
+          el.setAttribute("hidden", "");
+          if (el.parentNode) el.parentNode.removeChild(el);
+        }
+      });
     }
     function pathGuideHtml(){
       return ""
@@ -196751,23 +196792,19 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       return ""
         + "<section class='ttc-path-vault' id='ttcPathVault' data-hsk='" + String(level) + "' aria-label='Kho từ cần ôn'>"
         +   "<div class='ttc-path-vault-head'>"
-        +     "<strong>Kho từ cần ôn</strong>"
-        +     "<span class='ttc-path-vault-note'>Dữ liệu thật từ hồ sơ ghi nhớ tài khoản</span>"
+        +     "<strong>📚 KHO TỪ CẦN ÔN</strong>"
+        +     "<span class='ttc-path-vault-note'>Khung riêng · dữ liệu ghi nhớ thật · nhấn nhóm hoặc từ để ôn bằng bài test lộ trình</span>"
         +   "</div>"
         +   "<div class='ttc-path-vault-tabs' role='tablist'>"
-        +     "<button type='button' class='ttc-path-vault-tab' data-vault='new'>Từ mới</button>"
-        +     "<button type='button' class='ttc-path-vault-tab' data-vault='learning'>Đang học</button>"
-        +     "<button type='button' class='ttc-path-vault-tab' data-vault='mastered'>Đã thuộc</button>"
-        +     "<button type='button' class='ttc-path-vault-tab is-on' data-vault='due'>Cần ôn</button>"
-        +     "<button type='button' class='ttc-path-vault-tab' data-vault='wrong_heavy'>Hay sai</button>"
+        +     "<button type='button' class='ttc-path-vault-tab' data-vault='new'>Từ mới<span class='ttc-path-vault-count' data-count='new'>0</span></button>"
+        +     "<button type='button' class='ttc-path-vault-tab' data-vault='learning'>Đang học<span class='ttc-path-vault-count' data-count='learning'>0</span></button>"
+        +     "<button type='button' class='ttc-path-vault-tab' data-vault='mastered'>Đã thuộc<span class='ttc-path-vault-count' data-count='mastered'>0</span></button>"
+        +     "<button type='button' class='ttc-path-vault-tab is-on' data-vault='due'>Cần ôn<span class='ttc-path-vault-count' data-count='due'>0</span></button>"
+        +     "<button type='button' class='ttc-path-vault-tab' data-vault='wrong_heavy'>Hay sai<span class='ttc-path-vault-count' data-count='wrong_heavy'>0</span></button>"
         +   "</div>"
         +   "<p class='ttc-path-vault-status' id='ttcPathVaultStatus'>Đang tải hồ sơ ghi nhớ…</p>"
         +   "<div class='ttc-path-vault-list' id='ttcPathVaultList' role='list'></div>"
         +   "<div class='ttc-path-vault-detail' id='ttcPathVaultDetail' hidden></div>"
-        +   "<div class='ttc-path-community' id='ttcPathCommunity'>"
-        +     "<p class='ttc-path-community-title'>Góp ý từ vựng (cộng đồng)</p>"
-        +     "<p class='ttc-path-community-body'>Chưa mở ghi bình luận thật. Chờ chủ dự án xác nhận quyền Free/Premium. Góp ý sẽ tách khỏi nghĩa chuẩn từ điển; không tự thay thế dữ liệu học chính.</p>"
-        +   "</div>"
         + "</section>";
     }
     function pathBadgesShell(state, list){
@@ -196806,7 +196843,26 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       html += "</section>";
       return html;
     }
-    function mountMemoryVault(level, list){
+    var pathVaultReview = null;
+    function startVaultReview(store, level, entry, list, word){
+      if (!word) return;
+      pathVaultReview = { word: word, lemmaId: word.lemma_id || null };
+      if (!entry) {
+        var cur = current();
+        store = cur.store; level = cur.level; entry = cur.entry;
+      }
+      if (!entry) return;
+      if (!entry.on) {
+        entry.on = true;
+        if (!(Number(entry.daily) > 0)) entry.daily = Number(pickedDaily) || 15;
+        if (!entry.today) entry.today = today();
+        putEntry(store, level, entry);
+      }
+      try { if (typeof window.ttcEnterPathFullscreen === "function") window.ttcEnterPathFullscreen(); } catch (eFsR) {}
+      if (typeof remountDraw === "function") remountDraw();
+      else draw();
+    }
+    function mountMemoryVault(level, list, store, entry){
       var root = document.getElementById("ttcPathVault");
       if (!root) return;
       var statusEl = document.getElementById("ttcPathVaultStatus");
@@ -196819,6 +196875,39 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       (list || []).forEach(function(w){
         if (w && w.lemma_id) byLemmaWord[String(w.lemma_id)] = w;
       });
+      function setCounts(counts){
+        ["new","learning","mastered","due","wrong_heavy"].forEach(function(key){
+          var el = root.querySelector(".ttc-path-vault-count[data-count='" + key + "']");
+          if (el) el.textContent = String(counts[key] || 0);
+        });
+      }
+      function computeCounts(rows){
+        var todayStr = (typeof ttcVocabMemTodayStr === "function") ? ttcVocabMemTodayStr() : "";
+        var counts = { new: 0, learning: 0, mastered: 0, due: 0, wrong_heavy: 0 };
+        var seenMem = Object.create(null);
+        (rows || []).forEach(function(row){
+          if (row && row.vocab_id) seenMem[String(row.vocab_id)] = row;
+        });
+        (list || []).forEach(function(w){
+          if (!w || !w.lemma_id) return;
+          var lid = String(w.lemma_id);
+          var row = seenMem[lid];
+          if (!row) { counts.new++; return; }
+          var b = (typeof ttcVocabMemBucketOf === "function") ? ttcVocabMemBucketOf(row, todayStr) : String(row.status || "");
+          if (b === "new") counts.new++;
+          else if (b === "learning") counts.learning++;
+          else if (b === "mastered") counts.mastered++;
+          else if (b === "due") counts.due++;
+          else if (b === "wrong_heavy") counts.wrong_heavy++;
+        });
+        (rows || []).forEach(function(row){
+          if (!row || !row.vocab_id) return;
+          if (byLemmaWord[String(row.vocab_id)]) return;
+          var b2 = (typeof ttcVocabMemBucketOf === "function") ? ttcVocabMemBucketOf(row, todayStr) : String(row.status || "");
+          if (counts[b2] != null) counts[b2]++;
+        });
+        return counts;
+      }
       function renderDetail(w, row){
         if (!detailEl || !w) return;
         detailEl.hidden = false;
@@ -196842,22 +196931,32 @@ function buildTtcHskPaper(pool, level, examNo, salt){
             + (row.next_review_at ? (" · Ôn tiếp " + esc(String(row.next_review_at).slice(0,10))) : "")
             + "</p>");
         }
+        parts.push("<button type='button' class='ttc-path-vault-review'>Ôn từ này (bài test lộ trình)</button>");
         detailEl.innerHTML = parts.join("");
+        var rev = detailEl.querySelector(".ttc-path-vault-review");
+        if (rev) {
+          rev.addEventListener("click", function(){
+            startVaultReview(store, level, entry, list, w);
+          });
+        }
       }
       function paint(rows, bucket){
         if (!listEl) return;
         listEl.innerHTML = "";
         var todayStr = (typeof ttcVocabMemTodayStr === "function") ? ttcVocabMemTodayStr() : "";
         var shown = 0;
+        var firstWord = null;
         function addItem(w, row){
           if (!w) return;
           shown++;
+          if (!firstWord) firstWord = w;
           var btn = document.createElement("button");
           btn.type = "button";
           btn.className = "ttc-path-vault-item";
           btn.setAttribute("role", "listitem");
           btn.textContent = (w.h || "") + (w.p ? " · " + w.p : "");
           btn.addEventListener("click", function(){ renderDetail(w, row || null); });
+          btn.addEventListener("dblclick", function(){ startVaultReview(store, level, entry, list, w); });
           listEl.appendChild(btn);
         }
         if (bucket === "new") {
@@ -196889,9 +196988,10 @@ function buildTtcHskPaper(pool, level, examNo, salt){
         }
         if (statusEl) {
           statusEl.textContent = shown
-            ? ("HSK " + level + " · " + shown + " từ trong nhóm này")
+            ? ("HSK " + level + " · " + shown + " từ · nhấn từ để xem · nhấn «Ôn từ này» hoặc double-click để vào bài test lộ trình")
             : ("HSK " + level + " · Chưa có từ trong nhóm này (không minh họa số liệu giả)");
         }
+        root._vaultFirstWord = firstWord;
       }
       root.querySelectorAll(".ttc-path-vault-tab").forEach(function(tab){
         tab.addEventListener("click", function(){
@@ -196901,6 +197001,7 @@ function buildTtcHskPaper(pool, level, examNo, salt){
           var rows = (window.__ttcVocabMemCache && window.__ttcVocabMemCache.rows) || [];
           var filtered = rows.filter(function(r){ return Number(r.hsk_level) === Number(level); });
           paint(filtered, active);
+          if (detailEl) { detailEl.hidden = true; detailEl.innerHTML = ""; }
         });
       });
       if (typeof window.ttcVocabMemoryLoadMine !== "function") {
@@ -196914,9 +197015,12 @@ function buildTtcHskPaper(pool, level, examNo, salt){
               ? "Đăng nhập để xem kho từ cần ôn của bạn."
               : ("Không đọc được hồ sơ ghi nhớ" + (res && res.error ? (": " + res.error) : "."));
           }
+          setCounts({ new: 0, learning: 0, mastered: 0, due: 0, wrong_heavy: 0 });
           return;
         }
-        paint(res.rows || [], active);
+        var filtered = (res.rows || []).filter(function(r){ return Number(r.hsk_level) === Number(level); });
+        setCounts(computeCounts(filtered));
+        paint(filtered, active);
       }).catch(function(){
         if (statusEl) statusEl.textContent = "Lỗi mạng khi đọc hồ sơ ghi nhớ.";
       });
@@ -197160,20 +197264,29 @@ function buildTtcHskPaper(pool, level, examNo, salt){
         });
       });
       syncBoard(state, document.getElementById("ttcAchHost"));
-      try { mountMemoryVault(level, list); } catch (eVault) {}
+      try { bindGoalRemindOk(level); } catch (eGoalOk) {}
+      try { mountMemoryVault(level, list, store, entry); } catch (eVault) {}
       if (!list.length) {
         card.textContent = "Cấp này chưa có từ để học.";
         return;
       }
-      if (state.index >= list.length) return;
-      if (state.todayDone >= state.daily) return;
-      var resolved = (typeof window.ttcVocabMemoryResolvePathWord === "function")
-        ? window.ttcVocabMemoryResolvePathWord(list, entry)
-        : { word: list[state.index], index: state.index };
-      var word = resolved.word || list[state.index];
-      if (resolved.index != null && Number(resolved.index) !== Number(entry.index)) {
-        entry.index = Number(resolved.index);
-        putEntry(store, level, entry);
+      var reviewWord = pathVaultReview && pathVaultReview.word ? pathVaultReview.word : null;
+      if (!reviewWord) {
+        if (state.index >= list.length) return;
+        if (state.todayDone >= state.daily) return;
+      }
+      var word;
+      if (reviewWord) {
+        word = reviewWord;
+      } else {
+        var resolved = (typeof window.ttcVocabMemoryResolvePathWord === "function")
+          ? window.ttcVocabMemoryResolvePathWord(list, entry)
+          : { word: list[state.index], index: state.index };
+        word = resolved.word || list[state.index];
+        if (resolved.index != null && Number(resolved.index) !== Number(entry.index)) {
+          entry.index = Number(resolved.index);
+          putEntry(store, level, entry);
+        }
       }
       if (state.todayDone % 2 === 0) askMeaning(store, level, entry, list, word, card, actions);
       else askTiles(store, level, entry, list, word, card, actions);
@@ -197232,6 +197345,11 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       pathPaintScore(level, entry, ok ? 10 : -5);
     }
     function pathAdvanceAfterConfirm(store, level, entry, ok){
+      if (pathVaultReview) {
+        pathVaultReview = null;
+        draw();
+        return;
+      }
       var day = today();
       if (ok) {
         entry.todayDone = (Number(entry.todayDone) || 0) + 1;
@@ -197936,7 +198054,8 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       var list = levelWords(level);
       var setupState = progress ? viewState(level, entry) : { on: false, daily: pickedDaily, todayDone: 0, level: level, xp: 0, index: 0 };
       box.innerHTML = "<h3>Lộ trình học từ</h3>"
-        + goalReminderHtml(progress ? setupState : null)
+        + goalReminderHtml(progress ? setupState : { on: false, daily: 0, level: level })
+        + memoryVaultShell(level)
         + (progress ? overviewHtml(setupState, list) : "")
         + syncNoticeHtml(level)
         + "<div class='ttc-path-explain-bar'>"
@@ -197958,6 +198077,8 @@ function buildTtcHskPaper(pool, level, examNo, salt){
           setupExplainPanel.hidden = !open;
         });
       }
+      try { bindGoalRemindOk(level); } catch (eGoalSetup) {}
+      try { mountMemoryVault(level, list, store, entry); } catch (eVaultSetup) {}
       bindConflictActions(level);
       bindLevelButtons(box.querySelector(".ttc-path-levels"), pickedLevel, function(nextLevel){
         store.activeLevel = nextLevel;
@@ -198058,34 +198179,57 @@ function buildTtcHskPaper(pool, level, examNo, salt){
     50%{opacity:.88}
   }
   #ttcPathPanel.ttc-path-panel{margin-top:8px}
-  .ttc-path-vault,.ttc-path-badges,.ttc-path-community{
-    margin:10px 0;padding:10px 12px;border:1px solid #fecdd3;border-radius:12px;background:#fff;
-    box-sizing:border-box;max-width:100%;overflow-x:hidden;
+  .ttc-path-vault,.ttc-path-badges{
+    margin:10px 0;padding:12px;border:1px solid #fecdd3;border-radius:14px;background:#fff;
+    box-sizing:border-box;max-width:100%;overflow-x:hidden;position:relative;z-index:1;
   }
   .ttc-path-vault-head,.ttc-path-badges-head{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline;margin-bottom:6px}
+  .ttc-path-vault-head strong{color:#9f1239;font-size:15px}
   .ttc-path-vault-note{font-size:12px;color:#64748b;font-weight:600}
-  .ttc-path-vault-tabs{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+  .ttc-path-vault-tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin:8px 0}
   .ttc-path-vault-tab{
-    border:1px solid #fda4af;background:#fff1f2;color:#9f1239;border-radius:10px;
-    font-weight:800;font-size:12px;padding:6px 8px;cursor:pointer;
+    border:1px solid #fda4af;background:#fff1f2;color:#9f1239 !important;-webkit-text-fill-color:#9f1239;
+    border-radius:12px;font-weight:800;font-size:11px;padding:8px 6px;cursor:pointer;line-height:1.25;text-align:center;
   }
-  .ttc-path-vault-tab.is-on{background:#be123c;color:#fff;border-color:#9f1239}
+  .ttc-path-vault-tab .ttc-path-vault-count{display:block;margin-top:2px;font-size:14px;font-weight:900}
+  .ttc-path-vault-tab.is-on{background:#be123c;color:#fff !important;-webkit-text-fill-color:#fff;border-color:#9f1239}
   .ttc-path-vault-status{font-size:13px;color:#475569;margin:4px 0 8px}
-  .ttc-path-vault-list{display:flex;flex-wrap:wrap;gap:6px;max-height:160px;overflow:auto}
+  .ttc-path-vault-list{display:flex;flex-wrap:wrap;gap:8px;max-height:220px;overflow:auto;padding:2px}
   .ttc-path-vault-item{
-    border:1px solid #e2e8f0;background:#f8fafc;border-radius:10px;padding:6px 8px;
-    font-weight:700;font-size:13px;cursor:pointer;max-width:100%;overflow-wrap:anywhere;
+    border:1px solid #fda4af;background:#fff !important;color:#0f172a !important;-webkit-text-fill-color:#0f172a !important;
+    border-radius:12px;padding:8px 10px;font-weight:700;font-size:14px;cursor:pointer;max-width:100%;overflow-wrap:anywhere;
+    box-shadow:0 2px 0 rgba(190,18,60,.08);
   }
-  .ttc-path-vault-detail{margin-top:8px;padding-top:8px;border-top:1px dashed #fecdd3;font-size:14px;line-height:1.45}
-  .ttc-path-vault-detail-h{font-size:18px;margin:0 0 4px}
+  .ttc-path-vault-item:hover{background:#fff1f2 !important}
+  .ttc-path-vault-detail{margin-top:8px;padding:10px;border:1px solid #fecdd3;border-radius:12px;background:#fffafa;font-size:14px;line-height:1.45;color:#0f172a}
+  .ttc-path-vault-detail-h{font-size:20px;margin:0 0 4px;color:#0f172a}
   .ttc-path-vault-eg,.ttc-path-vault-meta{font-size:13px;color:#334155;margin:4px 0}
+  .ttc-path-vault-review{margin-top:8px;border:0;border-radius:12px;background:#e11d48;color:#fff !important;-webkit-text-fill-color:#fff;font-weight:800;padding:8px 12px;cursor:pointer}
   .ttc-path-badges-list{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
   .ttc-path-badges-list li{
     border:1px solid #bbf7d0;background:#ecfdf5;color:#065f46;border-radius:10px;
     padding:6px 8px;font-weight:800;font-size:12px;
   }
-  .ttc-path-community-title{font-weight:900;margin:0 0 4px;color:#9f1239}
-  .ttc-path-community-body{margin:0;font-size:13px;color:#475569;line-height:1.45}
+  .ttc-dict-community{margin-top:12px;padding:12px;border:1px dashed #fecdd3;border-radius:14px;background:#fff7f8}
+  .ttc-dict-community-title{font-weight:900;margin:0 0 4px;color:#9f1239}
+  .ttc-dict-community-body{margin:0;font-size:13px;color:#475569;line-height:1.45}
+  #ttcPathPanel.ttc-path-fs .ttc-path-vault,
+  #ttcPathPanel.ttc-path-fs .ttc-path-badges,
+  #ttcPathPanel.ttc-path-fs .ttc-path-goal-remind,
+  #ttcPathPanel.ttc-path-fs .ttc-path-sync,
+  #ttcPathPanel.ttc-path-fs .ttc-path-goals-bar,
+  #ttcPathPanel.ttc-path-fs .ttc-path-goals,
+  #ttcPathPanel.ttc-path-fs .ttc-path-explain-bar,
+  #ttcPathPanel.ttc-path-fs .ttc-path-overview,
+  #ttcPathPanel.ttc-path-fs .ttc-path-cancel,
+  #ttcPathPanel.ttc-path-fs .ttc-path-cancel-dialog,
+  #ttcPathPanel.ttc-path-fs > h3{display:none !important}
+  .ttc-path-fs-toolbar{display:none}
+  #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar{
+    display:flex;position:sticky;top:0;z-index:8;gap:6px;justify-content:flex-end;align-items:center;
+    flex-wrap:wrap;padding:6px 8px;margin:0 0 10px;background:rgba(255,247,248,.97);
+    border:1px solid #fecdd3;border-radius:12px;box-shadow:0 4px 12px rgba(15,23,42,.08);
+  }
 
   #ttcPathPanel.ttc-path-panel[hidden]{display:none !important}
   body.ttc-path-fs-lock{overflow:hidden !important;overscroll-behavior:none !important}
@@ -198098,27 +198242,27 @@ function buildTtcHskPaper(pool, level, examNo, salt){
   }
   #ttcPathPanel.ttc-path-fs #ttcDailyVocab{max-width:min(1100px,100%);margin-left:auto;margin-right:auto}
   .ttc-path-sfx-btn,.ttc-path-sfx-vol-wrap{display:none}
-  #ttcPathPanel.ttc-path-fs .ttc-path-sfx-btn{
-    position:sticky;top:0;z-index:6;display:inline-flex;align-items:center;justify-content:center;
-    margin:0 8px 10px 0;float:right;border:2px solid #0f766e;border-radius:12px;
-    background:#ecfdf5;color:#065f46;font-weight:800;font-size:13px;padding:10px 12px;cursor:pointer;
+  #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar .ttc-path-sfx-btn,
+  #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar .ttc-path-sfx-vol-wrap,
+  #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar .ttc-path-fs-exit{
+    position:static;float:none;display:inline-flex;align-items:center;justify-content:center;
+    margin:0;border-radius:10px;font-weight:800;font-size:11px;line-height:1.2;padding:7px 9px;cursor:pointer;
+    min-height:34px;box-shadow:none;
   }
-  #ttcPathPanel.ttc-path-fs .ttc-path-sfx-vol-wrap{
-    position:sticky;top:0;z-index:6;display:inline-flex;align-items:center;gap:6px;
-    margin:0 8px 10px 0;float:right;border:2px solid #99f6e4;border-radius:12px;
-    background:#f0fdfa;color:#115e59;font-weight:800;font-size:12px;padding:6px 10px;
+  #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar .ttc-path-sfx-btn{
+    border:1px solid #0f766e;background:#ecfdf5;color:#065f46;
   }
-  #ttcPathPanel.ttc-path-fs .ttc-path-sfx-vol{width:88px;accent-color:#0f766e;cursor:pointer}
+  #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar .ttc-path-sfx-vol-wrap{
+    border:1px solid #99f6e4;background:#f0fdfa;color:#115e59;gap:4px;
+  }
+  #ttcPathPanel.ttc-path-fs .ttc-path-sfx-vol{width:70px;accent-color:#0f766e;cursor:pointer}
   #ttcDailyVocab .ttc-path-fb-memory{margin:0 0 8px;padding-left:1.2em;text-align:left;color:#14532d;font-weight:700;font-size:14px;line-height:1.45}
   #ttcDailyVocab .ttc-path-fb-memory li{margin:3px 0}
   .ttc-path-fs-exit{display:none}
-  #ttcPathPanel.ttc-path-fs .ttc-path-fs-exit{
-    position:sticky;top:0;z-index:6;display:inline-flex;align-items:center;justify-content:center;
-    margin:0 0 10px auto;float:right;clear:both;border:2px solid #9f1239;border-radius:12px;
-    background:#fff;color:#9f1239;font-weight:800;font-size:14px;padding:10px 14px;cursor:pointer;
-    box-shadow:0 4px 14px rgba(15,23,42,.12);
+  #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar .ttc-path-fs-exit{
+    border:1px solid #9f1239;background:#fff;color:#9f1239;
   }
-  #ttcPathPanel.ttc-path-fs .ttc-path-fs-exit:hover{background:#9f1239;color:#fff}
+  #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar .ttc-path-fs-exit:hover{background:#9f1239;color:#fff}
   #ttcDailyVocab .ttc-path-game-hud{
     margin:0 0 12px;padding:12px 14px;border-radius:16px;
     background:linear-gradient(145deg,#0f766e 0%,#115e59 45%,#134e4a 100%);
@@ -198198,7 +198342,12 @@ function buildTtcHskPaper(pool, level, examNo, salt){
   #ttcDailyVocab .ttc-path-goal-remind{
     margin:0 0 10px;padding:10px 12px;border-radius:12px;border:1px solid #86efac;
     background:linear-gradient(180deg,#ecfdf5,#fff);color:#065f46;font-weight:800;font-size:14px;
-    line-height:1.4;text-align:left;
+    line-height:1.4;text-align:left;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;
+  }
+  #ttcDailyVocab .ttc-path-goal-remind[hidden]{display:none !important}
+  #ttcDailyVocab .ttc-path-goal-ok{
+    border:0;border-radius:10px;background:#065f46;color:#fff !important;-webkit-text-fill-color:#fff;
+    font-weight:800;font-size:12px;padding:7px 10px;cursor:pointer;white-space:nowrap;
   }
   #ttcDailyVocab .ttc-path-guide{text-align:left;color:#334155}
   #ttcDailyVocab .ttc-path-guide p{margin:8px 0 4px;font-size:13px;color:#0f172a}
@@ -198206,9 +198355,27 @@ function buildTtcHskPaper(pool, level, examNo, salt){
   #ttcDailyVocab .ttc-path-guide li{margin:3px 0}
   #ttcDailyVocab .ttc-path-nick{white-space:normal !important;overflow:visible !important;overflow-wrap:anywhere;word-break:break-word;font-size:13px !important;line-height:1.35}
   @media(max-width:760px){
-    .ttc-path-ach-row{grid-template-columns:1fr;display:grid;gap:10px}
-    .ttc-path-col,.ttc-ach-col{width:100%;max-width:100%}
+    .ttc-path-ach-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr);display:grid;gap:8px;align-items:stretch}
+    .ttc-path-col,.ttc-ach-col{width:auto;max-width:100%;min-width:0}
+    #ttcPathLauncher.ttc-path-launcher{font-size:12px;line-height:1.3;padding:9px 8px;min-height:100%}
+    #ttcAchHost.ttc-ach-host{font-size:12px}
+    #ttcAchHost .ttc-ach-open,#ttcAchHost button{font-size:12px;padding:9px 8px;width:100%;box-sizing:border-box;white-space:normal;overflow-wrap:anywhere}
+    .ttc-path-vault-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .ttc-path-vault-tab{font-size:11px;padding:8px 6px}
+    #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar{gap:4px;padding:5px 6px}
+    #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar .ttc-path-sfx-btn,
+    #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar .ttc-path-sfx-vol-wrap,
+    #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar .ttc-path-fs-exit{font-size:10px;padding:6px 7px;min-height:32px}
+    #ttcPathPanel.ttc-path-fs .ttc-path-sfx-vol{width:56px}
   }
+  html[data-theme="night"] .ttc-path-vault,
+  html[data-theme="night"] .ttc-path-badges{background:#111827;border-color:#4b5563}
+  html[data-theme="night"] .ttc-path-vault-item{
+    background:#1f2937 !important;color:#f8fafc !important;-webkit-text-fill-color:#f8fafc !important;border-color:#4b5563;
+  }
+  html[data-theme="night"] .ttc-path-vault-detail{background:#0f172a;color:#e5e7eb;border-color:#4b5563}
+  html[data-theme="night"] .ttc-path-vault-detail-h{color:#f8fafc}
+  html[data-theme="night"] .ttc-dict-community{background:#111827;border-color:#4b5563}
   #ttcDailyVocab{position:relative;margin:0 auto 8px;padding:14px;padding-top:48px;border:1px solid #fecdd3;border-radius:16px;background:#fff7f8;text-align:center;box-sizing:border-box;max-width:100%;overflow-x:hidden}
   #ttcDailyVocab h3{margin:0 0 4px;color:#9f1239;font-size:20px;padding-right:7rem}
   #ttcDailyVocab .ttc-daily-note,#ttcDailyVocab .ttc-daily-meaning{margin:4px 0;color:#64748b;font-size:14px}
