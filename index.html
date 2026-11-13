@@ -197666,6 +197666,10 @@ function buildTtcHskPaper(pool, level, examNo, salt){
         +       "<div class='ttc-path-explain-panel ttc-daily-note' hidden></div>"
         +     "</div>"
         +     "<div class='ttc-path-quiz'>"
+        +       "<div class='ttc-path-qcolor-bar'>"
+        +         "<button type='button' class='ttc-path-qcolor-btn' id='ttcPathQColorBtn' aria-expanded='false' aria-controls='ttcPathQColorPanel'>🎨 MÀU CÂU HỎI</button>"
+        +         "<div class='ttc-path-qcolor-panel' id='ttcPathQColorPanel' hidden></div>"
+        +       "</div>"
         +       "<div class='ttc-path-feedback-host' aria-live='polite'></div>"
         +       "<div class='ttc-daily-card'></div>"
         +       "<div class='ttc-path-choices' aria-label='Đáp án'></div>"
@@ -197690,6 +197694,7 @@ function buildTtcHskPaper(pool, level, examNo, salt){
         });
       }
       bindConflictActions(level);
+      try { ttcPathQColorMount(box); } catch (ttcQColorErr) { console.warn('TTC path qcolor', ttcQColorErr); }
       var goalsToggle = box.querySelector(".ttc-path-goals-toggle");
       if (goalsToggle) {
         goalsToggle.addEventListener("click", function(){
@@ -198318,6 +198323,175 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       }
       return options;
     }
+
+    /* ===== TTC PATH QUESTION COLOR (scoped #ttcDailyVocab) ===== */
+    var TTC_PATH_QCOLOR_KEY = "ttc_path_q_color_v1";
+    var TTC_PATH_QCOLOR_DEFAULT = "#16803C";
+    var TTC_PATH_QCOLOR_BG = "#f0fdf4";
+    var TTC_PATH_QCOLOR_PRESETS = [
+      { name: "Xanh lá cây đậm", hex: "#16803C" },
+      { name: "Xanh lá cây", hex: "#16A34A" },
+      { name: "Xanh ngọc", hex: "#0F766E" },
+      { name: "Xanh dương đậm", hex: "#1E3A8A" },
+      { name: "Xanh dương", hex: "#1D4ED8" },
+      { name: "Xanh da trời", hex: "#0369A1" },
+      { name: "Tím đậm", hex: "#6B21A8" },
+      { name: "Tím", hex: "#7C3AED" },
+      { name: "Hồng đậm", hex: "#BE185D" },
+      { name: "Đỏ đậm", hex: "#991B1B" },
+      { name: "Đỏ", hex: "#DC2626" },
+      { name: "Cam đậm", hex: "#C2410C" },
+      { name: "Cam", hex: "#EA580C" },
+      { name: "Nâu", hex: "#7C2D12" },
+      { name: "Đen", hex: "#0F172A" },
+      { name: "Xám đậm", hex: "#334155" }
+    ];
+    function ttcPathQColorNorm(hex){
+      var h = String(hex || "").trim().toUpperCase();
+      if(/^#[0-9A-F]{6}$/.test(h)) return h;
+      if(/^#[0-9A-F]{3}$/.test(h)){
+        return ("#" + h[1]+h[1]+h[2]+h[2]+h[3]+h[3]).toUpperCase();
+      }
+      return "";
+    }
+    function ttcPathQColorLuminance(hex){
+      var n = ttcPathQColorNorm(hex);
+      if(!n) return 1;
+      function chan(v){
+        v = v / 255;
+        return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+      }
+      var r = parseInt(n.slice(1,3), 16);
+      var g = parseInt(n.slice(3,5), 16);
+      var b = parseInt(n.slice(5,7), 16);
+      return 0.2126 * chan(r) + 0.7152 * chan(g) + 0.0722 * chan(b);
+    }
+    function ttcPathQColorContrast(fg, bg){
+      var L1 = ttcPathQColorLuminance(fg);
+      var L2 = ttcPathQColorLuminance(bg);
+      var hi = Math.max(L1, L2);
+      var lo = Math.min(L1, L2);
+      return (hi + 0.05) / (lo + 0.05);
+    }
+    function ttcPathQColorLoad(){
+      try{
+        var raw = localStorage.getItem(TTC_PATH_QCOLOR_KEY) || "";
+        var n = ttcPathQColorNorm(raw);
+        if(n) return n;
+      }catch(e){}
+      return TTC_PATH_QCOLOR_DEFAULT;
+    }
+    function ttcPathQColorSave(hex){
+      try{ localStorage.setItem(TTC_PATH_QCOLOR_KEY, hex); }catch(e){}
+    }
+    function ttcPathQColorApply(hex, opts){
+      opts = opts || {};
+      var n = ttcPathQColorNorm(hex) || TTC_PATH_QCOLOR_DEFAULT;
+      var ratio = ttcPathQColorContrast(n, TTC_PATH_QCOLOR_BG);
+      var host = document.getElementById("ttcDailyVocab");
+      var warn = host && host.querySelector(".ttc-path-qcolor-warn");
+      if(ratio < 4.5){
+        if(warn){
+          warn.hidden = false;
+          warn.textContent = "Màu này khó đọc trên nền câu hỏi (tương phản " + ratio.toFixed(2) + ":1). Hãy chọn màu đậm hơn. Gợi ý: " + TTC_PATH_QCOLOR_DEFAULT;
+        }
+        if(!opts.force){
+          return false;
+        }
+      }else if(warn){
+        warn.hidden = true;
+        warn.textContent = "";
+      }
+      if(host){
+        host.style.setProperty("--ttc-path-q-fg", n);
+      }
+      ttcPathQColorSave(n);
+      var hexEl = host && host.querySelector(".ttc-path-qcolor-hex");
+      if(hexEl) hexEl.textContent = n;
+      var custom = host && host.querySelector(".ttc-path-qcolor-custom");
+      if(custom) custom.value = n;
+      if(host){
+        host.querySelectorAll(".ttc-path-qcolor-swatch").forEach(function(btn){
+          btn.classList.toggle("is-on", ttcPathQColorNorm(btn.getAttribute("data-hex")) === n);
+        });
+      }
+      return true;
+    }
+    function ttcPathQColorClosePanel(host){
+      var btn = host && host.querySelector("#ttcPathQColorBtn");
+      var panel = host && host.querySelector("#ttcPathQColorPanel");
+      if(btn) btn.setAttribute("aria-expanded", "false");
+      if(panel) panel.hidden = true;
+    }
+    function ttcPathQColorMount(host){
+      if(!host) return;
+      var btn = host.querySelector("#ttcPathQColorBtn");
+      var panel = host.querySelector("#ttcPathQColorPanel");
+      if(!btn || !panel) return;
+      if(panel.getAttribute("data-ready") === "1"){
+        ttcPathQColorApply(ttcPathQColorLoad(), { force: true });
+        return;
+      }
+      var html = "";
+      html += "<p class='ttc-path-qcolor-title'>Chọn màu chữ câu hỏi</p>";
+      html += "<div class='ttc-path-qcolor-grid' role='listbox' aria-label='Bảng màu câu hỏi'>";
+      for(var i = 0; i < TTC_PATH_QCOLOR_PRESETS.length; i++){
+        var p = TTC_PATH_QCOLOR_PRESETS[i];
+        html += "<button type='button' class='ttc-path-qcolor-swatch' role='option' data-hex='" + p.hex + "' title='" + p.name + "' aria-label='" + p.name + "' style='background:" + p.hex + "'></button>";
+      }
+      html += "</div>";
+      html += "<div class='ttc-path-qcolor-row'>";
+      html += "<label style='font-size:12px;font-weight:800;color:#334155'>Tùy chỉnh</label>";
+      html += "<input type='color' class='ttc-path-qcolor-custom' aria-label='Chọn màu tùy chỉnh' />";
+      html += "<span class='ttc-path-qcolor-hex'></span>";
+      html += "</div>";
+      html += "<p class='ttc-path-qcolor-warn' hidden></p>";
+      html += "<div class='ttc-path-qcolor-actions'>";
+      html += "<button type='button' data-act='default'>Mặc định xanh lá</button>";
+      html += "<button type='button' data-act='reset'>Đặt lại màu</button>";
+      html += "<button type='button' data-act='close'>Đóng</button>";
+      html += "</div>";
+      panel.innerHTML = html;
+      panel.setAttribute("data-ready", "1");
+
+      btn.addEventListener("click", function(){
+        var open = btn.getAttribute("aria-expanded") === "true";
+        open = !open;
+        btn.setAttribute("aria-expanded", open ? "true" : "false");
+        panel.hidden = !open;
+      });
+      panel.addEventListener("click", function(ev){
+        var t = ev.target;
+        if(!t) return;
+        if(t.classList && t.classList.contains("ttc-path-qcolor-swatch")){
+          var hx = t.getAttribute("data-hex");
+          if(ttcPathQColorApply(hx)){
+            ttcPathQColorClosePanel(host);
+          }
+          return;
+        }
+        var act = t.getAttribute && t.getAttribute("data-act");
+        if(act === "default" || act === "reset"){
+          ttcPathQColorApply(TTC_PATH_QCOLOR_DEFAULT, { force: true });
+          ttcPathQColorClosePanel(host);
+        }else if(act === "close"){
+          ttcPathQColorClosePanel(host);
+        }
+      });
+      var custom = panel.querySelector(".ttc-path-qcolor-custom");
+      if(custom){
+        custom.addEventListener("input", function(){
+          ttcPathQColorApply(custom.value);
+        });
+        custom.addEventListener("change", function(){
+          if(ttcPathQColorApply(custom.value)){
+            ttcPathQColorClosePanel(host);
+          }
+        });
+      }
+      ttcPathQColorApply(ttcPathQColorLoad(), { force: true });
+    }
+
     function askMeaning(store, level, entry, list, word, card, actions){
       var hosts = pathQuizHosts(card, actions);
       var hv = (typeof ttcHanVietName === "function") ? ttcHanVietName(word.h) : "";
@@ -198892,13 +199066,35 @@ function buildTtcHskPaper(pool, level, examNo, salt){
   #ttcDailyVocab h3{margin:0 0 4px;color:#9f1239;font-size:20px;padding-right:7rem}
   #ttcDailyVocab .ttc-daily-note,#ttcDailyVocab .ttc-daily-meaning{margin:4px 0;color:#64748b;font-size:14px}
   #ttcDailyVocab .ttc-path-quiz{margin-top:10px;text-align:left}
-  #ttcDailyVocab .ttc-path-q{margin:0 0 12px;padding:14px 14px 16px;border-radius:16px;background:linear-gradient(160deg,#0f766e 0%,#0d9488 55%,#115e59 100%);color:#fff;box-shadow:0 14px 0 #134e4a,0 22px 34px rgba(15,118,110,.3), inset 0 1px 0 rgba(255,255,255,.22);transform:translateZ(0)}
-  #ttcDailyVocab .ttc-path-q-label{margin:0 0 8px;font-size:15px;font-weight:800;letter-spacing:.02em;color:#ccfbf1}
-  #ttcDailyVocab .ttc-path-q-hint{margin:10px 0 0;font-size:13px;font-weight:700;color:#99f6e4}
-  #ttcDailyVocab .ttc-path-q-meaning{margin:0;font-size:22px;font-weight:800;line-height:1.45;color:#fff}
-  #ttcDailyVocab .ttc-daily-hanzi{display:block;font-size:56px;line-height:1.15;font-weight:800;color:#fff}
-  #ttcDailyVocab .ttc-path-q .ttc-han-viet{color:#a7f3d0;font-size:.55em;font-weight:700}
-  #ttcDailyVocab .ttc-daily-py{margin:8px 0 0;color:#99f6e4;font-size:20px;font-weight:800}
+  #ttcDailyVocab{--ttc-path-q-fg:#16803C;--ttc-path-q-bg:#f0fdf4}
+  #ttcDailyVocab .ttc-path-q{margin:0 0 12px;padding:14px 14px 16px;border-radius:16px;background:linear-gradient(160deg,#f0fdf4 0%,#ecfdf5 55%,#f8fafc 100%);color:var(--ttc-path-q-fg,#16803C);box-shadow:0 10px 0 #bbf7d0,0 18px 28px rgba(22,128,60,.12), inset 0 1px 0 rgba(255,255,255,.95);transform:translateZ(0);font-weight:800}
+  #ttcDailyVocab .ttc-path-q-label{margin:0 0 8px;font-size:15px;font-weight:800;letter-spacing:.02em;color:var(--ttc-path-q-fg,#16803C)}
+  #ttcDailyVocab .ttc-path-q-hint{margin:10px 0 0;font-size:13px;font-weight:700;color:var(--ttc-path-q-fg,#16803C);opacity:.88}
+  #ttcDailyVocab .ttc-path-q-meaning{margin:0;font-size:22px;font-weight:800;line-height:1.45;color:var(--ttc-path-q-fg,#16803C)}
+  #ttcDailyVocab .ttc-daily-hanzi{display:block;font-size:56px;line-height:1.15;font-weight:800;color:#0f172a}
+  #ttcDailyVocab .ttc-path-q .ttc-daily-hanzi{color:var(--ttc-path-q-fg,#16803C)}
+  #ttcDailyVocab .ttc-path-q .ttc-han-viet{color:var(--ttc-path-q-fg,#16803C);font-size:.55em;font-weight:700;opacity:.9}
+  #ttcDailyVocab .ttc-daily-py{margin:8px 0 0;color:#0f766e;font-size:20px;font-weight:800}
+  #ttcDailyVocab .ttc-path-q .ttc-daily-py{color:var(--ttc-path-q-fg,#16803C)}
+  #ttcDailyVocab .ttc-path-q .ttc-path-build{color:var(--ttc-path-q-fg,#16803C)}
+  #ttcDailyVocab .ttc-path-qcolor-bar{position:relative;margin:0 0 10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;z-index:4}
+  #ttcDailyVocab .ttc-path-qcolor-btn{border:2px solid #15803d;border-radius:12px;background:#fff;color:#14532d;font-weight:800;font-size:13px;padding:10px 14px;min-height:44px;cursor:pointer;box-shadow:0 2px 8px rgba(15,23,42,.08)}
+  #ttcDailyVocab .ttc-path-qcolor-btn[aria-expanded="true"]{background:#ecfdf5;border-color:#166534}
+  #ttcDailyVocab .ttc-path-qcolor-panel{width:100%;max-width:100%;box-sizing:border-box;margin:0;padding:12px;border:1px solid #bbf7d0;border-radius:14px;background:#fff;box-shadow:0 10px 28px rgba(15,23,42,.14);overflow:hidden}
+  #ttcDailyVocab .ttc-path-qcolor-title{margin:0 0 8px;font-size:13px;font-weight:800;color:#14532d}
+  #ttcDailyVocab .ttc-path-qcolor-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:10px;width:100%;box-sizing:border-box}
+  #ttcDailyVocab .ttc-path-qcolor-swatch{width:100%;aspect-ratio:1;min-height:44px;border:2px solid #cbd5e1;border-radius:12px;cursor:pointer;padding:0;box-sizing:border-box}
+  #ttcDailyVocab .ttc-path-qcolor-swatch.is-on{outline:3px solid #0f172a;outline-offset:2px;border-color:#0f172a}
+  #ttcDailyVocab .ttc-path-qcolor-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px}
+  #ttcDailyVocab .ttc-path-qcolor-hex{font-size:13px;font-weight:800;color:#334155;font-family:ui-monospace,Consolas,monospace}
+  #ttcDailyVocab .ttc-path-qcolor-custom{width:48px;height:44px;padding:0;border:2px solid #94a3b8;border-radius:12px;background:#fff;cursor:pointer}
+  #ttcDailyVocab .ttc-path-qcolor-warn{margin:8px 0 0;font-size:12px;font-weight:700;color:#b45309;line-height:1.4}
+  #ttcDailyVocab .ttc-path-qcolor-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  #ttcDailyVocab .ttc-path-qcolor-actions button{border:1px solid #94a3b8;border-radius:10px;background:#f8fafc;color:#0f172a;font-weight:800;font-size:12px;padding:10px 12px;min-height:42px;cursor:pointer}
+  @media (max-width:640px){
+    #ttcDailyVocab .ttc-path-qcolor-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+    #ttcDailyVocab .ttc-path-qcolor-btn{width:100%}
+  }
   #ttcDailyVocab .ttc-daily-sentence{margin:8px 0}
   #ttcDailyVocab .ttc-path-choices{display:flex;flex-direction:column;gap:10px;margin:0 0 12px;width:100%;box-sizing:border-box}
   #ttcDailyVocab .ttc-path-choice{display:flex;align-items:flex-start;gap:12px;width:100%;box-sizing:border-box;margin:0;padding:14px 14px;border:2px solid #94a3b8;border-radius:14px;background:#f8fafc;color:#0f172a;font-size:17px;font-weight:700;line-height:1.45;text-align:left;cursor:pointer}
@@ -198910,7 +199106,7 @@ function buildTtcHskPaper(pool, level, examNo, salt){
   #ttcDailyVocab .ttc-path-tiles{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;padding:10px;border:1px solid #cbd5e1;border-radius:14px;background:#fff}
   #ttcDailyVocab .ttc-daily-char{border:2px solid #64748b;background:#fff;color:#0f172a;border-radius:12px;font-size:28px;font-weight:800;margin:0;padding:10px 14px;cursor:pointer;min-width:48px;min-height:48px}
   #ttcDailyVocab .ttc-daily-char:disabled{opacity:.55;cursor:default}
-  #ttcDailyVocab .ttc-path-build{font-size:34px;font-weight:800;letter-spacing:.12em;margin:10px 0 0;color:#ecfdf5;min-height:1.2em}
+  #ttcDailyVocab .ttc-path-build{font-size:34px;font-weight:800;letter-spacing:.12em;margin:10px 0 0;color:var(--ttc-path-q-fg,#16803C);min-height:1.2em}
   #ttcDailyVocab .ttc-path-input{width:100%;box-sizing:border-box;border:2px solid #64748b;border-radius:14px;padding:14px 12px;font-size:17px;font-weight:700;color:#0f172a;background:#fff}
   #ttcDailyVocab .ttc-path-controls{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:4px 0 8px;padding:12px;border-radius:14px;background:#e2e8f0;border:1px solid #cbd5e1}
   #ttcDailyVocab .ttc-path-btn{border:0;border-radius:14px;font-weight:800;font-size:16px;padding:14px 18px;cursor:pointer;min-height:48px;min-width:120px}
