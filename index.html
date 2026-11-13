@@ -4093,11 +4093,11 @@ window.sendPaymentRequest = async function(){
   }
 
 
-  const data =
+  const planData =
     PLANS[selectedPlan];
 
 
-  if(!data){
+  if(!planData){
 
     if(status){
 
@@ -4286,6 +4286,20 @@ window.sendPaymentRequest = async function(){
 
 
   /* =====================================================
+     IN-FLIGHT LOCK — chỉ sau validation sớm
+  ===================================================== */
+
+  if(window.__ttcPaymentSubmitInFlight){
+
+    return;
+
+  }
+
+  window.__ttcPaymentSubmitInFlight =
+    true;
+
+
+  /* =====================================================
      HIỂN THỊ ĐANG GỬI
   ===================================================== */
 
@@ -4319,211 +4333,285 @@ window.sendPaymentRequest = async function(){
 
 
   /* =====================================================
-     GỬI SANG SUPABASE
-     
-     CÁC CỘT:
-     user_id
-     plan
-     amount
-     transfer_note
-     status
+     GỬI QUA RPC submit_payment_request
+     (không insert trực tiếp payment_requests)
   ===================================================== */
 
   try{
 
-    const { error } =
-      await window.supabase
-
-        .from(
-          "payment_requests"
-        )
-
-        .insert({
-
-          user_id:
-            window.currentUser.id,
-
-          plan:
+    const { data: rpcResult, error: rpcError } =
+      await window.supabase.rpc(
+        "submit_payment_request",
+        {
+          p_plan:
             dbPlan,
 
-          amount:
-            data.amount,
+          p_amount:
+            planData.amount,
 
-          transfer_note:
-            transferNote,
-
-          status:
-            "pending"
-
-        });
-
-
-    /* ===================================================
-       KIỂM TRA LỖI SUPABASE
-    =================================================== */
-
-    if(error){
-
-      console.error(
-        "❌ Payment request error:",
-        error
+          p_transfer_note:
+            transferNote
+        }
       );
 
-      throw error;
+
+    if(rpcError){
+
+      console.error(
+        "❌ Payment RPC error:",
+        rpcError
+      );
+
+      throw rpcError;
 
     }
 
 
-    /* ===================================================
-       🔔 GỬI THÔNG BÁO ADMIN QUA NTFY
-       
-       VERCEL → NTFY
-       
-       KHÔNG CÒN RESEND / GMAIL
-    =================================================== */
-
-    try {
-
-      const userEmail =
-        window.currentUser?.email ||
-        "Không rõ email";
+    const result =
+      rpcResult || {};
 
 
-      const userName =
-        window.currentUser?.user_metadata?.full_name ||
-        window.currentUser?.user_metadata?.name ||
-        "Thành viên";
+    /* success === false: nghiệp vụ bị chặn, không báo thành công */
+
+    if(result.success !== true){
+
+      if(
+        result.action ===
+          "blocked_existing_pending"
+      ){
+
+        if(status){
+
+          const planLabel =
+            String(
+              result.plan || ""
+            );
+
+          const amountLabel =
+            Number(
+              result.amount || 0
+            ).toLocaleString(
+              "vi-VN"
+            );
+
+          status.textContent =
+            "⏳ Đang có yêu cầu chờ xử lý. Gói: " +
+            planLabel +
+            " — " +
+            amountLabel +
+            " VNĐ. Vui lòng chờ Admin xác nhận trước khi chọn gói khác.";
+
+        }
+
+        if(sendButton){
+
+          sendButton.disabled =
+            true;
+
+          sendButton.textContent =
+            "⏳ ĐANG CHỜ XÁC NHẬN";
+
+        }
+
+        return;
+
+      }
 
 
-      /* =================================================
-         NỘI DUNG THÔNG BÁO
-      ================================================= */
+      if(
+        result.action ===
+          "blocked_multiple_pending"
+      ){
 
-      const notifyMessage =
-        "🔔 CÓ YÊU CẦU THANH TOÁN MỚI\n\n" +
-        "👤 Thành viên: " +
-          userName + "\n" +
-        "📧 Email: " +
-          userEmail + "\n" +
-        "📦 Gói: " +
-          data.name + "\n" +
-        "💰 Số tiền: " +
-          data.amount.toLocaleString("vi-VN") +
-          " VNĐ\n\n" +
-        "📝 Thông tin chuyển khoản:\n" +
-        transferNote;
+        if(status){
 
+          status.textContent =
+            "⚠️ Tài khoản đang có nhiều yêu cầu thanh toán chờ xử lý. Vui lòng liên hệ quản trị viên để kiểm tra. Không gửi thêm yêu cầu mới.";
 
-      /* =================================================
-         GỌI VERCEL
-      ================================================= */
+        }
 
-      const notifyResponse =
-             await fetch(
-              "/api/notify-admin", 
+        if(sendButton){
 
-          {
-            method: "POST",
+          sendButton.disabled =
+            true;
 
-            headers: {
-              "Content-Type":
-                "application/json"
-            },
+          sendButton.textContent =
+            "⏳ ĐANG CHỜ ADMIN";
 
-            body: JSON.stringify({
+        }
 
-              title:
-                "🔔 YÊU CẦU THANH TOÁN MỚI",
+        return;
 
-              message:
-                notifyMessage
-
-            })
-
-          }
-        );
+      }
 
 
-      /* =================================================
-         ĐỌC RESPONSE
-      ================================================= */
+      throw new Error(
+        result.message ||
+          "Không tạo được yêu cầu thanh toán."
+      );
 
-      const notifyText =
-        await notifyResponse.text();
+    }
 
 
-      let notifyResult = null;
+    /* success === true */
 
+    if(
+      result.action ===
+        "created"
+    ){
+
+      /* 🔔 Chỉ created mới gọi notify-admin.
+         Lỗi ntfy không làm mất kết quả DB. */
 
       try {
 
-        notifyResult =
-          JSON.parse(
-            notifyText
+        const userEmail =
+          window.currentUser?.email ||
+          "Không rõ email";
+
+
+        const userName =
+          window.currentUser?.user_metadata?.full_name ||
+          window.currentUser?.user_metadata?.name ||
+          "Thành viên";
+
+
+        const notifyMessage =
+          "🔔 CÓ YÊU CẦU THANH TOÁN MỚI\n\n" +
+          "👤 Thành viên: " +
+            userName + "\n" +
+          "📧 Email: " +
+            userEmail + "\n" +
+          "📦 Gói: " +
+            planData.name + "\n" +
+          "💰 Số tiền: " +
+            planData.amount.toLocaleString("vi-VN") +
+            " VNĐ\n" +
+          "🆔 Request: " +
+            String(
+              result.request_id ||
+                ""
+            ) +
+            "\n\n" +
+          "📝 Thông tin chuyển khoản:\n" +
+          transferNote;
+
+
+        const notifyResponse =
+          await fetch(
+            "/api/notify-admin",
+            {
+              method:
+                "POST",
+
+              headers: {
+                "Content-Type":
+                  "application/json"
+              },
+
+              body:
+                JSON.stringify({
+
+                  title:
+                    "🔔 YÊU CẦU THANH TOÁN MỚI",
+
+                  message:
+                    notifyMessage
+
+                })
+
+            }
           );
 
-      } catch {
 
-        notifyResult = {
-          raw:
-            notifyText
-        };
+        const notifyText =
+          await notifyResponse.text();
+
+
+        let notifyResult =
+          null;
+
+
+        try {
+
+          notifyResult =
+            JSON.parse(
+              notifyText
+            );
+
+        } catch {
+
+          notifyResult = {
+            raw:
+              notifyText
+          };
+
+        }
+
+
+        if(
+          !notifyResponse.ok ||
+          notifyResult?.ntfy !==
+            true
+        ){
+
+          console.error(
+            "❌ GỬI NTFY ADMIN THẤT BẠI:",
+            notifyResult
+          );
+
+          console.error(
+            "❌ HTTP STATUS:",
+            notifyResponse.status
+          );
+
+        } else {
+
+          console.log(
+            "✅ NTFY ADMIN ĐÃ NHẬN THÔNG BÁO:",
+            notifyResult
+          );
+
+        }
+
+
+      } catch(notifyError){
+
+        console.error(
+          "⚠️ KHÔNG GỌI ĐƯỢC API NTFY:",
+          notifyError
+        );
 
       }
 
 
-      /* =================================================
-         KIỂM TRA KẾT QUẢ NTFY
-      ================================================= */
+      if(status){
 
-      if(
-        !notifyResponse.ok ||
-        notifyResult?.ntfy !== true
-      ){
-
-        console.error(
-          "❌ GỬI NTFY ADMIN THẤT BẠI:",
-          notifyResult
-        );
-
-        console.error(
-          "❌ HTTP STATUS:",
-          notifyResponse.status
-        );
-
-      } else {
-
-        console.log(
-          "✅ NTFY ADMIN ĐÃ NHẬN THÔNG BÁO:",
-          notifyResult
-        );
+        status.textContent =
+          "⏳ Đang chờ xác nhận. Yêu cầu thanh toán đã được gửi thành công.";
 
       }
 
+    } else if(
+      result.action ===
+        "reused"
+    ){
 
-    } catch(notifyError){
+      /* reused: không gọi notify-admin */
 
-      /* =================================================
-         NTFY LỖI KHÔNG LÀM HỎNG YÊU CẦU THANH TOÁN
-      ================================================= */
+      if(status){
 
-      console.error(
-        "⚠️ KHÔNG GỌI ĐƯỢC API NTFY:",
-        notifyError
+        status.textContent =
+          "⏳ Yêu cầu thanh toán trước đó vẫn đang chờ Admin xử lý.";
+
+      }
+
+    } else {
+
+      throw new Error(
+        result.message ||
+          "Phản hồi thanh toán không hợp lệ."
       );
-
-    }
-
-
-    /* ===================================================
-       GỬI THÀNH CÔNG
-    =================================================== */
-
-    if(status){
-
-      status.innerHTML =
-        "⏳ <strong>Đang chờ xác nhận</strong><br>" +
-        "Yêu cầu thanh toán đã được gửi thành công.";
 
     }
 
@@ -4540,7 +4628,9 @@ window.sendPaymentRequest = async function(){
 
 
     console.log(
-      "✅ Yêu cầu thanh toán đã gửi thành công."
+      "✅ Payment RPC:",
+      result.action,
+      result.request_id
     );
 
 
@@ -4551,10 +4641,6 @@ window.sendPaymentRequest = async function(){
       error
     );
 
-
-    /* =================================================
-       CHO PHÉP THỬ LẠI
-    ================================================= */
 
     if(sendButton){
 
@@ -4569,11 +4655,15 @@ window.sendPaymentRequest = async function(){
 
     if(status){
 
-      status.innerHTML =
-        "❌ Gửi yêu cầu thất bại.<br>" +
-        "Vui lòng thử lại.";
+      status.textContent =
+        "❌ Gửi yêu cầu thất bại. Vui lòng thử lại.";
 
     }
+
+  }finally{
+
+    window.__ttcPaymentSubmitInFlight =
+      false;
 
   }
 
