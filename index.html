@@ -133155,6 +133155,17 @@ async function openVocabularyTestChooser(sourceButton){
       const level=Number(this.dataset.hsk);
       if(!level) return;
 
+      /* Phase 3D.1: xem bảng thành tích không đi qua đây; học/test HSK3–9 cần Premium/Trial. */
+      var allowed = true;
+      try{
+        if(typeof checkPremiumAccess === "function"){
+          allowed = !!(await checkPremiumAccess(level));
+        }
+      }catch(eAccess){
+        allowed = false;
+      }
+      if(!allowed) return;
+
       /* HSK được chọn riêng cho bài test, không đổi các khu học khác. */
       currentHSK=level;
       document.querySelectorAll(".wh-hsk-level").forEach(function(b){
@@ -168042,6 +168053,22 @@ async function ttcVocabMemoryRecord(opts){
   }
   if(!user){
     return { ok:false, status:"guest" };
+  }
+
+  /* Phase 3D.1: Free chỉ ghi HSK1–2; HSK3–9 cần Premium/Free Trial hợp lệ. Guest đã chặn ở trên. */
+  if(hskLevel >= 3){
+    var premiumOk = false;
+    try{
+      if(typeof hasPremiumAccess === "function"){
+        premiumOk = !!(await hasPremiumAccess());
+      }
+    }catch(ePrem){
+      premiumOk = false;
+    }
+    if(!premiumOk){
+      console.warn("ttcVocabMemoryRecord: premium_required for HSK", hskLevel);
+      return { ok:false, status:"premium_required" };
+    }
   }
 
   if(!slot){
