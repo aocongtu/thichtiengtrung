@@ -196497,14 +196497,14 @@ function buildTtcHskPaper(pool, level, examNo, salt){
         sfxBtn.id = "ttcPathSfxBtn";
         sfxBtn.className = "ttc-path-sfx-btn";
         sfxBtn.setAttribute("aria-label", "Bật tắt âm thanh game");
-        sfxBtn.textContent = pathSfx.muted ? "🔇 Âm thanh" : "🔊 Âm thanh";
+        sfxBtn.textContent = pathSfx.muted ? "🔇" : "🔊";
         sfxBtn.addEventListener("click", function(ev){
           if (ev) { ev.preventDefault(); ev.stopPropagation(); }
           var on = window.ttcPathSfxToggle();
-          sfxBtn.textContent = on ? "🔊 Âm thanh" : "🔇 Âm thanh";
+          sfxBtn.textContent = on ? "🔊" : "🔇";
         });
       } else {
-        sfxBtn.textContent = pathSfx.muted ? "🔇 Âm thanh" : "🔊 Âm thanh";
+        sfxBtn.textContent = pathSfx.muted ? "🔇" : "🔊";
       }
       if (sfxBtn.parentNode !== bar) bar.appendChild(sfxBtn);
       var volWrap = panelEl.querySelector("#ttcPathSfxVolWrap");
@@ -196513,7 +196513,7 @@ function buildTtcHskPaper(pool, level, examNo, salt){
         volWrap.id = "ttcPathSfxVolWrap";
         volWrap.className = "ttc-path-sfx-vol-wrap";
         volWrap.setAttribute("aria-label", "Âm lượng game lộ trình");
-        volWrap.innerHTML = "<span class='ttc-path-sfx-vol-lab'>Vol</span><input id='ttcPathSfxVol' class='ttc-path-sfx-vol' type='range' min='5' max='70' step='5' />";
+        volWrap.innerHTML = "<span class='ttc-path-sfx-vol-lab'>Vol−</span><input id='ttcPathSfxVol' class='ttc-path-sfx-vol' type='range' min='5' max='70' step='5' aria-label='Âm lượng' />";
         var volInput = volWrap.querySelector("#ttcPathSfxVol");
         if (volInput) {
           volInput.value = String(Math.round((pathSfx.vol || 0.32) * 100));
@@ -196534,7 +196534,7 @@ function buildTtcHskPaper(pool, level, examNo, salt){
         btn.id = "ttcPathFsExit";
         btn.className = "ttc-path-fs-exit";
         btn.setAttribute("aria-label", "Thoát toàn màn hình lộ trình");
-        btn.textContent = "✕ Thoát";
+        btn.textContent = "✕";
         btn.addEventListener("click", function(ev){
           if (ev) { ev.preventDefault(); ev.stopPropagation(); }
           exitPathFullscreen(false);
@@ -198226,9 +198226,21 @@ function buildTtcHskPaper(pool, level, examNo, salt){
   #ttcPathPanel.ttc-path-fs > h3{display:none !important}
   .ttc-path-fs-toolbar{display:none}
   #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar{
-    display:flex;position:sticky;top:0;z-index:8;gap:6px;justify-content:flex-end;align-items:center;
-    flex-wrap:wrap;padding:6px 8px;margin:0 0 10px;background:rgba(255,247,248,.97);
-    border:1px solid #fecdd3;border-radius:12px;box-shadow:0 4px 12px rgba(15,23,42,.08);
+    display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;
+    position:fixed;top:max(8px,env(safe-area-inset-top,0px));right:max(8px,env(safe-area-inset-right,0px));
+    z-index:1000055;gap:4px;width:auto;max-width:108px;padding:5px;margin:0;
+    background:rgba(255,247,248,.96);border:1px solid #fecdd3;border-radius:14px;
+    box-shadow:0 6px 18px rgba(15,23,42,.16);pointer-events:auto;
+  }
+  #ttcPathPanel.ttc-path-fs .ttc-path-game-hud{
+    padding-right:116px;box-sizing:border-box;
+  }
+  #ttcPathPanel.ttc-path-fs .ttc-path-quiz,
+  #ttcPathPanel.ttc-path-fs .ttc-daily-card,
+  #ttcPathPanel.ttc-path-fs .ttc-path-choices,
+  #ttcPathPanel.ttc-path-fs .ttc-path-controls,
+  #ttcPathPanel.ttc-path-fs .ttc-path-feedback-host{
+    position:relative;z-index:1;
   }
 
   #ttcPathPanel.ttc-path-panel[hidden]{display:none !important}
@@ -198246,21 +198258,23 @@ function buildTtcHskPaper(pool, level, examNo, salt){
   #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar .ttc-path-sfx-vol-wrap,
   #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar .ttc-path-fs-exit{
     position:static;float:none;display:inline-flex;align-items:center;justify-content:center;
-    margin:0;border-radius:10px;font-weight:800;font-size:11px;line-height:1.2;padding:7px 9px;cursor:pointer;
-    min-height:34px;box-shadow:none;
+    margin:0;width:100%;box-sizing:border-box;border-radius:10px;font-weight:800;font-size:15px;
+    line-height:1;padding:8px 6px;cursor:pointer;min-height:40px;min-width:40px;box-shadow:none;
   }
   #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar .ttc-path-sfx-btn{
     border:1px solid #0f766e;background:#ecfdf5;color:#065f46;
   }
   #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar .ttc-path-sfx-vol-wrap{
-    border:1px solid #99f6e4;background:#f0fdfa;color:#115e59;gap:4px;
+    border:1px solid #99f6e4;background:#f0fdfa;color:#115e59;gap:2px;flex-direction:column;
+    font-size:10px;padding:5px 6px;min-height:0;
   }
-  #ttcPathPanel.ttc-path-fs .ttc-path-sfx-vol{width:70px;accent-color:#0f766e;cursor:pointer}
+  #ttcPathPanel.ttc-path-fs .ttc-path-sfx-vol-lab{font-size:10px;font-weight:800;line-height:1}
+  #ttcPathPanel.ttc-path-fs .ttc-path-sfx-vol{width:84px;max-width:100%;accent-color:#0f766e;cursor:pointer;margin:0}
   #ttcDailyVocab .ttc-path-fb-memory{margin:0 0 8px;padding-left:1.2em;text-align:left;color:#14532d;font-weight:700;font-size:14px;line-height:1.45}
   #ttcDailyVocab .ttc-path-fb-memory li{margin:3px 0}
   .ttc-path-fs-exit{display:none}
   #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar .ttc-path-fs-exit{
-    border:1px solid #9f1239;background:#fff;color:#9f1239;
+    border:1px solid #9f1239;background:#fff;color:#9f1239;font-size:16px;
   }
   #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar .ttc-path-fs-exit:hover{background:#9f1239;color:#fff}
   #ttcDailyVocab .ttc-path-game-hud{
@@ -198362,11 +198376,18 @@ function buildTtcHskPaper(pool, level, examNo, salt){
     #ttcAchHost .ttc-ach-open,#ttcAchHost button{font-size:12px;padding:9px 8px;width:100%;box-sizing:border-box;white-space:normal;overflow-wrap:anywhere}
     .ttc-path-vault-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}
     .ttc-path-vault-tab{font-size:11px;padding:8px 6px}
-    #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar{gap:4px;padding:5px 6px}
+    #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar{
+      top:max(6px,env(safe-area-inset-top,0px));right:max(6px,env(safe-area-inset-right,0px));
+      gap:3px;padding:4px;max-width:92px;border-radius:12px;
+    }
     #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar .ttc-path-sfx-btn,
-    #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar .ttc-path-sfx-vol-wrap,
-    #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar .ttc-path-fs-exit{font-size:10px;padding:6px 7px;min-height:32px}
-    #ttcPathPanel.ttc-path-fs .ttc-path-sfx-vol{width:56px}
+    #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar .ttc-path-fs-exit{
+      font-size:16px;padding:7px 4px;min-height:40px;min-width:40px;
+    }
+    #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar .ttc-path-sfx-vol-wrap{padding:4px;min-height:0}
+    #ttcPathPanel.ttc-path-fs .ttc-path-sfx-vol{width:72px}
+    #ttcPathPanel.ttc-path-fs .ttc-path-game-hud{padding-right:100px}
+    #ttcPathPanel.ttc-path-fs .ttc-path-quiz{padding-right:0}
   }
   html[data-theme="night"] .ttc-path-vault,
   html[data-theme="night"] .ttc-path-badges{background:#111827;border-color:#4b5563}
