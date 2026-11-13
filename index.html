@@ -196003,7 +196003,7 @@ function buildTtcHskPaper(pool, level, examNo, salt){
         + "<div class='ttc-path-ach-row'>"
         +   "<div class='ttc-path-col'>"
         +     "<button type='button' id='ttcPathLauncher' class='ttc-path-launcher' aria-expanded='false' aria-controls='ttcPathPanel'>"
-        +       "🎮 BẮT ĐẦU HỌC TOÀN MÀN HÌNH"
+        +       "Học từ vựng theo lộ trình"
         +     "</button>"
         +     "<div id='ttcPathPanel' class='ttc-path-panel' hidden></div>"
         +   "</div>"
@@ -196058,25 +196058,75 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       if (pathSfx.muted) return;
       var c = pathSfxEnsure(); if (!c) return;
       try {
-        var t0 = c.currentTime;
+        var now = c.currentTime;
+        var t0 = Math.max(now, Number(pathSfx.nextAt) || 0);
+        var lastStop = t0;
         (freqs || [523]).forEach(function(f, i){
           var o = c.createOscillator();
           var g = c.createGain();
           o.type = type || "sine";
           o.frequency.setValueAtTime(f, t0 + i * 0.05);
-          g.gain.setValueAtTime(0.0001, t0);
-          g.gain.exponentialRampToValueAtTime(Math.max(0.001, pathSfx.vol), t0 + 0.02 + i * 0.02);
+          g.gain.setValueAtTime(0.0001, t0 + i * 0.05);
+          g.gain.exponentialRampToValueAtTime(Math.max(0.001, pathSfx.vol * 0.9), t0 + 0.02 + i * 0.02);
           g.gain.exponentialRampToValueAtTime(0.0001, t0 + (dur || 0.22) + i * 0.04);
           o.connect(g); g.connect(c.destination);
-          o.start(t0); o.stop(t0 + (dur || 0.22) + i * 0.06 + 0.05);
+          o.start(t0 + i * 0.05);
+          var stopAt = t0 + (dur || 0.22) + i * 0.06 + 0.05;
+          o.stop(stopAt);
+          if (stopAt > lastStop) lastStop = stopAt;
         });
+        pathSfx.nextAt = lastStop + 0.04;
       } catch (e2) {}
+    }
+    function pathSfxNoiseBurst(when, dur, peak){
+      if (pathSfx.muted) return;
+      var c = pathSfxEnsure(); if (!c) return;
+      try {
+        var len = Math.max(1, Math.floor(c.sampleRate * (dur || 0.08)));
+        var buf = c.createBuffer(1, len, c.sampleRate);
+        var data = buf.getChannelData(0);
+        for (var i = 0; i < len; i++) {
+          var env = Math.pow(1 - i / len, 2.2);
+          data[i] = (Math.random() * 2 - 1) * env;
+        }
+        var src = c.createBufferSource();
+        src.buffer = buf;
+        var bp = c.createBiquadFilter();
+        bp.type = "bandpass";
+        bp.frequency.value = 1400;
+        bp.Q.value = 0.85;
+        var g = c.createGain();
+        var t0 = Math.max(c.currentTime, Number(when) || c.currentTime);
+        g.gain.setValueAtTime(0.0001, t0);
+        g.gain.exponentialRampToValueAtTime(Math.max(0.001, (pathSfx.vol || 0.32) * (peak || 0.55)), t0 + 0.01);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + (dur || 0.08));
+        src.connect(bp); bp.connect(g); g.connect(c.destination);
+        src.start(t0); src.stop(t0 + (dur || 0.08) + 0.02);
+        pathSfx.nextAt = Math.max(Number(pathSfx.nextAt) || 0, t0 + (dur || 0.08) + 0.03);
+      } catch (eN) {}
+    }
+    function pathSfxClap(){
+      if (pathSfx.muted) return;
+      var c = pathSfxEnsure(); if (!c) return;
+      var t0 = Math.max(c.currentTime, Number(pathSfx.nextAt) || 0);
+      pathSfxNoiseBurst(t0, 0.07, 0.62);
+      pathSfxNoiseBurst(t0 + 0.09, 0.06, 0.5);
+      pathSfxNoiseBurst(t0 + 0.17, 0.08, 0.58);
+      pathSfxNoiseBurst(t0 + 0.28, 0.05, 0.4);
+    }
+    function pathSfxCheer(){
+      if (pathSfx.muted) return;
+      pathSfxTone([659.25, 783.99, 987.77, 1318.5], 0.22, "sawtooth");
+      pathSfxTone([523.25, 659.25, 880], 0.28, "triangle");
     }
     function pathSfxPlay(kind){
       if (pathSfx.muted) return;
-      if (kind === "win") pathSfxTone([523.25, 659.25, 783.99, 1046.5], 0.18, "triangle");
-      else if (kind === "xp") pathSfxTone([880, 1174.7], 0.14, "sine");
-      else if (kind === "lose") pathSfxTone([220, 185], 0.16, "sawtooth");
+      if (kind === "win") {
+        pathSfxTone([523.25, 659.25, 783.99, 1046.5], 0.2, "triangle");
+        pathSfxClap();
+        pathSfxCheer();
+      } else if (kind === "xp") pathSfxTone([880, 1174.7, 1318.5], 0.16, "sine");
+      else if (kind === "lose") pathSfxTone([330, 247, 196], 0.14, "square");
     }
     window.ttcPathSfxPlay = pathSfxPlay;
     window.ttcPathSfxToggle = function(force){
@@ -196086,6 +196136,17 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       return !pathSfx.muted;
     };
     try { pathSfx.muted = localStorage.getItem("ttcPathSfxMuted") === "1"; } catch (eL) {}
+    try {
+      var _volSaved = Number(localStorage.getItem("ttcPathSfxVol"));
+      if (_volSaved >= 0.05 && _volSaved <= 0.7) pathSfx.vol = _volSaved;
+    } catch (eV0) {}
+    window.ttcPathSfxSetVol = function(v){
+      var n = Number(v);
+      if (!(n >= 0.05 && n <= 0.7)) n = 0.32;
+      pathSfx.vol = n;
+      try { localStorage.setItem("ttcPathSfxVol", String(n)); } catch (eVs) {}
+      return pathSfx.vol;
+    };
     if (!window.__ttcPathFsEscBound) {
       window.__ttcPathFsEscBound = true;
       document.addEventListener("keydown", function(ev){
@@ -196130,6 +196191,26 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       } else {
         sfxBtn.textContent = pathSfx.muted ? "🔇 Âm thanh" : "🔊 Âm thanh";
       }
+      var volWrap = panelEl.querySelector("#ttcPathSfxVolWrap");
+      if (!volWrap) {
+        volWrap = document.createElement("label");
+        volWrap.id = "ttcPathSfxVolWrap";
+        volWrap.className = "ttc-path-sfx-vol-wrap";
+        volWrap.setAttribute("aria-label", "Âm lượng game lộ trình");
+        volWrap.innerHTML = "<span class='ttc-path-sfx-vol-lab'>Vol</span><input id='ttcPathSfxVol' class='ttc-path-sfx-vol' type='range' min='5' max='70' step='5' />";
+        panelEl.insertBefore(volWrap, panelEl.firstChild);
+        var volInput = volWrap.querySelector("#ttcPathSfxVol");
+        if (volInput) {
+          volInput.value = String(Math.round((pathSfx.vol || 0.32) * 100));
+          volInput.addEventListener("input", function(){
+            var pct = Number(volInput.value) || 32;
+            if (typeof window.ttcPathSfxSetVol === "function") window.ttcPathSfxSetVol(pct / 100);
+          });
+        }
+      } else {
+        var volInput2 = volWrap.querySelector("#ttcPathSfxVol");
+        if (volInput2) volInput2.value = String(Math.round((pathSfx.vol || 0.32) * 100));
+      }
       return btn;
     }
     function enterPathFullscreen(){
@@ -196154,7 +196235,7 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       if (alsoCollapse && panelEl && launcherEl) {
         launcherEl.setAttribute("aria-expanded", "false");
         panelEl.hidden = true;
-        launcherEl.textContent = "🎮 BẮT ĐẦU HỌC TOÀN MÀN HÌNH";
+        launcherEl.textContent = "Học từ vựng theo lộ trình";
       }
       if (wasOpen) {
         requestAnimationFrame(function(){
@@ -196615,7 +196696,9 @@ function buildTtcHskPaper(pool, level, examNo, salt){
         score.classList.add("ttc-path-score-flash");
       }
       if (!delta) return;
-      if (delta > 0 && typeof window.ttcPathSfxPlay === "function") window.ttcPathSfxPlay("xp");
+      if (delta > 0 && typeof window.ttcPathSfxPlay === "function") {
+        setTimeout(function(){ window.ttcPathSfxPlay("xp"); }, 260);
+      }
       var fromEl = box.querySelector(".ttc-path-feedback") || box.querySelector(".ttc-path-choices") || box.querySelector(".ttc-path-quiz") || box;
       var toEl = xpCard || xpVal || score || box;
       var from = fromEl.getBoundingClientRect ? fromEl.getBoundingClientRect() : { left: 0, top: 0, width: 40, height: 20 };
@@ -196669,7 +196752,46 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       }
       return "Chưa khớp. Hãy ôn lại từ này trên flashcard rồi sang câu tiếp theo.";
     }
-    function pathShowFeedback(host, ok, answerLabel, explain){
+﻿    function pathSpawnFx(panel, kind){
+      if (!panel) return;
+      var reduce = false;
+      try { reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (eR) {}
+      if (reduce) return;
+      var layer = document.createElement("div");
+      layer.className = kind === "win" ? "ttc-path-fx-win" : "ttc-path-fx-lose";
+      layer.setAttribute("aria-hidden", "true");
+      var n = kind === "win" ? 18 : 6;
+      var hues = ["#fb7185", "#f472b6", "#fbbf24", "#34d399", "#60a5fa", "#c084fc", "#fff"];
+      for (var i = 0; i < n; i++) {
+        var p = document.createElement("span");
+        p.className = "ttc-path-fx-dot" + (kind === "win" ? " ttc-path-fx-spark" : "");
+        p.style.setProperty("--dx", ((Math.random() * 200) - 100).toFixed(1) + "px");
+        p.style.setProperty("--dy", ((Math.random() * -160) - 24).toFixed(1) + "px");
+        p.style.setProperty("--delay", (Math.random() * 0.22).toFixed(2) + "s");
+        if (kind === "win") p.style.background = hues[i % hues.length];
+        layer.appendChild(p);
+      }
+      panel.appendChild(layer);
+      setTimeout(function(){
+        if (layer.parentNode) layer.parentNode.removeChild(layer);
+      }, 1300);
+    }
+    function pathSpeakHanzi(text){
+      var h = String(text || "").trim();
+      if (!h) return;
+      if (typeof window.ttcSpeakText === "function") {
+        window.ttcSpeakText(h, "zh");
+        return;
+      }
+      if (!window.speechSynthesis) return;
+      try {
+        var u = new SpeechSynthesisUtterance(h);
+        u.lang = "zh-CN";
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(u);
+      } catch (eS) {}
+    }
+    function pathShowFeedback(host, ok, answerLabel, explain, word, letter){
       var panel = host.querySelector(".ttc-path-feedback");
       if (!panel) {
         panel = document.createElement("div");
@@ -196677,28 +196799,174 @@ function buildTtcHskPaper(pool, level, examNo, salt){
         host.appendChild(panel);
       }
       panel.className = "ttc-path-feedback " + (ok ? "ttc-path-feedback-ok ttc-path-feedback-win" : "ttc-path-feedback-bad");
+      if (ok) panel.classList.add("ttc-path-feedback-3d");
+      else panel.classList.add("ttc-path-feedback-shake");
       panel.innerHTML = "";
+      var quizRoot = host && host.closest ? host.closest(".ttc-path-quiz") : null;
+      if (quizRoot) {
+        if (ok) {
+          quizRoot.classList.add("ttc-path-quiz-won");
+          var qCard = quizRoot.querySelector(".ttc-daily-card");
+          var qChoices = quizRoot.querySelector(".ttc-path-choices");
+          if (qCard) { qCard.hidden = true; qCard.setAttribute("aria-hidden", "true"); }
+          if (qChoices) { qChoices.hidden = true; qChoices.setAttribute("aria-hidden", "true"); }
+        } else {
+          quizRoot.classList.remove("ttc-path-quiz-won");
+          var qCard2 = quizRoot.querySelector(".ttc-daily-card");
+          var qChoices2 = quizRoot.querySelector(".ttc-path-choices");
+          if (qCard2) { qCard2.hidden = false; qCard2.removeAttribute("aria-hidden"); }
+          if (qChoices2) { qChoices2.hidden = false; qChoices2.removeAttribute("aria-hidden"); }
+        }
+      }
       if (ok) {
         var glow = document.createElement("span");
         glow.className = "ttc-path-win-glow";
         glow.setAttribute("aria-hidden", "true");
         panel.appendChild(glow);
+        pathSpawnFx(panel, "win");
+        if (typeof window.ttcPathSfxPlay === "function") window.ttcPathSfxPlay("win");
+      } else {
+        pathSpawnFx(panel, "lose");
+        if (typeof window.ttcPathSfxPlay === "function") window.ttcPathSfxPlay("lose");
       }
       var title = document.createElement("p");
       title.className = "ttc-path-feedback-title";
-      title.textContent = ok ? "Chúc mừng! Chính xác!" : "Chưa chính xác!";
+      title.textContent = ok ? "🎉 CHÚC MỪNG! CHÍNH XÁC!" : "Chưa chính xác — hãy thử lại!";
       panel.appendChild(title);
-      if (ok && answerLabel) {
-        var ans = document.createElement("p");
-        ans.className = "ttc-path-feedback-answer";
-        ans.textContent = "Đáp án đúng: " + answerLabel;
-        panel.appendChild(ans);
-      }
-      if (ok) {
-        var ex = document.createElement("p");
-        ex.className = "ttc-path-feedback-explain";
-        ex.textContent = explain || "";
-        panel.appendChild(ex);
+      if (ok && word) {
+        var hanziSnap = String(word.h || "");
+        var pinyinSnap = String(word.p || "").trim();
+        var meaningSnap = String(word.m || "").trim();
+        var han = document.createElement("p");
+        han.className = "ttc-path-fb-hanzi";
+        han.textContent = hanziSnap;
+        panel.appendChild(han);
+        if (pinyinSnap) {
+          var py = document.createElement("p");
+          py.className = "ttc-path-fb-pinyin";
+          py.textContent = "Pinyin: " + pinyinSnap;
+          panel.appendChild(py);
+        }
+        if (meaningSnap) {
+          var mean = document.createElement("p");
+          mean.className = "ttc-path-fb-meaning";
+          mean.textContent = "Nghĩa tiếng Việt: " + meaningSnap;
+          panel.appendChild(mean);
+        }
+        var actions = document.createElement("div");
+        actions.className = "ttc-path-fb-actions";
+        var btnSpeak = document.createElement("button");
+        btnSpeak.type = "button";
+        btnSpeak.className = "ttc-path-fb-btn";
+        btnSpeak.textContent = "🔊 NGHE PHÁT ÂM";
+        btnSpeak.addEventListener("click", function(ev){
+          if (ev) { ev.preventDefault(); ev.stopPropagation(); }
+          pathSpeakHanzi(hanziSnap);
+        });
+        var btnReplay = document.createElement("button");
+        btnReplay.type = "button";
+        btnReplay.className = "ttc-path-fb-btn";
+        btnReplay.textContent = "🔁 Nghe lại";
+        btnReplay.addEventListener("click", function(ev){
+          if (ev) { ev.preventDefault(); ev.stopPropagation(); }
+          pathSpeakHanzi(hanziSnap);
+        });
+        var btnCopy = document.createElement("button");
+        btnCopy.type = "button";
+        btnCopy.className = "ttc-path-fb-btn";
+        btnCopy.textContent = "📋 Chép lại chữ Hán";
+        btnCopy.addEventListener("click", function(ev){
+          if (ev) { ev.preventDefault(); ev.stopPropagation(); }
+          var txt = hanziSnap;
+          function done(okCopy){
+            btnCopy.textContent = okCopy ? "✅ Đã chép" : "📋 Chép lại chữ Hán";
+            if (okCopy) setTimeout(function(){ btnCopy.textContent = "📋 Chép lại chữ Hán"; }, 1200);
+          }
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(txt).then(function(){ done(true); }).catch(function(){ done(false); });
+          } else {
+            try {
+              var ta = document.createElement("textarea");
+              ta.value = txt; document.body.appendChild(ta); ta.select();
+              document.execCommand("copy");
+              document.body.removeChild(ta);
+              done(true);
+            } catch (eC) { done(false); }
+          }
+        });
+        actions.appendChild(btnSpeak);
+        actions.appendChild(btnReplay);
+        actions.appendChild(btnCopy);
+        panel.appendChild(actions);
+        var expText = String(explain || word.explanation || "").trim();
+        if (expText) {
+          var exTitle = document.createElement("p");
+          exTitle.className = "ttc-path-fb-section";
+          exTitle.textContent = "📖 GIẢI THÍCH:";
+          panel.appendChild(exTitle);
+          var ex = document.createElement("p");
+          ex.className = "ttc-path-feedback-explain";
+          ex.textContent = expText;
+          panel.appendChild(ex);
+        }
+        var memLines = [];
+        var wordsArr = (typeof words !== "undefined" && Array.isArray(words)) ? words : (window.words || []);
+        var seenCh = Object.create(null);
+        for (var chi = 0; chi < hanziSnap.length; chi++) {
+          var chOne = hanziSnap.charAt(chi);
+          if (seenCh[chOne] || !/[\u4e00-\u9fff]/.test(chOne)) continue;
+          seenCh[chOne] = true;
+          var hitCh = null;
+          for (var wi = 0; wi < wordsArr.length; wi++) {
+            if (wordsArr[wi] && wordsArr[wi].h === chOne && wordsArr[wi].m) { hitCh = wordsArr[wi]; break; }
+          }
+          if (hitCh) memLines.push(chOne + ": " + String(hitCh.m).trim());
+        }
+        var comps = String(word.components || "").trim();
+        if (comps) memLines.push("Cấu tạo: " + comps);
+        if (hanziSnap && meaningSnap) memLines.push(hanziSnap + ": " + meaningSnap);
+        if (memLines.length) {
+          var memTitle = document.createElement("p");
+          memTitle.className = "ttc-path-fb-section";
+          memTitle.textContent = "🧠 GHI NHỚ:";
+          panel.appendChild(memTitle);
+          var memList = document.createElement("ul");
+          memList.className = "ttc-path-fb-memory";
+          memLines.forEach(function(line){
+            var li = document.createElement("li");
+            li.textContent = line;
+            memList.appendChild(li);
+          });
+          panel.appendChild(memList);
+        }
+        var eg = String(word.example || "").trim();
+        if (eg) {
+          var egTitle = document.createElement("p");
+          egTitle.className = "ttc-path-fb-section";
+          egTitle.textContent = "✏️ VÍ DỤ:";
+          panel.appendChild(egTitle);
+          var egZh = document.createElement("p");
+          egZh.className = "ttc-path-fb-example";
+          egZh.textContent = eg;
+          panel.appendChild(egZh);
+          if (word.examplePinyin) {
+            var egPy = document.createElement("p");
+            egPy.className = "ttc-path-fb-pinyin";
+            egPy.textContent = String(word.examplePinyin);
+            panel.appendChild(egPy);
+          }
+          if (word.exampleMeaning) {
+            var egVi = document.createElement("p");
+            egVi.className = "ttc-path-feedback-explain";
+            egVi.textContent = String(word.exampleMeaning);
+            panel.appendChild(egVi);
+          }
+        }
+      } else if (ok && explain) {
+        var ex2 = document.createElement("p");
+        ex2.className = "ttc-path-feedback-explain";
+        ex2.textContent = explain;
+        panel.appendChild(ex2);
       }
       var badge = document.createElement("span");
       badge.className = "ttc-path-xp-badge";
@@ -196707,6 +196975,7 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       panel.hidden = false;
       return panel;
     }
+
     function pathMountStepControls(hosts, cfg){
       var phase = "A";
       var solved = false;
@@ -196778,11 +197047,13 @@ function buildTtcHskPaper(pool, level, examNo, salt){
             feedbackHost,
             true,
             cfg.answerLabel(),
-            pathExplainOk(cfg.word)
+            pathExplainOk(cfg.word),
+            cfg.word,
+            typeof cfg.answerLetter === "function" ? cfg.answerLetter() : ""
           );
         } else {
           pathGradeXp(cfg.store, cfg.level, cfg.entry, false);
-          pathShowFeedback(feedbackHost, false, "", "");
+          pathShowFeedback(feedbackHost, false, "", "", cfg.word, "");
           phase = "A";
           if (typeof cfg.onWrongRetry === "function") cfg.onWrongRetry();
         }
@@ -196876,21 +197147,82 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       if (!correct) return [];
       var seen = Object.create(null);
       seen[pathNormMeaning(correct)] = true;
-      var sameType = [];
-      var other = [];
+      var targetLen = correct.length;
+      function meaningTokens(s){
+        return pathNormMeaning(s).split(/[\s,;\/·\-–—]+/).filter(function(t){ return t.length >= 2; });
+      }
+      var correctTokens = meaningTokens(correct);
+      var correctSenses = (correct.match(/;/g) || []).length;
+      function scoreDistractor(item, m){
+        var s = 0;
+        var lenDiff = Math.abs(String(m).length - targetLen);
+        s += Math.max(0, 40 - lenDiff * 4);
+        var mt = meaningTokens(m);
+        var share = 0;
+        for (var ti = 0; ti < correctTokens.length; ti++) {
+          if (mt.indexOf(correctTokens[ti]) >= 0) share++;
+        }
+        s += share * 30;
+        if (word.t && item.t) {
+          var wt = String(word.t).split(/[\/|,]/)[0].trim();
+          var it = String(item.t).split(/[\/|,]/)[0].trim();
+          if (wt && it && wt === it) s += 24;
+          else if (word.t && item.t && String(word.t) === String(item.t)) s += 18;
+        }
+        if (word.hsk && item.hsk && Number(item.hsk) === Number(word.hsk)) s += 10;
+        var wh = String(word.h || "");
+        var ih = String(item.h || "");
+        var sharedHan = false;
+        if (wh && ih) {
+          for (var ci = 0; ci < wh.length; ci++) {
+            var ch = wh.charAt(ci);
+            if (/[\u4e00-\u9fff]/.test(ch) && ih.indexOf(ch) >= 0) { sharedHan = true; s += 18; break; }
+          }
+        }
+        var senseM = (m.match(/;/g) || []).length;
+        if (senseM > correctSenses + 1) s -= 14;
+        if (share === 0 && !sharedHan && lenDiff > 5) s -= 10;
+        if (lenDiff <= 3) s += 6;
+        return s;
+      }
+      var pool = [];
       shuffle(list.slice()).forEach(function(item){
         if (!item || !item.m) return;
-        if (item.h === word.h && pathNormMeaning(item.m) === pathNormMeaning(correct)) return;
+        if (item.h === word.h) return;
         var m = String(item.m).trim();
         var key = pathNormMeaning(m);
         if (!key || seen[key]) return;
+        if (Math.abs(m.length - targetLen) > 10) return;
+        if (m.length > targetLen * 2.2 + 6 || m.length + 6 < targetLen * 0.4) return;
         seen[key] = true;
-        if (word.t && item.t && String(item.t) === String(word.t)) sameType.push(m);
-        else other.push(m);
+        pool.push({ m: m, score: scoreDistractor(item, m), len: m.length });
       });
-      var picks = sameType.concat(other);
+      pool.sort(function(a, b){ return b.score - a.score || Math.abs(a.len - targetLen) - Math.abs(b.len - targetLen); });
       var options = [correct];
-      for (var i = 0; i < picks.length && options.length < 5; i++) options.push(picks[i]);
+      var usedFirst = Object.create(null);
+      function takeFrom(minScore, requireRelate){
+        for (var i = 0; i < pool.length && options.length < 5; i++) {
+          var cand = pool[i];
+          if (!cand || cand._used) continue;
+          if (cand.score < minScore) continue;
+          var mt = meaningTokens(cand.m);
+          var related = false;
+          for (var j = 0; j < correctTokens.length; j++) if (mt.indexOf(correctTokens[j]) >= 0) { related = true; break; }
+          if (requireRelate && !related && cand.score < 55) continue;
+          var ft = mt[0] || "";
+          if (ft && usedFirst[ft] && options.length < 4) continue;
+          cand._used = true;
+          if (ft) usedFirst[ft] = true;
+          options.push(cand.m);
+        }
+      }
+      takeFrom(40, true);
+      takeFrom(18, false);
+      for (var k = 0; k < pool.length && options.length < 5; k++) {
+        if (pool[k]._used) continue;
+        pool[k]._used = true;
+        options.push(pool[k].m);
+      }
       return options;
     }
     function askMeaning(store, level, entry, list, word, card, actions){
@@ -196915,6 +197247,12 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       }
       qBox.appendChild(qLab);
       qBox.appendChild(qHan);
+      if (word.p) {
+        var qPy = document.createElement("p");
+        qPy.className = "ttc-daily-py";
+        qPy.textContent = String(word.p);
+        qBox.appendChild(qPy);
+      }
       card.appendChild(qBox);
 
       if (options.length < 4) {
@@ -196952,12 +197290,14 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       var lockedPick = false;
       var letters = ["A", "B", "C", "D", "E"];
       var choiceButtons = [];
+      var letterByMeaning = Object.create(null);
       var stepsMcq = pathMountStepControls(hosts, {
         store: store, level: level, entry: entry, word: word,
         memoryMode: "path_ask_meaning",
         isReady: function(){ return selected != null; },
         isCorrect: function(){ return selected === word.m; },
         answerLabel: function(){ return String(word.m || ""); },
+        answerLetter: function(){ return letterByMeaning[pathNormMeaning(word.m)] || ""; },
         lockAll: function(){
           lockedPick = true;
           choiceButtons.forEach(function(el){ el.disabled = true; });
@@ -196973,13 +197313,22 @@ function buildTtcHskPaper(pool, level, examNo, salt){
             el.disabled = false;
             el.classList.remove("ttc-path-choice-on");
           });
+          var quiz = hosts.choices.closest ? hosts.choices.closest(".ttc-path-quiz") : null;
+          if (quiz) {
+            quiz.classList.remove("ttc-path-quiz-shake");
+            void quiz.offsetWidth;
+            quiz.classList.add("ttc-path-quiz-shake");
+            setTimeout(function(){ quiz.classList.remove("ttc-path-quiz-shake"); }, 450);
+          }
         }
       });
       shuffle(options).forEach(function(meaning, idx){
         var button = document.createElement("button");
         button.type = "button";
-        button.className = "ttc-path-choice";
+        button.className = "ttc-path-choice ttc-path-choice-3d";
         button.setAttribute("data-meaning", meaning);
+        button.setAttribute("data-letter", letters[idx]);
+        letterByMeaning[pathNormMeaning(meaning)] = letters[idx];
         button.innerHTML = "<span class='ttc-path-choice-key'>" + letters[idx] + "</span><span class='ttc-path-choice-text'>" + esc(meaning) + "</span>";
         button.addEventListener("click", function(){
           if (lockedPick || stepsMcq.isSolved() || selected != null) return;
@@ -197167,8 +197516,32 @@ function buildTtcHskPaper(pool, level, examNo, salt){
   .ttc-path-ach-row{display:grid;grid-template-columns:1fr;align-items:stretch;gap:12px;width:100%;box-sizing:border-box}
   .ttc-path-col,.ttc-ach-col{min-width:0;max-width:100%;width:auto;box-sizing:border-box}
   #ttcAchHost.ttc-ach-host{width:100%;box-sizing:border-box;overflow-x:hidden;text-align:left}
-  #ttcPathLauncher.ttc-path-launcher{display:block;width:100%;box-sizing:border-box;border:1px solid #fecdd3;border-radius:14px;background:#fff;color:#9f1239;font-weight:800;font-size:15px;padding:12px 14px;cursor:pointer;text-align:center;box-shadow:0 4px 12px rgba(159,18,57,.08)}
-  #ttcPathLauncher.ttc-path-launcher[aria-expanded="true"]{background:#9f1239;color:#fff;border-color:#9f1239}
+  #ttcPathLauncher.ttc-path-launcher{
+    display:block;width:100%;box-sizing:border-box;border:0;border-radius:14px;
+    background:linear-gradient(90deg,#ef4444,#f97316,#eab308,#22c55e,#06b6d4,#3b82f6,#a855f7,#ef4444);
+    background-size:300% 100%;
+    color:#fff;font-weight:900;font-size:15px;padding:12px 14px;cursor:pointer;text-align:center;
+    text-shadow:0 1px 2px rgba(15,23,42,.55);
+    box-shadow:0 6px 0 rgba(15,23,42,.18),0 10px 22px rgba(15,23,42,.16);
+    animation:ttcPathRainbowShift 4.5s linear infinite, ttcPathSoftBlink 1.8s ease-in-out infinite;
+    transform:translateZ(0);transition:transform .12s ease, box-shadow .12s ease, filter .12s ease;
+  }
+  #ttcPathLauncher.ttc-path-launcher:hover{filter:brightness(1.06);box-shadow:0 7px 0 rgba(15,23,42,.2),0 14px 26px rgba(15,23,42,.2)}
+  #ttcPathLauncher.ttc-path-launcher:active{transform:translateY(3px);box-shadow:0 3px 0 rgba(15,23,42,.18),0 6px 14px rgba(15,23,42,.16)}
+  #ttcPathLauncher.ttc-path-launcher[aria-expanded="true"]{
+    animation:ttcPathRainbowShift 6s linear infinite;
+    background:linear-gradient(90deg,#be123c,#db2777,#7c3aed,#2563eb,#be123c);
+    background-size:240% 100%;
+    color:#fff;border:0;
+  }
+  @keyframes ttcPathRainbowShift{
+    0%{background-position:0% 50%}
+    100%{background-position:100% 50%}
+  }
+  @keyframes ttcPathSoftBlink{
+    0%,100%{opacity:1}
+    50%{opacity:.88}
+  }
   #ttcPathPanel.ttc-path-panel{margin-top:8px}
   #ttcPathPanel.ttc-path-panel[hidden]{display:none !important}
   body.ttc-path-fs-lock{overflow:hidden !important;overscroll-behavior:none !important}
@@ -197180,6 +197553,20 @@ function buildTtcHskPaper(pool, level, examNo, salt){
     box-sizing:border-box !important;box-shadow:none !important;
   }
   #ttcPathPanel.ttc-path-fs #ttcDailyVocab{max-width:min(1100px,100%);margin-left:auto;margin-right:auto}
+  .ttc-path-sfx-btn,.ttc-path-sfx-vol-wrap{display:none}
+  #ttcPathPanel.ttc-path-fs .ttc-path-sfx-btn{
+    position:sticky;top:0;z-index:6;display:inline-flex;align-items:center;justify-content:center;
+    margin:0 8px 10px 0;float:right;border:2px solid #0f766e;border-radius:12px;
+    background:#ecfdf5;color:#065f46;font-weight:800;font-size:13px;padding:10px 12px;cursor:pointer;
+  }
+  #ttcPathPanel.ttc-path-fs .ttc-path-sfx-vol-wrap{
+    position:sticky;top:0;z-index:6;display:inline-flex;align-items:center;gap:6px;
+    margin:0 8px 10px 0;float:right;border:2px solid #99f6e4;border-radius:12px;
+    background:#f0fdfa;color:#115e59;font-weight:800;font-size:12px;padding:6px 10px;
+  }
+  #ttcPathPanel.ttc-path-fs .ttc-path-sfx-vol{width:88px;accent-color:#0f766e;cursor:pointer}
+  #ttcDailyVocab .ttc-path-fb-memory{margin:0 0 8px;padding-left:1.2em;text-align:left;color:#14532d;font-weight:700;font-size:14px;line-height:1.45}
+  #ttcDailyVocab .ttc-path-fb-memory li{margin:3px 0}
   .ttc-path-fs-exit{display:none}
   #ttcPathPanel.ttc-path-fs .ttc-path-fs-exit{
     position:sticky;top:0;z-index:6;display:inline-flex;align-items:center;justify-content:center;
@@ -197188,6 +197575,82 @@ function buildTtcHskPaper(pool, level, examNo, salt){
     box-shadow:0 4px 14px rgba(15,23,42,.12);
   }
   #ttcPathPanel.ttc-path-fs .ttc-path-fs-exit:hover{background:#9f1239;color:#fff}
+  #ttcDailyVocab .ttc-path-game-hud{
+    margin:0 0 12px;padding:12px 14px;border-radius:16px;
+    background:linear-gradient(145deg,#0f766e 0%,#115e59 45%,#134e4a 100%);
+    color:#ecfdf5;box-shadow:0 10px 28px rgba(15,118,110,.28), inset 0 1px 0 rgba(255,255,255,.18);
+    text-align:left;transform:translateZ(0);
+  }
+  #ttcDailyVocab .ttc-path-game-hud-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  #ttcDailyVocab .ttc-path-game-title{font-size:15px;letter-spacing:.04em}
+  #ttcDailyVocab .ttc-path-game-pill{
+    display:inline-flex;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.14);
+    font-size:12px;font-weight:800;
+  }
+  #ttcDailyVocab .ttc-path-hud-xp{background:#fef08a;color:#854d0e}
+  #ttcDailyVocab .ttc-path-game-progress{height:10px;margin:10px 0 6px;border-radius:99px;background:rgba(255,255,255,.2);overflow:hidden}
+  #ttcDailyVocab .ttc-path-game-progress span{display:block;height:100%;background:linear-gradient(90deg,#fde047,#4ade80);border-radius:99px}
+  #ttcDailyVocab .ttc-path-game-meta{font-size:12px;font-weight:700;opacity:.92}
+  #ttcDailyVocab .ttc-path-choice-3d{
+    transform:translateY(0) translateZ(0);
+    box-shadow:0 7px 0 #475569,0 12px 22px rgba(15,23,42,.16), inset 0 1px 0 rgba(255,255,255,.65);
+    transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease, background .12s ease;
+  }
+  #ttcDailyVocab .ttc-path-choice-3d:hover{transform:translateY(-1px)}
+  #ttcDailyVocab .ttc-path-choice-3d:active{transform:translateY(5px);box-shadow:0 2px 0 #475569,0 4px 10px rgba(15,23,42,.14)}
+  #ttcDailyVocab .ttc-path-choice-on.ttc-path-choice-3d{
+    box-shadow:0 7px 0 #5b21b6,0 0 0 3px rgba(167,139,250,.55),0 14px 26px rgba(109,40,217,.25), inset 0 1px 0 rgba(255,255,255,.5);
+  }
+  #ttcDailyVocab .ttc-path-fb-hanzi{margin:8px 0 4px;font-size:44px;line-height:1.15;font-weight:900;color:#14532d;text-align:center;position:relative;z-index:1;text-shadow:none;filter:none}
+  #ttcDailyVocab .ttc-path-fb-pinyin{margin:0 0 4px;font-size:16px;font-weight:800;color:#166534;text-align:center;position:relative;z-index:1;text-shadow:none;filter:none}
+  #ttcDailyVocab .ttc-path-fb-meaning{margin:0 0 8px;font-size:16px;font-weight:800;color:#14532d;text-align:center;position:relative;z-index:1;text-shadow:none;filter:none}
+  #ttcDailyVocab .ttc-path-fb-section{margin:10px 0 4px;font-size:13px;font-weight:900;color:#166534;position:relative;z-index:1;text-shadow:none;filter:none}
+  #ttcDailyVocab .ttc-path-fb-example{margin:0;font-size:17px;font-weight:800;color:#14532d;position:relative;z-index:1;text-shadow:none;filter:none}
+  #ttcDailyVocab .ttc-path-fb-actions{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0;position:relative;z-index:1}
+  #ttcDailyVocab .ttc-path-fb-btn{
+    border:1px solid #86efac;border-radius:12px;background:#166534;color:#fff;font-weight:800;font-size:13px;
+    padding:10px 12px;cursor:pointer;box-shadow:0 3px 0 #14532d;
+  }
+  #ttcDailyVocab .ttc-path-fb-btn:active{transform:translateY(2px);box-shadow:0 1px 0 #14532d}
+  #ttcDailyVocab .ttc-path-feedback-3d{transform:none;animation:none}
+  @keyframes ttcPathWinPop{
+    0%{opacity:0;transform:perspective(900px) translateY(12px) scale(.96)}
+    100%{opacity:1;transform:perspective(900px) translateY(0) scale(1)}
+  }
+  #ttcDailyVocab .ttc-path-feedback-shake,#ttcDailyVocab .ttc-path-quiz-shake{animation:ttcPathShake .42s ease}
+  #ttcDailyVocab .ttc-path-fx-win,#ttcDailyVocab .ttc-path-fx-lose{
+    position:absolute;left:50%;top:30%;width:0;height:0;pointer-events:none;z-index:2;
+  }
+  #ttcDailyVocab .ttc-path-fx-dot{
+    position:absolute;width:8px;height:8px;border-radius:50%;
+    background:radial-gradient(circle,#fde047,#f97316);
+    animation:ttcPathBurst .95s ease forwards;animation-delay:var(--delay,0s);
+  }
+  #ttcDailyVocab .ttc-path-fx-lose .ttc-path-fx-dot{background:radial-gradient(circle,#fdba74,#ea580c)}
+  @keyframes ttcPathBurst{
+    0%{transform:translate(0,0) scale(.4);opacity:1}
+    100%{transform:translate(var(--dx),var(--dy)) scale(1);opacity:0}
+  }
+  @keyframes ttcPathShake{
+    0%,100%{transform:translateX(0)}
+    25%{transform:translateX(-6px)}
+    50%{transform:translateX(6px)}
+    75%{transform:translateX(-4px)}
+  }
+  @media (prefers-reduced-motion: reduce){
+    #ttcDailyVocab .ttc-path-choice-3d{transform:none;transition:none}
+    #ttcDailyVocab .ttc-path-feedback-shake,#ttcDailyVocab .ttc-path-quiz-shake{animation:none}
+    #ttcDailyVocab .ttc-path-fx-dot{display:none}
+    #ttcDailyVocab .ttc-path-feedback-3d{animation:none}
+    #ttcDailyVocab .ttc-path-feedback-ok .ttc-path-feedback-title{animation:none !important;opacity:1 !important}
+    #ttcPathLauncher.ttc-path-launcher,
+    #ttcPathLauncher.ttc-path-launcher[aria-expanded="true"]{
+      animation:none !important;
+      background:linear-gradient(90deg,#ef4444,#eab308,#22c55e,#3b82f6,#a855f7);
+      background-size:100% 100%;
+      opacity:1 !important;
+    }
+  }
   #ttcDailyVocab .ttc-path-goal-remind{
     margin:0 0 10px;padding:10px 12px;border-radius:12px;border:1px solid #86efac;
     background:linear-gradient(180deg,#ecfdf5,#fff);color:#065f46;font-weight:800;font-size:14px;
@@ -197206,7 +197669,7 @@ function buildTtcHskPaper(pool, level, examNo, salt){
   #ttcDailyVocab h3{margin:0 0 4px;color:#9f1239;font-size:20px;padding-right:7rem}
   #ttcDailyVocab .ttc-daily-note,#ttcDailyVocab .ttc-daily-meaning{margin:4px 0;color:#64748b;font-size:14px}
   #ttcDailyVocab .ttc-path-quiz{margin-top:10px;text-align:left}
-  #ttcDailyVocab .ttc-path-q{margin:0 0 12px;padding:14px 14px 16px;border-radius:16px;background:#0f766e;color:#fff;box-shadow:0 6px 16px rgba(15,118,110,.18)}
+  #ttcDailyVocab .ttc-path-q{margin:0 0 12px;padding:14px 14px 16px;border-radius:16px;background:linear-gradient(160deg,#0f766e 0%,#0d9488 55%,#115e59 100%);color:#fff;box-shadow:0 14px 0 #134e4a,0 22px 34px rgba(15,118,110,.3), inset 0 1px 0 rgba(255,255,255,.22);transform:translateZ(0)}
   #ttcDailyVocab .ttc-path-q-label{margin:0 0 8px;font-size:15px;font-weight:800;letter-spacing:.02em;color:#ccfbf1}
   #ttcDailyVocab .ttc-path-q-hint{margin:10px 0 0;font-size:13px;font-weight:700;color:#99f6e4}
   #ttcDailyVocab .ttc-path-q-meaning{margin:0;font-size:22px;font-weight:800;line-height:1.45;color:#fff}
@@ -197248,24 +197711,38 @@ function buildTtcHskPaper(pool, level, examNo, salt){
   #ttcDailyVocab .ttc-path-explain-panel{margin:8px 0 0;padding:10px 12px;border-radius:12px;background:#f8fafc;border:1px solid #e2e8f0;color:#475569;font-size:13px;font-weight:650;line-height:1.45;text-align:left}
   #ttcDailyVocab .ttc-path-feedback-host{margin:0 0 10px;min-height:0}
   #ttcDailyVocab .ttc-path-feedback{padding:12px 14px;border-radius:14px;text-align:left;position:relative;overflow:hidden}
-  #ttcDailyVocab .ttc-path-feedback-ok{background:linear-gradient(135deg,#ecfdf5,#d1fae5 55%,#fef9c3);border:2px solid #059669;box-shadow:0 0 0 4px rgba(16,185,129,.18),0 10px 28px rgba(5,150,105,.22),0 0 24px rgba(250,204,21,.25);animation:ttcPathCelebrate .75s ease}
+  #ttcDailyVocab .ttc-path-feedback-ok{
+    background:#FFFFFF;
+    border:2px solid #86efac;
+    box-shadow:0 4px 14px rgba(22,101,52,.08);
+    animation:none;
+    color:#14532d;
+  }
   #ttcDailyVocab .ttc-path-feedback-bad{background:#fff7ed;border:2px solid #ea580c}
   #ttcDailyVocab .ttc-path-feedback-win{position:relative}
-  #ttcDailyVocab .ttc-path-win-glow{position:absolute;inset:-8px;border-radius:18px;background:radial-gradient(circle at 50% 30%,rgba(250,204,21,.45),rgba(16,185,129,.12) 45%,transparent 70%);pointer-events:none;animation:ttcPathWinGlow 1.1s ease}
-  #ttcDailyVocab .ttc-path-feedback-title{margin:0 0 6px;font-size:20px;font-weight:800}
-  #ttcDailyVocab .ttc-path-feedback-ok .ttc-path-feedback-title{color:#047857}
-  #ttcDailyVocab .ttc-path-feedback-bad .ttc-path-feedback-title{color:#c2410c}
-  #ttcDailyVocab .ttc-path-feedback-answer{margin:0 0 6px;font-size:16px;font-weight:800;color:#065f46}
-  #ttcDailyVocab .ttc-path-feedback-explain{margin:0;font-size:14px;font-weight:650;line-height:1.45;color:#334155}
-  #ttcDailyVocab .ttc-path-xp-badge{display:inline-block;margin-top:8px;padding:4px 10px;border-radius:999px;font-size:13px;font-weight:800;background:#0f172a;color:#fff}
-  #ttcDailyVocab .ttc-path-feedback-ok .ttc-path-xp-badge{background:#15803d}
+  #ttcDailyVocab .ttc-path-win-glow{display:none !important}
+  #ttcDailyVocab .ttc-path-feedback-title{margin:0 0 8px;font-size:22px;font-weight:900;position:relative;z-index:1;text-shadow:none;filter:none}
+  #ttcDailyVocab .ttc-path-feedback-ok .ttc-path-feedback-title{
+    color:#dc2626;font-size:26px;letter-spacing:.02em;text-shadow:none;filter:none;
+    animation:ttcPathTitleBlink 1.15s ease-in-out infinite;
+  }
+  #ttcDailyVocab .ttc-path-feedback-bad .ttc-path-feedback-title{color:#c2410c;animation:none}
+  #ttcDailyVocab .ttc-path-feedback-answer{display:none !important}
+  #ttcDailyVocab .ttc-path-feedback-explain{margin:0;font-size:14px;font-weight:700;line-height:1.45;color:#14532d;position:relative;z-index:1;text-shadow:none;filter:none}
+  #ttcDailyVocab .ttc-path-feedback-ok .ttc-path-fb-memory{color:#166534}
+  #ttcDailyVocab .ttc-path-xp-badge{display:inline-block;margin-top:8px;padding:4px 10px;border-radius:999px;font-size:13px;font-weight:800;background:#0f172a;color:#fff;position:relative;z-index:1;text-shadow:none}
+  #ttcDailyVocab .ttc-path-feedback-ok .ttc-path-xp-badge{background:#166534}
   #ttcDailyVocab .ttc-path-feedback-bad .ttc-path-xp-badge{background:#c2410c}
+  @keyframes ttcPathTitleBlink{0%,100%{opacity:1}50%{opacity:.52}}
+  #ttcDailyVocab .ttc-path-quiz-won .ttc-daily-card,
+  #ttcDailyVocab .ttc-path-quiz-won .ttc-path-choices{display:none !important}
+  #ttcDailyVocab .ttc-path-fx-spark{box-shadow:0 0 8px rgba(255,255,255,.65)}
   #ttcDailyVocab .ttc-path-score-flash{animation:ttcPathScoreFlash .8s ease}
   #ttcDailyVocab .ttc-path-quiz{position:relative}
   .ttc-path-xp-fly{position:fixed;z-index:1000050;font-size:22px;font-weight:900;pointer-events:none;transition:transform 1s cubic-bezier(.2,.8,.2,1),opacity 1s ease;white-space:nowrap}
   .ttc-path-xp-fly-ok{color:#15803d;text-shadow:0 0 14px rgba(34,197,94,.55)}
   .ttc-path-xp-fly-bad{color:#c2410c;text-shadow:0 0 14px rgba(234,88,12,.45)}
-  @keyframes ttcPathCelebrate{0%{transform:scale(.96);filter:brightness(1)}40%{transform:scale(1.02);filter:brightness(1.08)}100%{transform:scale(1);filter:brightness(1)}}
+  @keyframes ttcPathCelebrate{0%{transform:scale(.98)}40%{transform:scale(1.01)}100%{transform:scale(1)}}
   @keyframes ttcPathScoreFlash{0%{box-shadow:0 0 0 0 rgba(21,128,61,.0)}30%{box-shadow:0 0 0 6px rgba(21,128,61,.22);background:#ecfdf5}100%{box-shadow:0 0 0 0 rgba(21,128,61,.0);background:transparent}}
   @keyframes ttcPathXpPulse{0%{transform:scale(1);box-shadow:0 0 0 0 rgba(5,150,105,.0)}40%{transform:scale(1.04);box-shadow:0 0 0 6px rgba(5,150,105,.22)}100%{transform:scale(1);box-shadow:0 0 0 0 rgba(5,150,105,.0)}}
   @keyframes ttcPathWinGlow{0%{opacity:0;transform:scale(.9)}35%{opacity:1;transform:scale(1.02)}100%{opacity:.55;transform:scale(1)}}
