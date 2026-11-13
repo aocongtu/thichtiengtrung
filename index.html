@@ -131396,6 +131396,58 @@ let premiumHeartbeat = null;
    KHÔNG trộn Trial vào hàm này.
    ========================================================= */
 
+/* Pure row check — dùng chung cho hasActiveMembership + kiểm thử giả lập. */
+function ttcMembershipRowIsPremium(row, nowMs){
+
+  if(!row){
+    return false;
+  }
+
+  if(String(row.status || "") !== "active"){
+    return false;
+  }
+
+  const now =
+    typeof nowMs === "number" && isFinite(nowMs)
+      ? nowMs
+      : Date.now();
+
+  const plan =
+    String(row.plan || "");
+
+  const endRaw =
+    row.end_date;
+
+  /* Lifetime: active + plan lifetime + end_date NULL (RPC approve_payment_request). */
+  if(plan === "lifetime"){
+
+    if(endRaw == null || endRaw === ""){
+      return true;
+    }
+
+    const endLife =
+      new Date(endRaw).getTime();
+
+    return !Number.isNaN(endLife) && endLife > now;
+
+  }
+
+  /* Gói có hạn: bắt buộc end_date còn hiệu lực. */
+  if(endRaw == null || endRaw === ""){
+    return false;
+  }
+
+  const end =
+    new Date(endRaw).getTime();
+
+  return !Number.isNaN(end) && end > now;
+
+}
+
+window.ttcMembershipRowIsPremium =
+  ttcMembershipRowIsPremium;
+
+
 async function hasActiveMembership(){
 
   if(!window.currentUser){
@@ -131405,7 +131457,7 @@ async function hasActiveMembership(){
   const { data, error } =
     await window.supabase
       .from("memberships")
-      .select("status,end_date")
+      .select("status,plan,end_date")
       .eq(
         "user_id",
         window.currentUser.id
@@ -131414,11 +131466,7 @@ async function hasActiveMembership(){
         "status",
         "active"
       )
-      .gt(
-        "end_date",
-        new Date().toISOString()
-      )
-      .limit(1);
+      .limit(20);
 
   if(error){
 
@@ -131430,10 +131478,21 @@ async function hasActiveMembership(){
     return false;
   }
 
-  return !!(
-    data &&
-    data.length > 0
-  );
+  if(!data || !data.length){
+    return false;
+  }
+
+  const now = Date.now();
+
+  for(let i = 0; i < data.length; i++){
+
+    if(ttcMembershipRowIsPremium(data[i], now)){
+      return true;
+    }
+
+  }
+
+  return false;
 
 }
 
