@@ -195896,6 +195896,27 @@ function buildTtcHskPaper(pool, level, examNo, salt){
   */
   var achFetchCache = Object.create(null);
   var achFetchSeq = 0;
+  var achFsState = { open: false, scrollY: 0 };
+  function enterAchFullscreen(box){
+    if (!box) return;
+    if (!achFsState.open) achFsState.scrollY = window.scrollY || window.pageYOffset || 0;
+    achFsState.open = true;
+    box.classList.add("ttc-ach-fs");
+    document.body.classList.add("ttc-ach-fs-lock");
+    try { box.scrollTop = 0; } catch (eAchFs) {}
+  }
+  function exitAchFullscreenClasses(box){
+    if (box) box.classList.remove("ttc-ach-fs");
+    document.body.classList.remove("ttc-ach-fs-lock");
+    var was = achFsState.open;
+    var y = achFsState.scrollY || 0;
+    achFsState.open = false;
+    if (was) {
+      requestAnimationFrame(function(){
+        try { window.scrollTo(0, y); } catch (eY) {}
+      });
+    }
+  }
   function fetchHskAchievementPage(level, offset){
     var hsk = Number(level);
     var off = Math.max(0, Number(offset) || 0);
@@ -196009,6 +196030,7 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       + "<div class='ttc-ach-toolbar'>"
       + "<button type='button' class='ttc-ach-back' id='ttcAchBackClosed'>← Thu gọn</button>"
       + "<strong class='ttc-ach-title'>Chọn cấp HSK</strong>"
+      + "<button type='button' class='ttc-ach-exit' id='ttcAchExit'>✕ THOÁT</button>"
       + "</div>"
       + "<div class='ttc-ach-levels' role='list'>";
     for (var i = 1; i <= 9; i++) {
@@ -196067,6 +196089,7 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       + "<button type='button' class='ttc-ach-back' id='ttcAchBackLevels'>← Chọn cấp</button>"
       + "<strong class='ttc-ach-title'>HSK " + level + "</strong>"
       + "<button type='button' class='ttc-ach-refresh' id='ttcAchRefresh'>Làm mới</button>"
+      + "<button type='button' class='ttc-ach-exit' id='ttcAchExit'>✕ THOÁT</button>"
       + "</div>";
     if (achUi.loading) {
       html += "<p class='ttc-ach-status'>Đang tải bảng thành tích HSK " + level + "…</p>";
@@ -196089,9 +196112,16 @@ function buildTtcHskPaper(pool, level, examNo, salt){
 
   function paintAchievementBoard(box){
     if (!box) return;
-    if (achUi.view === "closed") box.innerHTML = renderAchievementClosed();
-    else if (achUi.view === "levels") box.innerHTML = renderAchievementLevels();
-    else box.innerHTML = renderAchievementBoard();
+    if (achUi.view === "closed") {
+      box.innerHTML = renderAchievementClosed();
+      exitAchFullscreenClasses(box);
+    } else if (achUi.view === "levels") {
+      box.innerHTML = renderAchievementLevels();
+      enterAchFullscreen(box);
+    } else {
+      box.innerHTML = renderAchievementBoard();
+      enterAchFullscreen(box);
+    }
     bindAchievementBoard(box);
   }
 
@@ -196151,11 +196181,27 @@ function buildTtcHskPaper(pool, level, examNo, salt){
         paintAchievementBoard(box);
       });
     }
+    function closeAchievementFullscreen(){
+      achUi.view = "closed";
+      achUi.level = null;
+      achUi.rows = [];
+      achUi.hasMore = false;
+      achUi.loading = false;
+      achUi.error = "";
+      achUi.unavailable = false;
+      paintAchievementBoard(box);
+    }
+    var exitBtn = box.querySelector("#ttcAchExit");
+    if (exitBtn) {
+      exitBtn.addEventListener("click", function(ev){
+        if (ev) { ev.preventDefault(); ev.stopPropagation(); }
+        closeAchievementFullscreen();
+      });
+    }
     var backClosed = box.querySelector("#ttcAchBackClosed");
     if (backClosed) {
       backClosed.addEventListener("click", function(){
-        achUi.view = "closed";
-        paintAchievementBoard(box);
+        closeAchievementFullscreen();
       });
     }
     var backLevels = box.querySelector("#ttcAchBackLevels");
@@ -198842,6 +198888,8 @@ function buildTtcHskPaper(pool, level, examNo, salt){
     background:#fff;
     border-radius:16px;
     padding:12px;
+    box-sizing:border-box;
+    max-width:100%;
   }
   .ttc-ach-toolbar{
     display:flex;
@@ -198850,8 +198898,8 @@ function buildTtcHskPaper(pool, level, examNo, salt){
     gap:8px;
     margin-bottom:10px;
   }
-  .ttc-ach-title{flex:1;color:#9f1239;font-size:15px}
-  .ttc-ach-back,.ttc-ach-refresh,.ttc-ach-more,.ttc-ach-level{
+  .ttc-ach-title{flex:1;color:#9f1239;font-size:15px;min-width:0}
+  .ttc-ach-back,.ttc-ach-refresh,.ttc-ach-more,.ttc-ach-level,.ttc-ach-exit{
     border:1px solid #fecdd3;
     background:#fff;
     color:#9f1239;
@@ -198860,8 +198908,55 @@ function buildTtcHskPaper(pool, level, examNo, salt){
     font-weight:800;
     cursor:pointer;
   }
+  .ttc-ach-exit{
+    border-color:#be123c;
+    background:#be123c;
+    color:#fff !important;
+    -webkit-text-fill-color:#fff;
+    font-weight:800;
+    min-height:40px;
+    flex:0 0 auto;
+  }
   .ttc-ach-back:hover,.ttc-ach-refresh:hover,.ttc-ach-more:hover,.ttc-ach-level:hover{
     background:#fff1f2;
+  }
+  .ttc-ach-exit:hover{background:#9f1239;border-color:#9f1239;color:#fff !important}
+  body.ttc-ach-fs-lock{overflow:hidden !important;overscroll-behavior:none !important}
+  #ttcAchHost.ttc-ach-host.ttc-ach-fs{
+    position:fixed !important;
+    inset:0 !important;
+    z-index:1000060 !important;
+    width:100% !important;
+    max-width:none !important;
+    height:100% !important;
+    min-height:100dvh !important;
+    margin:0 !important;
+    padding:max(12px,env(safe-area-inset-top,0px)) 12px max(16px,env(safe-area-inset-bottom,0px)) !important;
+    background:#fff7f8 !important;
+    box-sizing:border-box !important;
+    overflow-x:hidden !important;
+    overflow-y:auto !important;
+    display:block !important;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
+  }
+  #ttcAchHost.ttc-ach-fs .ttc-ach-panel{
+    width:100%;
+    max-width:min(720px,100%);
+    margin:0 auto;
+    min-height:calc(100% - 8px);
+    box-shadow:0 8px 28px rgba(15,23,42,.08);
+  }
+  #ttcAchHost.ttc-ach-fs .ttc-ach-table,
+  #ttcAchHost.ttc-ach-fs .ttc-ach-levels{
+    width:100%;
+    max-width:100%;
+    box-sizing:border-box;
+  }
+  #ttcAchHost.ttc-ach-fs .ttc-ach-head,
+  #ttcAchHost.ttc-ach-fs .ttc-ach-row{
+    max-width:100%;
+    overflow-wrap:anywhere;
   }
   .ttc-ach-levels{
     display:grid;
