@@ -197058,6 +197058,22 @@ function buildTtcHskPaper(pool, level, examNo, salt){
         }
       });
     }
+    function pathParkFsToolbar(){
+      // Keep toolbar DOM + listeners alive across box.innerHTML redraws.
+      var panelEl = document.getElementById("ttcPathPanel");
+      var bar = document.getElementById("ttcPathFsToolbar");
+      var daily = document.getElementById("ttcDailyVocab");
+      if (!panelEl || !bar) return;
+      if (daily && daily.contains(bar)) {
+        panelEl.appendChild(bar);
+      }
+    }
+    function pathRemountFsToolbar(){
+      var panelEl = document.getElementById("ttcPathPanel");
+      if (!panelEl) return;
+      if (!panelEl.classList.contains("ttc-path-fs")) return;
+      try { ensurePathFsExitBtn(panelEl); } catch (eRemount) {}
+    }
     function ensurePathFsExitBtn(panelEl){
       if (!panelEl) return;
       var dailyHost = document.getElementById("ttcDailyVocab");
@@ -197739,6 +197755,7 @@ function buildTtcHskPaper(pool, level, examNo, salt){
           window.ttcVocabMemoryLoadMine({ hskLevel: Number(level) });
         }
       }catch(ePreMem){}
+      try { pathParkFsToolbar(); } catch (ePark) {}
       var pathPosHud = Math.max(0, Number(state.index) || 0);
       var totalHud = list.length;
       var dailyHud = Number(state.daily) || 0;
@@ -197852,34 +197869,34 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       syncBoard(state, document.getElementById("ttcAchHost"));
       try { bindGoalRemindOk(level); } catch (eGoalOk) {}
       try { mountMemoryVault(level, list, store, entry); } catch (eVault) {}
-      if (!list.length) {
-        card.textContent = "Cấp này chưa có từ để học.";
-        return;
-      }
-      var reviewWord = pathVaultReview && pathVaultReview.word ? pathVaultReview.word : null;
-      if (!reviewWord) {
-        if (state.index >= list.length) return;
-        if (state.todayDone >= state.daily) return;
-      }
-      var word;
-      if (reviewWord) {
-        word = reviewWord;
-      } else {
-        var resolved = (typeof window.ttcVocabMemoryResolvePathWord === "function")
-          ? window.ttcVocabMemoryResolvePathWord(list, entry)
-          : { word: list[state.index], index: state.index };
-        word = resolved.word || list[state.index];
-        if (resolved.index != null && Number(resolved.index) !== Number(entry.index)) {
-          entry.index = Number(resolved.index);
-          putEntry(store, level, entry);
-        }
-      }
-      if (state.todayDone % 2 === 0) askMeaning(store, level, entry, list, word, card, actions);
-      else askTiles(store, level, entry, list, word, card, actions);
       try {
-        var panelFs = document.getElementById("ttcPathPanel");
-        if (panelFs && panelFs.classList.contains("ttc-path-fs")) ensurePathFsExitBtn(panelFs);
-      } catch (eTbMount) {}
+        if (!list.length) {
+          card.textContent = "Cấp này chưa có từ để học.";
+          return;
+        }
+        var reviewWord = pathVaultReview && pathVaultReview.word ? pathVaultReview.word : null;
+        if (!reviewWord) {
+          if (state.index >= list.length) return;
+          if (state.todayDone >= state.daily) return;
+        }
+        var word;
+        if (reviewWord) {
+          word = reviewWord;
+        } else {
+          var resolved = (typeof window.ttcVocabMemoryResolvePathWord === "function")
+            ? window.ttcVocabMemoryResolvePathWord(list, entry)
+            : { word: list[state.index], index: state.index };
+          word = resolved.word || list[state.index];
+          if (resolved.index != null && Number(resolved.index) !== Number(entry.index)) {
+            entry.index = Number(resolved.index);
+            putEntry(store, level, entry);
+          }
+        }
+        if (state.todayDone % 2 === 0) askMeaning(store, level, entry, list, word, card, actions);
+        else askTiles(store, level, entry, list, word, card, actions);
+      } finally {
+        pathRemountFsToolbar();
+      }
     }
     remountDraw = draw;
     function pathPaintScore(level, entry, delta){
