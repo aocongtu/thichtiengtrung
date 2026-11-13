@@ -197178,6 +197178,9 @@ function buildTtcHskPaper(pool, level, examNo, salt){
         });
       }
     }
+    window.ttcPathParkFsToolbar = pathParkFsToolbar;
+    window.ttcPathRemountFsToolbar = pathRemountFsToolbar;
+    window.ttcPathEnsureFsToolbar = ensurePathFsExitBtn;
     window.ttcEnterPathFullscreen = enterPathFullscreen;
     window.ttcExitPathFullscreen = exitPathFullscreen;
     var launcher = document.getElementById("ttcPathLauncher");
@@ -197755,7 +197758,7 @@ function buildTtcHskPaper(pool, level, examNo, salt){
           window.ttcVocabMemoryLoadMine({ hskLevel: Number(level) });
         }
       }catch(ePreMem){}
-      try { pathParkFsToolbar(); } catch (ePark) {}
+      try { if (typeof window.ttcPathParkFsToolbar === "function") window.ttcPathParkFsToolbar(); } catch (ePark) {}
       var pathPosHud = Math.max(0, Number(state.index) || 0);
       var totalHud = list.length;
       var dailyHud = Number(state.daily) || 0;
@@ -197895,7 +197898,10 @@ function buildTtcHskPaper(pool, level, examNo, salt){
         if (state.todayDone % 2 === 0) askMeaning(store, level, entry, list, word, card, actions);
         else askTiles(store, level, entry, list, word, card, actions);
       } finally {
-        pathRemountFsToolbar();
+        try {
+          if (typeof window.ttcPathRemountFsToolbar === "function") window.ttcPathRemountFsToolbar();
+          else if (typeof window.ttcPathEnsureFsToolbar === "function") window.ttcPathEnsureFsToolbar(document.getElementById("ttcPathPanel"));
+        } catch (eTbMount) {}
       }
     }
     remountDraw = draw;
