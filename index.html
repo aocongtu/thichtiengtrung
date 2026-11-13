@@ -197513,15 +197513,28 @@ function buildTtcHskPaper(pool, level, examNo, salt){
 
 <style id="ttc-daily-vocab-css">
   #ttcPathShell{width:min(1100px,calc(100% - 20px));margin:8px auto 10px;box-sizing:border-box}
-  .ttc-path-ach-row{display:grid;grid-template-columns:1fr;align-items:stretch;gap:12px;width:100%;box-sizing:border-box}
-  .ttc-path-col,.ttc-ach-col{min-width:0;max-width:100%;width:auto;box-sizing:border-box}
+  .ttc-path-ach-row{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    align-items:start;
+    gap:10px 12px;
+    width:100%;
+    box-sizing:border-box;
+  }
+  .ttc-path-col,.ttc-ach-col{
+    min-width:0;
+    max-width:100%;
+    width:auto;
+    box-sizing:border-box;
+  }
   #ttcAchHost.ttc-ach-host{width:100%;box-sizing:border-box;overflow-x:hidden;text-align:left}
   #ttcPathLauncher.ttc-path-launcher{
-    display:block;width:100%;box-sizing:border-box;border:0;border-radius:14px;
+    display:block;width:100%;max-width:100%;box-sizing:border-box;border:0;border-radius:14px;
     background:linear-gradient(90deg,#ef4444,#f97316,#eab308,#22c55e,#06b6d4,#3b82f6,#a855f7,#ef4444);
     background-size:300% 100%;
-    color:#fff;font-weight:900;font-size:15px;padding:12px 14px;cursor:pointer;text-align:center;
+    color:#fff;font-weight:900;font-size:14px;line-height:1.35;padding:10px 12px;cursor:pointer;text-align:center;
     text-shadow:0 1px 2px rgba(15,23,42,.55);
+    white-space:normal;overflow-wrap:anywhere;word-break:break-word;
     box-shadow:0 6px 0 rgba(15,23,42,.18),0 10px 22px rgba(15,23,42,.16);
     animation:ttcPathRainbowShift 4.5s linear infinite, ttcPathSoftBlink 1.8s ease-in-out infinite;
     transform:translateZ(0);transition:transform .12s ease, box-shadow .12s ease, filter .12s ease;
@@ -197662,7 +197675,7 @@ function buildTtcHskPaper(pool, level, examNo, salt){
   #ttcDailyVocab .ttc-path-guide li{margin:3px 0}
   #ttcDailyVocab .ttc-path-nick{white-space:normal !important;overflow:visible !important;overflow-wrap:anywhere;word-break:break-word;font-size:13px !important;line-height:1.35}
   @media(max-width:760px){
-    .ttc-path-ach-row{grid-template-columns:1fr;display:grid}
+    .ttc-path-ach-row{grid-template-columns:1fr;display:grid;gap:10px}
     .ttc-path-col,.ttc-ach-col{width:100%;max-width:100%}
   }
   #ttcDailyVocab{position:relative;margin:0 auto 8px;padding:14px;padding-top:48px;border:1px solid #fecdd3;border-radius:16px;background:#fff7f8;text-align:center;box-sizing:border-box;max-width:100%;overflow-x:hidden}
@@ -197780,27 +197793,33 @@ function buildTtcHskPaper(pool, level, examNo, salt){
   #ttcDailyVocab .ttc-on{background:#9f1239!important;color:#fff!important}
   .ttc-ach-launch{
     width:100%;
+    max-width:100%;
+    box-sizing:border-box;
     display:flex;
     flex-wrap:wrap;
     align-items:center;
     justify-content:center;
-    gap:8px 12px;
+    gap:6px 8px;
     border:1px solid #fecdd3;
     background:#fff;
     color:#9f1239;
-    border-radius:16px;
-    padding:14px 16px;
+    border-radius:14px;
+    padding:10px 12px;
     cursor:pointer;
     font-weight:800;
+    line-height:1.35;
+    white-space:normal;
+    overflow-wrap:anywhere;
+    word-break:break-word;
     box-shadow:0 6px 16px rgba(159,18,57,.08);
   }
   .ttc-ach-launch:hover{
     border-color:#fb7185;
     box-shadow:0 8px 18px rgba(159,18,57,.12);
   }
-  .ttc-ach-cup{font-size:28px;line-height:1}
-  .ttc-ach-launch-text{font-size:16px;letter-spacing:.04em}
-  .ttc-ach-launch-hint{width:100%;font-size:12px;font-weight:600;color:#be123c;opacity:.85}
+  .ttc-ach-cup{font-size:22px;line-height:1;flex:0 0 auto}
+  .ttc-ach-launch-text{font-size:14px;letter-spacing:.02em;flex:1 1 auto;min-width:0;text-align:center}
+  .ttc-ach-launch-hint{width:100%;font-size:12px;font-weight:600;color:#be123c;opacity:.85;text-align:center}
   .ttc-ach-panel{
     border:1px solid #fecdd3;
     background:#fff;
