@@ -133265,6 +133265,15 @@ testQuestions =
     w => Number(w.hsk) === Number(currentHSK)
   );
 
+try{
+  if(typeof window.ttcVocabMemoryLoadMine === "function"){
+    await window.ttcVocabMemoryLoadMine({ hskLevel: Number(currentHSK) });
+  }
+  if(typeof window.ttcVocabMemoryPrioritizeWords === "function"){
+    testQuestions = window.ttcVocabMemoryPrioritizeWords(testQuestions, 0);
+  }
+}catch(eMemPri){}
+
 bindLocalTestProgressAutosave();
 
 /* Ưu tiên trạng thái đầy đủ trên trình duyệt; dùng tiến độ tài khoản cũ làm dự phòng. */
@@ -168128,6 +168137,11 @@ async function ttcVocabMemoryRecord(opts){
       return { ok:false, status:"rejected", data: data };
     }
     slot.status = "done";
+    try{
+      if(data && data.memory && typeof ttcVocabMemApplyRow === "function"){
+        ttcVocabMemApplyRow(data.memory);
+      }
+    }catch(eMemCache){}
     return { ok:true, status:"ok", data: data };
   }catch(err){
     slot.status = "pending";
@@ -168142,6 +168156,188 @@ async function ttcVocabMemoryRecord(opts){
 }
 
 window.ttcVocabMemoryRecord = ttcVocabMemoryRecord;
+
+/* =========================================================
+   Phase 3C.1: ĐỌC HỒ SƠ GHI NHỚ (RLS user tự đọc) + ưu tiên ôn
+   Không thêm cột/RPC. Không tạo trạng thái giả.
+========================================================= */
+window.__ttcVocabMemCache = window.__ttcVocabMemCache || {
+  fetchedAt: 0,
+  userId: null,
+  rows: [],
+  byLemma: Object.create(null),
+  error: null
+};
+
+function ttcVocabMemTodayStr(){
+  try{
+    if(typeof window.ttcServerTodayCached === "string" && /^\d{4}-\d{2}-\d{2}$/.test(window.ttcServerTodayCached)){
+      return window.ttcServerTodayCached;
+    }
+  }catch(e0){}
+  try{
+    return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Ho_Chi_Minh" }).format(new Date());
+  }catch(e1){
+    var d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+}
+
+function ttcVocabMemApplyRow(row){
+  if(!row || !row.vocab_id) return;
+  var cache = window.__ttcVocabMemCache;
+  if(!cache.byLemma) cache.byLemma = Object.create(null);
+  cache.byLemma[String(row.vocab_id)] = row;
+  var found = false;
+  for(var i = 0; i < cache.rows.length; i++){
+    if(String(cache.rows[i].vocab_id) === String(row.vocab_id)){
+      cache.rows[i] = row;
+      found = true;
+      break;
+    }
+  }
+  if(!found) cache.rows.push(row);
+}
+
+function ttcVocabMemBucketOf(row, todayStr){
+  if(!row) return "new";
+  var st = String(row.status || "");
+  var wrong = Number(row.wrong_count) || 0;
+  var correct = Number(row.correct_count) || 0;
+  var next = row.next_review_at ? String(row.next_review_at).slice(0, 10) : "";
+  var due = !!(next && todayStr && next <= todayStr);
+  if(due || st === "review") return "due";
+  if(wrong > 0 && wrong >= correct) return "wrong_heavy";
+  if(st === "mastered") return "mastered";
+  if(st === "learning" || (Number(row.practice_count) || 0) > 0) return "learning";
+  if(st === "new") return "new";
+  return "learning";
+}
+
+async function ttcVocabMemoryLoadMine(opts){
+  opts = opts || {};
+  var force = !!opts.force;
+  var hskFilter = opts.hskLevel != null ? Number(opts.hskLevel) : null;
+  var user = null;
+  try{
+    user = await getCurrentUser();
+  }catch(eU){
+    user = null;
+  }
+  if(!user){
+    return { ok: false, status: "guest", rows: [], byLemma: Object.create(null) };
+  }
+  var cache = window.__ttcVocabMemCache;
+  var now = Date.now();
+  if(
+    !force &&
+    cache.userId === user.id &&
+    (now - Number(cache.fetchedAt || 0)) < 45000 &&
+    Array.isArray(cache.rows)
+  ){
+    var cachedRows = cache.rows;
+    if(hskFilter >= 1 && hskFilter <= 9){
+      cachedRows = cachedRows.filter(function(r){ return Number(r.hsk_level) === hskFilter; });
+    }
+    return { ok: true, status: "cache", rows: cachedRows, byLemma: cache.byLemma, error: cache.error };
+  }
+  var client = typeof getSupabaseClient === "function" ? getSupabaseClient() : null;
+  if(!client || typeof client.from !== "function"){
+    return { ok: false, status: "no_client", rows: [], byLemma: Object.create(null) };
+  }
+  try{
+    var res = await client
+      .from("ttc_vocab_memory")
+      .select("vocab_id,hsk_level,practice_count,correct_count,wrong_count,stability,status,last_practiced_at,last_wrong_at,next_review_at,revision,updated_at")
+      .order("updated_at", { ascending: false })
+      .limit(20000);
+    if(res && res.error){
+      cache.error = res.error.message || "select_failed";
+      console.warn("ttcVocabMemoryLoadMine:", res.error);
+      return { ok: false, status: "rpc_error", rows: [], byLemma: Object.create(null), error: cache.error };
+    }
+    var rows = Array.isArray(res && res.data) ? res.data : [];
+    cache.fetchedAt = now;
+    cache.userId = user.id;
+    cache.rows = rows;
+    cache.byLemma = Object.create(null);
+    cache.error = null;
+    rows.forEach(function(r){
+      if(r && r.vocab_id) cache.byLemma[String(r.vocab_id)] = r;
+    });
+    var out = rows;
+    if(hskFilter >= 1 && hskFilter <= 9){
+      out = rows.filter(function(r){ return Number(r.hsk_level) === hskFilter; });
+    }
+    return { ok: true, status: "ok", rows: out, byLemma: cache.byLemma };
+  }catch(err){
+    cache.error = String(err && err.message || err);
+    console.warn("ttcVocabMemoryLoadMine network:", err);
+    return { ok: false, status: "network", rows: [], byLemma: Object.create(null), error: cache.error };
+  }
+}
+
+function ttcVocabMemoryPrioritizeWords(list, fromIndex){
+  if(!Array.isArray(list) || !list.length) return list || [];
+  var start = Math.max(0, Number(fromIndex) || 0);
+  var cache = window.__ttcVocabMemCache;
+  if(!cache || !cache.byLemma) return list.slice();
+  var todayStr = ttcVocabMemTodayStr();
+  var head = list.slice(0, start);
+  var rest = list.slice(start);
+  var due = [];
+  var wrongHeavy = [];
+  var neu = [];
+  var learning = [];
+  var mastered = [];
+  rest.forEach(function(w){
+    if(!w) return;
+    var lid = w.lemma_id ? String(w.lemma_id) : "";
+    var row = lid ? cache.byLemma[lid] : null;
+    if(!row){
+      neu.push(w);
+      return;
+    }
+    var bucket = ttcVocabMemBucketOf(row, todayStr);
+    if(bucket === "due") due.push(w);
+    else if(bucket === "wrong_heavy") wrongHeavy.push(w);
+    else if(bucket === "mastered") mastered.push(w);
+    else if(bucket === "new") neu.push(w);
+    else learning.push(w);
+  });
+  return head.concat(due, wrongHeavy, neu, learning, mastered);
+}
+
+function ttcVocabMemoryResolvePathWord(list, entry){
+  if(!Array.isArray(list) || !list.length) return { word: null, index: 0 };
+  var i = Math.max(0, Number(entry && entry.index) || 0);
+  if(i >= list.length) i = list.length - 1;
+  var cache = window.__ttcVocabMemCache;
+  if(!cache || !cache.byLemma){
+    return { word: list[i], index: i };
+  }
+  var todayStr = ttcVocabMemTodayStr();
+  var n = list.length;
+  for(var step = 0; step < n; step++){
+    var j = (i + step) % n;
+    var w = list[j];
+    var lid = w && w.lemma_id ? String(w.lemma_id) : "";
+    var row = lid ? cache.byLemma[lid] : null;
+    if(!row) return { word: w, index: j };
+    var bucket = ttcVocabMemBucketOf(row, todayStr);
+    if(bucket === "due" || bucket === "wrong_heavy" || bucket === "new" || bucket === "learning"){
+      return { word: w, index: j };
+    }
+  }
+  return { word: list[i], index: i };
+}
+
+window.ttcVocabMemoryLoadMine = ttcVocabMemoryLoadMine;
+window.ttcVocabMemoryPrioritizeWords = ttcVocabMemoryPrioritizeWords;
+window.ttcVocabMemoryResolvePathWord = ttcVocabMemoryResolvePathWord;
+window.ttcVocabMemApplyRow = ttcVocabMemApplyRow;
+window.ttcVocabMemBucketOf = ttcVocabMemBucketOf;
+
 
 
 /* =========================================================
@@ -196434,6 +196630,180 @@ function buildTtcHskPaper(pool, level, examNo, salt){
         +   "</ul>"
         + "</div>";
     }
+    function memoryVaultShell(level){
+      return ""
+        + "<section class='ttc-path-vault' id='ttcPathVault' data-hsk='" + String(level) + "' aria-label='Kho từ cần ôn'>"
+        +   "<div class='ttc-path-vault-head'>"
+        +     "<strong>Kho từ cần ôn</strong>"
+        +     "<span class='ttc-path-vault-note'>Dữ liệu thật từ hồ sơ ghi nhớ tài khoản</span>"
+        +   "</div>"
+        +   "<div class='ttc-path-vault-tabs' role='tablist'>"
+        +     "<button type='button' class='ttc-path-vault-tab' data-vault='new'>Từ mới</button>"
+        +     "<button type='button' class='ttc-path-vault-tab' data-vault='learning'>Đang học</button>"
+        +     "<button type='button' class='ttc-path-vault-tab' data-vault='mastered'>Đã thuộc</button>"
+        +     "<button type='button' class='ttc-path-vault-tab is-on' data-vault='due'>Cần ôn</button>"
+        +     "<button type='button' class='ttc-path-vault-tab' data-vault='wrong_heavy'>Hay sai</button>"
+        +   "</div>"
+        +   "<p class='ttc-path-vault-status' id='ttcPathVaultStatus'>Đang tải hồ sơ ghi nhớ…</p>"
+        +   "<div class='ttc-path-vault-list' id='ttcPathVaultList' role='list'></div>"
+        +   "<div class='ttc-path-vault-detail' id='ttcPathVaultDetail' hidden></div>"
+        +   "<div class='ttc-path-community' id='ttcPathCommunity'>"
+        +     "<p class='ttc-path-community-title'>Góp ý từ vựng (cộng đồng)</p>"
+        +     "<p class='ttc-path-community-body'>Chưa mở ghi bình luận thật. Chờ chủ dự án xác nhận quyền Free/Premium. Góp ý sẽ tách khỏi nghĩa chuẩn từ điển; không tự thay thế dữ liệu học chính.</p>"
+        +   "</div>"
+        + "</section>";
+    }
+    function pathBadgesShell(state, list){
+      var day = today();
+      var badges = [];
+      var daily = Number(state.daily) || 0;
+      var done = Number(state.todayDone) || 0;
+      if (daily > 0 && day && state.today === day && done >= daily) {
+        badges.push({ id: "daily_goal", label: "Hoàn thành mục tiêu ngày" });
+      }
+      if (state.lastDay && day) {
+        var g = gapDays(state.lastDay, day);
+        if (g === 0 || g === 1) badges.push({ id: "streak_keep", label: "Đang giữ chuỗi ngày học" });
+      }
+      var idx = Math.max(0, Number(state.index) || 0);
+      var total = list && list.length ? list.length : 0;
+      if (total > 0 && idx >= Math.floor(total * 0.25)) badges.push({ id: "mile_25", label: "Mốc 25% cấp HSK" });
+      if (total > 0 && idx >= Math.floor(total * 0.5)) badges.push({ id: "mile_50", label: "Mốc 50% cấp HSK" });
+      if (total > 0 && idx >= total) badges.push({ id: "hsk_done", label: "Hoàn thành cấp HSK " + state.level });
+      var weekDone = (day && state.today === day) ? done : 0;
+      if (weekDone >= Math.min(daily, 50) && daily > 0) {
+        badges.push({ id: "week_pace", label: "Nhịp học tuần (theo mục tiêu ngày)" });
+      }
+      var html = "<section class='ttc-path-badges' aria-label='Huy hiệu học tập'>"
+        + "<div class='ttc-path-badges-head'><strong>Huy hiệu & thử thách</strong>"
+        + "<span class='ttc-path-vault-note'>Chỉ hiển thị theo tiến độ lộ trình; chưa lưu bảng huy hiệu máy chủ</span></div>";
+      if (!badges.length) {
+        html += "<p class='ttc-path-vault-status'>Chưa đạt điều kiện huy hiệu từ tiến độ hiện có.</p>";
+      } else {
+        html += "<ul class='ttc-path-badges-list'>";
+        badges.forEach(function(b){
+          html += "<li data-badge='" + esc(b.id) + "'>" + esc(b.label) + "</li>";
+        });
+        html += "</ul>";
+      }
+      html += "</section>";
+      return html;
+    }
+    function mountMemoryVault(level, list){
+      var root = document.getElementById("ttcPathVault");
+      if (!root) return;
+      var statusEl = document.getElementById("ttcPathVaultStatus");
+      var listEl = document.getElementById("ttcPathVaultList");
+      var detailEl = document.getElementById("ttcPathVaultDetail");
+      var active = "due";
+      var tabOn = root.querySelector(".ttc-path-vault-tab.is-on");
+      if (tabOn && tabOn.getAttribute("data-vault")) active = tabOn.getAttribute("data-vault");
+      var byLemmaWord = Object.create(null);
+      (list || []).forEach(function(w){
+        if (w && w.lemma_id) byLemmaWord[String(w.lemma_id)] = w;
+      });
+      function renderDetail(w, row){
+        if (!detailEl || !w) return;
+        detailEl.hidden = false;
+        var parts = [];
+        parts.push("<p class='ttc-path-vault-detail-h'><b>" + esc(w.h || "") + "</b>"
+          + (w.p ? " · " + esc(String(w.p)) : "") + "</p>");
+        if (w.m) parts.push("<p>" + esc(String(w.m)) + "</p>");
+        if (w.example) {
+          parts.push("<p class='ttc-path-vault-eg'>" + esc(String(w.example)) + "</p>");
+          if (w.examplePinyin) parts.push("<p class='ttc-path-vault-eg'>" + esc(String(w.examplePinyin)) + "</p>");
+          if (w.exampleMeaning) parts.push("<p class='ttc-path-vault-eg'>" + esc(String(w.exampleMeaning)) + "</p>");
+        } else {
+          parts.push("<p class='ttc-path-vault-note'>Chưa có câu ví dụ trong dữ liệu.</p>");
+        }
+        if (row) {
+          parts.push("<p class='ttc-path-vault-meta'>Gặp " + (Number(row.practice_count)||0)
+            + " · Đúng " + (Number(row.correct_count)||0)
+            + " · Sai " + (Number(row.wrong_count)||0)
+            + " · Ổn định " + (Number(row.stability)||0)
+            + " · " + esc(String(row.status || ""))
+            + (row.next_review_at ? (" · Ôn tiếp " + esc(String(row.next_review_at).slice(0,10))) : "")
+            + "</p>");
+        }
+        detailEl.innerHTML = parts.join("");
+      }
+      function paint(rows, bucket){
+        if (!listEl) return;
+        listEl.innerHTML = "";
+        var todayStr = (typeof ttcVocabMemTodayStr === "function") ? ttcVocabMemTodayStr() : "";
+        var shown = 0;
+        function addItem(w, row){
+          if (!w) return;
+          shown++;
+          var btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "ttc-path-vault-item";
+          btn.setAttribute("role", "listitem");
+          btn.textContent = (w.h || "") + (w.p ? " · " + w.p : "");
+          btn.addEventListener("click", function(){ renderDetail(w, row || null); });
+          listEl.appendChild(btn);
+        }
+        if (bucket === "new") {
+          var seenMem = Object.create(null);
+          (rows || []).forEach(function(row){
+            if (row && row.vocab_id) seenMem[String(row.vocab_id)] = row;
+          });
+          (list || []).forEach(function(w){
+            if (!w || !w.lemma_id) return;
+            var lid = String(w.lemma_id);
+            var row = seenMem[lid];
+            if (!row) {
+              addItem(w, null);
+              return;
+            }
+            var b = (typeof ttcVocabMemBucketOf === "function") ? ttcVocabMemBucketOf(row, todayStr) : String(row.status || "");
+            if (b === "new") addItem(w, row);
+          });
+        } else {
+          (rows || []).forEach(function(row){
+            if (!row) return;
+            var b = (typeof ttcVocabMemBucketOf === "function") ? ttcVocabMemBucketOf(row, todayStr) : String(row.status || "");
+            if (bucket === "learning" && b !== "learning") return;
+            if (bucket === "mastered" && b !== "mastered") return;
+            if (bucket === "due" && b !== "due") return;
+            if (bucket === "wrong_heavy" && b !== "wrong_heavy") return;
+            addItem(byLemmaWord[String(row.vocab_id)], row);
+          });
+        }
+        if (statusEl) {
+          statusEl.textContent = shown
+            ? ("HSK " + level + " · " + shown + " từ trong nhóm này")
+            : ("HSK " + level + " · Chưa có từ trong nhóm này (không minh họa số liệu giả)");
+        }
+      }
+      root.querySelectorAll(".ttc-path-vault-tab").forEach(function(tab){
+        tab.addEventListener("click", function(){
+          root.querySelectorAll(".ttc-path-vault-tab").forEach(function(t){ t.classList.remove("is-on"); });
+          tab.classList.add("is-on");
+          active = tab.getAttribute("data-vault") || "due";
+          var rows = (window.__ttcVocabMemCache && window.__ttcVocabMemCache.rows) || [];
+          var filtered = rows.filter(function(r){ return Number(r.hsk_level) === Number(level); });
+          paint(filtered, active);
+        });
+      });
+      if (typeof window.ttcVocabMemoryLoadMine !== "function") {
+        if (statusEl) statusEl.textContent = "Chưa có hàm đọc hồ sơ ghi nhớ.";
+        return;
+      }
+      window.ttcVocabMemoryLoadMine({ hskLevel: Number(level) }).then(function(res){
+        if (!res || !res.ok) {
+          if (statusEl) {
+            statusEl.textContent = res && res.status === "guest"
+              ? "Đăng nhập để xem kho từ cần ôn của bạn."
+              : ("Không đọc được hồ sơ ghi nhớ" + (res && res.error ? (": " + res.error) : "."));
+          }
+          return;
+        }
+        paint(res.rows || [], active);
+      }).catch(function(){
+        if (statusEl) statusEl.textContent = "Lỗi mạng khi đọc hồ sơ ghi nhớ.";
+      });
+    }
     function overviewHtml(state, list){
       var total = list.length;
       var pathPos = Math.max(0, Number(state.index) || 0);
@@ -196562,6 +196932,11 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       putEntry(store, level, entry);
       var state = viewState(level, entry);
       var list = levelWords(level);
+      try{
+        if (typeof window.ttcVocabMemoryLoadMine === "function") {
+          window.ttcVocabMemoryLoadMine({ hskLevel: Number(level) });
+        }
+      }catch(ePreMem){}
       var pathPosHud = Math.max(0, Number(state.index) || 0);
       var totalHud = list.length;
       var dailyHud = Number(state.daily) || 0;
@@ -196582,6 +196957,8 @@ function buildTtcHskPaper(pool, level, examNo, salt){
         + "<h3>Lộ trình HSK " + level + "</h3>"
         + goalReminderHtml(state)
         + syncNoticeHtml(level)
+        + memoryVaultShell(level)
+        + pathBadgesShell(state, list)
         + "<div class='ttc-path-goals-bar'>"
         +   "<button type='button' class='ttc-path-goals-toggle' aria-expanded='" + (goalsPanelOpen ? "true" : "false") + "'>"
         +     (goalsPanelOpen ? "Thu gọn thiết lập" : "Chỉnh mục tiêu")
@@ -196666,13 +197043,21 @@ function buildTtcHskPaper(pool, level, examNo, salt){
         });
       });
       syncBoard(state, document.getElementById("ttcAchHost"));
+      try { mountMemoryVault(level, list); } catch (eVault) {}
       if (!list.length) {
         card.textContent = "Cấp này chưa có từ để học.";
         return;
       }
       if (state.index >= list.length) return;
       if (state.todayDone >= state.daily) return;
-      var word = list[state.index];
+      var resolved = (typeof window.ttcVocabMemoryResolvePathWord === "function")
+        ? window.ttcVocabMemoryResolvePathWord(list, entry)
+        : { word: list[state.index], index: state.index };
+      var word = resolved.word || list[state.index];
+      if (resolved.index != null && Number(resolved.index) !== Number(entry.index)) {
+        entry.index = Number(resolved.index);
+        putEntry(store, level, entry);
+      }
       if (state.todayDone % 2 === 0) askMeaning(store, level, entry, list, word, card, actions);
       else askTiles(store, level, entry, list, word, card, actions);
     }
@@ -197556,6 +197941,35 @@ function buildTtcHskPaper(pool, level, examNo, salt){
     50%{opacity:.88}
   }
   #ttcPathPanel.ttc-path-panel{margin-top:8px}
+  .ttc-path-vault,.ttc-path-badges,.ttc-path-community{
+    margin:10px 0;padding:10px 12px;border:1px solid #fecdd3;border-radius:12px;background:#fff;
+    box-sizing:border-box;max-width:100%;overflow-x:hidden;
+  }
+  .ttc-path-vault-head,.ttc-path-badges-head{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline;margin-bottom:6px}
+  .ttc-path-vault-note{font-size:12px;color:#64748b;font-weight:600}
+  .ttc-path-vault-tabs{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+  .ttc-path-vault-tab{
+    border:1px solid #fda4af;background:#fff1f2;color:#9f1239;border-radius:10px;
+    font-weight:800;font-size:12px;padding:6px 8px;cursor:pointer;
+  }
+  .ttc-path-vault-tab.is-on{background:#be123c;color:#fff;border-color:#9f1239}
+  .ttc-path-vault-status{font-size:13px;color:#475569;margin:4px 0 8px}
+  .ttc-path-vault-list{display:flex;flex-wrap:wrap;gap:6px;max-height:160px;overflow:auto}
+  .ttc-path-vault-item{
+    border:1px solid #e2e8f0;background:#f8fafc;border-radius:10px;padding:6px 8px;
+    font-weight:700;font-size:13px;cursor:pointer;max-width:100%;overflow-wrap:anywhere;
+  }
+  .ttc-path-vault-detail{margin-top:8px;padding-top:8px;border-top:1px dashed #fecdd3;font-size:14px;line-height:1.45}
+  .ttc-path-vault-detail-h{font-size:18px;margin:0 0 4px}
+  .ttc-path-vault-eg,.ttc-path-vault-meta{font-size:13px;color:#334155;margin:4px 0}
+  .ttc-path-badges-list{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+  .ttc-path-badges-list li{
+    border:1px solid #bbf7d0;background:#ecfdf5;color:#065f46;border-radius:10px;
+    padding:6px 8px;font-weight:800;font-size:12px;
+  }
+  .ttc-path-community-title{font-weight:900;margin:0 0 4px;color:#9f1239}
+  .ttc-path-community-body{margin:0;font-size:13px;color:#475569;line-height:1.45}
+
   #ttcPathPanel.ttc-path-panel[hidden]{display:none !important}
   body.ttc-path-fs-lock{overflow:hidden !important;overscroll-behavior:none !important}
   #ttcPathPanel.ttc-path-panel.ttc-path-fs{
