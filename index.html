@@ -2851,7 +2851,7 @@ main{
 #ttcReadingRate{padding:7px 9px;border:1px solid #bbf7d0;border-radius:9px;background:#fff;color:#166534;font-weight:700;max-width:150px}
 #ttcReadingSection .ttc-reading-toolbar label{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
 #ttcReadingTranslatePopup button{background:#15803d;color:#fff;padding:8px 12px}
-@media(max-width:600px){#ttcReadingTranslatePopup{inset:3% 3%;padding:8px}#ttcReadingRate{max-width:125px}}
+@media(max-width:600px){#ttcReadingTranslatePopup{left:8px;right:8px;bottom:8px;width:auto;max-height:48vh;padding:8px}#ttcReadingRate{max-width:125px}}
 </style>
 
 <style id="ttcReadingExperiencePatch">
@@ -2887,10 +2887,10 @@ body.ttc-reading-open #thttGrammarLauncher{display:none!important;visibility:hid
 #ttcListeningSection .ttc-listen-answer{display:block;max-height:30vh;overflow:auto;margin-top:12px;padding:14px;border:1px solid #fed7aa;border-radius:12px;background:#fff7ed;line-height:1.9;white-space:pre-wrap}
 #ttcListeningSection .ttc-listen-answer .py{display:block;margin-top:7px;color:#0f766e;font-size:15px}
 #ttcListeningSection .ttc-listen-answer .vi{display:block;margin-top:7px;color:#475569;font-size:15px}
-#ttcListeningSection .ttc-listen-field{position:relative;margin-top:12px;min-height:66vh;border:1px solid #d6d3d1;border-radius:13px;background:#fff;overflow:hidden}
-#ttcListeningSection .ttc-listen-mirror,#ttcListeningSection #ttcListenEditor{box-sizing:border-box;min-height:66vh;margin:0;padding:16px;border:0;font-family:"Segoe UI","Microsoft YaHei UI","Microsoft YaHei",sans-serif;font-size:22px;font-weight:700;line-height:1.8;letter-spacing:0;white-space:pre-wrap;word-break:break-all;overflow-wrap:anywhere}
-#ttcListeningSection .ttc-listen-mirror{position:absolute;inset:0;pointer-events:none;color:transparent;overflow:hidden}
-#ttcListeningSection #ttcListenEditor{position:relative;display:block;width:100%;resize:vertical;background:transparent;color:#1c1917;outline:none}
+#ttcListeningSection .ttc-listen-field{position:relative;margin-top:12px;height:min(66vh,720px);min-height:280px;max-height:min(70vh,720px);border:1px solid #d6d3d1;border-radius:13px;background:#fff;overflow:hidden}
+#ttcListeningSection .ttc-listen-mirror,#ttcListeningSection #ttcListenEditor{box-sizing:border-box;height:100%;min-height:100%;margin:0;padding:16px;border:0;font-family:"Segoe UI","Microsoft YaHei UI","Microsoft YaHei",sans-serif;font-size:22px;font-weight:700;line-height:1.8;letter-spacing:0;white-space:pre-wrap;word-break:break-all;overflow-wrap:anywhere;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch}
+#ttcListeningSection .ttc-listen-mirror{position:absolute;inset:0;pointer-events:none;color:transparent}
+#ttcListeningSection #ttcListenEditor{position:relative;display:block;width:100%;max-width:100%;resize:none;background:transparent;color:#1c1917;outline:none;caret-color:#9a3412}
 #ttcListeningSection .ttc-listen-field.ttc-checking #ttcListenEditor{color:transparent;caret-color:#9a3412}
 #ttcListeningSection .ttc-listen-mirror .ok{color:#15803d}
 #ttcListeningSection .ttc-listen-mirror .bad{color:#b91c1c;text-decoration:underline wavy #ef4444}
@@ -2898,7 +2898,7 @@ body.ttc-reading-open #thttGrammarLauncher{display:none!important;visibility:hid
 #ttcListeningSection .ttc-listen-settings{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:10px 0}
 #ttcListeningSection .ttc-listen-settings label{display:flex;align-items:center;gap:6px;font-size:14px;color:#57534e}
 #ttcListeningSection select{max-width:100%;padding:8px;border:1px solid #d6d3d1;border-radius:9px;background:#fff;color:#44403c}
-@media(max-width:600px){#ttcListeningSection{padding:13px}#ttcListeningSection .ttc-listen-levels{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}#ttcListeningSection .ttc-listen-mirror,#ttcListeningSection #ttcListenEditor{min-height:66vh;font-size:20px;padding:12px}#ttcListeningLauncher{font-size:15px;padding:13px}}
+@media(max-width:600px){#ttcListeningSection{padding:13px}#ttcListeningSection .ttc-listen-levels{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}#ttcListeningSection .ttc-listen-field{height:min(58vh,560px);max-height:min(58vh,560px);min-height:220px}#ttcListeningSection .ttc-listen-mirror,#ttcListeningSection #ttcListenEditor{font-size:20px;padding:12px}#ttcListeningLauncher{font-size:15px;padding:13px}}
 </style>
 <style id="ttc-script-switch-style">
 .ttc-script-switch-wrap{display:flex;justify-content:center;align-items:center;width:auto;margin:0;flex:0 0 auto}
@@ -3064,7 +3064,7 @@ body :is(strong, b, .hanzi) { font-weight: 700; }
   <p>Nút màu trắng khi chưa mở. Bấm vào mới hiện danh sách và nút chuyển đỏ. Học theo YouTube chỉ xem video, phụ đề chữ Hán hoặc tiếng Việt nằm trên hình, không gắn câu HSK ở dưới. Video của trang mới đọc bài đọc HSK, có pinyin và tiếng Việt. Trên điện thoại khung video nằm gọn, ba nút chuyển bài nằm trên hình.</p>
   <h3>5. Khu luyện đọc</h3>
   <p>Chọn HSK 1 đến HSK 9 để mở danh sách bài. Chọn một bài để đọc. Bôi đen chữ để xem Pinyin, nghĩa tiếng Việt và nghe đúng phần đó. Nhấn từng chữ không tự đọc tiếp. Nút Nghe cả bài mới đọc liền cả bài và tự cuộn. HSK 1 và 2 mở khi vào khu. HSK 3 trở lên cần Premium.</p>
-  <h3>6. Khu luyện nghe gõ</h3>
+  <h3>6. Khu luyện gõ văn bản</h3>
   <p>Nghe một bài đọc của cấp đang học, rồi gõ lại cho đúng chính tả. Bài hiện sẵn để đối chiếu. Có nút nghe cả bài. Chữ gõ đúng và chữ gõ sai được tô khác màu. HSK 3 đến HSK 9 cần Premium.</p>
   <h3>7. Khu luyện thi HSK</h3>
   <p>Mỗi cấp HSK 1 đến HSK 9 làm ngay trên trang, có giờ. Mỗi đề là một bộ câu riêng: đề sau không dùng lại câu của đề trước. Nghe có hình, câu tiếng Trung không hiện sẵn: chọn đúng hoặc sai, chọn nghĩa, chọn câu trả lời hoặc chọn từ. Phần đọc có điền từ, chọn ý và sắp câu. Từ HSK 3 có phần viết. Mỗi câu có một đáp án và lời giải tiếng Việt nói rõ vì sao đúng, vì sao sai.</p>
@@ -5209,9 +5209,9 @@ body > .price-box{
 <button type="button" id="ttcSpecialtyLauncher" aria-expanded="false">📚 Từ vựng chuyên ngành ✨</button>
 <button type="button" id="ttcReadingLauncher" aria-expanded="false">📖 Khu luyện đọc HSK</button>
 <section id="ttcReadingSection" aria-label="Khu luyện đọc HSK"><div class="ttc-reading-section-head"><h2>📖 Khu luyện đọc HSK</h2><button type="button" id="ttcReadingHelpBtn" class="ttc-reading-secondary">❔ Giải thích</button></div><div id="ttcReadingHelp" class="ttc-reading-help" hidden><strong>Cách sử dụng</strong><ol><li>Chọn HSK 1–9 để mở danh sách bài đọc.</li><li>Chọn bài đọc để mở riêng nội dung.</li><li>Bôi đen chữ hoặc cụm chữ: hiện Pinyin, nghĩa tiếng Việt và nút đọc đúng phần đó. Nhấn một chữ không tự đọc tiếp.</li><li>Nút Nghe cả bài mới đọc liền từ đầu đến cuối và tự cuộn theo chỗ đang đọc. Nút Dừng để ngắt.</li><li>Các nút phía trên bài dùng để bật hoặc tắt Pinyin, bật nghĩa tiếng Việt dưới từng câu, chọn màu và giọng đọc.</li></ol><p>Các bài bổ sung trong thư viện này được biên soạn mới cho mục đích học tập. Tài liệu tham khảo mở: <a href="https://bloomchinese.com/open-education-resources" target="_blank" rel="noopener noreferrer">BloomChinese OER (CC BY 4.0)</a>. Nội dung từ nguồn ngoài chỉ nên tái sử dụng khi giấy phép cho phép và có ghi công phù hợp.</p></div><div id="ttcReadingLevels" class="ttc-reading-levels"></div><div id="ttcReadingNav" class="ttc-reading-nav" hidden><button type="button" id="ttcReadingBackLevels" class="ttc-reading-secondary">← Tất cả cấp độ</button><span id="ttcReadingNavTitle"></span></div><div id="ttcReadingList" hidden></div><article id="ttcReadingDetail" hidden></article></section>
-<button type="button" id="ttcListeningLauncher" aria-expanded="false">🎧 Khu luyện nghe gõ theo HSK ✨</button>
-<section id="ttcListeningSection" aria-label="Khu luyện nghe gõ theo HSK" style="display:none">
-  <div class="ttc-listen-head"><h2>🎧 Khu luyện nghe gõ theo HSK</h2><button type="button" class="ttc-listen-btn" id="ttcListenHelpBtn">❔ Cách học</button></div>
+<button type="button" id="ttcListeningLauncher" aria-expanded="false">✍️ Khu luyện gõ văn bản</button>
+<section id="ttcListeningSection" aria-label="Khu luyện gõ văn bản" style="display:none">
+  <div class="ttc-listen-head"><h2>✍️ Khu luyện gõ văn bản</h2><button type="button" class="ttc-listen-btn" id="ttcListenHelpBtn">❔ Cách học</button></div>
   <p class="ttc-listen-note" id="ttcListenHelp" hidden>Mở cả bài đọc HSK, nhìn mẫu và chép lại vào khung lớn. Nghe cả bài sẽ được đọc từng đoạn nối tiếp. Bật CHECK VAR để chính chữ trong khung đổi màu ngay khi gõ: đúng thì xanh, sai thì đỏ.</p>
   <div class="ttc-listen-levels" id="ttcListenLevels"></div>
   <div class="ttc-listen-nav" id="ttcListenNav" hidden><button type="button" class="ttc-listen-btn" id="ttcListenBackLevels">← Tất cả HSK</button><span class="ttc-listen-nav-title" id="ttcListenNavTitle"></span></div>
@@ -131307,6 +131307,271 @@ function ttcPaintSuggestions(pool){
   box.hidden = false;
   if(input) input.setAttribute("aria-expanded", "true");
 }
+function ttcDictCommentSourceKind(word){
+  var t = String(word && word.t || "");
+  if(/thành ngữ|tục ngữ|thanh ngu|tuc ngu|成语|俗语|谚语/i.test(t)) return "idiom";
+  return "hsk_word";
+}
+function ttcDictCommentsShellHtml(word){
+  var w = word || {};
+  var entryId = String(w.entry_id || "").trim();
+  var lemmaId = String(w.lemma_id || "").trim();
+  var hanzi = String(w.h || "").trim();
+  var pinyin = String(w.p || "").trim();
+  var meaning = String(w.m || "").trim();
+  var hsk = (w.hsk != null && w.hsk !== "") ? String(w.hsk) : "";
+  var kind = ttcDictCommentSourceKind(w);
+  return ""
+    + "<div class=\"ttc-dict-community\""
+    + " data-entry-id=\"" + ttcEsc(entryId) + "\""
+    + " data-lemma-id=\"" + ttcEsc(lemmaId) + "\""
+    + " data-hanzi=\"" + ttcEsc(hanzi) + "\""
+    + " data-pinyin=\"" + ttcEsc(pinyin) + "\""
+    + " data-meaning=\"" + ttcEsc(meaning) + "\""
+    + " data-hsk=\"" + ttcEsc(hsk) + "\""
+    + " data-kind=\"" + ttcEsc(kind) + "\">"
+    +   "<p class=\"ttc-dict-community-title\">Góp ý cộng đồng</p>"
+    +   "<p class=\"ttc-dict-community-meta\">Gắn với mục: <b>" + ttcEsc(hanzi || "—") + "</b>"
+    +     (pinyin ? (" · " + ttcEsc(pinyin)) : "")
+    +     (hsk ? (" · HSK " + ttcEsc(hsk)) : "")
+    +     (meaning ? (" · «" + ttcEsc(meaning) + "»") : "")
+    +   "</p>"
+    +   "<div class=\"ttc-dict-cmt-status\" aria-live=\"polite\"></div>"
+    +   "<div class=\"ttc-dict-cmt-list\" data-role=\"list\"></div>"
+    +   "<form class=\"ttc-dict-cmt-form\" data-role=\"form\">"
+    +     "<label class=\"ttc-dict-cmt-lab\" for=\"\">Nội dung góp ý</label>"
+    +     "<textarea class=\"ttc-dict-cmt-input\" data-role=\"input\" rows=\"3\" maxlength=\"1000\" placeholder=\"Góp ý về nghĩa, pinyin hoặc thông tin mục này…\"></textarea>"
+    +     "<div class=\"ttc-dict-cmt-actions\">"
+    +       "<button type=\"submit\" class=\"ttc-dict-cmt-send\" data-role=\"send\">Gửi góp ý</button>"
+    +       "<span class=\"ttc-dict-cmt-hint\" data-role=\"hint\"></span>"
+    +     "</div>"
+    +   "</form>"
+    + "</div>";
+}
+async function ttcDictUuidV5(namespaceUuid, name){
+  function parseUuidBytes(u){
+    var hex = String(u || "").replace(/-/g, "").toLowerCase();
+    if(!/^[0-9a-f]{32}$/.test(hex)) throw new Error("bad_uuid");
+    var out = new Uint8Array(16);
+    for(var i = 0; i < 16; i++) out[i] = parseInt(hex.substr(i * 2, 2), 16);
+    return out;
+  }
+  function bytesToUuid(bytes){
+    bytes[6] = (bytes[6] & 0x0f) | 0x50;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+    var h = Array.prototype.map.call(bytes, function(b){ return (b + 256).toString(16).slice(1); }).join("");
+    return h.slice(0,8) + "-" + h.slice(8,12) + "-" + h.slice(12,16) + "-" + h.slice(16,20) + "-" + h.slice(20);
+  }
+  var ns = parseUuidBytes(namespaceUuid);
+  var enc = new TextEncoder();
+  var nameBytes = enc.encode(String(name || ""));
+  var data = new Uint8Array(ns.length + nameBytes.length);
+  data.set(ns, 0);
+  data.set(nameBytes, ns.length);
+  var digest = await crypto.subtle.digest("SHA-1", data);
+  return bytesToUuid(new Uint8Array(digest).slice(0, 16));
+}
+async function ttcDictResolveEntryId(word){
+  var w = word || {};
+  var existing = String(w.entry_id || "").trim();
+  if(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(existing)) return existing;
+  var hsk = (w.hsk != null && w.hsk !== "") ? String(w.hsk) : "0";
+  var key = hsk + "|" + String(w.h || "").normalize("NFC") + "|" + String(w.p || "") + "|" + String(w.m || "").normalize("NFC").trim();
+  // Cùng NS entry_id Phase 3A.2 — ổn định cho mục mới chưa gắn ID trong HTML.
+  return ttcDictUuidV5("a25bc942-4f3f-5daf-a14c-b292264d71d4", key);
+}
+function ttcDictCommentsClient(){
+  if(window.supabase && typeof window.supabase.from === "function") return window.supabase;
+  if(window.supabaseClient && typeof window.supabaseClient.from === "function") return window.supabaseClient;
+  return null;
+}
+function ttcDictCommentFormatTime(iso){
+  try{
+    var d = new Date(iso);
+    if(isNaN(d.getTime())) return "";
+    return d.toLocaleString("vi-VN", { hour12: false });
+  }catch(e){ return ""; }
+}
+function ttcDictCommentsSetStatus(root, text, kind){
+  var el = root.querySelector(".ttc-dict-cmt-status");
+  if(!el) return;
+  el.textContent = text || "";
+  el.dataset.kind = kind || "";
+}
+async function ttcDictCommentsEnsure(root){
+  var client = ttcDictCommentsClient();
+  if(!client) throw new Error("supabase");
+  var entryId = root.getAttribute("data-entry-id") || "";
+  var lemmaId = root.getAttribute("data-lemma-id") || null;
+  var hanzi = root.getAttribute("data-hanzi") || "";
+  var pinyin = root.getAttribute("data-pinyin") || "";
+  var meaning = root.getAttribute("data-meaning") || "";
+  var hskRaw = root.getAttribute("data-hsk") || "";
+  var kind = root.getAttribute("data-kind") || "hsk_word";
+  if(!entryId){
+    entryId = await ttcDictResolveEntryId({
+      entry_id: "",
+      lemma_id: lemmaId,
+      h: hanzi,
+      p: pinyin,
+      m: meaning,
+      hsk: hskRaw
+    });
+    root.setAttribute("data-entry-id", entryId);
+  }
+  var hsk = hskRaw ? Number(hskRaw) : null;
+  if(!Number.isFinite(hsk)) hsk = null;
+  var payload = {
+    p_entry_id: entryId,
+    p_lemma_id: lemmaId || null,
+    p_hanzi: hanzi,
+    p_pinyin: pinyin || "—",
+    p_meaning: meaning || "—",
+    p_hsk_level: hsk,
+    p_source_kind: kind
+  };
+  var res = await client.rpc("dict_ensure_lookup_entry", payload);
+  if(res.error) throw res.error;
+  return entryId;
+}
+async function ttcDictCommentsLoad(root){
+  var list = root.querySelector('[data-role="list"]');
+  if(!list) return;
+  var client = ttcDictCommentsClient();
+  if(!client){
+    list.innerHTML = "<p class=\"ttc-dict-cmt-empty\">Chưa kết nối được máy chủ góp ý.</p>";
+    return;
+  }
+  try{
+    var entryId = await ttcDictCommentsEnsure(root);
+    var res = await client
+      .from("dict_comments")
+      .select("id,author_name,body,created_at,entry_id")
+      .eq("entry_id", entryId)
+      .eq("status", "visible")
+      .order("created_at", { ascending: false })
+      .limit(50);
+    if(res.error) throw res.error;
+    var rows = res.data || [];
+    if(!rows.length){
+      list.innerHTML = "<p class=\"ttc-dict-cmt-empty\">Chưa có góp ý cho mục này.</p>";
+      return;
+    }
+    list.innerHTML = rows.map(function(row){
+      return "<article class=\"ttc-dict-cmt-item\">"
+        + "<header><strong>" + ttcEsc(row.author_name || "Thành viên") + "</strong>"
+        + "<time>" + ttcEsc(ttcDictCommentFormatTime(row.created_at)) + "</time></header>"
+        + "<p>" + ttcEsc(row.body || "") + "</p>"
+        + "</article>";
+    }).join("");
+  }catch(err){
+    console.warn("TTC dict comments load", err);
+    list.innerHTML = "<p class=\"ttc-dict-cmt-empty\">Không tải được góp ý. Tra cứu từ vẫn dùng bình thường.</p>";
+  }
+}
+async function ttcDictCommentsRefreshAuthHint(root){
+  var hint = root.querySelector('[data-role="hint"]');
+  var send = root.querySelector('[data-role="send"]');
+  var input = root.querySelector('[data-role="input"]');
+  if(!hint || !send) return;
+  var user = window.currentUser;
+  if(!user){
+    hint.textContent = "Đăng nhập và có nickname để gửi góp ý. Bạn vẫn xem được góp ý.";
+    send.disabled = true;
+    if(input) input.disabled = true;
+    return;
+  }
+  var client = ttcDictCommentsClient();
+  var nick = "";
+  try{
+    if(client){
+      var q = await client.from("community_nicknames").select("display_name").eq("user_id", user.id).maybeSingle();
+      if(!q.error && q.data) nick = String(q.data.display_name || "").trim();
+    }
+  }catch(eNick){}
+  if(!nick){
+    var meta = user.user_metadata || {};
+    nick = String(meta.display_name || meta.nickname || meta.full_name || "").trim();
+  }
+  if(!nick){
+    hint.textContent = "Tài khoản cần có nickname cộng đồng mới gửi được góp ý.";
+    send.disabled = true;
+    if(input) input.disabled = false;
+    return;
+  }
+  hint.textContent = "Gửi với tên: " + nick;
+  send.disabled = false;
+  if(input) input.disabled = false;
+}
+function ttcDictCommentsBind(root){
+  if(!root || root.dataset.ttcCmtBound === "1") return;
+  root.dataset.ttcCmtBound = "1";
+  var form = root.querySelector('[data-role="form"]');
+  var input = root.querySelector('[data-role="input"]');
+  var send = root.querySelector('[data-role="send"]');
+  if(!form || !input || !send) return;
+  form.addEventListener("submit", async function(ev){
+    ev.preventDefault();
+    if(send.dataset.busy === "1") return;
+    var body = String(input.value || "").trim();
+    if(!body){
+      ttcDictCommentsSetStatus(root, "Vui lòng nhập nội dung góp ý.", "err");
+      return;
+    }
+    if(body.length > 1000){
+      ttcDictCommentsSetStatus(root, "Góp ý tối đa 1000 ký tự.", "err");
+      return;
+    }
+    if(!window.currentUser){
+      ttcDictCommentsSetStatus(root, "Cần đăng nhập để gửi góp ý.", "err");
+      return;
+    }
+    var client = ttcDictCommentsClient();
+    if(!client){
+      ttcDictCommentsSetStatus(root, "Chưa kết nối Supabase.", "err");
+      return;
+    }
+    send.dataset.busy = "1";
+    send.disabled = true;
+    ttcDictCommentsSetStatus(root, "Đang gửi…", "pending");
+    try{
+      var entryId = await ttcDictCommentsEnsure(root);
+      var ins = await client.from("dict_comments").insert({
+        entry_id: entryId,
+        link_hanzi: root.getAttribute("data-hanzi") || "",
+        link_pinyin: root.getAttribute("data-pinyin") || "—",
+        link_meaning: root.getAttribute("data-meaning") || "—",
+        user_id: window.currentUser.id,
+        author_name: "pending",
+        body: body,
+        status: "visible"
+      }).select("id").single();
+      if(ins.error) throw ins.error;
+      input.value = "";
+      ttcDictCommentsSetStatus(root, "Đã gửi góp ý.", "ok");
+      await ttcDictCommentsLoad(root);
+    }catch(err){
+      console.warn("TTC dict comments send", err);
+      var msg = (err && (err.message || err.code)) ? String(err.message || err.code) : "Gửi thất bại.";
+      if(/nickname_required/i.test(msg)) msg = "Cần nickname cộng đồng để gửi góp ý.";
+      else if(/login_required/i.test(msg)) msg = "Cần đăng nhập để gửi góp ý.";
+      else if(/entry_not_linked|entry_missing/i.test(msg)) msg = "Chưa liên kết được mục từ. Thử tải lại trang.";
+      else if(/invalid_body/i.test(msg)) msg = "Nội dung góp ý không hợp lệ.";
+      ttcDictCommentsSetStatus(root, msg, "err");
+    }finally{
+      send.dataset.busy = "0";
+      await ttcDictCommentsRefreshAuthHint(root);
+    }
+  });
+}
+function ttcDictCommentsMount(scope){
+  var roots = (scope || document).querySelectorAll(".ttc-dict-community");
+  roots.forEach(function(root){
+    ttcDictCommentsBind(root);
+    ttcDictCommentsRefreshAuthHint(root);
+    ttcDictCommentsLoad(root);
+  });
+}
 function ttcSearchDetail(pool){
   var box = document.getElementById("ttcSearchDetail");
   if(!box){
@@ -131354,6 +131619,7 @@ function ttcSearchDetail(pool){
       if(word.exampleMeaning) html += "<span>" + ttcEsc(word.exampleMeaning) + "</span>";
       html += "</div>";
     }
+    html += ttcDictCommentsShellHtml(word);
     html += "</section>";
   });
   var related = [];
@@ -131366,16 +131632,9 @@ function ttcSearchDetail(pool){
       return "<button type=\"button\" data-h=\"" + ttcEsc(hanzi) + "\">" + ttcEsc(hanzi) + "</button>";
     }).join("") + "</div>";
   }
-  html += "<div class=\"ttc-dict-community\" data-lemma=\"" + ttcEsc(String(top.word.lemma_id || "")) + "\" data-hanzi=\"" + ttcEsc(top.word.h || "") + "\">"
-    + "<p class=\"ttc-dict-community-title\">Góp ý cộng đồng · gắn với từ đang tra</p>"
-    + "<p class=\"ttc-dict-community-body\">Từ: <b>" + ttcEsc(top.word.h || "") + "</b>"
-    + (top.word.p ? (" · " + ttcEsc(String(top.word.p))) : "")
-    + (top.word.m ? (" · «" + ttcEsc(String(top.word.m)) + "»") : "")
-    + ". Nếu nghĩa tiếng Việt, Pinyin hoặc thông tin từ bị sai, góp ý tại đây (gắn lemma đang xem). "
-    + "<b>Chưa mở gửi góp ý thật</b> — chưa có bảng/API lưu góp ý; chờ chủ dự án xác nhận. Không phải bình luận lộ trình học.</p>"
-    + "</div>";
   html += "</article>";
   box.innerHTML = html;
+  try { ttcDictCommentsMount(box); } catch (eDictCmt) { console.warn("TTC dict comments", eDictCmt); }
   box.hidden = false;
   if(!box.dataset.bound){
     box.dataset.bound = "1";
@@ -160542,11 +160801,7 @@ if(number){
           "testSection"
         );
 
-      const sentence =
-        document.getElementById(
-          "sentenceSection"
-        );
-
+      /* Reuse sentence from above — do not redeclare const (breaks entire script). */
 
       if(vocabulary){
 
@@ -187845,58 +188100,183 @@ let readingRate=parseFloat(localStorage.getItem('ttcReadingRate')||localStorage.
 if(!Number.isFinite(readingRate)||readingRate<0.1||readingRate>3)readingRate=0.65;
 function getReadingVocabDictionary(){
  const raw=Array.isArray(window.words)?window.words:[];
- const seen=new Set();
- return raw.map(item=>({h:String(item?.h||item?.hanzi||item?.word||'').trim(),p:String(item?.p||item?.pinyin||'').trim(),m:String(item?.m||item?.meaning||item?.vi||'').trim(),hsk:item?.hsk||''}))
-  .filter(item=>item.h&&/[\u3400-\u9fff]/.test(item.h)&&(item.p||item.m))
-  .filter(item=>{const key=item.h+'|'+item.p+'|'+item.m;if(seen.has(key))return false;seen.add(key);return true})
-  .sort((a,b)=>Array.from(b.h).length-Array.from(a.h).length);
+ const out=[];
+ for(const item of raw){
+  const h=String(item?.h||item?.hanzi||item?.word||'').trim();
+  if(!h||!/[\u3400-\u9fff]/.test(h)) continue;
+  const p=String(item?.p||item?.pinyin||'').trim();
+  const m=String(item?.m||item?.meaning||item?.vi||'').trim();
+  if(!p && !m) continue;
+  out.push({
+   h,
+   p,
+   m,
+   t:String(item?.t||item?.type||item?.pos||'').trim(),
+   hsk:item?.hsk||'',
+   radical:String(item?.radical||'').trim(),
+   explanation:String(item?.explanation||item?.explain||'').trim(),
+   example:String(item?.example||'').trim(),
+   examplePinyin:String(item?.examplePinyin||'').trim(),
+   exampleMeaning:String(item?.exampleMeaning||'').trim()
+  });
+ }
+ out.sort((a,b)=>Array.from(b.h).length-Array.from(a.h).length || String(a.hsk||'').localeCompare(String(b.hsk||'')));
+ return out;
+}
+function readingHanLen(s){return Array.from(String(s||'')).filter(ch=>/[\u3400-\u9fff]/.test(ch)).length}
+function readingExactEntries(text,dict){
+ const needle=String(text||'').replace(/\s+/g,'').trim();
+ if(!needle) return [];
+ return dict.filter(item=>String(item.h||'').replace(/\s+/g,'')===needle);
+}
+function readingContainsMatches(text,dict){
+ const chars=Array.from(String(text||'').replace(/\s+/g,''));
+ const hits=[]; const seen=new Set();
+ for(const item of dict){
+  const term=Array.from(item.h||'');
+  if(term.length<2||term.length>chars.length) continue;
+  for(let i=0;i<=chars.length-term.length;i++){
+   let ok=true; for(let j=0;j<term.length;j++){ if(chars[i+j]!==term[j]){ok=false;break;} }
+   if(ok){ const key=item.h+'|'+item.p+'|'+item.m; if(!seen.has(key)){seen.add(key);hits.push(item);} break; }
+  }
+ }
+ hits.sort((a,b)=>Array.from(b.h).length-Array.from(a.h).length);
+ return hits;
 }
 function segmentReadingText(text,dict){
- const chars=Array.from(String(text||''));const out=[];let i=0;
+ const chars=Array.from(String(text||'')); const out=[]; let i=0;
  while(i<chars.length){
   if(!/[\u3400-\u9fff]/.test(chars[i])){i++;continue;}
   let found=null;
-  for(const item of dict){const term=Array.from(item.h);if(term.length>chars.length-i)continue;let ok=true;for(let j=0;j<term.length;j++){if(chars[i+j]!==term[j]){ok=false;break}}if(ok){found=item;break}}
-  if(found){out.push(found);i+=Array.from(found.h).length;continue;}
-  const ch=chars[i];const single=dict.find(item=>item.h===ch);
-  out.push(single||{h:ch,p:'',m:'Chưa có nghĩa riêng cho chữ này trong kho từ vựng hiện tại.',hsk:''});i++;
+  for(const item of dict){
+   const term=Array.from(item.h);
+   if(term.length>chars.length-i) continue;
+   let ok=true; for(let j=0;j<term.length;j++){ if(chars[i+j]!==term[j]){ok=false;break;} }
+   if(ok){found=item;break;}
+  }
+  if(found){ out.push(found); i+=Array.from(found.h).length; continue; }
+  const ch=chars[i];
+  const senses=dict.filter(item=>item.h===ch);
+  if(senses.length){ for(const s of senses) out.push(s); }
+  else out.push({h:ch,p:'',m:'',t:'',hsk:'',explanation:'',example:'',examplePinyin:'',exampleMeaning:''});
+  i++;
  }
- const unique=[];const seen=new Set();for(const item of out){const key=item.h+'|'+item.p+'|'+item.m;if(!seen.has(key)){seen.add(key);unique.push(item)}}return unique;
+ const unique=[]; const seen=new Set();
+ for(const item of out){ const key=item.h+'|'+item.p+'|'+item.m; if(!seen.has(key)){seen.add(key);unique.push(item);} }
+ return unique;
+}
+function lookupReadingSelection(text,dict){
+ const clean=String(text||'').trim();
+ if(!clean) return [];
+ const exact=readingExactEntries(clean,dict);
+ const ranked=[]; const seen=new Set();
+ const push=(item,tier,label)=>{
+  const key=item.h+'|'+item.p+'|'+item.m;
+  if(seen.has(key)) return;
+  seen.add(key);
+  ranked.push(Object.assign({},item,{_tier:tier,_label:label}));
+ };
+ for(const item of exact) push(item,0,'Khớp chính xác');
+ const compounds=readingContainsMatches(clean,dict);
+ for(const item of compounds){
+  if(exact.some(e=>e.h===item.h && e.p===item.p && e.m===item.m)) continue;
+  push(item,1,'Từ / cụm trong đoạn chọn');
+ }
+ const parts=segmentReadingText(clean,dict);
+ for(const item of parts){
+  if(exact.some(e=>e.h===item.h && e.p===item.p && e.m===item.m)) continue;
+  push(item,2,'Từ cấu thành');
+ }
+ ranked.sort((a,b)=>(a._tier-b._tier) || (Array.from(b.h).length-Array.from(a.h).length));
+ return ranked;
 }
 function findReadingWordAtCharacter(characterElement,pair,dict){
- const line=Array.from(pair?.querySelector('.ttc-reading-charline')?.textContent||'');const spans=Array.from(pair?.querySelectorAll('.ttc-reading-char')||[]);const index=spans.indexOf(characterElement);const character=String(characterElement?.textContent||'');if(index<0)return segmentReadingText(character,dict);
+ const line=Array.from(pair?.querySelector('.ttc-reading-charline')?.textContent||'');
+ const spans=Array.from(pair?.querySelectorAll('.ttc-reading-char')||[]);
+ const index=spans.indexOf(characterElement);
+ const character=String(characterElement?.textContent||'');
+ if(index<0) return lookupReadingSelection(character,dict);
  let best=null,bestSpan=0,bestDistance=Infinity;
- for(const item of dict){const term=Array.from(item.h);if(!term.length||term.length>8)continue;
-  for(let start= Math.max(0,index-term.length+1);start<=index;start++){
-   if(start+term.length>line.length||index>=start+term.length)continue;
-   let ok=true;for(let j=0;j<term.length;j++){if(line[start+j]!==term[j]){ok=false;break}}
-   if(ok){const span=term.length,distance=Math.abs((start+(span-1)/2)-index);if(span>bestSpan||(span===bestSpan&&distance<bestDistance)){best=item;bestSpan=span;bestDistance=distance}}
+ for(const item of dict){
+  const term=Array.from(item.h); if(!term.length||term.length>8) continue;
+  for(let start=Math.max(0,index-term.length+1); start<=index; start++){
+   if(start+term.length>line.length||index>=start+term.length) continue;
+   let ok=true; for(let j=0;j<term.length;j++){ if(line[start+j]!==term[j]){ok=false;break;} }
+   if(ok){
+    const span=term.length, distance=Math.abs((start+(span-1)/2)-index);
+    if(span>bestSpan||(span===bestSpan&&distance<bestDistance)){best=item;bestSpan=span;bestDistance=distance;}
+   }
   }
  }
- return best?[best]:segmentReadingText(character,dict);
+ if(!best) return lookupReadingSelection(character,dict);
+ const senses=dict.filter(item=>item.h===best.h);
+ const list=senses.length?senses:[best];
+ return list.map(item=>Object.assign({},item,{_tier:0,_label:'Khớp tại vị trí chọn'}));
 }
 function showReadingTranslation(text,pairs,clickedCharacter){
- text=String(text||'').trim();if(!text)return;
- const dict=getReadingVocabDictionary();const uniquePairs=Array.from(new Set((pairs||[]).filter(Boolean)));
+ text=String(text||'').trim(); if(!text) return;
+ const dict=getReadingVocabDictionary();
+ const uniquePairs=Array.from(new Set((pairs||[]).filter(Boolean)));
  let entries;
- if(clickedCharacter&&uniquePairs.length)entries=findReadingWordAtCharacter(clickedCharacter,uniquePairs[0],dict);
- else entries=segmentReadingText(text,dict);
- let old=document.getElementById('ttcReadingTranslatePopup');if(old)old.remove();
- const box=document.createElement('div');box.id='ttcReadingTranslatePopup';
- box.style.cssText='position:fixed;z-index:2147483000;inset:6% 5%;background:#fff;border:2px solid #16a34a;border-radius:14px;box-shadow:0 10px 40px #0004;padding:14px;display:flex;flex-direction:column;gap:10px;overflow:auto;color:#172033';
- const head=document.createElement('div');head.style.cssText='display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:700;color:#166534';
- const title=document.createElement('strong');title.textContent='🔎 Tra từng chữ / từ vựng';title.style.flex='1';
- const close=document.createElement('button');close.type='button';close.textContent='✖ Đóng';close.style.cssText='background:#15803d;color:#fff;border:0;border-radius:8px;padding:8px 12px';close.onclick=()=>box.remove();head.append(title,close);box.append(head);
- const selected=document.createElement('div');selected.style.cssText='font-size:18px;font-weight:700;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere';selected.textContent='Đã chọn: '+text;box.append(selected);const speakSelected=document.createElement('button');speakSelected.type='button';speakSelected.textContent='🔊 Đọc phần đã chọn';speakSelected.style.cssText='align-self:flex-start;background:#15803d;color:#fff;border:0;border-radius:8px;padding:9px 13px;font-weight:700';speakSelected.addEventListener('click',()=>{if(!('speechSynthesis'in window)){alert('Trình duyệt chưa hỗ trợ đọc văn bản.');return}window.speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance(text);utterance.lang='zh-CN';utterance.rate=readingRate;const voice=getVoice();if(voice){utterance.voice=voice;utterance.lang=voice.lang||'zh-CN'}window.speechSynthesis.speak(utterance)});box.append(speakSelected);
- if(!entries.length){const note=document.createElement('p');note.textContent='Không tìm thấy chữ Hán trong phần đã chọn.';box.append(note)}
- entries.forEach((item,index)=>{
-  const card=document.createElement('section');card.style.cssText='border:1px solid #d1fae5;border-radius:10px;padding:10px;background:#f0fdf4;display:flex;flex-direction:column;gap:5px';
-  const z=document.createElement('div');z.textContent='🇨🇳 '+item.h;z.style.cssText='font-size:22px;font-weight:700;line-height:1.4;color:#064e3b';card.append(z);
-  const pinyin=document.createElement('div');pinyin.textContent='🔤 Pinyin: '+(item.p||'Chưa có Pinyin trong kho từ vựng hiện tại.');pinyin.style.cssText='color:#1d4ed8;line-height:1.6;overflow-wrap:anywhere;font-weight:700';card.append(pinyin);
-  const meaning=document.createElement('div');meaning.textContent='🇻🇳 Nghĩa: '+(item.m||'Chưa có nghĩa tiếng Việt trong kho từ vựng hiện tại.');meaning.style.cssText='color:#166534;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere';card.append(meaning);
-  if(item.hsk){const level=document.createElement('small');level.textContent='HSK '+item.hsk;level.style.color='#64748b';card.append(level)}box.append(card);
- });
- const note=document.createElement('small');note.textContent='Tra cứu từ kho từ vựng HSK có sẵn trên website. Khi bôi đen cả cụm, hệ thống tách thành các mục từ thay vì hiển thị lại nguyên câu.';note.style.color='#64748b';box.append(note);document.body.appendChild(box);
+ if(clickedCharacter&&uniquePairs.length) entries=findReadingWordAtCharacter(clickedCharacter,uniquePairs[0],dict);
+ else entries=lookupReadingSelection(text,dict);
+ let old=document.getElementById('ttcReadingTranslatePopup'); if(old) old.remove();
+ const box=document.createElement('div'); box.id='ttcReadingTranslatePopup';
+ box.setAttribute('role','dialog'); box.setAttribute('aria-label','Kết quả tra từ bài đọc');
+ box.style.cssText='position:fixed;z-index:2147483000;right:12px;bottom:12px;width:min(420px,calc(100vw - 24px));max-height:min(52vh,520px);background:#fff;border:2px solid #16a34a;border-radius:14px;box-shadow:0 10px 40px #0004;padding:12px;display:flex;flex-direction:column;gap:8px;overflow:auto;color:#172033;';
+ const head=document.createElement('div'); head.style.cssText='display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:700;color:#166534;position:sticky;top:0;background:#fff;padding-bottom:4px;z-index:1';
+ const title=document.createElement('strong'); title.textContent='🔎 Tra từ bài đọc'; title.style.flex='1';
+ const close=document.createElement('button'); close.type='button'; close.textContent='✖ Đóng'; close.style.cssText='background:#15803d;color:#fff;border:0;border-radius:8px;padding:8px 12px;cursor:pointer'; close.onclick=()=>box.remove();
+ head.append(title,close); box.append(head);
+ const selected=document.createElement('div'); selected.style.cssText='font-size:16px;font-weight:700;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere'; selected.textContent='Đã chọn: '+text; box.append(selected);
+ const speakSelected=document.createElement('button'); speakSelected.type='button'; speakSelected.textContent='🔊 Đọc phần đã chọn'; speakSelected.style.cssText='align-self:flex-start;background:#15803d;color:#fff;border:0;border-radius:8px;padding:8px 12px;font-weight:700;cursor:pointer';
+ speakSelected.addEventListener('click',()=>{ if(!('speechSynthesis'in window)){alert('Trình duyệt chưa hỗ trợ đọc văn bản.');return;} window.speechSynthesis.cancel(); const utterance=new SpeechSynthesisUtterance(text); utterance.lang='zh-CN'; utterance.rate=readingRate; const voice=getVoice(); if(voice){utterance.voice=voice;utterance.lang=voice.lang||'zh-CN';} window.speechSynthesis.speak(utterance); });
+ box.append(speakSelected);
+ if(!entries.length){
+  const note=document.createElement('p'); note.textContent='Không tìm thấy mục từ phù hợp trong kho từ vựng hiện có.'; box.append(note);
+ } else {
+  let lastTier=null;
+  entries.forEach((item)=>{
+   if(item._tier!==lastTier){
+    lastTier=item._tier;
+    const group=document.createElement('div'); group.style.cssText='margin-top:4px;font-size:12px;font-weight:800;color:#047857;letter-spacing:.02em'; group.textContent=item._label||('Nhom '+(lastTier+1)); box.append(group);
+   }
+   const card=document.createElement('section'); card.style.cssText='border:1px solid #d1fae5;border-radius:10px;padding:10px;background:#f0fdf4;display:flex;flex-direction:column;gap:4px';
+   const z=document.createElement('div'); z.textContent=item.h; z.style.cssText='font-size:28px;font-weight:800;line-height:1.3;color:#064e3b'; card.append(z);
+   (function(){
+     const map=(window.TTC_HANVIET&&typeof window.TTC_HANVIET==='object')?window.TTC_HANVIET:null;
+     let hv='';
+     if(map){
+       const chars=Array.from(String(item.h||''));
+       if(chars.length===1 && map[chars[0]]) hv=String(map[chars[0]]);
+       else if(chars.length>1){
+         const parts=chars.map(ch=>map[ch]||'');
+         if(parts.every(Boolean)) hv=parts.join(' ');
+       }
+     }
+     const name=document.createElement('div');
+     name.style.cssText='color:#0f172a;line-height:1.5;font-weight:700;overflow-wrap:anywhere';
+     name.textContent=hv ? ('Tên Hán tự: '+hv) : 'Tên Hán tự: (chưa có dữ liệu âm Hán Việt)';
+     card.append(name);
+   })();
+   const pinyin=document.createElement('div'); pinyin.textContent='Pinyin: '+(item.p||'—'); pinyin.style.cssText='color:#1d4ed8;line-height:1.5;font-weight:700;overflow-wrap:anywhere'; card.append(pinyin);
+   const meaning=document.createElement('div'); meaning.textContent='Nghĩa: '+(item.m||'—'); meaning.style.cssText='color:#166534;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere'; card.append(meaning);
+   if(item.radical){ const rad=document.createElement('div'); rad.textContent='Bộ thủ: '+item.radical; rad.style.cssText='color:#475569;line-height:1.45'; card.append(rad); }
+   if(item.explanation){ const ex=document.createElement('div'); ex.textContent='Giải thích: '+item.explanation; ex.style.cssText='color:#334155;line-height:1.5;overflow-wrap:anywhere'; card.append(ex); }
+   const meta=[]; if(item.t) meta.push(item.t); if(item.hsk!==''&&item.hsk!=null) meta.push('HSK '+item.hsk);
+   if(meta.length){ const m=document.createElement('small'); m.textContent=meta.join(' · '); m.style.color='#64748b'; card.append(m); }
+   if(item.example){
+    const ex=document.createElement('div'); ex.style.cssText='margin-top:4px;padding-top:6px;border-top:1px dashed #bbf7d0;display:flex;flex-direction:column;gap:2px';
+    const ez=document.createElement('div'); ez.textContent='📘 '+item.example; ez.style.cssText='color:#0f172a;line-height:1.5;overflow-wrap:anywhere'; ex.append(ez);
+    if(item.examplePinyin){ const ep=document.createElement('div'); ep.textContent=item.examplePinyin; ep.style.cssText='color:#2563eb;line-height:1.45;overflow-wrap:anywhere'; ex.append(ep); }
+    if(item.exampleMeaning){ const em=document.createElement('div'); em.textContent=item.exampleMeaning; em.style.cssText='color:#475569;line-height:1.45;overflow-wrap:anywhere'; ex.append(em); }
+    card.append(ex);
+   }
+   box.append(card);
+  });
+ }
+ const note=document.createElement('small'); note.textContent='Ưu tiên khớp nguyên cụm, rồi từ/cụm trong đoạn, rồi từ cấu thành. Chỉ dùng kho từ vựng có sẵn trên trang — không dịch máy.'; note.style.color='#64748b'; box.append(note);
+ document.body.appendChild(box);
 }
 const speechAvailable=()=>typeof window!=='undefined'&&'speechSynthesis'in window;let ttcReadingFallbackStartTimer=null,ttcReadingFallbackInterval=null,ttcReadingSession=0;function clearReadingFallback(){if(ttcReadingFallbackStartTimer!==null){clearTimeout(ttcReadingFallbackStartTimer);ttcReadingFallbackStartTimer=null}if(ttcReadingFallbackInterval!==null){clearInterval(ttcReadingFallbackInterval);ttcReadingFallbackInterval=null}}function stopReading(){ttcReadingSession++;clearReadingFallback();if(speechAvailable())window.speechSynthesis.cancel()}function getVoice(){if(!speechAvailable())return null;const vs=speechSynthesis.getVoices();return vs.find(v=>v.name===selectedVoiceName)||vs.find(v=>/^zh(-|_|$)/i.test(v.lang))||vs.find(v=>/chinese|mandarin|中文|普通话/i.test(v.name))||null}function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}function view(w){levels.hidden=w!=='levels';list.hidden=w!=='list';detail.hidden=w!=='detail';nav.hidden=w==='levels';document.body.classList.toggle('ttc-reading-open',section.classList.contains('ttc-open'));if(w==='levels')stopReading()}function renderLevels(){levels.innerHTML='';for(let n=1;n<=9;n++){const b=document.createElement('button');b.className='ttc-reading-level';b.type='button';b.innerHTML='HSK '+n+'<small>'+(n>=3?'Premium · ':'')+'Danh sách bài đọc</small>';b.addEventListener('click',async()=>{if(Number(n)>=3){let ok=false;try{ok=typeof checkPremiumAccess==='function'&&await checkPremiumAccess(Number(n));}catch(e){ok=false}if(!ok)return;}renderList(n)});levels.appendChild(b)}}function renderList(n){navTitle.textContent='Danh sách bài đọc · HSK '+n;list.innerHTML='';(bank[String(n)]||[]).forEach((a,i)=>{const b=document.createElement('button');b.type='button';b.className='ttc-reading-item';b.innerHTML='<strong>Bài đọc số '+(i+1)+'</strong>';b.addEventListener('click',async()=>{if(Number(n)>=3){const gate=typeof checkPremiumAccess==='function'?await checkPremiumAccess(Number(n)):false;if(!gate){if(typeof checkPremiumAccess!=='function')alert('🔒 Bài đọc HSK '+n+' dành cho thành viên Premium.');return}}renderDetail(a,i)});list.appendChild(b)});if(!(bank[String(n)]||[]).length)list.innerHTML='<p>Chưa có bài đọc ở cấp độ này.</p>';view('list');requestAnimationFrame(function(){list.style.scrollMarginTop='12px';list.scrollIntoView({behavior:'smooth',block:'start'})})}function renderDetail(a,i){stopReading();navTitle.textContent='HSK '+a.level+' · Bài đọc số '+(i+1);const chars=Array.from(String(a.zh||'').replace(/\s+/g,''));
 function splitReadSentences(text){return String(text||'').match(/[^。！？!?；;.]+[。！？!?；;.]?/g)?.map(x=>x.trim()).filter(Boolean)||[String(text||'')]}
@@ -195699,6 +196079,19 @@ function buildTtcHskPaper(pool, level, examNo, salt){
   setTimeout(layout, 700);
 })();
 </script>
+<style id="ttcPathRechooseHudFix">
+.ttc-path-hud-top{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 8px;position:relative;z-index:5}
+.ttc-path-rechoose,.ttc-path-cancel-hud{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:6px 10px;border-radius:9px;font-weight:800;font-size:12px;cursor:pointer;border:1px solid #94a3b8;background:#f8fafc;color:#0f172a;pointer-events:auto}
+.ttc-path-cancel-hud{background:#fef2f2;border-color:#fca5a5;color:#991b1b}
+#ttcDailyVocab .ttc-path-goals-bar,#ttcDailyVocab .ttc-path-goals{position:relative;z-index:6;pointer-events:auto}
+#ttcDailyVocab .ttc-path-goals{margin:8px 0 12px;padding:12px;border:1px solid #cbd5e1;border-radius:12px;background:#fff;box-shadow:0 8px 24px rgba(15,23,42,.12)}
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-goals,
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-goals-bar{
+  display:block !important;visibility:visible !important;opacity:1 !important;pointer-events:auto !important;
+}
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-goals-bar{display:flex !important}
+@media(max-width:600px){.ttc-path-rechoose,.ttc-path-cancel-hud{flex:1 1 calc(50% - 8px);font-size:11px}}
+</style>
 <script id="ttc-daily-vocab">
 
 (function(){
@@ -197194,6 +197587,9 @@ function buildTtcHskPaper(pool, level, examNo, salt){
           launcher.textContent = "Học từ vựng theo lộ trình";
           panel.hidden = false;
           enterPathFullscreen();
+          try {
+            if (typeof window.__ttcPathRedraw === "function") window.__ttcPathRedraw();
+          } catch (eRedraw) {}
         });
       });
     }
@@ -197740,6 +198136,7 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       var store = cur.store;
       var level = cur.level;
       var entry = cur.entry;
+      window.__ttcPathRedraw = draw;
       if (!entry || !entry.on) return setup(store, level, entry);
       var seq = ++pathDrawSeq;
       pathCheckAccess(level).then(function(ok){
@@ -197747,6 +198144,97 @@ function buildTtcHskPaper(pool, level, examNo, salt){
         if (!ok) return setup(store, level, entry);
         drawLearningUnlocked(store, level, entry);
       });
+    }
+    
+    
+    var pathSwitchBusy = false;
+    function pathCloseGoalsPanelInPlace(){
+      goalsPanelOpen = false;
+      var goals = box.querySelector(".ttc-path-goals");
+      if (goals && goals.parentNode) goals.parentNode.removeChild(goals);
+      var toggle = box.querySelector(".ttc-path-goals-toggle");
+      if (toggle) {
+        toggle.textContent = "Chỉnh mục tiêu";
+        toggle.setAttribute("aria-expanded", "false");
+      }
+    }
+    function pathUpdateDailyHudInPlace(level, entry){
+      var state = viewState(level, entry);
+      var doneHud = Number(state.todayDone) || 0;
+      var dailyHud = Number(state.daily) || 0;
+      var pctHud = dailyHud ? Math.min(100, Math.round((doneHud / dailyHud) * 100)) : 0;
+      var meta = box.querySelector(".ttc-path-game-meta");
+      if (meta) {
+        meta.textContent = "Hôm nay " + doneHud + "/" + dailyHud + " từ · Chuỗi: " + streakText(state);
+      }
+      var bar = box.querySelector(".ttc-path-game-progress");
+      if (bar) {
+        bar.setAttribute("aria-valuenow", String(pctHud));
+        var span = bar.querySelector("span");
+        if (span) span.style.width = pctHud + "%";
+      }
+      var pillXp = box.querySelector(".ttc-path-hud-xp");
+      if (pillXp) pillXp.textContent = "EXP " + String(state.xp || 0);
+    }
+    function applyPathReselect(store, curLevel, entry, nextLevel, nextDaily){
+      if (pathSwitchBusy) return;
+      curLevel = Number(curLevel);
+      nextLevel = Number(nextLevel);
+      var parsedDaily = parseDaily(nextDaily);
+      if (!isLevel(nextLevel) || parsedDaily == null) return;
+      if (!entry) return;
+
+      /* A: cùng HSK — chỉ đổi số từ, giữ nguyên trang test/fullscreen. */
+      if (nextLevel === curLevel) {
+        if (Number(entry.daily) !== parsedDaily) {
+          entry.daily = parsedDaily;
+          pickedDaily = parsedDaily;
+          putEntry(store, curLevel, entry);
+          pathUpdateDailyHudInPlace(curLevel, entry);
+        }
+        pathCloseGoalsPanelInPlace();
+        return;
+      }
+
+      /* B: đổi HSK — lưu lựa chọn, đóng phiên UI cũ, mở ngay phiên học mới. */
+      pathSwitchBusy = true;
+      pathCheckAccess(nextLevel).then(function(ok){
+        if (!ok) { pathSwitchBusy = false; return; }
+        try {
+          pathVaultReview = null;
+          store.activeLevel = nextLevel;
+          pickedLevel = nextLevel;
+          pickedDaily = parsedDaily;
+          var nextEntry = getEntry(store, nextLevel);
+          if (!nextEntry) {
+            nextEntry = {
+              on: true,
+              daily: parsedDaily,
+              index: 0,
+              xp: 0,
+              today: today() || "",
+              todayDone: 0,
+              lastDay: ""
+            };
+          } else {
+            nextEntry.on = true;
+            nextEntry.daily = parsedDaily;
+            if (nextEntry.index == null) nextEntry.index = 0;
+            if (nextEntry.xp == null) nextEntry.xp = 0;
+            if (nextEntry.todayDone == null) nextEntry.todayDone = 0;
+            if (!nextEntry.today) nextEntry.today = today() || "";
+            if (nextEntry.lastDay == null) nextEntry.lastDay = "";
+          }
+          nextEntry = freshDay(nextEntry);
+          putEntry(store, nextLevel, nextEntry);
+          saveStore(store);
+          goalsPanelOpen = false;
+          try { if (typeof window.ttcEnterPathFullscreen === "function") window.ttcEnterPathFullscreen(); } catch (eFs) {}
+          draw();
+        } finally {
+          setTimeout(function(){ pathSwitchBusy = false; }, 500);
+        }
+      }).catch(function(){ pathSwitchBusy = false; });
     }
     function drawLearningUnlocked(store, level, entry){
       entry = freshDay(entry);
@@ -197776,17 +198264,17 @@ function buildTtcHskPaper(pool, level, examNo, salt){
         +   "</div>"
         +   "<div class='ttc-path-game-meta'>Hôm nay " + doneHud + "/" + dailyHud + " từ · Chuỗi: " + esc(streakText(state)) + "</div>"
         + "</div>"
-        + "<h3>Lộ trình HSK " + level + "</h3>"
-        + goalReminderHtml(state)
-        + syncNoticeHtml(level)
-        + memoryVaultShell(level)
-        + pathBadgesShell(state, list)
         + "<div class='ttc-path-goals-bar'>"
         +   "<button type='button' class='ttc-path-goals-toggle' aria-expanded='" + (goalsPanelOpen ? "true" : "false") + "'>"
         +     (goalsPanelOpen ? "Thu gọn thiết lập" : "Chỉnh mục tiêu")
         +   "</button>"
         + "</div>"
         + (goalsPanelOpen ? goalsShell() : "")
+        + "<h3>Lộ trình HSK " + level + "</h3>"
+        + goalReminderHtml(state)
+        + syncNoticeHtml(level)
+        + memoryVaultShell(level)
+        + pathBadgesShell(state, list)
         + "<div class='ttc-path-learn'>"
         +   "<div class='ttc-path-main'>"
         +     "<div class='ttc-path-explain-bar'>"
@@ -197807,7 +198295,7 @@ function buildTtcHskPaper(pool, level, examNo, salt){
         +   overviewHtml(state, list)
         + "</div>"
         + "<div class='ttc-daily-actions'></div>"
-        + "<button type='button' class='ttc-path-cancel'>Huỷ lộ trình</button>";
+        + "<button type='button' class='ttc-path-cancel'>HỦY LỘ TRÌNH</button>";
       var remText = reminder(state, list);
       window.__ttcLastVocabPathReminder = remText;
       var explainPanel = box.querySelector(".ttc-path-explain-panel");
@@ -197832,42 +198320,70 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       }
       if (goalsPanelOpen) {
         bindLevelButtons(box.querySelector(".ttc-path-levels"), level, function(nextLevel){
-          store.activeLevel = nextLevel;
-          pickedLevel = nextLevel;
-          saveStore(store);
-          draw();
+          applyPathReselect(store, level, entry, nextLevel, Number(entry.daily) || pickedDaily);
         });
         bindDailyControls(box.querySelector(".ttc-path-goals"), Number(entry.daily) || pickedDaily, function(daily){
-          entry.daily = daily;
-          putEntry(store, level, entry);
-          draw();
+          applyPathReselect(store, level, entry, level, daily);
         });
+        try {
+          requestAnimationFrame(function(){
+            var goalsEl = box.querySelector(".ttc-path-goals");
+            if (goalsEl && goalsEl.scrollIntoView) {
+              goalsEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            }
+          });
+        } catch (eGoalsScroll) {}
       }
       var card = box.querySelector(".ttc-daily-card");
       var actions = box.querySelector(".ttc-daily-actions");
-      var cancel = box.querySelector(".ttc-path-cancel");
-      cancel.addEventListener("click", function(){
-        if (box.querySelector(".ttc-path-cancel-dialog")) return;
-        var dlg = document.createElement("div");
-        dlg.className = "ttc-path-cancel-dialog";
-        dlg.setAttribute("role", "dialog");
-        dlg.setAttribute("aria-modal", "true");
-        dlg.innerHTML = "<p class='ttc-path-cancel-dialog-text'>Bạn có chắc chắn muốn hủy lộ trình học hiện tại không? EXP và thành tích đã lưu sẽ được giữ nguyên.</p>"
-          + "<div class='ttc-path-cancel-dialog-actions'>"
-          +   "<button type='button' class='ttc-path-cancel-no'>Không</button>"
-          +   "<button type='button' class='ttc-path-cancel-yes'>Xác nhận hủy</button>"
-          + "</div>";
-        box.appendChild(dlg);
-        dlg.querySelector(".ttc-path-cancel-no").addEventListener("click", function(){
-          if (dlg.parentNode) dlg.parentNode.removeChild(dlg);
+      var rechoose = box.querySelector(".ttc-path-rechoose");
+      if (rechoose) {
+        rechoose.addEventListener("click", function(ev){
+          if (ev) { ev.preventDefault(); ev.stopPropagation(); }
+          /* Mở UI chọn lộ trình gốc ngay dưới HUD; draw() async nên không scroll sớm. */
+          if (goalsPanelOpen && box.querySelector(".ttc-path-goals")) {
+            try {
+              box.querySelector(".ttc-path-goals").scrollIntoView({ behavior: "smooth", block: "nearest" });
+            } catch (eAlready) {}
+            return;
+          }
+          goalsPanelOpen = true;
+          draw();
         });
-        dlg.querySelector(".ttc-path-cancel-yes").addEventListener("click", function(){
+      }
+      function openPathCancelDialog(){
+        if (document.querySelector(".ttc-path-cancel-overlay")) return;
+        var overlay = document.createElement("div");
+        overlay.className = "ttc-path-cancel-overlay";
+        overlay.innerHTML = ""
+          + "<div class='ttc-path-cancel-dialog' role='dialog' aria-modal='true'>"
+          +   "<p class='ttc-path-cancel-dialog-text'>Bạn có chắc chắn muốn hủy lộ trình học hiện tại không? EXP và thành tích đã lưu sẽ được giữ nguyên.</p>"
+          +   "<div class='ttc-path-cancel-dialog-actions'>"
+          +     "<button type='button' class='ttc-path-cancel-no'>Không</button>"
+          +     "<button type='button' class='ttc-path-cancel-yes'>Xác nhận hủy</button>"
+          +   "</div>"
+          + "</div>";
+        var mount = document.getElementById("ttcPathPanel") || document.body;
+        mount.appendChild(overlay);
+        function closeCancelDialog(){
+          if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+        }
+        overlay.addEventListener("click", function(ev){
+          if (ev.target === overlay) closeCancelDialog();
+        });
+        overlay.querySelector(".ttc-path-cancel-no").addEventListener("click", function(){
+          closeCancelDialog();
+        });
+        overlay.querySelector(".ttc-path-cancel-yes").addEventListener("click", function(){
+          closeCancelDialog();
           entry.on = false;
           putEntry(store, level, entry);
           goalsPanelOpen = false;
-          box.dataset.ready = "";
           draw();
         });
+      }
+      Array.prototype.forEach.call(box.querySelectorAll(".ttc-path-cancel"), function(cancel){
+        cancel.addEventListener("click", openPathCancelDialog);
       });
       syncBoard(state, document.getElementById("ttcAchHost"));
       try { bindGoalRemindOk(level); } catch (eGoalOk) {}
@@ -198254,7 +198770,7 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       function syncButtons(){
         var canDone = phase === "B" && !solved && !busy && !advanced;
         var canConfirm = phase === "D" && solved && !advanced;
-        var canNext = !solved && !advanced && !busy;
+        var canNext = !advanced && !busy;
         btnDone.disabled = !canDone;
         btnConfirm.disabled = !canConfirm;
         btnNext.disabled = !canNext;
@@ -198348,29 +198864,54 @@ function buildTtcHskPaper(pool, level, examNo, salt){
         }
       });
 
+      var answerShownByNext = false;
+      var nextSkipXpApplied = false;
+      btnNext.setAttribute("aria-label", "Lần 1 hiện đáp án, lần 2 sang câu tiếp");
       btnNext.addEventListener("click", function(ev){
         if (ev) { ev.preventDefault(); ev.stopPropagation(); }
-        if (solved || advanced || busy) return;
-        busy = true;
-        syncButtons();
-        var xpNow = Math.max(0, Number(cfg.entry && cfg.entry.xp) || 0);
-        if (xpNow < 5) {
-          skipMsg.hidden = false;
-          skipMsg.textContent = "Không đủ EXP để bỏ qua (cần ít nhất 5 EXP). EXP hiện tại: " + xpNow + ".";
+        if (advanced || busy) return;
+        if (!answerShownByNext) {
+          busy = true;
+          syncButtons();
+          skipMsg.hidden = true;
+          if (!solved && !nextSkipXpApplied) {
+            var xpNow = Math.max(0, Number(cfg.entry && cfg.entry.xp) || 0);
+            if (xpNow < 5) {
+              skipMsg.hidden = false;
+              skipMsg.textContent = "Không đủ EXP để xem đáp án bỏ qua (cần ít nhất 5 EXP). EXP hiện tại: " + xpNow + ".";
+              busy = false;
+              syncButtons();
+              return;
+            }
+            cfg.entry.xp = xpNow - 5;
+            var daySkip = today();
+            if (daySkip) cfg.entry.lastDay = daySkip;
+            putEntry(cfg.store, cfg.level, cfg.entry);
+            pathPaintScore(cfg.level, cfg.entry, -5);
+            nextSkipXpApplied = true;
+          }
+          /* Lần 1: chỉ hiện đáp án đúng, không chuyển câu, không chấm/ghi nhận lại. */
+          pathShowFeedback(
+            feedbackHost,
+            true,
+            cfg.answerLabel(),
+            pathExplainOk(cfg.word),
+            cfg.word,
+            typeof cfg.answerLetter === "function" ? cfg.answerLetter() : ""
+          );
+          answerShownByNext = true;
+          btnNext.textContent = "⏭ NEXT · Sang câu";
           busy = false;
           syncButtons();
           return;
         }
-        skipMsg.hidden = true;
+        /* Lần 2: chuyển câu. Đã trả lời đúng thì giữ ok=true; nếu chỉ xem đáp án thì không tính hoàn thành ngày. */
+        if (advanced || busy) return;
+        busy = true;
         advanced = true;
         phase = "E";
-        cfg.entry.xp = xpNow - 5;
-        var daySkip = today();
-        if (daySkip) cfg.entry.lastDay = daySkip;
-        putEntry(cfg.store, cfg.level, cfg.entry);
-        pathPaintScore(cfg.level, cfg.entry, -5);
         syncButtons();
-        pathAdvanceAfterConfirm(cfg.store, cfg.level, cfg.entry, false);
+        pathAdvanceAfterConfirm(cfg.store, cfg.level, cfg.entry, !!solved);
       });
       if (cfg.btnClear) hosts.controls.appendChild(cfg.btnClear);
       hosts.controls.appendChild(btnDone);
@@ -199102,6 +199643,7 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       box.querySelector(".ttc-daily-actions").appendChild(start);
       syncBoard(viewState(level, entry || { daily: pickedDaily, xp: 0, todayDone: 0 }), document.getElementById("ttcAchHost"));
     }
+    window.__ttcPathRedraw = draw;
     draw();
   };
 })();
@@ -199197,20 +199739,45 @@ function buildTtcHskPaper(pool, level, examNo, salt){
     border:1px solid #bbf7d0;background:#ecfdf5;color:#065f46;border-radius:10px;
     padding:6px 8px;font-weight:800;font-size:12px;
   }
-  .ttc-dict-community{margin-top:12px;padding:12px;border:1px dashed #fecdd3;border-radius:14px;background:#fff7f8}
+  .ttc-dict-community{margin-top:12px;padding:12px;border:1px solid #fecdd3;border-radius:14px;background:#fff7f8}
   .ttc-dict-community-title{font-weight:900;margin:0 0 4px;color:#9f1239}
-  .ttc-dict-community-body{margin:0;font-size:13px;color:#475569;line-height:1.45}
+  .ttc-dict-community-meta{margin:0 0 8px;font-size:13px;color:#475569;line-height:1.45}
+  .ttc-dict-cmt-status{min-height:1.2em;margin:0 0 8px;font-size:13px;font-weight:700;color:#9f1239}
+  .ttc-dict-cmt-status[data-kind="ok"]{color:#047857}
+  .ttc-dict-cmt-status[data-kind="err"]{color:#b91c1c}
+  .ttc-dict-cmt-status[data-kind="pending"]{color:#a16207}
+  .ttc-dict-cmt-list{display:grid;gap:8px;margin:0 0 10px}
+  .ttc-dict-cmt-empty{margin:0;padding:8px 10px;border-radius:10px;background:#fff;border:1px dashed #fecdd3;color:#64748b;font-size:13px}
+  .ttc-dict-cmt-item{margin:0;padding:10px 12px;border-radius:12px;background:#fff;border:1px solid #ffe4e6}
+  .ttc-dict-cmt-item header{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;justify-content:space-between;margin-bottom:4px}
+  .ttc-dict-cmt-item strong{color:#9f1239;font-size:13px}
+  .ttc-dict-cmt-item time{color:#94a3b8;font-size:12px}
+  .ttc-dict-cmt-item p{margin:0;color:#0f172a;font-size:14px;line-height:1.45;white-space:pre-wrap}
+  .ttc-dict-cmt-form{display:grid;gap:6px}
+  .ttc-dict-cmt-lab{font-size:12px;font-weight:800;color:#9f1239}
+  .ttc-dict-cmt-input{width:100%;box-sizing:border-box;min-height:72px;padding:10px 12px;border:1px solid #fecdd3;border-radius:12px;resize:vertical;font:inherit;color:#0f172a;background:#fff}
+  .ttc-dict-cmt-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  .ttc-dict-cmt-send{appearance:none;border:0;border-radius:999px;padding:8px 14px;background:#e11d48;color:#fff;font-weight:800;cursor:pointer}
+  .ttc-dict-cmt-send:disabled{opacity:.55;cursor:not-allowed}
+  .ttc-dict-cmt-hint{font-size:12px;color:#64748b}
   #ttcPathPanel.ttc-path-fs .ttc-path-vault,
   #ttcPathPanel.ttc-path-fs .ttc-path-badges,
   #ttcPathPanel.ttc-path-fs .ttc-path-goal-remind,
   #ttcPathPanel.ttc-path-fs .ttc-path-sync,
-  #ttcPathPanel.ttc-path-fs .ttc-path-goals-bar,
-  #ttcPathPanel.ttc-path-fs .ttc-path-goals,
   #ttcPathPanel.ttc-path-fs .ttc-path-explain-bar,
   #ttcPathPanel.ttc-path-fs .ttc-path-overview,
-  #ttcPathPanel.ttc-path-fs .ttc-path-cancel,
-  #ttcPathPanel.ttc-path-fs .ttc-path-cancel-dialog,
   #ttcPathPanel.ttc-path-fs > h3{display:none !important}
+  /* Goals must stay visible in fullscreen for rechoose. Cancel uses fixed overlay. */
+  #ttcPathPanel.ttc-path-fs .ttc-path-goals-bar,
+  #ttcPathPanel.ttc-path-fs .ttc-path-goals{
+    display:block !important;
+    visibility:visible !important;
+    pointer-events:auto !important;
+    position:relative;
+    z-index:6;
+  }
+  #ttcPathPanel.ttc-path-fs .ttc-path-goals-bar{display:flex !important;flex-wrap:wrap;gap:8px;align-items:center}
+  #ttcPathPanel.ttc-path-fs .ttc-path-hud-top{display:none !important}
   .ttc-path-fs-toolbar{display:none}
   #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar{
     display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:center;
@@ -199511,10 +200078,26 @@ function buildTtcHskPaper(pool, level, examNo, salt){
   #ttcDailyVocab .ttc-path-goals-bar{display:flex;justify-content:center;margin:8px 0 4px}
   #ttcDailyVocab .ttc-path-goals-toggle{border:1px solid #94a3b8;border-radius:12px;background:#fff;color:#334155;font-weight:800;font-size:13px;padding:8px 12px;cursor:pointer}
   #ttcDailyVocab .ttc-path-goals-toggle[aria-expanded="true"]{border-color:#0f766e;color:#0f766e}
-  #ttcDailyVocab .ttc-path-cancel-dialog{position:absolute;left:10px;right:10px;top:52px;z-index:5;padding:14px;border:2px solid #9f1239;border-radius:14px;background:#fff;box-shadow:0 10px 28px rgba(15,23,42,.18);text-align:left}
+  .ttc-path-cancel-overlay{
+    position:fixed !important;inset:0 !important;z-index:1000060 !important;
+    display:flex !important;align-items:center;justify-content:center;
+    padding:max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+    box-sizing:border-box;background:rgba(15,23,42,.48);pointer-events:auto;
+  }
+  .ttc-path-cancel-overlay .ttc-path-cancel-dialog,
+  #ttcDailyVocab .ttc-path-cancel-dialog{
+    position:relative !important;left:auto !important;right:auto !important;top:auto !important;
+    width:min(420px,100%);max-width:100%;margin:0;padding:16px 16px 14px;
+    border:2px solid #9f1239;border-radius:14px;background:#fff;
+    box-shadow:0 18px 48px rgba(15,23,42,.28);text-align:left;z-index:1;
+  }
+  .ttc-path-cancel-overlay .ttc-path-cancel-dialog-text,
   #ttcDailyVocab .ttc-path-cancel-dialog-text{margin:0 0 12px;color:#0f172a;font-size:15px;font-weight:700;line-height:1.45}
+  .ttc-path-cancel-overlay .ttc-path-cancel-dialog-actions,
   #ttcDailyVocab .ttc-path-cancel-dialog-actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+  .ttc-path-cancel-overlay .ttc-path-cancel-no,
   #ttcDailyVocab .ttc-path-cancel-no{border:1px solid #94a3b8;border-radius:12px;background:#f8fafc;color:#334155;font-weight:800;padding:10px 14px;cursor:pointer}
+  .ttc-path-cancel-overlay .ttc-path-cancel-yes,
   #ttcDailyVocab .ttc-path-cancel-yes{border:0;border-radius:12px;background:#9f1239;color:#fff;font-weight:800;padding:10px 14px;cursor:pointer}
   #ttcDailyVocab .ttc-daily-actions{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:8px}
   #ttcDailyVocab .ttc-daily-actions button{border:0;border-radius:999px;background:#9f1239;color:#fff;font-weight:800;padding:8px 14px;cursor:pointer}
