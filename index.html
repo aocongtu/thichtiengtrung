@@ -196079,6 +196079,44 @@ function buildTtcHskPaper(pool, level, examNo, salt){
   setTimeout(layout, 700);
 })();
 </script>
+<style id="ttcPathWorldTickerCss">
+.ttc-path-world-ticker{
+  display:none;height:28px;margin:0 0 8px;padding:0 10px;box-sizing:border-box;
+  border-radius:10px;overflow:hidden;position:relative;
+  background:rgba(15,23,42,.72);border:1px solid rgba(250,204,21,.28);
+  color:#fef9c3;font-weight:700;font-size:12px;line-height:28px;
+  z-index:20;pointer-events:none;user-select:none;
+}
+#ttcPathPanel.ttc-path-fs > .ttc-path-world-ticker{
+  display:block;position:sticky;top:0;width:100%;max-width:min(1100px,100%);
+  margin-left:auto;margin-right:auto;
+}
+.ttc-path-world-ticker-track{position:relative;width:100%;height:100%;overflow:hidden}
+.ttc-path-world-ticker-text{
+  display:inline-block;white-space:nowrap;will-change:transform;
+  transform:translateX(100%);
+}
+.ttc-path-world-ticker.is-running .ttc-path-world-ticker-text{
+  animation-name:ttcPathTickerRun;
+  animation-timing-function:linear;
+  animation-fill-mode:forwards;
+}
+.ttc-path-world-ticker.is-static .ttc-path-world-ticker-text{
+  animation:none !important;transform:none !important;
+  max-width:100%;overflow:hidden;text-overflow:ellipsis;
+  padding:0 4px;
+}
+@keyframes ttcPathTickerRun{
+  from{transform:translateX(var(--ttc-ticker-from,100%))}
+  to{transform:translateX(var(--ttc-ticker-to,-100%))}
+}
+@media (max-width:600px){
+  .ttc-path-world-ticker{height:30px;line-height:30px;font-size:11px;border-radius:9px;margin-bottom:6px}
+}
+@media (prefers-reduced-motion:reduce){
+  .ttc-path-world-ticker.is-running .ttc-path-world-ticker-text{animation:none !important;transform:none !important}
+}
+</style>
 <style id="ttcPathRechooseHudFix">
 .ttc-path-hud-top{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 8px;position:relative;z-index:5}
 .ttc-path-rechoose,.ttc-path-cancel-hud{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:6px 10px;border-radius:9px;font-weight:800;font-size:12px;cursor:pointer;border:1px solid #94a3b8;background:#f8fafc;color:#0f172a;pointer-events:auto}
@@ -197538,6 +197576,126 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       if (btn.parentNode !== bar) bar.appendChild(btn);
       return btn;
     }
+    var PATH_WORLD_TICKER_MSGS = [
+      "🌟 Mỗi từ vựng hôm nay là một bước tiến đến HSK9!",
+      "🎯 Đừng học để nhớ thật nhanh, hãy học để nhớ thật lâu!",
+      "🏆 Bạn đã vượt qua chính mình của ngày hôm qua!",
+      "🇨🇳 坚持就是胜利！Kiên trì chính là chiến thắng!",
+      "💪 Đừng bỏ cuộc giữa chừng, thành quả đang chờ bạn!",
+      "📚 Mỗi ngày một chút, kiến thức sẽ tích lũy thành thành công!",
+      "✨ Học tiếng Trung không khó, điều quan trọng là kiên trì!",
+      "🌸 今天也要加油！Hôm nay cũng hãy cố gắng nhé!",
+      "🚀 Chinh phục từng từ vựng, tiến gần hơn đến mục tiêu HSK!",
+      "❤️ Cảm ơn bạn đã dành thời gian học tập hôm nay!"
+    ];
+    var pathWorldTickerState = {
+      idx: 0,
+      timer: null,
+      running: false,
+      onAnimEnd: null
+    };
+    function pathWorldTickerPrefersReducedMotion(){
+      try {
+        return !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+      } catch (eM) { return false; }
+    }
+    function ensurePathWorldTicker(panelEl){
+      if (!panelEl) panelEl = document.getElementById("ttcPathPanel");
+      if (!panelEl) return null;
+      var el = document.getElementById("ttcPathWorldTicker");
+      if (!el) {
+        el = document.createElement("div");
+        el.id = "ttcPathWorldTicker";
+        el.className = "ttc-path-world-ticker";
+        el.setAttribute("aria-live", "off");
+        el.innerHTML = "<div class='ttc-path-world-ticker-track'><span class='ttc-path-world-ticker-text'></span></div>";
+      }
+      /* Always keep a single ticker as first child of the FS panel. */
+      if (el.parentNode !== panelEl || panelEl.firstChild !== el) {
+        panelEl.insertBefore(el, panelEl.firstChild);
+      }
+      /* Remove accidental duplicates. */
+      Array.prototype.forEach.call(panelEl.querySelectorAll(".ttc-path-world-ticker"), function(node){
+        if (node !== el && node.parentNode) node.parentNode.removeChild(node);
+      });
+      return el;
+    }
+    function stopPathWorldTicker(){
+      pathWorldTickerState.running = false;
+      if (pathWorldTickerState.timer) {
+        clearTimeout(pathWorldTickerState.timer);
+        pathWorldTickerState.timer = null;
+      }
+      var el = document.getElementById("ttcPathWorldTicker");
+      if (!el) return;
+      var text = el.querySelector(".ttc-path-world-ticker-text");
+      if (text) {
+        if (pathWorldTickerState.onAnimEnd) {
+          try { text.removeEventListener("animationend", pathWorldTickerState.onAnimEnd); } catch (eR) {}
+          pathWorldTickerState.onAnimEnd = null;
+        }
+        text.style.animation = "none";
+        text.style.transform = "";
+        text.textContent = "";
+      }
+      el.classList.remove("is-running", "is-static");
+    }
+    function startPathWorldTicker(){
+      var panelEl = document.getElementById("ttcPathPanel");
+      if (!panelEl || !panelEl.classList.contains("ttc-path-fs")) {
+        stopPathWorldTicker();
+        return;
+      }
+      var el = ensurePathWorldTicker(panelEl);
+      if (!el) return;
+      if (pathWorldTickerState.running) return;
+      pathWorldTickerState.running = true;
+      function showNext(){
+        if (!pathWorldTickerState.running) return;
+        if (!panelEl.classList.contains("ttc-path-fs")) { stopPathWorldTicker(); return; }
+        var text = el.querySelector(".ttc-path-world-ticker-text");
+        var track = el.querySelector(".ttc-path-world-ticker-track");
+        if (!text || !track) return;
+        if (pathWorldTickerState.onAnimEnd) {
+          try { text.removeEventListener("animationend", pathWorldTickerState.onAnimEnd); } catch (eR2) {}
+          pathWorldTickerState.onAnimEnd = null;
+        }
+        if (pathWorldTickerState.timer) {
+          clearTimeout(pathWorldTickerState.timer);
+          pathWorldTickerState.timer = null;
+        }
+        var msg = PATH_WORLD_TICKER_MSGS[pathWorldTickerState.idx % PATH_WORLD_TICKER_MSGS.length];
+        pathWorldTickerState.idx = (pathWorldTickerState.idx + 1) % PATH_WORLD_TICKER_MSGS.length;
+        text.textContent = msg;
+        text.style.animation = "none";
+        text.style.transform = "";
+        void text.offsetWidth;
+        if (pathWorldTickerPrefersReducedMotion()) {
+          el.classList.add("is-static");
+          el.classList.remove("is-running");
+          pathWorldTickerState.timer = setTimeout(showNext, 4000);
+          return;
+        }
+        el.classList.remove("is-static");
+        el.classList.add("is-running");
+        var from = track.clientWidth || el.clientWidth || 300;
+        var to = -(text.scrollWidth || text.offsetWidth || 200);
+        var distance = from - to;
+        var duration = Math.max(9, Math.min(28, distance / 85));
+        text.style.setProperty("--ttc-ticker-from", from + "px");
+        text.style.setProperty("--ttc-ticker-to", to + "px");
+        text.style.animationDuration = duration + "s";
+        text.style.animation = "ttcPathTickerRun " + duration + "s linear forwards";
+        pathWorldTickerState.onAnimEnd = function(ev){
+          if (ev && ev.target !== text) return;
+          if (!pathWorldTickerState.running) return;
+          el.classList.remove("is-running");
+          pathWorldTickerState.timer = setTimeout(showNext, 2500);
+        };
+        text.addEventListener("animationend", pathWorldTickerState.onAnimEnd);
+      }
+      showNext();
+    }
     function enterPathFullscreen(){
       var panelEl = document.getElementById("ttcPathPanel");
       if (!panelEl) return;
@@ -197547,11 +197705,14 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       panelEl.classList.add("ttc-path-fs");
       panelEl.hidden = false;
       ensurePathFsExitBtn(panelEl);
+      try { ensurePathWorldTicker(panelEl); } catch (eTk) {}
       try { panelEl.scrollTop = 0; } catch (eFs) {}
+      try { startPathWorldTicker(); } catch (eStartTk) {}
     }
     function exitPathFullscreen(alsoCollapse){
       var panelEl = document.getElementById("ttcPathPanel");
       var launcherEl = document.getElementById("ttcPathLauncher");
+      try { stopPathWorldTicker(); } catch (eStopTk) {}
       if (panelEl) panelEl.classList.remove("ttc-path-fs");
       document.body.classList.remove("ttc-path-fs-lock");
       var y = pathFsState.scrollY || 0;
@@ -197576,6 +197737,8 @@ function buildTtcHskPaper(pool, level, examNo, salt){
     window.ttcPathEnsureFsToolbar = ensurePathFsExitBtn;
     window.ttcEnterPathFullscreen = enterPathFullscreen;
     window.ttcExitPathFullscreen = exitPathFullscreen;
+    window.ttcStartPathWorldTicker = startPathWorldTicker;
+    window.ttcStopPathWorldTicker = stopPathWorldTicker;
     var launcher = document.getElementById("ttcPathLauncher");
     var panel = document.getElementById("ttcPathPanel");
     if (launcher && panel && launcher.dataset.bound !== "1") {
@@ -198247,6 +198410,13 @@ function buildTtcHskPaper(pool, level, examNo, salt){
         }
       }catch(ePreMem){}
       try { if (typeof window.ttcPathParkFsToolbar === "function") window.ttcPathParkFsToolbar(); } catch (ePark) {}
+      try {
+        var panelForTicker = document.getElementById("ttcPathPanel");
+        if (panelForTicker && panelForTicker.classList.contains("ttc-path-fs")) {
+          ensurePathWorldTicker(panelForTicker);
+          if (!pathWorldTickerState.running) startPathWorldTicker();
+        }
+      } catch (eTickerDraw) {}
       var pathPosHud = Math.max(0, Number(state.index) || 0);
       var totalHud = list.length;
       var dailyHud = Number(state.daily) || 0;
@@ -199564,6 +199734,7 @@ function buildTtcHskPaper(pool, level, examNo, salt){
       });
     }
     function setup(store, level, entry){
+      try { stopPathWorldTicker(); } catch (eSetupTk) {}
       pickedLevel = level;
       if (entry && parseDaily(entry.daily) != null) pickedDaily = Number(entry.daily);
       var progress = hasProgress(entry);
