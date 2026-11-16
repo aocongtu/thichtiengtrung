@@ -1153,6 +1153,26 @@
 @keyframes ttt-rainbow-glow{from{filter:drop-shadow(0 0 1px rgba(255,23,68,.35))}to{filter:drop-shadow(0 0 9px rgba(224,64,251,.65))}}
 @media (prefers-reduced-motion:reduce){.ttt-rainbow{animation:none}}
 </style>
+<style id="ttc-script-switch-style">
+/* Nut chuyen Giản thể <> Phồn thể (port tu index1 / legacy-index.html, thiet ke theo token index2) */
+.ttc-script-switch{
+  display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;
+  min-height:clamp(34px, 4.2vw, 42px);padding:0 clamp(10px, 1vw, 14px);
+  border:1.5px solid #f5a2c0;border-radius:999px;background:#fff7fa;color:#a51f4b;
+  font-weight:800;font-size:clamp(12px, 1.1vw, 13.5px);line-height:1;white-space:nowrap;
+  cursor:pointer;flex:0 0 auto;box-shadow:0 3px 12px rgba(165,31,75,.12);
+}
+.ttc-script-switch:hover{background:#ffeef5}
+.ttc-script-switch:focus-visible{outline:3px solid #f5a2c0;outline-offset:3px}
+.ttc-script-switch[aria-pressed="true"]{background:#a51f4b;color:#fff;border-color:#a51f4b}
+html[data-theme="night"] .ttc-script-switch{background:#1e293b;color:#fda4af;border-color:#475569;box-shadow:none}
+@media (max-width:767px){
+  .ttc-script-switch{min-height:42px;padding:0 9px;font-size:12px}
+}
+@media (max-width:420px){
+  .ttc-script-switch{padding:0 8px;font-size:11.5px}
+}
+</style>
 </head>
 <body class="otter2-body">
   
@@ -1185,6 +1205,7 @@
         <button type="button" data-otter2-screen="vocab"><span class="otter2-pill-ico" aria-hidden="true">🔍</span><span class="otter2-pill-txt">Tìm kiếm</span></button>
       </nav>
       <div class="otter2-nav-right">
+        <button type="button" id="ttcScriptSwitch" class="ttc-script-switch" aria-label="Chuyển toàn bộ nội dung giữa giản thể và phồn thể">简体 ⇄ 繁體</button>
         <button type="button" class="otter2-chat-nav" id="otter2ChatOnlineBtn" data-ttc-chat title="Chat Online" aria-label="Chat Online">💬</button>
         <button type="button" class="otter2-premium" id="otter2PremiumBtn" aria-label="Premium" hidden>👑 Premium</button>
         <div class="otter2-account-slot" id="otter2AccountSlot">
@@ -21745,5 +21766,98 @@ setupFlashcardMobile();
 })();
 </script>
   <script src="assets/index2/otter2-guide.js" defer></script>
+<script id="ttc-script-switch-engine">
+(function(){
+  const button=document.getElementById('ttcScriptSwitch');
+  if(!button)return;
+  let traditional=false;
+  const script=document.createElement('script');
+  script.src='https://cdn.jsdelivr.net/npm/opencc-js@1.0.5/dist/umd/full.js';
+  script.async=true;
+  script.onload=function(){
+    try{
+      if(window.OpenCC){
+        window.__ttcOpenCC={
+          s2t:window.OpenCC.Converter({from:'cn',to:'tw'}),
+          t2s:window.OpenCC.Converter({from:'tw',to:'cn'})
+        };
+        button.dataset.ready='true';
+      }
+    }catch(e){console.warn('OpenCC init failed',e);}
+  };
+  script.onerror=function(){button.dataset.ready='fallback';};
+
+  const fallbackMap={'汉':'漢','语':'語','这':'這','个':'個','们':'們','学':'學','习':'習','国':'國','门':'門','书':'書','车':'車','时':'時','间':'間','听':'聽','说':'說','话':'話','请':'請','谢':'謝','爱':'愛','见':'見','开':'開','关':'關','发':'發','后':'後','里':'裡','东':'東','长':'長','来':'來','气':'氣','电':'電','脑':'腦','饭':'飯','妈':'媽','爷':'爺','对':'對','为':'為','会':'會','过':'過','还':'還','没':'沒','现':'現','经':'經','动':'動','实':'實','体':'體','万':'萬','与':'與','从':'從','无':'無','声':'聲','边':'邊','点':'點','员':'員','师':'師','问':'問','风':'風','云':'雲','鱼':'魚','鸟':'鳥','马':'馬','难':'難','头':'頭','脸':'臉','阳':'陽','阴':'陰','写':'寫','读':'讀','画':'畫','买':'買','卖':'賣','钱':'錢','欢':'歡','乐':'樂','亲':'親','级':'級','题':'題','远':'遠','进':'進','让':'讓','认':'認','识':'識','种':'種','样':'樣','处':'處','岁':'歲','复':'復','温':'溫','热':'熱','园':'園','树':'樹','叶':'葉','红':'紅','绿':'綠','蓝':'藍','黄':'黃','线':'線','鸡':'雞','面':'麵','医':'醫','药':'藥','课':'課','钟':'鐘','济':'濟','系':'係','应':'應','该':'該','尽':'盡','场':'場','广':'廣','图':'圖','馆':'館','厅':'廳','楼':'樓','层':'層','队':'隊','吗':'嗎'};
+  const reverseMap={};
+  Object.keys(fallbackMap).forEach(k=>{if(!reverseMap[fallbackMap[k]])reverseMap[fallbackMap[k]]=k;});
+  window.__ttcSimplifyHanzi=function(value){
+    var converter=window.__ttcOpenCC&&window.__ttcOpenCC.t2s;
+    return convertString(value,converter,false);
+  };
+  window.__ttcTraditionalHanzi=function(value){
+    var converter=window.__ttcOpenCC&&window.__ttcOpenCC.s2t;
+    return convertString(value,converter,true);
+  };
+  function convertString(value,converter,toTraditional){
+    if(!value)return value;
+    if(converter){try{return converter(value);}catch(e){}}
+    const map=toTraditional?fallbackMap:reverseMap;
+    return value.replace(/[\u4e00-\u9fff]/g,ch=>map[ch]||ch);
+  }
+  function convertPage(toTraditional){
+    const opencc=window.__ttcOpenCC;
+    const converter=opencc?(toTraditional?opencc.s2t:opencc.t2s):null;
+    const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
+    const nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);
+    nodes.forEach(node=>{
+      if(!node.nodeValue.trim()||node.parentElement?.closest('script,style,noscript,textarea,input,select,option,[contenteditable="true"],#ttcScriptSwitch'))return;
+      node.nodeValue=convertString(node.nodeValue,converter,toTraditional);
+    });
+    document.querySelectorAll('input[placeholder],textarea[placeholder],button[aria-label],img[alt],title').forEach(el=>{
+      ['placeholder','aria-label','alt'].forEach(attr=>{if(el.hasAttribute(attr))el.setAttribute(attr,convertString(el.getAttribute(attr),converter,toTraditional));});
+    });
+    document.querySelectorAll('input[type="text"],textarea').forEach(el=>{if(el.value)el.value=convertString(el.value,converter,toTraditional);});
+    if(window.__ttcReadingBank)Object.values(window.__ttcReadingBank).flat().forEach(item=>{
+      ['title','zh'].forEach(k=>{if(typeof item[k]==='string')item[k]=convertString(item[k],converter,toTraditional);});
+    });
+    if(Array.isArray(window.words))window.words.forEach(w=>['h','hanzi','word','example'].forEach(k=>{if(typeof w[k]==='string')w[k]=convertString(w[k],converter,toTraditional);}));
+    traditional=!!toTraditional;
+    button.dataset.scriptMode=traditional?'traditional':'simplified';
+    button.textContent=traditional?'Phồn thể ⇄ Giản thể':'Giản thể ⇄ Phồn thể';
+    button.setAttribute('aria-pressed',String(traditional));
+    button.title=traditional?'Đang hiển thị Phồn thể; nhấn để chuyển về Giản thể.':'Đang hiển thị Giản thể; nhấn để chuyển sang Phồn thể.';
+  }
+  document.head.appendChild(script);
+
+  const dynamicObserver=new MutationObserver(records=>{
+    if(!traditional)return;
+    const converter=window.__ttcOpenCC?window.__ttcOpenCC.s2t:null;
+    records.forEach(record=>record.addedNodes.forEach(node=>{
+      if(node.nodeType===Node.TEXT_NODE){
+        if(node.nodeValue.trim()&&!node.parentElement?.closest('script,style,noscript,textarea,input,select,option,[contenteditable="true"],#ttcScriptSwitch'))
+          node.nodeValue=convertString(node.nodeValue,converter,true);
+      }else if(node.nodeType===Node.ELEMENT_NODE&&!node.matches('script,style,noscript,textarea,input,select,option,[contenteditable="true"]')){
+        const walker=document.createTreeWalker(node,NodeFilter.SHOW_TEXT),found=[];
+        while(walker.nextNode())found.push(walker.currentNode);
+        found.forEach(t=>{if(t.nodeValue.trim()&&!t.parentElement?.closest('script,style,noscript,textarea,input,select,option,[contenteditable="true"],#ttcScriptSwitch'))t.nodeValue=convertString(t.nodeValue,converter,true);});
+      }
+    }));
+  });
+  dynamicObserver.observe(document.body,{childList:true,subtree:true});
+
+  button.dataset.scriptMode='simplified';
+  button.title='Đang hiển thị Giản thể; nhấn để chuyển sang Phồn thể.';
+  button.addEventListener('click',function(){
+    // Read the state from the explicit mode marker as well as the internal state.
+    traditional=button.dataset.scriptMode==='traditional';
+    const nextTraditional=!traditional;
+    const message=nextTraditional
+      ?'Bạn có thật sự muốn chuyển toàn bộ nội dung sang PHỒN THỂ không?'
+      :'Bạn có thật sự muốn chuyển toàn bộ nội dung về GIẢN THỂ không?';
+    if(!window.confirm(message))return;
+    convertPage(nextTraditional);
+  });
+})();
+</script>
 </body>
 </html>
