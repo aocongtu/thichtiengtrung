@@ -296,7 +296,7 @@
       /* Trong phiên lộ trình fullscreen: neo bé ở DẢI TRÊN CÙNG (phía trên
          khu câu hỏi/bài đọc) thay vì góc dưới — theo yêu cầu chủ web. */
       if (pathFsActive()) return 4;
-      var m = window.innerWidth <= 720 ? 4 : 12; return Math.max(6, window.innerHeight - roamH() - m);
+      var m = window.innerWidth <= 720 ? 8 : 12; return Math.max(6, window.innerHeight - roamH() - m);
     }
     function dockX(side) { return side === "left" ? 12 : Math.max(8, window.innerWidth - roamW() - 14); }
     function applyPos() { roam.style.transform = "translate(" + pos.x + "px," + pos.y + "px)"; }
@@ -1000,9 +1000,31 @@
 
     /* ---------------- Start: docked bottom-right ---------------- */
     pos.x = dockX("right"); pos.y = dockY(); applyPos();
+    /* Căn lại vị trí neo bằng kích thước THẬT của bé: lúc build() chạy, ảnh
+       (data URI) có thể chưa giải mã xong nên roamH() dùng số dự phòng 150 —
+       chiều cao thật lớn hơn sẽ làm bé tràn khỏi mép dưới/phải (đúng lỗi đã
+       thấy trên web thật: mới tải trang, bé ở góc dưới-phải bị cắt một phần).
+       clampIntoView() chỉ kéo bé vào khi vị trí hiện tại thật sự tràn khỏi
+       khung nhìn (chừa lề an toàn tối thiểu 6px), không đụng vị trí hợp lệ. */
+    function clampIntoView() {
+      if (roam.hidden) return;
+      var w = roam.offsetWidth, h = roam.offsetHeight;
+      if (!w || !h) return;
+      pos.x = clampNum(pos.x, 6, Math.max(6, window.innerWidth - w - 6));
+      pos.y = clampNum(pos.y, 6, Math.max(6, window.innerHeight - h - 6));
+      applyPos();
+      placeBubble();
+    }
+    var roamImg = roam.querySelector("img");
+    if (roamImg) {
+      if (roamImg.complete) clampIntoView();
+      else roamImg.addEventListener("load", clampIntoView);
+    }
+    window.addEventListener("load", clampIntoView);
     setTimeout(function () {
+      clampIntoView();
       if (guidePanel.hidden && !roam.hidden) {
-        showBubble("你好！Mình là Bé Rái Cá — giờ mình có đủ chân tay rồi nè! Bấm vào mình, mình chạy dẫn bạn đi khắp web, tới nơi là mình nhảy lên chỉ cho bạn thấy.", 11000);
+        showBubble("你好！Mình là Bé Rái Cá — bạn đồng hành học tiếng Trung của bạn nè! Bấm vào mình, mình chạy dẫn bạn đi khắp web, tới nơi là mình nhảy lên chỉ cho bạn thấy.", 11000);
       }
     }, 1200);
 
@@ -1036,6 +1058,11 @@
          thoát phiên -> bé về góc dưới-phải quen thuộc. */
     try { initGuidePathFs(); } catch (eFsGuide) {
       if (window.console && console.warn) console.warn("Guide path-fs off:", eFsGuide);
+    }
+
+    /* ---------------- Bé Rái Cá TRÒ CHUYỆN (chatter, additive) ---------------- */
+    try { initChatter(); } catch (eChatter) {
+      if (window.console && console.warn) console.warn("Guide chatter off:", eChatter);
     }
     function initGuidePathFs() {
       var fsStyle = document.createElement("style");
@@ -1351,6 +1378,158 @@
           setTimeout(function () { try { checkDailyMilestones(); } catch (eSt) {} }, 300);
         }
       });
+    }
+
+    /* ---------------- Bé Rái Cá TRÒ CHUYỆN ngẫu nhiên (chatter) ----------------
+       Yêu cầu chủ web (2026-11-17): "chú rái cá dẫn đường thi thoảng nói vài
+       câu nữa" — và người dùng tắt được tính năng này, hoặc cho bé nghỉ như
+       chế độ hiện tại thì bé cũng im.
+       - Công tắc "💬 Bé trò chuyện" trong panel, ngay dưới hàng "⏰ Nhắc học";
+         lưu ở key riêng "otter2_guide_chatter_v1" ({enabled}), mặc định BẬT.
+         Tắt là huỷ luôn đồng hồ đang đếm — bé im hẳn.
+       - Chu kỳ: mỗi 60–120 giây (ngẫu nhiên) xét điều kiện một lần; lỡ điều
+         kiện thì thử lại sau ~25 giây. Câu đầu tiên không sớm hơn 45 giây
+         sau khi tải trang.
+       - Điều kiện nói (phải thỏa TẤT CẢ): công tắc bật; bé đang hiển thị
+         (không ở chế độ nghỉ/ẩn); panel đang đóng; không trong chuyến dẫn
+         đường (tripActive); không đang chạy (rafId); không bị park trong
+         15 giây gần nhất và đã hết hạn park (parkUntil); người dùng không
+         tương tác gì trong 20 giây gần nhất; tab đang visible; KHÔNG ở
+         fullscreen lộ trình (trong fs chỉ giữ lời khen theo ngữ cảnh của
+         study-buddy như hiện tại); bong bóng thoại đang trống.
+       - Phát câu bằng đúng speak() sẵn có (tôn trọng công tắc Giọng đọc)
+         + showBubble(line, 4500); thỉnh thoảng nhảy lên một cái cho vui. */
+    function initChatter() {
+      var CHAT_KEY = "otter2_guide_chatter_v1";
+      var FIRST_AFTER_MS = 45000;
+      var chatEnabled = true;
+      try {
+        var rawC = localStorage.getItem(CHAT_KEY);
+        var oc = rawC ? JSON.parse(rawC) : null;
+        if (oc && typeof oc.enabled === "boolean") chatEnabled = oc.enabled;
+      } catch (eLoadC) {}
+      function saveChatter() {
+        try { localStorage.setItem(CHAT_KEY, JSON.stringify({ enabled: chatEnabled })); } catch (eSaveC) {}
+      }
+      var CHAT_LINES = [
+        "Học tiếng Trung mỗi ngày một chút thôi, giỏi lúc nào không hay luôn đó! 💪",
+        "加油 (jiāyóu) — cố lên bạn ơi! Học thêm vài từ nữa thôi nè.",
+        "Bạn biết không, 谢谢 (xièxie) nghĩa là cảm ơn đó — nói thử một lần xem nào!",
+        "Hôm nay bạn cười chưa? Học mà vui thì nhớ lâu lắm đó nha! 😄",
+        "Mình đố bạn nè: 你好 (nǐ hǎo) nghĩa là gì? Là xin chào đó, dễ ợt ha!",
+        "Chữ Hán nhìn khó vậy thôi, viết vài lần là quen tay liền à.",
+        "Nghỉ mắt 5 giây, uống một ngụm nước rồi mình học tiếp nhé! 💧",
+        "Từ nào khó quá, cứ bấm vào mình — mình dẫn bạn tới kho từ vựng ôn lại nha.",
+        "学习 (xuéxí) nghĩa là học tập — tụi mình đang xuéxí cùng nhau mỗi ngày nè!",
+        "Bạn học đều thế này, chẳng mấy chốc nói chuyện với 老师 (lǎoshī) được luôn đó!",
+        "Mình thích nhất là lúc bạn đánh dấu đã thuộc một từ — vui lây luôn á! 🎉",
+        "Một ngày 10 từ, một tháng là 300 từ — bạn đang làm được đó, giỏi quá đi!",
+        "朋友 (péngyou) nghĩa là bạn bè — bạn là péngyou thân nhất của mình nè!",
+        "Đừng sợ nói sai nha: sai thì sửa, sửa rồi mới nhớ thật lâu.",
+        "Tối nay 19:30 có bài học mới trên trang Facebook đó, bạn nhớ đón xem nhé!",
+        "再见 (zàijiàn) là tạm biệt — nhưng mình chưa đi đâu, mình vẫn ở đây với bạn nè! 🦦"
+      ];
+      var bornAt = Date.now();
+      var lastActAt = 0;
+      var lastLineIdx = -1;
+      var chatTimer = null;
+
+      /* Mốc tương tác gần nhất của người dùng (mọi thao tác ngoài guide). */
+      function noteUserAct(ev) {
+        try {
+          var t = ev && ev.target;
+          if (t && t.closest && t.closest("[data-guide-root]")) return;
+        } catch (eT) {}
+        lastActAt = Date.now();
+      }
+      document.addEventListener("pointerdown", noteUserAct, true);
+      document.addEventListener("keydown", noteUserAct, true);
+      document.addEventListener("touchstart", noteUserAct, { capture: true, passive: true });
+
+      /* ----- Công tắc trong panel, ngay dưới hàng "⏰ Nhắc học" ----- */
+      var chatToggle = null;
+      try {
+        var chatBox = document.createElement("div");
+        chatBox.className = "guide-study";
+        chatBox.innerHTML =
+          '<button type="button" class="guide-voice" id="guideChatterToggle" aria-pressed="true">' +
+            "<span>💬 Bé trò chuyện: Bật</span></button>";
+        var studyBoxEl = guidePanel.querySelector(".guide-study");
+        if (studyBoxEl && studyBoxEl.parentNode) {
+          studyBoxEl.parentNode.insertBefore(chatBox, studyBoxEl.nextSibling);
+        } else {
+          var footEl = guidePanel.querySelector(".guide-foot");
+          if (footEl && footEl.parentNode) footEl.parentNode.insertBefore(chatBox, footEl);
+        }
+        chatToggle = chatBox.querySelector("#guideChatterToggle");
+        if (chatToggle) {
+          chatToggle.addEventListener("click", function () { setChatterEnabled(!chatEnabled); });
+        }
+      } catch (ePanelC) { /* panel phụ lỗi thì bỏ qua, chatter vẫn chạy nền */ }
+      function refreshChatRow() {
+        if (!chatToggle) return;
+        chatToggle.setAttribute("aria-pressed", chatEnabled ? "true" : "false");
+        var sp = chatToggle.querySelector("span");
+        if (sp) sp.textContent = chatEnabled ? "💬 Bé trò chuyện: Bật" : "💬 Bé trò chuyện: Tắt";
+      }
+      function setChatterEnabled(on) {
+        chatEnabled = !!on;
+        saveChatter();
+        refreshChatRow();
+        if (!chatEnabled) { clearTimeout(chatTimer); chatTimer = null; }
+        else scheduleChatter();
+      }
+      refreshChatRow();
+
+      function chatterDue() {
+        if (!chatEnabled) return false;
+        if (roam.hidden) return false;                 /* bé đang nghỉ -> im */
+        if (!guidePanel.hidden) return false;          /* panel đang mở */
+        if (tripActive || rafId) return false;         /* đang dẫn đường / đang chạy */
+        if (pathFsActive()) return false;              /* trong lộ trình: chỉ khen theo ngữ cảnh */
+        if (document.hidden) return false;             /* tab không hiển thị */
+        var now = Date.now();
+        if (now - bornAt < FIRST_AFTER_MS) return false;
+        if (now < parkUntil || now - lastPark < 15000) return false;
+        if (lastActAt && now - lastActAt < 20000) return false;
+        if (!roamBubble.hidden) return false;          /* bong bóng đang bận (chào/khen/nhắc) */
+        return true;
+      }
+      function fireChatter() {
+        var idx = Math.floor(Math.random() * CHAT_LINES.length);
+        if (CHAT_LINES.length > 1 && idx === lastLineIdx) idx = (idx + 1) % CHAT_LINES.length;
+        lastLineIdx = idx;
+        var line = CHAT_LINES[idx];
+        try { speak(line); } catch (eSp) {}
+        showBubble(line, 4500);
+        if (Math.random() < 0.35) jumpOtter();
+      }
+      function scheduleChatter(delay) {
+        clearTimeout(chatTimer);
+        if (!chatEnabled) { chatTimer = null; return; }
+        chatTimer = setTimeout(chatterTick, delay == null ? 60000 + Math.random() * 60000 : delay);
+      }
+      function chatterTick() {
+        chatTimer = null;
+        if (!chatEnabled) return;
+        if (document.hidden) return; /* visibilitychange sẽ hẹn lại khi tab hiện */
+        if (chatterDue()) { fireChatter(); scheduleChatter(); }
+        else scheduleChatter(25000);
+      }
+      document.addEventListener("visibilitychange", function () {
+        if (document.hidden) { clearTimeout(chatTimer); chatTimer = null; }
+        else if (chatEnabled && !chatTimer) scheduleChatter(20000);
+      });
+      scheduleChatter();
+
+      /* Phơi ra cho kiểm thử tự động + gỡ lỗi tay; vô hại khi chạy thật. */
+      window.__otter2GuideChatter = {
+        due: chatterDue,
+        fire: fireChatter,
+        enabled: function () { return chatEnabled; },
+        setEnabled: setChatterEnabled,
+        lines: CHAT_LINES.slice()
+      };
     }
   }
 })();

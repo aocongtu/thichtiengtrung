@@ -1338,6 +1338,17 @@ html[data-theme="night"] .otter2-dash-chip.is-cur{background:#16a34a;color:#fff}
 html[data-theme="night"] #otter2-home .otter2-dash-chip.is-cur{background:#16a34a;border-color:#16a34a;color:#fff}
 html[data-theme="night"] #otter2-home #otter2HskJourney .otter2-node.is-on{background:#16a34a;color:#fff;border-color:#16a34a}
 html[data-theme="night"] #otter2-home #otter2HskJourney .otter2-type-btn.is-on{background:#16a34a;color:#fff;border-color:#16a34a}
+/* ===== GỘP LỐI VÀO LỘ TRÌNH VÀO THẺ HERO + ẨN THẺ DƯỚI (yêu cầu chủ web 2026-11-17) =====
+   Thẻ "Học từ vựng theo lộ trình" ở cuối cột trái (#otter2PathProgress) bị ẩn hẳn.
+   Markup + id giữ nguyên 100% trong HTML (không phá script nào); panel lộ trình và
+   bảng thành tích đều portal ra document.body khi mở nên ẩn thẻ chứa không ảnh hưởng.
+   Lối vào chuyển lên thẻ hero: bấm hero = kích hoạt đúng nút #ttcPathLauncher cũ
+   (cùng cổng tài khoản pathCheckAccess -> checkPremiumAccess, cùng cách mở fullscreen). */
+#otter2PathProgress{display:none !important}
+.otter2-dash-hero{cursor:pointer;transition:filter .18s ease}
+.otter2-dash-hero:hover{filter:brightness(1.06)}
+.otter2-dash-hero:focus-visible{outline:3px solid #16a34a;outline-offset:2px}
+.otter2-dash-hero-cta{display:inline-flex;align-items:center;gap:6px;margin-top:11px;padding:5px 13px;border-radius:999px;background:rgba(255,255,255,.22);color:#fff;font-size:.78rem;font-weight:800;letter-spacing:.01em;pointer-events:none}
 </style>
 <style id="ttc-write-css">
 /* ===== LUYỆN VIẾT CHỮ HÁN (module additive, prefix ttc-write-) ===== */
@@ -22886,6 +22897,49 @@ setupFlashcardMobile();
     });
     var cont = $("otter2DashContinueBtn");
     if (cont) cont.addEventListener("click", function () { gotoLevel(currentLevel()); });
+
+    /* GỘP LỐI VÀO LỘ TRÌNH VÀO THẺ HERO (2026-11-17): thẻ "Học từ vựng theo
+       lộ trình" ở cuối cột trái đã ẩn (CSS #otter2PathProgress) — bấm vào thẻ
+       hero "HSK x — Lộ trình từ vựng" là vào học luôn, bằng cách kích hoạt
+       ĐÚNG nút #ttcPathLauncher của module lộ trình: cùng một handler, cùng
+       cổng tài khoản (pathCheckAccess -> checkPremiumAccess), cùng cách mở
+       phiên fullscreen + vẽ lại. Cấp học trong phiên do store lộ trình quyết
+       định (activeLevel đã lưu của người học) — y hệt nút cũ. */
+    function openPathFromHero() {
+      var launcher = document.getElementById("ttcPathLauncher");
+      if (!launcher && typeof window.ttcEnsurePathShell === "function") {
+        try { window.ttcEnsurePathShell(); } catch (e) {}
+        launcher = document.getElementById("ttcPathLauncher");
+      }
+      if (launcher) { launcher.click(); return; }
+      /* Dự phòng cuối (không thấy nút cũ): mở thẳng bằng API module đã phơi,
+         vẫn qua đúng cổng checkPremiumAccess(1) như handler của nút cũ. */
+      var panel = document.getElementById("ttcPathPanel");
+      if (panel && typeof window.ttcEnterPathFullscreen === "function" &&
+          typeof window.checkPremiumAccess === "function") {
+        Promise.resolve(window.checkPremiumAccess(1)).then(function (ok) {
+          if (!ok) return;
+          panel.hidden = false;
+          window.ttcEnterPathFullscreen();
+          try { if (typeof window.__ttcPathRedraw === "function") window.__ttcPathRedraw(); } catch (e2) {}
+        });
+      }
+    }
+    var hero = document.querySelector(".otter2-dash-hero");
+    if (hero) {
+      if (!hero.querySelector(".otter2-dash-hero-cta")) {
+        var heroCta = document.createElement("span");
+        heroCta.className = "otter2-dash-hero-cta";
+        heroCta.textContent = "▶ Bấm để vào học ngay";
+        hero.appendChild(heroCta);
+      }
+      hero.setAttribute("role", "button");
+      hero.setAttribute("tabindex", "0");
+      hero.addEventListener("click", openPathFromHero);
+      hero.addEventListener("keydown", function (ev) {
+        if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); openPathFromHero(); }
+      });
+    }
     var lesson1 = $("otter2DashLesson1");
     if (lesson1) lesson1.addEventListener("click", function () { gotoLevel(1); });
 
