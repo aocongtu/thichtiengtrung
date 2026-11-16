@@ -24375,5 +24375,312 @@ setupFlashcardMobile();
   else init();
 })();
 </script>
+<style>
+/* ============================================================
+   TTC AUTO BEAUTY 2026-11-17 — làm đẹp khu Học auto toàn màn hình
+   (additive thuần CSS, không sửa markup/JS của module auto)
+   Bảng màu trích từ index1 (legacy-index.html):
+   - Từ vựng  = "xanh nước biển": word #075eaa, pinyin #2586df,
+     nghĩa #174b73, nút gradient #2586df→#0875c9, viền #4aa3ff,
+     nền gradient #ffffff→#eef7ff→#dff0ff, select viền #78bdf2.
+   - Câu ví dụ = họ xanh lá index1: chữ Hán #166534, pinyin #15803d,
+     điểm nhấn #16a34a / sâu #14532d, nền mềm #f0fdf4 / #dcfce7.
+   Guide zone auto đậu ở z 200050 (góc dưới-trái) — block này
+   không dùng position/z-index nên không bao giờ che guide
+   và không đụng nút Thoát (z 200001).
+   ============================================================ */
+
+/* ---------- khung chung khi toàn màn hình ---------- */
+body #autoLearning.otter2-auto-fs-open,
+body #ttcExampleAutoV2.otter2-auto-fs-open{
+  padding:64px 22px 30px !important;
+}
+body #autoLearning.otter2-auto-fs-open{
+  background:linear-gradient(150deg,#ffffff 0%,#eef7ff 55%,#dff0ff 100%) !important;
+}
+body #ttcExampleAutoV2.otter2-auto-fs-open{
+  background:linear-gradient(150deg,#ffffff 0%,#f2fdf6 55%,#e3f8ec 100%) !important;
+  border:0 !important;
+  box-shadow:none !important;
+}
+#autoLearning.otter2-auto-fs-open #autoLearningBody{
+  max-width:1080px !important;
+  margin:0 auto !important;
+}
+#ttcExampleAutoV2.otter2-auto-fs-open #ttcEA2Body{
+  max-width:1180px !important;
+  margin:0 auto !important;
+}
+
+/* ---------- TIÊU ĐỀ ---------- */
+#autoLearning.otter2-auto-fs-open h2{
+  color:#0875c9 !important;
+  font-size:clamp(21px,2.4vw,28px) !important;
+  letter-spacing:.4px !important;
+}
+#ttcExampleAutoV2.otter2-auto-fs-open .ea2-title{
+  color:#14532d !important;
+  font-size:clamp(20px,2.4vw,28px) !important;
+  letter-spacing:.4px !important;
+}
+#autoLearning.otter2-auto-fs-open .ttc-auto-pinyin-toggle,
+#autoLearning.otter2-auto-fs-open .ttc-auto-collapse-toggle,
+#ttcExampleAutoV2.otter2-auto-fs-open .ea2-top-toggle{
+  border-radius:999px !important;
+  min-height:38px !important;
+  padding:7px 14px !important;
+  font-size:13px !important;
+  box-shadow:0 2px 8px rgba(15,60,110,.08) !important;
+}
+
+/* ---------- TỪ VỰNG: chữ TO + màu xanh biển index1 ---------- */
+#autoLearning.otter2-auto-fs-open .auto-learning-word{
+  color:#075eaa !important;
+  font-size:clamp(54px,7vw,96px) !important;
+  line-height:1.25 !important;
+  font-weight:800 !important;
+  margin:26px 0 6px !important;
+  text-shadow:0 2px 0 rgba(255,255,255,.7), 0 10px 26px rgba(37,134,223,.18) !important;
+  overflow-wrap:anywhere !important;
+}
+#autoLearning.otter2-auto-fs-open .auto-learning-pinyin{
+  color:#2586df !important;
+  font-size:clamp(23px,3vw,36px) !important;
+  line-height:1.4 !important;
+  font-weight:700 !important;
+  margin:2px 0 4px !important;
+}
+#autoLearning.otter2-auto-fs-open .auto-learning-meaning{
+  color:#174b73 !important;
+  font-size:clamp(21px,2.6vw,32px) !important;
+  line-height:1.5 !important;
+  font-weight:600 !important;
+  margin-bottom:22px !important;
+  overflow-wrap:anywhere !important;
+}
+
+/* nút pill — từ vựng (nút reset có style riêng màu đỏ nhạt, giữ nguyên vai) */
+#autoLearning.otter2-auto-fs-open .auto-learning-buttons{
+  gap:9px !important;
+  margin-top:12px !important;
+}
+#autoLearning.otter2-auto-fs-open .auto-learning-buttons button{
+  border-radius:999px !important;
+  min-height:46px !important;
+  padding:10px 20px !important;
+  font-size:16px !important;
+  line-height:1.25 !important;
+  transition:transform .15s ease, filter .15s ease, box-shadow .15s ease !important;
+}
+#autoLearning.otter2-auto-fs-open .auto-learning-buttons button:not([style]){
+  background:linear-gradient(135deg,#2586df,#0875c9) !important;
+  color:#ffffff !important;
+  border:0 !important;
+  box-shadow:0 6px 16px rgba(37,134,223,.28) !important;
+}
+#autoLearning.otter2-auto-fs-open .auto-learning-buttons button:not([style]):hover{
+  filter:brightness(1.07);
+  transform:translateY(-1px);
+}
+#autoLearning.otter2-auto-fs-open .auto-learning-buttons button[style]{
+  border-radius:999px !important;
+  box-shadow:0 4px 12px rgba(198,40,40,.12) !important;
+}
+#autoLearning.otter2-auto-fs-open .auto-learning-buttons label{
+  font-size:16px !important;
+  font-weight:700 !important;
+  color:#174b73 !important;
+}
+#autoLearning.otter2-auto-fs-open select{
+  border:1.5px solid #78bdf2 !important;
+  color:#075eaa !important;
+  background:#ffffff !important;
+  border-radius:999px !important;
+  padding:9px 16px !important;
+  font-size:15px !important;
+  font-weight:700 !important;
+  cursor:pointer !important;
+}
+/* tiến độ từ vựng -> pill */
+#autoLearning.otter2-auto-fs-open .auto-learning-status{
+  display:inline-block !important;
+  margin-top:16px !important;
+  padding:7px 18px !important;
+  border-radius:999px !important;
+  background:#e1efff !important;
+  border:1px solid #bcd9ff !important;
+  color:#075eaa !important;
+  font-size:15px !important;
+  font-weight:700 !important;
+}
+
+/* ---------- CÂU VÍ DỤ: thẻ có chiều sâu + chữ TO ---------- */
+#ttcExampleAutoV2.otter2-auto-fs-open .ea2-card{
+  background:linear-gradient(165deg,#ffffff 0%,#f0fdf4 58%,#dcfce7 100%) !important;
+  border:2px solid #86efac !important;
+  border-radius:26px !important;
+  box-shadow:0 20px 44px rgba(21,128,61,.16), 0 3px 10px rgba(21,128,61,.08) !important;
+  min-height:min(48vh,520px) !important;
+  padding:clamp(26px,4.5vh,52px) clamp(18px,3.5vw,48px) !important;
+  margin-top:6px !important;
+}
+#ttcExampleAutoV2.otter2-auto-fs-open .ea2-hanzi{
+  color:#14532d !important;
+  font-size:clamp(40px,5.2vw,64px) !important;
+  line-height:1.4 !important;
+  font-weight:800 !important;
+  text-shadow:0 2px 0 rgba(255,255,255,.75), 0 12px 28px rgba(21,128,61,.15) !important;
+}
+#ttcExampleAutoV2.otter2-auto-fs-open .ea2-pinyin{
+  color:#16a34a !important;
+  font-size:clamp(20px,2.4vw,30px) !important;
+  line-height:1.5 !important;
+  margin-top:14px !important;
+}
+#ttcExampleAutoV2.otter2-auto-fs-open .ea2-meaning{
+  color:#166534 !important;
+  font-size:clamp(20px,2.4vw,30px) !important;
+  line-height:1.55 !important;
+  margin-top:10px !important;
+}
+/* tiến độ câu -> pill */
+#ttcExampleAutoV2.otter2-auto-fs-open .ea2-counter{
+  display:inline-block !important;
+  margin-top:20px !important;
+  padding:6px 18px !important;
+  border-radius:999px !important;
+  background:#14532d !important;
+  color:#ffffff !important;
+  font-size:15px !important;
+  letter-spacing:.6px !important;
+  box-shadow:0 6px 14px rgba(20,83,45,.25) !important;
+}
+/* nút pill — câu ví dụ */
+#ttcExampleAutoV2.otter2-auto-fs-open .ea2-buttons{
+  gap:9px !important;
+  margin-top:12px !important;
+}
+#ttcExampleAutoV2.otter2-auto-fs-open .ea2-btn{
+  border-radius:999px !important;
+  min-height:46px !important;
+  padding:10px 20px !important;
+  font-size:16px !important;
+  border:1.5px solid #86efac !important;
+  background:#ffffff !important;
+  color:#166534 !important;
+  box-shadow:0 4px 12px rgba(21,128,61,.10) !important;
+  transition:transform .15s ease, filter .15s ease, box-shadow .15s ease !important;
+}
+#ttcExampleAutoV2.otter2-auto-fs-open .ea2-btn:hover{
+  background:#f0fdf4 !important;
+  transform:translateY(-1px);
+}
+#ttcExampleAutoV2.otter2-auto-fs-open .ea2-btn.green{
+  background:linear-gradient(135deg,#22c55e,#15803d) !important;
+  border-color:#15803d !important;
+  color:#ffffff !important;
+  box-shadow:0 8px 20px rgba(21,128,61,.32) !important;
+}
+#ttcExampleAutoV2.otter2-auto-fs-open .ea2-btn.green:hover{
+  background:linear-gradient(135deg,#22c55e,#15803d) !important;
+  filter:brightness(1.07);
+}
+#ttcExampleAutoV2.otter2-auto-fs-open .ea2-btn.reset{
+  background:#fffafa !important;
+  border-color:#fecaca !important;
+  color:#b91c1c !important;
+  box-shadow:0 4px 12px rgba(185,28,28,.10) !important;
+}
+#ttcExampleAutoV2.otter2-auto-fs-open .ea2-hsk-label{
+  font-size:16px !important;
+}
+#ttcExampleAutoV2.otter2-auto-fs-open .ea2-hsk-select{
+  border-radius:999px !important;
+  min-height:46px !important;
+  padding:9px 18px !important;
+  font-size:16px !important;
+  border:1.5px solid #86efac !important;
+}
+/* hàng khoảng nghỉ */
+#ttcExampleAutoV2.otter2-auto-fs-open .ea2-delay{
+  margin-top:18px !important;
+  font-size:16px !important;
+  color:#334155 !important;
+  gap:14px !important;
+}
+#ttcExampleAutoV2.otter2-auto-fs-open .ea2-delay input{
+  width:min(340px,58vw) !important;
+  height:28px !important;
+}
+#ttcExampleAutoV2.otter2-auto-fs-open .ea2-status{
+  font-size:14px !important;
+  margin-top:12px !important;
+  min-height:22px !important;
+}
+
+/* ---------- khi KHÔNG toàn màn hình (ô trong hub) — nâng nhẹ ---------- */
+#autoLearning .auto-learning-word{color:#075eaa !important;}
+#autoLearning .auto-learning-pinyin{color:#2586df !important;}
+#autoLearning .auto-learning-meaning{color:#174b73 !important;}
+
+/* ---------- MOBILE — giữ dễ đọc, không phô trương ---------- */
+@media (max-width:600px){
+  body #autoLearning.otter2-auto-fs-open,
+  body #ttcExampleAutoV2.otter2-auto-fs-open{padding:58px 12px 22px !important;}
+  #autoLearning.otter2-auto-fs-open .auto-learning-word{font-size:clamp(40px,11vw,56px) !important;margin-top:16px !important;}
+  #autoLearning.otter2-auto-fs-open .auto-learning-pinyin{font-size:clamp(19px,5.4vw,24px) !important;}
+  #autoLearning.otter2-auto-fs-open .auto-learning-meaning{font-size:clamp(17px,4.8vw,21px) !important;}
+  #autoLearning.otter2-auto-fs-open .auto-learning-buttons button{min-height:44px !important;padding:9px 15px !important;font-size:15px !important;}
+  #ttcExampleAutoV2.otter2-auto-fs-open .ea2-card{min-height:34vh !important;border-radius:20px !important;padding:22px 12px !important;}
+  #ttcExampleAutoV2.otter2-auto-fs-open .ea2-hanzi{font-size:clamp(29px,8.6vw,42px) !important;}
+  #ttcExampleAutoV2.otter2-auto-fs-open .ea2-pinyin{font-size:clamp(17px,4.8vw,21px) !important;margin-top:10px !important;}
+  #ttcExampleAutoV2.otter2-auto-fs-open .ea2-meaning{font-size:clamp(17px,4.8vw,21px) !important;}
+  #ttcExampleAutoV2.otter2-auto-fs-open .ea2-btn{min-height:44px !important;padding:9px 15px !important;font-size:15px !important;}
+}
+
+/* ---------- THEME ĐÊM ---------- */
+html[data-theme="night"] body #autoLearning.otter2-auto-fs-open{
+  background:linear-gradient(150deg,#0a1826 0%,#0b2138 55%,#0d2c47 100%) !important;
+}
+html[data-theme="night"] body #ttcExampleAutoV2.otter2-auto-fs-open{
+  background:linear-gradient(150deg,#08170e 0%,#0c2416 55%,#0f2f1c 100%) !important;
+}
+html[data-theme="night"] #autoLearning.otter2-auto-fs-open h2{color:#7dd3fc !important;}
+html[data-theme="night"] #autoLearning.otter2-auto-fs-open .auto-learning-word{color:#93c5fd !important;text-shadow:0 10px 26px rgba(56,150,255,.25) !important;}
+html[data-theme="night"] #autoLearning.otter2-auto-fs-open .auto-learning-pinyin{color:#60a5fa !important;}
+html[data-theme="night"] #autoLearning.otter2-auto-fs-open .auto-learning-meaning{color:#bfdbfe !important;}
+html[data-theme="night"] #autoLearning.otter2-auto-fs-open .auto-learning-buttons label{color:#bfdbfe !important;}
+html[data-theme="night"] #autoLearning.otter2-auto-fs-open select{background:#0f2438 !important;color:#bfdbfe !important;border-color:#2f6fb3 !important;}
+html[data-theme="night"] #autoLearning.otter2-auto-fs-open .auto-learning-status{background:#12325a !important;border-color:#2f6fb3 !important;color:#bfdbfe !important;}
+html[data-theme="night"] #autoLearning.otter2-auto-fs-open .ttc-auto-pinyin-toggle,
+html[data-theme="night"] #autoLearning.otter2-auto-fs-open .ttc-auto-collapse-toggle{background:#0f2438 !important;color:#bfdbfe !important;border-color:#2f6fb3 !important;}
+html[data-theme="night"] #ttcExampleAutoV2.otter2-auto-fs-open .ea2-title{color:#86efac !important;}
+html[data-theme="night"] #ttcExampleAutoV2.otter2-auto-fs-open .ea2-card{
+  background:linear-gradient(165deg,#12351f 0%,#0e2c19 58%,#0a2113 100%) !important;
+  border-color:#22c55e !important;
+  box-shadow:0 20px 44px rgba(0,0,0,.45) !important;
+}
+html[data-theme="night"] #ttcExampleAutoV2.otter2-auto-fs-open .ea2-hanzi{color:#bbf7d0 !important;text-shadow:0 12px 28px rgba(0,0,0,.4) !important;}
+html[data-theme="night"] #ttcExampleAutoV2.otter2-auto-fs-open .ea2-pinyin{color:#4ade80 !important;}
+html[data-theme="night"] #ttcExampleAutoV2.otter2-auto-fs-open .ea2-meaning{color:#86efac !important;}
+html[data-theme="night"] #ttcExampleAutoV2.otter2-auto-fs-open .ea2-counter{background:#22c55e !important;color:#052e12 !important;box-shadow:none !important;}
+html[data-theme="night"] #ttcExampleAutoV2.otter2-auto-fs-open .ea2-btn{background:#0f2c1a !important;color:#bbf7d0 !important;border-color:#22c55e !important;box-shadow:none !important;}
+html[data-theme="night"] #ttcExampleAutoV2.otter2-auto-fs-open .ea2-btn:hover{background:#17402a !important;}
+html[data-theme="night"] #ttcExampleAutoV2.otter2-auto-fs-open .ea2-btn.green{background:linear-gradient(135deg,#22c55e,#15803d) !important;color:#ffffff !important;border-color:#15803d !important;}
+html[data-theme="night"] #ttcExampleAutoV2.otter2-auto-fs-open .ea2-btn.reset{background:#2c1215 !important;color:#fca5a5 !important;border-color:#7f1d1d !important;}
+html[data-theme="night"] #ttcExampleAutoV2.otter2-auto-fs-open .ea2-top-toggle{background:#0f2c1a !important;color:#bbf7d0 !important;border-color:#22c55e !important;}
+html[data-theme="night"] #ttcExampleAutoV2.otter2-auto-fs-open .ea2-hsk-label{color:#86efac !important;}
+html[data-theme="night"] #ttcExampleAutoV2.otter2-auto-fs-open .ea2-hsk-select{background:#0f2c1a !important;color:#bbf7d0 !important;border-color:#22c55e !important;}
+html[data-theme="night"] #ttcExampleAutoV2.otter2-auto-fs-open .ea2-delay{color:#cbd5e1 !important;}
+html[data-theme="night"] #ttcExampleAutoV2.otter2-auto-fs-open .ea2-status{color:#94a3b8 !important;}
+
+/* ---------- giảm chuyển động ---------- */
+@media (prefers-reduced-motion: reduce){
+  #autoLearning.otter2-auto-fs-open .auto-learning-buttons button,
+  #ttcExampleAutoV2.otter2-auto-fs-open .ea2-btn{transition:none !important;}
+  #autoLearning.otter2-auto-fs-open .auto-learning-buttons button:not([style]):hover,
+  #ttcExampleAutoV2.otter2-auto-fs-open .ea2-btn:hover{transform:none !important;}
+}
+</style>
 </body>
 </html>

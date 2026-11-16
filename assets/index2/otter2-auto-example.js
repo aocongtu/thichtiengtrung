@@ -907,17 +907,20 @@ if(window.__OTTER2_AUTO_EA2__) return; window.__OTTER2_AUTO_EA2__=true;
 
 
       /*
-       * ⏱️ THỜI GIAN RIÊNG CHO AUTO V2
+       * ⏱️ THỜI GIAN NGHỈ CHO AUTO V2 — MỘT NGUỒN DUY NHẤT
        *
-       * 3 giây: khoảng nghỉ giữa tiếng Trung ↔ tiếng Việt.
-       * gap (0–15 giây): khoảng nghỉ SAU KHI ĐỌC XONG CẢ HAI
-       * ngôn ngữ rồi mới chuyển sang câu tiếp theo.
+       * gap (0–15 giây, thanh trượt "Khoảng nghỉ" của người học,
+       * được cập nhật sống mỗi khi kéo slider) áp dụng cho CẢ HAI:
+       *  - khoảng nghỉ giữa tiếng Trung ↔ tiếng Việt trong cùng câu;
+       *  - khoảng nghỉ sau khi đọc xong cả hai ngôn ngữ,
+       *    trước khi chuyển sang câu tiếp theo.
+       *
+       * (Trước đây giữa hai ngôn ngữ bị cố định cứng 3 giây,
+       * không theo slider — đã bỏ.)
        *
        * Quan trọng: timer chỉ bắt đầu SAU khi TTS phát onend,
        * nên câu dài cũng không bị cắt hoặc chuyển quá sớm.
        */
-
-      const voiceGap = 3;
 
       /*
        * 🛡️ WHITE HAT — KHOẢNG NGHỈ CHÍNH XÁC
@@ -1010,7 +1013,7 @@ if(window.__OTTER2_AUTO_EA2__) return; window.__OTTER2_AUTO_EA2__=true;
             }
 
             waitThen(
-              voiceGap,
+              gap,
               function(){
 
                 if(!viText){
@@ -1087,7 +1090,7 @@ if(window.__OTTER2_AUTO_EA2__) return; window.__OTTER2_AUTO_EA2__=true;
           }
 
           waitThen(
-            voiceGap,
+            gap,
             function(){
 
               speak(

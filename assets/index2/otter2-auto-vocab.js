@@ -568,6 +568,111 @@ function clearAutoLearningTimer(){
 
 }
 
+/* =========================================================
+   ⏱️ ĐỌC SỐNG KHOẢNG NGHỈ TỪ ĐIỀU KHIỂN CỦA NGƯỜI HỌC
+   (#autoInterval — giá trị đã là mili-giây: 0 / 1000 / 2000 /
+   3000 / 5000 / 7000. KHÔNG nhân 1000 nữa.)
+   Đọc tại đúng thời điểm bắt đầu nghỉ nên đổi lựa chọn
+   giữa phiên là các khoảng nghỉ tiếp theo dùng giá trị mới.
+   ========================================================= */
+
+function readAutoIntervalMs(){
+
+  const intervalEl =
+    document.getElementById(
+      "autoInterval"
+    );
+
+  let delay =
+    intervalEl
+      ? Number(intervalEl.value)
+      : 3000;
+
+  /* value "0" = nghỉ 0ms; không dùng || vì 0 bị coi là falsy */
+  if(
+    !Number.isFinite(delay) ||
+    delay < 0
+  ){
+
+    delay = 3000;
+
+  }
+
+  if (delay > 60000) {
+    delay = 60000;
+  }
+
+  return delay;
+
+}
+
+/* =========================================================
+   ⏱️ NGHỈ GIỮA HAI LẦN ĐỌC TRONG CÙNG MỘT TỪ (Trung ↔ Việt)
+   Trước đây: đọc xong tiếng Trung là đọc tiếng Việt NGAY
+   (nghỉ 0 giây). Nay: nghỉ đúng readAutoIntervalMs() —
+   cùng một con số người học chỉnh cho khoảng nghỉ giữa các từ.
+   Timer riêng để Dừng/Tạm dừng hủy được ngay cả khi đang nghỉ,
+   và đổi khoảng nghỉ giữa chừng thì hẹn lại theo giá trị mới.
+   ========================================================= */
+
+let autoLearningBetweenTimer = null;
+let autoLearningBetweenCallback = null;
+
+function clearAutoLearningBetweenTimer(){
+
+  if(autoLearningBetweenTimer !== null){
+
+    clearTimeout(
+      autoLearningBetweenTimer
+    );
+
+    autoLearningBetweenTimer = null;
+
+  }
+
+  autoLearningBetweenCallback = null;
+
+}
+
+function scheduleAutoBetween(callback){
+
+  clearAutoLearningBetweenTimer();
+
+  autoLearningBetweenCallback =
+    callback;
+
+  const delay =
+    readAutoIntervalMs();
+
+  autoLearningBetweenTimer =
+    setTimeout(
+      function(){
+
+        autoLearningBetweenTimer = null;
+
+        const cb =
+          autoLearningBetweenCallback;
+
+        autoLearningBetweenCallback = null;
+
+        if(!autoLearningRunning){
+          return;
+        }
+
+        if(autoLearningPaused){
+          return;
+        }
+
+        if(cb){
+          cb();
+        }
+
+      },
+      delay
+    );
+
+}
+
 function autoSafeTtsRate(){
   var r = Number(typeof selectedRate === "number" ? selectedRate : parseFloat(selectedRate));
   if (!Number.isFinite(r) || r <= 0) r = 0.65;
@@ -745,7 +850,12 @@ function autoSpeakCurrentWord(){
           return;
         }
 
-        speakChineseOnly();
+        /* Nghỉ đúng khoảng người học chỉnh rồi mới đọc tiếng Trung. */
+        scheduleAutoBetween(function(){
+
+          speakChineseOnly();
+
+        });
 
       };
 
@@ -819,7 +929,12 @@ function autoSpeakCurrentWord(){
           return;
         }
 
-        speakVietnameseOnly();
+        /* Nghỉ đúng khoảng người học chỉnh rồi mới đọc tiếng Việt. */
+        scheduleAutoBetween(function(){
+
+          speakVietnameseOnly();
+
+        });
 
       };
 
@@ -879,41 +994,9 @@ function scheduleAutoNext(){
   clearAutoLearningTimer();
 
 
-  const intervalEl =
-    document.getElementById(
-      "autoInterval"
-    );
-
-
-  /*
-     HTML đang lưu:
-     2000 = 2 giây
-     3000 = 3 giây
-     5000 = 5 giây
-     7000 = 7 giây
-
-     Vì vậy KHÔNG được nhân 1000 nữa.
-  */
-
-  let delay =
-    intervalEl
-      ? Number(intervalEl.value)
-      : 3000;
-
-
-  /* value "0" = nghỉ 0ms; không dùng || vì 0 bị coi là falsy */
-  if(
-    !Number.isFinite(delay) ||
-    delay < 0
-  ){
-
-    delay = 3000;
-
-  }
-
-  if (delay > 60000) {
-    delay = 60000;
-  }
+  /* Khoảng nghỉ trước từ tiếp theo — đọc sống từ #autoInterval. */
+  const delay =
+    readAutoIntervalMs();
 
 
   autoLearningTimer =
@@ -976,6 +1059,8 @@ function toggleAutoLearning(){
       }
 
       clearAutoLearningTimer();
+
+      clearAutoLearningBetweenTimer();
 
       const statusEl =
         document.getElementById(
@@ -1045,6 +1130,8 @@ function stopAutoLearning(){
     false;
 
   clearAutoLearningTimer();
+
+  clearAutoLearningBetweenTimer();
 
 
   if("speechSynthesis" in window){
@@ -1157,10 +1244,10 @@ function changeAutoInterval(value){
 
 
   /*
-     Chỉ đổi khoảng nghỉ giữa các từ.
+     Chỉ đổi khoảng nghỉ (giữa các từ VÀ giữa hai lần đọc trong cùng một từ).
      Không đụng utterance.rate / selectedRate.
      Nếu đang ĐỌC: chờ onend rồi schedule với delay mới.
-     Nếu đang CHỜ giữa hai từ (timer đang chạy): hẹn lại với delay mới,
+     Nếu đang CHỜ (timer đang chạy): hẹn lại với delay mới,
      không nhảy từ / không phát lại giữa chừng.
   */
 
@@ -1171,6 +1258,18 @@ function changeAutoInterval(value){
       clearAutoLearningTimer();
 
       scheduleAutoNext();
+
+    }
+
+    if(
+      autoLearningBetweenTimer !== null &&
+      autoLearningBetweenCallback
+    ){
+
+      /* Đang nghỉ giữa Trung ↔ Việt: hẹn lại đúng callback đó theo delay mới. */
+      scheduleAutoBetween(
+        autoLearningBetweenCallback
+      );
 
     }
 
@@ -1261,6 +1360,7 @@ function toggleAutoLearningDirection(){
   if(autoLearningRunning){
     speechSynthesis.cancel();
     clearAutoLearningTimer();
+    clearAutoLearningBetweenTimer();
     autoSpeakCurrentWord();
   }
 
