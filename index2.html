@@ -1147,11 +1147,125 @@
       #otter2-home .otter2-title{font-size:1.55rem}
     }
 
+    /* ===== STAGE 4: gọn khu điều khiển trên cùng + sửa lỗi điện thoại =====
+       - .otter2-theme-slot đã dời vào .otter2-nav-right trong HTML (giữa nút
+         Giản/Phồn và nút 💬): cụm phải desktop = [Giản/Phồn] [🎨] [💬] [Tài khoản]
+         trên một hàng, cùng một cỡ nút; JS của các nút bám theo id nên không đổi.
+       - Menu Giao diện neo theo cạnh phải của nút 🎨 → không bao giờ tràn mép phải.
+       - Điện thoại: hàng 1 = logo + tiêu đề + nút tài khoản tròn; hàng 2 = dải
+         tiện ích (chuyển đổi + 🎨 + 💬) trải đều; hàng 3 = thanh điều hướng 5 nút.
+       - Chỉ CSS + dời node trong header; không đổi id / JS / hiệu ứng .ttt-rainbow. */
+    /* --- Menu Giao diện: neo phải theo nút 🎨, luôn nằm trọn trong cửa sổ --- */
+    #otter2ThemeMenu{
+      left:auto;right:0;
+      width:min(280px, calc(100vw - 24px));
+      max-height:min(70vh, 430px);overflow-y:auto;
+      z-index:200;
+    }
+    /* --- Desktop/tablet (≥768px): cụm nút phải đồng bộ một cỡ 40px --- */
+    @media (min-width:768px){
+      #otter2Nav .otter2-nav-right{align-items:center;gap:8px}
+      #otter2Nav #otter2ThemeNavBtn,
+      #otter2Nav .otter2-chat-nav{
+        width:40px;height:40px;min-width:40px;min-height:40px;
+        border-radius:50%;border:1px solid var(--otter2-line);background:#fff;
+        font-size:16px;padding:0;flex:0 0 auto;
+      }
+      #otter2Nav .ttc-script-switch{height:40px;min-height:40px}
+      #otter2Nav .otter2-avatar{height:40px;min-height:40px}
+      html[data-theme="night"] #otter2Nav #otter2ThemeNavBtn,
+      html[data-theme="night"] #otter2Nav .otter2-chat-nav{background:#1e293b;border-color:#334155;color:#e5e7eb}
+    }
+    /* --- Điện thoại (≤767px): ba hàng gọn gàng --- */
+    @media (max-width:767px){
+      /* "Mở" .otter2-nav-right để các nút thành item trực tiếp của header, xếp hàng tự do */
+      #otter2Nav .otter2-nav-right{display:contents}
+      /* Hàng 1: thương hiệu — bỏ viền pill cầu vồng gây xung đột bo góc, chỉ còn logo + tiêu đề 7 màu */
+      #otter2Nav .otter2-brand{max-width:none}
+      #otter2Nav .otter2-brand-title-wrap{
+        background:none;border-color:transparent;box-shadow:none;animation:none;
+      }
+      /* Hàng 1, bên phải: tài khoản thành nút tròn gọn — hết cảnh pill email bị cắt chữ/tràn viền.
+         JS ghi nhãn bằng textContent nên chỉ ẩn phần chữ bằng font-size:0 và thay bằng glyph 👤. */
+      #otter2Nav .otter2-account-slot{order:2;flex:0 0 auto}
+      #otter2Nav .otter2-avatar{
+        width:42px !important;height:42px !important;min-width:42px !important;min-height:42px !important;
+        max-width:42px !important;padding:0 !important;border-radius:50%;
+        font-size:0 !important;overflow:hidden;flex:0 0 auto;
+      }
+      #otter2Nav .otter2-avatar::before{content:"👤";font-size:19px;line-height:1}
+      /* Hàng 2: dải tiện ích trải đều — pill chuyển đổi + 2 nút tròn cùng cỡ 42px */
+      #otter2Nav .ttc-script-switch{order:3;flex:1 1 auto;max-width:232px;min-height:42px}
+      #otter2Nav .otter2-theme-slot{order:3;flex:0 0 auto}
+      #otter2Nav .otter2-chat-nav{order:3;flex:0 0 auto}
+      #otter2Nav #otter2ThemeNavBtn,
+      #otter2Nav .otter2-chat-nav{
+        width:42px;height:42px;min-width:42px !important;min-height:42px !important;
+        border-radius:50%;border:1px solid var(--otter2-line);background:#fff;
+        font-size:16px;padding:0;
+      }
+      html[data-theme="night"] #otter2Nav #otter2ThemeNavBtn,
+      html[data-theme="night"] #otter2Nav .otter2-chat-nav{background:#1e293b;border-color:#334155;color:#e5e7eb}
+      /* Hàng 3: thanh 5 nút điều hướng (CSS cũ để order:3 — nâng lên 4 cho xuống dưới dải tiện ích) */
+      #otter2Nav .otter2-nav-links{order:4 !important}
+      /* Nút giọng đọc phía trên lời chào: thu gọn, thẳng hàng với khối lời chào */
+      #otter2VoiceSystemBtn{min-height:34px;padding:0 10px;font-size:12px;margin:0 0 6px}
+    }
+
+    /* ===== STAGE 5: căn chỉnh header điện thoại theo đúng ý Anh Huy =====
+       Hàng 1: logo + tiêu đề 7 màu (trái) | nút tài khoản tròn ở góc PHẢI TRÊN CÙNG.
+       Hàng 2: [🎨] ..... [ pill Giản thể ⇄ Phồn thể ] ..... [💬] — lưới 1fr/auto/1fr:
+               hai cột biên 1fr luôn bằng nhau nên pill nằm CHÍNH GIỮA màn hình tuyệt
+               đối, 🎨 sát mép trái, 💬 sát mép phải của hàng.
+       Hàng 3: thanh điều hướng 5 nút (giữ nguyên stage 4).
+       Menu Giao diện: nút 🎨 nay ở mép trái hàng 2 → neo menu theo cạnh TRÁI của nút
+       (mở sang phải, rộng tối đa 280px theo cap của stage 4) để không tràn mép nào.
+       Chỉ áp dụng ≤767px; desktop ≥768px giữ nguyên stage 4. Không đổi id/JS. */
+    @media (max-width:767px){
+      #otter2Nav{
+        display:grid !important;
+        grid-template-columns:1fr auto 1fr;
+        grid-template-areas:
+          "brand brand account"
+          "uleft ucenter uright"
+          "nav nav nav";
+        align-items:center;
+      }
+      /* Hàng 1: thương hiệu trải 2 cột đầu, tài khoản ở góc phải trên cùng */
+      #otter2Nav .otter2-brand{grid-area:brand;justify-self:start}
+      #otter2Nav .otter2-account-slot{grid-area:account;justify-self:end}
+      /* Hàng 2: ba vùng trái / giữa / phải */
+      #otter2Nav .otter2-theme-slot{grid-area:uleft;justify-self:start}
+      #otter2Nav .ttc-script-switch{
+        grid-area:ucenter;justify-self:center;flex:none;
+        max-width:min(232px, calc(100vw - 170px));
+      }
+      #otter2Nav .otter2-chat-nav{grid-area:uright;justify-self:end}
+      /* Premium đang ẩn khỏi header (display:none ở CSS gốc): nếu sau này được bật
+         lại, nó đứng cùng ô phải cạnh 💬 (chừa 50px cho nút 💬 42px + khoảng 8px);
+         cột giữa là auto theo pill và hai cột biên 1fr luôn bằng nhau nên tâm không lệch. */
+      #otter2Nav .otter2-premium{grid-area:uright;justify-self:end;margin-right:50px}
+      /* Hàng 3: thanh điều hướng 5 nút */
+      #otter2Nav .otter2-nav-links{grid-area:nav}
+      /* Menu Giao diện: neo trái theo nút 🎨 ở mép trái, mở sang phải, luôn trong khung */
+      #otter2ThemeMenu{left:0;right:auto}
+    }
+
 /* Tieu de 7 mau (yeu cau cua Anh Huy) */
 .ttt-rainbow{background-image:linear-gradient(90deg,#ff1744,#ff9100,#ffd600,#00c853,#00b0ff,#651fff,#e040fb,#ff1744)!important;background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent!important;-webkit-text-fill-color:transparent;animation:ttt-rainbow-slide 3.2s linear infinite,ttt-rainbow-glow 1.1s ease-in-out infinite alternate}
 @keyframes ttt-rainbow-slide{to{background-position:300% 0}}
 @keyframes ttt-rainbow-glow{from{filter:drop-shadow(0 0 1px rgba(255,23,68,.35))}to{filter:drop-shadow(0 0 9px rgba(224,64,251,.65))}}
 @media (prefers-reduced-motion:reduce){.ttt-rainbow{animation:none}}
+
+/* ===== Ten Han Viet (am Han Viet) — port tu index1 ===== */
+.ttc-han-viet{font-weight:800;color:#9f1239;letter-spacing:.04em}
+.o2-hanzi .ttc-han-viet{font-size:15px;margin-left:8px}
+.hanzi .ttc-han-viet{font-size:15px;margin-left:8px}
+#otter2Hsk1DetailHanzi .ttc-han-viet{font-size:17px;margin-left:8px}
+#flashcardFrontHanzi .ttc-han-viet{font-size:22px;margin-left:10px}
+.ttc-dict-sub{margin-top:6px;color:#64748b;font-size:13px;font-weight:700}
+html[data-theme="night"] .ttc-han-viet{color:#fb7185}
+html[data-theme="night"] .ttc-dict-sub{color:#94a3b8}
 </style>
 <style id="otter2-themes-extra-style">
 /* ===== THEME BỔ SUNG (tổng 10 giao diện) =====
@@ -1217,6 +1331,17 @@ html[data-theme="night"] .ttc-script-switch{background:#1e293b;color:#fda4af;bor
           <span class="otter2-logo" aria-hidden="true">中</span>
           <span class="otter2-brand-title ttt-rainbow">Thích Tiếng Trung 3.0</span>
         </div>
+      </div>
+      <button type="button" class="otter2-menu-toggle" id="otter2MenuBtn" aria-expanded="false" aria-controls="otter2NavLinks" hidden>Menu</button>
+      <nav class="otter2-nav-links" id="otter2NavLinks" aria-label="Điều hướng chính">
+        <button type="button" data-otter2-screen="home" aria-current="page"><span class="otter2-pill-ico" aria-hidden="true">🏠</span><span class="otter2-pill-txt">Học tập</span></button>
+        <button type="button" data-otter2-screen="reading"><span class="otter2-pill-ico" aria-hidden="true">📝</span><span class="otter2-pill-txt">Luyện tập</span></button>
+        <button type="button" data-otter2-screen="auto"><span class="otter2-pill-ico" aria-hidden="true">🌸</span><span class="otter2-pill-txt">Học auto</span></button>
+        <button type="button" class="otter2-ach-nav" id="otter2AchNavBtn" title="Bảng thành tích HSK"><span class="otter2-pill-ico" aria-hidden="true">🏆</span><span class="otter2-pill-txt">Bảng thành tích</span></button>
+        <button type="button" data-otter2-screen="vocab"><span class="otter2-pill-ico" aria-hidden="true">🔍</span><span class="otter2-pill-txt">Tìm kiếm</span></button>
+      </nav>
+      <div class="otter2-nav-right">
+        <button type="button" id="ttcScriptSwitch" class="ttc-script-switch" aria-label="Chuyển toàn bộ nội dung giữa giản thể và phồn thể">Giản thể ⇄ Phồn thể</button>
         <span class="otter2-theme-slot">
           <button type="button" id="otter2ThemeNavBtn" aria-label="Giao diện" aria-expanded="false" aria-haspopup="true" aria-controls="otter2ThemeMenu">🎨</button>
           <div id="otter2ThemeMenu" class="ttc-theme-menu" hidden>
@@ -1232,17 +1357,6 @@ html[data-theme="night"] .ttc-script-switch{background:#1e293b;color:#fda4af;bor
             <button type="button" data-theme="coffee">Cà phê</button>
           </div>
         </span>
-      </div>
-      <button type="button" class="otter2-menu-toggle" id="otter2MenuBtn" aria-expanded="false" aria-controls="otter2NavLinks" hidden>Menu</button>
-      <nav class="otter2-nav-links" id="otter2NavLinks" aria-label="Điều hướng chính">
-        <button type="button" data-otter2-screen="home" aria-current="page"><span class="otter2-pill-ico" aria-hidden="true">🏠</span><span class="otter2-pill-txt">Học tập</span></button>
-        <button type="button" data-otter2-screen="reading"><span class="otter2-pill-ico" aria-hidden="true">📝</span><span class="otter2-pill-txt">Luyện tập</span></button>
-        <button type="button" data-otter2-screen="auto"><span class="otter2-pill-ico" aria-hidden="true">🌸</span><span class="otter2-pill-txt">Học auto</span></button>
-        <button type="button" class="otter2-ach-nav" id="otter2AchNavBtn" title="Bảng thành tích HSK"><span class="otter2-pill-ico" aria-hidden="true">🏆</span><span class="otter2-pill-txt">Bảng thành tích</span></button>
-        <button type="button" data-otter2-screen="vocab"><span class="otter2-pill-ico" aria-hidden="true">🔍</span><span class="otter2-pill-txt">Tìm kiếm</span></button>
-      </nav>
-      <div class="otter2-nav-right">
-        <button type="button" id="ttcScriptSwitch" class="ttc-script-switch" aria-label="Chuyển toàn bộ nội dung giữa giản thể và phồn thể">Giản thể ⇄ Phồn thể</button>
         <button type="button" class="otter2-chat-nav" id="otter2ChatOnlineBtn" data-ttc-chat title="Chat Online" aria-label="Chat Online">💬</button>
         <button type="button" class="otter2-premium" id="otter2PremiumBtn" aria-label="Premium" hidden>👑 Premium</button>
         <div class="otter2-account-slot" id="otter2AccountSlot">
@@ -21802,6 +21916,7 @@ setupFlashcardMobile();
   else init();
 })();
 </script>
+  <script src="assets/index2/otter2-hanviet-data.js" defer></script>
   <script src="assets/index2/otter2-guide.js" defer></script>
 <script id="ttc-script-switch-engine">
 (function(){
@@ -22007,6 +22122,135 @@ setupFlashcardMobile();
     else sync();
   });
   sync();
+})();
+</script>
+<script id="otter2-hanviet-decorator-js">
+/* ============================================================
+   Ten Han Viet (am Han Viet) — module trang tri (port tu index1)
+   Gan "[TEN HAN VIET]" mau do vao sau chu Han o:
+   - The tu vung workspace (.o2-hanzi trong #otter2Hsk1Cards)
+   - The tu dien (.hanzi trong #otter2DictCards)
+   - Chi tiet tu workspace (#otter2Hsk1DetailHanzi)
+   - Chi tiet tu dien: dong phu "Han Viet: ..." (.ttc-dict-sub)
+   Du lieu + ham tra cuu: assets/index2/otter2-hanviet-data.js
+   (window.TTC_HANVIET / window.ttcHanVietName)
+   ============================================================ */
+(function () {
+  "use strict";
+
+  function ready() {
+    return typeof window.ttcHanVietName === "function";
+  }
+
+  /* Text chu Han "sach": bo qua span .ttc-han-viet da gan */
+  function plainText(el) {
+    var t = "";
+    var nodes = el.childNodes;
+    for (var i = 0; i < nodes.length; i++) {
+      var n = nodes[i];
+      if (n.nodeType === 3) t += n.textContent;
+      else if (n.nodeType === 1 && !(n.classList && n.classList.contains("ttc-han-viet"))) t += n.textContent;
+    }
+    return t.replace(/\s+/g, " ").trim();
+  }
+
+  function makeSpan(name) {
+    var span = document.createElement("span");
+    span.className = "ttc-han-viet";
+    span.textContent = "[" + name + "]";
+    return span;
+  }
+
+  /* The card: gan 1 lan, danh dau data-hv-done de cac lan quet sau bo qua */
+  function decorateCard(el) {
+    if (el.getAttribute("data-hv-done") === "1") return;
+    el.setAttribute("data-hv-done", "1");
+    var text = plainText(el);
+    if (!text) return;
+    var name = window.ttcHanVietName(text);
+    if (!name) return;
+    el.appendChild(document.createTextNode(" "));
+    el.appendChild(makeSpan(name));
+  }
+
+  /* Chi tiet workspace: textContent bi ghi de moi lan mo tu moi -> gan lai khi text doi */
+  function decorateHskDetail() {
+    var el = document.getElementById("otter2Hsk1DetailHanzi");
+    if (!el) return;
+    var text = plainText(el);
+    var span = el.querySelector(".ttc-han-viet");
+    if (span && el.getAttribute("data-hv-for") === text) return;
+    if (span) {
+      var prev = span.previousSibling;
+      span.parentNode.removeChild(span);
+      if (prev && prev.nodeType === 3 && prev.textContent === " ") prev.parentNode.removeChild(prev);
+    }
+    el.setAttribute("data-hv-for", text);
+    if (!text) return;
+    var name = window.ttcHanVietName(text);
+    if (!name) return;
+    el.appendChild(document.createTextNode(" "));
+    el.appendChild(makeSpan(name));
+  }
+
+  /* Chi tiet tu dien: dong phu xam "Han Viet: ..." trong .ttc-dict-head-main */
+  function decorateDictDetail() {
+    var box = document.getElementById("otter2DictDetail");
+    if (!box) return;
+    var main = box.querySelector(".ttc-dict-head-main");
+    var han = box.querySelector(".ttc-dict-head .han");
+    if (!main || !han) return;
+    var text = (han.textContent || "").replace(/\s+/g, " ").trim();
+    var sub = main.querySelector(".ttc-dict-sub");
+    if (sub && box.getAttribute("data-hv-for") === text) return;
+    var name = text ? window.ttcHanVietName(text) : "";
+    box.setAttribute("data-hv-for", text);
+    if (!name) {
+      if (sub) sub.parentNode.removeChild(sub);
+      return;
+    }
+    if (!sub) {
+      sub = document.createElement("div");
+      sub.className = "ttc-dict-sub";
+      var py = main.querySelector(".ttc-dict-py");
+      if (py && py.nextSibling) main.insertBefore(sub, py.nextSibling);
+      else main.appendChild(sub);
+    }
+    sub.textContent = "Hán Việt: " + name;
+  }
+
+  var busy = false;
+  function scan() {
+    if (busy || !ready()) return;
+    busy = true;
+    try {
+      var cards = document.querySelectorAll("#otter2Hsk1Cards .o2-hanzi, #otter2DictCards .hanzi");
+      for (var i = 0; i < cards.length; i++) decorateCard(cards[i]);
+      decorateHskDetail();
+      decorateDictDetail();
+    } catch (e) { /* module trang tri: loi thi bo qua */ }
+    busy = false;
+  }
+
+  var scheduled = false;
+  function schedule() {
+    if (scheduled) return;
+    scheduled = true;
+    setTimeout(function () {
+      scheduled = false;
+      scan();
+    }, 60);
+  }
+
+  try {
+    var mo = new MutationObserver(function () {
+      if (!busy) schedule();
+    });
+    mo.observe(document.documentElement, { childList: true, subtree: true, characterData: true });
+  } catch (e) { /* trinh duyet qua cu: van con lan quet DOMContentLoaded */ }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", scan);
+  else scan();
 })();
 </script>
 </body>
