@@ -1316,6 +1316,95 @@ html[data-theme="night"] .ttc-dict-sub{color:#94a3b8}
   #otter2Nav .otter2-chat-nav{order:3}
   #otter2Nav .otter2-account-slot{order:4}
 }
+/* ===== ĐỔI MÀU CHỦ ĐẠO BẢNG HỌC: ĐỎ → XANH LÁ NHẸ (yêu cầu chủ web 2026-11-17) =====
+   Chỉ áp cho khu bảng học trang chủ (#otter2-home / thẻ dash). Giữ nguyên: tên Hán-Việt đỏ
+   (.ttc-han-viet), tiêu đề cầu vồng, banner Facebook, đỏ ngữ nghĩa (báo sai, HỦY LỘ TRÌNH), header.
+   Thanh tiến độ: .otter2-dash-track>i vốn đã xanh (#1f9d63) nên không cần đổi;
+   .otter2-dash-bar>i giữ vàng (--otter2-gold, màu phụ của web, hài hoà trên nền xanh). */
+.otter2-dash-hero{background:linear-gradient(135deg,#22c55e,#15803d);color:#fff}
+.otter2-dash-course .otter2-feature--vocab{background:linear-gradient(135deg,#22c55e,#15803d);color:#fff;border-color:transparent}
+.otter2-dash-chip.is-cur{background:#16a34a;color:#fff}
+#otter2-home .otter2-dash-chip.is-cur{background:#16a34a;border-color:#16a34a;color:#fff}
+.otter2-dash-step.is-cur{background:#16a34a;border-color:#16a34a;color:#fff}
+.otter2-dash-ctared{background:#16a34a}
+.otter2-dash-ctared:hover{background:#15803d}
+.otter2-dash-status.today{background:#16a34a}
+.otter2-dash-thumb.r{background:#dcfce7;color:#15803d}
+.otter2-dash-tag.video{background:#dcfce7;color:#15803d}
+#otter2-home #otter2HskJourney .otter2-node.is-on{background:#16a34a;color:#fff;border-color:#16a34a}
+#otter2-home #otter2HskJourney .otter2-type-btn.is-on{background:#16a34a;color:#fff;border-color:#16a34a}
+html[data-theme="night"] .otter2-dash-course .otter2-feature--vocab{background:linear-gradient(135deg,#22c55e,#15803d);color:#fff}
+html[data-theme="night"] .otter2-dash-chip.is-cur{background:#16a34a;color:#fff}
+html[data-theme="night"] #otter2-home .otter2-dash-chip.is-cur{background:#16a34a;border-color:#16a34a;color:#fff}
+html[data-theme="night"] #otter2-home #otter2HskJourney .otter2-node.is-on{background:#16a34a;color:#fff;border-color:#16a34a}
+html[data-theme="night"] #otter2-home #otter2HskJourney .otter2-type-btn.is-on{background:#16a34a;color:#fff;border-color:#16a34a}
+</style>
+<style id="ttc-write-css">
+/* ===== LUYỆN VIẾT CHỮ HÁN (module additive, prefix ttc-write-) ===== */
+.ttc-write-overlay{position:fixed;inset:0;z-index:100000;background:rgba(15,23,42,.55);display:flex;align-items:flex-start;justify-content:center;padding:12px;overflow-y:auto;box-sizing:border-box}
+.ttc-write-overlay[hidden]{display:none}
+.ttc-write-card{background:#fff;color:#0f172a;border-radius:22px;box-shadow:0 24px 60px rgba(15,23,42,.35);width:100%;max-width:560px;margin:auto;padding:18px;box-sizing:border-box}
+.ttc-write-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.ttc-write-title{margin:0;font-size:20px;font-weight:800}
+.ttc-write-close{flex:0 0 auto;width:38px;height:38px;border-radius:50%;border:1px solid #e2e8f0;background:#f8fafc;font-size:16px;cursor:pointer;color:#0f172a}
+.ttc-write-close:hover{background:#fee2e2}
+.ttc-write-levels{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.ttc-write-chip{border:1px solid #bbf7d0;background:#f0fdf4;color:#14532d;border-radius:999px;padding:6px 12px;font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.ttc-write-chip.is-on{background:#16a34a;border-color:#16a34a;color:#fff}
+.ttc-write-prog{margin:8px 0 0;font-size:12.5px;color:#64748b;font-weight:600}
+.ttc-write-modes{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+.ttc-write-mode{flex:1 1 30%;border:1px solid #e2e8f0;background:#fff;color:#0f172a;border-radius:12px;padding:9px 6px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+.ttc-write-mode.is-on{background:#16a34a;border-color:#16a34a;color:#fff}
+.ttc-write-info{text-align:center;margin-top:12px}
+.ttc-write-word{display:flex;justify-content:center;gap:4px;flex-wrap:wrap}
+.ttc-write-charpick{border:2px solid transparent;background:transparent;border-radius:12px;font-family:"Noto Serif SC","Songti SC","SimSun",serif;font-size:44px;line-height:1.15;padding:2px 8px;cursor:pointer;color:#0f172a}
+.ttc-write-charpick.is-on{background:#dcfce7;border-color:#16a34a;color:#14532d}
+.ttc-write-plain{font-family:"Noto Serif SC","Songti SC","SimSun",serif;font-size:44px;line-height:1.15;padding:2px 2px;color:#64748b}
+.ttc-write-meta{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:4px;font-size:15px}
+.ttc-write-pinyin{color:#475569;font-weight:600}
+.ttc-write-hv{color:#9f1239;font-weight:800;letter-spacing:.03em}
+.ttc-write-meaning{margin:4px 0 0;font-size:14.5px;color:#334155}
+.ttc-write-paper{position:relative;width:min(78vw,340px);aspect-ratio:1;margin:12px auto 4px;background:#fff;border-radius:8px;box-shadow:0 2px 10px rgba(15,23,42,.10)}
+.ttc-write-grid{position:absolute;inset:0;width:100%;height:100%;z-index:0}
+.ttc-write-grid .fr{fill:none;stroke:#94a3b8;stroke-width:.5}
+.ttc-write-grid .ln{stroke:#cbd5e1;stroke-width:.3;stroke-dasharray:1.6 1.6}
+.ttc-write-ghost[hidden]{display:none}
+.ttc-write-ghost{position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;font-family:"Noto Serif SC","Songti SC","SimSun",serif;font-size:min(58vw,240px);line-height:1;color:rgba(15,23,42,.13);pointer-events:none;user-select:none}
+.ttc-write-stage{position:absolute;inset:0;z-index:2}
+.ttc-write-stage svg{display:block}
+.ttc-write-canvas{position:absolute;inset:0;z-index:3;width:100%;height:100%;touch-action:none;cursor:crosshair;border-radius:8px}
+.ttc-write-notice{position:absolute;left:8px;right:8px;bottom:8px;z-index:4;background:#fffbeb;border:1px solid #f59e0b;color:#92400e;border-radius:10px;padding:8px 10px;font-size:12.5px;font-weight:600;margin:0}
+.ttc-write-notice[hidden]{display:none}
+.ttc-write-tools{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:10px}
+.ttc-write-tools[hidden]{display:none}
+.ttc-write-tools button{border:1px solid #e2e8f0;background:#f8fafc;color:#0f172a;border-radius:999px;padding:8px 14px;font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.ttc-write-tools button.is-on{background:#dcfce7;border-color:#16a34a;color:#14532d}
+.ttc-write-tools #ttcWriteDone{background:#16a34a;border-color:#16a34a;color:#fff}
+.ttc-write-status{min-height:22px;margin:10px 0 0;text-align:center;font-size:14px;font-weight:700;color:#15803d}
+.ttc-write-nav{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:8px}
+.ttc-write-nav button{border:1px solid #e2e8f0;background:#fff;color:#0f172a;border-radius:12px;padding:9px 16px;font:inherit;font-size:13.5px;font-weight:700;cursor:pointer}
+.ttc-write-nav button:disabled{opacity:.4;cursor:default}
+.ttc-write-counter{font-size:12.5px;color:#64748b;font-weight:600;text-align:center}
+.ttc-write-strip{display:flex;gap:6px;overflow-x:auto;padding:10px 2px 4px;scrollbar-width:thin}
+.ttc-write-item{flex:0 0 auto;border:1px solid #e2e8f0;background:#fff;color:#0f172a;border-radius:12px;padding:7px 11px;font-family:"Noto Serif SC","Songti SC","SimSun",serif;font-size:17px;cursor:pointer}
+.ttc-write-item.is-on{border-color:#16a34a;background:#dcfce7;color:#14532d}
+.ttc-write-item .done{color:#16a34a;font-size:12px;font-family:inherit}
+html[data-theme="night"] .ttc-write-card{background:#1e293b;color:#e5e7eb}
+html[data-theme="night"] .ttc-write-close,html[data-theme="night"] .ttc-write-nav button,html[data-theme="night"] .ttc-write-tools button,html[data-theme="night"] .ttc-write-item{background:#0f172a;color:#e5e7eb;border-color:#334155}
+html[data-theme="night"] .ttc-write-mode{background:#0f172a;color:#e5e7eb;border-color:#334155}
+html[data-theme="night"] .ttc-write-mode.is-on,html[data-theme="night"] .ttc-write-chip.is-on{background:#16a34a;border-color:#16a34a;color:#fff}
+html[data-theme="night"] .ttc-write-tools #ttcWriteDone{background:#16a34a;border-color:#16a34a;color:#fff}
+html[data-theme="night"] .ttc-write-charpick{color:#e5e7eb}
+html[data-theme="night"] .ttc-write-charpick.is-on{background:#14532d;border-color:#22c55e;color:#bbf7d0}
+html[data-theme="night"] .ttc-write-paper{background:#0f172a}
+html[data-theme="night"] .ttc-write-grid .fr{stroke:#475569}
+html[data-theme="night"] .ttc-write-grid .ln{stroke:#334155}
+html[data-theme="night"] .ttc-write-ghost{color:rgba(255,255,255,.15)}
+html[data-theme="night"] .ttc-write-meaning{color:#cbd5e1}
+html[data-theme="night"] .ttc-write-pinyin{color:#94a3b8}
+html[data-theme="night"] .ttc-write-hv{color:#fb7185}
+html[data-theme="night"] .ttc-write-item.is-on{background:#14532d;border-color:#22c55e;color:#bbf7d0}
+html[data-theme="night"] .ttc-write-status{color:#4ade80}
 </style>
 <style id="otter2-path-mobile-css">
 /* ===== LỘ TRÌNH HSK — KHUNG MOBILE GỌN / TOÀN MÀN HÌNH (additive, hạng mục 4) =====
@@ -23413,6 +23502,494 @@ setupFlashcardMobile();
   });
 
   applyAvatar(getStored());
+})();
+</script>
+<div class="ttc-write-overlay" id="ttcWriteOverlay" hidden role="dialog" aria-modal="true" aria-label="Luyện viết chữ Hán">
+  <div class="ttc-write-card">
+    <div class="ttc-write-head">
+      <h2 class="ttc-write-title">✍️ Viết chữ Hán</h2>
+      <button type="button" class="ttc-write-close" id="ttcWriteClose" aria-label="Đóng luyện viết">✕</button>
+    </div>
+    <div class="ttc-write-levels" id="ttcWriteChips" role="group" aria-label="Chọn cấp HSK"></div>
+    <p class="ttc-write-prog" id="ttcWriteProg"></p>
+    <div class="ttc-write-modes" role="group" aria-label="Chế độ luyện viết">
+      <button type="button" class="ttc-write-mode is-on" data-ttc-write-mode="animate">▶ Xem thứ tự nét</button>
+      <button type="button" class="ttc-write-mode" data-ttc-write-mode="quiz">✍️ Viết theo nét</button>
+      <button type="button" class="ttc-write-mode" data-ttc-write-mode="free">🖌️ Viết tự do</button>
+    </div>
+    <div class="ttc-write-info">
+      <div class="ttc-write-word" id="ttcWriteWord"></div>
+      <div class="ttc-write-meta">
+        <span class="ttc-write-pinyin" id="ttcWritePinyin"></span>
+        <span class="ttc-write-hv" id="ttcWriteHanViet"></span>
+      </div>
+      <p class="ttc-write-meaning" id="ttcWriteMeaning"></p>
+    </div>
+    <div class="ttc-write-paper" id="ttcWritePaper">
+      <svg class="ttc-write-grid" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+        <rect class="fr" x="1" y="1" width="98" height="98"></rect>
+        <line class="ln" x1="50" y1="0" x2="50" y2="100"></line>
+        <line class="ln" x1="0" y1="50" x2="100" y2="50"></line>
+        <line class="ln" x1="0" y1="0" x2="100" y2="100"></line>
+        <line class="ln" x1="100" y1="0" x2="0" y2="100"></line>
+      </svg>
+      <div class="ttc-write-ghost" id="ttcWriteGhost" hidden></div>
+      <div class="ttc-write-stage" id="ttcWriteStage"></div>
+      <canvas class="ttc-write-canvas" id="ttcWriteCanvas" hidden></canvas>
+      <p class="ttc-write-notice" id="ttcWriteNotice" hidden></p>
+    </div>
+    <div class="ttc-write-tools" id="ttcWriteAnimateTools">
+      <button type="button" id="ttcWriteReplay">▶ Xem lại thứ tự nét</button>
+    </div>
+    <div class="ttc-write-tools" id="ttcWriteFreeTools" hidden>
+      <button type="button" id="ttcWriteUndo">↩ Hoàn tác</button>
+      <button type="button" id="ttcWriteClear">🧹 Xoá hết</button>
+      <button type="button" id="ttcWriteGhostToggle" class="is-on">👁 Chữ mẫu: Bật</button>
+      <button type="button" id="ttcWriteDone">✓ Đã thuộc chữ này</button>
+    </div>
+    <p class="ttc-write-status" id="ttcWriteStatus" aria-live="polite"></p>
+    <div class="ttc-write-nav">
+      <button type="button" id="ttcWritePrev">⬅ Trước</button>
+      <span class="ttc-write-counter" id="ttcWriteCounter"></span>
+      <button type="button" id="ttcWriteNext">Sau ➡</button>
+    </div>
+    <div class="ttc-write-strip" id="ttcWriteStrip"></div>
+  </div>
+</div>
+<script id="ttc-write-js">
+/* ===== LUYỆN VIẾT CHỮ HÁN — module additive (Hanzi Writer + canvas tự do) ===== */
+(function () {
+  "use strict";
+  var LS_KEY = "otter2_writing_progress_v1";
+  var HW_SRC = "https://cdn.jsdelivr.net/npm/hanzi-writer@3.5.0/dist/hanzi-writer.min.js";
+  var CJK = /[\u3400-\u9fff]/;
+  var state = {
+    open: false, level: 1, words: [], chars: [], wi: 0, ci: 0,
+    mode: "animate", writer: null, hwState: "idle", ghost: true,
+    strokes: [], curStroke: null, drawing: false, sessionDone: 0, prevOverflow: ""
+  };
+  var hwCallbacks = [];
+  function $(id) { return document.getElementById(id); }
+  var overlay, chipsEl, progEl, wordEl, pinyinEl, hvEl, meaningEl, paperEl, stageEl,
+      ghostEl, canvasEl, noticeEl, statusEl, counterEl, stripEl, prevBtn, nextBtn,
+      animateTools, freeTools, ghostToggleBtn;
+
+  /* ---------- dữ liệu ---------- */
+  function allWords() {
+    var d = window.OTTER2_HSK_ALL_DATA;
+    if (d && d.words && d.words.length) return d.words;
+    if (window.words && window.words.length) return window.words;
+    return [];
+  }
+  function cjkChars(str) {
+    var out = [];
+    String(str || "").split("").forEach(function (c) { if (CJK.test(c)) out.push(c); });
+    return out;
+  }
+  function wordsOf(level) {
+    return allWords().filter(function (w) {
+      return w && Number(w.hsk) === level && w.h && cjkChars(w.h).length > 0;
+    });
+  }
+  function charsOf(words) {
+    var seen = {}, out = [];
+    words.forEach(function (w) {
+      cjkChars(w.h).forEach(function (c) { if (!seen[c]) { seen[c] = 1; out.push(c); } });
+    });
+    return out;
+  }
+  function curWord() { return state.words[state.wi] || null; }
+  function curChar() {
+    var w = curWord(); if (!w) return "";
+    var cs = cjkChars(w.h);
+    return cs[Math.min(state.ci, cs.length - 1)] || "";
+  }
+
+  /* ---------- tiến độ ---------- */
+  function loadProg() {
+    try { var p = JSON.parse(localStorage.getItem(LS_KEY) || "{}"); return (p && typeof p === "object") ? p : {}; }
+    catch (e) { return {}; }
+  }
+  function doneList(level) { var p = loadProg(); var a = p[String(level)]; return Array.isArray(a) ? a : []; }
+  function doneCount() {
+    var done = doneList(state.level), set = {}, n = 0;
+    state.chars.forEach(function (c) { set[c] = 1; });
+    done.forEach(function (c) { if (set[c]) n++; });
+    return n;
+  }
+  function markDone(ch) {
+    if (!ch) return doneCount();
+    var p = loadProg(), k = String(state.level);
+    if (!Array.isArray(p[k])) p[k] = [];
+    if (p[k].indexOf(ch) < 0) {
+      p[k].push(ch);
+      try { localStorage.setItem(LS_KEY, JSON.stringify(p)); } catch (e) {}
+      state.sessionDone++;
+    }
+    updateProg(); renderStrip();
+    return doneCount();
+  }
+  function updateProg() {
+    progEl.textContent = "Đã luyện " + doneCount() + " / " + state.chars.length +
+      " chữ của HSK " + state.level + " · " + state.words.length + " từ";
+  }
+
+  /* ---------- cổng tài khoản (nhất quán với phần còn lại của web) ---------- */
+  function gate(level) {
+    if (typeof window.checkPremiumAccess !== "function") return Promise.resolve(true);
+    try {
+      return Promise.resolve(window.checkPremiumAccess(level)).then(function (ok) { return !!ok; }, function () { return false; });
+    } catch (e) { return Promise.resolve(false); }
+  }
+  function currentDashLevel() {
+    var chip = document.querySelector(".otter2-dash-chip.is-cur");
+    if (chip) { var v = parseInt(chip.getAttribute("data-dash-hsk"), 10); if (v >= 1 && v <= 9) return v; }
+    var step = document.querySelector(".otter2-dash-step.is-cur");
+    if (step) { var v2 = parseInt(step.getAttribute("data-dash-hsk"), 10); if (v2 >= 1 && v2 <= 9) return v2; }
+    return 1;
+  }
+
+  /* ---------- Hanzi Writer: nạp lười + fallback ---------- */
+  function flushHw() { var cbs = hwCallbacks; hwCallbacks = []; cbs.forEach(function (cb) { try { cb(); } catch (e) {} }); }
+  function ensureHW(cb) {
+    if (window.HanziWriter) { state.hwState = "ready"; if (cb) cb(); return; }
+    if (state.hwState === "ready" || state.hwState === "failed") { if (cb) cb(); return; }
+    if (cb) hwCallbacks.push(cb);
+    if (state.hwState === "loading") return;
+    state.hwState = "loading";
+    var done = false;
+    var sc = document.createElement("script");
+    sc.src = HW_SRC; sc.async = true;
+    sc.onload = function () {
+      if (done) return; done = true;
+      state.hwState = window.HanziWriter ? "ready" : "failed";
+      flushHw();
+      if (state.open && state.mode !== "free") setupStage();
+    };
+    sc.onerror = function () {
+      if (done) return; done = true;
+      state.hwState = "failed"; flushHw();
+    };
+    document.head.appendChild(sc);
+    setTimeout(function () {
+      if (!done && state.hwState === "loading") { done = true; state.hwState = "failed"; flushHw(); }
+    }, 12000);
+  }
+
+  /* ---------- hiển thị ---------- */
+  function setStatus(t) { statusEl.textContent = t || ""; }
+  function showNotice(t) { if (t) { noticeEl.textContent = t; noticeEl.hidden = false; } else { noticeEl.hidden = true; } }
+  function isNight() { return document.documentElement.getAttribute("data-theme") === "night"; }
+  function paperSize() { return Math.max(200, Math.min(paperEl.clientWidth || 320, 360)); }
+
+  function renderChips() {
+    var counts = (window.OTTER2_HSK_ALL_DATA && window.OTTER2_HSK_ALL_DATA.counts) || {};
+    var html = "";
+    for (var lv = 1; lv <= 9; lv++) {
+      html += '<button type="button" class="ttc-write-chip' + (lv === state.level ? " is-on" : "") +
+        '" data-ttc-write-level="' + lv + '">HSK ' + lv + (counts[lv] ? " · " + counts[lv] : "") + "</button>";
+    }
+    chipsEl.innerHTML = html;
+  }
+  function renderStrip() {
+    var words = state.words, total = words.length;
+    if (!total) { stripEl.innerHTML = ""; return; }
+    var WIN = 121, start = 0;
+    if (total > WIN) start = Math.max(0, Math.min(state.wi - Math.floor(WIN / 2), total - WIN));
+    var done = doneList(state.level), dset = {};
+    done.forEach(function (c) { dset[c] = 1; });
+    var html = "";
+    for (var i = start; i < Math.min(total, start + WIN); i++) {
+      var w = words[i];
+      var allDone = cjkChars(w.h).every(function (c) { return dset[c]; });
+      html += '<button type="button" class="ttc-write-item' + (i === state.wi ? " is-on" : "") +
+        '" data-ttc-write-wi="' + i + '">' + w.h + (allDone ? '<span class="done"> ✓</span>' : "") + "</button>";
+    }
+    stripEl.innerHTML = html;
+    var act = stripEl.querySelector(".ttc-write-item.is-on");
+    if (act) stripEl.scrollLeft = Math.max(0, act.offsetLeft - stripEl.clientWidth / 2 + act.clientWidth / 2);
+  }
+  function renderWord() {
+    var w = curWord();
+    state.writer = null; stageEl.innerHTML = "";
+    if (!w) {
+      wordEl.innerHTML = ""; pinyinEl.textContent = ""; hvEl.textContent = ""; meaningEl.textContent = "Chưa có dữ liệu từ vựng cho cấp này.";
+      counterEl.textContent = ""; prevBtn.disabled = true; nextBtn.disabled = true;
+      ghostEl.hidden = true; showNotice(""); setStatus("");
+      return;
+    }
+    var cs = cjkChars(w.h), html = "", glyphs = String(w.h).split(""), cj = 0;
+    glyphs.forEach(function (g) {
+      if (CJK.test(g)) {
+        html += '<button type="button" class="ttc-write-charpick' + (cj === state.ci ? " is-on" : "") +
+          '" data-ttc-write-ci="' + cj + '">' + g + "</button>";
+        cj++;
+      } else {
+        html += '<span class="ttc-write-plain">' + g + "</span>";
+      }
+    });
+    wordEl.innerHTML = html;
+    pinyinEl.textContent = w.p || "";
+    var ch = curChar(), hv = "";
+    if (ch && typeof window.ttcHanVietName === "function") { try { hv = window.ttcHanVietName(ch) || ""; } catch (e) { hv = ""; } }
+    hvEl.textContent = hv ? "Hán Việt: " + hv : "";
+    meaningEl.textContent = (w.m || "") + (w.t ? " · " + w.t : "");
+    counterEl.textContent = "Từ " + (state.wi + 1) + " / " + state.words.length +
+      (cs.length > 1 ? " · Chữ " + (state.ci + 1) + " / " + cs.length : "");
+    prevBtn.disabled = state.wi <= 0;
+    nextBtn.disabled = state.wi >= state.words.length - 1;
+    renderStrip();
+    setupStage();
+  }
+
+  /* ---------- sân giấy: 3 chế độ ---------- */
+  function setupStage() {
+    var ch = curChar();
+    state.writer = null; stageEl.innerHTML = "";
+    state.strokes = []; state.curStroke = null;
+    var free = state.mode === "free";
+    canvasEl.hidden = !free;
+    stageEl.style.display = free ? "none" : "";
+    freeTools.hidden = !free;
+    animateTools.hidden = state.mode !== "animate";
+    showNotice(""); setStatus("");
+    if (!ch) { ghostEl.hidden = true; return; }
+    if (free) {
+      ghostEl.textContent = ch;
+      ghostEl.hidden = !state.ghost;
+      setupCanvas(); redrawCanvas();
+      setStatus("Vẽ tự do theo chữ mẫu, hoặc tắt chữ mẫu để tự viết nhé!");
+      return;
+    }
+    if (state.hwState === "failed") {
+      ghostEl.textContent = ch; ghostEl.hidden = false;
+      showNotice("Cần kết nối mạng để xem thứ tự nét. Bạn vẫn luyện được ở chế độ 🖌️ Viết tự do — đồ theo chữ mẫu mờ nhé!");
+      return;
+    }
+    if (window.HanziWriter) { state.hwState = "ready"; ghostEl.hidden = true; createWriter(ch); return; }
+    ghostEl.textContent = ch; ghostEl.hidden = false;
+    setStatus("Đang tải dữ liệu nét chữ…");
+    ensureHW(function () { if (state.open && state.mode !== "free") setupStage(); });
+  }
+  function createWriter(ch) {
+    var size = paperSize();
+    try {
+      state.writer = HanziWriter.create(stageEl, ch, {
+        width: size, height: size, padding: Math.round(size * 0.05),
+        showOutline: true, strokeAnimationSpeed: 1, delayBetweenStrokes: 250,
+        strokeColor: isNight() ? "#e5e7eb" : "#0f172a",
+        outlineColor: isNight() ? "#475569" : "#cbd5e1",
+        drawingColor: "#16a34a", highlightColor: "#f59e0b",
+        onLoadCharDataError: function () {
+          state.writer = null; stageEl.innerHTML = "";
+          ghostEl.textContent = ch; ghostEl.hidden = false;
+          showNotice("Chữ «" + ch + "» chưa có dữ liệu nét. Hãy luyện ở chế độ 🖌️ Viết tự do nhé!");
+        }
+      });
+    } catch (e) {
+      state.writer = null;
+      ghostEl.textContent = ch; ghostEl.hidden = false;
+      showNotice("Không khởi tạo được phần xem nét. Hãy luyện ở chế độ 🖌️ Viết tự do nhé!");
+      return;
+    }
+    if (state.mode === "animate") {
+      try { state.writer.animateCharacter(); } catch (e) {}
+      setStatus("Xem thứ tự nét của chữ «" + ch + "» — bấm Xem lại để phát lại.");
+    } else if (state.mode === "quiz") {
+      startQuiz(ch);
+    }
+  }
+  function startQuiz(ch) {
+    if (!state.writer) return;
+    setStatus("Viết nét đầu tiên của chữ «" + ch + "» nào!");
+    try {
+      state.writer.quiz({
+        leniency: 1,
+        showHintAfterMisses: 3,
+        onMistake: function () { setStatus("Chưa đúng nét này — thử lại nhé!"); },
+        onCorrectStroke: function () { setStatus("Đúng rồi! Viết tiếp nét nữa nào."); },
+        onComplete: function () {
+          var n = markDone(ch);
+          if (n === 10) setStatus("🏆 Quá giỏi! Bạn đã luyện được 10 chữ của HSK " + state.level + " rồi!");
+          else if (state.sessionDone === 1) setStatus("🎉 Chữ đầu tiên trong buổi luyện hôm nay — khởi đầu tuyệt vời!");
+          else setStatus("🎉 Tuyệt vời! Bạn đã viết đúng thứ tự nét của chữ «" + ch + "».");
+        }
+      });
+    } catch (e) { setStatus("Không bắt đầu được phần viết theo nét — thử Xem thứ tự nét hoặc Viết tự do nhé!"); }
+  }
+
+  /* ---------- canvas viết tự do ---------- */
+  function setupCanvas() {
+    var size = paperSize(), dpr = window.devicePixelRatio || 1;
+    canvasEl.width = Math.round(size * dpr);
+    canvasEl.height = Math.round(size * dpr);
+  }
+  function ctx2d() { try { return canvasEl.getContext("2d"); } catch (e) { return null; } }
+  function drawStroke(ctx, pts, size) {
+    if (!pts.length) return;
+    ctx.lineWidth = Math.max(3, size * 0.035);
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x * size, pts[0].y * size);
+    for (var i = 1; i < pts.length; i++) {
+      var p = pts[i], q = pts[i - 1];
+      ctx.quadraticCurveTo(q.x * size, q.y * size, (q.x + p.x) / 2 * size, (q.y + p.y) / 2 * size);
+    }
+    ctx.lineTo(pts[pts.length - 1].x * size, pts[pts.length - 1].y * size);
+    ctx.stroke();
+  }
+  function redrawCanvas() {
+    var ctx = ctx2d(); if (!ctx) return;
+    var size = paperSize(), dpr = window.devicePixelRatio || 1;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, size, size);
+    ctx.lineCap = "round"; ctx.lineJoin = "round";
+    ctx.strokeStyle = isNight() ? "#e5e7eb" : "#0f172a";
+    state.strokes.forEach(function (pts) { drawStroke(ctx, pts, size); });
+    if (state.curStroke) drawStroke(ctx, state.curStroke, size);
+  }
+  function canvasPos(ev) {
+    var r = canvasEl.getBoundingClientRect();
+    return { x: (ev.clientX - r.left) / Math.max(1, r.width), y: (ev.clientY - r.top) / Math.max(1, r.height) };
+  }
+  function bindCanvas() {
+    canvasEl.addEventListener("pointerdown", function (ev) {
+      if (state.mode !== "free") return;
+      ev.preventDefault();
+      state.drawing = true; state.curStroke = [canvasPos(ev)];
+      try { canvasEl.setPointerCapture(ev.pointerId); } catch (e) {}
+      redrawCanvas();
+    });
+    canvasEl.addEventListener("pointermove", function (ev) {
+      if (!state.drawing || state.mode !== "free") return;
+      ev.preventDefault();
+      state.curStroke.push(canvasPos(ev));
+      redrawCanvas();
+    });
+    function endStroke() {
+      if (!state.drawing) return;
+      state.drawing = false;
+      if (state.curStroke && state.curStroke.length) state.strokes.push(state.curStroke);
+      state.curStroke = null;
+      redrawCanvas();
+    }
+    canvasEl.addEventListener("pointerup", endStroke);
+    canvasEl.addEventListener("pointercancel", endStroke);
+  }
+
+  /* ---------- mở / đóng / chuyển cấp ---------- */
+  function setLevel(lv) {
+    state.level = lv; state.wi = 0; state.ci = 0;
+    state.words = wordsOf(lv); state.chars = charsOf(state.words);
+    renderChips(); updateProg(); renderWord();
+  }
+  function openModule() {
+    var lv = currentDashLevel();
+    gate(lv).then(function (ok) {
+      if (!ok) return;
+      state.open = true; state.sessionDone = 0;
+      state.prevOverflow = document.body.style.overflow || "";
+      document.body.style.overflow = "hidden";
+      overlay.hidden = false;
+      setLevel(lv);
+      ensureHW();
+    });
+  }
+  function closeModule() {
+    state.open = false;
+    overlay.hidden = true;
+    document.body.style.overflow = state.prevOverflow;
+    state.drawing = false; state.curStroke = null;
+  }
+
+  function init() {
+    overlay = $("ttcWriteOverlay"); chipsEl = $("ttcWriteChips"); progEl = $("ttcWriteProg");
+    wordEl = $("ttcWriteWord"); pinyinEl = $("ttcWritePinyin"); hvEl = $("ttcWriteHanViet");
+    meaningEl = $("ttcWriteMeaning"); paperEl = $("ttcWritePaper"); stageEl = $("ttcWriteStage");
+    ghostEl = $("ttcWriteGhost"); canvasEl = $("ttcWriteCanvas"); noticeEl = $("ttcWriteNotice");
+    statusEl = $("ttcWriteStatus"); counterEl = $("ttcWriteCounter"); stripEl = $("ttcWriteStrip");
+    prevBtn = $("ttcWritePrev"); nextBtn = $("ttcWriteNext");
+    animateTools = $("ttcWriteAnimateTools"); freeTools = $("ttcWriteFreeTools");
+    ghostToggleBtn = $("ttcWriteGhostToggle");
+    if (!overlay) return;
+
+    /* Chặn tile "Viết chữ Hán" của dash ở pha capture — handler gốc (bubble, trên chính nút) không chạy nữa */
+    document.addEventListener("click", function (ev) {
+      var t = (ev.target && ev.target.closest) ? ev.target.closest('[data-dash-goto="write"]') : null;
+      if (!t) return;
+      ev.preventDefault(); ev.stopPropagation();
+      if (!state.open) openModule();
+    }, true);
+
+    $("ttcWriteClose").addEventListener("click", closeModule);
+    overlay.addEventListener("click", function (ev) { if (ev.target === overlay) closeModule(); });
+    document.addEventListener("keydown", function (ev) { if (state.open && ev.key === "Escape") closeModule(); });
+
+    chipsEl.addEventListener("click", function (ev) {
+      var b = (ev.target && ev.target.closest) ? ev.target.closest("[data-ttc-write-level]") : null;
+      if (!b) return;
+      var lv = parseInt(b.getAttribute("data-ttc-write-level"), 10);
+      if (!lv || lv === state.level) return;
+      gate(lv).then(function (ok) { if (ok) setLevel(lv); });
+    });
+    document.querySelectorAll("[data-ttc-write-mode]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var m = b.getAttribute("data-ttc-write-mode");
+        if (m === state.mode) return;
+        state.mode = m;
+        document.querySelectorAll("[data-ttc-write-mode]").forEach(function (x) {
+          x.classList.toggle("is-on", x.getAttribute("data-ttc-write-mode") === m);
+        });
+        setupStage();
+      });
+    });
+    wordEl.addEventListener("click", function (ev) {
+      var b = (ev.target && ev.target.closest) ? ev.target.closest("[data-ttc-write-ci]") : null;
+      if (!b) return;
+      var ci = parseInt(b.getAttribute("data-ttc-write-ci"), 10);
+      if (isNaN(ci) || ci === state.ci) return;
+      state.ci = ci; renderWord();
+    });
+    stripEl.addEventListener("click", function (ev) {
+      var b = (ev.target && ev.target.closest) ? ev.target.closest("[data-ttc-write-wi]") : null;
+      if (!b) return;
+      var wi = parseInt(b.getAttribute("data-ttc-write-wi"), 10);
+      if (isNaN(wi) || wi === state.wi) return;
+      state.wi = wi; state.ci = 0; renderWord();
+    });
+    prevBtn.addEventListener("click", function () { if (state.wi > 0) { state.wi--; state.ci = 0; renderWord(); } });
+    nextBtn.addEventListener("click", function () { if (state.wi < state.words.length - 1) { state.wi++; state.ci = 0; renderWord(); } });
+    $("ttcWriteReplay").addEventListener("click", function () {
+      if (state.writer && state.mode === "animate") { try { state.writer.animateCharacter(); } catch (e) {} }
+    });
+    $("ttcWriteUndo").addEventListener("click", function () { state.strokes.pop(); redrawCanvas(); });
+    $("ttcWriteClear").addEventListener("click", function () { state.strokes = []; state.curStroke = null; redrawCanvas(); });
+    ghostToggleBtn.addEventListener("click", function () {
+      state.ghost = !state.ghost;
+      ghostEl.hidden = !state.ghost;
+      ghostToggleBtn.textContent = state.ghost ? "👁 Chữ mẫu: Bật" : "👁 Chữ mẫu: Tắt";
+      ghostToggleBtn.classList.toggle("is-on", state.ghost);
+    });
+    $("ttcWriteDone").addEventListener("click", function () {
+      var ch = curChar(); if (!ch) return;
+      var n = markDone(ch);
+      if (n === 10) setStatus("🏆 Quá giỏi! Bạn đã luyện được 10 chữ của HSK " + state.level + " rồi!");
+      else if (state.sessionDone === 1) setStatus("🎉 Chữ đầu tiên trong buổi luyện hôm nay — khởi đầu tuyệt vời!");
+      else setStatus("✓ Đã ghi nhận thuộc chữ «" + ch + "» (" + n + " chữ của cấp này).");
+    });
+    bindCanvas();
+    var rzTimer = null;
+    window.addEventListener("resize", function () {
+      if (!state.open) return;
+      clearTimeout(rzTimer);
+      rzTimer = setTimeout(function () {
+        if (!state.open) return;
+        if (state.mode === "free") { setupCanvas(); redrawCanvas(); }
+        else if (window.HanziWriter) setupStage();
+      }, 200);
+    });
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+  else init();
 })();
 </script>
 </body>
