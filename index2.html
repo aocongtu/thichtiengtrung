@@ -187,28 +187,17 @@
       display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;flex:0 0 auto;
     }
     .otter2-nav-label{display:none}
-    @media (max-width:900px){
-      .otter2-brand-title{display:none}
-      .otter2-brand-title-wrap{padding:3px 4px}
-      .otter2-nav{gap:clamp(3px, 1vw, 6px);padding:4px 5px;border-radius:22px}
-      .otter2-nav-links{
-        gap:1px;padding:2px;flex:1 1 auto;min-width:0;
-      }
+    /* Tablet chỉ: giữ 1 hàng gọn — phone dùng block riêng bên dưới (hạ 5 nút) */
+    @media (max-width:900px) and (min-width:768px){
+      .otter2-brand-title-wrap{padding:3px 6px}
+      .otter2-nav{gap:6px;padding:6px 8px;border-radius:22px}
       .otter2-nav-links > button{
-        flex-direction:column;gap:1px;
-        padding:3px 1px;
-        font-size:clamp(7.5px, 2.1vw, 10px);
-        min-height:clamp(40px, 11vw, 48px);
-        line-height:1.1;white-space:normal;text-align:center;
+        flex-direction:column;gap:2px;padding:4px 2px;
+        font-size:11px;min-height:46px;line-height:1.15;white-space:normal;text-align:center;
       }
-      .otter2-nav-links > button .otter2-pill-ico{font-size:13px}
-      .otter2-avatar{max-width:min(72px, 20vw);padding:0 6px;font-size:clamp(9px, 2.4vw, 12px)}
-      .otter2-chat-nav,#otter2ThemeNavBtn{min-width:32px;min-height:36px}
-    }
-    @media (max-width:360px){
-      .otter2-nav-links > button{font-size:7px;padding:2px 0}
-      .otter2-nav-links > button .otter2-pill-txt{letter-spacing:-0.02em}
-      .otter2-avatar{max-width:48px;padding:0 4px}
+      .otter2-nav-links > button .otter2-pill-ico{font-size:14px}
+      .otter2-avatar{max-width:min(140px, 28vw);padding:0 10px;font-size:12px}
+      .otter2-chat-nav,#otter2ThemeNavBtn{min-width:40px;min-height:40px}
     }
     /* Fullscreen lộ trình: không để nav/thành tích/home che khu học */
     body.ttc-path-fs-lock .otter2-nav,
@@ -561,11 +550,11 @@
       .otter2-mascot-wrap img,.otter2-vocab-side img,.otter2-side-mascot img{width:min(200px,62vw)}
       .otter2-quiz-card .otter2-quiz-mascot{width:72px;top:-28px}
       .otter2-metrics{grid-template-columns:1fr}
-      .otter2-nav{flex-wrap:nowrap !important;z-index:60}
+      .otter2-nav{z-index:60}
       .otter2-feature-row{grid-template-columns:repeat(5, minmax(0, 1fr)) !important}
     }
     @media (max-width:720px){
-      .otter2-feature-row{grid-template-columns:repeat(5, minmax(0, 1fr)) !important}
+      .otter2-feature-row{grid-template-columns:repeat(2, minmax(0, 1fr)) !important}
     }
     @media (max-width:360px){
       .otter2-shell{width:calc(100% - 16px)}
@@ -626,11 +615,152 @@
     @media (max-width:720px){
       .otter2-demo-banner{display:none!important;height:0!important;margin:0!important;padding:0!important;overflow:hidden!important;border:0!important}
       .otter2-shell{width:calc(100% - 16px);margin-bottom:calc(28px + env(safe-area-inset-bottom, 0px))}
-      .otter2-nav{margin-top:8px;padding:6px 8px;gap:clamp(4px, 1.2vw, 8px);flex-wrap:nowrap !important}
       .otter2-hero{padding:14px 12px;min-height:0;border-radius:20px}
       .otter2-btn,.otter2-btn-primary{min-height:var(--ui-btn-h-md);padding:0 14px}
       .otter2-search-box input{font-size:16px}
       .otter2-mascot-wrap img{width:min(220px, 70vw)}
+    }
+
+    /*
+     * MOBILE NAV (≤767px): hạ thanh 5 nút xuống dưới Logo + Tài khoản.
+     * Desktop (≥768 trong các rule khác / ≥1024) không đổi cấu trúc 1 hàng.
+     */
+    @media (max-width:767px){
+      .otter2-nav{
+        display:flex !important;
+        flex-wrap:wrap !important;
+        align-items:center;
+        justify-content:space-between;
+        gap:8px 10px !important;
+        padding:10px !important;
+        margin-top:max(8px, env(safe-area-inset-top, 0px));
+        margin-bottom:12px;
+        border-radius:20px !important;
+        overflow:visible;
+      }
+      /* Hàng 1: Logo / tiêu đề */
+      .otter2-brand{
+        order:1 !important;
+        flex:1 1 auto !important;
+        min-width:0;
+        max-width:calc(100% - 150px);
+      }
+      .otter2-brand-title{
+        display:inline !important;
+        font-size:13px !important;
+        white-space:nowrap;
+        overflow:hidden;
+        text-overflow:ellipsis;
+        max-width:100%;
+      }
+      .otter2-brand-title-wrap{
+        padding:4px 8px !important;
+        max-width:100%;
+      }
+      .otter2-theme-slot,
+      #otter2ThemeNavBtn{
+        flex:0 0 auto;
+      }
+      #otter2ThemeNavBtn{
+        min-width:40px !important;
+        min-height:40px !important;
+      }
+      /* Hàng 1 phải: Chat + Tài khoản (hiển thị đủ chữ) */
+      .otter2-nav-right{
+        order:2 !important;
+        flex:0 0 auto !important;
+        margin-left:auto !important;
+        gap:8px !important;
+      }
+      .otter2-chat-nav{
+        min-width:42px !important;
+        min-height:42px !important;
+      }
+      .otter2-avatar{
+        max-width:min(160px, 46vw) !important;
+        min-width:0 !important;
+        min-height:42px !important;
+        height:42px !important;
+        padding:0 12px !important;
+        font-size:13px !important;
+        overflow:hidden;
+        text-overflow:ellipsis;
+        white-space:nowrap;
+      }
+      /* Hàng 2: thanh 5 nút — hạ xuống dưới tiêu đề + tài khoản */
+      .otter2-nav-links{
+        order:3 !important;
+        flex:1 1 100% !important;
+        width:100% !important;
+        max-width:100% !important;
+        display:grid !important;
+        grid-template-columns:repeat(5, minmax(0, 1fr));
+        gap:6px !important;
+        padding:6px !important;
+        margin:2px 0 0 !important;
+        box-sizing:border-box;
+      }
+      .otter2-nav-links > button{
+        flex:none !important;
+        flex-direction:column !important;
+        align-items:center;
+        justify-content:center;
+        gap:3px !important;
+        width:100%;
+        min-width:0 !important;
+        min-height:52px !important;
+        padding:6px 2px !important;
+        font-size:10.5px !important;
+        line-height:1.2 !important;
+        white-space:normal !important;
+        text-align:center;
+        overflow:hidden;
+      }
+      .otter2-nav-links > button .otter2-pill-ico{
+        font-size:16px !important;
+        line-height:1;
+      }
+      .otter2-nav-links > button .otter2-pill-txt{
+        display:block;
+        max-width:100%;
+        overflow-wrap:anywhere;
+        word-break:break-word;
+        font-size:inherit;
+        font-weight:700;
+      }
+    }
+    @media (max-width:430px){
+      .otter2-brand{max-width:calc(100% - 140px)}
+      .otter2-brand-title{font-size:12.5px !important}
+      .otter2-nav-links{gap:5px !important;padding:5px !important}
+      .otter2-nav-links > button{
+        min-height:54px !important;
+        font-size:10px !important;
+        padding:6px 1px !important;
+      }
+      .otter2-avatar{
+        max-width:min(150px, 48vw) !important;
+        font-size:12.5px !important;
+      }
+    }
+    @media (max-width:390px){
+      .otter2-nav{padding:9px !important;gap:8px !important}
+      .otter2-nav-links > button{font-size:9.5px !important;min-height:52px !important}
+      .otter2-nav-links > button .otter2-pill-ico{font-size:15px !important}
+    }
+    @media (max-width:375px){
+      .otter2-brand-title{font-size:12px !important}
+      .otter2-nav-links{gap:4px !important}
+      .otter2-nav-links > button{
+        font-size:9px !important;
+        min-height:50px !important;
+        padding:5px 0 !important;
+      }
+      .otter2-avatar{
+        max-width:min(132px, 44vw) !important;
+        padding:0 10px !important;
+        font-size:12px !important;
+      }
     }
   </style>
 </head>
