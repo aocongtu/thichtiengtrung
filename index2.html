@@ -1987,6 +1987,264 @@ html[data-theme="night"] .ttc-write-status{color:#4ade80}
   #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-fb-hanzi { font-size: 36px; }
   #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-feedback-ok .ttc-path-feedback-title { font-size: 21px; }
 }
+
+/* ===== TỰ THU VỪA MÀN HÌNH — KHÔNG CUỘN PHIÊN HỌC (additive, 2026-11-17) =====
+   Yêu cầu chủ web (sau ảnh laptop HSK 5): khung fs đợt trước vẫn còn thanh
+   cuộn dọc ở .ttc-path-learn vì nội dung (h3 + MÀU CÂU HỎI + thẻ câu hỏi +
+   đáp án + cột thống kê 7 ô) cao hơn khung nhìn. Đợt này:
+   1) .ttc-path-learn chuyển sang overflow:hidden — KHÔNG còn thanh cuộn
+      tổng. Bên trong, .ttc-path-main/.ttc-path-quiz thành cột flex có
+      min-height:0: thẻ câu hỏi co giãn (flex 0 1 auto), lưới đáp án flex:1
+      với từng nút đáp án co đều (flex 1 1 0 + min/max-height), feedback co
+      giãn. Chỉ khi đã thu tới mức tối thiểu mà vẫn tràn thì RIÊNG thẻ câu
+      hỏi/feedback mới cuộn nội bộ (last resort, không phải cả khung).
+   2) Biến --ttc-fit (JS #otter2-path-fixes-js đo tràn và hạ dần
+      1 -> .94 -> .88 -> .82 -> .76 -> .70) nhân vào cỡ chữ/padding/khoảng
+      cách của thẻ câu hỏi, chữ Hán, đáp án, ô chữ, feedback, thống kê —
+      câu hỏi càng dài chữ càng tự thu nhỏ đều để vừa trọn 100dvh.
+   3) @media (max-height:820px): nén cột thống kê + HUD/toolbar; ẩn ô
+      "Trạng thái" (.ttc-path-stat-status) vì nội dung của nó ("Đang học
+      HSK x · EXP y") đã có sẵn trên HUD (pill cấp + EXP). Ở chiều cao
+      <=700px ẩn thêm ticker và ô Nickname (thông tin ít quan trọng nhất;
+      Nickname vốn đã ẩn ở mobile <=900px). */
+/* --- 1) Cấu trúc co giãn, không cuộn tổng (mọi bề rộng) --- */
+#ttcPathPanel.ttc-path-fs { --ttc-fit: 1; }
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-learn {
+  overflow: hidden !important;
+  align-items: stretch;
+}
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-main {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  align-self: stretch;
+}
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-quiz {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-qcolor-bar { flex: 0 0 auto; }
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-feedback-host {
+  flex: 0 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-feedback {
+  overflow-y: auto;
+  max-height: 100%;
+}
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-daily-card {
+  flex: 0 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-q {
+  flex: 0 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-overview-col {
+  max-height: 100%;
+  overflow: hidden;
+  align-self: stretch;
+}
+/* --- 2) Kích thước theo --ttc-fit (giá trị gốc desktop của module) --- */
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab h3 {
+  font-size: calc(20px * var(--ttc-fit));
+  margin-bottom: calc(4px * var(--ttc-fit));
+}
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-explain-bar {
+  flex: 0 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-explain-toggle {
+  flex: 0 0 auto;
+  font-size: calc(13px * var(--ttc-fit));
+  padding: calc(8px * var(--ttc-fit)) calc(12px * var(--ttc-fit));
+}
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-explain-panel {
+  flex: 0 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  font-size: calc(13px * var(--ttc-fit));
+}
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-qcolor-btn {
+  font-size: calc(13px * var(--ttc-fit));
+  padding: calc(10px * var(--ttc-fit)) calc(14px * var(--ttc-fit));
+  min-height: calc(44px * var(--ttc-fit));
+}
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-q {
+  padding: calc(14px * var(--ttc-fit)) calc(14px * var(--ttc-fit)) calc(16px * var(--ttc-fit));
+  margin-bottom: calc(12px * var(--ttc-fit));
+}
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-q-label {
+  font-size: calc(15px * var(--ttc-fit));
+  margin-bottom: calc(8px * var(--ttc-fit));
+}
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-daily-hanzi { font-size: calc(56px * var(--ttc-fit)); }
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-q-meaning { font-size: calc(22px * var(--ttc-fit)); }
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-build { font-size: calc(34px * var(--ttc-fit)); }
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-build.ttc-path-slots {
+  min-height: calc(52px * var(--ttc-fit));
+  gap: calc(8px * var(--ttc-fit));
+}
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-slot {
+  width: calc(48px * var(--ttc-fit));
+  height: calc(48px * var(--ttc-fit));
+  font-size: calc(26px * var(--ttc-fit));
+}
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-tiles {
+  gap: calc(10px * var(--ttc-fit));
+  padding: calc(10px * var(--ttc-fit));
+}
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-daily-char {
+  font-size: calc(28px * var(--ttc-fit));
+  padding: calc(10px * var(--ttc-fit)) calc(14px * var(--ttc-fit));
+  min-width: calc(48px * var(--ttc-fit));
+  min-height: calc(48px * var(--ttc-fit));
+}
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-choices {
+  flex: 1 1 auto;
+  min-height: 0;
+  justify-content: center;
+  gap: calc(10px * var(--ttc-fit));
+  margin-bottom: calc(12px * var(--ttc-fit));
+}
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-choice {
+  flex: 1 1 0;
+  min-height: calc(38px * var(--ttc-fit));
+  max-height: calc(88px * var(--ttc-fit));
+  overflow: hidden;
+  align-items: center;
+  font-size: calc(17px * var(--ttc-fit));
+  padding: calc(14px * var(--ttc-fit));
+}
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-controls {
+  flex: 0 0 auto;
+  gap: calc(10px * var(--ttc-fit));
+  padding: calc(12px * var(--ttc-fit));
+  margin: calc(4px * var(--ttc-fit)) 0 calc(8px * var(--ttc-fit));
+}
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-btn {
+  font-size: calc(16px * var(--ttc-fit));
+  padding: calc(14px * var(--ttc-fit)) calc(18px * var(--ttc-fit));
+  min-height: calc(48px * var(--ttc-fit));
+}
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-feedback {
+  padding: calc(12px * var(--ttc-fit)) calc(14px * var(--ttc-fit));
+  font-size: calc(15px * var(--ttc-fit));
+}
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-feedback-title {
+  font-size: calc(22px * var(--ttc-fit));
+  margin-bottom: calc(8px * var(--ttc-fit));
+}
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-fb-hanzi {
+  font-size: calc(44px * var(--ttc-fit));
+  margin: calc(8px * var(--ttc-fit)) 0 calc(4px * var(--ttc-fit));
+}
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-fb-meaning {
+  font-size: calc(16px * var(--ttc-fit));
+  margin-bottom: calc(8px * var(--ttc-fit));
+}
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-fb-actions {
+  gap: calc(8px * var(--ttc-fit));
+  margin: calc(8px * var(--ttc-fit)) 0;
+}
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-fb-btn {
+  font-size: calc(13px * var(--ttc-fit));
+  padding: calc(10px * var(--ttc-fit)) calc(12px * var(--ttc-fit));
+}
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-overview-col { gap: calc(6px * var(--ttc-fit)); }
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-overview-col .ttc-path-stat { padding: calc(8px * var(--ttc-fit)); }
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-overview-col .ttc-path-stat span { font-size: calc(11px * var(--ttc-fit)); }
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-overview-col .ttc-path-stat b { font-size: calc(13px * var(--ttc-fit)); }
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-overview-col .ttc-path-score { font-size: calc(12px * var(--ttc-fit)); }
+/* --- 2b) Giá trị gốc mobile (<=900px) nhân --ttc-fit --- */
+@media (max-width: 900px) {
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-main { flex: 1 1 auto; }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab h3 { font-size: calc(17px * var(--ttc-fit)); }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-q {
+    padding: calc(12px * var(--ttc-fit)) calc(12px * var(--ttc-fit)) calc(13px * var(--ttc-fit));
+  }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-daily-hanzi { font-size: calc(clamp(38px, 11vw, 48px) * var(--ttc-fit)); }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-q-meaning { font-size: calc(17px * var(--ttc-fit)); }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-slot {
+    width: calc(clamp(36px, 10.5vw, 46px) * var(--ttc-fit));
+    height: auto;
+    font-size: calc(clamp(19px, 5.4vw, 24px) * var(--ttc-fit));
+  }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-tiles {
+    gap: calc(7px * var(--ttc-fit));
+    padding: calc(8px * var(--ttc-fit));
+  }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-daily-char {
+    font-size: calc(clamp(20px, 6vw, 26px) * var(--ttc-fit));
+    min-width: calc(42px * var(--ttc-fit));
+    min-height: calc(42px * var(--ttc-fit));
+    max-width: calc(58px * var(--ttc-fit));
+  }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-choice {
+    font-size: calc(15.5px * var(--ttc-fit));
+    padding: calc(11px * var(--ttc-fit)) calc(12px * var(--ttc-fit));
+  }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-controls { padding: calc(9px * var(--ttc-fit)); gap: calc(8px * var(--ttc-fit)); }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-btn {
+    min-height: calc(44px * var(--ttc-fit));
+    min-width: calc(104px * var(--ttc-fit));
+    padding: calc(11px * var(--ttc-fit)) calc(14px * var(--ttc-fit));
+    font-size: calc(15px * var(--ttc-fit));
+  }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-feedback { padding: calc(10px * var(--ttc-fit)) calc(12px * var(--ttc-fit)); }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-fb-hanzi { font-size: calc(36px * var(--ttc-fit)); }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-feedback-ok .ttc-path-feedback-title { font-size: calc(21px * var(--ttc-fit)); }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-overview-col .ttc-path-stat { padding: calc(5px * var(--ttc-fit)) calc(8px * var(--ttc-fit)); }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-overview-col .ttc-path-stat span { font-size: calc(10px * var(--ttc-fit)); }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-overview-col .ttc-path-stat b { font-size: calc(12.5px * var(--ttc-fit)); }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-overview-col .ttc-path-score { font-size: calc(11px * var(--ttc-fit)); }
+}
+/* --- 3) Chiều cao thấp (laptop ~700-820px): nén thống kê + HUD/toolbar --- */
+@media (max-height: 820px) {
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-overview-col {
+    gap: 4px;
+    padding: 6px;
+  }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-overview-col .ttc-path-stat {
+    padding: 5px 7px;
+    border-radius: 8px;
+  }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-overview-col .ttc-path-stat span {
+    font-size: 10px;
+    margin-bottom: 0;
+  }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-overview-col .ttc-path-stat b { font-size: 12px; }
+  /* Ô "Trạng thái" trùng thông tin với HUD (pill cấp + EXP) -> ẩn khi thấp */
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-overview-col .ttc-path-stat-status { display: none !important; }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-game-hud {
+    padding-top: 7px;
+    padding-bottom: 7px;
+    margin-bottom: 6px;
+  }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-fs-toolbar { margin-bottom: 6px; }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-fs-toolbar .ttc-path-sfx-btn,
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-fs-toolbar .ttc-path-fs-exit,
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-fs-toolbar .ttc-path-goals-toggle,
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-fs-toolbar .ttc-path-sfx-vol-wrap {
+    height: 34px;
+    min-height: 34px;
+  }
+}
+@media (max-height: 700px) {
+  /* Rất thấp: bỏ ticker chạy chữ + ô Nickname (đã có ở khung tài khoản) */
+  #ttcPathPanel.ttc-path-fs > .ttc-path-world-ticker { display: none !important; }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-overview-col .ttc-path-stat-nick { display: none !important; }
+}
 </style>
 <style id="otter2-avatar-css">
 /* ===== ẢNH ĐẠI DIỆN NGƯỜI DÙNG (additive, hạng mục 5) =====
@@ -23207,11 +23465,71 @@ setupFlashcardMobile();
     }
   }
 
+  /* ===== TỰ THU VỪA MÀN HÌNH (fullscreen lộ trình) =====
+     CSS ở #otter2-path-fs-css đã bỏ thanh cuộn tổng của .ttc-path-learn và
+     biến mọi kích thước chính thành calc(... * var(--ttc-fit)). Hàm này đo
+     tràn thật (scrollHeight > clientHeight ở thẻ câu hỏi / từng nút đáp án /
+     feedback / cột thống kê) rồi hạ --ttc-fit theo bậc cho tới khi vừa.
+     Chạy trong runFixes() — tức sau mỗi lần module draw() lại câu hỏi
+     (MutationObserver sẵn có) và khi resize; mỗi lần chạy đều bắt đầu lại
+     từ fit=1 ("đổi câu hỏi thì đo lại từ đầu"). Bỏ qua khi panel thiết lập
+     màu câu hỏi đang mở (nội dung tạm thời, không thuộc phiên học). */
+  var FIT_STEPS = [1, 0.94, 0.88, 0.82, 0.76, 0.7];
+  /* [selector, có đo cả chiều ngang không] — cột thống kê mobile là dải
+     cuộn NGANG theo thiết kế nên chỉ đo chiều dọc, tránh báo tràn giả. */
+  var FIT_PROBES = [
+    [".ttc-path-q", true],
+    [".ttc-path-choices", true],
+    [".ttc-path-feedback", true],
+    [".ttc-path-tiles", true],
+    [".ttc-path-overview-col", false]
+  ];
+  function fsPanelEl() {
+    var p = document.getElementById("ttcPathPanel");
+    return (p && p.classList && p.classList.contains("ttc-path-fs")) ? p : null;
+  }
+  function probeOverflow(panel) {
+    var i, el;
+    for (i = 0; i < FIT_PROBES.length; i++) {
+      el = panel.querySelector(FIT_PROBES[i][0]);
+      if (!el) continue;
+      if (el.scrollHeight - el.clientHeight > 2) return true;
+      if (FIT_PROBES[i][1] && el.scrollWidth - el.clientWidth > 2) return true;
+    }
+    var ch = panel.querySelectorAll(".ttc-path-choice");
+    for (i = 0; i < ch.length; i++) {
+      if (ch[i].scrollHeight - ch[i].clientHeight > 2) return true;
+    }
+    return false;
+  }
+  var fitBusy = false;
+  function fitFsPanel() {
+    if (fitBusy) return;
+    var panel = fsPanelEl();
+    if (!panel) return;
+    if (!panel.querySelector(".ttc-path-learn")) return;
+    if (panel.querySelector(".ttc-path-qcolor-panel:not([hidden])")) return;
+    fitBusy = true;
+    try {
+      var cur = panel.style.getPropertyValue("--ttc-fit");
+      for (var i = 0; i < FIT_STEPS.length; i++) {
+        var v = String(FIT_STEPS[i]);
+        if (cur !== v) { panel.style.setProperty("--ttc-fit", v); cur = v; }
+        void panel.offsetHeight; /* ép tính lại layout trước khi đo */
+        if (!probeOverflow(panel)) break;
+      }
+    } catch (e) {}
+    fitBusy = false;
+  }
+  /* Phơi ra cho kiểm thử tự động + gỡ lỗi tay; vô hại khi chạy thật. */
+  window.__OTTER2_PATH_FIT__ = { steps: FIT_STEPS, probe: probeOverflow, fit: fitFsPanel };
+
   var pending = null;
   function runFixes() {
     pending = null;
     try { trimFeedbackButtons(); } catch (e) {}
     try { relocateHeaderControls(); } catch (e2) {}
+    try { fitFsPanel(); } catch (e3) {}
   }
   function schedule() {
     if (pending) return;
@@ -23223,6 +23541,10 @@ setupFlashcardMobile();
     mo.observe(document.body, { childList: true, subtree: true });
   }
   window.addEventListener("resize", schedule);
+  /* Font nạp xong làm chiều cao chữ thay đổi -> đo lại độ vừa một lần nữa */
+  if (document.fonts && document.fonts.ready && document.fonts.ready.then) {
+    document.fonts.ready.then(function () { schedule(); });
+  }
   runFixes();
 })();
 </script>

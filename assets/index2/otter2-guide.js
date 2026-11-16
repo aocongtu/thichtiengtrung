@@ -737,7 +737,12 @@
       if (!roam.hidden) {
         roam.classList.add("guide-scrolling");
         clearTimeout(scrollDimTimer);
-        scrollDimTimer = setTimeout(function () { roam.classList.remove("guide-scrolling"); }, 600);
+        scrollDimTimer = setTimeout(function () {
+          roam.classList.remove("guide-scrolling");
+          /* Cuộn xong: chữ/nội dung có thể đã trôi vào chỗ bé đang đứng
+             (bé bám khung nhìn) — nếu vướng thì bé tự dời sang chỗ thoáng. */
+          try { relocateIfBlocked(); } catch (eRl) {}
+        }, 600);
       }
       var y = window.scrollY || 0;
       var delta = Math.abs(y - lastScrollY);
@@ -762,6 +767,131 @@
        spot is not free are skipped. Park-on-interaction, an open panel, a
        guided trip and reduced motion all override roaming; a hidden tab
        pauses the schedule and visibilitychange resumes it. */
+    /* ---------------- Roaming 2D: chạy nhảy khắp CHỖ THOÁNG (2026-11-17) ----------------
+       Yêu cầu chủ web: ngoài lộ trình, bé cũng phải chạy nhảy khắp web chính
+       như trong lộ trình — "cứ chỗ nào thoáng không thấy chữ là đi thoải
+       mái". Trước đây bé chỉ đi 1 trục ở làn dưới cùng. Cơ chế mới (CHỈ áp
+       dụng ngoài fs + không reduced-motion; trong fs giữ nguyên dải trên):
+       - Chọn điểm đến ngẫu nhiên trong khung nhìn (ưu tiên nửa dưới).
+       - Kiểm tra hình chữ nhật dự kiến của bé KHÔNG giao với bất kỳ
+         chướng ngại nào: (a) danh sách rect thu từ các phần tử nội dung
+         nhìn thấy (tiêu đề, đoạn văn, nút, link, ô nhập, ảnh, thẻ bài,
+         header/nav, khu học...) — cache 4 giây, chỉ đo khi chọn điểm;
+         (b) lấy mẫu 9 điểm trong rect bằng elementFromPoint: điểm nào
+         chạm phần tử nội dung / phần tử có chữ trực tiếp / khu học thì
+         loại. Thử tối đa 14 điểm; không điểm nào thoáng -> rơi về cơ chế
+         neo làn dưới cũ (an toàn tuyệt đối, không bao giờ đè chữ).
+       - Sau khi cuộn dừng ~600ms: nếu chỗ đang đứng đã bị nội dung che
+         (trang cuộn làm chữ trôi vào vị trí bé) thì bé tự dời đi chỗ khác.
+       Park khi người dùng thao tác (LEARN_SEL / ô nhập) giữ nguyên như cũ
+       qua onUserInteract -> parkOtter(). */
+    var OBSTACLE_SEL = "h1,h2,h3,h4,h5,h6,p,li,td,th,label,button,a,input,textarea,select,canvas,img,video,[contenteditable='true'],header,nav,#otter2Nav,[role='dialog'],.otter2-feature,.otter2-node,.otter2-card,.otter2-dash-card,.otter2-dash-hero";
+    var obstacleCache = { t: 0, rects: null };
+    function obstacleRects() {
+      var now = Date.now();
+      if (obstacleCache.rects && now - obstacleCache.t < 4000) return obstacleCache.rects;
+      var rects = [];
+      var els = [];
+      try { els = document.querySelectorAll(OBSTACLE_SEL); } catch (e) { els = []; }
+      var vw = window.innerWidth, vh = window.innerHeight;
+      for (var i = 0; i < els.length; i++) {
+        var el = els[i];
+        try {
+          if (el.closest && el.closest("[data-guide-root]")) continue;
+          var r = el.getBoundingClientRect();
+          if (!r || r.width < 4 || r.height < 4) continue;
+          if (r.bottom < -40 || r.top > vh + 40 || r.right < -40 || r.left > vw + 40) continue;
+          /* Lớp phủ toàn màn hình mà pointer-events:none (vd canvas pháo
+             hoa của theme) không phải chướng ngại thật — bỏ qua. */
+          if (r.width > vw * 0.6 && r.height > vh * 0.6 && window.getComputedStyle) {
+            var cs = window.getComputedStyle(el);
+            if (cs && cs.pointerEvents === "none") continue;
+          }
+          rects.push({ left: r.left, top: r.top, right: r.right, bottom: r.bottom });
+        } catch (e2) {}
+      }
+      obstacleCache = { t: now, rects: rects };
+      return rects;
+    }
+    function rectHitsRects(x, y, w, h, rects, pad) {
+      var l = x - pad, t = y - pad, r = x + w + pad, b = y + h + pad;
+      for (var i = 0; i < rects.length; i++) {
+        var o = rects[i];
+        if (l < o.right && r > o.left && t < o.bottom && b > o.top) return true;
+      }
+      return false;
+    }
+    function elHasOwnText(el) {
+      try {
+        var nodes = el.childNodes || [];
+        for (var i = 0; i < nodes.length; i++) {
+          if (nodes[i].nodeType === 3 && /\S/.test(nodes[i].nodeValue || "")) return true;
+        }
+      } catch (e) {}
+      return false;
+    }
+    function pointFree(x, y) {
+      try {
+        if (!document.elementFromPoint) return true;
+        var el = document.elementFromPoint(x, y);
+        if (!el) return false;
+        if (el === document.body || el === document.documentElement) return true;
+        if (el === roam || roam.contains(el)) return true; /* chính bé */
+        if (!el.closest) return true;
+        if (el.closest("[data-guide-root]")) return false; /* panel của guide */
+        if (el.closest(OBSTACLE_SEL)) return false;
+        try { if (el.closest(LEARN_SEL)) return false; } catch (eL) {}
+        if (elHasOwnText(el)) return false;
+        return true;
+      } catch (e) { return true; }
+    }
+    function spotRectFree(x, y) {
+      var w = roamW(), h = roamH();
+      if (rectHitsRects(x, y, w, h, obstacleRects(), 6)) return false;
+      var pts = [
+        [x + w / 2, y + h / 2],
+        [x + 8, y + 8], [x + w - 8, y + 8], [x + 8, y + h - 8], [x + w - 8, y + h - 8],
+        [x + w / 2, y + 8], [x + w / 2, y + h - 8], [x + 8, y + h / 2], [x + w - 8, y + h / 2]
+      ];
+      for (var i = 0; i < pts.length; i++) {
+        if (!pointFree(pts[i][0], pts[i][1])) return false;
+      }
+      return true;
+    }
+    function pickFreeSpot() {
+      var vw = window.innerWidth, vh = window.innerHeight;
+      var w = roamW(), h = roamH();
+      var maxX = Math.max(8, vw - w - 8), maxY = Math.max(8, vh - h - 8);
+      for (var i = 0; i < 14; i++) {
+        var x = Math.round(8 + Math.random() * Math.max(1, maxX - 8));
+        var y;
+        if (Math.random() < 0.7) {
+          /* ưu tiên nửa dưới khung nhìn */
+          y = Math.round(Math.min(maxY, vh * 0.45 + Math.random() * Math.max(1, maxY - vh * 0.45)));
+        } else {
+          y = Math.round(8 + Math.random() * Math.max(1, maxY - 8));
+        }
+        if (spotRectFree(x, y)) return { x: x, y: y };
+      }
+      return null;
+    }
+    var lastRelocate = 0;
+    function relocateIfBlocked() {
+      var now = Date.now();
+      if (now - lastRelocate < 3000) return;
+      if (pathFsActive() || reducedMotion) return;
+      if (!guidePanel.hidden || roam.hidden || rafId || tripActive || now < parkUntil) return;
+      if (spotRectFree(pos.x, pos.y)) return;
+      lastRelocate = now;
+      var spot = pickFreeSpot();
+      if (spot) runTo(spot.x, spot.y, jumpOtter);
+    }
+    /* Phơi ra cho kiểm thử tự động + gỡ lỗi tay; vô hại khi chạy thật. */
+    window.__otter2GuideFreeSpot = {
+      pick: pickFreeSpot, rectFree: spotRectFree,
+      obstacles: obstacleRects, hits: rectHitsRects
+    };
+
     var ROAM_ANCHORS = [0.12, 0.45, 0.8];
     function roamAnchorX(i) {
       if (i >= ROAM_ANCHORS.length) return dockX("right"); /* back home */
@@ -777,6 +907,18 @@
       var now = Date.now();
       if (document.hidden) { scheduleRoam(4000); return; }
       if (!guidePanel.hidden || roam.hidden || rafId || tripActive || now < parkUntil) { scheduleRoam(); return; }
+      if (!pathFsActive()) {
+        /* Ngoài lộ trình: chạy nhảy 2 chiều tới chỗ thoáng bất kỳ trong
+           khung nhìn; không có chỗ thoáng thì rơi xuống neo làn dưới cũ. */
+        var spot2d = pickFreeSpot();
+        if (spot2d) {
+          if (Math.abs(spot2d.x - pos.x) > 50 || Math.abs(spot2d.y - pos.y) > 40) {
+            runTo(spot2d.x, spot2d.y, jumpOtter);
+          }
+          scheduleRoam(4000 + Math.random() * 5000);
+          return;
+        }
+      }
       for (var tries = 0; tries <= ROAM_ANCHORS.length; tries++) {
         var idx = roamIdx % (ROAM_ANCHORS.length + 1);
         roamIdx++;
