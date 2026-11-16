@@ -1310,6 +1310,303 @@ html[data-theme="night"] .ttc-dict-sub{color:#94a3b8}
   #otter2Nav .otter2-nav-links > button{font-size:12px;padding:0 10px}
 }
 </style>
+<style id="otter2-path-mobile-css">
+/* ===== LỘ TRÌNH HSK — KHUNG MOBILE GỌN / TOÀN MÀN HÌNH (additive, hạng mục 4) =====
+   Phạm vi: chỉ ≤900px, chỉ trong #otter2PathHost (nơi module lộ trình render
+   #ttcPathPanel > #ttcDailyVocab). Desktop giữ nguyên.
+   Cách đạt "toàn màn hình": module gốc đã có sẵn chế độ fullscreen thật
+   (#ttcPathPanel.ttc-path-fs = position:fixed inset:0 + body.ttc-path-fs-lock
+   khoá cuộn trang ngoài). CSS này KHÔNG tạo fullscreen mới — nó tái cấu trúc
+   BÊN TRONG khung fs thành flex-column 100dvh: ticker + HUD + thanh điều
+   khiển cố định gọn ở trên, chỉ .ttc-path-learn cuộn nội bộ. Ở chế độ nhúng
+   (chưa fs) chỉ áp dụng phần nén gọn bên trong, không chiếm viewport. */
+@media (max-width: 900px) {
+  /* --- 1) Khung fs: flex column trọn 100dvh, trang ngoài đã bị khoá cuộn bởi module --- */
+  #otter2PathHost #ttcPathPanel.ttc-path-fs {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    overflow: hidden !important;
+  }
+  #otter2PathHost #ttcPathPanel.ttc-path-fs > .ttc-path-world-ticker {
+    flex: 0 0 auto;
+    position: static !important;
+    font-size: 12px;
+    line-height: 1.35;
+    padding: 5px 10px;
+    text-align: center;
+  }
+  #otter2PathHost #ttcPathPanel.ttc-path-fs #ttcDailyVocab {
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    border-left: 0;
+    border-right: 0;
+    border-bottom: 0;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  /* Daily cũng là flex column ở chế độ nhúng để thứ tự/nén gọn nhất quán */
+  #otter2PathHost #ttcDailyVocab {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 10px 12px; /* bỏ padding-top 52px cũ (chừa chỗ cho nút Hủy tuyệt đối) */
+  }
+
+  /* --- 2) HUD nén gọn: tối đa 2 hàng (tiêu đề+chip+EXP+Hủy / tiến độ+meta) --- */
+  #otter2PathHost #ttcDailyVocab .ttc-path-game-hud {
+    flex: 0 0 auto;
+    margin: 0 0 8px;
+    padding: 9px 11px;
+    border-radius: 14px;
+  }
+  #otter2PathHost #ttcDailyVocab .ttc-path-game-hud-row {
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  #otter2PathHost #ttcDailyVocab .ttc-path-game-title { font-size: 13.5px; }
+  #otter2PathHost #ttcDailyVocab .ttc-path-game-pill { font-size: 11px; padding: 3px 8px; }
+  /* Ẩn pill "Câu X/Y" trên mobile: trùng thông tin với thanh tiến độ + meta */
+  #otter2PathHost #ttcDailyVocab .ttc-path-game-hud-row span.ttc-path-game-pill:nth-of-type(2) { display: none; }
+  #otter2PathHost #ttcDailyVocab .ttc-path-game-progress { height: 6px; margin: 7px 0 4px; }
+  #otter2PathHost #ttcDailyVocab .ttc-path-game-meta { font-size: 11px; }
+  #otter2PathHost #ttcDailyVocab h3 { padding-right: 0; font-size: 17px; margin: 0 0 6px; }
+  /* Nút HỦY LỘ TRÌNH sau khi JS đưa vào hàng HUD: pill nhỏ, trong khung, cuối hàng */
+  #otter2PathHost #ttcDailyVocab .ttc-path-game-hud-row .ttc-path-cancel {
+    position: static !important;
+    margin-left: auto;
+    flex: 0 0 auto;
+    max-width: 42%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 5px 9px;
+    border: 1.5px solid #fda4af;
+    border-radius: 999px;
+    background: #fff;
+    color: #9f1239;
+    box-shadow: none;
+  }
+  /* Phòng khi JS chưa di dời kịp: nút Hủy vẫn bị chặn trong khung, không tràn mép */
+  #otter2PathHost #ttcDailyVocab > .ttc-path-cancel {
+    max-width: 44%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 11px;
+    padding: 6px 9px;
+    top: 8px;
+    right: 8px;
+  }
+
+  /* --- 3) Thanh điều khiển hợp nhất: LOA | VOL | (Chỉnh mục tiêu) | THOÁT — 1 hàng 40px --- */
+  #otter2PathHost #ttcPathPanel .ttc-path-fs-toolbar,
+  #otter2PathHost #ttcDailyVocab .ttc-path-fs-toolbar {
+    flex: 0 0 auto;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch;
+    gap: 6px;
+    width: 100%;
+    max-width: 100%;
+    padding: 6px;
+    margin: 0 0 8px;
+    border-radius: 14px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    box-sizing: border-box;
+  }
+  #otter2PathHost .ttc-path-fs-toolbar::-webkit-scrollbar { display: none; }
+  #otter2PathHost .ttc-path-fs-toolbar .ttc-path-sfx-btn,
+  #otter2PathHost .ttc-path-fs-toolbar .ttc-path-fs-exit,
+  #otter2PathHost .ttc-path-fs-toolbar .ttc-path-goals-toggle {
+    flex: 0 0 auto;
+    height: 40px;
+    min-height: 40px;
+    font-size: 12px;
+    padding: 6px 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 11px;
+    white-space: nowrap;
+  }
+  #otter2PathHost .ttc-path-fs-toolbar .ttc-path-goals-toggle {
+    border: 1px solid #94a3b8;
+    background: #fff;
+    color: #334155;
+    font-weight: 800;
+    cursor: pointer;
+  }
+  #otter2PathHost .ttc-path-fs-toolbar .ttc-path-sfx-vol-wrap {
+    flex: 1 1 auto;
+    min-width: 96px;
+    max-width: 168px;
+    height: 40px;
+    min-height: 40px;
+    flex-direction: row !important;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    border-radius: 11px;
+    box-sizing: border-box;
+  }
+  #otter2PathHost .ttc-path-fs-toolbar .ttc-path-sfx-vol-lab { font-size: 10px; white-space: nowrap; }
+  #otter2PathHost .ttc-path-fs-toolbar .ttc-path-sfx-vol {
+    flex: 1 1 auto;
+    width: auto !important;
+    min-width: 54px;
+    max-width: 108px;
+    margin: 0;
+  }
+  /* Hàng "Chỉnh mục tiêu" khi chưa/không có toolbar (chế độ nhúng): gọn, giữa */
+  #otter2PathHost #ttcDailyVocab .ttc-path-goals-bar { flex: 0 0 auto; margin: 2px 0 6px; }
+  #otter2PathHost #ttcDailyVocab .ttc-path-goals-bar:empty { display: none !important; }
+  #otter2PathHost #ttcDailyVocab .ttc-path-goals-toggle { min-height: 36px; }
+  /* Panel thiết lập mục tiêu khi mở trong fs: được cuộn nội bộ, không đội khung */
+  #otter2PathHost #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-goals {
+    flex: 0 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  /* --- 4) Khu học: cột dọc — dải thống kê ngang ở trên, câu hỏi full chiều ngang --- */
+  #otter2PathHost #ttcDailyVocab .ttc-path-learn {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px;
+    margin-top: 6px;
+    width: 100%;
+  }
+  #otter2PathHost #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-learn {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 10px;
+  }
+  #otter2PathHost #ttcDailyVocab .ttc-path-main { width: 100%; max-width: 100%; min-width: 0; }
+  #otter2PathHost #ttcDailyVocab .ttc-path-overview.ttc-path-overview-col {
+    order: -1;
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch !important;
+    align-self: stretch !important;
+    gap: 6px;
+    margin: 0 !important;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x proximity;
+    padding: 2px 1px 4px;
+    scrollbar-width: none;
+    box-sizing: border-box;
+  }
+  #otter2PathHost #ttcDailyVocab .ttc-path-overview-col::-webkit-scrollbar { display: none; }
+  #otter2PathHost #ttcDailyVocab .ttc-path-overview-col > .ttc-path-stat {
+    flex: 0 0 auto;
+    width: auto !important;
+    max-width: 64vw;
+    scroll-snap-align: start;
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    padding: 5px 8px;
+    border-radius: 9px;
+    white-space: nowrap;
+  }
+  #otter2PathHost #ttcDailyVocab .ttc-path-overview-col .ttc-path-stat span { font-size: 10px; margin: 0; }
+  #otter2PathHost #ttcDailyVocab .ttc-path-overview-col .ttc-path-stat b { font-size: 12.5px; }
+  #otter2PathHost #ttcDailyVocab .ttc-path-overview-col .ttc-path-stat .ttc-path-score {
+    display: inline;
+    margin: 0;
+    font-size: 11px;
+  }
+  /* Thanh % trong dải thống kê: trùng với tiến độ HUD — ẩn cho gọn */
+  #otter2PathHost #ttcDailyVocab .ttc-path-overview-col .ttc-path-bar { display: none !important; }
+  #otter2PathHost #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-daily-actions { flex: 0 0 auto; }
+
+  /* --- 5) Thẻ câu hỏi + ô chữ linh hoạt: 1 câu điển hình vừa phần cao còn lại --- */
+  #otter2PathHost #ttcDailyVocab .ttc-path-q { padding: 12px 12px 13px; border-radius: 14px; }
+  #otter2PathHost #ttcDailyVocab .ttc-daily-hanzi { font-size: clamp(38px, 11vw, 48px); }
+  #otter2PathHost #ttcDailyVocab .ttc-path-q-meaning { font-size: 17px; }
+  #otter2PathHost #ttcDailyVocab .ttc-path-build.ttc-path-slots { gap: 6px; min-height: 46px; }
+  #otter2PathHost #ttcDailyVocab .ttc-path-slot {
+    width: clamp(36px, 10.5vw, 46px);
+    height: auto;
+    aspect-ratio: 1;
+    font-size: clamp(19px, 5.4vw, 24px);
+    padding: 0;
+  }
+  #otter2PathHost #ttcDailyVocab .ttc-path-tiles { gap: 7px; padding: 8px; }
+  #otter2PathHost #ttcDailyVocab .ttc-daily-char {
+    flex: 1 1 42px;
+    max-width: 58px;
+    min-width: 42px;
+    min-height: 42px;
+    aspect-ratio: 1;
+    padding: 4px;
+    font-size: clamp(20px, 6vw, 26px);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #otter2PathHost #ttcDailyVocab .ttc-path-choice { padding: 11px 12px; font-size: 15.5px; }
+  #otter2PathHost #ttcDailyVocab .ttc-path-controls { padding: 9px; gap: 8px; }
+  #otter2PathHost #ttcDailyVocab .ttc-path-btn { min-height: 44px; min-width: 104px; padding: 11px 14px; font-size: 15px; }
+  #otter2PathHost #ttcDailyVocab .ttc-path-feedback { padding: 10px 12px; }
+  #otter2PathHost #ttcDailyVocab .ttc-path-fb-hanzi { font-size: 36px; }
+  #otter2PathHost #ttcDailyVocab .ttc-path-feedback-ok .ttc-path-feedback-title { font-size: 21px; }
+}
+/* Nickname ít quan trọng nhất: ẩn hẳn ở màn hình nhỏ để dải thống kê gọn */
+@media (max-width: 767px) {
+  #otter2PathHost #ttcDailyVocab .ttc-path-overview-col .ttc-path-stat-nick { display: none !important; }
+}
+</style>
+<style id="otter2-avatar-css">
+/* ===== ẢNH ĐẠI DIỆN NGƯỜI DÙNG (additive, hạng mục 5) =====
+   Khung tài khoản #otter2AccountMenu + nút header #otter2AvatarBtn.
+   Ảnh lưu localStorage trên máy người dùng (không gửi đi đâu). */
+.otter2-avatar-box{display:flex;flex-direction:column;align-items:center;gap:9px;margin:2px 0 12px;text-align:center}
+.otter2-avatar-preview{width:76px;height:76px;border-radius:50%;background:#fff1f2;border:2px solid #fecdd3;display:grid;place-items:center;overflow:hidden;flex:none}
+.otter2-avatar-preview .otter2-avatar-emoji{font-size:34px;line-height:1}
+.otter2-avatar-preview img{width:100%;height:100%;object-fit:cover;display:block}
+.otter2-avatar-preview img[hidden]{display:none}
+.otter2-avatar-btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.otter2-avatar-change,.otter2-avatar-remove{border:1px solid #fecdd3;background:#fff;color:#9f1239;font-weight:800;font-size:12.5px;border-radius:999px;padding:8px 13px;cursor:pointer;min-height:36px}
+.otter2-avatar-change{background:#e11d48;border-color:#e11d48;color:#fff}
+.otter2-avatar-remove[hidden]{display:none}
+.otter2-avatar-msg{margin:0;font-size:12px;font-weight:700;color:#b45309}
+.otter2-avatar-msg:empty{display:none}
+/* Header desktop: ảnh tròn 26px đứng trước nhãn chữ của nút tài khoản */
+#otter2AvatarBtn img.otter2-avatar-btn-img{width:26px;height:26px;border-radius:50%;object-fit:cover;flex:0 0 auto;margin-right:7px;display:block}
+@media (max-width:767px){
+  /* Header mobile: nút tài khoản là nút tròn 42px — ảnh phủ trọn vòng tròn, ẩn glyph 👤 */
+  #otter2Nav .otter2-avatar.has-avatar::before{content:none}
+  #otter2Nav .otter2-avatar.has-avatar{position:relative}
+  #otter2Nav .otter2-avatar img.otter2-avatar-btn-img{position:absolute;inset:0;width:100%;height:100%;margin:0;border-radius:50%}
+}
+/* ===== AVATAR TRÊN BẢNG THÀNH TÍCH (additive, mở rộng hạng mục 5) =====
+   Hàng bảng: .ttc-ach-row > .ttc-ach-nick (module lộ trình render từ RPC
+   Supabase ttc_hsk_achievement_board). Vòng tròn 30px chèn TRONG ô nickname
+   (không thêm cột grid mới). Hàng của chính người dùng: khớp nickname với
+   tên tài khoản hiện tại; có ảnh đã lưu thì hiện ảnh, chưa có thì chữ cái đầu. */
+.ttc-ach-avatar{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;margin-right:7px;vertical-align:middle;color:#fff;font-weight:800;font-size:13.5px;line-height:1;overflow:hidden}
+.ttc-ach-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.ttc-ach-row.ttc-ach-mine{box-shadow:inset 0 0 0 2px rgba(225,29,72,.5)}
+</style>
 <style id="otter2-themes-extra-style">
 /* ===== THEME BỔ SUNG (tổng 10 giao diện) =====
    - fireworks "Pháo hoa": hiệu ứng Light Fall / Firework Dust PORT từ index1
@@ -22294,6 +22591,487 @@ setupFlashcardMobile();
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", scan);
   else scan();
+})();
+</script>
+<script id="otter2-smooth-open-js">
+/* ===== HỌC MƯỢT (additive): bấm nút mở tính năng -> đích tự cuộn vào tầm nhìn =====
+   Chỉ bổ sung cho các cặp nút->đích mà code gốc CHƯA tự cuộn. Các cặp gốc đã
+   tự cuộn / không cần cuộn (đã kiểm kê, KHÔNG gắn ở đây):
+   - Nav chuyển màn hình [data-otter2-screen]: showScreen() tự scrollTo top.
+   - #otter2OpenVocabBankBtn: toggleJourney() tự scrollIntoView khi mở.
+   - #otter2DashGoBtn: dash tự cuộn tới #otter2HskJourney.
+   - [data-dash-goto="reading"]: gotoPractice() tự cuộn tới #otter2PracticeHub.
+   - Ngữ pháp / Luyện phát âm / 214 Bộ thủ / [data-dash-goto="speak"]:
+     mở overlay position:fixed toàn màn hình — không cần cuộn trang.
+   - Thoát Flashcard: code gốc tự cuộn về nút mở.
+   Nguyên tắc: sau click 350ms và 1150ms (chờ logic gốc mở xong, kể cả mở
+   bất đồng bộ như openHskLevel), nếu đích đã render mà vẫn ngoài tầm nhìn
+   (top > 90% chiều cao màn hình hoặc bottom < 0) mới scrollIntoView smooth.
+   Header .otter2-nav là position:relative (không sticky) nên không cần trừ hao.
+   Không can thiệp: nút Giản/Phồn, theme, chat. */
+(function () {
+  "use strict";
+  if (window.__OTTER2_SMOOTH_OPEN__) return;
+  window.__OTTER2_SMOOTH_OPEN__ = true;
+
+  var PAIRS = [
+    {
+      /* Nút cấp HSK trong hành trình + mọi lối vào dash dẫn tới workspace:
+         chip/step [data-dash-hsk], tile Viết/Ôn tập/Học mới, nút Học tiếp,
+         Bài 1 — tất cả kết thúc bằng openHskLevel() vốn KHÔNG cuộn. */
+      btn: "#otter2HskLevelRow [data-otter2-hsk], [data-dash-hsk], " +
+           "[data-dash-goto=\"write\"], [data-dash-goto=\"review\"], [data-dash-goto=\"new\"], " +
+           "#otter2DashContinueBtn, #otter2DashLesson1",
+      target: "#otter2Hsk1Workspace"
+    },
+    {
+      /* Flashcard mở trong luồng trang ở cuối body — gốc không cuộn tới. */
+      btn: "#otter2FeatFlashcard",
+      target: "#flashcardSection"
+    },
+    {
+      /* Bảng thành tích: router cuộn LÊN đầu trang rồi mở bảng ở khu lộ trình
+         phía dưới — cần kéo xuống bảng. Ưu tiên #ttcAchHost, fallback host tĩnh. */
+      btn: "#otter2AchNavBtn, #otter2DashAchBtn",
+      target: "#ttcAchHost",
+      fallback: "#otter2PathProgress"
+    },
+    {
+      /* Học auto: panel kết quả render dưới hub vào #otter2AutoPanels. */
+      btn: "#otter2AutoVocabBtn, #otter2AutoExampleBtn",
+      target: "#otter2AutoPanels"
+    }
+  ];
+
+  var lastRunByTarget = {};
+
+  function rendered(el) {
+    if (!el || el.hidden) return null;
+    var r = el.getBoundingClientRect();
+    if (!r || (r.height === 0 && r.width === 0)) return null;
+    var cs = window.getComputedStyle ? window.getComputedStyle(el) : null;
+    if (cs && (cs.display === "none" || cs.visibility === "hidden")) return null;
+    return r;
+  }
+  function resolveTarget(pair) {
+    var el = null;
+    try { el = document.querySelector(pair.target); } catch (e) {}
+    if (rendered(el)) return el;
+    if (pair.fallback) {
+      var fb = null;
+      try { fb = document.querySelector(pair.fallback); } catch (e2) {}
+      if (rendered(fb)) return fb;
+    }
+    return null;
+  }
+  function ensureVisible(pair) {
+    var key = pair.target;
+    var now = Date.now();
+    if (lastRunByTarget[key] && now - lastRunByTarget[key] < 1600) return;
+    lastRunByTarget[key] = now;
+    var done = false;
+    [350, 1150].forEach(function (delay) {
+      setTimeout(function () {
+        if (done) return;
+        var el = resolveTarget(pair);
+        if (!el) return;
+        var r = el.getBoundingClientRect();
+        var vh = window.innerHeight || document.documentElement.clientHeight || 0;
+        if (r.top > vh * 0.9 || r.bottom < 0) {
+          done = true;
+          try { el.scrollIntoView({ behavior: "smooth", block: "start" }); }
+          catch (e) { el.scrollIntoView(); }
+        }
+      }, delay);
+    });
+  }
+
+  document.addEventListener("click", function (ev) {
+    var t = ev.target;
+    if (!t || !t.closest) return;
+    for (var i = 0; i < PAIRS.length; i++) {
+      var hit = null;
+      try { hit = t.closest(PAIRS[i].btn); } catch (e) { hit = null; }
+      if (hit) { ensureVisible(PAIRS[i]); return; }
+    }
+  }, false);
+})();
+</script>
+<script id="otter2-path-fixes-js">
+/* ===== SỬA LỘ TRÌNH (additive) =====
+   1) Hạng mục 2 — xoá 2 nút thừa "Nghe lại" + "Chép lại chữ Hán" trong thẻ
+      phản hồi của lộ trình. Bằng chứng cấu trúc (module gốc render):
+      .ttc-path-feedback > .ttc-path-fb-actions chứa đúng 3 nút .ttc-path-fb-btn
+      theo thứ tự "🔊 NGHE PHÁT ÂM" / "🔁 Nghe lại" / "📋 Chép lại chữ Hán"
+      (cả 3 cùng class nên CSS không phân biệt được -> dùng MutationObserver
+      khớp theo TEXT, chỉ trong .ttc-path-fb-actions của .ttc-path-feedback).
+      Nút "Nghe lại" hợp lệ ở Ngữ pháp (.thtt-g-btn trong #thttGrammarOverlay)
+      nằm ngoài phạm vi này — không bao giờ bị đụng. Fallback: nếu class drift,
+      chỉ xoá nút khớp text khi nút anh em cùng cha có nút "nghe phát âm".
+   2) Hạng mục 4 — trên ≤900px, di dời (appendChild, giữ nguyên listener):
+      .ttc-path-cancel -> cuối .ttc-path-game-hud-row (nút Hủy vào hàng header,
+      hết tràn mép); .ttc-path-goals-toggle -> #ttcPathFsToolbar (gộp "Chỉnh
+      mục tiêu" vào thanh điều khiển). Module tự render lại sau mỗi draw() nên
+      observer chạy lại sau mỗi đợt thay đổi; >900px thì trả nút về vị trí gốc. */
+(function () {
+  "use strict";
+  if (window.__OTTER2_PATH_FIXES__) return;
+  window.__OTTER2_PATH_FIXES__ = true;
+
+  var host = document.getElementById("otter2PathHost");
+  if (!host) return;
+  var mq = window.matchMedia ? window.matchMedia("(max-width: 900px)") : { matches: false };
+
+  function cleanText(el) {
+    return (el && el.textContent ? el.textContent : "")
+      .replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2190}-\u{21FF}\uFE0F]/gu, "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .toLowerCase();
+  }
+  function isJunkBtn(btn) {
+    var t = cleanText(btn);
+    return t === "nghe lại" || t.indexOf("chép lại chữ hán") !== -1;
+  }
+
+  function trimFeedbackButtons() {
+    var killed = 0;
+    var actions = host.querySelectorAll(".ttc-path-feedback .ttc-path-fb-actions");
+    for (var i = 0; i < actions.length; i++) {
+      var btns = actions[i].querySelectorAll("button");
+      for (var j = btns.length - 1; j >= 0; j--) {
+        if (isJunkBtn(btns[j])) { btns[j].remove(); killed++; }
+      }
+    }
+    if (!actions.length) {
+      /* Fallback khi class bị đổi: nhóm nút có "nghe phát âm" trong host */
+      var all = host.querySelectorAll("button");
+      var groups = [];
+      for (var k = 0; k < all.length; k++) {
+        var p = all[k].parentNode;
+        if (!p) continue;
+        var found = null;
+        for (var gi = 0; gi < groups.length; gi++) if (groups[gi].parent === p) { found = groups[gi]; break; }
+        if (!found) { found = { parent: p, btns: [] }; groups.push(found); }
+        found.btns.push(all[k]);
+      }
+      for (var g = 0; g < groups.length; g++) {
+        var grp = groups[g].btns;
+        var hasSpeak = grp.some(function (b) { return cleanText(b).indexOf("nghe phát âm") !== -1; });
+        if (!hasSpeak) continue;
+        grp.forEach(function (b) { if (isJunkBtn(b)) { b.remove(); killed++; } });
+      }
+    }
+    return killed;
+  }
+
+  function relocateHeaderControls() {
+    var daily = host.querySelector("#ttcDailyVocab");
+    if (!daily) return;
+    var hudRow = daily.querySelector(".ttc-path-game-hud-row");
+    var cancel = daily.querySelector(".ttc-path-cancel");
+    var panel = host.querySelector("#ttcPathPanel") || document.getElementById("ttcPathPanel");
+    var bar = panel ? panel.querySelector("#ttcPathFsToolbar") : null;
+    var goalsBar = daily.querySelector(".ttc-path-goals-bar");
+    var toggle = daily.querySelector(".ttc-path-goals-toggle") ||
+                 (bar ? bar.querySelector(".ttc-path-goals-toggle") : null);
+    if (mq.matches) {
+      if (cancel && hudRow && cancel.parentNode !== hudRow) hudRow.appendChild(cancel);
+      if (toggle && bar && toggle.parentNode !== bar) bar.appendChild(toggle);
+    } else {
+      if (cancel && hudRow && cancel.parentNode === hudRow) daily.appendChild(cancel);
+      if (toggle && bar && goalsBar && toggle.parentNode === bar) goalsBar.appendChild(toggle);
+    }
+  }
+
+  var pending = null;
+  function runFixes() {
+    pending = null;
+    try { trimFeedbackButtons(); } catch (e) {}
+    try { relocateHeaderControls(); } catch (e2) {}
+  }
+  function schedule() {
+    if (pending) return;
+    pending = setTimeout(runFixes, 120);
+  }
+
+  if ("MutationObserver" in window) {
+    var mo = new MutationObserver(schedule);
+    mo.observe(host, { childList: true, subtree: true });
+  }
+  window.addEventListener("resize", schedule);
+  runFixes();
+})();
+</script>
+<script id="otter2-avatar-js">
+/* ===== ẢNH ĐẠI DIỆN NGƯỜI DÙNG (additive, hạng mục 5 + mở rộng bảng thành tích) =====
+   - Khung tài khoản #otter2AccountMenu: chèn khối ảnh đại diện ở đầu khung
+     (trước #otter2AccountName): vòng tròn xem trước + "📷 Đổi ảnh đại diện"
+     + "Xoá ảnh" + <input type=file> ẩn.
+   - Ảnh được cắt vuông giữa + thu về tối đa 160x160 bằng canvas, lưu data URL
+     JPEG 0.85 vào localStorage "otter2_user_avatar_v1" — CHỈ lưu trên máy
+     người dùng, không gửi đi đâu (đúng bản chất local-first hiện tại của web).
+   - Header #otter2AvatarBtn: gắn <img> tròn. otter2-account.js ghi lại nhãn
+     nút bằng textContent (xoá mất <img>) nên có MutationObserver gắn lại.
+   - Bảng thành tích #ttcAchHost (.ttc-ach-row > .ttc-ach-nick, render bởi
+     module lộ trình từ RPC Supabase): trang trí vòng tròn avatar 30px trong ô
+     nickname — hàng của chính người dùng (khớp nickname với tên tài khoản
+     hiện tại) dùng ảnh đã lưu; các hàng khác dùng chữ cái đầu + màu nền xác
+     định theo tên (hash -> bảng màu). Đổi ảnh ở khung tài khoản là bảng cập
+     nhật ngay (cùng module, gọi thẳng hàm trang trí lại).
+   - Đồng bộ máy chủ: RPC ttc_hsk_achievement_board chỉ trả nickname/số từ/EXP
+     (không user_id, không avatar) nên người khác KHÔNG thể thấy ảnh của nhau
+     ở bản này — cần migration backend riêng (xem báo cáo), module này không
+     tự ghi vào bảng Supabase nào. */
+(function () {
+  "use strict";
+  if (window.__OTTER2_AVATAR__) return;
+  window.__OTTER2_AVATAR__ = true;
+
+  var KEY = "otter2_user_avatar_v1";
+  var OUT_MAX = 160;
+  var PALETTE = ["#e11d48", "#0e7a6d", "#b97a14", "#6c4bd8", "#0277bd", "#c2185b", "#2e7d32", "#ef6c00", "#5e35b1", "#00838f"];
+
+  function computeCrop(w, h) {
+    var side = Math.min(w, h);
+    return { sx: Math.floor((w - side) / 2), sy: Math.floor((h - side) / 2), side: side };
+  }
+  window.__OTTER2_AVATAR_CROP__ = computeCrop; /* móc kiểm thử logic cắt ảnh */
+
+  function getStored() {
+    try {
+      var v = localStorage.getItem(KEY);
+      return v && v.indexOf("data:image/") === 0 ? v : null;
+    } catch (e) { return null; }
+  }
+  function setStored(url) {
+    try { localStorage.setItem(KEY, url); return true; } catch (e) { return false; }
+  }
+  function clearStored() { try { localStorage.removeItem(KEY); } catch (e) {} }
+
+  var btn = document.getElementById("otter2AvatarBtn");
+  var menu = document.getElementById("otter2AccountMenu");
+  var nameEl = document.getElementById("otter2AccountName");
+
+  /* ---------- Khối ảnh trong khung tài khoản ---------- */
+  var previewImg = null, previewEmoji = null, removeBtn = null, msgEl = null, fileInput = null;
+  if (menu && nameEl) {
+    var box = document.createElement("div");
+    box.className = "otter2-avatar-box";
+    box.id = "otter2AvatarBox";
+    box.innerHTML =
+      '<div class="otter2-avatar-preview" id="otter2AvatarPreview">' +
+        '<span class="otter2-avatar-emoji" id="otter2AvatarEmoji" aria-hidden="true">👤</span>' +
+        '<img id="otter2AvatarPreviewImg" alt="Ảnh đại diện của bạn" hidden>' +
+      "</div>" +
+      '<div class="otter2-avatar-btns">' +
+        '<button type="button" class="otter2-avatar-change" id="otter2AvatarChangeBtn">📷 Đổi ảnh đại diện</button>' +
+        '<button type="button" class="otter2-avatar-remove" id="otter2AvatarRemoveBtn" hidden>Xoá ảnh</button>' +
+      "</div>" +
+      '<p class="otter2-avatar-msg" id="otter2AvatarMsg" aria-live="polite"></p>' +
+      '<input type="file" id="otter2AvatarFile" accept="image/*" hidden>';
+    menu.insertBefore(box, nameEl);
+    previewImg = box.querySelector("#otter2AvatarPreviewImg");
+    previewEmoji = box.querySelector("#otter2AvatarEmoji");
+    removeBtn = box.querySelector("#otter2AvatarRemoveBtn");
+    msgEl = box.querySelector("#otter2AvatarMsg");
+    fileInput = box.querySelector("#otter2AvatarFile");
+    var changeBtn = box.querySelector("#otter2AvatarChangeBtn");
+    if (changeBtn && fileInput) {
+      changeBtn.addEventListener("click", function () { fileInput.click(); });
+    }
+    if (removeBtn) {
+      removeBtn.addEventListener("click", function () {
+        clearStored();
+        applyAvatar(null);
+        showMsg("Đã xoá ảnh đại diện.");
+      });
+    }
+    if (fileInput) {
+      fileInput.addEventListener("change", function () {
+        var f = fileInput.files && fileInput.files[0];
+        try { fileInput.value = ""; } catch (e) {}
+        if (f) handleFile(f);
+      });
+    }
+  }
+  function showMsg(t) { if (msgEl) msgEl.textContent = t || ""; }
+
+  function handleFile(f) {
+    if (f.type && f.type.indexOf("image/") !== 0) {
+      showMsg("File này không phải ảnh — bạn chọn lại file ảnh nhé.");
+      return;
+    }
+    if (f.size && f.size > 8 * 1024 * 1024) {
+      showMsg("Ảnh hơi lớn (hơn 8MB) — bạn chọn ảnh nhỏ hơn nhé.");
+      return;
+    }
+    var reader = new FileReader();
+    reader.onload = function () {
+      var img = new Image();
+      img.onload = function () { processImage(img); };
+      img.onerror = function () { showMsg("Không đọc được file ảnh này — bạn thử ảnh khác nhé."); };
+      img.src = String(reader.result || "");
+    };
+    reader.onerror = function () { showMsg("Không đọc được file này — bạn thử lại nhé."); };
+    try { reader.readAsDataURL(f); }
+    catch (e) { showMsg("Không đọc được file này — bạn thử lại nhé."); }
+  }
+  function processImage(img) {
+    try {
+      var w = img.naturalWidth || img.width || 0;
+      var h = img.naturalHeight || img.height || 0;
+      if (!w || !h) { showMsg("Ảnh không hợp lệ — bạn thử ảnh khác nhé."); return; }
+      var crop = computeCrop(w, h);
+      var out = Math.min(OUT_MAX, crop.side);
+      var canvas = document.createElement("canvas");
+      canvas.width = out;
+      canvas.height = out;
+      var ctx = canvas.getContext && canvas.getContext("2d");
+      if (!ctx || !ctx.drawImage) { showMsg("Trình duyệt không xử lý được ảnh này."); return; }
+      ctx.drawImage(img, crop.sx, crop.sy, crop.side, crop.side, 0, 0, out, out);
+      var url = canvas.toDataURL("image/jpeg", 0.85);
+      if (url && url.length > 600000) {
+        try { url = canvas.toDataURL("image/jpeg", 0.7); } catch (e2) {}
+      }
+      if (!url || url.indexOf("data:image/") !== 0) { showMsg("Không xử lý được ảnh này."); return; }
+      if (!setStored(url)) { showMsg("Không lưu được ảnh (bộ nhớ trình duyệt đã đầy)."); return; }
+      applyAvatar(url);
+      showMsg("Đã đổi ảnh đại diện xong!");
+    } catch (e) {
+      showMsg("Có lỗi khi xử lý ảnh — bạn thử ảnh khác nhé.");
+    }
+  }
+
+  /* ---------- Áp ảnh lên khung tài khoản + nút header ---------- */
+  function attachHeaderImg(url) {
+    if (!btn) return;
+    var img = btn.querySelector("#otter2AvatarBtnImg");
+    if (!img) {
+      img = document.createElement("img");
+      img.id = "otter2AvatarBtnImg";
+      img.className = "otter2-avatar-btn-img";
+      img.alt = "";
+      btn.insertBefore(img, btn.firstChild);
+    }
+    if (img.getAttribute("src") !== url) img.setAttribute("src", url);
+    btn.classList.add("has-avatar");
+  }
+  function detachHeaderImg() {
+    if (!btn) return;
+    var img = btn.querySelector("#otter2AvatarBtnImg");
+    if (img) img.remove();
+    btn.classList.remove("has-avatar");
+  }
+  function applyAvatar(url) {
+    if (previewImg && previewEmoji) {
+      if (url) {
+        previewImg.setAttribute("src", url);
+        previewImg.hidden = false;
+        previewEmoji.style.display = "none";
+      } else {
+        previewImg.removeAttribute("src");
+        previewImg.hidden = true;
+        previewEmoji.style.display = "";
+      }
+    }
+    if (removeBtn) removeBtn.hidden = !url;
+    if (url) attachHeaderImg(url); else detachHeaderImg();
+    decorateAchRows(true);
+  }
+  /* otter2-account.js render lại nhãn nút bằng textContent -> <img> bị xoá.
+     Observer gắn lại ngay khi ảnh còn lưu mà <img> biến mất. */
+  if (btn && "MutationObserver" in window) {
+    var reattaching = false;
+    var btnObs = new MutationObserver(function () {
+      if (reattaching) return;
+      var url = getStored();
+      if (url && !btn.querySelector("#otter2AvatarBtnImg")) {
+        reattaching = true;
+        attachHeaderImg(url);
+        reattaching = false;
+      }
+    });
+    btnObs.observe(btn, { childList: true });
+  }
+
+  /* ---------- Trang trí bảng thành tích ---------- */
+  function myNames() {
+    var out = [];
+    try {
+      var u = window.currentUser;
+      var meta = (u && u.user_metadata) || {};
+      [meta.display_name, meta.full_name, meta.nickname, meta.name].forEach(function (v) {
+        if (v) out.push(String(v).trim());
+      });
+    } catch (e) {}
+    if (nameEl && nameEl.textContent) out.push(nameEl.textContent.trim());
+    return out.filter(function (n) {
+      return n && n.length >= 2 && n !== "Bạn" && n !== "Khách" && n !== "Bạn học" && n.indexOf("@") < 0;
+    });
+  }
+  function colorFor(name) {
+    var h = 0;
+    for (var i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
+    return PALETTE[h % PALETTE.length];
+  }
+  function initialFor(name) {
+    var m = String(name || "").replace(/^[^\p{L}]+/u, "");
+    if (!m) return "•";
+    return Array.from(m)[0].toUpperCase();
+  }
+  function decorateAchRows(force) {
+    var hostAch = document.getElementById("ttcAchHost");
+    if (!hostAch) return;
+    var url = getStored();
+    var mine = myNames();
+    var claimed = false;
+    var rows = hostAch.querySelectorAll(".ttc-ach-row");
+    rows.forEach(function (row) {
+      var nickEl = row.querySelector(".ttc-ach-nick");
+      if (!nickEl) return;
+      var existing = nickEl.querySelector(".ttc-ach-avatar");
+      if (existing && !force) return;
+      if (existing) existing.remove();
+      row.classList.remove("ttc-ach-mine");
+      var name = (nickEl.getAttribute("title") || nickEl.textContent || "").trim();
+      var isMine = !claimed && mine.indexOf(name) !== -1;
+      var circle = document.createElement("span");
+      circle.className = "ttc-ach-avatar";
+      circle.setAttribute("aria-hidden", "true");
+      if (isMine) {
+        claimed = true;
+        row.classList.add("ttc-ach-mine");
+        if (url) {
+          var im = document.createElement("img");
+          im.setAttribute("src", url);
+          im.alt = "";
+          circle.appendChild(im);
+        } else {
+          circle.style.background = colorFor(name);
+          circle.textContent = initialFor(name);
+        }
+      } else {
+        circle.style.background = colorFor(name);
+        circle.textContent = initialFor(name);
+      }
+      nickEl.insertBefore(circle, nickEl.firstChild);
+    });
+  }
+  var achHostRoot = document.getElementById("otter2PathHost") || document.body;
+  if (achHostRoot && "MutationObserver" in window) {
+    var achTimer = null;
+    var achObs = new MutationObserver(function () {
+      clearTimeout(achTimer);
+      achTimer = setTimeout(function () { try { decorateAchRows(false); } catch (e) {} }, 150);
+    });
+    achObs.observe(achHostRoot, { childList: true, subtree: true });
+  }
+  window.addEventListener("storage", function (ev) {
+    if (ev && ev.key === KEY) applyAvatar(getStored());
+  });
+
+  applyAvatar(getStored());
 })();
 </script>
 </body>

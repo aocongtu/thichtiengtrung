@@ -849,5 +849,301 @@
         showBubble("你好！Mình là Bé Rái Cá — giờ mình có đủ chân tay rồi nè! Bấm vào mình, mình chạy dẫn bạn đi khắp web, tới nơi là mình nhảy lên chỉ cho bạn thấy.", 11000);
       }
     }, 1200);
+
+    /* ---------------- Bé Rái Cá NHẮC HỌC (study buddy, additive) ----------------
+       Dùng lại cơ chế sẵn có của guide: say() (bong bóng + giọng đọc tôn trọng
+       voiceOn), jumpOtter(), trạng thái ẩn roam.hidden, LEARN_SEL, parkUntil,
+       tripActive. Tiến độ THẬT đọc từ localStorage "otter2_hsk_vocab_progress_v1"
+       (định dạng engine ghi: { "<cấp>": { detailIndex, learned: [chữ Hán...] } };
+       đếm tương thích cả dạng { "<cấp>": { "<từ>": 1 } }). Trạng thái nhắc học
+       lưu ở key riêng "otter2_guide_study_v1": { date, base, goal, lastVisit,
+       enabled, idleNudges, cheered5, cheeredGoal, pathGoalMark }.
+       base = tổng từ đã học tại lần mở đầu tiên của ngày -> learnedToday =
+       tổng hiện tại - base (store gốc không có mốc thời gian từng từ nên đây
+       là cách tính "hôm nay" trung thực nhất có thể). */
+    try { initStudyBuddy(); } catch (eStudy) {
+      if (window.console && console.warn) console.warn("Study buddy off:", eStudy);
+    }
+    function initStudyBuddy() {
+      var PROGRESS_KEY = "otter2_hsk_vocab_progress_v1";
+      var STUDY_KEY = "otter2_guide_study_v1";
+      var GOAL_DEFAULT = 10;
+      var POLL_MS = Number(window.__OTTER2_STUDY_POLL_MS) > 0 ? Number(window.__OTTER2_STUDY_POLL_MS) : 5000;
+      var GREET_MS = Number(window.__OTTER2_STUDY_GREET_MS) > 0 ? Number(window.__OTTER2_STUDY_GREET_MS) : 14000;
+      var IDLE_MS = 120000;        /* ngồi yên 2 phút mới nhắc */
+      var IDLE_GAP_MS = 600000;    /* hai lần nhắc cách nhau >= 10 phút */
+      var IDLE_MAX = 3;            /* tối đa 3 lần nhắc / ngày */
+
+      function pad2(n) { return (n < 10 ? "0" : "") + n; }
+      function todayStr() { var d = new Date(); return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate()); }
+      function dayDiff(fromStr, toStr) {
+        var a = String(fromStr || "").split("-"), b = String(toStr || "").split("-");
+        if (a.length !== 3 || b.length !== 3) return 0;
+        return Math.round((Date.UTC(+b[0], +b[1] - 1, +b[2]) - Date.UTC(+a[0], +a[1] - 1, +a[2])) / 86400000);
+      }
+      function countTotal(map) {
+        var n = 0;
+        if (!map || typeof map !== "object") return 0;
+        for (var k in map) {
+          if (!Object.prototype.hasOwnProperty.call(map, k)) continue;
+          var s = map[k];
+          if (!s || typeof s !== "object") continue;
+          if (Object.prototype.toString.call(s.learned) === "[object Array]") { n += s.learned.length; continue; }
+          for ( var w in s) {
+            if (!Object.prototype.hasOwnProperty.call(s, w)) continue;
+            if (w === "detailIndex" || w === "updatedAt" || w === "learned") continue;
+            if (s[w]) n++;
+          }
+        }
+        return n;
+      }
+      function readProgressTotal() {
+        try {
+          var raw = localStorage.getItem(PROGRESS_KEY);
+          return countTotal(raw ? JSON.parse(raw) : null);
+        } catch (e) { return 0; }
+      }
+      function loadStudy() {
+        try {
+          var raw = localStorage.getItem(STUDY_KEY);
+          var o = raw ? JSON.parse(raw) : null;
+          return o && typeof o === "object" ? o : null;
+        } catch (e) { return null; }
+      }
+
+      var nowToday = todayStr();
+      var study = loadStudy();
+      var firstEver = false, isNewDay = false, gapDays = 0;
+      if (!study) {
+        study = { date: nowToday, base: readProgressTotal(), goal: GOAL_DEFAULT, lastVisit: nowToday,
+                  enabled: true, idleNudges: 0, cheered5: "", cheeredGoal: "", pathGoalMark: "" };
+        firstEver = true; isNewDay = true;
+      } else {
+        if (study.date !== nowToday) {
+          gapDays = study.lastVisit ? dayDiff(study.lastVisit, nowToday) : 0;
+          study.date = nowToday;
+          study.base = readProgressTotal();
+          study.cheered5 = ""; study.cheeredGoal = ""; study.idleNudges = 0;
+          isNewDay = true;
+        }
+        if (typeof study.enabled !== "boolean") study.enabled = true;
+        if (!(Number(study.goal) > 0)) study.goal = GOAL_DEFAULT;
+        if (typeof study.base !== "number") study.base = readProgressTotal();
+        study.lastVisit = nowToday;
+      }
+      function saveStudy() {
+        try { localStorage.setItem(STUDY_KEY, JSON.stringify(study)); } catch (e) {}
+      }
+      saveStudy();
+
+      function learnedToday() { return Math.max(0, readProgressTotal() - (Number(study.base) || 0)); }
+      function studyOn() { return study.enabled !== false && !roam.hidden; }
+
+      /* ----- (f) Hàng điều khiển trong #guidePanel: bật/tắt + trạng thái ----- */
+      var studyStyle = document.createElement("style");
+      studyStyle.textContent =
+        ".guide-study{display:flex;align-items:center;gap:9px;margin-top:12px;flex-wrap:wrap}" +
+        ".guide-study-status{margin:0;font-size:.8rem;font-weight:700;color:#8a877e}";
+      document.head.appendChild(studyStyle);
+      var studyToggle = null, studyStatus = null;
+      try {
+        var foot = guidePanel.querySelector(".guide-foot");
+        var studyBox = document.createElement("div");
+        studyBox.className = "guide-study";
+        studyBox.innerHTML =
+          '<button type="button" class="guide-voice" id="guideStudyToggle" aria-pressed="true">' +
+            "<span>⏰ Nhắc học: Bật</span></button>" +
+          '<p class="guide-study-status" id="guideStudyStatus" aria-live="polite"></p>';
+        if (foot && foot.parentNode) foot.parentNode.insertBefore(studyBox, foot);
+        studyToggle = studyBox.querySelector("#guideStudyToggle");
+        studyStatus = studyBox.querySelector("#guideStudyStatus");
+        if (studyToggle) {
+          studyToggle.addEventListener("click", function () {
+            study.enabled = study.enabled === false ? true : false;
+            saveStudy();
+            refreshStudyRow();
+          });
+        }
+      } catch (ePanel) { /* panel phụ lỗi thì bỏ qua, nhắc học vẫn chạy nền */ }
+      function refreshStudyRow() {
+        if (studyToggle) {
+          studyToggle.setAttribute("aria-pressed", study.enabled !== false ? "true" : "false");
+          var sp = studyToggle.querySelector("span");
+          if (sp) sp.textContent = study.enabled !== false ? "⏰ Nhắc học: Bật" : "⏰ Nhắc học: Tắt";
+        }
+        if (studyStatus) {
+          studyStatus.textContent = "🎯 Hôm nay: " + learnedToday() + "/" + study.goal + " từ";
+        }
+      }
+      refreshStudyRow();
+      try {
+        var panelObs = new MutationObserver(function () { if (!guidePanel.hidden) refreshStudyRow(); });
+        panelObs.observe(guidePanel, { attributes: true, attributeFilter: ["hidden"] });
+      } catch (eObs) {}
+
+      /* ----- (b) Chào theo ngữ cảnh: 1 lần/phiên, chỉ khi sang ngày mới ----- */
+      if (isNewDay) {
+        setTimeout(function () {
+          if (!studyOn() || !guidePanel.hidden) return;
+          var msg;
+          if (firstEver) {
+            msg = "Chào bạn! Mình là Bé Rái Cá. Từ hôm nay mình sẽ nhắc học và đếm từ đã học cho bạn nhé — hôm nay mình học " + study.goal + " từ nhé? Rái Cá đếm cho bạn!";
+          } else if (gapDays >= 2) {
+            msg = "Lâu rồi mới gặp bạn đó! Vắng mấy hôm chắc bạn bận lắm — hôm nay mình học lại " + study.goal + " từ cho nóng máy nhé, Rái Cá đếm cho bạn!";
+          } else {
+            msg = "Chào buổi học mới! Hôm nay mình học " + study.goal + " từ nhé? Rái Cá đếm cho bạn — đủ mục tiêu là mình ăn mừng liền!";
+          }
+          say(msg);
+        }, GREET_MS);
+      }
+
+      /* ----- (c) Cổ vũ mốc mục tiêu ngày (kho từ vựng toàn trang) ----- */
+      function checkDailyMilestones() {
+        refreshStudyRow();
+        if (!studyOn()) return;
+        var lt = learnedToday();
+        if (lt >= study.goal && study.cheeredGoal !== nowToday) {
+          study.cheeredGoal = nowToday;
+          if (lt >= 5) study.cheered5 = nowToday;
+          saveStudy();
+          jumpOtter();
+          say("🎉 TUYỆT VỜI! Bạn đã đạt mục tiêu hôm nay: " + lt + "/" + study.goal + " từ! Rái Cá tự hào về bạn lắm đó!");
+          return;
+        }
+        if (lt >= 5 && study.cheered5 !== nowToday) {
+          study.cheered5 = nowToday;
+          saveStudy();
+          jumpOtter();
+          say("Giỏi quá! Bạn đã học được " + lt + " từ hôm nay rồi — sắp tới mục tiêu " + study.goal + " từ rồi đó, cố thêm chút nữa nhé!");
+        }
+      }
+
+      /* ----- (e) Vào trong LỘ TRÌNH: quan sát #otter2PathHost ----- */
+      var pathHost = document.getElementById("otter2PathHost");
+      var lastPathDone = null, lastPathGoal = 0, wrongStreak = 0, lastPraiseAt = 0, lastFbSig = "";
+      function parsePathMeta() {
+        if (!pathHost) return null;
+        var meta = pathHost.querySelector(".ttc-path-game-meta");
+        var txt = meta ? meta.textContent : (pathHost.textContent || "");
+        var m = /Hôm nay\s+(\d+)\s*\/\s*(\d+)\s*từ/.exec(txt || "");
+        return m ? { done: Number(m[1]), goal: Number(m[2]) } : null;
+      }
+      function checkPathMilestones() {
+        var p = parsePathMeta();
+        if (!p) return;
+        if (lastPathDone === null || p.done < lastPathDone) {
+          lastPathDone = p.done; lastPathGoal = p.goal;
+          return;
+        }
+        if (p.done === lastPathDone && p.goal === lastPathGoal) return;
+        var prev = lastPathDone;
+        lastPathDone = p.done; lastPathGoal = p.goal;
+        if (!studyOn()) return;
+        var marks = [10, 25, 50, 100];
+        for (var i = 0; i < marks.length; i++) {
+          if (prev < marks[i] && p.done >= marks[i]) {
+            (function (mark, done) {
+              setTimeout(function () {
+                if (studyOn()) { jumpOtter(); say("🎉 Mốc " + mark + " từ trong lộ trình! Bạn đã học " + done + " từ hôm nay — giỏi lắm, đi tiếp nào!"); }
+              }, 1600);
+            })(marks[i], p.done);
+            break;
+          }
+        }
+        if (p.goal > 0 && prev < p.goal && p.done >= p.goal) {
+          var markKey = nowToday + ":" + p.goal;
+          if (study.pathGoalMark !== markKey) {
+            study.pathGoalMark = markKey;
+            saveStudy();
+            setTimeout(function () {
+              if (studyOn()) { jumpOtter(); say("🏆 HOÀN THÀNH MỤC TIÊU LỘ TRÌNH! Bạn đã học đủ " + p.goal + " từ hôm nay. Rái Cá nể bạn luôn đó!"); }
+            }, 1200);
+          }
+        }
+      }
+      function onPathFeedback() {
+        if (!pathHost) return;
+        var panel = pathHost.querySelector(".ttc-path-feedback");
+        if (!panel) return;
+        var isOk = panel.classList.contains("ttc-path-feedback-ok");
+        var isBad = panel.classList.contains("ttc-path-feedback-bad");
+        if (!isOk && !isBad) return;
+        var sig = (isOk ? "ok|" : "bad|") + (panel.textContent || "").replace(/\s+/g, " ").slice(0, 90);
+        if (sig === lastFbSig) return;
+        lastFbSig = sig;
+        if (isOk) {
+          wrongStreak = 0;
+          if (!studyOn()) return;
+          var now = Date.now();
+          if (now - lastPraiseAt < 120000) return;         /* tối đa 1 lần khen / 2 phút */
+          if (Math.random() > 1 / 3) return;               /* chỉ thỉnh thoảng ~1/3 */
+          lastPraiseAt = now;
+          var lines = ["Chính xác! Giỏi quá!", "Đúng rồi đó! Bạn nhớ bài tốt lắm!", "Chuẩn luôn! Cứ thế phát huy nhé bạn!"];
+          var line = lines[Math.floor(Math.random() * lines.length)];
+          /* Trễ 1,6s để không cắt ngang giọng đọc mẫu chữ Hán của lộ trình */
+          setTimeout(function () { if (studyOn()) say(line); }, 1600);
+        } else {
+          wrongStreak++;
+          if (wrongStreak >= 3) {
+            wrongStreak = 0;
+            if (studyOn()) say("Sai cũng không sao đâu bạn — mình xem lại nghĩa của từ này nhé, lần sau chắc chắn sẽ nhớ!");
+          }
+        }
+      }
+      if (pathHost && "MutationObserver" in window) {
+        var fbTimer = null;
+        var fbObs = new MutationObserver(function () {
+          clearTimeout(fbTimer);
+          fbTimer = setTimeout(function () {
+            try { onPathFeedback(); } catch (eFb) {}
+            try { checkPathMilestones(); } catch (ePm) {}
+          }, 250);
+        });
+        fbObs.observe(pathHost, { childList: true, subtree: true, attributes: true, attributeFilter: ["class"] });
+      }
+
+      /* ----- (d) Nhắc nhẹ khi ngồi yên ----- */
+      var lastActivity = Date.now(), lastInteractEl = null, lastNudgeAt = 0;
+      function bumpActivity(ev) {
+        lastActivity = Date.now();
+        if (ev && ev.target) lastInteractEl = ev.target;
+      }
+      document.addEventListener("pointerdown", bumpActivity, true);
+      document.addEventListener("keydown", bumpActivity, true);
+      window.addEventListener("scroll", function () { lastActivity = Date.now(); }, { passive: true });
+      setInterval(function () {
+        if (!studyOn() || !guidePanel.hidden || tripActive || document.hidden) return;
+        var now = Date.now();
+        if (now < parkUntil) return;                        /* đang bị park vì người học thao tác */
+        if ((Number(study.idleNudges) || 0) >= IDLE_MAX) return;
+        if (now - lastActivity < IDLE_MS) return;
+        if (lastNudgeAt && now - lastNudgeAt < IDLE_GAP_MS) return;
+        var lt = learnedToday();
+        if (lt >= study.goal) return;                       /* đã đủ mục tiêu thì không nhắc nữa */
+        try {
+          if (lastInteractEl && lastInteractEl.closest && lastInteractEl.closest(LEARN_SEL)) return;
+        } catch (eLearn) {}
+        study.idleNudges = (Number(study.idleNudges) || 0) + 1;
+        saveStudy();
+        lastNudgeAt = now;
+        lastActivity = now;
+        if (lt <= 0) {
+          say("Bạn ơi, hôm nay mình chưa học từ nào nè — học vài từ cho đủ mục tiêu " + study.goal + " từ nhé? Bấm vào mình, mình dẫn đi liền!");
+        } else {
+          say("Nghỉ một chút rồi học tiếp nhé bạn! Còn " + (study.goal - lt) + " từ nữa là đủ mục tiêu hôm nay đó — Rái Cá chờ bạn nè.");
+        }
+      }, 15000);
+
+      /* ----- Vòng poll chính: mốc ngày + mốc lộ trình + storage liên tab ----- */
+      setInterval(function () {
+        try { checkDailyMilestones(); } catch (eDm) {}
+        try { checkPathMilestones(); } catch (ePm2) {}
+      }, POLL_MS);
+      window.addEventListener("storage", function (ev) {
+        if (ev && ev.key === PROGRESS_KEY) {
+          setTimeout(function () { try { checkDailyMilestones(); } catch (eSt) {} }, 300);
+        }
+      });
+    }
   }
 })();
