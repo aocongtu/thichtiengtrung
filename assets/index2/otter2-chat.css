@@ -771,3 +771,193 @@
 /* index2: hide floating duplicate when nav Chat exists */
 #ttcFloatingChatBtn{display:none !important;}
 body.ttc-chat-open .otter2-nav{z-index:40;}
+
+
+/* ============================================================
+   😊 REACTION / ACTION BAR — ẩn mặc định, chỉ hiện khi nhấn giữ
+   Bổ sung cho bản trích xuất: file CSS cũ bị THIẾU toàn bộ rule
+   cho .ttc-reaction-picker / .ttc-reaction-summary /
+   .ttc-message-selected, khiến 6 icon reaction + nút Trả lời /
+   Xóa luôn hiện thường trực dưới mọi tin nhắn và thao tác
+   chọn tin nhắn (class ttc-message-selected) không có tác dụng.
+   ============================================================ */
+
+.ttc-chat-message-content{
+  position:relative;
+}
+
+/* Hàng badge reaction đã có người thả — chỉ hiện khi tin có reaction */
+.ttc-chat-actions{
+  margin-top:0;
+}
+
+.ttc-reaction-summary{
+  display:flex;
+  align-items:center;
+  gap:4px;
+  flex-wrap:wrap;
+  margin-top:5px;
+}
+
+.ttc-reaction-summary:empty{
+  display:none;
+}
+
+.ttc-chat-message.mine .ttc-reaction-summary{
+  justify-content:flex-end;
+}
+
+.ttc-reaction{
+  font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;
+}
+
+.ttc-reaction-summary .ttc-reaction{
+  background:#fff;
+  border:1px solid var(--ttc-border);
+  border-radius:999px;
+  padding:1px 7px;
+  font-size:12px;
+  line-height:1.55;
+  box-shadow:0 1px 2px rgba(16,24,40,.06);
+}
+
+.ttc-reaction-summary .ttc-reaction:hover{
+  background:#f8fafc;
+}
+
+.ttc-reaction-summary .ttc-reaction.active{
+  background:#ffe9ea;
+  border-color:#f3a3a8;
+}
+
+/* Thanh công cụ nổi: display:none cho đến khi tin nhắn được
+   chọn bằng nhấn giữ (class ttc-message-selected) */
+.ttc-action-bar{
+  display:none;
+  position:absolute;
+  left:0;
+  bottom:calc(100% + 4px);
+  z-index:30;
+  align-items:center;
+  gap:2px;
+  max-width:min(92vw,430px);
+  background:#fff;
+  border:1px solid var(--ttc-border);
+  border-radius:999px;
+  padding:4px 6px;
+  box-shadow:0 10px 28px rgba(16,24,40,.18),0 2px 6px rgba(16,24,40,.10);
+}
+
+.ttc-chat-message.mine .ttc-action-bar{
+  left:auto;
+  right:0;
+}
+
+/* Tin nhắn sát mép trên khung chat → thanh lật xuống dưới */
+.ttc-chat-message.ttc-bar-below .ttc-action-bar{
+  bottom:auto;
+  top:calc(100% + 4px);
+}
+
+.ttc-chat-message.ttc-message-selected .ttc-action-bar{
+  display:flex;
+  animation:ttc-bar-in .18s ease-out;
+}
+
+@keyframes ttc-bar-in{
+  from{
+    opacity:0;
+    transform:translateY(4px) scale(.92);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0) scale(1);
+  }
+}
+
+/* 6 reaction trong thanh: emoji lớn, nảy lần lượt kiểu Messenger */
+.ttc-reaction-picker{
+  display:flex;
+  align-items:center;
+  gap:1px;
+}
+
+.ttc-action-bar .ttc-reaction{
+  font-size:21px;
+  line-height:1.15;
+  padding:4px 5px;
+  border:0;
+  border-radius:999px;
+  background:transparent;
+  transition:transform .12s ease,background .12s ease;
+  animation:ttc-emoji-pop .3s cubic-bezier(.34,1.56,.64,1) backwards;
+}
+
+.ttc-action-bar .ttc-reaction:nth-child(1){ animation-delay:.00s; }
+.ttc-action-bar .ttc-reaction:nth-child(2){ animation-delay:.03s; }
+.ttc-action-bar .ttc-reaction:nth-child(3){ animation-delay:.06s; }
+.ttc-action-bar .ttc-reaction:nth-child(4){ animation-delay:.09s; }
+.ttc-action-bar .ttc-reaction:nth-child(5){ animation-delay:.12s; }
+.ttc-action-bar .ttc-reaction:nth-child(6){ animation-delay:.15s; }
+
+.ttc-action-bar .ttc-reaction:hover{
+  background:#f3f4f6;
+  transform:scale(1.3) translateY(-2px);
+}
+
+.ttc-action-bar .ttc-reaction.active{
+  background:#ffe9ea;
+}
+
+@keyframes ttc-emoji-pop{
+  from{
+    opacity:0;
+    transform:translateY(9px) scale(.35);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0) scale(1);
+  }
+}
+
+/* Nút Trả lời / Xóa bên trong thanh nổi */
+.ttc-action-bar .ttc-message-tool{
+  font-size:12px;
+  color:#4b5563;
+  background:#f8fafc;
+  border:1px solid var(--ttc-border);
+  border-radius:999px;
+  padding:5px 9px;
+  margin-left:4px;
+  white-space:nowrap;
+}
+
+.ttc-action-bar .ttc-message-tool:hover{
+  color:var(--ttc-red);
+  background:#fff;
+}
+
+/* Phản hồi thị giác khi đang nhấn giữ / tin đang được chọn */
+.ttc-chat-bubble{
+  -webkit-touch-callout:none;
+  transition:transform .12s ease,filter .12s ease;
+}
+
+.ttc-chat-message.ttc-pressing .ttc-chat-bubble{
+  filter:brightness(.96);
+  transform:scale(.985);
+}
+
+.ttc-chat-message.ttc-message-selected .ttc-chat-bubble{
+  border-color:#f3a3a8;
+  box-shadow:0 4px 14px rgba(215,25,32,.10);
+}
+
+@media (prefers-reduced-motion:reduce){
+
+  .ttc-chat-message.ttc-message-selected .ttc-action-bar,
+  .ttc-action-bar .ttc-reaction{
+    animation:none;
+  }
+
+}

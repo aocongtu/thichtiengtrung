@@ -868,11 +868,19 @@ async function createMessageElement(message,name){
 
 
   const reactionTypes = [
-    ["like","👍"],
-    ["dislike","👎"],
     ["heart","❤️"],
-    ["haha","😂"],
+    ["haha","😆"],
     ["wow","😮"],
+    ["sad","😢"],
+    ["angry","😡"],
+    ["like","👍"]
+  ];
+
+
+  /* Loại reaction cũ — không cho thả mới,
+     chỉ giữ để hiển thị tiếp badge đã có trong DB */
+  const legacyReactionTypes = [
+    ["dislike","👎"],
     ["thanks","🙏"]
   ];
 
@@ -882,7 +890,7 @@ async function createMessageElement(message,name){
      ======================================================= */
 
   const activeReactions =
-    reactionTypes.filter(
+    reactionTypes.concat(legacyReactionTypes).filter(
       ([type]) =>
         reactionList.some(
           r =>
@@ -1015,13 +1023,10 @@ async function createMessageElement(message,name){
         );
 
 
+      /* Thanh reaction kiểu Messenger: chỉ hiện emoji lớn,
+         số đếm đã có ở badge tóm tắt dưới tin nhắn */
       btn.innerHTML =
-        emoji +
-        (
-          count
-            ? `<span class="ttc-reaction-count">${count}</span>`
-            : ""
-        );
+        emoji;
 
 
       btn.title =
@@ -1103,12 +1108,21 @@ async function createMessageElement(message,name){
   );
 
 
-  actions.appendChild(
+  /* Thanh công cụ nổi (reaction + trả lời + xóa):
+     mặc định ẩn, chỉ hiện khi nhấn giữ tin nhắn */
+  const actionBar =
+    document.createElement("div");
+
+  actionBar.className =
+    "ttc-action-bar";
+
+
+  actionBar.appendChild(
     reactionPicker
   );
 
 
-  actions.appendChild(
+  actionBar.appendChild(
     replyBtn
   );
 
@@ -1153,7 +1167,7 @@ async function createMessageElement(message,name){
       };
 
 
-    actions.appendChild(
+    actionBar.appendChild(
       deleteBtn
     );
 
@@ -1165,41 +1179,19 @@ async function createMessageElement(message,name){
   );
 
 
+  content.appendChild(
+    actionBar
+  );
+
+
   /* =======================================================
-     👆 NHẤN VÀO TIN NHẮN → HIỆN ACTIONS
+     👆 NHẤN GIỮ TIN NHẤN → HIỆN THANH REACTION / ACTIONS
+     (chạm thường không mở thanh — icon mặc định ẩn)
      ======================================================= */
 
-  bubble.addEventListener(
-    "click",
-    function(event){
-
-      event.stopPropagation();
-
-
-      document
-        .querySelectorAll(
-          "#ttcChatMessages .ttc-message-selected"
-        )
-        .forEach(
-          el => {
-
-            if(el !== wrapper){
-
-              el.classList.remove(
-                "ttc-message-selected"
-              );
-
-            }
-
-          }
-        );
-
-
-      wrapper.classList.toggle(
-        "ttc-message-selected"
-      );
-
-    }
+  attachMessageLongPress(
+    bubble,
+    wrapper
   );
 
 
@@ -1999,6 +1991,326 @@ async function toggleReaction(messageId,reaction){
     console.error("[REACTION]",error);
 
   }
+
+}
+
+
+/* ============================================================
+   👆 LONG-PRESS → THANH REACTION (kiểu Messenger)
+   Mặc định KHÔNG hiện icon nào trên tin nhắn.
+   Nhấn giữ ~450ms (hoặc chuột phải trên desktop) mới hiện
+   thanh chọn reaction + trả lời + xóa.
+   Thanh tự ẩn khi: chạm ra ngoài, cuộn danh sách,
+   hoặc sau khi chọn một reaction / hành động.
+   ============================================================ */
+
+const TTC_LONG_PRESS_MS = 450;
+
+let ttcPressTimer = null;
+let ttcPressStart = null;
+let ttcClickSuppressor = null;
+
+
+function ttcClearActionBars(except){
+
+  document
+    .querySelectorAll(
+      "#ttcChatMessages .ttc-message-selected"
+    )
+    .forEach(
+      el => {
+
+        if(el !== except){
+
+          el.classList.remove(
+            "ttc-message-selected"
+          );
+
+        }
+
+      }
+    );
+
+}
+
+
+function ttcOpenActionBar(wrapper){
+
+  ttcClearActionBars(wrapper);
+
+
+  /* Nếu tin nhắn nằm sát mép trên của khung chat,
+     lật thanh xuống dưới để không bị cắt mất */
+  wrapper.classList.remove(
+    "ttc-bar-below"
+  );
+
+  if(messagesBox){
+
+    const boxRect =
+      messagesBox.getBoundingClientRect();
+
+    const wrapRect =
+      wrapper.getBoundingClientRect();
+
+    if(wrapRect.top - boxRect.top < 64){
+
+      wrapper.classList.add(
+        "ttc-bar-below"
+      );
+
+    }
+
+  }
+
+
+  wrapper.classList.add(
+    "ttc-message-selected"
+  );
+
+
+  if(navigator.vibrate){
+
+    try{
+      navigator.vibrate(10);
+    }catch(e){}
+
+  }
+
+}
+
+
+function ttcCancelPress(){
+
+  if(ttcPressTimer){
+
+    clearTimeout(ttcPressTimer);
+
+    ttcPressTimer = null;
+
+  }
+
+  ttcPressStart = null;
+
+}
+
+
+/* Sau khi nhấn giữ thành công, trình duyệt vẫn bắn thêm
+   một sự kiện click khi thả tay — nuốt sự kiện đó để
+   không bấm nhầm link trong tin và không tắt thanh vừa mở */
+function ttcSuppressNextClick(){
+
+  if(!messagesBox || ttcClickSuppressor) return;
+
+
+  ttcClickSuppressor =
+    function(event){
+
+      event.preventDefault();
+
+      event.stopPropagation();
+
+      ttcDisarmClickSuppressor();
+
+    };
+
+
+  messagesBox.addEventListener(
+    "click",
+    ttcClickSuppressor,
+    {capture:true}
+  );
+
+
+  setTimeout(
+    ttcDisarmClickSuppressor,
+    1200
+  );
+
+}
+
+
+function ttcDisarmClickSuppressor(){
+
+  if(ttcClickSuppressor && messagesBox){
+
+    messagesBox.removeEventListener(
+      "click",
+      ttcClickSuppressor,
+      {capture:true}
+    );
+
+  }
+
+  ttcClickSuppressor = null;
+
+}
+
+
+/* Cuộn danh sách tin nhắn → hủy nhấn giữ đang chờ + ẩn thanh */
+if(messagesBox){
+
+  messagesBox.addEventListener(
+    "scroll",
+    function(){
+
+      ttcCancelPress();
+
+      ttcClearActionBars(null);
+
+    },
+    {passive:true}
+  );
+
+}
+
+
+function attachMessageLongPress(bubble,wrapper){
+
+  bubble.addEventListener(
+    "pointerdown",
+    function(event){
+
+      /* Chỉ chuột trái / cảm ứng / bút */
+      if(
+        event.button !== undefined &&
+        event.button !== 0
+      ) return;
+
+
+      ttcCancelPress();
+
+      ttcPressStart = {
+        x:event.clientX,
+        y:event.clientY
+      };
+
+
+      wrapper.classList.add(
+        "ttc-pressing"
+      );
+
+
+      ttcPressTimer =
+        setTimeout(
+          function(){
+
+            ttcPressTimer = null;
+
+            wrapper.classList.remove(
+              "ttc-pressing"
+            );
+
+            ttcSuppressNextClick();
+
+            ttcOpenActionBar(wrapper);
+
+          },
+          TTC_LONG_PRESS_MS
+        );
+
+    }
+  );
+
+
+  bubble.addEventListener(
+    "pointermove",
+    function(event){
+
+      if(!ttcPressStart) return;
+
+
+      const dx =
+        event.clientX - ttcPressStart.x;
+
+      const dy =
+        event.clientY - ttcPressStart.y;
+
+
+      /* Lệch quá 10px = người dùng đang cuộn → hủy nhấn giữ */
+      if(Math.sqrt(dx*dx + dy*dy) > 10){
+
+        wrapper.classList.remove(
+          "ttc-pressing"
+        );
+
+        ttcCancelPress();
+
+      }
+
+    }
+  );
+
+
+  [
+    "pointerup",
+    "pointercancel",
+    "pointerleave"
+  ].forEach(
+    function(type){
+
+      bubble.addEventListener(
+        type,
+        function(){
+
+          wrapper.classList.remove(
+            "ttc-pressing"
+          );
+
+          ttcCancelPress();
+
+        }
+      );
+
+    }
+  );
+
+
+  /* Chuột phải (desktop) = tương đương nhấn giữ;
+     đồng thời chặn menu ngữ cảnh mặc định trên tin nhắn */
+  bubble.addEventListener(
+    "contextmenu",
+    function(event){
+
+      event.preventDefault();
+
+      ttcCancelPress();
+
+      wrapper.classList.remove(
+        "ttc-pressing"
+      );
+
+      ttcOpenActionBar(wrapper);
+
+    }
+  );
+
+
+  /* Chạm thường vào bong bóng:
+     KHÔNG mở thanh (chỉ nhấn giữ mới mở) —
+     chỉ đóng thanh đang mở của tin khác / của chính tin này */
+  bubble.addEventListener(
+    "click",
+    function(){
+
+      if(
+        wrapper.classList.contains(
+          "ttc-message-selected"
+        )
+      ){
+
+        wrapper.classList.remove(
+          "ttc-message-selected"
+        );
+
+      }else{
+
+        ttcClearActionBars(null);
+
+      }
+
+    }
+  );
 
 }
 
