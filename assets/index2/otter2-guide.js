@@ -397,6 +397,14 @@
       roamBubble.style.left = (leftEdge - pos.x) + "px";
       roamBubble.style.right = "auto";
       roam.classList.toggle("guide-bubble-left", leftEdge + bw / 2 > otterCx);
+      /* Bé đứng gần mép trên (roaming 2D trong zone có thể đưa bé lên cao,
+         khác hẳn làn dưới cũ): bong bóng phải lật XUỐNG dưới bé như logic
+         fs của lộ trình, kẻo phần trên của bong bóng tràn khỏi màn hình.
+         Class chỉ có tác dụng trong các zone phủ (CSS ở #guide-zone-style)
+         + fs lộ trình vốn đã ép xuống bằng #guide-fs-style; ở trang chính
+         class này vô hại (không có rule nào khớp). */
+      var bh = roamBubble.offsetHeight || 90;
+      roam.classList.toggle("guide-bubble-below", pos.y < bh + 18);
     }
     function showBubble(text, ms) {
       roamBubble.classList.remove("guide-bubble-emoji");
@@ -427,9 +435,42 @@
       return !!activeZoneId;
     }
     function zoneOverlayActive() {
-      /* Các zone phủ toàn màn hình (panel portal ra body) — bé phải neo ở
-         dock của zone và không roaming 2D như trang chính. */
+      /* Các zone phủ toàn màn hình (panel portal ra body). Dock của zone
+         là "nhà" + điểm rơi an toàn của bé trong zone; từ 2026-11-17 bé
+         còn ROAMING 2D tự do ngay trong các zone này (xem roamStep) —
+         chướng ngại được cộng thêm nội dung của chính overlay đang mở. */
       return activeZoneId === "auto" || activeZoneId === "ach" || activeZoneId === "write";
+    }
+    /* Chướng ngại CỘNG THÊM theo zone (khảo sát selector thật trong
+       index2.html + otter2-vocab-roadmap.js/css + module auto/viết):
+       - path:  ticker chạy chữ, toolbar fullscreen (nút Thoát/âm thanh),
+                HUD game, thanh mục tiêu, khối học .ttc-path-learn (thẻ câu
+                hỏi + đáp án + cột thống kê), panel feedback/giải thích,
+                màn tổng quan/chọn cấp, hộp thoại huỷ/xung đột.
+       - auto:  cột nội dung của hai trình phát (#autoLearningBody cho từ
+                vựng, #ttcEA2Body cho câu ví dụ — chữ TO + hàng nút điều
+                khiển đều nằm trong đó) và nút Thoát fullscreen.
+       - ach:   cả thẻ bảng .ttc-ach-panel (toolbar + bảng xếp hạng nằm
+                trong thẻ) — chỗ thoáng chỉ còn lề ngoài thẻ.
+       - write: cả thẻ .ttc-write-card (đầu thẻ, ô giấy 田字格, thanh công
+                cụ, strip chọn chữ đều nằm trong thẻ). */
+    var ZONE_OBSTACLE_SEL = {
+      path: "#ttcPathWorldTicker,#ttcPathFsToolbar,.ttc-path-fs-toolbar,.ttc-path-game-hud,.ttc-path-goals-bar,.ttc-path-learn,.ttc-path-feedback,.ttc-path-explain-panel,.ttc-path-overview,.ttc-path-levels,.ttc-path-cancel-overlay,.ttc-path-conflict",
+      auto: "#autoLearningBody,#ttcEA2Body,.otter2-auto-fs-exit",
+      ach: ".ttc-ach-panel,.ttc-ach-toolbar",
+      write: ".ttc-write-card"
+    };
+    /* Gốc của từng zone: thao tác chạm/bấm vào BẤT KỲ đâu trong gốc (kể cả
+       nền của overlay) khi zone đang mở đều tính là "người học đang thao
+       tác" -> park bé về dock của zone (xem onUserInteract). */
+    var ZONE_ROOT_SEL = {
+      path: "#ttcPathPanel",
+      auto: "#autoLearning,#ttcExampleAutoV2",
+      ach: "#ttcAchHost",
+      write: "#ttcWriteOverlay"
+    };
+    function zoneObstacleSel() {
+      return activeZoneId ? (ZONE_OBSTACLE_SEL[activeZoneId] || null) : null;
     }
     var EMOJI_REACTIONS = ["🤩👏", "😃💪", "🎉✨", "👂 hay quá!", "🦦💯", "😍🔥", "👍✨", "🤗💖", "😆🎶", "🌟👏", "🥳🎊", "😺✌️"];
     var lastEmojiIdx = -1;
@@ -789,7 +830,16 @@
       try {
         if (t.closest("input,textarea,select,canvas,[contenteditable='true']") || t.closest(LEARN_SEL)) {
           parkOtter();
+          return;
         }
+        /* Đang ở trong một zone phủ: BẤT KỲ thao tác nào lên chính overlay
+           đang mở (bấm nút điều khiển của Học auto, chọn đáp án/trả lời ở
+           lộ trình, bấm nút ở bảng thành tích, vẽ/gõ ở overlay viết...)
+           đều park bé về dock của zone đó — bé đang roaming giữa màn hình
+           cũng phải tránh đường ngay. Gốc zone gồm cả nền overlay nên
+           chạm vào nền cũng tính. */
+        var zRootSel = activeZoneId ? (ZONE_ROOT_SEL[activeZoneId] || null) : null;
+        if (zRootSel && t.closest(zRootSel)) parkOtter();
       } catch (e) {}
     }
     document.addEventListener("pointerdown", onUserInteract, true);
@@ -843,8 +893,9 @@
     /* ---------------- Roaming 2D: chạy nhảy khắp CHỖ THOÁNG (2026-11-17) ----------------
        Yêu cầu chủ web: ngoài lộ trình, bé cũng phải chạy nhảy khắp web chính
        như trong lộ trình — "cứ chỗ nào thoáng không thấy chữ là đi thoải
-       mái". Trước đây bé chỉ đi 1 trục ở làn dưới cùng. Cơ chế mới (CHỈ áp
-       dụng ngoài fs + không reduced-motion; trong fs giữ nguyên dải trên):
+       mái". Trước đây bé chỉ đi 1 trục ở làn dưới cùng. Cơ chế mới (áp dụng
+       ở trang chính VÀ ngay trong mọi zone phủ — chủ web chốt thêm: "ở bất
+       kỳ chỗ nào cũng cho chạy tự do khắp màn hình"; không reduced-motion):
        - Chọn điểm đến ngẫu nhiên trong khung nhìn (ưu tiên nửa dưới).
        - Kiểm tra hình chữ nhật dự kiến của bé KHÔNG giao với bất kỳ
          chướng ngại nào: (a) danh sách rect thu từ các phần tử nội dung
@@ -859,13 +910,19 @@
        Park khi người dùng thao tác (LEARN_SEL / ô nhập) giữ nguyên như cũ
        qua onUserInteract -> parkOtter(). */
     var OBSTACLE_SEL = "h1,h2,h3,h4,h5,h6,p,li,td,th,label,button,a,input,textarea,select,canvas,img,video,[contenteditable='true'],header,nav,#otter2Nav,[role='dialog'],.otter2-feature,.otter2-node,.otter2-card,.otter2-dash-card,.otter2-dash-hero";
-    var obstacleCache = { t: 0, rects: null };
+    var obstacleCache = { t: 0, zone: undefined, rects: null };
     function obstacleRects() {
       var now = Date.now();
-      if (obstacleCache.rects && now - obstacleCache.t < 4000) return obstacleCache.rects;
+      /* Cache khoá theo zone: vừa vào/ra một khu học là tập chướng ngại
+         thay đổi ngay (cộng/trừ nội dung của overlay) — không được dùng
+         lại rect của zone trước dù cache 4 giây chưa hết hạn. */
+      if (obstacleCache.rects && obstacleCache.zone === activeZoneId && now - obstacleCache.t < 4000) return obstacleCache.rects;
       var rects = [];
       var els = [];
-      try { els = document.querySelectorAll(OBSTACLE_SEL); } catch (e) { els = []; }
+      var sel = OBSTACLE_SEL;
+      var zObsSel = zoneObstacleSel();
+      if (zObsSel) sel += "," + zObsSel;
+      try { els = document.querySelectorAll(sel); } catch (e) { els = []; }
       var vw = window.innerWidth, vh = window.innerHeight;
       for (var i = 0; i < els.length; i++) {
         var el = els[i];
@@ -883,7 +940,7 @@
           rects.push({ left: r.left, top: r.top, right: r.right, bottom: r.bottom });
         } catch (e2) {}
       }
-      obstacleCache = { t: now, rects: rects };
+      obstacleCache = { t: now, zone: activeZoneId, rects: rects };
       return rects;
     }
     function rectHitsRects(x, y, w, h, rects, pad) {
@@ -913,6 +970,8 @@
         if (!el.closest) return true;
         if (el.closest("[data-guide-root]")) return false; /* panel của guide */
         if (el.closest(OBSTACLE_SEL)) return false;
+        var zPtSel = zoneObstacleSel();
+        if (zPtSel) { try { if (el.closest(zPtSel)) return false; } catch (eZp) {} }
         try { if (el.closest(LEARN_SEL)) return false; } catch (eL) {}
         if (elHasOwnText(el)) return false;
         return true;
@@ -952,17 +1011,26 @@
     function relocateIfBlocked() {
       var now = Date.now();
       if (now - lastRelocate < 3000) return;
-      if (pathFsActive() || zoneOverlayActive() || reducedMotion) return;
+      if (reducedMotion) return;
       if (!guidePanel.hidden || roam.hidden || rafId || tripActive || now < parkUntil) return;
       if (spotRectFree(pos.x, pos.y)) return;
       lastRelocate = now;
+      /* Chỗ đứng bị nội dung lấn (trang cuộn ở trang chính, hoặc nội dung
+         zone đổi: câu hỏi mới ở lộ trình, câu/từ mới ở Học auto...): dời
+         sang chỗ thoáng; trong zone mà không còn chỗ thoáng nào thì rút
+         về dock của zone đó thay vì đứng đè lên nội dung. */
       var spot = pickFreeSpot();
-      if (spot) runTo(spot.x, spot.y, jumpOtter);
+      if (spot) { runTo(spot.x, spot.y, jumpOtter); return; }
+      if (pathFsActive()) runTo(10, dockY());
+      else if (zoneOverlayActive()) runTo(dockX("left"), dockY());
     }
     /* Phơi ra cho kiểm thử tự động + gỡ lỗi tay; vô hại khi chạy thật. */
     window.__otter2GuideFreeSpot = {
       pick: pickFreeSpot, rectFree: spotRectFree,
-      obstacles: obstacleRects, hits: rectHitsRects
+      obstacles: obstacleRects, hits: rectHitsRects,
+      zone: function () { return activeZoneId; },
+      relocate: relocateIfBlocked,
+      pos: function () { return { x: pos.x, y: pos.y }; }
     };
 
     var ROAM_ANCHORS = [0.12, 0.45, 0.8];
@@ -980,19 +1048,22 @@
       var now = Date.now();
       if (document.hidden) { scheduleRoam(4000); return; }
       if (!guidePanel.hidden || roam.hidden || rafId || tripActive || now < parkUntil) { scheduleRoam(); return; }
-      if (zoneOverlayActive()) { scheduleRoam(); return; } /* trong zone phủ: bé ở yên tại dock của zone */
-      if (!pathFsActive()) {
-        /* Ngoài lộ trình: chạy nhảy 2 chiều tới chỗ thoáng bất kỳ trong
-           khung nhìn; không có chỗ thoáng thì rơi xuống neo làn dưới cũ. */
-        var spot2d = pickFreeSpot();
-        if (spot2d) {
-          if (Math.abs(spot2d.x - pos.x) > 50 || Math.abs(spot2d.y - pos.y) > 40) {
-            runTo(spot2d.x, spot2d.y, jumpOtter);
-          }
-          scheduleRoam(4000 + Math.random() * 5000);
-          return;
+      /* Chạy nhảy 2 chiều tới chỗ thoáng bất kỳ trong khung nhìn — áp dụng
+         GIỐNG NHAU ở trang chính và trong MỌI zone phủ (lộ trình, Học
+         auto, bảng thành tích, viết chữ Hán): obstacleRects()/pointFree()
+         đã cộng nội dung của overlay đang mở vào chướng ngại, nên điểm
+         đến không bao giờ đè lên thẻ câu hỏi/câu ví dụ/ô giấy/nút bấm.
+         Vào zone, bé chạy về dock trước (onZoneChange lo) — nhịp roamStep
+         đầu tiên sau đó mới bắt đầu đi tự do, đúng nhịp rảnh 4–9 giây. */
+      var spot2d = pickFreeSpot();
+      if (spot2d) {
+        if (Math.abs(spot2d.x - pos.x) > 50 || Math.abs(spot2d.y - pos.y) > 40) {
+          runTo(spot2d.x, spot2d.y, jumpOtter);
         }
+        scheduleRoam(4000 + Math.random() * 5000);
+        return;
       }
+      if (zoneOverlayActive()) { scheduleRoam(4000 + Math.random() * 5000); return; } /* zone phủ kín nội dung: ở yên tại dock của zone */
       for (var tries = 0; tries <= ROAM_ANCHORS.length; tries++) {
         var idx = roamIdx % (ROAM_ANCHORS.length + 1);
         roamIdx++;
@@ -1165,7 +1236,11 @@
          nằm ở phía TRÊN (auto: trên-phải; ach: toolbar trên; write: đầu
          thẻ trên-phải), thẻ câu/nút điều khiển của Học auto nằm giữa-trên,
          ô giấy viết nằm giữa thẻ — góc dưới-trái là vùng thoáng duy nhất
-         không chạm vào đâu quan trọng ở cả ba khu. */
+         không chạm vào đâu quan trọng ở cả ba khu. Dock là "nhà" của bé
+         trong zone (vào zone chạy về đây trước, người học thao tác thì
+         park về đây, zone phủ kín không còn chỗ thoáng thì ở yên đây);
+         khi rảnh bé ROAMING 2D tự do khắp zone như trang chính — xem
+         roamStep + ZONE_OBSTACLE_SEL. */
       var zoneStyle = document.createElement("style");
       zoneStyle.id = "guide-zone-style";
       zoneStyle.textContent =
@@ -1183,6 +1258,11 @@
         "[data-guide-root].guide-zone-write .guide-spot-overlay{z-index:100009 !important}" +
         "@media (max-width:720px){" +
         "[data-guide-root].guide-zone-auto .guide-roam,[data-guide-root].guide-zone-ach .guide-roam,[data-guide-root].guide-zone-write .guide-roam{width:74px}}" +
+        /* Roaming trong zone đưa bé lên gần mép trên được: bong bóng lật
+           XUỐNG dưới bé (placeBubble gắn .guide-bubble-below) — cùng kiểu
+           với rule fs của lộ trình trong #guide-fs-style. */
+        "[data-guide-root].guide-zone-auto .guide-roam.guide-bubble-below .guide-bubble,[data-guide-root].guide-zone-ach .guide-roam.guide-bubble-below .guide-bubble,[data-guide-root].guide-zone-write .guide-roam.guide-bubble-below .guide-bubble{bottom:auto;top:calc(100% + 10px);border-radius:16px 4px 16px 16px}" +
+        "[data-guide-root].guide-zone-auto .guide-roam.guide-bubble-below.guide-bubble-left .guide-bubble,[data-guide-root].guide-zone-ach .guide-roam.guide-bubble-below.guide-bubble-left .guide-bubble,[data-guide-root].guide-zone-write .guide-roam.guide-bubble-below.guide-bubble-left .guide-bubble{border-radius:4px 16px 16px 16px}" +
         ".guide-bubble.guide-bubble-emoji{width:auto;max-width:62vw;padding:9px 13px}" +
         ".guide-bubble.guide-bubble-emoji p{font-size:1.5rem;line-height:1.3;text-align:center;white-space:nowrap}" +
         ".guide-bubble.guide-bubble-emoji .guide-hint{display:none}";
@@ -1291,8 +1371,11 @@
         var overlayIn = z === "auto" || z === "ach" || z === "write";
         var overlayOut = prev === "auto" || prev === "ach" || prev === "write";
         if (overlayIn) {
-          /* CHẠY (runTo) tới dock của zone — không teleport; reduced-motion
-             thì runTo tự đặt vị trí tức thì và jumpOtter tự bỏ qua. */
+          /* CHẠY (runTo) tới dock của zone trước — không teleport;
+             reduced-motion thì runTo tự đặt vị trí tức thì và jumpOtter
+             tự bỏ qua. Sau nhịp rảnh đầu tiên, roamStep mới cho bé đi tự
+             do khắp zone (trừ khi reduced-motion: scheduleRoam không chạy
+             nên bé ở yên tại dock như cũ). */
           runTo(dockX("left"), dockY(), function () { jumpOtter(); });
         } else if (overlayOut && z !== "path") {
           runTo(dockX("right"), dockY()); /* rời zone phủ -> về góc quen thuộc */
@@ -1300,6 +1383,38 @@
         /* z === "path" / rời path: watcher initGuidePathFs lo di chuyển.
            z === "reading": màn thường — không di chuyển, chỉ câm giọng. */
       }
+
+      /* ----- Nội dung zone đổi -> bé tự dời nếu chỗ đứng bị lấn -----
+         Bé roaming tự do trong zone nên khi nội dung thay mạnh (lộ trình
+         vẽ câu hỏi mới, Học auto chuyển câu/từ, bảng thành tích tải lại
+         hàng, overlay viết đổi chữ) chỗ bé đang đứng có thể bị nội dung
+         mới trùm lên. Observer bám vào gốc của từng zone (phần tử tồn tại
+         cố định, panel portal đi nơi khác vẫn là cùng một node), debounce
+         600ms sau đợt thay đổi cuối rồi mới kiểm tra — relocateIfBlocked
+         tự lo phần còn lại (cooldown, đang park/chạy/panel thì bỏ qua,
+         không chỗ thoáng thì về dock). Gắn lười trong zoneTick vì vài gốc
+         (#ttcPathPanel) do module khác dựng sau guide. */
+      var zoneRelocateTimer = null;
+      function onZoneContentMutated() {
+        if (!activeZoneId) return;
+        clearTimeout(zoneRelocateTimer);
+        zoneRelocateTimer = setTimeout(function () {
+          try { relocateIfBlocked(); } catch (eZr) {}
+        }, 600);
+      }
+      var ZONE_WATCH_IDS = ["ttcPathPanel", "autoLearning", "ttcExampleAutoV2", "ttcAchHost", "ttcWriteOverlay"];
+      function ensureZoneRelocateWatchers() {
+        for (var i = 0; i < ZONE_WATCH_IDS.length; i++) {
+          var el = document.getElementById(ZONE_WATCH_IDS[i]);
+          if (!el || el.__guideZoneRelocateWatched) continue;
+          el.__guideZoneRelocateWatched = true;
+          try {
+            var mo = new MutationObserver(onZoneContentMutated);
+            mo.observe(el, { childList: true, subtree: true });
+          } catch (eMw) {}
+        }
+      }
+      ensureZoneRelocateWatchers();
 
       var lastZone = null;
       function zoneTick() {
@@ -1313,6 +1428,7 @@
           try { onZoneChange(prev, z); } catch (eZc) {}
         }
         try { autoPlayTick(); } catch (eAp) {}
+        try { ensureZoneRelocateWatchers(); } catch (eZw) {}
       }
       setInterval(zoneTick, 700);
       zoneTick();
