@@ -69,14 +69,14 @@
       ".guide-bubble .guide-hint{display:block;margin-top:5px;font-size:.72rem;font-weight:700;color:#d63a2f}",
       ".guide-bubble-x{position:absolute;top:2px;right:4px;border:0;background:transparent;color:#8a877e;font-size:.95rem;line-height:1;min-height:2rem;width:2rem;padding:0;cursor:pointer}",
       ".guide-wrap{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:95;pointer-events:none}",
-      ".guide-panel{pointer-events:auto;width:min(336px,calc(100vw - 24px));background:#fff;border:1px solid #e3e0d8;border-radius:20px;box-shadow:0 18px 50px rgba(25,25,33,.25);padding:16px;color:#23222b}",
+      ".guide-panel{pointer-events:auto;width:min(336px,calc(100vw - 24px));max-height:calc(100vh - 32px - env(safe-area-inset-bottom,0px));overflow-y:auto;background:#fff;border:1px solid #e3e0d8;border-radius:20px;box-shadow:0 18px 50px rgba(25,25,33,.25);padding:16px;color:#23222b}",
       ".guide-panel[hidden]{display:none}",
       ".guide-head{display:flex;align-items:center;gap:10px}",
       ".guide-head img{width:44px;height:44px;border-radius:50%;object-fit:cover;object-position:center 8%;border:2px solid #f6d9d4;flex:none;background:#fdf3ec}",
       ".guide-head b{font-size:.95rem;display:block;line-height:1.25}",
       ".guide-head small{color:#8a877e;font-weight:600;font-size:.74rem}",
       ".guide-close{margin-left:auto;width:34px;height:34px;border-radius:50%;border:1px solid #e3e0d8;background:#fff;color:#55534d;display:grid;place-items:center;flex:none;font-size:.85rem;cursor:pointer}",
-      ".guide-text{font-size:.92rem;line-height:1.6;margin:12px 0 0;min-height:3.1em}",
+      ".guide-text{display:block;font-size:.92rem;line-height:1.6;margin:12px 0 0;max-height:none;overflow:visible;-webkit-line-clamp:none}",
       ".guide-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:13px}",
       ".guide-chips button{border:1px solid #e3e0d8;background:#f6f4ef;color:#23222b;border-radius:999px;padding:7px 12px;font-size:.8rem;font-weight:700;min-height:2.3rem;cursor:pointer}",
       ".guide-chips button.guide-active{background:#d63a2f;border-color:#d63a2f;color:#fff}",
@@ -169,9 +169,14 @@
        screens by clicking the site's own nav buttons. */
     var dests = [
       { key: "journey", label: "Hành trình HSK", selector: "#otter2HskJourney", screen: "home",
+        reveal: [{ click: "#otter2OpenVocabBankBtn", until: "#otter2HskJourney" }],
+        frameFallback: "#otter2OpenVocabBankBtn",
         text: "Đây là Hành trình HSK — bản đồ leo núi từ HSK 1 tới HSK 9 theo chuẩn HSK 3.0 mới nhất. Mỗi chặng là một cấp độ, học xong chặng này mình lại leo tiếp chặng sau!",
         arrive: "Tới Hành trình HSK rồi! Bạn đang ở những chặng đầu tiên — bấm vào một chặng để xem mình sẽ học những gì nhé." },
       { key: "vocab", label: "Kho từ vựng", selector: "#otter2Hsk1Workspace", screen: "home",
+        reveal: [{ click: "#otter2OpenVocabBankBtn", until: "#otter2HskJourney" },
+                 { click: "#otter2HskLevelRow [data-otter2-hsk=\"1\"]", until: "#otter2Hsk1Workspace" }],
+        frameFallback: "#otter2OpenVocabBankBtn",
         text: "Kho từ vựng HSK có hơn 11.000 từ của cả 9 cấp độ: mỗi từ có chữ Hán, pinyin, nghĩa tiếng Việt và câu ví dụ, lại còn nghe được phát âm nữa.",
         arrive: "Tới kho từ vựng rồi! Bạn chọn cấp độ HSK ở hàng nút phía trên, rồi bấm vào từng thẻ từ để xem chi tiết và nghe đọc mẫu nhé." },
       { key: "dict", label: "Tra từ điển", selector: "#otter2DictRoot", screen: "vocab",
@@ -207,8 +212,12 @@
       if (reducedMotion) { guideTextEl.textContent = text; return; }
       guideTextEl.textContent = "";
       var i = 0;
+      /* Long descriptions type in bigger steps so the full text lands in
+         about a second — at a flat 2 chars/tick a ~190-char description
+         spent ~1.5s visibly "truncated" mid-word while typing. */
+      var step = Math.max(2, Math.ceil(text.length / 55));
       typeTimer = setInterval(function () {
-        i += 2;
+        i += step;
         guideTextEl.textContent = text.slice(0, i);
         if (i >= text.length) clearInterval(typeTimer);
       }, 16);
@@ -419,10 +428,38 @@
       if (spotOverlay && spotOverlay.parentNode) spotOverlay.parentNode.removeChild(spotOverlay);
       spotOverlay = null;
     }
+    function rectInView(r) {
+      return !!r && r.width > 0 && r.height > 0 &&
+        r.bottom > 0 && r.right > 0 &&
+        r.top < window.innerHeight && r.left < window.innerWidth;
+    }
+
+    /* The element to frame: the target's visible card (see visibleCard) —
+       but never an element without a layout box. If the chosen card's
+       rect is empty (it sits in a still-hidden or not-yet-rendered
+       subtree), fall back to the first descendant that genuinely has a
+       box. Returns null when nothing framable exists; the caller then
+       draws nothing, because a zero-size ring is worse than none. */
+    function pickFrameTarget(el) {
+      var card = visibleCard(el);
+      var r = null;
+      try { r = card.getBoundingClientRect(); } catch (e) {}
+      if (r && r.width > 0 && r.height > 0) return card;
+      try {
+        var kids = el.querySelectorAll("*");
+        var limit = Math.min(kids.length, 400);
+        for (var i = 0; i < limit; i++) {
+          if (isVisible(kids[i])) return kids[i];
+        }
+      } catch (e) {}
+      return null;
+    }
+
     function highlightTarget(el) {
       if (!el) return;
       removeSpotOverlay();
-      var card = visibleCard(el);
+      var card = pickFrameTarget(el);
+      if (!card) return;
       var ov = document.createElement("div");
       ov.className = "guide-spot-overlay";
       ov.setAttribute("aria-hidden", "true");
@@ -431,12 +468,26 @@
       function place() {
         if (!spotOverlay) return;
         var r = card.getBoundingClientRect();
+        if (!r || r.width === 0 || r.height === 0) { removeSpotOverlay(); return; }
         ov.style.left = (r.left - 6) + "px";
         ov.style.top = (r.top - 6) + "px";
         ov.style.width = (r.width + 12) + "px";
         ov.style.height = (r.height + 12) + "px";
       }
       place();
+      /* Self-verify: if the framed element lies outside the viewport —
+         e.g. a tall target was scrolled to center but its first card
+         ended up above the fold — scroll the CARD itself into view and
+         recompute; the rAF tracker below follows its live rect every
+         frame, so the ring stays glued to it while the page moves.
+         The overlay is therefore never left sitting fully off-screen. */
+      requestAnimationFrame(function () {
+        if (!spotOverlay) return;
+        if (!rectInView(card.getBoundingClientRect())) {
+          try { card.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "center" }); }
+          catch (e) { try { card.scrollIntoView(); } catch (e2) {} }
+        }
+      });
       function track() {
         place();
         if (spotOverlay) spotRaf = requestAnimationFrame(track);
@@ -517,58 +568,117 @@
       setTimeout(check, 60);
     }
 
+    /* Reveal step for toggle-open destinations. Some targets start with
+       the `hidden` attribute and appear only after the learner clicks a
+       control — Kho từ vựng is the extreme case: #otter2Hsk1Workspace
+       sits inside the also-hidden #otter2HskJourney; the journey opens
+       via #otter2OpenVocabBankBtn, and the workspace itself opens via a
+       level-node click that runs the site's async openHskLevel(). The
+       trip previously had NO reveal step, so for these destinations
+       waitVisible() always timed out and guideTrip silently degraded to
+       its not-found fallback (description bubble + dock at bottom-right)
+       — highlightTarget() was never reached, which is exactly why the
+       Luyện tập trip (a plain screen switch) showed the red frame and
+       the Kho từ vựng trip never did. Each reveal step clicks its
+       control ONLY while its `until` element is still hidden — both
+       controls are toggles, so clicking an already-open one would close
+       it again — then polls briefly for the reveal to take effect. */
+    function ensureRevealed(dest, cb) {
+      var target = null;
+      try { target = document.querySelector(dest.selector); } catch (e) {}
+      if (target && isVisible(target)) { cb(); return; }
+      var steps = dest.reveal || [];
+      var i = 0;
+      function next() {
+        if (i >= steps.length) { cb(); return; }
+        var step = steps[i++];
+        var untilEl = null;
+        try { untilEl = step.until ? document.querySelector(step.until) : null; } catch (e) {}
+        if (untilEl && isVisible(untilEl)) { next(); return; }
+        var btn = null;
+        try { btn = document.querySelector(step.click); } catch (e) {}
+        if (btn) { try { btn.click(); } catch (e) {} }
+        var waited = 0;
+        (function poll() {
+          var u = null;
+          try { u = step.until ? document.querySelector(step.until) : null; } catch (e) {}
+          if ((u && isVisible(u)) || waited >= 1200) { next(); return; }
+          waited += 150;
+          setTimeout(poll, 150);
+        })();
+      }
+      next();
+    }
+
+    /* Shared trip ending: scroll the element into view, wait for its
+       rect to settle, run the otter to a free spot hugging its visible
+       card, then — at arrival — frame it and speak the arrival line
+       together. Used for the real target and, when the target can never
+       appear (e.g. the vocab workspace behind the site's login gate),
+       for the destination's toggle control instead, so the learner
+       still ends up looking at a framed, visible thing. */
+    function arriveAt(el, dest) {
+      try {
+        el.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "center" });
+      } catch (e) { el.scrollIntoView(); }
+      say("Mình chạy trước dẫn đường đây — bạn theo mình nhé!");
+      waitSettled(el, function () {
+        /* Fresh geometry, only now that the screen has switched, any
+           reveal has rendered and the scroll has settled. Landing spots
+           hug the target's visible card: just BELOW it first, then
+           right, then left; the corners are only a last resort
+           (previously a stale rect plus spotFree() rejecting the
+           bottom-right corner dropped the otter in the far bottom-left). */
+        var card = visibleCard(el);
+        var r = card.getBoundingClientRect();
+        var W = roamW(), H = roamH(), vw = window.innerWidth, vh = window.innerHeight;
+        var sideY = clampNum(r.top + r.height / 2 - H / 2, 6, Math.max(6, vh - H - 8));
+        var belowX = clampNum(r.left + r.width / 3 - W / 2, 8, Math.max(8, vw - W - 8));
+        var belowY = clampNum(r.bottom + 10, 6, Math.max(6, vh - H - 8));
+        var cands = [
+          [belowX, belowY],
+          [r.right + 8, sideY],
+          [r.left - W - 8, sideY],
+          [vw - W - 12, vh - H - 12],
+          [12, vh - H - 12]
+        ];
+        var tx = cands[3][0], ty = cands[3][1];
+        for (var i = 0; i < cands.length; i++) {
+          var cx = clampNum(cands[i][0], 4, Math.max(4, vw - W - 4));
+          var cy = clampNum(cands[i][1], 4, Math.max(4, vh - H - 4));
+          if (spotFree(cx, cy)) { tx = cx; ty = cy; break; }
+        }
+        runTo(tx, ty, function () {
+          jumpOtter();
+          if (tx + W / 2 < r.left + r.width / 2) otterBtn.classList.remove("guide-face-left");
+          else otterBtn.classList.add("guide-face-left");
+          /* Highlight + arrival line start together, at arrival. */
+          highlightTarget(el);
+          if (dest.arrive) say(dest.arrive);
+          tripActive = false;
+        });
+      });
+    }
+
     function guideTrip(dest) {
       tripActive = true;
       closeGuide(true);
       ensureScreen(dest.screen, function () {
-        waitVisible(dest.selector, function (el) {
-          if (!el) {
-            /* Target never appeared (e.g. the Premium button before login):
-               explain where it lives instead of scrolling nowhere. */
+        ensureRevealed(dest, function () {
+          waitVisible(dest.selector, function (el) {
+            if (el) { arriveAt(el, dest); return; }
+            /* Target never appeared (e.g. the Premium button before
+               login, or the vocab workspace behind the site's login
+               gate): if the destination names a toggle control, frame
+               THAT instead — it is the visible thing the learner should
+               notice — otherwise explain where the target lives instead
+               of scrolling nowhere, and dock. */
+            var fb = null;
+            try { fb = dest.frameFallback ? document.querySelector(dest.frameFallback) : null; } catch (e) {}
+            if (fb && isVisible(fb)) { arriveAt(fb, dest); return; }
             say(dest.arriveHidden || dest.text);
             runTo(dockX("right"), dockY());
             tripActive = false;
-            return;
-          }
-          try {
-            el.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "center" });
-          } catch (e) { el.scrollIntoView(); }
-          say("Mình chạy trước dẫn đường đây — bạn theo mình nhé!");
-          waitSettled(el, function () {
-            /* Fresh geometry, only now that the screen has switched and the
-               scroll has settled. Landing spots hug the target's visible
-               card: just BELOW it first, then right, then left; the corners
-               are only a last resort (previously a stale rect plus
-               spotFree() rejecting the bottom-right corner dropped the
-               otter in the far bottom-left). */
-            var card = visibleCard(el);
-            var r = card.getBoundingClientRect();
-            var W = roamW(), H = roamH(), vw = window.innerWidth, vh = window.innerHeight;
-            var sideY = clampNum(r.top + r.height / 2 - H / 2, 6, Math.max(6, vh - H - 8));
-            var belowX = clampNum(r.left + r.width / 3 - W / 2, 8, Math.max(8, vw - W - 8));
-            var belowY = clampNum(r.bottom + 10, 6, Math.max(6, vh - H - 8));
-            var cands = [
-              [belowX, belowY],
-              [r.right + 8, sideY],
-              [r.left - W - 8, sideY],
-              [vw - W - 12, vh - H - 12],
-              [12, vh - H - 12]
-            ];
-            var tx = cands[3][0], ty = cands[3][1];
-            for (var i = 0; i < cands.length; i++) {
-              var cx = clampNum(cands[i][0], 4, Math.max(4, vw - W - 4));
-              var cy = clampNum(cands[i][1], 4, Math.max(4, vh - H - 4));
-              if (spotFree(cx, cy)) { tx = cx; ty = cy; break; }
-            }
-            runTo(tx, ty, function () {
-              jumpOtter();
-              if (tx + W / 2 < r.left + r.width / 2) otterBtn.classList.remove("guide-face-left");
-              else otterBtn.classList.add("guide-face-left");
-              /* Highlight + arrival line start together, at arrival. */
-              highlightTarget(el);
-              if (dest.arrive) say(dest.arrive);
-              tripActive = false;
-            });
           });
         });
       });
