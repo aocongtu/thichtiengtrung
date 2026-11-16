@@ -265,6 +265,7 @@
     /* ---------------- Roaming engine ---------------- */
     var pos = { x: 0, y: 0 }, rafId = null, bubbleTimer = null;
     var parkUntil = 0, lastPark = 0, lastDash = 0, lastScrollY = window.scrollY || 0;
+    var tripActive = false, roamTimer = null, roamIdx = 0;
 
     function clampNum(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
     function roamW() { return roam.offsetWidth || 118; }
@@ -342,6 +343,60 @@
       return !cs || (cs.display !== "none" && cs.visibility !== "hidden");
     }
 
+    /* Unmissable target highlight: a Web Animations API pulse on the target
+       itself plus a temporary inline outline (removed on finish, previous
+       inline values restored) — so ordinary site CSS cannot override it the
+       way it could override the old class-based box-shadow animation. When
+       the target is a very large container (bounding box much larger than
+       the viewport), its first visible child card/section is pulsed too, so
+       the effect lands where the user is actually looking. */
+    function pulseOne(t) {
+      try {
+        var prevOutline = t.style.outline;
+        var prevOffset = t.style.outlineOffset;
+        t.style.outline = "3px solid rgba(214,58,47,.95)";
+        t.style.outlineOffset = "3px";
+        var cleaned = false;
+        var cleanup = function () {
+          if (cleaned) return;
+          cleaned = true;
+          t.style.outline = prevOutline;
+          t.style.outlineOffset = prevOffset;
+        };
+        if (reducedMotion || !t.animate) { setTimeout(cleanup, 2600); return; }
+        var anim = t.animate([
+          { boxShadow: "0 0 0 0 rgba(214,58,47,0)" },
+          { boxShadow: "0 0 0 6px rgba(214,58,47,.9),0 0 0 16px rgba(214,58,47,.28),0 0 36px 10px rgba(214,58,47,.45)" },
+          { boxShadow: "0 0 0 0 rgba(214,58,47,0)" }
+        ], { duration: 870, iterations: 3, easing: "ease-in-out" });
+        if (anim) {
+          anim.onfinish = cleanup;
+          if (anim.finished && anim.finished.then) anim.finished.then(cleanup, cleanup);
+        }
+        setTimeout(cleanup, 3000); /* safety net: never leave inline styles behind */
+      } catch (e) {}
+    }
+    function pulseTarget(el) {
+      if (!el) return;
+      pulseOne(el);
+      try {
+        var r = el.getBoundingClientRect();
+        if (r.width > window.innerWidth * 1.02 || r.height > window.innerHeight * 1.15) {
+          var kids = el.querySelectorAll("*");
+          var limit = Math.min(kids.length, 400);
+          for (var i = 0; i < limit; i++) {
+            var k = kids[i];
+            if (!isVisible(k)) continue;
+            var kr = k.getBoundingClientRect();
+            if (kr.width >= 120 && kr.height >= 40 && kr.width <= window.innerWidth && kr.height <= window.innerHeight) {
+              pulseOne(k);
+              break;
+            }
+          }
+        }
+      } catch (e) {}
+    }
+
     /* Switch the site's own screens using its own nav buttons. */
     function ensureScreen(name, cb) {
       if (!name) { cb(); return; }
@@ -362,6 +417,7 @@
     }
 
     function guideTrip(dest) {
+      tripActive = true;
       closeGuide(true);
       ensureScreen(dest.screen, function () {
         var el = null;
@@ -371,6 +427,7 @@
              explain where it lives instead of scrolling nowhere. */
           say(dest.arriveHidden || dest.text);
           runTo(dockX("right"), dockY());
+          tripActive = false;
           return;
         }
         try {
@@ -382,13 +439,22 @@
           var r = el.getBoundingClientRect();
           var W = roamW(), H = roamH(), vw = window.innerWidth, vh = window.innerHeight;
           var sideY = clampNum(r.top + r.height / 2 - H / 2, 6, Math.max(6, vh - H - 8));
+          /* First choice: land just BELOW the target, horizontally aligned
+             near its left third (clamped to the viewport margins). The
+             previous side/corner spots remain as fallbacks. Every candidate
+             is verified with spotFree(), so the otter never lands on
+             interactive content; if none is free it defaults to the
+             bottom-right corner as before. */
+          var belowX = clampNum(r.left + r.width / 3 - W / 2, 8, Math.max(8, vw - W - 8));
+          var belowY = clampNum(r.bottom + 10, 6, Math.max(6, vh - H - 8));
           var cands = [
+            [belowX, belowY],
             [r.right + 8, sideY],
             [r.left - W - 8, sideY],
             [vw - W - 12, vh - H - 12],
             [12, vh - H - 12]
           ];
-          var tx = cands[2][0], ty = cands[2][1];
+          var tx = cands[3][0], ty = cands[3][1];
           for (var i = 0; i < cands.length; i++) {
             var cx = clampNum(cands[i][0], 4, Math.max(4, vw - W - 4));
             var cy = clampNum(cands[i][1], 4, Math.max(4, vh - H - 4));
@@ -398,11 +464,9 @@
             jumpOtter();
             if (tx + W / 2 < r.left + r.width / 2) otterBtn.classList.remove("guide-face-left");
             else otterBtn.classList.add("guide-face-left");
-            var old = document.querySelectorAll(".guide-spot");
-            for (var j = 0; j < old.length; j++) old[j].classList.remove("guide-spot");
-            el.classList.add("guide-spot");
-            setTimeout(function () { el.classList.remove("guide-spot"); }, 2600);
+            pulseTarget(el);
             if (dest.arrive) say(dest.arrive);
+            tripActive = false;
           });
         }, reducedMotion ? 80 : 680);
       });
@@ -450,14 +514,45 @@
       }, 160);
     }, { passive: true });
 
-    /* Occasionally wander along the bottom edge, or just jump for joy. */
-    setInterval(function () {
+    /* Idle roaming: every 6–10s the otter visibly RUNS (run animation +
+       dust, ~1–2s per trip via runTo's distance-based duration) along the
+       bottom strip to a clearly different anchor — about 12%, 45% and 80%
+       of the viewport width, then back home — pauses there a few seconds
+       with its idle bounce, and later runs on again. Anchors whose landing
+       spot is not free are skipped. Park-on-interaction, an open panel, a
+       guided trip and reduced motion all override roaming; a hidden tab
+       pauses the schedule and visibilitychange resumes it. */
+    var ROAM_ANCHORS = [0.12, 0.45, 0.8];
+    function roamAnchorX(i) {
+      if (i >= ROAM_ANCHORS.length) return dockX("right"); /* back home */
+      return clampNum(Math.round(ROAM_ANCHORS[i] * window.innerWidth - roamW() / 2), 8, Math.max(8, window.innerWidth - roamW() - 8));
+    }
+    function scheduleRoam(delay) {
+      clearTimeout(roamTimer);
+      if (reducedMotion) { roamTimer = null; return; }
+      roamTimer = setTimeout(roamStep, delay == null ? 6000 + Math.random() * 4000 : delay);
+    }
+    function roamStep() {
+      roamTimer = null;
       var now = Date.now();
-      if (document.hidden || reducedMotion) return;
-      if (!guidePanel.hidden || roam.hidden || rafId || now < parkUntil) return;
-      if (Math.random() < 0.45) { jumpOtter(); return; }
-      runTo(10 + Math.random() * Math.max(20, window.innerWidth - roamW() - 20), dockY(), jumpOtter);
-    }, 11000);
+      if (document.hidden) { scheduleRoam(4000); return; }
+      if (!guidePanel.hidden || roam.hidden || rafId || tripActive || now < parkUntil) { scheduleRoam(); return; }
+      for (var tries = 0; tries <= ROAM_ANCHORS.length; tries++) {
+        var idx = roamIdx % (ROAM_ANCHORS.length + 1);
+        roamIdx++;
+        var tx = roamAnchorX(idx), ty = dockY();
+        if (Math.abs(tx - pos.x) < 60) continue; /* already there — take the next anchor */
+        if (!spotFree(tx, ty)) continue; /* never run onto interactive content */
+        runTo(tx, ty, jumpOtter);
+        break;
+      }
+      scheduleRoam();
+    }
+    document.addEventListener("visibilitychange", function () {
+      if (document.hidden) { clearTimeout(roamTimer); roamTimer = null; }
+      else scheduleRoam(2500);
+    });
+    scheduleRoam(5000);
 
     window.addEventListener("resize", function () {
       pos.x = clampNum(pos.x, 4, Math.max(4, window.innerWidth - roamW() - 4));
