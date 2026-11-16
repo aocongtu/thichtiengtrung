@@ -1,8 +1,9 @@
 /* Otter2 Guide — Bé Rái Cá dẫn đường (stage 1, additive module).
    Self-contained: injects its own CSS + DOM, uses only guide-prefixed
-   ids/classes, never touches existing page elements except (a) clicking the
-   site's own nav buttons to switch screens and (b) adding/removing one
-   highlight class on a destination element during a guided trip.
+   ids/classes, never touches existing page elements except clicking the
+   site's own nav buttons to switch screens; the arrival highlight is a
+   fixed-position overlay in the guide's own root, not a style on the
+   destination element.
    Voice note: assets/index2/otter2-voice.js exposes only a settings UI
    (window.otter2OpenVoiceSettings / createVoiceSettings) — no reusable
    speak() function — and the inline engines keep their say() inside IIFEs
@@ -37,10 +38,14 @@
 
     /* ---------------- CSS (injected, guide-prefixed) ---------------- */
     var css = [
-      ".guide-roam{position:fixed;left:0;top:0;z-index:90;width:118px;pointer-events:none;will-change:transform}",
+      ".guide-roam{position:fixed;left:0;top:0;z-index:90;width:118px;pointer-events:none;will-change:transform;transition:opacity .25s ease}",
       "@media (max-width:640px){.guide-roam{width:92px}}",
+      ".guide-roam.guide-scrolling{opacity:.45}",
+      ".guide-roam.guide-scrolling .guide-otter{scale:.85}",
+      "@media (max-width:640px){.guide-roam.guide-scrolling .guide-otter{scale:.66}}",
       ".guide-roam[hidden]{display:none}",
-      ".guide-otter{position:relative;display:block;width:100%;border:0;background:transparent;padding:0;pointer-events:auto;cursor:pointer;min-height:0;-webkit-tap-highlight-color:transparent}",
+      ".guide-otter{position:relative;display:block;width:100%;border:0;background:transparent;padding:0;pointer-events:auto;cursor:pointer;min-height:0;-webkit-tap-highlight-color:transparent;transition:scale .25s ease;transform-origin:50% 100%}",
+      "@media (max-width:640px){.guide-otter{scale:.78}}",
       ".guide-otter .guide-body{display:block;position:relative;transform-origin:50% 92%;animation:guideOtterIdle 2.6s ease-in-out infinite}",
       ".guide-otter.guide-face-left .guide-body{scale:-1 1}",
       ".guide-otter img{width:100%;height:auto;display:block;filter:drop-shadow(0 5px 8px rgba(25,25,33,.28))}",
@@ -57,9 +62,9 @@
       ".guide-roam.guide-is-running .guide-dust.guide-d2{animation-delay:.13s}",
       ".guide-roam.guide-is-running .guide-dust.guide-d3{animation-delay:.25s}",
       "@keyframes guideDustPuff{0%{opacity:.45;transform:translate(0,0) scale(.6)}100%{opacity:0;transform:translate(-18px,-14px) scale(1.6)}}",
-      ".guide-bubble{position:absolute;bottom:calc(100% + 12px);right:-4px;width:238px;max-width:64vw;background:#fff;border:1px solid #e3e0d8;border-radius:16px 16px 4px 16px;box-shadow:0 14px 40px rgba(25,25,33,.22);padding:11px 32px 11px 13px;pointer-events:auto;color:#23222b}",
+      ".guide-bubble{position:absolute;bottom:calc(100% + 12px);right:-4px;width:238px;max-width:78vw;background:#fff;border:1px solid #e3e0d8;border-radius:16px 16px 4px 16px;box-shadow:0 14px 40px rgba(25,25,33,.22);padding:11px 32px 11px 13px;pointer-events:auto;color:#23222b}",
       ".guide-bubble[hidden]{display:none}",
-      ".guide-roam.guide-bubble-left .guide-bubble{right:auto;left:-4px;border-radius:16px 16px 16px 4px}",
+      ".guide-roam.guide-bubble-left .guide-bubble{border-radius:16px 16px 16px 4px}",
       ".guide-bubble p{margin:0;font-size:.84rem;font-weight:600;line-height:1.5}",
       ".guide-bubble .guide-hint{display:block;margin-top:5px;font-size:.72rem;font-weight:700;color:#d63a2f}",
       ".guide-bubble-x{position:absolute;top:2px;right:4px;border:0;background:transparent;color:#8a877e;font-size:.95rem;line-height:1;min-height:2rem;width:2rem;padding:0;cursor:pointer}",
@@ -85,12 +90,11 @@
       ".guide-restore{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:90;display:inline-flex;align-items:center;gap:8px;border:1px solid #e3e0d8;background:#fff;color:#23222b;border-radius:999px;padding:7px 14px 7px 7px;font-weight:700;font-size:.82rem;box-shadow:0 10px 30px rgba(25,25,33,.25);min-height:2.8rem;cursor:pointer}",
       ".guide-restore[hidden]{display:none}",
       ".guide-restore img{width:32px;height:32px;border-radius:50%;object-fit:cover;object-position:center 8%;background:#fdf3ec}",
-      ".guide-spot{animation:guideSpotPulse .85s ease-in-out 3}",
-      "@keyframes guideSpotPulse{0%,100%{box-shadow:0 0 0 0 rgba(214,58,47,0)}50%{box-shadow:0 0 0 5px #d63a2f,0 0 0 13px rgba(214,58,47,.22)}}",
+      ".guide-spot-overlay{position:fixed;z-index:94;border:4px solid #d63a2f;border-radius:14px;box-shadow:0 0 0 5px rgba(214,58,47,.28),0 0 34px 10px rgba(214,58,47,.45);pointer-events:none;box-sizing:border-box}",
       "@media (prefers-reduced-motion: reduce){",
       ".guide-otter .guide-body{animation:none!important}",
       ".guide-roam.guide-is-running .guide-dust{animation:none}",
-      ".guide-spot{animation:none;box-shadow:0 0 0 4px #d63a2f}",
+      ".guide-otter{transition:none}",
       "}"
     ].join("\n");
 
@@ -153,7 +157,7 @@
     var otterRestore = document.getElementById("guideRestore");
     if (!guidePanel || !roam || !otterBtn) return;
 
-    var voiceOn = true, currentDest = null, typeTimer = null, spotTimer = null;
+    var voiceOn = true, currentDest = null, typeTimer = null;
 
     var GREETING =
       "你好 (nǐ hǎo) bạn! Mình là Bé Rái Cá — người dẫn đường của bạn trong web này. " +
@@ -294,6 +298,7 @@
       if (reducedMotion || dist < 6) {
         pos.x = tx; pos.y = ty; applyPos();
         roam.classList.remove("guide-is-running");
+        placeBubble();
         if (done) done();
         return;
       }
@@ -310,15 +315,38 @@
           pos.y = ty; applyPos();
           roam.classList.remove("guide-is-running");
           rafId = null;
+          placeBubble();
           if (done) done();
         }
       }
       rafId = requestAnimationFrame(step);
     }
+    /* Position the speech bubble so it always stays inside the viewport.
+       The old code anchored the fixed 238px bubble to the 118px roam box
+       with a two-state flip chosen once by `pos.x < 170`, and never measured
+       the bubble's own rect — so on narrow screens (or after the otter moved
+       while the bubble was up) it stuck out past the right edge and the text
+       was clipped. Now: measure the bubble, prefer right-anchored (extending
+       left from the otter), flip to left-anchored when that would overflow
+       the left edge, then clamp the final position into the viewport with a
+       6px margin. The asymmetric corner (the "tail") goes on whichever side
+       is nearest the otter. */
+    function placeBubble() {
+      if (roamBubble.hidden) return;
+      var bw = roamBubble.offsetWidth || 238;
+      var vw = window.innerWidth;
+      var otterCx = pos.x + roamW() / 2;
+      var leftEdge = pos.x + roamW() + 4 - bw; /* right-anchored: extends left */
+      if (leftEdge < 6) leftEdge = pos.x - 4;  /* left-anchored: extends right */
+      leftEdge = clampNum(leftEdge, 6, Math.max(6, vw - bw - 6));
+      roamBubble.style.left = (leftEdge - pos.x) + "px";
+      roamBubble.style.right = "auto";
+      roam.classList.toggle("guide-bubble-left", leftEdge + bw / 2 > otterCx);
+    }
     function showBubble(text, ms) {
       roamBubbleText.textContent = text;
-      roam.classList.toggle("guide-bubble-left", pos.x < 170);
       roamBubble.hidden = false;
+      placeBubble();
       clearTimeout(bubbleTimer);
       if (ms) bubbleTimer = setTimeout(function () { roamBubble.hidden = true; }, ms);
     }
@@ -343,42 +371,11 @@
       return !cs || (cs.display !== "none" && cs.visibility !== "hidden");
     }
 
-    /* Unmissable target highlight: a Web Animations API pulse on the target
-       itself plus a temporary inline outline (removed on finish, previous
-       inline values restored) — so ordinary site CSS cannot override it the
-       way it could override the old class-based box-shadow animation. When
-       the target is a very large container (bounding box much larger than
-       the viewport), its first visible child card/section is pulsed too, so
-       the effect lands where the user is actually looking. */
-    function pulseOne(t) {
-      try {
-        var prevOutline = t.style.outline;
-        var prevOffset = t.style.outlineOffset;
-        t.style.outline = "3px solid rgba(214,58,47,.95)";
-        t.style.outlineOffset = "3px";
-        var cleaned = false;
-        var cleanup = function () {
-          if (cleaned) return;
-          cleaned = true;
-          t.style.outline = prevOutline;
-          t.style.outlineOffset = prevOffset;
-        };
-        if (reducedMotion || !t.animate) { setTimeout(cleanup, 2600); return; }
-        var anim = t.animate([
-          { boxShadow: "0 0 0 0 rgba(214,58,47,0)" },
-          { boxShadow: "0 0 0 6px rgba(214,58,47,.9),0 0 0 16px rgba(214,58,47,.28),0 0 36px 10px rgba(214,58,47,.45)" },
-          { boxShadow: "0 0 0 0 rgba(214,58,47,0)" }
-        ], { duration: 870, iterations: 3, easing: "ease-in-out" });
-        if (anim) {
-          anim.onfinish = cleanup;
-          if (anim.finished && anim.finished.then) anim.finished.then(cleanup, cleanup);
-        }
-        setTimeout(cleanup, 3000); /* safety net: never leave inline styles behind */
-      } catch (e) {}
-    }
-    function pulseTarget(el) {
-      if (!el) return;
-      pulseOne(el);
+    /* The element the user should actually look at: when the destination is
+       a very large container (bounding box much larger than the viewport),
+       its first visible child card/section is what gets framed and what the
+       otter lands next to. */
+    function visibleCard(el) {
       try {
         var r = el.getBoundingClientRect();
         if (r.width > window.innerWidth * 1.02 || r.height > window.innerHeight * 1.15) {
@@ -389,14 +386,76 @@
             if (!isVisible(k)) continue;
             var kr = k.getBoundingClientRect();
             if (kr.width >= 120 && kr.height >= 40 && kr.width <= window.innerWidth && kr.height <= window.innerHeight) {
-              pulseOne(k);
-              break;
+              return k;
             }
           }
         }
       } catch (e) {}
+      return el;
     }
 
+    /* Arrival highlight — drawn as ONE fixed-position overlay ring over the
+       target, never as a style ON the target. Why the old approach (inline
+       outline + WAAPI box-shadow pulse on the target element itself) was
+       invisible in live tests:
+         1. It fired on a fixed clock (450ms after the nav click, 680ms
+            after scrollIntoView) with no check that a screen-switch target
+            had actually rendered or that scrolling had settled — the 2.6s
+            pulse could play entirely while the target was off-screen.
+         2. A box-shadow/outline ON the target is clipped by any
+            overflow:hidden ancestor, and for the full-viewport containers
+            used as targets the ring sits on the container's outer edges —
+            top/bottom off-screen, left/right flush with the viewport edge.
+            WAAPI box-shadow also loses to the site theme's
+            `box-shadow: ... !important` rules (animations sit below
+            !important author styles in the cascade).
+       The overlay lives in the guide's own root (no clipping ancestor),
+       starts only once the target is confirmed visible, and tracks the
+       target's rect every animation frame so scrolling can't detach it. */
+    var spotOverlay = null, spotRaf = null, spotCleanupTimer = null;
+    function removeSpotOverlay() {
+      if (spotRaf) { cancelAnimationFrame(spotRaf); spotRaf = null; }
+      clearTimeout(spotCleanupTimer); spotCleanupTimer = null;
+      if (spotOverlay && spotOverlay.parentNode) spotOverlay.parentNode.removeChild(spotOverlay);
+      spotOverlay = null;
+    }
+    function highlightTarget(el) {
+      if (!el) return;
+      removeSpotOverlay();
+      var card = visibleCard(el);
+      var ov = document.createElement("div");
+      ov.className = "guide-spot-overlay";
+      ov.setAttribute("aria-hidden", "true");
+      root.appendChild(ov);
+      spotOverlay = ov;
+      function place() {
+        if (!spotOverlay) return;
+        var r = card.getBoundingClientRect();
+        ov.style.left = (r.left - 6) + "px";
+        ov.style.top = (r.top - 6) + "px";
+        ov.style.width = (r.width + 12) + "px";
+        ov.style.height = (r.height + 12) + "px";
+      }
+      place();
+      function track() {
+        place();
+        if (spotOverlay) spotRaf = requestAnimationFrame(track);
+      }
+      spotRaf = requestAnimationFrame(track);
+      spotCleanupTimer = setTimeout(removeSpotOverlay, 2950); /* safety net */
+      if (!reducedMotion && ov.animate) {
+        try {
+          var anim = ov.animate([
+            { transform: "scale(1)", boxShadow: "0 0 0 3px rgba(214,58,47,.35),0 0 18px 4px rgba(214,58,47,.35)" },
+            { transform: "scale(1.015)", boxShadow: "0 0 0 7px rgba(214,58,47,.30),0 0 42px 14px rgba(214,58,47,.55)" },
+            { transform: "scale(1)", boxShadow: "0 0 0 3px rgba(214,58,47,.35),0 0 18px 4px rgba(214,58,47,.35)" }
+          ], { duration: 1400, iterations: 2, easing: "ease-in-out" });
+          if (anim) anim.onfinish = removeSpotOverlay;
+        } catch (e) {}
+      }
+      /* No WAAPI (or reduced motion): the overlay's static CSS ring stays
+         for ~2.8s via the cleanup timer above. */
+    }
     /* Switch the site's own screens using its own nav buttons. */
     function ensureScreen(name, cb) {
       if (!name) { cb(); return; }
@@ -416,59 +475,102 @@
       }
     }
 
+    /* Poll until the destination is genuinely rendered (every 200ms, up to
+       ~3s): the element must exist, have a non-empty rect, be laid out in a
+       visible panel (offsetParent non-null — screen panels toggle `hidden`)
+       and pass the computed display/visibility check. Essential for
+       screen-switch destinations, whose panels render asynchronously after
+       the nav click; the old one-shot check + fixed delays let the trip
+       (and its highlight) run against a target that was not on screen yet. */
+    function waitVisible(selector, cb) {
+      var tries = 0;
+      function check() {
+        var el = null;
+        try { el = document.querySelector(selector); } catch (e) {}
+        var ok = false;
+        if (el && isVisible(el)) {
+          try { ok = el.offsetParent !== null || window.getComputedStyle(el).position === "fixed"; }
+          catch (e) { ok = true; }
+        }
+        if (ok) { cb(el); return; }
+        tries++;
+        if (tries >= 15) { cb(null); return; }
+        setTimeout(check, 200);
+      }
+      check();
+    }
+
+    /* Wait until the target's rect stops moving (smooth scroll finished):
+       two consecutive samples within 2px, sampled every 130ms, ~1.4s max. */
+    function waitSettled(el, cb) {
+      if (reducedMotion) { cb(); return; }
+      var lastTop = null, stable = 0, tries = 0;
+      function check() {
+        var r = el.getBoundingClientRect();
+        if (lastTop !== null && Math.abs(r.top - lastTop) < 2) stable++;
+        else stable = 0;
+        lastTop = r.top;
+        tries++;
+        if (stable >= 2 || tries >= 11) { cb(); return; }
+        setTimeout(check, 130);
+      }
+      setTimeout(check, 60);
+    }
+
     function guideTrip(dest) {
       tripActive = true;
       closeGuide(true);
       ensureScreen(dest.screen, function () {
-        var el = null;
-        try { el = document.querySelector(dest.selector); } catch (e) {}
-        if (!el || !isVisible(el)) {
-          /* Target hidden right now (e.g. the Premium button before login):
-             explain where it lives instead of scrolling nowhere. */
-          say(dest.arriveHidden || dest.text);
-          runTo(dockX("right"), dockY());
-          tripActive = false;
-          return;
-        }
-        try {
-          el.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "center" });
-        } catch (e) { el.scrollIntoView(); }
-        say("Mình chạy trước dẫn đường đây — bạn theo mình nhé!");
-        clearTimeout(spotTimer);
-        spotTimer = setTimeout(function () {
-          var r = el.getBoundingClientRect();
-          var W = roamW(), H = roamH(), vw = window.innerWidth, vh = window.innerHeight;
-          var sideY = clampNum(r.top + r.height / 2 - H / 2, 6, Math.max(6, vh - H - 8));
-          /* First choice: land just BELOW the target, horizontally aligned
-             near its left third (clamped to the viewport margins). The
-             previous side/corner spots remain as fallbacks. Every candidate
-             is verified with spotFree(), so the otter never lands on
-             interactive content; if none is free it defaults to the
-             bottom-right corner as before. */
-          var belowX = clampNum(r.left + r.width / 3 - W / 2, 8, Math.max(8, vw - W - 8));
-          var belowY = clampNum(r.bottom + 10, 6, Math.max(6, vh - H - 8));
-          var cands = [
-            [belowX, belowY],
-            [r.right + 8, sideY],
-            [r.left - W - 8, sideY],
-            [vw - W - 12, vh - H - 12],
-            [12, vh - H - 12]
-          ];
-          var tx = cands[3][0], ty = cands[3][1];
-          for (var i = 0; i < cands.length; i++) {
-            var cx = clampNum(cands[i][0], 4, Math.max(4, vw - W - 4));
-            var cy = clampNum(cands[i][1], 4, Math.max(4, vh - H - 4));
-            if (spotFree(cx, cy)) { tx = cx; ty = cy; break; }
-          }
-          runTo(tx, ty, function () {
-            jumpOtter();
-            if (tx + W / 2 < r.left + r.width / 2) otterBtn.classList.remove("guide-face-left");
-            else otterBtn.classList.add("guide-face-left");
-            pulseTarget(el);
-            if (dest.arrive) say(dest.arrive);
+        waitVisible(dest.selector, function (el) {
+          if (!el) {
+            /* Target never appeared (e.g. the Premium button before login):
+               explain where it lives instead of scrolling nowhere. */
+            say(dest.arriveHidden || dest.text);
+            runTo(dockX("right"), dockY());
             tripActive = false;
+            return;
+          }
+          try {
+            el.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "center" });
+          } catch (e) { el.scrollIntoView(); }
+          say("Mình chạy trước dẫn đường đây — bạn theo mình nhé!");
+          waitSettled(el, function () {
+            /* Fresh geometry, only now that the screen has switched and the
+               scroll has settled. Landing spots hug the target's visible
+               card: just BELOW it first, then right, then left; the corners
+               are only a last resort (previously a stale rect plus
+               spotFree() rejecting the bottom-right corner dropped the
+               otter in the far bottom-left). */
+            var card = visibleCard(el);
+            var r = card.getBoundingClientRect();
+            var W = roamW(), H = roamH(), vw = window.innerWidth, vh = window.innerHeight;
+            var sideY = clampNum(r.top + r.height / 2 - H / 2, 6, Math.max(6, vh - H - 8));
+            var belowX = clampNum(r.left + r.width / 3 - W / 2, 8, Math.max(8, vw - W - 8));
+            var belowY = clampNum(r.bottom + 10, 6, Math.max(6, vh - H - 8));
+            var cands = [
+              [belowX, belowY],
+              [r.right + 8, sideY],
+              [r.left - W - 8, sideY],
+              [vw - W - 12, vh - H - 12],
+              [12, vh - H - 12]
+            ];
+            var tx = cands[3][0], ty = cands[3][1];
+            for (var i = 0; i < cands.length; i++) {
+              var cx = clampNum(cands[i][0], 4, Math.max(4, vw - W - 4));
+              var cy = clampNum(cands[i][1], 4, Math.max(4, vh - H - 4));
+              if (spotFree(cx, cy)) { tx = cx; ty = cy; break; }
+            }
+            runTo(tx, ty, function () {
+              jumpOtter();
+              if (tx + W / 2 < r.left + r.width / 2) otterBtn.classList.remove("guide-face-left");
+              else otterBtn.classList.add("guide-face-left");
+              /* Highlight + arrival line start together, at arrival. */
+              highlightTarget(el);
+              if (dest.arrive) say(dest.arrive);
+              tripActive = false;
+            });
           });
-        }, reducedMotion ? 80 : 680);
+        });
       });
     }
 
@@ -497,8 +599,22 @@
     document.addEventListener("focusin", onUserInteract, true);
 
     /* Follow along on big scrolls: dash a short hop, then jump. */
-    var scrollTick = null;
+    var scrollTick = null, scrollDimTimer = null;
     window.addEventListener("scroll", function () {
+      /* While scrolling is active, fade the otter to 45% and shrink it so
+         the bottom-docked otter never covers buttons/titles moving under
+         it; restore 600ms after scrolling stops. This cannot fight the
+         run/trip animations: opacity is on .guide-roam (runTo only writes
+         its `transform`), and the shrink uses the independent CSS `scale`
+         property on .guide-otter (the body's keyframe animations use
+         `transform`, and the face-flip uses `scale` on .guide-body — a
+         different element). On viewports <640px the otter also defaults
+         to 0.78 scale via CSS. */
+      if (!roam.hidden) {
+        roam.classList.add("guide-scrolling");
+        clearTimeout(scrollDimTimer);
+        scrollDimTimer = setTimeout(function () { roam.classList.remove("guide-scrolling"); }, 600);
+      }
       var y = window.scrollY || 0;
       var delta = Math.abs(y - lastScrollY);
       lastScrollY = y;
@@ -558,6 +674,7 @@
       pos.x = clampNum(pos.x, 4, Math.max(4, window.innerWidth - roamW() - 4));
       pos.y = clampNum(pos.y, 4, Math.max(4, window.innerHeight - roamH() - 4));
       applyPos();
+      placeBubble();
     });
 
     /* ---------------- Panel open / close / rest / recall ---------------- */
