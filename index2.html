@@ -1153,6 +1153,39 @@
 @keyframes ttt-rainbow-glow{from{filter:drop-shadow(0 0 1px rgba(255,23,68,.35))}to{filter:drop-shadow(0 0 9px rgba(224,64,251,.65))}}
 @media (prefers-reduced-motion:reduce){.ttt-rainbow{animation:none}}
 </style>
+<style id="otter2-themes-extra-style">
+/* ===== THEME BỔ SUNG (tổng 10 giao diện) =====
+   - fireworks "Pháo hoa": hiệu ứng Light Fall / Firework Dust PORT từ index1
+     (module WHITE HAT — LIGHT FALL / FIREWORK DUST), nay gắn theo theme.
+   - sakura / lavender / coffee: theme MỚI, cùng ngôn ngữ bề mặt với
+     otter2-theme.css (body + nav/screen/hero/progress) và dash-css (shell + card). */
+html[data-theme="fireworks"] body.otter2-body{background:#fff6e5 !important;color:#33241a !important}
+html[data-theme="fireworks"] body.otter2-body :is(.otter2-nav,.otter2-screen,.otter2-hero,.otter2-progress){background:#fffdf6 !important}
+html[data-theme="fireworks"] .otter2-shell{background:#fffdf6}
+html[data-theme="fireworks"] .otter2-dash-card,
+html[data-theme="fireworks"] .otter2-dash-strip{background:#fffaf0}
+html[data-theme="sakura"] body.otter2-body{background:#fdf2f8 !important;color:#6d1039 !important}
+html[data-theme="sakura"] body.otter2-body :is(.otter2-nav,.otter2-screen,.otter2-hero,.otter2-progress){background:#fff7fb !important}
+html[data-theme="sakura"] .otter2-shell{background:#fff7fb}
+html[data-theme="sakura"] .otter2-dash-card,
+html[data-theme="sakura"] .otter2-dash-strip{background:#fff7fb}
+html[data-theme="lavender"] body.otter2-body{background:#ede9fe !important;color:#3b2a63 !important}
+html[data-theme="lavender"] body.otter2-body :is(.otter2-nav,.otter2-screen,.otter2-hero,.otter2-progress){background:#f7f5ff !important}
+html[data-theme="lavender"] .otter2-shell{background:#f7f5ff}
+html[data-theme="lavender"] .otter2-dash-card,
+html[data-theme="lavender"] .otter2-dash-strip{background:#f7f5ff}
+html[data-theme="coffee"] body.otter2-body{background:#f1e8dc !important;color:#3e2a1c !important}
+html[data-theme="coffee"] body.otter2-body :is(.otter2-nav,.otter2-screen,.otter2-hero,.otter2-progress){background:#fbf6ee !important}
+html[data-theme="coffee"] .otter2-shell{background:#fbf6ee}
+html[data-theme="coffee"] .otter2-dash-card,
+html[data-theme="coffee"] .otter2-dash-strip{background:#fbf6ee}
+/* Canvas pháo hoa (port từ index1 #ttcLightFallCanvas): phủ toàn trang,
+   không bắt pointer, tôn trọng prefers-reduced-motion như bản gốc. */
+#ttcLightFallCanvas{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none !important;z-index:9990;opacity:.82}
+@media (prefers-reduced-motion:reduce){
+  #ttcLightFallCanvas{display:none !important}
+}
+</style>
 <style id="ttc-script-switch-style">
 /* Nut chuyen Giản thể <> Phồn thể (port tu index1 / legacy-index.html, thiet ke theo token index2) */
 .ttc-script-switch{
@@ -1193,6 +1226,10 @@ html[data-theme="night"] .ttc-script-switch{background:#1e293b;color:#fda4af;bor
             <button type="button" data-theme="forest">Rừng</button>
             <button type="button" data-theme="sea">Biển</button>
             <button type="button" data-theme="sunset">Hoàng hôn</button>
+            <button type="button" data-theme="fireworks">Pháo hoa</button>
+            <button type="button" data-theme="sakura">Hoa anh đào</button>
+            <button type="button" data-theme="lavender">Oải hương</button>
+            <button type="button" data-theme="coffee">Cà phê</button>
           </div>
         </span>
       </div>
@@ -1205,7 +1242,7 @@ html[data-theme="night"] .ttc-script-switch{background:#1e293b;color:#fda4af;bor
         <button type="button" data-otter2-screen="vocab"><span class="otter2-pill-ico" aria-hidden="true">🔍</span><span class="otter2-pill-txt">Tìm kiếm</span></button>
       </nav>
       <div class="otter2-nav-right">
-        <button type="button" id="ttcScriptSwitch" class="ttc-script-switch" aria-label="Chuyển toàn bộ nội dung giữa giản thể và phồn thể">简体 ⇄ 繁體</button>
+        <button type="button" id="ttcScriptSwitch" class="ttc-script-switch" aria-label="Chuyển toàn bộ nội dung giữa giản thể và phồn thể">Giản thể ⇄ Phồn thể</button>
         <button type="button" class="otter2-chat-nav" id="otter2ChatOnlineBtn" data-ttc-chat title="Chat Online" aria-label="Chat Online">💬</button>
         <button type="button" class="otter2-premium" id="otter2PremiumBtn" aria-label="Premium" hidden>👑 Premium</button>
         <div class="otter2-account-slot" id="otter2AccountSlot">
@@ -21857,6 +21894,119 @@ setupFlashcardMobile();
     if(!window.confirm(message))return;
     convertPage(nextTraditional);
   });
+})();
+</script>
+<script id="otter2-fireworks-theme-js">
+/* ===== PHÁO HOA — port từ index1 "TTC LIGHT FALL / FIREWORK DUST" =====
+   Khác bản gốc: hiệu ứng chỉ chạy khi theme "fireworks" đang bật
+   (html[data-theme="fireworks"], lưu qua ttc_theme_v1 bởi otter2-theme.js);
+   rời theme là dừng rAF + gỡ canvas. Tôn trọng prefers-reduced-motion. */
+(function(){
+  "use strict";
+  if(window.__OTTER2_FIREWORKS_V1__)return;
+  window.__OTTER2_FIREWORKS_V1__=true;
+  var mq = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
+  var canvas=null, ctx=null, rafId=0, running=false;
+  var width=0, height=0, particles=[], fireworks=[], last=0;
+  function random(min,max){return Math.random()*(max-min)+min;}
+  function makeParticle(){
+    return {x:random(0,width), y:random(-height,0), speed:random(16,42),
+      size:random(1.0,2.8), alpha:random(.42,.92), hue:random(35,330),
+      drift:random(-8,8), phase:random(0,Math.PI*2), life:random(.7,1.5)};
+  }
+  function makeFirework(){
+    var x=random(width*.12,width*.88), y=random(height*.12,height*.52);
+    var hue=random(0,360), sparks=[], count=Math.floor(random(18,30)), i, angle, speed;
+    for(i=0;i<count;i++){
+      angle=Math.PI*2*i/count; speed=random(28,75);
+      sparks.push({x:x, y:y, vx:Math.cos(angle)*speed, vy:Math.sin(angle)*speed, life:1, hue:hue});
+    }
+    return sparks;
+  }
+  function seed(){
+    var count=Math.min(95, Math.max(35, Math.floor(width/14)));
+    particles=[]; for(var i=0;i<count;i++)particles.push(makeParticle());
+  }
+  function resize(){
+    if(!canvas)return;
+    var dpr=Math.min(window.devicePixelRatio||1, 1.75);
+    width=window.innerWidth; height=window.innerHeight;
+    canvas.width=Math.floor(width*dpr); canvas.height=Math.floor(height*dpr);
+    canvas.style.width=width+"px"; canvas.style.height=height+"px";
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  function frame(now){
+    if(!running)return;
+    var dt=Math.min(.035,(now-last)/1000); last=now;
+    ctx.clearRect(0,0,width,height);
+    var i, p;
+    for(i=0;i<particles.length;i++){
+      p=particles[i];
+      p.y+=p.speed*dt;
+      p.x+=Math.sin(now*.0007+p.phase)*p.drift*dt;
+      if(p.y>height+10){var np=makeParticle(); for(var k in np)p[k]=np[k]; p.y=-5;}
+      ctx.beginPath();
+      ctx.globalAlpha=p.alpha*(0.72+0.28*Math.sin(now*.002+p.phase));
+      ctx.fillStyle="hsla("+p.hue+",100%,72%,1)";
+      ctx.shadowBlur=18; ctx.shadowColor="hsla("+p.hue+",100%,70%,.95)";
+      ctx.arc(p.x,p.y,p.size,0,Math.PI*2); ctx.fill();
+    }
+    if(Math.random()<dt*0.22)fireworks.push(makeFirework());
+    for(var f=fireworks.length-1;f>=0;f--){
+      var sparks=fireworks[f], alive=false;
+      for(var s=0;s<sparks.length;s++){
+        var spark=sparks[s];
+        if(spark.life<=0)continue;
+        alive=true;
+        spark.x+=spark.vx*dt; spark.y+=spark.vy*dt;
+        spark.vx*=Math.pow(.035,dt);
+        spark.vy=spark.vy*.965+24*dt;
+        spark.life-=dt*1.35;
+        ctx.beginPath();
+        ctx.globalAlpha=Math.max(0,spark.life*.78);
+        ctx.fillStyle="hsla("+spark.hue+",100%,78%,1)";
+        ctx.shadowBlur=12; ctx.shadowColor="hsla("+spark.hue+",100%,70%,.9)";
+        ctx.arc(spark.x,spark.y,1.25,0,Math.PI*2); ctx.fill();
+      }
+      if(!alive)fireworks.splice(f,1);
+    }
+    ctx.globalAlpha=1; ctx.shadowBlur=0;
+    rafId=requestAnimationFrame(frame);
+  }
+  function onResize(){ if(running){resize(); seed();} }
+  function start(){
+    if(running || (mq && mq.matches))return;
+    if(!canvas){
+      canvas=document.createElement("canvas");
+      canvas.id="ttcLightFallCanvas";
+      canvas.setAttribute("aria-hidden","true");
+      document.body.appendChild(canvas);
+      ctx=canvas.getContext("2d");
+      if(!ctx){canvas.remove(); canvas=null; return;}
+    }
+    resize(); seed(); fireworks=[];
+    running=true; last=performance.now();
+    window.addEventListener("resize", onResize, {passive:true});
+    rafId=requestAnimationFrame(frame);
+  }
+  function stop(){
+    running=false;
+    if(rafId)cancelAnimationFrame(rafId);
+    window.removeEventListener("resize", onResize);
+    if(canvas){canvas.remove(); canvas=null; ctx=null;}
+    particles=[]; fireworks=[];
+  }
+  function sync(){
+    if(document.documentElement.getAttribute("data-theme")==="fireworks")start();
+    else stop();
+  }
+  new MutationObserver(sync).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+  if(mq && mq.addEventListener)mq.addEventListener("change", sync);
+  document.addEventListener("visibilitychange", function(){
+    if(document.hidden)stop();
+    else sync();
+  });
+  sync();
 })();
 </script>
 </body>
