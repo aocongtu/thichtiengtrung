@@ -1668,11 +1668,13 @@
          45–60 giây sau khi tải trang (và due() không cho sớm hơn 45s).
        - Điều kiện nói (phải thỏa TẤT CẢ): công tắc bật; bé đang hiển thị
          (không ở chế độ nghỉ/ẩn); panel đang đóng; không trong chuyến dẫn
-         đường (tripActive); không đang chạy (rafId); không bị park trong
-         15 giây gần nhất và đã hết hạn park (parkUntil); người dùng không
-         tương tác gì trong 20 giây gần nhất; tab đang visible; KHÔNG ở
-         fullscreen lộ trình (trong fs chỉ giữ lời khen theo ngữ cảnh của
-         study-buddy như hiện tại); bong bóng thoại đang trống.
+         đường (tripActive); không bị park trong 15 giây gần nhất và đã
+         hết hạn park (parkUntil); người dùng không tương tác gì trong 20
+         giây gần nhất; tab đang visible; KHÔNG ở fullscreen lộ trình
+         (trong fs chỉ giữ lời khen theo ngữ cảnh của study-buddy như
+         hiện tại); bong bóng thoại đang trống. Bé ĐƯỢC nói cả khi đang
+         đi bộ (không còn điều kiện "không đang chạy/rafId" — nó từng làm
+         chatter đói hoàn toàn trên web thật, xem ghi chú trong chatterDue).
        - Phát câu bằng đúng speak() sẵn có (tôn trọng công tắc Giọng đọc)
          + showBubble(line, 4500); thỉnh thoảng nhảy lên một cái cho vui. */
     function initChatter() {
@@ -1770,7 +1772,16 @@
         if (!chatEnabled) return false;
         if (roam.hidden) return false;                 /* bé đang nghỉ -> im */
         if (!guidePanel.hidden) return false;          /* panel đang mở */
-        if (tripActive || rafId) return false;         /* đang dẫn đường / đang chạy */
+        if (tripActive) return false;                  /* đang dẫn đường */
+        /* KHÔNG còn chặn khi bé đang chạy (rafId): bé được nói cả lúc
+           đang đi bộ — bong bóng là con của .guide-roam nên tự đi theo bé.
+           Điều kiện rafId cũ là THỦ PHẠM khiến chatter "đói" hoàn toàn
+           trên web thật (tái hiện jsdom 2026-11-17): tick của chatter rất
+           thưa (câu đầu 45–60s, lỡ thì thử lại mỗi 25s) trong khi roaming
+           chạy mỗi 4–9s với chuyến đi dài tới 1,7s; tệ hơn, khi tab bị
+           che/nền, trình duyệt đóng băng requestAnimationFrame nên rafId
+           kẹt khác null suốt cả phút — 3/6 lượt mô phỏng cửa sổ 103s cho
+           0 câu, và 100% mẫu due()=false ở các lượt đó là do rafId. */
         if (pathFsActive()) return false;              /* trong lộ trình: chỉ khen theo ngữ cảnh */
         if (document.hidden) return false;             /* tab không hiển thị */
         var now = Date.now();
