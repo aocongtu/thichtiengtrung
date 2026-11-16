@@ -1,0 +1,212 @@
+/* Otter2 account UI — scoped; does not affect index.html */
+
+.otter2-account-slot{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  z-index:60;
+}
+
+.otter2-avatar{
+  min-width:36px;height:36px;border-radius:999px;
+  border:1px solid #fecdd3;background:#fff;
+  cursor:pointer;font-size:12px;padding:0 12px;
+  display:inline-flex;align-items:center;justify-content:center;overflow:hidden;
+  color:#9f1239;font-weight:800;max-width:168px;
+  text-overflow:ellipsis;white-space:nowrap;
+  box-shadow:0 4px 12px rgba(225,29,72,.08);
+}
+.otter2-avatar.is-authed{
+  border-color:#fda4af;background:linear-gradient(145deg,#fff,#ffe4e6);
+}
+
+/* Full-screen dimmer behind centered account modal */
+.otter2-account-overlay{
+  position:fixed;inset:0;z-index:2147482998 !important;
+  background:rgba(15,23,42,.55);backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+  pointer-events:auto;
+}
+.otter2-account-overlay[hidden]{display:none !important}
+
+/* Centered account dialog (all viewports) */
+.otter2-account-menu{
+  position:fixed !important;
+  top:50%;left:50%;
+  right:auto;bottom:auto;
+  transform:translate(-50%, -50%);
+  z-index:2147483000 !important;
+  width:min(420px, calc(100vw - 32px));
+  max-width:calc(100vw - 32px);
+  background:rgba(255,255,255,.99);border:1px solid rgba(225,29,72,.16);
+  border-radius:22px;box-shadow:0 22px 48px rgba(15,23,42,.28);
+  padding:18px 16px 16px;
+  max-height:min(86dvh, calc(100dvh - 24px), 720px);
+  max-height:min(86vh, calc(100vh - 24px), 720px);
+  overflow:auto;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+  box-sizing:border-box;
+}
+.otter2-account-menu[hidden]{display:none !important}
+
+.otter2-account-close{
+  position:absolute;top:10px;right:12px;border:0;background:transparent;
+  font-size:22px;line-height:1;cursor:pointer;color:#64748b;padding:4px 8px;
+  z-index:2;
+}
+.otter2-account-close:hover{color:#0f172a}
+
+body.otter2-account-open{
+  overflow:hidden;
+}
+body.otter2-account-open .otter2-mascot-wrap,
+body.otter2-account-open .otter2-vocab-side,
+body.otter2-account-open .otter2-side-mascot,
+body.otter2-account-open .otter2-quiz-mascot,
+body.otter2-account-open img.otter2-host-mascot{
+  opacity:.18 !important;pointer-events:none !important;
+}
+body.otter2-account-open #homeButton,
+body.otter2-account-open #thttGrammarLauncher{
+  opacity:0 !important;pointer-events:none !important;
+}
+
+@media (max-width:720px){
+  .otter2-account-menu{
+    width:calc(100vw - 24px);
+    max-width:calc(100vw - 24px);
+    padding:16px 14px 14px;
+    max-height:min(88dvh, calc(100dvh - max(12px, env(safe-area-inset-top, 0px)) - max(12px, env(safe-area-inset-bottom, 0px))));
+    max-height:min(88vh, calc(100vh - max(12px, env(safe-area-inset-top, 0px)) - max(12px, env(safe-area-inset-bottom, 0px))));
+  }
+}
+
+.otter2-account-name{
+  margin:0 28px 4px 0;font-size:14px;font-weight:800;color:#0f172a;
+  word-break:break-word;
+}
+.otter2-account-status,
+.otter2-account-status.account-status{
+  margin:0 0 10px;padding:9px 10px;border-radius:8px;background:#f7f7f7;
+  font-size:13px;color:#333;line-height:1.6;
+}
+.otter2-account-actions{margin-top:7px;display:flex;flex-direction:column;gap:var(--ui-btn-gap, 10px)}
+.otter2-account-action{
+  display:flex;align-items:center;justify-content:flex-start;width:100%;text-align:left;margin:0;
+  border:1px solid rgba(225,29,72,.14);background:#fff;
+  border-radius:var(--ui-btn-radius, 12px);
+  min-height:var(--ui-btn-h-md, 44px);padding:0 var(--ui-btn-pad-x, 12px);
+  font-weight:var(--ui-btn-weight, 700);font-size:var(--ui-btn-font, 13px);
+  cursor:pointer;color:#0f172a;box-sizing:border-box;
+}
+.otter2-account-action[hidden]{display:none !important}
+.otter2-account-action:hover{border-color:#fda4af;background:#fff1f2}
+.otter2-account-logout{color:#be123c}
+.otter2-account-login{
+  background:#e11d48;border-color:#e11d48;color:#fff;
+}
+.otter2-account-login:hover{background:#be123c;border-color:#be123c;color:#fff}
+
+.otter2-auth-overlay{
+  position:fixed;inset:0;z-index:2147483001 !important;
+  background:rgba(15,23,42,.55);backdrop-filter:blur(6px);
+  display:grid;place-items:center;
+  padding:
+    max(12px, env(safe-area-inset-top, 0px))
+    max(12px, env(safe-area-inset-right, 0px))
+    max(12px, env(safe-area-inset-bottom, 0px))
+    max(12px, env(safe-area-inset-left, 0px));
+  pointer-events:auto;
+  overflow:auto;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+}
+.otter2-auth-overlay[hidden]{display:none !important}
+
+.otter2-auth-modal{
+  width:min(420px,100%);
+  max-width:calc(100vw - 32px);
+  background:#fff;border-radius:22px;border:1px solid rgba(225,29,72,.14);
+  box-shadow:0 22px 48px rgba(15,23,42,.28);padding:18px 18px 16px;
+  max-height:min(88dvh, calc(100dvh - 24px), 720px);
+  max-height:min(88vh, calc(100vh - 24px), 720px);
+  overflow:auto;
+  -webkit-overflow-scrolling:touch;
+  position:relative;z-index:2147483002;
+  margin:auto;
+}
+@media (max-width:720px){
+  .otter2-auth-overlay{align-content:start;align-items:stretch;}
+  .otter2-auth-modal{
+    width:100%;
+    max-width:none;
+    margin:0 auto;
+  }
+  .otter2-auth-field{font-size:16px;} /* iOS zoom prevention */
+}
+.otter2-auth-modal h2{
+  margin:0 0 4px;font-size:1.25rem;color:#0f172a;
+}
+.otter2-auth-modal .otter2-auth-sub{
+  margin:0 0 12px;font-size:13px;color:#64748b;
+}
+.otter2-auth-tabs{display:flex;gap:var(--ui-btn-gap, 10px);margin:0 0 12px}
+.otter2-auth-tab{
+  flex:1;border:1px solid rgba(225,29,72,.14);background:#fff;
+  border-radius:var(--ui-btn-radius-pill, 999px);
+  min-height:var(--ui-btn-h-md, 44px);padding:0 10px;
+  font-weight:800;font-size:var(--ui-btn-font, 13px);cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;
+}
+.otter2-auth-tab[aria-selected="true"]{
+  background:#e11d48;border-color:#e11d48;color:#fff;
+}
+.otter2-auth-panel[hidden]{display:none !important}
+.otter2-auth-field{
+  display:block;width:100%;box-sizing:border-box;
+  border:1px solid #e2e8f0;border-radius:12px;padding:11px 12px;
+  margin:0 0 8px;font:inherit;background:#fffcfa;
+}
+.otter2-auth-field:focus{
+  outline:none;border-color:#fb7185;box-shadow:0 0 0 3px rgba(251,113,133,.2);
+}
+.otter2-auth-submit{
+  width:100%;border:0;border-radius:var(--ui-btn-radius, 12px);
+  min-height:var(--ui-btn-h-lg, 48px);padding:0 var(--ui-btn-pad-x, 12px);
+  background:#e11d48;color:#fff;font-weight:800;font-size:var(--ui-btn-font-md, 14px);
+  cursor:pointer;margin-top:4px;
+  display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;
+}
+.otter2-auth-submit:disabled{opacity:.65;cursor:wait}
+.otter2-auth-msg{
+  margin:10px 0 0;font-size:13px;font-weight:700;min-height:1.2em;line-height:1.4;
+}
+.otter2-auth-msg.is-err{color:#be123c}
+.otter2-auth-msg.is-ok{color:#15803d}
+.otter2-auth-close{
+  position:absolute;top:10px;right:12px;border:0;background:transparent;
+  font-size:20px;cursor:pointer;color:#64748b;line-height:1;
+}
+.otter2-auth-modal-wrap{position:relative}
+
+.otter2-pw-overlay{
+  position:fixed;inset:0;z-index:2147483003 !important;
+  background:rgba(15,23,42,.55);display:grid;place-items:center;
+  padding:
+    max(12px, env(safe-area-inset-top, 0px))
+    max(12px, env(safe-area-inset-right, 0px))
+    max(12px, env(safe-area-inset-bottom, 0px))
+    max(12px, env(safe-area-inset-left, 0px));
+  overflow:auto;-webkit-overflow-scrolling:touch;
+}
+.otter2-pw-overlay[hidden]{display:none !important}
+.otter2-pw-box{
+  width:min(380px,100%);background:#fff;border-radius:20px;padding:18px;
+  border:1px solid rgba(225,29,72,.14);box-shadow:0 18px 40px rgba(15,23,42,.2);
+  max-height:min(88dvh, calc(100dvh - 24px));overflow:auto;
+}
+@media (max-width:720px){
+  .otter2-pw-box input{font-size:16px}
+}
+.otter2-pw-box h3{margin:0 0 10px;font-size:1.1rem}

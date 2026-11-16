@@ -1,0 +1,205 @@
+/* Otter2 Premium — inside #otter2AccountMenu (index1 #accountMenu .price-box parity) */
+
+.otter2-account-premium-button{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  width:100%;box-sizing:border-box;margin:7px 0 8px;
+  min-height:var(--ui-btn-h-md, 44px);padding:0 var(--ui-btn-pad-x, 12px);
+  border:1px solid #e5c46b;border-radius:var(--ui-btn-radius, 12px);background:#fff8e7;color:#805b12;
+  font-size:var(--ui-btn-font, 13px);font-weight:var(--ui-btn-weight, 700);line-height:1.3;cursor:pointer;
+  box-shadow:none;animation:none;transform:none;
+  transition:background-color .15s,color .15s,border-color .15s;
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+}
+.otter2-account-premium-button:hover{background:#fff1c7;border-color:#d9ae3f}
+.otter2-account-premium-button[hidden]{display:none !important}
+@media (max-width:600px){
+  .otter2-account-premium-button{font-size:var(--ui-btn-font-sm, 12px)}
+}
+
+#otter2AccountMenu.otter2-menu-premium-open{
+  position:fixed !important;
+  top:50% !important;
+  left:50% !important;
+  right:auto !important;
+  bottom:auto !important;
+  transform:translate(-50%, -50%) !important;
+  width:min(520px, calc(100vw - 24px));
+  max-height:min(90dvh, calc(100dvh - max(12px, env(safe-area-inset-top, 0px)) - max(12px, env(safe-area-inset-bottom, 0px))));
+  max-height:min(90vh, calc(100vh - max(12px, env(safe-area-inset-top, 0px)) - max(12px, env(safe-area-inset-bottom, 0px))));
+  overflow:auto;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+  z-index:2147483000 !important;
+}
+@media (max-width:926px), (max-height:500px){
+  #otter2AccountMenu.otter2-menu-premium-open{
+    width:calc(100vw - 24px);
+    max-width:calc(100vw - 24px);
+  }
+}
+
+#otter2AccountMenu .otter2-price-box,
+#otter2AccountMenu .price-box{
+  display:block !important;
+  width:100% !important;
+  min-width:0 !important;
+  max-width:none !important;
+  margin:8px 0 0 !important;
+  padding:8px !important;
+  border:1px solid #ddd;
+  border-radius:10px;
+  background:#fff;
+  animation:none !important;
+  position:static !important;
+  box-shadow:none !important;
+}
+#otter2AccountMenu .otter2-price-box[hidden]{display:none !important}
+
+.otter2-premium-head-inline{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  font-size:16px;font-weight:700;margin-bottom:4px;
+}
+.otter2-premium-close-inline{
+  border:0;background:transparent;font-size:22px;line-height:1;cursor:pointer;color:#64748b;
+}
+.otter2-pay-result-sticky{
+  margin:8px 0;padding:10px 12px;border-radius:10px;font-size:13px;font-weight:700;line-height:1.45;
+  background:#f1f5f9;color:#0f172a;border:1px solid #e2e8f0;
+}
+.otter2-pay-result-sticky[hidden]{display:none !important}
+.otter2-pay-result-sticky.is-ok{background:#ecfdf5;border-color:#86efac;color:#166534}
+.otter2-pay-result-sticky.is-err{background:#fef2f2;border-color:#fecaca;color:#991b1b}
+.otter2-pay-result-sticky.is-warn{background:#fffbeb;border-color:#fde68a;color:#92400e}
+
+#otter2AccountMenu .price-list{
+  margin-top:12px;display:flex !important;flex-wrap:wrap;gap:8px;
+}
+#otter2AccountMenu .price-card{
+  cursor:pointer;flex:1;min-width:140px;padding:10px;text-align:center;
+  border:1px solid #ddd;border-radius:8px;background:#fafafa;
+  animation:none !important;transform:none !important;
+  transition-property:background-color,color,border-color,box-shadow;
+}
+#otter2AccountMenu .price-card:hover{
+  border-color:#888;background:#fff;
+  box-shadow:0 5px 15px rgba(0,0,0,.06);
+}
+#otter2AccountMenu .price-card.is-on{
+  border-color:#2f6fed;box-shadow:0 0 0 2px rgba(47,111,237,.2);
+}
+#otter2AccountMenu .price-time{font-weight:700;font-size:13px}
+#otter2AccountMenu .price-money{font-weight:800;margin-top:4px}
+#otter2AccountMenu .price-offer{font-size:12px;color:#666;margin-top:4px}
+
+#otter2PaymentDetails{
+  display:none;margin-top:15px;padding:14px;
+  border:1px solid #ddd;border-radius:12px;background:#fafafa;text-align:left;
+}
+#otter2PaymentDetails.is-open{display:block}
+.otter2-pay-title{font-size:16px;font-weight:700;text-align:center;margin-bottom:12px}
+#otter2SelectedPlanText{
+  padding:10px;margin-bottom:12px;border-radius:8px;background:#fff;font-weight:700;
+}
+.otter2-bank-box{padding:12px;background:#fff;border-radius:8px;line-height:1.8}
+.otter2-transfer-box{margin-top:12px;padding:12px;background:#fff;border-radius:8px}
+.otter2-transfer-row{display:flex;gap:8px;align-items:center;margin-top:8px}
+.otter2-transfer-row input{
+  flex:1;min-width:0;padding:10px;border:1px solid #ccc;border-radius:7px;font-weight:700;font-size:15px;
+}
+@media (max-width:926px), (max-height:500px){
+  .otter2-transfer-row{flex-wrap:wrap}
+  .otter2-transfer-row input{font-size:16px;width:100%}
+  #otter2AccountMenu .price-card{min-width:calc(50% - 8px);flex:1 1 calc(50% - 8px)}
+  #otter2PaymentDetails input[type="text"],
+  #otter2PaymentDetails input:not([type]),
+  #otter2PaymentDetails input[type="datetime-local"],
+  #otter2TransactionId,
+  #otter2PaymentNote{font-size:16px;max-width:100%;box-sizing:border-box}
+}
+@media (max-height:500px){
+  /* Landscape phone: stack plans so menu scrolls vertically, actions stay reachable */
+  #otter2AccountMenu .price-card{min-width:100%;flex:1 1 100%}
+}
+.otter2-transfer-row button{
+  border:1px solid #ccc;background:#fff;border-radius:7px;padding:8px 10px;cursor:pointer;font-weight:700;
+}
+.otter2-warn{margin-top:12px;padding:10px;border-radius:8px;background:#fff8e1}
+.otter2-pay-field{margin-top:12px}
+.otter2-pay-field label{display:block;font-weight:600;font-size:13px}
+.otter2-pay-field input,
+.otter2-pay-field textarea{
+  width:100%;box-sizing:border-box;margin-top:6px;padding:10px;
+  border:1px solid #ccc;border-radius:7px;font:inherit;
+}
+#otter2SendPaymentBtn{
+  width:100%;margin-top:15px;min-height:var(--ui-btn-h-lg, 48px);padding:0 var(--ui-btn-pad-x, 12px);
+  border:none;border-radius:var(--ui-btn-radius, 12px);
+  cursor:pointer;font-size:var(--ui-btn-font-md, 14px);font-weight:700;background:#d71920;color:#fff;
+  position:relative;z-index:5;
+  display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;
+}
+#otter2SendPaymentBtn:disabled{opacity:.65;cursor:not-allowed}
+#otter2PaymentStatus{margin-top:12px;text-align:center;font-weight:700;font-size:13px;line-height:1.45}
+
+.otter2-account-links,
+.otter2-pay-history,
+.otter2-device-box{
+  margin-top:8px;padding-top:6px;border-top:1px solid #f1f5f9;
+}
+.otter2-account-links[hidden],
+.otter2-pay-history[hidden],
+.otter2-device-box[hidden]{display:none !important}
+.otter2-account-links-title{
+  margin:0 0 4px;color:#9f1239;font-size:12px;font-weight:800;
+}
+.otter2-account-link-row,
+.otter2-pay-history-row,
+.otter2-device-row{
+  display:flex;align-items:center;gap:6px;margin-top:4px;flex-wrap:wrap;
+  font-size:12px;color:#334155;line-height:1.4;
+}
+.otter2-account-link-name{flex:1;font-weight:700;color:#333;font-size:13px}
+.otter2-account-link-state{color:#64748b;font-size:12px}
+.otter2-account-link-row button{
+  border:1px solid #e2e8f0;background:#fff;color:#9f1239;
+  border-radius:7px;padding:4px 8px;font-size:12px;font-weight:700;cursor:pointer;
+}
+
+@media (max-width:600px){
+  #otter2AccountMenu .price-card{min-width:100%}
+}
+
+/* Admin payment panel (only for is_admin()) */
+.otter2-admin-box{
+  margin-top:8px;padding-top:6px;border-top:1px solid #f1f5f9;
+}
+.otter2-admin-box[hidden]{display:none !important}
+.otter2-admin-toolbar{
+  display:flex;gap:6px;align-items:center;margin:4px 0 8px;flex-wrap:wrap;
+}
+.otter2-admin-toolbar button,
+.otter2-admin-toolbar select{
+  border:1px solid #e2e8f0;background:#fff;border-radius:8px;
+  padding:6px 8px;font-size:12px;font-weight:700;cursor:pointer;
+}
+.otter2-admin-list{max-height:280px;overflow:auto}
+.otter2-admin-card{
+  border:1px solid #e2e8f0;border-radius:10px;padding:8px;margin:0 0 8px;
+  background:#fafafa;font-size:12px;line-height:1.45;color:#334155;
+}
+.otter2-admin-card code{font-size:11px;word-break:break-all}
+.otter2-admin-note{
+  white-space:pre-wrap;margin:6px 0 0;padding:8px;background:#fff;
+  border:1px solid #eee;border-radius:8px;font-size:11px;max-height:120px;overflow:auto;
+}
+.otter2-admin-card-actions{
+  display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap;
+}
+.otter2-admin-card-actions button{
+  border:0;background:#15803d;color:#fff;border-radius:8px;
+  padding:7px 10px;font-weight:800;font-size:12px;cursor:pointer;
+}
+.otter2-admin-reject-hint{color:#94a3b8;font-size:11px}
+.otter2-admin-msg{margin:6px 0 0;font-size:12px;font-weight:700;min-height:1.2em}
+.otter2-admin-msg.is-ok{color:#15803d}
+.otter2-admin-msg.is-err{color:#be123c}

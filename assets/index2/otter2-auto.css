@@ -1,0 +1,601 @@
+/* otter2-auto.css — from index1 auto modules + hub layout */
+
+
+.auto-learning{
+  margin:20px 0;
+  padding:20px;
+  border-radius:18px;
+  background:#ffffff;
+  box-shadow:0 4px 15px rgba(0,0,0,.08);
+  text-align:center;
+}
+
+.auto-learning h2{
+  margin:0 !important;
+  flex:1 1 auto;
+  text-align:center;
+  font-size:22px;
+}
+
+.ttc-auto-topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-bottom:15px;
+}
+
+.ttc-auto-pinyin-toggle,.ttc-auto-collapse-toggle{
+  flex:0 0 auto;
+  min-height:34px;
+  padding:6px 9px !important;
+  border:1px solid #d1d5db !important;
+  border-radius:9px !important;
+  background:#fff !important;
+  color:#374151 !important;
+  font-size:12px !important;
+  font-weight:700;
+  white-space:nowrap;
+}
+
+#autoLearningPinyin[hidden],#ttcEA2Pinyin[hidden]{display:none !important;}
+
+@media(max-width:600px){
+  .auto-learning{padding:14px;}
+  .ttc-auto-topbar{gap:5px;}
+  .auto-learning h2{font-size:17px;}
+  .ttc-auto-pinyin-toggle,.ttc-auto-collapse-toggle{padding:6px 7px !important;font-size:11px !important;}
+}
+
+.auto-learning-word{
+  font-size:42px;
+  font-weight:700;
+  margin:15px 0 5px;
+}
+
+.auto-learning-pinyin{
+  font-size:22px;
+  color:#666;
+  margin-bottom:5px;
+}
+
+.auto-learning-meaning{
+  font-size:20px;
+  margin-bottom:18px;
+}
+
+.auto-learning-buttons{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:4px;
+  margin-top:8px;
+}
+
+.auto-learning button{
+  border:0;
+  border-radius:8px;
+  padding:3px 8px;
+  cursor:pointer;
+  font-size:17px;
+  line-height:1.25;
+  font-weight:700;
+}
+
+.auto-learning select{
+  padding:9px 12px;
+  border-radius:9px;
+  border:1px solid #ccc;
+}
+
+.auto-learning-status{
+  margin-top:12px;
+  font-size:14px;
+  color:#666;
+}
+
+
+
+/* =========================================================
+   🟢 TTC EXAMPLE AUTO V2
+   Khóa CSS riêng để tránh giao diện chính ghi đè
+   ========================================================= */
+
+#ttcExampleAutoV2{
+  --ea2-green:#16a34a;
+  --ea2-green-dark:#15803d;
+  --ea2-green-light:#dcfce7;
+  --ea2-green-soft:#f0fdf4;
+  --ea2-border:#86efac;
+  --ea2-text:#172016;
+  --ea2-muted:#64748b;
+
+  display:block !important;
+  width:min(920px,calc(100% - 24px)) !important;
+
+  margin:28px auto !important;
+  padding:22px !important;
+
+  background:#ffffff !important;
+  color:var(--ea2-text) !important;
+
+  border:2px solid var(--ea2-border) !important;
+  border-radius:22px !important;
+
+  box-shadow:
+    0 8px 28px rgba(22,163,74,.12) !important;
+
+  text-align:center !important;
+
+  box-sizing:border-box !important;
+
+  font-family:inherit !important;
+
+  position:relative !important;
+  z-index:10 !important;
+}
+
+#ttcExampleAutoV2 *,
+#ttcExampleAutoV2 *::before,
+#ttcExampleAutoV2 *::after{
+  box-sizing:border-box !important;
+}
+
+/* =========================================================
+   TIÊU ĐỀ
+   ========================================================= */
+
+#ttcExampleAutoV2 .ea2-topbar{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:8px !important;
+  margin:0 0 16px !important;
+}
+
+#ttcExampleAutoV2 .ea2-title{
+  display:block !important;
+  flex:1 1 auto !important;
+  margin:0 !important;
+  color:var(--ea2-green-dark) !important;
+  font-size:21px !important;
+  line-height:1.35 !important;
+  font-weight:700 !important;
+  text-align:center !important;
+}
+
+#ttcExampleAutoV2 .ea2-top-toggle{
+  appearance:none !important;
+  flex:0 0 auto !important;
+  min-height:34px !important;
+  padding:6px 9px !important;
+  border:1px solid #bbf7d0 !important;
+  border-radius:9px !important;
+  background:#ffffff !important;
+  color:#166534 !important;
+  font:inherit !important;
+  font-size:12px !important;
+  font-weight:700 !important;
+  white-space:nowrap !important;
+  cursor:pointer !important;
+}
+
+#ttcExampleAutoV2 .ea2-top-toggle:hover{background:#f0fdf4 !important;}
+#ttcExampleAutoV2 .ea2-pinyin[hidden]{display:none !important;}
+
+/* =========================================================
+   HSK
+   ========================================================= */
+
+#ttcExampleAutoV2 .ea2-hsk-row{
+  display:flex !important;
+  flex-wrap:wrap !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:8px !important;
+  margin:0 0 18px !important;
+}
+
+#ttcExampleAutoV2 .ea2-hsk-label{
+  color:#166534 !important;
+  font-size:14px !important;
+  font-weight:700 !important;
+}
+
+#ttcExampleAutoV2 .ea2-hsk-select{
+  appearance:auto !important;
+  min-width:180px !important;
+  max-width:100% !important;
+  min-height:42px !important;
+  padding:9px 14px !important;
+  border:1px solid #bbf7d0 !important;
+  border-radius:10px !important;
+  background:#ffffff !important;
+  color:#166534 !important;
+  font:inherit !important;
+  font-size:15px !important;
+  font-weight:700 !important;
+  cursor:pointer !important;
+}
+
+#ttcExampleAutoV2 .ea2-hsk{
+  appearance:none !important;
+
+  border:1px solid #bbf7d0 !important;
+
+  background:#ffffff !important;
+
+  color:#166534 !important;
+
+  border-radius:10px !important;
+
+  padding:7px 11px !important;
+
+  min-height:36px !important;
+
+  cursor:pointer !important;
+
+  font:inherit !important;
+
+  font-size:14px !important;
+
+  font-weight:700 !important;
+
+  line-height:1 !important;
+}
+
+#ttcExampleAutoV2 .ea2-hsk:hover{
+  background:#f0fdf4 !important;
+}
+
+#ttcExampleAutoV2 .ea2-hsk.active{
+  background:var(--ea2-green) !important;
+
+  color:#ffffff !important;
+
+  border-color:var(--ea2-green) !important;
+
+  box-shadow:
+    0 4px 12px rgba(22,163,74,.25) !important;
+}
+
+/* =========================================================
+   CARD CÂU VÍ DỤ
+   ========================================================= */
+
+#ttcExampleAutoV2 .ea2-card{
+  display:flex !important;
+
+  flex-direction:column !important;
+
+  justify-content:center !important;
+
+  align-items:center !important;
+
+  width:100% !important;
+
+  min-height:245px !important;
+
+  padding:25px 16px !important;
+
+  background:var(--ea2-green-soft) !important;
+
+  border:1px solid var(--ea2-border) !important;
+
+  border-radius:18px !important;
+
+  text-align:center !important;
+}
+
+#ttcExampleAutoV2 .ea2-hanzi{
+  display:block !important;
+
+  width:100% !important;
+
+  color:#166534 !important;
+
+  font-size:clamp(31px,7vw,54px) !important;
+
+  line-height:1.35 !important;
+
+  font-weight:700 !important;
+
+  text-align:center !important;
+
+  word-break:break-word !important;
+}
+
+#ttcExampleAutoV2 .ea2-pinyin{
+  display:block !important;
+
+  width:100% !important;
+
+  margin-top:9px !important;
+
+  color:#15803d !important;
+
+  font-size:clamp(17px,4vw,23px) !important;
+
+  line-height:1.5 !important;
+
+  font-weight:700 !important;
+
+  text-align:center !important;
+}
+
+#ttcExampleAutoV2 .ea2-meaning{
+  display:block !important;
+
+  width:100% !important;
+
+  min-height:29px !important;
+
+  margin-top:8px !important;
+
+  color:#166534 !important;
+
+  font-size:clamp(17px,4vw,22px) !important;
+
+  line-height:1.5 !important;
+
+  font-weight:700 !important;
+
+  text-align:center !important;
+}
+
+#ttcExampleAutoV2 .ea2-counter{
+  display:block !important;
+
+  margin-top:15px !important;
+
+  color:#4d7c5d !important;
+
+  font-size:14px !important;
+
+  font-weight:700 !important;
+
+  text-align:center !important;
+}
+
+/* =========================================================
+   BUTTON
+   ========================================================= */
+
+#ttcExampleAutoV2 .ea2-buttons{
+  display:flex !important;
+
+  flex-wrap:wrap !important;
+
+  justify-content:center !important;
+
+  gap:4px !important;
+
+  margin-top:8px !important;
+}
+
+#ttcExampleAutoV2 .ea2-btn{
+  appearance:none !important;
+
+  border:1px solid #bbf7d0 !important;
+
+  background:#ffffff !important;
+
+  color:#166534 !important;
+
+  border-radius:11px !important;
+
+  min-height:32px !important;
+
+  padding:2px 8px !important;
+
+  cursor:pointer !important;
+
+  font:inherit !important;
+
+  font-size:17px !important;
+
+  font-weight:700 !important;
+
+  line-height:1.2 !important;
+}
+
+#ttcExampleAutoV2 .ea2-btn:hover{
+  background:#f0fdf4 !important;
+}
+
+#ttcExampleAutoV2 .ea2-btn.green{
+  background:var(--ea2-green) !important;
+
+  border-color:var(--ea2-green) !important;
+
+  color:#ffffff !important;
+}
+
+#ttcExampleAutoV2 .ea2-btn.green:hover{
+  background:#15803d !important;
+}
+
+#ttcExampleAutoV2 .ea2-btn.reset{
+  color:#b91c1c !important;
+
+  border-color:#fecaca !important;
+
+  background:#fffafa !important;
+}
+
+/* =========================================================
+   DELAY
+   ========================================================= */
+
+#ttcExampleAutoV2 .ea2-delay{
+  display:flex !important;
+
+  flex-wrap:wrap !important;
+
+  justify-content:center !important;
+
+  align-items:center !important;
+
+  gap:10px !important;
+
+  margin-top:15px !important;
+
+  color:#475569 !important;
+
+  font-size:14px !important;
+
+  font-weight:700 !important;
+}
+
+#ttcExampleAutoV2 .ea2-delay input{
+  width:min(260px,55vw) !important;
+
+  accent-color:var(--ea2-green) !important;
+
+  cursor:pointer !important;
+}
+
+#ttcExampleAutoV2 .ea2-status{
+  display:block !important;
+
+  min-height:20px !important;
+
+  margin-top:9px !important;
+
+  color:#64748b !important;
+
+  font-size:12px !important;
+
+  text-align:center !important;
+}
+
+#ttcExampleAutoV2 .ea2-status.locked{
+  color:#b45309 !important;
+
+  font-weight:700 !important;
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media(max-width:600px){
+
+  #ttcExampleAutoV2{
+    width:calc(100% - 16px) !important;
+
+    margin:18px auto !important;
+
+    padding:15px !important;
+
+    border-radius:18px !important;
+  }
+
+  #ttcExampleAutoV2 .ea2-card{
+    min-height:225px !important;
+    padding:20px 10px !important;
+  }
+
+  #ttcExampleAutoV2 .ea2-title{font-size:16px !important;}
+  #ttcExampleAutoV2 .ea2-topbar{gap:5px !important;}
+  #ttcExampleAutoV2 .ea2-top-toggle{padding:6px 7px !important;font-size:11px !important;}
+
+  #ttcExampleAutoV2 .ea2-buttons .ea2-btn{
+    flex:1 1 46% !important;
+    font-size:17px !important;
+  }
+
+}
+
+
+/* ---- Otter2 Auto hub layout ---- */
+.otter2-auto-hub{position:relative;min-height:280px}
+.otter2-auto-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(140px,320px);
+  gap:16px 20px;
+  align-items:center;
+  max-width:100%;
+}
+.otter2-auto-col-left{min-width:0;position:relative;z-index:3}
+.otter2-auto-col-right{
+  display:flex;align-items:center;justify-content:center;
+  pointer-events:none;z-index:1;
+}
+.otter2-auto-actions{
+  display:flex;flex-direction:column;gap:var(--ui-btn-gap, 10px);width:100%;max-width:420px;
+}
+#otter2AutoHub .otter2-auto-actions button{
+  display:flex;align-items:center;justify-content:center;
+  width:100%;min-height:var(--ui-btn-h-lg, 48px);height:auto;padding:12px var(--ui-btn-pad-x, 12px);box-sizing:border-box;
+  border-radius:var(--ui-btn-radius, 12px);font-size:var(--ui-btn-font-md, 14px);font-weight:var(--ui-btn-weight, 700);line-height:1.2;
+  white-space:nowrap;
+  background:#ffffff !important;color:#333333 !important;
+  border:2px solid #e3e3e3 !important;
+  box-shadow:0 2px 6px rgba(0,0,0,.08) !important;
+  cursor:pointer;
+  transition:background .2s ease,color .2s ease,border-color .2s ease,box-shadow .25s ease,transform .2s ease;
+}
+#otter2AutoHub .otter2-auto-actions button:hover{
+  transform:translateY(-1px);
+  border-color:#ffb300 !important;
+  box-shadow:0 4px 12px rgba(255,179,0,.20) !important;
+}
+#otter2AutoHub .otter2-auto-actions button.active{
+  background:#fffdf5 !important;color:#d88900 !important;
+  border-color:#ffb300 !important;
+  box-shadow:0 0 0 2px rgba(255,179,0,.15),0 0 14px rgba(255,179,0,.55),0 5px 18px rgba(255,179,0,.25) !important;
+  transform:translateY(-1px);
+}
+.otter2-auto-mascot{
+  width:min(280px,100%);max-width:280px;height:auto;display:block;
+  object-fit:contain;object-position:center;mix-blend-mode:normal;
+  filter:drop-shadow(0 10px 16px rgba(15,23,42,.14));
+}
+#otter2AutoPanels{margin-top:18px;position:relative;z-index:4}
+#otter2AutoPanels #autoLearning,
+#otter2AutoPanels #ttcExampleAutoV2{width:min(920px,100%) !important;margin:12px 0 !important}
+@media (max-width:768px){
+  .otter2-auto-row{grid-template-columns:1fr;gap:12px}
+  .otter2-auto-col-right{order:-1;max-width:180px;margin:0 auto}
+  .otter2-auto-mascot{width:min(180px,50vw);max-width:180px}
+  .otter2-auto-actions{max-width:none}
+}
+@media (max-width:430px){
+  #otter2AutoHub .otter2-auto-actions button{
+    white-space:normal;height:auto;min-height:var(--ui-btn-h-lg, 48px);font-size:var(--ui-btn-font, 13px);
+  }
+  .otter2-auto-mascot{width:min(140px,42vw);max-width:140px}
+}
+
+/* ---- Fullscreen portal for auto modules ---- */
+body.otter2-auto-fs-lock{overflow:hidden !important;}
+#autoLearning.otter2-auto-fs-open,
+#ttcExampleAutoV2.otter2-auto-fs-open{
+  position:fixed !important;
+  inset:0 !important;
+  width:100% !important;
+  max-width:none !important;
+  height:100% !important;
+  margin:0 !important;
+  border-radius:0 !important;
+  z-index:200000 !important;
+  overflow:auto !important;
+  display:block !important;
+  background:#ffffff !important;
+  box-sizing:border-box !important;
+  padding:56px 18px 24px !important;
+}
+.otter2-auto-fs-exit{
+  position:fixed !important;
+  top:12px; right:12px;
+  z-index:200001 !important;
+  min-height:40px; padding:8px 14px;
+  border-radius:10px; border:2px solid #e3e3e3;
+  background:#fff; color:#333; font-weight:700; cursor:pointer;
+  box-shadow:0 2px 8px rgba(0,0,0,.12);
+}
+.otter2-auto-fs-exit:hover{
+  border-color:#ffb300;
+  box-shadow:0 4px 12px rgba(255,179,0,.2);
+}

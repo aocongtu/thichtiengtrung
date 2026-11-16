@@ -1,0 +1,88 @@
+/* Otter2 theme — from index1 ttcTheme (scoped + adapted) */
+.otter2-theme-slot{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  margin:0;
+}
+#otter2ThemeNavBtn,
+#ttcThemeButton{
+  border-radius:var(--ui-btn-radius, 12px);
+  min-height:var(--ui-btn-h-sm, 36px);
+  padding:0 var(--ui-btn-pad-x, 12px);
+  background:#FFFFFF;
+  color:#111111;
+  border:1px solid rgba(15,23,42,.14);
+  font-weight:800;
+  font-size:var(--ui-btn-font, 13px);
+  cursor:pointer;
+  white-space:nowrap;
+  box-shadow:0 1px 2px rgba(15,23,42,.06);
+  transition:background .15s ease, border-color .15s ease, box-shadow .15s ease;
+  display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;
+}
+#otter2ThemeNavBtn:hover,
+#ttcThemeButton:hover{
+  background:#f8fafc;
+  border-color:rgba(15,23,42,.22);
+  box-shadow:0 2px 8px rgba(15,23,42,.08);
+}
+#otter2ThemeNavBtn:focus-visible,
+#ttcThemeButton:focus-visible{
+  outline:2px solid #94a3b8;
+  outline-offset:2px;
+}
+.ttc-theme-menu,
+#otter2ThemeMenu{
+  position:absolute;
+  top:calc(100% + 8px);
+  left:0;
+  right:auto;
+  z-index:80;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+  width:min(280px,90vw);
+  padding:10px;
+  border-radius:14px;
+  background:#fff;
+  border:1px solid #dbe4ee;
+  box-shadow:0 12px 30px rgba(15,23,42,.16);
+}
+.ttc-theme-menu[hidden],
+#otter2ThemeMenu[hidden]{display:none !important}
+.ttc-theme-menu button,
+#otter2ThemeMenu button{
+  background:#f8fafc;
+  color:#1e293b;
+  border:1px solid #e2e8f0;
+  border-radius:var(--ui-btn-radius, 12px);
+  min-height:var(--ui-btn-h-sm, 36px);
+  padding:0 8px;
+  font-weight:var(--ui-btn-weight, 700);
+  font-size:var(--ui-btn-font-sm, 12px);
+  cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;
+}
+
+html[data-theme="night"] body.otter2-body{background:#0b1220 !important;color:#e5e7eb !important}
+html[data-theme="night"] body.otter2-body :is(.otter2-nav,.otter2-screen,.otter2-shell,.otter2-hero,.otter2-progress,.otter2-feature,.ttc-theme-menu,#otter2ThemeMenu){
+  background:#111827 !important;color:#e5e7eb !important;border-color:#334155 !important;
+}
+html[data-theme="night"] body.otter2-body input,
+html[data-theme="night"] body.otter2-body textarea,
+html[data-theme="night"] body.otter2-body select{
+  background:#1e293b !important;color:#f8fafc !important;border-color:#475569 !important;
+}
+
+html[data-theme="paper"] body.otter2-body{background:#f6f1e7 !important;color:#3f2e1e !important}
+html[data-theme="paper"] body.otter2-body :is(.otter2-nav,.otter2-screen,.otter2-hero,.otter2-progress){background:#fffaf3 !important}
+
+html[data-theme="forest"] body.otter2-body{background:#ecfdf3 !important;color:#14532d !important}
+html[data-theme="forest"] body.otter2-body :is(.otter2-nav,.otter2-screen,.otter2-hero,.otter2-progress){background:#f0fdf4 !important}
+
+html[data-theme="sea"] body.otter2-body{background:#e0f2fe !important;color:#0c4a6e !important}
+html[data-theme="sea"] body.otter2-body :is(.otter2-nav,.otter2-screen,.otter2-hero,.otter2-progress){background:#f0f9ff !important}
+
+html[data-theme="sunset"] body.otter2-body{background:#fff1f2 !important;color:#881337 !important}
+html[data-theme="sunset"] body.otter2-body :is(.otter2-nav,.otter2-screen,.otter2-hero,.otter2-progress){background:#fff7ed !important}

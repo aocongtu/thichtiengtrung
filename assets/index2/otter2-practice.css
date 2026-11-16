@@ -1,0 +1,3639 @@
+/* otter2-practice.css — styles from index1 for 6 practice tools */
+
+/* Match glow chỉ khi standalone (index1). Trong hub Luyện tập dùng nút trắng đồng nhất. */
+#ttcMatchLauncher.ttc-match-standalone{
+  position:relative;
+  background:#fffdf5 !important;
+  color:#d88900 !important;
+  border:2px solid #ffb300 !important;
+  box-shadow:0 0 0 2px rgba(255,179,0,.15),0 0 18px rgba(255,179,0,.65),0 5px 20px rgba(255,179,0,.28) !important;
+  animation:ttcMatchGlow 1.8s ease-in-out infinite;
+}
+@keyframes ttcMatchGlow{
+  0%,100%{box-shadow:0 0 0 2px rgba(255,179,0,.12),0 0 12px rgba(255,179,0,.42),0 5px 16px rgba(255,179,0,.18)}
+  50%{box-shadow:0 0 0 3px rgba(255,179,0,.20),0 0 24px rgba(255,179,0,.78),0 7px 22px rgba(255,179,0,.34)}
+}
+#ttcMatchOverlay{position:fixed;inset:0;z-index:100000;background:rgba(15,23,42,.45);display:none;padding:18px;overflow:auto}
+#ttcMatchOverlay.ttc-match-open{display:flex;align-items:flex-start;justify-content:center}
+#ttcMatchApp{width:min(1050px,100%);margin:25px auto;background:#fff;border-radius:22px;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden}
+.ttc-match-head{padding:18px 20px 14px;border-bottom:1px solid #e8edf3;background:#fff}
+.ttc-match-head-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.ttc-match-title{font-size:24px;font-weight:700;color:#17324d}
+.ttc-match-close{width:42px;height:42px;padding:0;border-radius:12px;background:#f3f6f9;color:#334155;font-size:24px}
+.ttc-match-controls{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;margin-top:14px}
+.ttc-match-level{background:#fff!important;color:#333!important;border:2px solid #e3e3e3!important;border-radius:10px!important;padding:9px 13px!important;font-weight:700 !important}
+.ttc-match-level.active{background:#fffdf5!important;color:#d88900!important;border-color:#ffb300!important;box-shadow:0 0 14px rgba(255,179,0,.5)!important}
+.ttc-match-progress{margin:14px 20px 0;height:10px;background:#e8edf3;border-radius:99px;overflow:hidden}
+.ttc-match-progress>div{height:100%;width:0;background:#20b58a;transition:.25s}
+.ttc-match-status{text-align:center;min-height:28px;padding:12px 18px 4px;font-weight:700;color:#64748b}
+.ttc-match-board{display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:18px 20px 20px}
+.ttc-match-column{background:#f8fafc;border:1px solid #e6ebf2;border-radius:18px;padding:14px}
+.ttc-match-column h3{text-align:center;margin:0 0 10px;color:#475569;font-size:15px}
+.ttc-match-list{display:grid;gap:9px}
+
+.ttc-match-item{
+  width:100%;
+  min-height:58px;
+  padding:12px 13px;
+  border:2px solid #e2e8f0;
+  border-radius:13px;
+  background:#fff;
+  color:#172033;
+  text-align:center;
+  font-size:24px;
+  line-height:1.25;
+  font-weight:700;
+  cursor:pointer;
+  transition:.18s;
+  box-sizing:border-box;
+}
+
+.ttc-match-column{
+  background:#f8fafc;
+  border:1px solid #e6ebf2;
+  border-radius:18px;
+  padding:14px;
+  width:100%;
+  min-width:0;
+  box-sizing:border-box;
+}
+
+.ttc-match-board{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:18px;
+  padding:18px 20px 20px;
+  width:100%;
+  box-sizing:border-box;
+}
+
+.ttc-match-column{
+  width:100%;
+  min-width:0;
+  max-width:none;
+  box-sizing:border-box;
+
+  background:#f8fafc;
+  border:1px solid #e6ebf2;
+  border-radius:18px;
+  padding:14px;
+}
+
+.ttc-match-column h3{
+  text-align:center;
+  margin:0 0 10px;
+  color:#475569;
+  font-size:15px;
+}
+
+.ttc-match-list{
+  display:grid;
+  gap:9px;
+  width:100%;
+  min-width:0;
+}
+
+
+
+.ttc-match-item{
+  width:100%;
+  min-width:0;
+  min-height:90px;
+  box-sizing:border-box;
+
+  padding:8px 10px;
+
+  border:2px solid #e2e8f0;
+  border-radius:13px;
+
+  background:#fff;
+  color:#172033;
+
+  text-align:center;
+
+  /* 🔠 HÁN TỰ TO HƠN */
+  font-size:56px;
+  line-height:1.2;
+  font-weight:700;
+
+  cursor:pointer;
+  transition:.18s;
+}
+
+.ttc-match-meaning{
+  font-size:28px !important;
+  font-weight:700 !important;
+  line-height:1.3 !important;
+}
+
+
+.ttc-match-item:hover{
+  transform:translateY(-1px);
+  border-color:#ffb300;
+  box-shadow:0 4px 12px rgba(255,179,0,.18);
+}
+
+.ttc-match-item.selected{
+  background:#fffdf5;
+  border-color:#ffb300;
+  color:#b86f00;
+  box-shadow:
+    0 0 0 2px rgba(255,179,0,.12),
+    0 0 14px rgba(255,179,0,.35);
+}
+
+.ttc-match-item.matched{
+  background:#ecfdf5;
+  border-color:#34d399;
+  color:#087443;
+  cursor:default;
+}
+
+.ttc-match-item.wrong{
+  animation:ttcMatchWrong .35s ease;
+  border-color:#ef4444;
+  background:#fff1f2;
+  color:#b91c1c;
+}
+
+.ttc-match-item.ttc-match-vanish{
+  opacity:0;
+  transform:scale(.82);
+  pointer-events:none;
+  transition:
+    opacity .12s ease,
+    transform .12s ease;
+}
+
+@media(max-width:650px){
+
+  .ttc-match-board{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:8px;
+    padding:12px 8px 14px;
+    width:100%;
+    box-sizing:border-box;
+  }
+
+  .ttc-match-column{
+    width:100%;
+    min-width:0;
+    padding:8px 6px;
+    box-sizing:border-box;
+  }
+
+  .ttc-match-column h3{
+    font-size:13px;
+    margin-bottom:8px;
+  }
+
+  .ttc-match-item{
+    width:100%;
+    min-width:0;
+    min-height:72px;
+    padding:6px 3px;
+    box-sizing:border-box;
+    font-size:48px !important;
+    line-height:1.15;
+    font-weight:700;
+  }
+
+  .ttc-match-meaning{
+    font-size:22px !important;
+    line-height:1.25 !important;
+    font-weight:700 !important;
+  }
+
+}
+
+.ttc-match-item:hover{transform:translateY(-1px);border-color:#ffb300;box-shadow:0 4px 12px rgba(255,179,0,.18)}
+.ttc-match-item.selected{background:#fffdf5;border-color:#ffb300;color:#b86f00;box-shadow:0 0 0 2px rgba(255,179,0,.12),0 0 14px rgba(255,179,0,.35)}
+.ttc-match-item.matched{background:#ecfdf5;border-color:#34d399;color:#087443;cursor:default;opacity:.82}
+.ttc-match-item.wrong{animation:ttcMatchWrong .35s ease;border-color:#ef4444;background:#fff1f2;color:#b91c1c}
+@keyframes ttcMatchWrong{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.ttc-match-meaning{font-size:16px;font-weight:700;line-height:1.35}
+.ttc-match-footer{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;padding:0 20px 22px}
+.ttc-match-footer button{min-width:150px}
+.ttc-match-replay{background:#fff3f3!important;color:#c62828!important;border:1px solid #ffcaca!important}
+.ttc-match-next{background:#20b58a!important;color:#fff!important}
+@media(max-width:650px){
+  #ttcMatchOverlay{padding:8px}
+  #ttcMatchApp{margin:8px auto;border-radius:16px}
+  .ttc-match-title{font-size:20px}
+  .ttc-match-board{gap:8px;padding:12px 10px 14px}
+  .ttc-match-column{padding:9px}
+  .ttc-match-item{font-size:16px;padding:11px 9px}
+  .ttc-match-meaning{font-size:14px}
+}
+
+
+
+/* =========================================================
+   🔊 TTC — PHẢN XẠ ĐOÁN NGHĨA V1
+   Riêng biệt, không đụng engine Nối từ đúng
+========================================================= */
+
+#ttcListenLauncher.ttc-listen-standalone{
+  position:relative;
+  background:#fffdf5 !important;
+  color:#d88900 !important;
+  border:2px solid #ffb300 !important;
+  box-shadow:0 0 0 2px rgba(255,179,0,.15),
+             0 0 18px rgba(255,179,0,.55),
+             0 5px 20px rgba(255,179,0,.22) !important;
+}
+
+#ttcListenOverlay{
+  position:fixed;
+  inset:0;
+  z-index:100001;
+  background:rgba(15,23,42,.45);
+  display:none;
+  padding:18px;
+  overflow:auto;
+}
+
+#ttcListenOverlay.ttc-listen-open{
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+}
+
+#ttcListenApp{
+  width:min(1050px,100%);
+  margin:25px auto;
+  background:#fff;
+  border-radius:22px;
+  box-shadow:0 20px 60px rgba(0,0,0,.25);
+  overflow:hidden;
+}
+
+.ttc-listen-head{
+  padding:18px 20px 14px;
+  border-bottom:1px solid #e8edf3;
+  background:#fff;
+}
+
+.ttc-listen-head-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.ttc-listen-title{
+  font-size:24px;
+  font-weight:700;
+  color:#17324d;
+}
+
+.ttc-listen-close{
+  width:42px;
+  height:42px;
+  padding:0;
+  border-radius:12px;
+  background:#f3f6f9;
+  color:#334155;
+  font-size:24px;
+}
+
+.ttc-listen-levels{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:8px;
+  margin-top:14px;
+}
+
+.ttc-listen-level{
+  background:#fff !important;
+  color:#333 !important;
+  border:2px solid #e3e3e3 !important;
+  border-radius:10px !important;
+  padding:9px 13px !important;
+  font-weight:700 !important;
+}
+
+.ttc-listen-level.active{
+  background:#fffdf5 !important;
+  color:#d88900 !important;
+  border-color:#ffb300 !important;
+  box-shadow:0 0 14px rgba(255,179,0,.5) !important;
+}
+
+.ttc-listen-progress{
+  margin:14px 20px 0;
+  height:10px;
+  background:#e8edf3;
+  border-radius:99px;
+  overflow:hidden;
+}
+
+.ttc-listen-progress>div{
+  height:100%;
+  width:0;
+  background:#20b58a;
+  transition:.25s;
+}
+
+.ttc-listen-status{
+  text-align:center;
+  min-height:28px;
+  padding:12px 18px 4px;
+  font-weight:700;
+  color:#64748b;
+}
+
+/* Hai cột luôn bằng nhau */
+.ttc-listen-board{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:18px;
+  padding:18px 20px 20px;
+  width:100%;
+  box-sizing:border-box;
+}
+
+.ttc-listen-column{
+  width:100%;
+  min-width:0;
+  box-sizing:border-box;
+  background:#f8fafc;
+  border:1px solid #e6ebf2;
+  border-radius:18px;
+  padding:14px;
+}
+
+.ttc-listen-column h3{
+  text-align:center;
+  margin:0 0 10px;
+  color:#475569;
+  font-size:15px;
+}
+
+.ttc-listen-list{
+  display:grid;
+  gap:9px;
+  width:100%;
+}
+
+.ttc-listen-item{
+  width:100%;
+  min-width:0;
+  min-height:76px;
+  box-sizing:border-box;
+  padding:10px;
+  border:2px solid #e2e8f0;
+  border-radius:13px;
+  background:#fff;
+  color:#172033;
+  cursor:pointer;
+  transition:.18s;
+}
+
+/* Ô nghe */
+.ttc-listen-audio{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  font-size:27px;
+  font-weight:700;
+}
+
+.ttc-listen-number{
+  font-size:18px;
+  color:#64748b;
+  min-width:24px;
+}
+
+.ttc-listen-play{
+  font-size:32px;
+  line-height:1;
+}
+
+.ttc-listen-audio:hover{
+  border-color:#ffb300;
+  box-shadow:0 4px 12px rgba(255,179,0,.18);
+  transform:translateY(-1px);
+}
+
+.ttc-listen-audio.selected{
+  background:#fffdf5;
+  border-color:#ffb300;
+  color:#b86f00;
+  box-shadow:0 0 0 2px rgba(255,179,0,.12),
+             0 0 14px rgba(255,179,0,.35);
+}
+
+/* Ô nghĩa */
+.ttc-listen-meaning{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  font-size:26px;
+  line-height:1.25;
+  font-weight:700;
+}
+
+.ttc-listen-meaning:hover{
+  border-color:#ffb300;
+  box-shadow:0 4px 12px rgba(255,179,0,.18);
+  transform:translateY(-1px);
+}
+
+.ttc-listen-meaning.selected{
+  background:#fffdf5;
+  border-color:#ffb300;
+  color:#b86f00;
+}
+
+.ttc-listen-item.wrong{
+  animation:ttcListenWrong .35s ease;
+  border-color:#ef4444;
+  background:#fff1f2;
+  color:#b91c1c;
+}
+
+@keyframes ttcListenWrong{
+  0%,100%{transform:translateX(0)}
+  25%{transform:translateX(-5px)}
+  75%{transform:translateX(5px)}
+}
+
+/* Đúng → biến mất */
+.ttc-listen-item.ttc-listen-vanish{
+  opacity:0;
+  transform:scale(.72);
+  transition:.12s ease;
+  pointer-events:none;
+}
+
+.ttc-listen-footer{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  flex-wrap:wrap;
+  padding:0 20px 22px;
+}
+
+.ttc-listen-footer button{
+  min-width:150px;
+}
+
+.ttc-listen-replay{
+  background:#fff3f3 !important;
+  color:#c62828 !important;
+  border:1px solid #ffcaca !important;
+}
+
+.ttc-listen-next{
+  background:#20b58a !important;
+  color:#fff !important;
+}
+
+/* Chúc mừng */
+.ttc-listen-finish{
+  text-align:center;
+  padding:45px 20px 55px;
+}
+
+.ttc-listen-finish-big{
+  font-size:38px;
+  font-weight:1000;
+  color:#d88900;
+  margin-bottom:12px;
+}
+
+.ttc-listen-finish-text{
+  font-size:22px;
+  font-weight:700;
+  color:#475569;
+}
+
+/* Mobile */
+@media(max-width:650px){
+
+  #ttcListenOverlay{
+    padding:8px;
+  }
+
+  #ttcListenApp{
+    margin:8px auto;
+    border-radius:16px;
+  }
+
+  .ttc-listen-title{
+    font-size:20px;
+  }
+
+  .ttc-listen-board{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:8px;
+    padding:12px 8px 14px;
+  }
+
+  .ttc-listen-column{
+    padding:8px 6px;
+  }
+
+  .ttc-listen-column h3{
+    font-size:13px;
+  }
+
+  .ttc-listen-item{
+    min-height:72px;
+    padding:7px 4px;
+  }
+
+  .ttc-listen-audio{
+    font-size:23px;
+    gap:5px;
+  }
+
+  .ttc-listen-number{
+    font-size:15px;
+    min-width:18px;
+  }
+
+  .ttc-listen-play{
+    font-size:29px;
+  }
+
+  .ttc-listen-meaning{
+    font-size:22px;
+    line-height:1.25;
+  }
+
+  .ttc-listen-finish-big{
+    font-size:30px;
+  }
+
+  .ttc-listen-finish-text{
+    font-size:18px;
+  }
+}
+
+
+
+
+/* =========================================================
+   📝 TEST TỪ VỰNG — BỘ CHỌN HSK ĐỘC LẬP
+========================================================= */
+#ttcVocabularyTestChooser{
+  position:fixed !important;
+  inset:0 !important;
+  z-index:100500 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:18px !important;
+  background:rgba(0,0,0,.42) !important;
+}
+#ttcVocabularyTestChooser .ttc-vocab-test-dialog{
+  position:relative !important;
+  width:min(560px,94vw) !important;
+  padding:24px !important;
+  border-radius:22px !important;
+  background:#fff !important;
+  box-shadow:0 24px 70px rgba(0,0,0,.25) !important;
+  text-align:center !important;
+}
+#ttcVocabularyTestChooser .ttc-vocab-test-close{
+  position:absolute !important;
+  top:9px !important;
+  right:12px !important;
+  width:36px !important;
+  height:36px !important;
+  border:0 !important;
+  border-radius:50% !important;
+  background:#f5f5f5 !important;
+  color:#555 !important;
+  font-size:25px !important;
+  cursor:pointer !important;
+}
+#ttcVocabularyTestChooser .ttc-vocab-test-title{
+  font-size:24px !important;
+  font-weight:700 !important;
+  color:#222 !important;
+  margin:2px 30px 7px !important;
+}
+#ttcVocabularyTestChooser .ttc-vocab-test-subtitle{
+  color:#666 !important;
+  margin-bottom:18px !important;
+}
+#ttcVocabularyTestChooser .ttc-vocab-test-levels{
+  display:grid !important;
+  grid-template-columns:repeat(3,1fr) !important;
+  gap:10px !important;
+}
+#ttcVocabularyTestChooser .ttc-vocab-test-level{
+  min-height:54px !important;
+  border:2px solid #e3e3e3 !important;
+  border-radius:13px !important;
+  background:#fff !important;
+  color:#333 !important;
+  font-weight:700 !important;
+  cursor:pointer !important;
+  box-shadow:0 2px 7px rgba(0,0,0,.07) !important;
+}
+#ttcVocabularyTestChooser .ttc-vocab-test-level:hover{
+  border-color:#ffb300 !important;
+  color:#b06f00 !important;
+  transform:translateY(-1px) !important;
+}
+#ttcVocabularyTestChooser .ttc-vocab-test-note{
+  margin-top:16px !important;
+  color:#777 !important;
+  font-size:12px !important;
+}
+@media(max-width:600px){
+  #ttcVocabularyTestChooser .ttc-vocab-test-dialog{padding:21px 15px !important}
+  #ttcVocabularyTestChooser .ttc-vocab-test-levels{grid-template-columns:repeat(3,1fr) !important;gap:8px !important}
+  #ttcVocabularyTestChooser .ttc-vocab-test-level{min-height:50px !important;font-size:14px !important}
+}
+
+
+@keyframes ttcGreenBlink{0%,100%{filter:brightness(1);box-shadow:0 0 0 rgba(34,197,94,0)}50%{filter:brightness(1.12);box-shadow:0 0 16px rgba(34,197,94,.55)}}
+@keyframes ttcBlueBlink{0%,100%{filter:brightness(1);box-shadow:0 0 0 rgba(37,99,235,0)}50%{filter:brightness(1.12);box-shadow:0 0 16px rgba(37,99,235,.55)}}
+@keyframes ttcRedBlink{0%,100%{box-shadow:0 0 0 rgba(220,38,38,0)}50%{box-shadow:0 0 18px rgba(220,38,38,.58)}}
+@keyframes ttcGreenBorderBlink{0%,100%{box-shadow:0 0 0 rgba(34,197,94,0);border-color:#22c55e}50%{box-shadow:0 0 18px rgba(34,197,94,.55);border-color:#16a34a}}
+
+/* HSK 1–9: removed the forced green blinking override; retain the existing neutral/selected button styles. */
+
+/* 📝 TEST TỪ VỰNG — đỏ nhấp nháy theo yêu cầu.
+   Chỉ nút đầu tiên, không đổi màu 3 nút luyện tập còn lại. */
+/* Blink đỏ index1 — không áp vào hub Luyện tập index2 (nút trắng mặc định). */
+#ttcActionFrame:not(.otter2-practice-frame) .ttc-action-buttons button:first-child{
+  background:#dc2626 !important;
+  color:#fff !important;
+  border:2px solid #b91c1c !important;
+  animation:ttcRedBlink 1.15s ease-in-out infinite !important;
+}
+#ttcActionFrame:not(.otter2-practice-frame) .ttc-action-buttons button:first-child:hover{
+  background:#ef4444 !important;
+}
+
+/* Part-of-speech + vocabulary test: blue blinking */
+#ttcTypeFrame .ttc-type-buttons button{
+  background:#2563eb !important;color:#fff !important;border:2px solid #1d4ed8 !important;
+  animation:ttcBlueBlink 1.35s ease-in-out infinite !important;
+}
+#ttcTypeFrame .ttc-type-buttons button.active{background:#1d4ed8 !important;color:#fff !important;transform:translateY(-1px) scale(1.02)}
+
+/* Luyện câu chooser */
+#whiteHatSentenceModes .whiteHatModeCard[data-mode="basic"]{
+  border:2px solid #dc2626 !important;
+  animation:ttcRedBlink 1.15s ease-in-out infinite !important;
+}
+#whiteHatSentenceModes .whiteHatModeCard[data-mode="hsk"]{
+  border:2px solid #22c55e !important;
+  animation:ttcGreenBorderBlink 1.25s ease-in-out infinite !important;
+}
+#whiteHatSentenceModes .whiteHatModeTitle{font-weight:700 !important}
+#whiteHatSentenceModes .whiteHatModeCard[data-mode="basic"] .whiteHatModeTitle{color:#dc2626 !important}
+#whiteHatSentenceModes .whiteHatModeCard[data-mode="hsk"] .whiteHatModeTitle{color:#15803d !important}
+
+/* Chat window: mở toàn màn hình khi vào Chat Online.
+   Chỉ khi bấm nút thu nhỏ mới quay về cửa sổ kéo-thả. */
+#ttcChatV1 .ttc-chat-shell{
+  position:fixed !important;
+  inset:0 !important;
+  left:0 !important;
+  top:0 !important;
+  margin:0 !important;
+  transform:none !important;
+  transition:none !important;
+  width:100% !important;
+  width:100dvw !important;
+  max-width:100% !important;
+  height:100% !important;
+  height:100dvh !important;
+  max-height:none !important;
+  min-width:0 !important;
+  min-height:0 !important;
+  border-radius:0 !important;
+  touch-action:auto !important;
+}
+#ttcChatV1 .ttc-chat-head{cursor:default !important;touch-action:none !important;user-select:none !important;-webkit-user-select:none !important}
+#ttcChatV1 .ttc-chat-shell.ttc-chat-windowed{
+  inset:auto !important;
+  width:min(1100px,94vw) !important;
+  height:min(850px,86dvh) !important;
+  max-width:94vw !important;
+  max-height:86dvh !important;
+  min-width:280px !important;
+  min-height:360px !important;
+  border-radius:20px !important;
+}
+#ttcChatV1 .ttc-chat-shell.ttc-chat-windowed .ttc-chat-head{cursor:grab !important;touch-action:none !important}
+#ttcChatV1 .ttc-chat-shell.ttc-chat-windowed .ttc-chat-head:active{cursor:grabbing !important}
+
+/* Official/resource buttons remain available but the TTC entry is clearly primary */
+.wh-hsk-ttc-test{animation:ttcGreenBlink 1.25s ease-in-out infinite !important;border:2px solid #15803d !important;background:#16a34a !important;color:#fff !important}
+
+
+
+/* Gradient cam standalone — không dùng trong lưới 6 nút hub. */
+#ttcListeningLauncher.ttc-listening-standalone{display:block;width:min(100%,560px);margin:12px auto 18px;padding:15px 20px;border:1px solid #fdba74;border-radius:16px;background:linear-gradient(135deg,#c2410c,#fb923c);color:#fff;font-size:17px;font-weight:700;box-shadow:0 0 8px #fdba74,0 0 22px rgba(249,115,22,.42);animation:ttcListeningGlow 1.8s ease-in-out infinite alternate;cursor:pointer}
+@keyframes ttcListeningGlow{from{box-shadow:0 0 6px #fdba74,0 0 12px rgba(249,115,22,.25)}to{box-shadow:0 0 12px #ffedd5,0 0 28px rgba(249,115,22,.62)}}
+#ttcListeningSection{display:none;margin:20px 0 28px;padding:20px;background:#fff;border:1px solid #fed7aa;border-radius:20px;box-shadow:0 6px 24px rgba(194,65,12,.10);color:#334155}
+#ttcListeningSection.ttc-listening-open{display:block}
+#ttcListeningSection *{box-sizing:border-box}
+#ttcListeningSection .ttc-listen-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+#ttcListeningSection h2{margin:0;color:#c2410c}
+#ttcListeningSection .ttc-listen-note{line-height:1.6;color:#64748b}
+#ttcListeningSection .ttc-listen-levels{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:16px 0}
+#ttcListeningSection .ttc-listen-level,#ttcListeningSection .ttc-listen-item,#ttcListeningSection .ttc-listen-btn{border-radius:12px;padding:11px 14px;font-weight:700;cursor:pointer}
+#ttcListeningSection .ttc-listen-level{border:1px solid #fdba74;background:#fff7ed;color:#9a3412;text-align:left}
+#ttcListeningSection .ttc-listen-level small{display:block;font-weight:500;margin-top:4px;color:#78716c}
+#ttcListeningSection .ttc-listen-item{display:block;width:100%;text-align:left;margin:8px 0;border:1px solid #fed7aa;background:#fff;color:#9a3412}
+#ttcListeningSection .ttc-listen-nav,#ttcListeningSection .ttc-listen-controls,#ttcListeningSection .ttc-listen-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0}
+#ttcListeningSection .ttc-listen-btn{border:1px solid #fdba74;background:#fff7ed;color:#9a3412}
+#ttcListeningSection .ttc-listen-btn.primary{border-color:#ea580c;background:#ea580c;color:#fff}
+#ttcListeningSection .ttc-listen-btn:disabled{opacity:.4;cursor:not-allowed}
+#ttcListeningSection .ttc-listen-nav-title{font-weight:700;color:#9a3412}
+#ttcListeningSection .ttc-listen-detail{margin-top:12px;padding:15px;border:1px solid #fed7aa;border-radius:15px;background:#fff}
+#ttcListeningSection .ttc-listen-detail h3{margin:0 0 10px;color:#9a3412;font-size:22px}
+#ttcListeningSection .ttc-listen-mode-label{font-weight:700;color:#9a3412}
+#ttcListeningSection .ttc-listen-answer{display:block;max-height:30vh;overflow:auto;margin-top:12px;padding:14px;border:1px solid #fed7aa;border-radius:12px;background:#fff7ed;line-height:1.9;white-space:pre-wrap}
+#ttcListeningSection .ttc-listen-answer .py{display:block;margin-top:7px;color:#0f766e;font-size:15px}
+#ttcListeningSection .ttc-listen-answer .vi{display:block;margin-top:7px;color:#475569;font-size:15px}
+#ttcListeningSection .ttc-listen-field{position:relative;margin-top:12px;height:min(66vh,720px);min-height:280px;max-height:min(70vh,720px);border:1px solid #d6d3d1;border-radius:13px;background:#fff;overflow:hidden}
+#ttcListeningSection .ttc-listen-mirror,#ttcListeningSection #ttcListenEditor{box-sizing:border-box;height:100%;min-height:100%;margin:0;padding:16px;border:0;font-family:"Segoe UI","Microsoft YaHei UI","Microsoft YaHei",sans-serif;font-size:22px;font-weight:700;line-height:1.8;letter-spacing:0;white-space:pre-wrap;word-break:break-all;overflow-wrap:anywhere;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch}
+#ttcListeningSection .ttc-listen-mirror{position:absolute;inset:0;pointer-events:none;color:transparent}
+#ttcListeningSection #ttcListenEditor{position:relative;display:block;width:100%;max-width:100%;resize:none;background:transparent;color:#1c1917;outline:none;caret-color:#9a3412}
+#ttcListeningSection .ttc-listen-field.ttc-checking #ttcListenEditor{color:transparent;caret-color:#9a3412}
+#ttcListeningSection .ttc-listen-mirror .ok{color:#15803d}
+#ttcListeningSection .ttc-listen-mirror .bad{color:#b91c1c;text-decoration:underline wavy #ef4444}
+#ttcListeningSection .ttc-listen-status{min-height:24px;margin-top:10px;color:#78716c;font-size:13px}
+#ttcListeningSection .ttc-listen-settings{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:10px 0}
+#ttcListeningSection .ttc-listen-settings label{display:flex;align-items:center;gap:6px;font-size:14px;color:#57534e}
+#ttcListeningSection select{max-width:100%;padding:8px;border:1px solid #d6d3d1;border-radius:9px;background:#fff;color:#44403c}
+@media(max-width:600px){#ttcListeningSection{padding:13px}#ttcListeningSection .ttc-listen-levels{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}#ttcListeningSection .ttc-listen-field{height:min(58vh,560px);max-height:min(58vh,560px);min-height:220px}#ttcListeningSection .ttc-listen-mirror,#ttcListeningSection #ttcListenEditor{font-size:20px;padding:12px}#ttcListeningLauncher{font-size:15px;padding:13px}}
+
+
+
+/* index1 page-chrome (* / body / header / h1 / button / nav / main) KHÔNG được
+   áp toàn cục trên index2 — gây chữ trắng trên nền trắng (Chat Online, feature…).
+   Giữ box-sizing; phần shell index1 đã bỏ. */
+*{box-sizing:border-box}
+
+.search{
+  max-width:min(920px,100%);
+  width:100%;
+  margin:10px auto 0;
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  overflow-anchor:none;
+  box-sizing:border-box;
+  padding:12px;
+  border:1px solid #fecdd3;
+  border-radius:20px;
+  background:linear-gradient(180deg,#ffffff 0%,#fff7f8 100%);
+  box-shadow:0 10px 28px rgba(190,18,60,.08);
+}
+.ttc-search-bar{
+  display:flex;
+  flex:1 1 100%;
+  gap:8px;
+  align-items:stretch;
+  flex-wrap:wrap;
+  min-width:0;
+}
+.ttc-search-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  min-width:0;
+}
+.ttc-search-actions > button{
+  flex:0 0 auto;
+  width:auto;
+  min-height:40px;
+  border-radius:10px;
+  padding:8px 14px;
+  font-weight:600;
+  font-size:15px;
+  line-height:1.2;
+  white-space:nowrap;
+}
+.ttc-search-actions > button#ttcDrawSearch,
+.ttc-search-actions > button#ttcPhotoSearch,
+.ttc-search-actions > button#ttcVoiceSearch{
+  background:#fff;
+  color:#9f1239;
+  border:1px solid #fecdd3;
+  box-shadow:none;
+}
+#ttcRecentLookups[hidden]{display:none !important}
+#ttcRecentLookups{
+  position:relative;
+  z-index:6;
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  align-items:center;
+  width:min(900px,100%);
+  margin:8px auto 0;
+  background:transparent;
+}
+#ttcRecentLookups span{color:#64748b;font-size:13px;font-weight:700}
+#ttcRecentLookups button{
+  background:#fff7ed !important;
+  color:#9a3412 !important;
+  -webkit-text-fill-color:#9a3412 !important;
+  border:1px solid #fdba74 !important;
+  border-radius:999px !important;
+  padding:4px 10px !important;
+  font-size:16px !important;
+  line-height:1.3 !important;
+  font-weight:700 !important;
+  box-shadow:none !important;
+}
+#vocabularySection.ttc-search-results{
+  width:min(900px,100%);
+  max-height:min(52vh,480px);
+  margin:10px auto 0;
+  overflow:auto;
+  overflow-anchor:none;
+  background:#fff;
+  border:1px solid #dbe4ee;
+  border-radius:14px;
+  padding:8px 10px 12px;
+}
+
+.search{position:relative;width:min(560px,100%);margin:0 auto;padding:0}
+.ttc-search-field{position:relative;flex:1 1 180px;min-width:0;display:flex}
+.ttc-search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:1;width:18px;height:18px}
+.search input{
+  flex:1 1 160px;
+  width:100%;
+  min-width:0;
+  padding:10px 40px 10px 36px;
+  border-radius:12px;
+  border:1.5px solid #fda4af;
+  background:#fff;
+  color:#0f172a;
+  font-size:16px;
+  font-weight:700;
+  outline:none;
+  box-sizing:border-box;
+  min-height:42px;
+}
+.search input::placeholder{color:#94a3b8;font-weight:600}
+.search input:focus{border-color:#e11d48;box-shadow:0 0 0 3px rgba(225,29,72,.12)}
+#ttcSearchClear{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:28px;height:28px;padding:0;border-radius:999px;background:#fff1f2;color:#e11d48;border:1px solid #fecdd3;font-size:16px;font-weight:800;line-height:1;z-index:1}
+.ttc-search-kinds{flex:1 1 100%;margin:6px 0 0;padding:0;min-width:0}
+.ttc-search-kinds[hidden]{display:none !important}
+.ttc-search-kinds-hint{margin:0 0 6px;color:#be123c;font-size:13px;font-weight:500;line-height:1.3;text-align:center}
+.ttc-search-kinds-row{
+  display:flex;flex-wrap:nowrap;gap:8px;align-items:center;justify-content:center;
+  overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:thin;
+  padding:0 1px 4px;max-width:100%;margin:0 auto;
+}
+.ttc-search-kinds-row button{
+  flex:0 0 auto;border:1px solid #fecdd3;border-radius:10px;background:#fff;
+  color:#9f1239 !important;-webkit-text-fill-color:#9f1239 !important;font-weight:600;font-size:14px;line-height:1.2;padding:8px 12px;
+  min-height:38px;white-space:nowrap;cursor:pointer;box-shadow:none;
+}
+.ttc-search-kinds-row button.is-on{background:#e11d48;color:#fff !important;-webkit-text-fill-color:#fff !important;border-color:#be123c}
+#ttcSearchSuggest{flex:1 1 100%;max-height:min(46vh,360px);overflow:auto;margin:0;padding:6px;border:1px solid #fecdd3;border-radius:16px;background:#fff;box-shadow:0 10px 24px rgba(15,23,42,.08)}
+#ttcSearchSuggest[hidden]{display:none !important}
+#ttcSearchSuggest .ttc-sg-empty{padding:12px 14px;color:#64748b;font-weight:700}
+#ttcSearchSuggest button{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"hz lv" "py py" "mn mn";gap:2px 10px;width:100%;text-align:left;background:#fff;color:#0f172a;border:0;border-radius:14px;padding:10px 12px;box-shadow:none;box-sizing:border-box}
+#ttcSearchSuggest button + button{border-top:1px solid #fff1f2}
+#ttcSearchSuggest button.ttc-on,#ttcSearchSuggest button:hover{background:#fff1f2}
+.ttc-sg-hz{grid-area:hz;font-size:16px;font-weight:800;color:#0f172a;line-height:1.2;overflow-wrap:anywhere}
+.ttc-sg-py{grid-area:py;color:#e11d48;font-size:12px;font-weight:700;line-height:1.25}
+.ttc-sg-lv{grid-area:lv;justify-self:end;align-self:start;background:#fff1f2;color:#be123c;border-radius:999px;padding:3px 9px;font-size:12px;font-weight:800;font-style:normal}
+.ttc-sg-mn{grid-area:mn;color:#334155;font-size:14px;font-weight:650;line-height:1.4}
+#ttcSearchStatus{flex:1 1 100%;margin:0;color:#be123c;font-size:13px;font-weight:800}
+#ttcSearchDetail{width:min(920px,100%);margin:10px auto 0;padding:0;background:transparent;border:0;text-align:left;box-sizing:border-box}
+#ttcSearchDetail[hidden]{display:none !important}
+.ttc-dict{background:#fff;border:1px solid #fecdd3;border-radius:20px;padding:16px 16px 14px;box-shadow:0 8px 22px rgba(190,18,60,.06);overflow-wrap:anywhere}
+.ttc-dict-head{display:flex;align-items:flex-start;gap:12px}
+.ttc-dict-head-main{min-width:0;flex:1 1 auto}
+.ttc-dict .han{font-size:56px;line-height:1.05;font-weight:800;color:#0f172a;letter-spacing:.02em}
+.ttc-dict-speak{
+  flex:0 0 auto;margin-left:auto;width:48px;height:48px;padding:0;border-radius:999px;
+  background:#e11d48;color:#fff;border:0;font-size:20px;font-weight:800;
+  display:inline-flex;align-items:center;justify-content:center;
+  box-shadow:0 6px 0 rgba(159,18,57,.22);
+}
+.ttc-dict-speak:active{transform:translateY(2px);box-shadow:0 3px 0 rgba(159,18,57,.22)}
+.ttc-dict-py{margin-top:4px;color:#e11d48;font-size:22px;font-weight:800;line-height:1.25}
+.ttc-dict-sub{margin-top:6px;color:#64748b;font-size:13px;font-weight:700}
+.ttc-sense{margin-top:12px;padding:12px 12px 10px;border:1px solid #ffe4e6;border-radius:14px;background:#fffafa}
+.ttc-sense + .ttc-sense{margin-top:10px}
+.ttc-sense-top{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px}
+.ttc-sense-no{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:#e11d48;color:#fff;font-size:12px;font-weight:800}
+.ttc-pos{color:#9f1239;font-weight:800;font-size:13px}
+.ttc-hsk{background:#fff1f2;color:#be123c;border:1px solid #fecdd3;border-radius:999px;padding:2px 8px;font-size:12px;font-weight:800}
+.ttc-mean{margin:0;padding-left:18px;color:#0f172a;font-size:15px;line-height:1.55;font-weight:650}
+.ttc-mean li{margin:3px 0}
+.ttc-note{margin:8px 0 0;color:#475569;font-weight:650;font-size:14px;line-height:1.45}
+.ttc-ex{margin:10px 0 0;padding:10px 12px;border-left:3px solid #e11d48;border-radius:0 12px 12px 0;background:#fff}
+.ttc-ex b{display:block;font-size:18px;color:#0f172a;font-weight:800;line-height:1.4}
+.ttc-ex i{display:block;margin-top:2px;color:#e11d48;font-style:normal;font-weight:700;font-size:14px}
+.ttc-ex span{display:block;margin-top:4px;color:#334155;font-size:14px;font-weight:650;line-height:1.45}
+.ttc-rel{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:12px}
+.ttc-rel > span{color:#64748b;font-size:13px;font-weight:800}
+.ttc-rel button{background:#fff;color:#be123c;border:1px solid #fecdd3;border-radius:999px;padding:5px 11px;font-weight:800}
+#vocabularySection.ttc-search-results{max-height:none;overflow:visible;background:transparent;border:0;padding:0;width:min(920px,100%);margin-left:auto;margin-right:auto;box-sizing:border-box}
+#vocabularySection.ttc-search-results .cards{
+  grid-template-columns:1fr;
+  gap:10px;
+  width:100%;
+  box-sizing:border-box;
+}
+#vocabularySection.ttc-search-results .card{
+  min-height:0;
+  padding:8px 10px 28px;
+  border:1px solid #fecdd3;
+  border-radius:12px;
+  background:#fff;
+  box-shadow:0 2px 8px rgba(190,18,60,.04);
+}
+#vocabularySection.ttc-search-results .hanzi{
+  font-size:18px;
+  color:#0f172a;
+  margin:8px 0 2px;
+  font-weight:800;
+  line-height:1.25;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+}
+#vocabularySection.ttc-search-results .pinyin{
+  display:block !important;
+  color:#e11d48;
+  font-weight:800;
+  font-size:12px;
+  margin-bottom:3px;
+  line-height:1.3;
+  overflow-wrap:anywhere;
+}
+#vocabularySection.ttc-search-results .meaning{
+  color:#334155;
+  font-size:12px;
+  font-weight:650;
+  line-height:1.35;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+}
+#vocabularySection.ttc-search-results .hsk{
+  background:#fff1f2;
+  color:#be123c;
+  border:1px solid #fecdd3;
+}
+#vocabularySection.ttc-search-results .type{
+  background:#fff7ed;
+  color:#9a3412;
+  border:1px solid #fed7aa;
+}
+#vocabularySection.ttc-search-results .speaker{
+  background:#e11d48;
+  color:#fff;
+  border-radius:999px;
+}
+#vocabularySection.ttc-search-results .learned{color:#be123c;font-weight:800}
+@media(min-width:860px){
+  #vocabularySection.ttc-search-results .cards{grid-template-columns:1fr 1fr}
+}
+@media(max-width:700px){
+  .search{width:100%;max-width:100%;margin:6px 0 0;padding:6px 8px;box-sizing:border-box}
+  .ttc-search-bar{flex-direction:row;flex-wrap:wrap;gap:6px;align-items:center}
+  .ttc-search-field{flex:1 1 100%}
+  .search input{padding:9px 36px 9px 34px;font-size:16px;min-height:40px;border-radius:11px}
+  .ttc-search-actions{width:100%;gap:8px;justify-content:center}
+  .ttc-search-actions > button{flex:0 0 auto;width:auto;text-align:center;padding:8px 12px;font-size:14px;border-radius:10px;min-height:40px}
+  .ttc-search-kinds-hint{font-size:12px;margin:0 0 5px}
+  .ttc-search-kinds-row{gap:8px;justify-content:center}
+  .ttc-search-kinds-row button{font-size:13px;padding:7px 11px;min-height:38px}
+  .ttc-dict .han{font-size:44px}
+  .ttc-dict-py{font-size:18px}
+  .ttc-sg-hz{font-size:15px}
+  #vocabularySection.ttc-search-results .hanzi{font-size:17px;margin-top:8px}
+}
+
+
+.ttc-theme-slot{position:relative;display:flex;justify-content:center;margin:0 auto 12px}
+#ttcThemeButton{border-radius:999px;padding:10px 18px;background:#111827;color:#fff}
+.ttc-theme-menu{position:absolute;top:48px;z-index:30;display:grid;grid-template-columns:1fr 1fr;gap:6px;width:min(280px,90vw);padding:10px;border-radius:14px;background:#fff;border:1px solid #dbe4ee;box-shadow:0 12px 30px rgba(15,23,42,.16)}
+.ttc-theme-menu[hidden]{display:none !important}
+.ttc-theme-menu button{background:#f8fafc;color:#1e293b;border:1px solid #e2e8f0}
+.ttc-draw-box{width:min(1100px,70vw);max-width:1100px;margin:10px auto 0;padding:12px;border:1px solid #dbe4ee;border-radius:14px;background:#fff;box-sizing:border-box}
+#ttcDrawCanvas{display:block;width:100%;height:62vh;min-height:420px;max-height:720px;border:1px dashed #94a3b8;border-radius:12px;background:#fff;touch-action:none;box-sizing:border-box}
+.ttc-draw-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+#ttcDrawSuggestions{display:flex;flex-wrap:wrap;gap:8px;min-height:64px;margin:0 0 8px;align-items:center}
+#ttcOcrStatus{margin:0 0 8px}
+#ttcDrawSuggestions button{min-width:64px !important;height:64px !important;padding:0 8px !important;border-radius:12px !important;border:1px solid #cbd5e1 !important;background:#fff !important;color:#111827 !important;-webkit-text-fill-color:#111827 !important;font-size:34px !important;font-family:"Microsoft YaHei UI","Microsoft YaHei","Segoe UI",sans-serif !important;line-height:1 !important;font-weight:700 !important}
+@media(max-width:800px){.ttc-draw-box{width:100%;max-width:none}#ttcDrawCanvas{height:58vh;min-height:280px;max-height:none}}
+#ttcOcrStatus{margin:8px 0 0;color:#475569;font-size:14px}
+html[data-theme="night"] body{background:#0b1220 !important;color:#e5e7eb !important}
+html[data-theme="night"] body :is(header,main,section,article,nav,.auto-learning,.search,.ttc-draw-box,.ttc-theme-menu){background:#111827 !important;color:#e5e7eb !important;border-color:#334155 !important}
+html[data-theme="night"] input,html[data-theme="night"] textarea,html[data-theme="night"] select{background:#1e293b !important;color:#f8fafc !important;border-color:#475569 !important}
+html[data-theme="paper"] body{background:#f6f1e7 !important;color:#3f2e1e !important}
+html[data-theme="paper"] body :is(header,main,section,article,.auto-learning){background:#fffaf3 !important}
+html[data-theme="forest"] body{background:#ecfdf3 !important;color:#14532d !important}
+html[data-theme="forest"] body :is(header,main,section,article,.auto-learning){background:#f0fdf4 !important}
+html[data-theme="sea"] body{background:#e0f2fe !important;color:#0c4a6e !important}
+html[data-theme="sea"] body :is(header,main,section,article,.auto-learning){background:#f0f9ff !important}
+html[data-theme="sunset"] body{background:#fff1f2 !important;color:#881337 !important}
+html[data-theme="sunset"] body :is(header,main,section,article,.auto-learning){background:#fff7ed !important}
+
+/* Đã gỡ button/nav/main/hsk-nav toàn cục (xung đột Otter2).
+   Toolbar chỉ trong panel luyện tập nếu cần — không style button toàn trang. */
+.toolbar{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:15px;
+}
+
+
+.ttc-vocab-position{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+  min-height:36px;
+  padding:4px 9px;
+  border:1px solid #c9dce8;
+  border-radius:10px;
+  background:#fff;
+  color:#23445b;
+  font-weight:700;
+  white-space:nowrap;
+  font-variant-numeric:tabular-nums;
+}
+#ttcVocabularyPositionInput{
+  box-sizing:border-box;
+  width:46px;
+  min-width:42px;
+  padding:4px 2px;
+  border:1px solid #d8e5ed;
+  border-radius:6px;
+  background:#f7fbfd;
+  color:#145b89;
+  font:inherit;
+  font-weight:700;
+  text-align:center;
+  outline-offset:2px;
+}
+#ttcVocabularyPositionInput:focus{
+  border-color:#2788cf;
+  box-shadow:0 0 0 2px rgba(39,136,207,.14);
+}
+.card.ttc-vocab-jump-target{
+  outline:3px solid #f3a43b;
+  outline-offset:3px;
+  animation:ttcVocabJumpPulse 1.2s ease-in-out 2;
+}
+@keyframes ttcVocabJumpPulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(243,164,59,0)}
+  50%{box-shadow:0 0 0 7px rgba(243,164,59,.22)}
+}
+
+.progress{
+  height:10px;
+  background:#d5e4e9;
+  border-radius:10px;
+  overflow:hidden;
+  flex:1;
+  min-width:180px;
+}
+
+.progress div{
+  height:100%;
+  width:0%;
+  background:#20b58a;
+  transition:.3s;
+}
+
+.cards{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:14px;
+}
+
+.card{
+  position:relative;
+  background:rgba(255,255,255,.97);
+  border:1px solid #c9dce8;
+  border-radius:17px;
+  padding:62px 17px 50px;
+  min-height:205px;
+  box-shadow:0 3px 12px rgba(30,80,120,.09);
+}
+
+.hsk{
+  position:absolute;
+  top:12px;
+  left:12px;
+  background:#fff0d5;
+  color:#b56b00;
+  padding:5px 9px;
+  border-radius:8px;
+  font-size:12px;
+  font-weight:bold;
+}
+
+.type{
+  position:absolute;
+  top:12px;
+  right:12px;
+  max-width:55%;
+  background:#e8f4ff;
+  color:#2672b3;
+  padding:5px 9px;
+  border-radius:8px;
+  font-size:12px;
+  font-weight:bold;
+  text-align:right;
+}
+
+.hanzi .ttc-han-viet{font-size:15px;font-weight:800;color:#9f1239;letter-spacing:.04em;margin-left:8px}
+#flashcardFrontHanzi .ttc-han-viet{font-size:22px;font-weight:800;color:#9f1239;margin-left:10px}
+.hanzi{
+  font-size:45px;
+  line-height:1.25;
+  font-weight:700;
+  color:#183f66;
+  margin-bottom:7px;
+}
+
+.pinyin{
+  font-size:18px;
+  color:#5282ad;
+  margin-bottom:7px;
+}
+
+.meaning{
+  font-size:16px;
+  line-height:1.5;
+  color:#35505f;
+  padding-right:5px;
+}
+
+.speaker{
+  position:absolute;
+  right:12px;
+  bottom:12px;
+  padding:7px 11px;
+  background:#edf6ff;
+  color:#2474b5;
+  font-size:17px;
+}
+
+.learned{
+  position:absolute;
+  left:13px;
+  bottom:15px;
+  color:#1aa178;
+  font-size:13px;
+  font-weight:bold;
+}
+
+.panel{
+  margin-top:32px;
+  background:white;
+  border-radius:20px;
+  padding:25px;
+  box-shadow:0 4px 18px rgba(30,80,120,.10);
+}
+
+.panel h2{
+  margin-top:0;
+  color:#1768b3;
+}
+
+.test-box{
+  text-align:center;
+}
+
+.test-number{
+  color:#678;
+  margin-bottom:10px;
+}
+
+.test-question{
+  font-size:32px;
+  line-height:1.5;
+  font-weight:bold;
+  margin:20px 0;
+  color:#183f66;
+}
+
+.test-input{
+  width:min(600px,100%);
+  padding:14px;
+  border:2px solid #b7d3e5;
+  border-radius:12px;
+  font-size:22px;
+  text-align:center;
+  outline:none;
+}
+
+.test-result{
+  min-height:30px;
+  margin:15px 0;
+  font-weight:bold;
+  font-size:17px;
+}
+
+.score{
+  font-size:25px;
+  font-weight:bold;
+  margin:15px 0;
+}
+
+.keyboard-help{
+  margin:10px auto 20px;
+  padding:10px 15px;
+  max-width:700px;
+  background:#eef8ff;
+  border:1px solid #c7e2f5;
+  border-radius:12px;
+  color:#47718d;
+  font-size:14px;
+}
+
+.key{
+  display:inline-block;
+  padding:3px 8px;
+  margin:0 3px;
+  background:white;
+  border:1px solid #b9d1df;
+  border-radius:6px;
+  font-weight:bold;
+  color:#216b9f;
+}
+
+.sentence-box{
+  text-align:center;
+}
+
+.sentence-meaning{
+  font-size:20px;
+  color:#52718a;
+  margin:15px 0;
+}
+
+.sentence-target{
+  min-height:55px;
+  font-size:40px;
+  font-weight:bold;
+  color:#183f66;
+  margin:20px 0 4px;
+}
+
+.sentence-target-pinyin{
+  min-height:0;
+  margin:0 0 18px;
+  color:#52718a;
+  font-size:20px;
+  font-weight:700;
+  line-height:1.6;
+  overflow-wrap:anywhere;
+}
+
+.sentence-input{
+  width:min(700px,100%);
+  padding:14px;
+  border:2px solid #b7d3e5;
+  border-radius:12px;
+  font-size:20px;
+  text-align:center;
+  outline:none;
+}
+
+.sentence-result{
+  min-height:30px;
+  margin:15px 0;
+  font-weight:bold;
+}
+
+.hidden{
+  display:none;
+}
+
+@media(max-width:850px){
+  .cards{
+    grid-template-columns:repeat(2,1fr);
+  }
+}
+
+@media(max-width:550px){
+
+  h1{
+    font-size:23px;
+  }
+
+  .cards{
+    grid-template-columns:1fr;
+  }
+
+  .hanzi{
+    font-size:42px;
+  }
+
+  .test-question{
+    font-size:28px;
+  }
+
+  .sentence-target{
+    font-size:32px;
+  }
+}
+
+/* =====================================================
+   🏠 NÚT HOME — VỀ ĐẦU TRANG
+===================================================== */
+
+#homeButton{
+
+  position: fixed;
+
+  right:23px;
+  bottom:12px;
+
+  width: 48px;
+  height: 48px;
+
+  border: none;
+  border-radius: 50%;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 4px 14px rgba(0,0,0,0.18);
+
+  font-size: 32px;
+
+  cursor: pointer;
+
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+#homeButton:hover{
+
+  transform: translateY(-3px);
+
+  box-shadow:
+    0 7px 18px rgba(0,0,0,0.25);
+}
+
+#homeButton:active{
+
+  transform: scale(0.92);
+}
+
+/* =========================================================
+   🃏 FLASHCARD — GIAO DIỆN 2 MẶT + 3D FLIP
+   ========================================================= */
+
+#flashcardSection{
+  width:100%;
+  max-width:760px;
+  margin:28px auto 35px;
+  padding:0 14px;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.flashcard-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:14px;
+}
+
+.flashcard-title{
+  font-size:22px;
+  font-weight:700;
+  letter-spacing:.3px;
+}
+
+.flashcard-counter{
+  padding:7px 12px;
+  border-radius:999px;
+  background:#eef4ff;
+  color:#2457c5;
+  font-size:14px;
+  font-weight:700;
+  white-space:nowrap;
+}
+
+
+/* =========================================================
+   KHUNG 3D
+   ========================================================= */
+
+.flashcard-scene{
+  width:100%;
+  height:690px;
+  perspective:1400px;
+}
+
+.flashcard{
+  position:relative;
+  width:100%;
+  height:100%;
+
+  transform-style:preserve-3d;
+  transition:
+    transform .7s cubic-bezier(.2,.7,.2,1);
+
+  cursor:pointer;
+}
+
+.flashcard.is-flipped{
+  transform:rotateY(180deg);
+}
+
+
+/* =========================================================
+   2 MẶT
+   ========================================================= */
+
+.flashcard-face{
+  position:absolute;
+  inset:0;
+
+  width:100%;
+  height:100%;
+
+  border-radius:28px;
+
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+
+  overflow:hidden;
+
+  box-shadow:
+    0 18px 45px rgba(0,0,0,.14),
+    0 5px 15px rgba(0,0,0,.08);
+
+  border:1px solid rgba(255,255,255,.75);
+}
+
+
+/* =========================================================
+   MẶT TRƯỚC
+   ========================================================= */
+
+.flashcard-front{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+
+  padding:40px 25px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #ffffff 0%,
+      #f5f9ff 48%,
+      #eaf2ff 100%
+    );
+}
+
+.flashcard-label{
+  margin-bottom:25px;
+
+  padding:7px 15px;
+
+  border-radius:999px;
+
+  background:#e8f0ff;
+  color:#3568d4;
+
+  font-size:13px;
+  font-weight:700;
+
+  letter-spacing:.7px;
+}
+
+.flashcard-hanzi{
+  font-family:
+    "Noto Sans CJK SC",
+    "Noto Sans SC",
+    "Microsoft YaHei",
+    sans-serif;
+
+  font-size:clamp(110px,18vw,190px);
+  line-height:1;
+
+  font-weight:700;
+
+  color:#172033;
+
+  text-shadow:
+    0 5px 15px rgba(0,0,0,.08);
+
+  margin-bottom:20px;
+}
+
+.flashcard-name{
+  font-size:20px;
+  font-weight:700;
+  color:#475569;
+  margin-bottom:8px;
+}
+
+.flashcard-pinyin{
+  font-size:25px;
+  font-weight:700;
+  color:#2563eb;
+  margin-bottom:12px;
+}
+
+.flashcard-meaning{
+  max-width:90%;
+
+  font-size:20px;
+  line-height:1.5;
+  font-weight:700;
+
+  text-align:center;
+
+  color:#263247;
+}
+
+
+/* =========================================================
+   NÚT LẬT
+   ========================================================= */
+
+.flashcard-flip-button{
+  margin-top:30px;
+
+  border:0;
+
+  padding:13px 23px;
+
+  border-radius:14px;
+
+  background:linear-gradient(
+    135deg,
+    #2563eb,
+    #4f46e5
+  );
+
+  color:#fff;
+
+  font-size:15px;
+  font-weight:700;
+
+  cursor:pointer;
+
+  box-shadow:
+    0 8px 18px rgba(37,99,235,.25);
+
+  transition:
+    transform .2s ease,
+    box-shadow .2s ease;
+}
+
+.flashcard-flip-button:hover{
+  transform:translateY(-2px);
+
+  box-shadow:
+    0 11px 24px rgba(37,99,235,.32);
+}
+
+.flashcard-flip-button:active{
+  transform:translateY(1px);
+}
+
+
+/* =========================================================
+   MẶT SAU
+   ========================================================= */
+
+.flashcard-back{
+  transform:rotateY(180deg);
+
+  padding:24px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #ffffff 0%,
+      #f8fbff 55%,
+      #edf5ff 100%
+    );
+
+  overflow-y:auto;
+}
+
+
+/* =========================================================
+   HEADER MẶT SAU
+   ========================================================= */
+
+.flashcard-back-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  gap:15px;
+
+  padding-bottom:17px;
+  margin-bottom:18px;
+
+  border-bottom:1px solid #e5eaf2;
+}
+
+.flashcard-back-position{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  min-width:0;
+}
+
+.flashcard-back-counter{
+  color:#64748b;
+  font-size:12px;
+  font-weight:700;
+  white-space:nowrap;
+}
+
+.flashcard-back-hanzi{
+  font-size:42px;
+  line-height:1;
+  font-weight:700;
+  color:#172033;
+
+  min-width:0;
+  max-width:100%;
+
+  overflow-wrap:anywhere;
+  word-break:break-word;
+
+  transition:
+    font-size .2s ease;
+}
+
+/* Tự co theo số lượng Hán tự */
+
+.flashcard-back-hanzi[data-length="1"]{
+  font-size:42px;
+}
+
+.flashcard-back-hanzi[data-length="2"]{
+  font-size:38px;
+}
+
+.flashcard-back-hanzi[data-length="3"]{
+  font-size:34px;
+}
+
+.flashcard-back-hanzi[data-length="4"]{
+  font-size:31px;
+}
+
+.flashcard-back-hanzi[data-length="5"]{
+  font-size:28px;
+}
+
+.flashcard-back-hanzi[data-length="6"],
+.flashcard-back-hanzi[data-length="7"],
+.flashcard-back-hanzi[data-length="8"]{
+  font-size:25px;
+}
+.flashcard-back-pinyin{
+  font-size:23px;
+  font-weight:700;
+  color:#2563eb;
+}
+
+
+/* =========================================================
+   GRID THÔNG TIN
+   ========================================================= */
+
+.flashcard-info-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin-bottom:14px;
+}
+
+.flashcard-info-item{
+  display:flex;
+  align-items:center;
+  gap:9px;
+
+  padding:12px;
+
+  border-radius:16px;
+
+  background:#f7f9fc;
+  border:1px solid #e8edf5;
+}
+
+.flashcard-info-icon{
+  font-size:20px;
+  flex-shrink:0;
+}
+
+.flashcard-info-item small{
+  display:block;
+
+  color:#7b8798;
+
+  font-size:11px;
+  font-weight:700;
+
+  margin-bottom:3px;
+}
+
+.flashcard-info-item strong{
+  display:block;
+
+  color:#263247;
+
+  font-size:13px;
+  line-height:1.3;
+}
+
+
+/* =========================================================
+   CÁC BOX CHI TIẾT
+   ========================================================= */
+
+.flashcard-detail-box{
+  padding:15px;
+
+  margin-bottom:12px;
+
+  border-radius:18px;
+
+  background:#ffffff;
+
+  border:1px solid #e6ebf3;
+
+  box-shadow:
+    0 4px 12px rgba(0,0,0,.035);
+}
+
+.flashcard-detail-title{
+  margin-bottom:11px;
+
+  font-size:13px;
+  font-weight:700;
+
+  color:#334155;
+
+  letter-spacing:.2px;
+}
+
+.flashcard-detail-content{
+  color:#64748b;
+  font-size:14px;
+  line-height:1.5;
+}
+
+/* =========================================================
+   ✍️ THỨ TỰ NÉT — KHUNG VISUAL
+   ========================================================= */
+
+.flashcard-stroke-board{
+  width:100%;
+  padding:10px 0 4px;
+  text-align:center;
+}
+
+/* =========================================================
+   ✍️ BƯỚC 9 — CHỌN TỪNG HÁN TỰ TRONG MỘT TỪ
+   ========================================================= */
+
+.stroke-character-selector{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  margin:0 0 12px;
+}
+
+.stroke-character-button{
+  min-width:48px;
+  min-height:44px;
+  padding:7px 12px;
+
+  border:1px solid #dbe4f0;
+  border-radius:13px;
+
+  background:#f8fafc;
+  color:#334155;
+
+  font-size:22px;
+  font-weight:700;
+
+  cursor:pointer;
+
+  transition:
+    background .2s ease,
+    color .2s ease,
+    transform .2s ease,
+    box-shadow .2s ease;
+}
+
+.stroke-character-button:hover{
+  transform:translateY(-1px);
+}
+
+.stroke-character-button.active{
+  background:#2563eb;
+  color:#ffffff;
+  border-color:#2563eb;
+
+  box-shadow:
+    0 5px 14px rgba(37,99,235,.22);
+}
+
+.stroke-character-label{
+  width:100%;
+  margin-bottom:2px;
+
+  color:#64748b;
+  font-size:12px;
+  font-weight:700;
+}
+
+.stroke-order-loading{
+  padding:28px 12px;
+  color:#64748b;
+  font-size:14px;
+  text-align:center;
+}
+
+.stroke-order-canvas{
+  position:relative;
+  width:min(100%,420px);
+  margin:0 auto;
+  aspect-ratio:1 / 1;
+  border-radius:18px;
+  background:#f8fafc;
+  border:1px solid #e6ebf3;
+  overflow:hidden;
+}
+
+.stroke-order-svg{
+  display:block;
+  width:100%;
+  height:100%;
+}
+
+.stroke-path{
+  fill:#172033;
+  transition:opacity .25s ease;
+}
+
+.stroke-path.is-hidden{
+  opacity:.10;
+}
+
+.stroke-number{
+  fill:#2563eb;
+  stroke:#ffffff;
+  stroke-width:3;
+}
+
+.stroke-number-text{
+  fill:#ffffff;
+  font-size:28px;
+  font-weight:700;
+  text-anchor:middle;
+  dominant-baseline:middle;
+  pointer-events:none;
+}
+
+.stroke-arrow{
+  stroke:#ef4444;
+  stroke-width:8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  fill:none;
+}
+
+.stroke-arrow-head{
+  fill:#ef4444;
+}
+
+.stroke-order-controls{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:12px;
+}
+
+.stroke-order-button{
+  min-height:44px;
+  padding:10px 15px;
+  border:0;
+  border-radius:13px;
+  background:#eef4ff;
+  color:#2457c5;
+  font-size:13px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.stroke-order-button:active{
+  transform:translateY(1px);
+}
+
+.stroke-order-info{
+  margin-top:10px;
+  color:#64748b;
+  font-size:12px;
+  line-height:1.5;
+  text-align:center;
+}
+
+.stroke-order-error{
+  padding:20px 12px;
+  color:#b45309;
+  font-size:13px;
+  line-height:1.5;
+  text-align:center;
+}
+
+@media(max-width:600px){
+
+  .flashcard-stroke-board{
+    padding-top:4px;
+  }
+
+  .stroke-order-canvas{
+    width:min(100%,340px);
+    border-radius:16px;
+  }
+
+  .stroke-number-text{
+    font-size:24px;
+  }
+
+  .stroke-order-controls{
+    gap:8px;
+  }
+
+  .stroke-order-button{
+    flex:1 1 140px;
+  }
+
+}
+
+/* =========================================================
+   AUDIO
+   ========================================================= */
+
+.flashcard-audio-button,
+.flashcard-example-audio{
+  width:100%;
+
+  border:0;
+
+  padding:12px 15px;
+
+  border-radius:13px;
+
+  background:#eef4ff;
+
+  color:#2457c5;
+
+  font-size:14px;
+  font-weight:700;
+
+  cursor:pointer;
+
+  transition:
+    background .2s ease,
+    transform .2s ease;
+}
+
+.flashcard-audio-button:hover,
+.flashcard-example-audio:hover{
+  background:#e2ecff;
+  transform:translateY(-1px);
+}
+
+.flashcard-audio-button:active,
+.flashcard-example-audio:active{
+  transform:translateY(1px);
+}
+/* =========================================================
+   🔘 LOA MẶT TRƯỚC — KIỂU HOME IPHONE 5
+   ========================================================= */
+
+.flashcard-front-audio-button{
+
+  width:58px;
+  height:58px;
+
+  padding:0;
+
+  margin:4px 0 2px;
+
+  border-radius:50%;
+
+  border:1px solid #d9e1ec;
+
+  background:#ffffff;
+
+  color:#475569;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  font-size:23px;
+
+  cursor:pointer;
+
+  box-shadow:
+    0 4px 8px rgba(0,0,0,.12),
+    inset 0 1px 2px rgba(255,255,255,.9);
+
+  transition:
+    transform .12s ease,
+    box-shadow .12s ease,
+    background .12s ease;
+
+  flex-shrink:0;
+}
+
+.flashcard-front-audio-button:hover{
+
+  background:#f8fafc;
+
+  box-shadow:
+    0 5px 11px rgba(0,0,0,.16),
+    inset 0 1px 2px rgba(255,255,255,.9);
+}
+
+.flashcard-front-audio-button:active{
+
+  transform:
+    scale(.91)
+    translateY(1px);
+
+  box-shadow:
+    inset 0 2px 4px rgba(0,0,0,.16),
+    0 1px 3px rgba(0,0,0,.10);
+}
+
+/* =========================================================
+   CẤU TẠO HÁN TỰ
+   ========================================================= */
+
+.flashcard-structure{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.flashcard-structure > div{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+
+  gap:15px;
+
+  padding:10px 0;
+
+  border-bottom:1px dashed #e5eaf1;
+}
+
+.flashcard-structure > div:last-child{
+  border-bottom:0;
+  padding-bottom:0;
+}
+
+.flashcard-structure span{
+  color:#64748b;
+
+  font-size:13px;
+  font-weight:700;
+}
+
+.flashcard-structure strong{
+  max-width:60%;
+
+  color:#263247;
+
+  font-size:13px;
+  line-height:1.45;
+
+  text-align:right;
+}
+
+
+/* =========================================================
+   VÍ DỤ
+   ========================================================= */
+
+.flashcard-example-chinese{
+  font-size:22px;
+  font-weight:700;
+
+  color:#172033;
+
+  line-height:1.5;
+
+  margin-bottom:7px;
+}
+
+.flashcard-example-pinyin{
+  font-size:15px;
+  font-weight:700;
+
+  color:#2563eb;
+
+  margin-bottom:7px;
+}
+
+.flashcard-example-meaning{
+  font-size:14px;
+  line-height:1.5;
+
+  color:#64748b;
+
+  margin-bottom:12px;
+}
+
+
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+
+.flashcard-navigation{
+  display:grid;
+
+  grid-template-columns:1fr 1.2fr 1fr;
+
+  gap:10px;
+
+  margin-top:15px;
+}
+
+.flashcard-nav-button,
+.flashcard-main-button{
+  min-height:48px;
+
+  border-radius:15px;
+
+  border:0;
+
+  font-size:14px;
+  font-weight:700;
+
+  cursor:pointer;
+
+  transition:
+    transform .2s ease,
+    box-shadow .2s ease;
+}
+
+.flashcard-nav-button{
+  background:#f1f5f9;
+  color:#334155;
+}
+
+.flashcard-main-button{
+  background:
+    linear-gradient(
+      135deg,
+      #2563eb,
+      #4f46e5
+    );
+
+  color:#fff;
+
+  box-shadow:
+    0 8px 18px rgba(37,99,235,.22);
+}
+
+.flashcard-nav-button:hover,
+.flashcard-main-button:hover{
+  transform:translateY(-2px);
+}
+
+.flashcard-nav-button:active,
+.flashcard-main-button:active{
+  transform:translateY(1px);
+}
+
+
+/* =========================================================
+   TRẠNG THÁI
+   ========================================================= */
+
+.flashcard-status{
+  margin-top:12px;
+
+  padding:10px 14px;
+
+  border-radius:13px;
+
+  background:#f8fafc;
+
+  border:1px solid #e7ebf1;
+
+  color:#64748b;
+
+  text-align:center;
+
+  font-size:13px;
+  font-weight:700;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width:600px){
+
+  #flashcardSection{
+    margin-top:20px;
+    padding:0 10px;
+  }
+
+  .flashcard-header{
+    margin-bottom:11px;
+  }
+
+  .flashcard-title{
+    font-size:19px;
+  }
+
+  .flashcard-counter{
+    font-size:12px;
+    padding:6px 10px;
+  }
+
+  .flashcard-scene{
+    height:700px;
+  }
+
+  .flashcard-face{
+    border-radius:23px;
+  }
+
+  .flashcard-front{
+    padding:30px 18px;
+  }
+
+  .flashcard-hanzi{
+    font-size:120px;
+  }
+
+  .flashcard-name{
+    font-size:18px;
+  }
+
+  .flashcard-pinyin{
+    font-size:22px;
+  }
+
+  .flashcard-meaning{
+    font-size:18px;
+  }
+
+  .flashcard-back{
+    padding:18px;
+  }
+
+  .flashcard-back-hanzi{
+    font-size:36px;
+  }
+
+  .flashcard-back-pinyin{
+    font-size:20px;
+  }
+
+  .flashcard-info-grid{
+    grid-template-columns:1fr;
+    gap:8px;
+  }
+
+  .flashcard-info-item{
+    padding:10px;
+  }
+
+  .flashcard-detail-box{
+    padding:13px;
+    border-radius:15px;
+  }
+
+  .flashcard-navigation{
+    gap:7px;
+  }
+
+  .flashcard-nav-button,
+  .flashcard-main-button{
+    min-height:46px;
+    padding:8px 5px;
+    font-size:13px;
+  }
+
+}
+
+
+/* =========================================================
+   MÀN HÌNH RẤT NHỎ
+   ========================================================= */
+
+@media (max-width:380px){
+
+  .flashcard-scene{
+    height:680px;
+  }
+
+  .flashcard-hanzi{
+    font-size:105px;
+  }
+
+  .flashcard-meaning{
+    font-size:17px;
+  }
+
+  .flashcard-navigation{
+    grid-template-columns:1fr 1fr 1fr;
+  }
+
+}
+
+
+
+
+/* =========================================================
+   🃏 BLOCK 4 — FLASHCARD THU GỌN / MỞ RỘNG
+   ========================================================= */
+
+/* Thanh Flashcard khi đang thu gọn */
+.flashcard-collapsed-bar{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  width:100%;
+}
+
+.flashcard-toggle-button{
+  border:0;
+  border-radius:999px;
+
+  padding:9px 18px;
+
+  font-size:15px;
+  font-weight:700;
+
+  cursor:pointer;
+
+  background:
+    linear-gradient(
+      135deg,
+      #ffffff,
+      #eef4ff
+    );
+
+  color:#2457c5;
+
+  border:1px solid #dfe7f5;
+
+  box-shadow:
+    0 4px 12px rgba(0,0,0,.08);
+
+  transition:
+    transform .2s ease,
+    box-shadow .2s ease;
+}
+
+.flashcard-toggle-button:hover{
+  transform:translateY(-1px);
+
+  box-shadow:
+    0 7px 18px rgba(0,0,0,.12);
+}
+
+.flashcard-toggle-button:active{
+  transform:scale(.97);
+}
+
+
+/* =========================================================
+   NỘI DUNG FLASHCARD — MẶC ĐỊNH ẨN
+   ========================================================= */
+
+.flashcard-content{
+  display:none;
+  margin-top:14px;
+
+  animation:
+    flashcardOpen .25s ease;
+}
+
+#flashcardSection.flashcard-open
+.flashcard-content{
+  display:block;
+}
+
+@keyframes flashcardOpen{
+
+  from{
+    opacity:0;
+    transform:translateY(-8px);
+  }
+
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+
+}
+
+
+/* =========================================================
+   KHU VỰC HSK + COUNTER
+   ========================================================= */
+
+.flashcard-controls{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+
+  gap:10px;
+
+  flex-wrap:wrap;
+}
+
+
+/* =========================================================
+   SELECTOR HSK
+   ========================================================= */
+
+.flashcard-hsk-select{
+
+  min-width:110px;
+
+  padding:8px 12px;
+
+  border-radius:10px;
+
+  border:1px solid #d7deea;
+
+  background:#ffffff;
+
+  color:#263247;
+
+  font-size:14px;
+  font-weight:700;
+
+  cursor:pointer;
+
+  outline:none;
+
+  transition:
+    border-color .2s ease,
+    box-shadow .2s ease;
+}
+
+.flashcard-hsk-select:focus{
+
+  border-color:#7aa2f7;
+
+  box-shadow:
+    0 0 0 3px rgba(37,99,235,.08);
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media(max-width:600px){
+
+  .flashcard-collapsed-bar{
+    padding:0 10px;
+  }
+
+  .flashcard-toggle-button{
+    padding:8px 16px;
+    font-size:14px;
+  }
+
+  .flashcard-controls{
+    width:100%;
+
+    justify-content:
+      space-between;
+  }
+
+  .flashcard-hsk-select{
+    flex:1;
+    min-width:0;
+  }
+
+}
+
+
+/* =========================================================
+   MÀN HÌNH RẤT NHỎ
+   ========================================================= */
+
+@media(max-width:380px){
+
+  .flashcard-toggle-button{
+    padding:8px 14px;
+    font-size:13px;
+  }
+
+}
+
+
+
+
+/* =========================================================
+   📱 FLASHCARD MOBILE — FULL SCREEN LEARNING MODE
+   ========================================================= */
+
+@media (max-width:600px){
+
+  /* ---------------------------------------------------------
+     🔒 KHÓA TRANG PHÍA SAU KHI ĐANG HỌC
+     --------------------------------------------------------- */
+
+  body.flashcard-mobile-mode{
+    overflow:hidden !important;
+    height:100vh !important;
+    height:100dvh !important;
+    touch-action:none;
+  }
+
+
+  /* ---------------------------------------------------------
+     📱 FLASHCARD FULL SCREEN
+     --------------------------------------------------------- */
+
+  #flashcardSection.flashcard-fullscreen{
+
+    position:fixed !important;
+
+    inset:0 !important;
+
+    width:100% !important;
+    max-width:none !important;
+
+    height:100vh !important;
+    height:100dvh !important;
+
+    margin:0 !important;
+    padding:0 !important;
+
+    z-index:99990 !important;
+
+    background:
+      linear-gradient(
+        145deg,
+        #f7faff 0%,
+        #eef4ff 100%
+      );
+
+    overflow-y:auto !important;
+    overflow-x:hidden !important;
+
+    overscroll-behavior:contain;
+
+  }
+
+
+  /* ---------------------------------------------------------
+     🚫 ẨN THANH MỞ FLASHCARD CŨ
+     --------------------------------------------------------- */
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-collapsed-bar{
+
+    display:none !important;
+
+  }
+
+
+  /* ---------------------------------------------------------
+     📦 NỘI DUNG
+     --------------------------------------------------------- */
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-content{
+
+    display:block !important;
+
+    width:100%;
+
+    min-height:100vh;
+    min-height:100dvh;
+
+    margin:0 !important;
+
+    padding:
+      max(12px, env(safe-area-inset-top))
+      12px
+      max(18px, env(safe-area-inset-bottom))
+      12px;
+
+  }
+
+
+  /* ---------------------------------------------------------
+     🏷️ HEADER
+     --------------------------------------------------------- */
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-header{
+
+    margin-bottom:10px;
+
+    min-height:42px;
+
+  }
+
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-title{
+
+    font-size:17px;
+
+    white-space:nowrap;
+
+  }
+
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-controls{
+
+    width:auto;
+
+    flex-wrap:nowrap;
+
+    gap:7px;
+
+  }
+
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-hsk-select{
+
+    flex:0 0 auto;
+
+    min-width:82px;
+
+    width:82px;
+
+    padding:7px 8px;
+
+    font-size:12px;
+
+  }
+
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-counter{
+
+    font-size:11px;
+
+    padding:6px 8px;
+
+  }
+
+
+  /* ---------------------------------------------------------
+     🔄 NÚT HỌC LẠI
+     --------------------------------------------------------- */
+
+  .flashcard-reset-button{
+
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+
+    width:34px;
+    height:34px;
+
+    padding:0;
+
+    border-radius:50%;
+
+    background:#ffffff;
+
+    color:#2457c5;
+
+    border:1px solid #dfe7f5;
+
+    box-shadow:
+      0 3px 10px rgba(0,0,0,.08);
+
+    font-size:16px;
+
+    flex-shrink:0;
+
+  }
+
+
+  .flashcard-reset-button:active{
+
+    transform:scale(.92);
+
+  }
+
+
+  /* ---------------------------------------------------------
+     ✕ NÚT ĐÓNG
+     --------------------------------------------------------- */
+
+  #flashcardExitButton{
+
+    position:fixed !important;
+
+    top:max(12px, env(safe-area-inset-top)) !important;
+
+    right:max(12px, env(safe-area-inset-right, 0px)) !important;
+
+    z-index:2147483646 !important;
+
+    width:auto !important;
+    min-width:72px !important;
+    height:auto !important;
+    min-height:42px !important;
+
+    padding:0 16px !important;
+
+    border:0 !important;
+
+    border-radius:999px !important;
+
+    background:#e11d48 !important;
+
+    color:#fff !important;
+
+    box-shadow:
+      0 10px 24px rgba(225,29,72,.35) !important;
+
+    font-size:14px !important;
+
+    font-weight:800 !important;
+
+    line-height:1.2 !important;
+
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+
+  }
+
+
+  #flashcardExitButton:active{
+
+    transform:scale(.90);
+
+  }
+
+
+  /* ---------------------------------------------------------
+     🃏 KHUNG CARD
+     --------------------------------------------------------- */
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-scene{
+
+    width:100%;
+
+    height:
+      calc(
+        100dvh - 125px
+      );
+
+    min-height:430px;
+
+    perspective:1200px;
+
+    touch-action:manipulation;
+
+    user-select:none;
+
+    -webkit-user-select:none;
+
+    overscroll-behavior:contain;
+
+  }
+
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-face{
+
+    border-radius:22px;
+
+  }
+
+
+  /* ---------------------------------------------------------
+     🈶 MẶT TRƯỚC
+     --------------------------------------------------------- */
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-front{
+
+    padding:25px 18px;
+
+  }
+
+
+  /* Bỏ nhãn TỪ VỰNG trên mobile */
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-label{
+
+    display:none;
+
+  }
+
+
+  /* Bỏ tên Hán tự trên mobile */
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-name{
+
+    display:none;
+
+  }
+
+
+  /* Hán tự tự co */
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-hanzi{
+
+    width:100%;
+
+    max-width:100%;
+
+    margin-bottom:22px;
+
+    line-height:1.08;
+
+    text-align:center;
+
+    overflow-wrap:anywhere;
+
+    word-break:normal;
+
+    font-size:clamp(
+      58px,
+      19vw,
+      105px
+    );
+
+  }
+
+
+  /* 1 chữ */
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-hanzi[data-length="1"]{
+
+    font-size:clamp(
+      90px,
+      28vw,
+      150px
+    );
+
+  }
+
+
+  /* 2 chữ */
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-hanzi[data-length="2"]{
+
+    font-size:clamp(
+      72px,
+      23vw,
+      125px
+    );
+
+  }
+
+
+  /* 3 chữ */
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-hanzi[data-length="3"]{
+
+    font-size:clamp(
+      65px,
+      20vw,
+      105px
+    );
+
+  }
+
+
+  /* 4 chữ */
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-hanzi[data-length="4"]{
+
+    font-size:clamp(
+      58px,
+      17vw,
+      90px
+    );
+
+  }
+
+
+  /* 5 chữ */
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-hanzi[data-length="5"]{
+
+    font-size:clamp(
+      52px,
+      15vw,
+      80px
+    );
+
+  }
+
+
+  /* 6 chữ */
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-hanzi[data-length="6"]{
+
+    font-size:clamp(
+      47px,
+      13vw,
+      70px
+    );
+
+  }
+
+
+  /* 7 chữ */
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-hanzi[data-length="7"]{
+
+    font-size:clamp(
+      43px,
+      12vw,
+      64px
+    );
+
+  }
+
+
+  /* 8 chữ trở lên */
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-hanzi[data-length="8"]{
+
+    font-size:clamp(
+      38px,
+      10vw,
+      56px
+    );
+
+  }
+
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-pinyin{
+
+    font-size:21px;
+
+    margin-bottom:12px;
+
+  }
+
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-meaning{
+
+    max-width:94%;
+
+    font-size:18px;
+
+    line-height:1.5;
+
+  }
+
+
+  /* ---------------------------------------------------------
+     🚫 MOBILE KHÔNG HIỆN NÚT LẬT
+     --------------------------------------------------------- */
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-flip-button{
+
+    display:none !important;
+
+  }
+
+
+  /* ---------------------------------------------------------
+     🏷️ MẶT SAU
+     --------------------------------------------------------- */
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-back{
+
+    padding:17px;
+
+  }
+
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-back-hanzi{
+
+    font-size:34px;
+
+  }
+
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-back-pinyin{
+
+    font-size:19px;
+
+  }
+
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-info-grid{
+
+    grid-template-columns:1fr;
+
+    gap:7px;
+
+  }
+
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-info-item{
+
+    padding:9px;
+
+  }
+
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-detail-box{
+
+    padding:12px;
+
+    margin-bottom:9px;
+
+  }
+
+
+  /* ---------------------------------------------------------
+     🚫 ẨN 3 NÚT ĐIỀU HƯỚNG MOBILE
+     --------------------------------------------------------- */
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-navigation{
+
+    display:none !important;
+
+  }
+
+
+  /* ---------------------------------------------------------
+     📍 STATUS
+     --------------------------------------------------------- */
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-status{
+
+    margin-top:9px;
+
+    font-size:11px;
+
+    padding:7px;
+
+  }
+
+}
+
+
+/* =========================================================
+   📱 MÁY RẤT NHỎ
+   ========================================================= */
+
+@media(max-width:380px){
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-scene{
+
+    min-height:400px;
+
+    height:
+      calc(
+        100dvh - 118px
+      );
+
+  }
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-hanzi[data-length="1"]{
+
+    font-size:105px;
+
+  }
+
+}
+
+/* =========================================================
+   🃏 FLASHCARD — KÉO CHẾCH LÊN NHƯ QUÂN BÀI
+   👉 LÊN + PHẢI = TỪ TIẾP THEO
+   👈 LÊN + TRÁI  = TỪ TRƯỚC
+   ========================================================= */
+
+/* Card thật */
+#flashcardSection.flashcard-fullscreen .flashcard{
+  --flashcard-drag-x:0px;
+  --flashcard-drag-y:0px;
+  --flashcard-drag-rotate:0deg;
+  --flashcard-flip-angle:0deg;
+
+  transform:
+    translate3d(
+      var(--flashcard-drag-x),
+      var(--flashcard-drag-y),
+      0
+    )    rotateZ(
+      var(--flashcard-drag-rotate)
+    )
+    rotateY(
+      var(--flashcard-flip-angle)
+    );
+
+  transition:
+    transform .62s cubic-bezier(.22,.72,.2,1);
+
+  will-change:transform;
+}
+
+
+/* Khi lật mặt sau */
+#flashcardSection.flashcard-fullscreen
+.flashcard.is-flipped{
+  --flashcard-flip-angle:180deg;
+}
+
+
+/* =========================================================
+   🃏 CARD PREVIEW
+   ========================================================= */
+
+.flashcard-swipe-preview{
+  position:absolute;
+  inset:0;
+
+  width:100%;
+  height:100%;
+
+  border-radius:22px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #ffffff 0%,
+      #f5f9ff 48%,
+      #eaf2ff 100%
+    );
+
+  border:1px solid rgba(255,255,255,.75);
+
+  box-shadow:
+    0 18px 45px rgba(0,0,0,.12),
+    0 5px 15px rgba(0,0,0,.07);
+
+  z-index:1;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  text-align:center;
+
+  pointer-events:none;
+
+  will-change:transform;
+
+  transition:
+    transform .62s cubic-bezier(.22,.72,.2,1);
+}
+
+
+/* Card thật nằm phía trên preview */
+#flashcardSection.flashcard-fullscreen
+.flashcard{
+  z-index:2;
+}
+
+
+/* Nội dung preview */
+.flashcard-swipe-preview-inner{
+  width:100%;
+  padding:25px 18px;
+
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+}
+
+
+/* Hán tự preview */
+.flashcard-swipe-preview-hanzi{
+  width:100%;
+  max-width:100%;
+
+  margin-bottom:22px;
+
+  font-family:
+    "Noto Sans CJK SC",
+    "Noto Sans SC",
+    "Microsoft YaHei",
+    sans-serif;
+
+  font-size:clamp(
+    58px,
+    19vw,
+    105px
+  );
+
+  line-height:1.08;
+  font-weight:700;
+
+  color:#172033;
+  text-align:center;
+
+  overflow-wrap:anywhere;
+}
+
+
+/* Kích thước theo số chữ */
+.flashcard-swipe-preview-hanzi[data-length="1"]{
+  font-size:clamp(90px,28vw,150px);
+}
+
+.flashcard-swipe-preview-hanzi[data-length="2"]{
+  font-size:clamp(72px,23vw,125px);
+}
+
+.flashcard-swipe-preview-hanzi[data-length="3"]{
+  font-size:clamp(65px,20vw,105px);
+}
+
+.flashcard-swipe-preview-hanzi[data-length="4"]{
+  font-size:clamp(58px,17vw,90px);
+}
+
+.flashcard-swipe-preview-hanzi[data-length="5"]{
+  font-size:clamp(52px,15vw,80px);
+}
+
+.flashcard-swipe-preview-hanzi[data-length="6"]{
+  font-size:clamp(47px,13vw,70px);
+}
+
+.flashcard-swipe-preview-hanzi[data-length="7"]{
+  font-size:clamp(43px,12vw,64px);
+}
+
+.flashcard-swipe-preview-hanzi[data-length="8"]{
+  font-size:clamp(38px,10vw,56px);
+}
+
+
+.flashcard-swipe-preview-pinyin{
+  font-size:21px;
+  font-weight:700;
+  color:#2563eb;
+  margin-bottom:12px;
+}
+
+
+.flashcard-swipe-preview-meaning{
+  max-width:94%;
+
+  font-size:18px;
+  line-height:1.5;
+  font-weight:700;
+
+  color:#263247;
+}
+
+
+/* =========================================================
+   🔄 RESET — LUÔN HIỆN RÕ TRÊN MOBILE
+   ========================================================= */
+
+#flashcardSection.flashcard-fullscreen
+.flashcard-reset-button{
+
+  display:flex !important;
+
+  position:fixed !important;
+
+  top:
+    max(
+      10px,
+      env(safe-area-inset-top)
+    ) !important;
+
+  right:56px !important;
+
+  z-index:100001 !important;
+
+  width:38px !important;
+  height:38px !important;
+
+  padding:0 !important;
+
+  align-items:center !important;
+  justify-content:center !important;
+
+  border-radius:50% !important;
+
+  background:
+    rgba(255,255,255,.96) !important;
+
+  color:#2457c5 !important;
+
+  border:1px solid #dfe7f5 !important;
+
+  box-shadow:
+    0 4px 14px rgba(0,0,0,.14) !important;
+
+  font-size:18px !important;
+
+  line-height:1 !important;
+
+  flex-shrink:0 !important;
+}
+
+#flashcardSection.flashcard-fullscreen
+.flashcard-reset-button:active{
+
+  transform:scale(.90);
+
+}
+
+
+/* =========================================================
+   📱 KHÓA VÙNG KÉO
+   ========================================================= */
+
+@media(max-width:600px){
+
+  #flashcardSection.flashcard-fullscreen
+  .flashcard-scene{
+
+    touch-action:none;
+
+    overflow:hidden;
+
+    user-select:none;
+
+    -webkit-user-select:none;
+
+  }
+
+}
+
+
+/* TTC — nút bật/tắt Pinyin, không can thiệp engine dữ liệu */
+.ttc-pinyin-toggle{flex:0 0 auto;padding:7px 10px;border:1px solid #e7b7c6;border-radius:10px;background:#fff5f8;color:#a8224b;font-size:12px;font-weight:700;white-space:nowrap}
+#vocabularySection .toolbar{gap:10px}
+#vocabularySection .pinyin{display:none}
+#vocabularySection.ttc-show-pinyin .pinyin{display:block}
+/* Flashcard: nút Pinyin nằm bên trái tiêu đề, không chen vào cụm chọn HSK */
+#flashcardSection .flashcard-header{justify-content:flex-start;flex-wrap:wrap}
+#flashcardSection #flashcardPinyinToggle{order:0;align-self:flex-start}
+#flashcardSection .flashcard-title{order:1}
+#flashcardSection .flashcard-controls{order:2;margin-left:auto}
+/* Bản CSS cũ ẩn Pinyin mặt trước bằng !important; chỉ hiện khi nút đang bật */
+#flashcardSection .flashcard-front .flashcard-pinyin:not(.ttc-pinyin-hidden){display:block!important}
+#flashcardSection .flashcard-front .flashcard-pinyin.ttc-pinyin-hidden,
+#flashcardSection .flashcard-back-pinyin.ttc-pinyin-hidden{display:none!important}
+@media(max-width:600px){.ttc-pinyin-toggle{padding:7px 8px;font-size:11px}#vocabularySection .toolbar{gap:7px}#flashcardSection .flashcard-header{column-gap:8px;row-gap:8px}#flashcardSection .flashcard-controls{margin-left:0;width:100%;justify-content:flex-start}}
+
+/* TTC SAFE ADDITION — đánh số thứ tự danh sách từ HSK */
+#vocabularySection .card .hsk{max-width:calc(100% - 24px);font-variant-numeric:tabular-nums}
+/* TTC — Từ vựng chuyên ngành */
+#ttcSpecialtyLauncher{display:block;width:min(100%,560px);margin:18px auto;padding:15px 20px;border:1px solid #c084fc;border-radius:16px;background:linear-gradient(135deg,#6d28d9,#a855f7);color:#fff;font-size:17px;font-weight:700;letter-spacing:.2px;box-shadow:0 0 8px #c084fc,0 0 22px rgba(168,85,247,.48);animation:ttcPurpleGlow 1.8s ease-in-out infinite alternate}
+@keyframes ttcPurpleGlow{from{box-shadow:0 0 6px #c084fc,0 0 12px rgba(168,85,247,.3)}to{box-shadow:0 0 12px #d8b4fe,0 0 28px rgba(168,85,247,.65)}}
+#ttcSpecialtySection{display:none;margin:20px 0 28px;padding:20px;background:#fff;border:1px solid #e9d5ff;border-radius:20px;box-shadow:0 6px 24px rgba(91,33,182,.10)}
+#ttcSpecialtySection.ttc-open{display:block}
+#ttcSpecialtySection h2{margin:0 0 8px;color:#6d28d9}
+.ttc-specialty-note{color:#64748b;font-size:13px;line-height:1.6;margin:0 0 16px}
+.ttc-specialty-selectors{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:14px}
+.ttc-specialty-selectors select{width:100%;min-width:0;padding:11px;border:1px solid #d8b4fe;border-radius:12px;background:#fff;color:#4c1d95;font-weight:700}
+.ttc-specialty-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:12px 0}
+#ttcSpecialtyTitle{font-weight:700;color:#6d28d9}
+#ttcSpecialtyCards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.ttc-specialty-card{min-width:0;padding:16px;border:1px solid #e9d5ff;border-radius:15px;background:linear-gradient(160deg,#fff,#fcfaff);box-shadow:0 3px 10px rgba(91,33,182,.06)}
+.ttc-specialty-card .hanzi{font-size:32px;margin:6px 0}
+.ttc-specialty-card .pinyin{display:block!important;font-size:16px}
+.ttc-specialty-card .meaning{padding:0}
+.ttc-specialty-detail{margin-top:9px;padding-top:9px;border-top:1px dashed #e9d5ff;font-size:13px;line-height:1.55;color:#5b5568}
+.ttc-specialty-card .speaker{position:static;margin-top:10px}
+@media(max-width:600px){#ttcSpecialtySection{padding:14px}.ttc-specialty-selectors,#ttcSpecialtyCards{grid-template-columns:1fr}.ttc-specialty-card .hanzi{font-size:29px}}
+
+
+/* TTC Reading — standalone focused reader */
+/* Gradient xanh standalone — không dùng trong lưới 6 nút hub (tránh block 560px đè nút). */
+#ttcReadingLauncher.ttc-reading-standalone{display:block;width:min(100%,560px);margin:18px auto;padding:15px 20px;border:1px solid #86efac;border-radius:16px;background:linear-gradient(135deg,#047857,#22c55e);color:#fff;font-size:17px;font-weight:700;box-shadow:0 0 8px #86efac,0 0 22px rgba(34,197,94,.42);animation:ttcReadingGlow 1.8s ease-in-out infinite alternate;cursor:pointer}@keyframes ttcReadingGlow{from{box-shadow:0 0 6px #86efac,0 0 12px rgba(34,197,94,.25)}to{box-shadow:0 0 12px #bbf7d0,0 0 28px rgba(34,197,94,.62)}}
+#ttcReadingSection{display:none;margin:20px 0 28px;padding:20px;background:#fff;border:1px solid #bbf7d0;border-radius:20px;box-shadow:0 6px 24px rgba(5,150,105,.10)}#ttcReadingSection.ttc-open{display:block}.ttc-reading-levels{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:16px 0}.ttc-reading-level,.ttc-reading-item,.ttc-reading-secondary,.ttc-reading-primary{border-radius:12px;padding:12px 14px;font-weight:700;cursor:pointer}.ttc-reading-level{border:1px solid #a7f3d0;background:#f0fdf4;color:#065f46;text-align:left}.ttc-reading-level small{display:block;font-weight:500;margin-top:5px;color:#64748b}.ttc-reading-item{display:block;width:100%;text-align:left;margin:8px 0;border:1px solid #d1fae5;background:#fff;color:#064e3b}.ttc-reading-nav,.ttc-reading-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0}.ttc-reading-secondary{border:1px solid #a7f3d0;background:#ecfdf5;color:#065f46}.ttc-reading-primary{border:1px solid #059669;background:#059669;color:#fff}.ttc-reading-detail{border:1px solid #bbf7d0;border-radius:16px;padding:16px;background:#fff}.ttc-reading-detail h3{font-size:23px;color:#065f46;margin:12px 0}.ttc-reading-cn{font-size:23px;line-height:2;white-space:pre-line;padding:12px;border-radius:10px;color:#172554}.ttc-reading-pinyin,.ttc-reading-vi{font-size:16px;line-height:1.9;white-space:pre-line;margin-top:12px}.ttc-reading-pinyin{color:#0f766e}.ttc-reading-vi{color:#475569}.ttc-reading-cn .ttc-reading-char{cursor:pointer;border-radius:3px;white-space:pre-wrap}.ttc-reading-cn .ttc-reading-char:hover{background:#bbf7d0}.ttc-reading-char.ttc-reading-read{background:var(--ttc-read-color,#fde047);border-radius:3px}.ttc-reading-cn[data-color="cream"]{background:#fff7df;color:#422006}.ttc-reading-cn[data-color="mint"]{background:#ecfdf5;color:#064e3b}.ttc-reading-cn[data-color="sky"]{background:#eff6ff;color:#1e3a8a}.ttc-reading-cn[data-color="rose"]{background:#fff1f2;color:#881337}.ttc-reading-cn[data-color="plain"]{background:transparent}.ttc-reading-help{margin:12px 0;padding:14px;border:1px solid #a7f3d0;background:#f0fdf4;border-radius:13px;line-height:1.7;color:#14532d}.ttc-reading-help[hidden]{display:none!important}.ttc-reading-section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.ttc-reading-toolbar select{border:1px solid #a7f3d0;border-radius:9px;padding:9px;background:#fff;color:#064e3b;max-width:100%}@media(max-width:650px){#ttcReadingSection{padding:13px}.ttc-reading-levels{grid-template-columns:repeat(2,minmax(0,1fr))}.ttc-reading-cn{font-size:20px}.ttc-reading-detail{padding:12px}}
+.ttc-reading-pair{padding:7px 0 10px;border-bottom:1px solid rgba(100,116,139,.16)}.ttc-reading-pair:last-child{border-bottom:0}.ttc-reading-charline{white-space:pre-wrap}.ttc-reading-py-line{font-size:15px;line-height:1.8;color:#0f766e;margin:3px 0 0;padding:2px 0 2px 10px;border-left:3px solid #99f6e4;white-space:pre-wrap}.ttc-reading-py-line[hidden]{display:none!important}.ttc-reading-vi-line{font-size:16px;line-height:1.8;color:#16803d;margin:4px 0 0;padding:3px 0 3px 10px;border-left:3px solid #86efac;white-space:pre-wrap}.ttc-reading-pair-active .ttc-reading-vi-line{background:rgba(134,239,172,.15);border-left-color:#16a34a;border-radius:3px}.ttc-reading-pair[hidden]{display:none!important}.ttc-reading-vi-line[hidden]{display:none!important}
+
+/* =========================================================
+   index2 practice hub layout + Phase 2I UI fix
+   Nguyên nhân che nút: #ttcReadingLauncher / #ttcListeningLauncher
+   (display:block; width:560px; gradient) + first-child đỏ nhấp nháy
+   + Match glow phá lưới đồng nhất. Override chỉ trong #otter2PracticeHub.
+   ========================================================= */
+.otter2-practice-hub{position:relative;min-height:280px;overflow:visible}
+.otter2-practice-hub h1{margin:0 0 8px;font-size:clamp(1.25rem,3vw,1.6rem)}
+.otter2-practice-note{margin:0 0 12px;color:var(--otter2-muted,#64748b);font-size:13px}
+.otter2-practice-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(160px,352px);
+  gap:16px 20px;
+  align-items:center;
+  max-width:100%;
+}
+.otter2-practice-col-left{min-width:0;position:relative;z-index:2}
+.otter2-practice-col-right{
+  display:flex;align-items:center;justify-content:center;
+  position:relative;z-index:1;pointer-events:none;
+  max-width:352px;justify-self:end;
+}
+.otter2-practice-actions{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:var(--ui-btn-gap, 10px) !important;
+  margin:0 !important;
+  width:100% !important;
+  align-items:stretch !important;
+}
+
+/* Chuẩn index1 white-hat: nền trắng mặc định; hover/active vàng */
+#otter2PracticeHub #ttcActionFrame .ttc-action-buttons button,
+#otter2PracticeHub #ttcReadingLauncher,
+#otter2PracticeHub #ttcListeningLauncher,
+#otter2PracticeHub #ttcMatchLauncher,
+#otter2PracticeHub #ttcListenLauncher{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:100% !important;
+  min-width:0 !important;
+  max-width:none !important;
+  margin:0 !important;
+  min-height:var(--ui-btn-h-lg, 48px) !important;
+  height:auto !important;
+  padding:10px var(--ui-btn-pad-x, 12px) !important;
+  box-sizing:border-box !important;
+  border-radius:var(--ui-btn-radius, 12px) !important;
+  font-size:var(--ui-btn-font-md, 14px) !important;
+  font-weight:var(--ui-btn-weight, 700) !important;
+  line-height:1.2 !important;
+  letter-spacing:0 !important;
+  white-space:nowrap !important;
+  background:#ffffff !important;
+  color:#333333 !important;
+  border:2px solid #e3e3e3 !important;
+  box-shadow:0 2px 6px rgba(0,0,0,.08) !important;
+  animation:none !important;
+  transform:none !important;
+  opacity:1 !important;
+  visibility:visible !important;
+  position:relative !important;
+  z-index:3 !important;
+  cursor:pointer !important;
+  -webkit-text-fill-color:#333333 !important;
+  transition:background .2s ease,color .2s ease,border-color .2s ease,box-shadow .25s ease,transform .2s ease !important;
+}
+#otter2PracticeHub #ttcActionFrame .ttc-action-buttons button:hover,
+#otter2PracticeHub #ttcReadingLauncher:hover,
+#otter2PracticeHub #ttcListeningLauncher:hover,
+#otter2PracticeHub #ttcMatchLauncher:hover,
+#otter2PracticeHub #ttcListenLauncher:hover{
+  transform:translateY(-1px) !important;
+  border-color:#ffb300 !important;
+  box-shadow:0 4px 12px rgba(255,179,0,.20) !important;
+  background:#ffffff !important;
+  color:#333333 !important;
+  -webkit-text-fill-color:#333333 !important;
+}
+#otter2PracticeHub #ttcActionFrame .ttc-action-buttons button.active,
+#otter2PracticeHub #ttcReadingLauncher.active,
+#otter2PracticeHub #ttcListeningLauncher.active,
+#otter2PracticeHub #ttcMatchLauncher.active,
+#otter2PracticeHub #ttcListenLauncher.active,
+#otter2PracticeHub #ttcReadingLauncher[aria-expanded="true"],
+#otter2PracticeHub #ttcListeningLauncher[aria-expanded="true"]{
+  background:#fffdf5 !important;
+  color:#d88900 !important;
+  -webkit-text-fill-color:#d88900 !important;
+  border-color:#ffb300 !important;
+  box-shadow:
+    0 0 0 2px rgba(255,179,0,.15),
+    0 0 14px rgba(255,179,0,.55),
+    0 5px 18px rgba(255,179,0,.25) !important;
+  transform:translateY(-1px) !important;
+  animation:none !important;
+}
+
+#otter2PracticePanels{margin-top:16px;position:relative;z-index:4}
+#otter2PracticePanels .panel.hidden,
+#otter2PracticePanels .panel[hidden]{display:none !important}
+
+/* Otter host trong hub luyện tập: không kế thừa style demo .otter2-quiz-card */
+#otter2PracticeHub .otter2-quiz-mascot{
+  position:relative;
+  top:auto;
+  right:auto;
+  left:auto;
+  bottom:auto;
+  width:min(300px,100%);
+  max-width:300px;
+  height:auto;
+  border-radius:0;
+  mix-blend-mode:normal;
+  filter:drop-shadow(0 10px 16px rgba(15,23,42,.14));
+  z-index:1;
+  pointer-events:none;
+  display:block;
+  overflow:visible;
+  object-fit:contain;
+  object-position:center;
+  opacity:1;
+}
+
+@media (max-width:1024px){
+  .otter2-practice-row{grid-template-columns:minmax(0,1fr) minmax(140px,280px);gap:14px}
+  .otter2-practice-col-right{max-width:280px}
+  #otter2PracticeHub .otter2-quiz-mascot{width:min(280px,100%);max-width:280px}
+}
+@media (max-width:768px){
+  .otter2-practice-row{grid-template-columns:1fr;gap:12px}
+  .otter2-practice-col-right{order:-1;max-width:200px;margin:0 auto;justify-self:center}
+  #otter2PracticeHub .otter2-quiz-mascot{width:min(200px,55vw);max-width:200px}
+  .otter2-practice-actions{grid-template-columns:repeat(2,minmax(0,1fr)) !important}
+}
+@media (max-width:430px){
+  .otter2-practice-actions{grid-template-columns:1fr !important}
+  #otter2PracticeHub #ttcActionFrame .ttc-action-buttons button,
+  #otter2PracticeHub #ttcReadingLauncher,
+  #otter2PracticeHub #ttcListeningLauncher,
+  #otter2PracticeHub #ttcMatchLauncher,
+  #otter2PracticeHub #ttcListenLauncher{
+    white-space:normal !important;
+    height:auto !important;
+    min-height:var(--ui-btn-h-lg, 48px) !important;
+    font-size:var(--ui-btn-font, 13px) !important;
+  }
+  #otter2PracticeHub .otter2-quiz-mascot{width:min(160px,48vw);max-width:160px}
+}

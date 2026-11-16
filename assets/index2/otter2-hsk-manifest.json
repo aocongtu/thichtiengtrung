@@ -1,0 +1,32 @@
+{
+  "exported_at": "2026-11-15T04:31:26.961Z",
+  "source": "assets/index2/otter2-hsk-all-data.js (extracted historically from index1; runtime self-contained)",
+  "total": 11000,
+  "counts": {
+    "1": 300,
+    "2": 200,
+    "3": 500,
+    "4": 1000,
+    "5": 1600,
+    "6": 1800,
+    "7": 1867,
+    "8": 1867,
+    "9": 1866
+  },
+  "expected": {
+    "1": 300,
+    "2": 200,
+    "3": 500,
+    "4": 1000,
+    "5": 1600,
+    "6": 1800,
+    "7": 1867,
+    "8": 1867,
+    "9": 1866
+  },
+  "match_expected": true,
+  "files": [
+    "otter2-hsk-all-data.js",
+    "otter2-hsk1-data.js"
+  ]
+}
