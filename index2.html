@@ -1309,6 +1309,13 @@ html[data-theme="night"] .ttc-dict-sub{color:#94a3b8}
   #otter2Nav .otter2-nav-links{order:4;flex:1 1 100%}
   #otter2Nav .otter2-nav-links > button{font-size:12px;padding:0 10px}
 }
+/* ===== DESKTOP: nút Giao diện sang TRÁI pill Giản/Phồn (đồng bộ mobile, yêu cầu chủ web 2026-11-17) ===== */
+@media (min-width:901px){
+  #otter2Nav .otter2-theme-slot{order:1}
+  #otter2Nav .ttc-script-switch{order:2}
+  #otter2Nav .otter2-chat-nav{order:3}
+  #otter2Nav .otter2-account-slot{order:4}
+}
 </style>
 <style id="otter2-path-mobile-css">
 /* ===== LỘ TRÌNH HSK — KHUNG MOBILE GỌN / TOÀN MÀN HÌNH (additive, hạng mục 4) =====
@@ -1573,6 +1580,323 @@ html[data-theme="night"] .ttc-dict-sub{color:#94a3b8}
 /* Nickname ít quan trọng nhất: ẩn hẳn ở màn hình nhỏ để dải thống kê gọn */
 @media (max-width: 767px) {
   #otter2PathHost #ttcDailyVocab .ttc-path-overview-col .ttc-path-stat-nick { display: none !important; }
+}
+</style>
+<style id="otter2-path-fs-css">
+/* ===== LỘ TRÌNH — KHUNG FULLSCREEN MỌI BỀ RỘNG (additive, 2026-11-17) =====
+   Bối cảnh: khi vào học, module gốc PORTAL #ttcPathPanel ra document.body và
+   thêm class .ttc-path-fs (otter2-vocab-roadmap.css: position:fixed inset:0,
+   z-index 2147482000, overflow:auto — cả khung cuộn như một trang). Vì panel
+   không còn nằm trong #otter2PathHost, block mobile ở trên (tiền tố
+   #otter2PathHost) KHÔNG chạm được tới chế độ fullscreen. Block này dùng
+   selector bám thẳng #ttcPathPanel.ttc-path-fs nên áp dụng ở mọi bề rộng và
+   mọi vị trí của panel:
+   - Khung fs = flex column 100dvh, overflow hidden: ticker + HUD + toolbar
+     cố định gọn phía trên, CHỈ .ttc-path-learn cuộn nội bộ — trang/khung
+     không cuộn nữa, học toàn màn hình thật sự trên cả máy tính + điện thoại.
+   - Desktop: khu học căn giữa, thẻ câu hỏi tối đa 780px (ô chữ không bị kéo
+     giãn khổng lồ trên màn 1920px); cột thống kê GIỮ bên phải như bố cục gốc
+     nhưng nới 124px -> 208px cho dễ đọc và sticky trong vùng cuộn.
+   - Mobile ≤900px: mang nguyên thiết kế gọn của block trên sang đúng
+     selector fs (dải thống kê ngang phía trên, ô chữ co giãn...).
+   Chế độ nhúng (chưa fullscreen) không bị ảnh hưởng. */
+
+/* --- Cấu trúc khung fs (mọi bề rộng) --- */
+#ttcPathPanel.ttc-path-panel.ttc-path-fs {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100dvh !important;
+  max-height: 100dvh !important;
+  overflow: hidden !important;
+}
+#ttcPathPanel.ttc-path-fs > .ttc-path-world-ticker {
+  flex: 0 0 auto;
+  position: static !important;
+}
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-game-hud { flex: 0 0 auto; }
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-fs-toolbar { flex: 0 0 auto; }
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-goals {
+  flex: 0 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-learn {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 10px;
+}
+/* Màn hình thiết lập lộ trình (chưa có .ttc-path-learn): cho daily tự cuộn
+   để không bao giờ cắt mất nút Bắt đầu / Tiếp tục ở cuối. */
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab:not(:has(.ttc-path-learn)) { overflow-y: auto; }
+/* Nút HỦY LỘ TRÌNH sau khi JS (path-fixes) đưa vào cuối hàng HUD: pill nhỏ
+   nằm TRONG khung, mọi bề rộng — hết tràn mép như ảnh chủ web chụp. */
+#ttcPathPanel.ttc-path-fs .ttc-path-game-hud-row .ttc-path-cancel {
+  position: static !important;
+  margin-left: auto;
+  flex: 0 0 auto;
+  max-width: 42%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 11.5px;
+  font-weight: 800;
+  padding: 5px 10px;
+  border: 1.5px solid #fda4af;
+  border-radius: 999px;
+  background: #fff;
+  color: #9f1239;
+  box-shadow: none;
+}
+
+/* --- Desktop (≥901px): toolbar 1 hàng đều, khu học căn giữa --- */
+@media (min-width: 901px) {
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-game-hud {
+    margin: 0 0 8px;
+    padding: 10px 14px;
+    border-radius: 14px;
+  }
+  #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch;
+    gap: 6px;
+    width: 100%;
+    padding: 6px;
+    margin: 0 0 8px;
+    border-radius: 14px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    box-sizing: border-box;
+  }
+  #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar::-webkit-scrollbar { display: none; }
+  #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar .ttc-path-sfx-btn,
+  #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar .ttc-path-fs-exit,
+  #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar .ttc-path-goals-toggle {
+    flex: 0 0 auto;
+    height: 40px;
+    min-height: 40px;
+    font-size: 12.5px;
+    padding: 6px 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 11px;
+    white-space: nowrap;
+  }
+  #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar .ttc-path-goals-toggle {
+    border: 1px solid #94a3b8;
+    background: #fff;
+    color: #334155;
+    font-weight: 800;
+    cursor: pointer;
+  }
+  #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar .ttc-path-sfx-vol-wrap {
+    flex: 0 1 auto;
+    min-width: 170px;
+    max-width: 230px;
+    height: 40px;
+    min-height: 40px;
+    flex-direction: row !important;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    border-radius: 11px;
+    box-sizing: border-box;
+  }
+  #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar .ttc-path-sfx-vol {
+    flex: 1 1 auto;
+    width: auto !important;
+    min-width: 70px;
+    margin: 0;
+  }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-learn { justify-content: center; }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-main { max-width: 780px; }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-overview.ttc-path-overview-col {
+    flex: 0 0 208px !important;
+    width: 208px !important;
+    max-width: 208px !important;
+    position: sticky;
+    top: 0;
+  }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-daily-char { max-width: 72px; }
+}
+
+/* --- Mobile (≤900px) trong fullscreen: thiết kế gọn như bản nhúng --- */
+@media (max-width: 900px) {
+  #ttcPathPanel.ttc-path-fs > .ttc-path-world-ticker {
+    font-size: 12px;
+    line-height: 1.35;
+    padding: 5px 10px;
+    text-align: center;
+  }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab {
+    padding: 10px 10px 12px;
+    border-radius: 0;
+  }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-game-hud {
+    margin: 0 0 8px;
+    padding: 9px 11px;
+    border-radius: 14px;
+  }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-game-hud-row {
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-game-title { font-size: 13.5px; }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-game-pill { font-size: 11px; padding: 3px 8px; }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-game-hud-row span.ttc-path-game-pill:nth-of-type(2) { display: none; }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-game-progress { height: 6px; margin: 7px 0 4px; }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-game-meta { font-size: 11px; }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab h3 { padding-right: 0; font-size: 17px; margin: 0 0 6px; }
+  #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch;
+    gap: 6px;
+    width: 100%;
+    max-width: 100%;
+    padding: 6px;
+    margin: 0 0 8px;
+    border-radius: 14px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    box-sizing: border-box;
+  }
+  #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar::-webkit-scrollbar { display: none; }
+  #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar .ttc-path-sfx-btn,
+  #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar .ttc-path-fs-exit,
+  #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar .ttc-path-goals-toggle {
+    flex: 0 0 auto;
+    height: 40px;
+    min-height: 40px;
+    font-size: 12px;
+    padding: 6px 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 11px;
+    white-space: nowrap;
+  }
+  #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar .ttc-path-goals-toggle {
+    border: 1px solid #94a3b8;
+    background: #fff;
+    color: #334155;
+    font-weight: 800;
+    cursor: pointer;
+  }
+  #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar .ttc-path-sfx-vol-wrap {
+    flex: 1 1 auto;
+    min-width: 96px;
+    max-width: 168px;
+    height: 40px;
+    min-height: 40px;
+    flex-direction: row !important;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    border-radius: 11px;
+    box-sizing: border-box;
+  }
+  #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar .ttc-path-sfx-vol-lab { font-size: 10px; white-space: nowrap; }
+  #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar .ttc-path-sfx-vol {
+    flex: 1 1 auto;
+    width: auto !important;
+    min-width: 54px;
+    max-width: 108px;
+    margin: 0;
+  }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-learn {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px;
+    margin-top: 6px;
+    width: 100%;
+  }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-main { width: 100%; max-width: 100%; min-width: 0; }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-overview.ttc-path-overview-col {
+    order: -1;
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch !important;
+    align-self: stretch !important;
+    gap: 6px;
+    margin: 0 !important;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x proximity;
+    padding: 2px 1px 4px;
+    scrollbar-width: none;
+    box-sizing: border-box;
+  }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-overview-col::-webkit-scrollbar { display: none; }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-overview-col > .ttc-path-stat {
+    flex: 0 0 auto;
+    width: auto !important;
+    max-width: 64vw;
+    scroll-snap-align: start;
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    padding: 5px 8px;
+    border-radius: 9px;
+    white-space: nowrap;
+  }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-overview-col .ttc-path-stat span { font-size: 10px; margin: 0; }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-overview-col .ttc-path-stat b { font-size: 12.5px; }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-overview-col .ttc-path-stat .ttc-path-score {
+    display: inline;
+    margin: 0;
+    font-size: 11px;
+  }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-overview-col .ttc-path-bar { display: none !important; }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-overview-col .ttc-path-stat-nick { display: none !important; }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-q { padding: 12px 12px 13px; border-radius: 14px; }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-daily-hanzi { font-size: clamp(38px, 11vw, 48px); }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-q-meaning { font-size: 17px; }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-build.ttc-path-slots { gap: 6px; min-height: 46px; }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-slot {
+    width: clamp(36px, 10.5vw, 46px);
+    height: auto;
+    aspect-ratio: 1;
+    font-size: clamp(19px, 5.4vw, 24px);
+    padding: 0;
+  }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-tiles { gap: 7px; padding: 8px; }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-daily-char {
+    flex: 1 1 42px;
+    max-width: 58px;
+    min-width: 42px;
+    min-height: 42px;
+    aspect-ratio: 1;
+    padding: 4px;
+    font-size: clamp(20px, 6vw, 26px);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-choice { padding: 11px 12px; font-size: 15.5px; }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-controls { padding: 9px; gap: 8px; }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-btn { min-height: 44px; min-width: 104px; padding: 11px 14px; font-size: 15px; }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-feedback { padding: 10px 12px; }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-fb-hanzi { font-size: 36px; }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-feedback-ok .ttc-path-feedback-title { font-size: 21px; }
 }
 </style>
 <style id="otter2-avatar-css">
@@ -22708,7 +23032,8 @@ setupFlashcardMobile();
       Nút "Nghe lại" hợp lệ ở Ngữ pháp (.thtt-g-btn trong #thttGrammarOverlay)
       nằm ngoài phạm vi này — không bao giờ bị đụng. Fallback: nếu class drift,
       chỉ xoá nút khớp text khi nút anh em cùng cha có nút "nghe phát âm".
-   2) Hạng mục 4 — trên ≤900px, di dời (appendChild, giữ nguyên listener):
+   2) Hạng mục 4 + mở rộng 2026-11-17 — di dời (appendChild, giữ nguyên
+      listener) khi ≤900px HOẶC khi panel đang fullscreen (mọi bề rộng):
       .ttc-path-cancel -> cuối .ttc-path-game-hud-row (nút Hủy vào hàng header,
       hết tràn mép); .ttc-path-goals-toggle -> #ttcPathFsToolbar (gộp "Chỉnh
       mục tiêu" vào thanh điều khiển). Module tự render lại sau mỗi draw() nên
@@ -22718,8 +23043,15 @@ setupFlashcardMobile();
   if (window.__OTTER2_PATH_FIXES__) return;
   window.__OTTER2_PATH_FIXES__ = true;
 
-  var host = document.getElementById("otter2PathHost");
-  if (!host) return;
+  var host = document.getElementById("otter2PathHost") || document.body;
+  /* Panel lộ trình bị PORTAL ra document.body khi vào fullscreen
+     (enterPathFullscreen trong otter2-vocab-roadmap.js) — truy vấn phải theo
+     phần tử thật (#ttcPathPanel / #ttcDailyVocab) ở bất cứ vị trí nào và
+     observer phải canh document.body, nếu không mọi sửa chữa đều "mù"
+     trong chính phiên học toàn màn hình. */
+  function pathScope() {
+    return document.getElementById("ttcPathPanel") || host;
+  }
   var mq = window.matchMedia ? window.matchMedia("(max-width: 900px)") : { matches: false };
 
   function cleanText(el) {
@@ -22736,7 +23068,8 @@ setupFlashcardMobile();
 
   function trimFeedbackButtons() {
     var killed = 0;
-    var actions = host.querySelectorAll(".ttc-path-feedback .ttc-path-fb-actions");
+    var scope = pathScope();
+    var actions = scope.querySelectorAll(".ttc-path-feedback .ttc-path-fb-actions");
     for (var i = 0; i < actions.length; i++) {
       var btns = actions[i].querySelectorAll("button");
       for (var j = btns.length - 1; j >= 0; j--) {
@@ -22745,7 +23078,7 @@ setupFlashcardMobile();
     }
     if (!actions.length) {
       /* Fallback khi class bị đổi: nhóm nút có "nghe phát âm" trong host */
-      var all = host.querySelectorAll("button");
+      var all = scope.querySelectorAll("button");
       var groups = [];
       for (var k = 0; k < all.length; k++) {
         var p = all[k].parentNode;
@@ -22766,7 +23099,7 @@ setupFlashcardMobile();
   }
 
   function relocateHeaderControls() {
-    var daily = host.querySelector("#ttcDailyVocab");
+    var daily = document.getElementById("ttcDailyVocab");
     if (!daily) return;
     var hudRow = daily.querySelector(".ttc-path-game-hud-row");
     var cancel = daily.querySelector(".ttc-path-cancel");
@@ -22775,7 +23108,8 @@ setupFlashcardMobile();
     var goalsBar = daily.querySelector(".ttc-path-goals-bar");
     var toggle = daily.querySelector(".ttc-path-goals-toggle") ||
                  (bar ? bar.querySelector(".ttc-path-goals-toggle") : null);
-    if (mq.matches) {
+    var fsOn = !!(panel && panel.classList && panel.classList.contains("ttc-path-fs"));
+    if (mq.matches || fsOn) {
       if (cancel && hudRow && cancel.parentNode !== hudRow) hudRow.appendChild(cancel);
       if (toggle && bar && toggle.parentNode !== bar) bar.appendChild(toggle);
     } else {
@@ -22797,7 +23131,7 @@ setupFlashcardMobile();
 
   if ("MutationObserver" in window) {
     var mo = new MutationObserver(schedule);
-    mo.observe(host, { childList: true, subtree: true });
+    mo.observe(document.body, { childList: true, subtree: true });
   }
   window.addEventListener("resize", schedule);
   runFixes();
@@ -23058,7 +23392,14 @@ setupFlashcardMobile();
       nickEl.insertBefore(circle, nickEl.firstChild);
     });
   }
-  var achHostRoot = document.getElementById("otter2PathHost") || document.body;
+  /* Sửa 2026-11-17 (việc 4): bản live render bảng trong otter2-vocab-roadmap.js
+     — khi mở bảng, enterAchFullscreen() PORTAL #ttcAchHost ra document.body
+     (thêm class .ttc-ach-fs) rồi mới fetch RPC + render .ttc-ach-row. Observer
+     cũ bám #otter2PathHost nên mù hoàn toàn với mọi render ở chế độ fullscreen
+     (đúng triệu chứng: bảng thật hiện 9 hàng mà không vòng tròn nào xuất hiện).
+     Canh document.body để bắt render ở cả vị trí nhúng lẫn fullscreen;
+     decorateAchRows() tự tra #ttcAchHost hiện tại mỗi lần chạy. */
+  var achHostRoot = document.body;
   if (achHostRoot && "MutationObserver" in window) {
     var achTimer = null;
     var achObs = new MutationObserver(function () {

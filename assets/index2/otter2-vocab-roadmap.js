@@ -17,6 +17,9 @@ if (typeof window.checkPremiumAccess !== "function") {
   window.checkPremiumAccess = async function (level) {
     var user = window.currentUser || (window.otter2Account && window.otter2Account.user);
     if (!user) {
+      /* Im lặng trước tương tác đầu tiên (đồng bộ với otter2-premium-gate.js):
+         lời gọi lúc load trang không được bật popup đăng nhập. */
+      if (typeof window.__otter2HasUserInteracted === "function" && !window.__otter2HasUserInteracted()) return false;
       if (typeof window.otter2AccountOpenLogin === "function") window.otter2AccountOpenLogin();
       else alert("Vui lòng đăng nhập trước.");
       return false;
@@ -29,6 +32,7 @@ if (typeof window.checkPremiumAccess !== "function") {
         if (ok) return true;
       } catch (e) {}
     }
+    if (typeof window.__otter2HasUserInteracted === "function" && !window.__otter2HasUserInteracted()) return false;
     alert(
       "🔒 HSK " + n + " là nội dung Premium.\n\n" +
       "Tài khoản Free chỉ được xem từ vựng HSK 1–2.\n\n" +

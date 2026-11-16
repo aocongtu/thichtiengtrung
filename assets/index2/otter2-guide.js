@@ -283,7 +283,21 @@
     function clampNum(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
     function roamW() { return roam.offsetWidth || 118; }
     function roamH() { return roam.offsetHeight || 150; }
-    function dockY() { var m = window.innerWidth <= 720 ? 4 : 12; return Math.max(6, window.innerHeight - roamH() - m); }
+    /* Lộ trình fullscreen đang mở? (module gốc gắn .ttc-path-fs cho panel
+       đã portal ra body + khoá cuộn bằng body.ttc-path-fs-lock) */
+    function pathFsActive() {
+      try {
+        if (document.body && document.body.classList.contains("ttc-path-fs-lock")) return true;
+        var p = document.getElementById("ttcPathPanel");
+        return !!(p && p.classList.contains("ttc-path-fs"));
+      } catch (e) { return false; }
+    }
+    function dockY() {
+      /* Trong phiên lộ trình fullscreen: neo bé ở DẢI TRÊN CÙNG (phía trên
+         khu câu hỏi/bài đọc) thay vì góc dưới — theo yêu cầu chủ web. */
+      if (pathFsActive()) return 4;
+      var m = window.innerWidth <= 720 ? 4 : 12; return Math.max(6, window.innerHeight - roamH() - m);
+    }
     function dockX(side) { return side === "left" ? 12 : Math.max(8, window.innerWidth - roamW() - 14); }
     function applyPos() { roam.style.transform = "translate(" + pos.x + "px," + pos.y + "px)"; }
     function setFace(dx) {
@@ -685,14 +699,14 @@
     }
 
     /* ---------------- Non-interference: park while the user is learning ---------------- */
-    var LEARN_SEL = "#otter2Hsk1Workspace,#otter2DictRoot,#otter2DictDetail,#otter2PracticeHub,#otter2PracticePanels,#otter2AutoHub,#otter2AutoPanels,#flashcardSection";
+    var LEARN_SEL = "#otter2Hsk1Workspace,#otter2DictRoot,#otter2DictDetail,#otter2PracticeHub,#otter2PracticePanels,#otter2AutoHub,#otter2AutoPanels,#flashcardSection,#ttcPathPanel";
     function parkOtter() {
       var now = Date.now();
       parkUntil = now + 5000;
       if (now - lastPark < 1600 || roam.hidden) return;
       lastPark = now;
       hideBubble();
-      var tx = (pos.x + roamW() / 2 < window.innerWidth / 2) ? 10 : dockX("right");
+      var tx = pathFsActive() ? 10 : ((pos.x + roamW() / 2 < window.innerWidth / 2) ? 10 : dockX("right"));
       runTo(tx, dockY());
     }
     function onUserInteract(ev) {
@@ -864,6 +878,48 @@
     try { initStudyBuddy(); } catch (eStudy) {
       if (window.console && console.warn) console.warn("Study buddy off:", eStudy);
     }
+
+    /* ---------------- Bé Rái Cá VÀO TRONG LỘ TRÌNH fullscreen (additive, 2026-11-17) ----------------
+       Vấn đề: khung fullscreen của lộ trình có z-index 2147482000
+       (otter2-vocab-roadmap.css) trong khi guide chỉ ở lớp 90-95 -> bé bị che
+       kín, bong bóng khen/nhắc của study-buddy cũng không ai thấy.
+       Cách xử lý (chỉ khi body có .ttc-path-fs-lock, ngoài fs giữ nguyên 100%):
+       - CSS nâng lớp roam/wrap/restore/overlay lên 2147482999-2147483001
+         (trên lớp fs, dưới giới hạn z-index của trình duyệt).
+       - dockY() đã fs-aware: bé neo ở DẢI TRÊN CÙNG và chạy dọc mép trên;
+         park khi người học thao tác -> góc trên-trái (khu tiêu đề, không nút).
+       - Bong bóng lật xuống DƯỚI bé (ở trên cùng mà bong bóng mở lên trên
+         thì ra ngoài màn hình).
+       - Watcher 700ms: vừa vào phiên -> bé chạy lên dải trên + nhảy chào;
+         thoát phiên -> bé về góc dưới-phải quen thuộc. */
+    try { initGuidePathFs(); } catch (eFsGuide) {
+      if (window.console && console.warn) console.warn("Guide path-fs off:", eFsGuide);
+    }
+    function initGuidePathFs() {
+      var fsStyle = document.createElement("style");
+      fsStyle.id = "guide-fs-style";
+      fsStyle.textContent =
+        "body.ttc-path-fs-lock .guide-roam{z-index:2147483000 !important;width:88px}" +
+        "body.ttc-path-fs-lock .guide-wrap{z-index:2147483001 !important}" +
+        "body.ttc-path-fs-lock .guide-restore{z-index:2147483000 !important}" +
+        "body.ttc-path-fs-lock .guide-spot-overlay{z-index:2147482999 !important}" +
+        "body.ttc-path-fs-lock .guide-bubble{bottom:auto;top:calc(100% + 10px);border-radius:16px 4px 16px 16px}" +
+        "body.ttc-path-fs-lock .guide-roam.guide-bubble-left .guide-bubble{border-radius:4px 16px 16px 16px}" +
+        "@media (max-width:720px){body.ttc-path-fs-lock .guide-roam{width:74px}}";
+      document.head.appendChild(fsStyle);
+      var wasFs = false;
+      setInterval(function () {
+        var on = pathFsActive();
+        if (on === wasFs) return;
+        wasFs = on;
+        if (roam.hidden || tripActive) return;
+        if (on) {
+          runTo(dockX("left"), dockY(), jumpOtter);
+        } else {
+          runTo(dockX("right"), dockY());
+        }
+      }, 700);
+    }
     function initStudyBuddy() {
       var PROGRESS_KEY = "otter2_hsk_vocab_progress_v1";
       var STUDY_KEY = "otter2_guide_study_v1";
@@ -1021,10 +1077,18 @@
       /* ----- (e) Vào trong LỘ TRÌNH: quan sát #otter2PathHost ----- */
       var pathHost = document.getElementById("otter2PathHost");
       var lastPathDone = null, lastPathGoal = 0, wrongStreak = 0, lastPraiseAt = 0, lastFbSig = "";
+      function pathScopeEl() {
+        /* Panel bị PORTAL ra document.body khi fullscreen — luôn tra theo
+           phần tử thật, nếu không observer/truy vấn bám #otter2PathHost sẽ
+           mù hoàn toàn trong phiên học (đúng lỗi chủ web báo: vào lộ trình
+           không thấy bé đâu). */
+        return document.getElementById("ttcPathPanel") || pathHost;
+      }
       function parsePathMeta() {
-        if (!pathHost) return null;
-        var meta = pathHost.querySelector(".ttc-path-game-meta");
-        var txt = meta ? meta.textContent : (pathHost.textContent || "");
+        var scope = pathScopeEl();
+        if (!scope) return null;
+        var meta = scope.querySelector(".ttc-path-game-meta");
+        var txt = meta ? meta.textContent : (scope.textContent || "");
         var m = /Hôm nay\s+(\d+)\s*\/\s*(\d+)\s*từ/.exec(txt || "");
         return m ? { done: Number(m[1]), goal: Number(m[2]) } : null;
       }
@@ -1062,8 +1126,9 @@
         }
       }
       function onPathFeedback() {
-        if (!pathHost) return;
-        var panel = pathHost.querySelector(".ttc-path-feedback");
+        var scope = pathScopeEl();
+        if (!scope) return;
+        var panel = scope.querySelector(".ttc-path-feedback");
         if (!panel) return;
         var isOk = panel.classList.contains("ttc-path-feedback-ok");
         var isBad = panel.classList.contains("ttc-path-feedback-bad");
@@ -1090,7 +1155,7 @@
           }
         }
       }
-      if (pathHost && "MutationObserver" in window) {
+      if (document.body && "MutationObserver" in window) {
         var fbTimer = null;
         var fbObs = new MutationObserver(function () {
           clearTimeout(fbTimer);
@@ -1099,7 +1164,7 @@
             try { checkPathMilestones(); } catch (ePm) {}
           }, 250);
         });
-        fbObs.observe(pathHost, { childList: true, subtree: true, attributes: true, attributeFilter: ["class"] });
+        fbObs.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["class"] });
       }
 
       /* ----- (d) Nhắc nhẹ khi ngồi yên ----- */

@@ -6,6 +6,28 @@
 (function () {
   "use strict";
 
+  /* --- Im lặng trước tương tác đầu tiên (sửa 2026-11-17) ---
+     BUG cũ: các module khác (vd otter2-vocab-roadmap draw() khi khôi phục
+     cấp học đã lưu) gọi checkPremiumAccess() ngay lúc LOAD trang, khi chưa
+     có bất kỳ thao tác nào của người dùng. Nhánh !currentUser khi đó mở
+     form đăng nhập + alert(...) -> popup bật lên mỗi lần tải lại trang.
+     Cơ chế mới: theo dõi tương tác thật đầu tiên (pointerdown / keydown /
+     touchstart, capture). Trước tương tác đầu tiên, mọi lời gọi cổng bị
+     chặn đều trả về false IM LẶNG (không alert, không mở form đăng nhập);
+     logic cho phép (đã đăng nhập + premium / cấp free) vẫn chạy bình
+     thường. Sau tương tác đầu tiên, hành vi giữ nguyên như cũ. */
+  var __userInteracted = false;
+  function __markInteracted() { __userInteracted = true; }
+  (function () {
+    var types = ["pointerdown", "keydown", "touchstart"];
+    for (var i = 0; i < types.length; i++) {
+      try { window.addEventListener(types[i], __markInteracted, { capture: true, passive: true }); } catch (e) {}
+      try { document.addEventListener(types[i], __markInteracted, { capture: true, passive: true }); } catch (e) {}
+    }
+  })();
+  window.__otter2HasUserInteracted = function () { return __userInteracted; };
+  function __silentNow() { return !__userInteracted; }
+
   function ttcMembershipRowIsPremium(row, nowMs) {
     if (!row) return false;
     if (String(row.status || "") !== "active") return false;
@@ -90,6 +112,7 @@
   async function checkPremiumAccess(level) {
     var n = Number(level);
     if (!window.currentUser) {
+      if (__silentNow()) return false; /* gọi lúc load trang: im lặng */
       if (typeof window.otter2AccountOpenLogin === "function") {
         window.otter2AccountOpenLogin();
       }
@@ -102,6 +125,7 @@
     if (n <= 2) return true;
     var allowed = await hasPremiumAccess();
     if (allowed) return true;
+    if (__silentNow()) return false; /* gọi lúc load trang: im lặng */
     alert(
       "🔒 HSK " +
         n +
@@ -114,6 +138,7 @@
 
   async function checkPremiumFeature() {
     if (!window.currentUser) {
+      if (__silentNow()) return false; /* gọi lúc load trang: im lặng */
       if (typeof window.otter2AccountOpenLogin === "function") {
         window.otter2AccountOpenLogin();
       }
@@ -126,6 +151,7 @@
     }
     var allowed = await hasPremiumAccess();
     if (allowed) return true;
+    if (__silentNow()) return false; /* gọi lúc load trang: im lặng */
     alert(
       "💎 Tính năng Premium\n\n" +
         "Test và các chức năng luyện tập chỉ dành cho thành viên Premium.\n\n" +
