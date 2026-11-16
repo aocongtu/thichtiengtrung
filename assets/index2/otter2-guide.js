@@ -224,7 +224,19 @@
     }
     function speak(text) {
       if (!voiceOn || !("speechSynthesis" in window)) return;
+      /* ĐẶC TẢ GIỌNG THEO ZONE (chủ web chốt 2026-11-17): ở màn hình
+         chính bé nói bình thường; hễ vào BẤT KỲ khu học toàn màn hình
+         nào (zone khác null — lộ trình, Học auto, bảng thành tích, viết
+         chữ Hán, luyện đọc) bé CÂM GIỌNG tuyệt đối trong mọi trường hợp
+         (chào, khen, nhắc, chatter, dẫn đường), chỉ "nói bằng chữ" trong
+         bong bóng + biểu cảm. Riêng auto/reading là "vùng yên lặng"
+         (zoneQuiet): đến bong bóng chữ dài cũng thay bằng emoji. */
+      if (zoneSilent()) return;
       try {
+        /* Lớp bảo vệ toàn cục: đang có giọng đọc khác phát (vd giọng đọc
+           bài học của chính web) thì BỎ QUA câu này — không cancel, không
+           nói đè lên bài học. */
+        if (window.speechSynthesis.speaking || window.speechSynthesis.pending) return;
         window.speechSynthesis.cancel();
         var clean = text
           .replace(/你好/g, "ní hảo")
@@ -244,8 +256,12 @@
     }
     function say(text) {
       typeText(text);
-      speak(text);
-      if (guidePanel.hidden && !roam.hidden) showBubble(text, 7000);
+      speak(text); /* speak() tự câm GIỌNG trong mọi zone (chỉ còn chữ) */
+      if (guidePanel.hidden && !roam.hidden) {
+        /* Vùng yên lặng: không dựng bong bóng chữ dài — chỉ biểu cảm emoji. */
+        if (zoneQuiet()) showEmojiBubble();
+        else showBubble(text, 7000);
+      }
     }
 
     /* ---------------- Destination chips ---------------- */
@@ -294,8 +310,24 @@
     }
     function dockY() {
       /* Trong phiên lộ trình fullscreen: neo bé ở DẢI TRÊN CÙNG (phía trên
-         khu câu hỏi/bài đọc) thay vì góc dưới — theo yêu cầu chủ web. */
-      if (pathFsActive()) return 4;
+         khu câu hỏi/bài đọc) thay vì góc dưới — theo yêu cầu chủ web.
+         NHƯNG phải nằm DƯỚI hẳn dòng chữ chạy: ticker #ttcPathWorldTicker
+         là con đầu tiên của panel, chữ chạy NGANG TOÀN BỀ RỘNG nên không
+         có đoạn trống nào trên cùng dải — ảnh chụp của chủ web cho thấy
+         đầu bé ở y=4 đè mất vài chữ của ticker ("Mỗi từ … bước tiến đến
+         HSK9!"). Đo đáy THẬT của ticker rồi neo bé ngay dưới nó (+4px);
+         không có ticker, hoặc ticker đang ẩn (màn hình cao ≤700px có rule
+         display:none -> rect cao 0), thì giữ mốc 4px như cũ. */
+      if (pathFsActive()) {
+        try {
+          var tk = document.getElementById("ttcPathWorldTicker");
+          if (tk) {
+            var tr = tk.getBoundingClientRect();
+            if (tr && tr.height > 0 && tr.bottom > 0) return Math.round(tr.bottom) + 4;
+          }
+        } catch (eTk) {}
+        return 4;
+      }
       var m = window.innerWidth <= 720 ? 8 : 12; return Math.max(6, window.innerHeight - roamH() - m);
     }
     function dockX(side) { return side === "left" ? 12 : Math.max(8, window.innerWidth - roamW() - 14); }
@@ -367,6 +399,7 @@
       roam.classList.toggle("guide-bubble-left", leftEdge + bw / 2 > otterCx);
     }
     function showBubble(text, ms) {
+      roamBubble.classList.remove("guide-bubble-emoji");
       roamBubbleText.textContent = text;
       roamBubble.hidden = false;
       placeBubble();
@@ -374,6 +407,46 @@
       if (ms) bubbleTimer = setTimeout(function () { roamBubble.hidden = true; }, ms);
     }
     function hideBubble() { roamBubble.hidden = true; clearTimeout(bubbleTimer); }
+
+    /* ---------------- ZONES + VÙNG YÊN LẶNG + BONG BÓNG BIỂU CẢM ----------------
+       Trạng thái zone hiện tại do initZones() (cuối build) duy trì qua
+       watcher 700ms; các helper dưới đây chỉ ĐỌC trạng thái đó. Khai báo
+       bằng function/var trong cùng scope build() nên mọi chỗ gọi trước
+       (speak, say, parkOtter, chatter...) đều thấy — function declaration
+       được hoist, còn activeZoneId chỉ đổi khi watcher chạy (sau build). */
+    var activeZoneId = null; /* "path" | "auto" | "ach" | "write" | "reading" | null */
+    function zoneQuiet() {
+      /* Học auto + Luyện phát âm/Nghe & Đọc: web đang phát giọng đọc bài
+         học — bé KHÔNG được phát giọng ở đây, chỉ biểu cảm bằng emoji. */
+      return activeZoneId === "auto" || activeZoneId === "reading";
+    }
+    function zoneSilent() {
+      /* Đang ở BẤT KỲ zone nào (khu học toàn màn hình) -> câm GIỌNG
+         tuyệt đối (speak() tự chặn). Phần chữ/biểu cảm KHÔNG bị tắt:
+         bong bóng chữ vẫn hiện ở path/ach/write, emoji ở auto/reading. */
+      return !!activeZoneId;
+    }
+    function zoneOverlayActive() {
+      /* Các zone phủ toàn màn hình (panel portal ra body) — bé phải neo ở
+         dock của zone và không roaming 2D như trang chính. */
+      return activeZoneId === "auto" || activeZoneId === "ach" || activeZoneId === "write";
+    }
+    var EMOJI_REACTIONS = ["🤩👏", "😃💪", "🎉✨", "👂 hay quá!", "🦦💯", "😍🔥", "👍✨", "🤗💖", "😆🎶", "🌟👏", "🥳🎊", "😺✌️"];
+    var lastEmojiIdx = -1;
+    function pickEmoji() {
+      var i = Math.floor(Math.random() * EMOJI_REACTIONS.length);
+      if (EMOJI_REACTIONS.length > 1 && i === lastEmojiIdx) i = (i + 1) % EMOJI_REACTIONS.length;
+      lastEmojiIdx = i;
+      return EMOJI_REACTIONS[i];
+    }
+    function showEmojiBubble(fixed) {
+      roamBubble.classList.add("guide-bubble-emoji");
+      roamBubbleText.textContent = fixed || pickEmoji();
+      roamBubble.hidden = false;
+      placeBubble();
+      clearTimeout(bubbleTimer);
+      bubbleTimer = setTimeout(function () { roamBubble.hidden = true; }, 2800);
+    }
 
     /* The otter only stands on margins / corners / empty spots — check the
        point under its centre is not an interactive or learning element. */
@@ -706,7 +779,7 @@
       if (now - lastPark < 1600 || roam.hidden) return;
       lastPark = now;
       hideBubble();
-      var tx = pathFsActive() ? 10 : ((pos.x + roamW() / 2 < window.innerWidth / 2) ? 10 : dockX("right"));
+      var tx = (pathFsActive() || zoneOverlayActive()) ? 10 : ((pos.x + roamW() / 2 < window.innerWidth / 2) ? 10 : dockX("right"));
       runTo(tx, dockY());
     }
     function onUserInteract(ev) {
@@ -879,7 +952,7 @@
     function relocateIfBlocked() {
       var now = Date.now();
       if (now - lastRelocate < 3000) return;
-      if (pathFsActive() || reducedMotion) return;
+      if (pathFsActive() || zoneOverlayActive() || reducedMotion) return;
       if (!guidePanel.hidden || roam.hidden || rafId || tripActive || now < parkUntil) return;
       if (spotRectFree(pos.x, pos.y)) return;
       lastRelocate = now;
@@ -907,6 +980,7 @@
       var now = Date.now();
       if (document.hidden) { scheduleRoam(4000); return; }
       if (!guidePanel.hidden || roam.hidden || rafId || tripActive || now < parkUntil) { scheduleRoam(); return; }
+      if (zoneOverlayActive()) { scheduleRoam(); return; } /* trong zone phủ: bé ở yên tại dock của zone */
       if (!pathFsActive()) {
         /* Ngoài lộ trình: chạy nhảy 2 chiều tới chỗ thoáng bất kỳ trong
            khung nhìn; không có chỗ thoáng thì rơi xuống neo làn dưới cũ. */
@@ -958,7 +1032,7 @@
       otterBtn.setAttribute("aria-expanded", "false");
       clearInterval(typeTimer);
       if ("speechSynthesis" in window) { try { window.speechSynthesis.cancel(); } catch (e) {} }
-      if (!skipDock && !roam.hidden) runTo(dockX("right"), dockY());
+      if (!skipDock && !roam.hidden) runTo(zoneOverlayActive() ? dockX("left") : dockX("right"), dockY());
     }
     otterBtn.addEventListener("click", function () {
       if (roam.hidden) return;
@@ -1050,8 +1124,11 @@
        Cách xử lý (chỉ khi body có .ttc-path-fs-lock, ngoài fs giữ nguyên 100%):
        - CSS nâng lớp roam/wrap/restore/overlay lên 2147482999-2147483001
          (trên lớp fs, dưới giới hạn z-index của trình duyệt).
-       - dockY() đã fs-aware: bé neo ở DẢI TRÊN CÙNG và chạy dọc mép trên;
-         park khi người học thao tác -> góc trên-trái (khu tiêu đề, không nút).
+       - dockY() đã fs-aware: bé neo ở DẢI TRÊN CÙNG và chạy dọc mép trên,
+         nhưng LUÔN dưới đáy dòng ticker chạy chữ (dockY đo rect thật của
+         #ttcPathWorldTicker — chữ ticker chạy toàn bề rộng, ở trên dải đó
+         bé sẽ che chữ như ảnh chủ web chụp); park khi người học thao tác
+         -> góc trên-trái ngay dưới ticker (khu tiêu đề, không nút).
        - Bong bóng lật xuống DƯỚI bé (ở trên cùng mà bong bóng mở lên trên
          thì ra ngoài màn hình).
        - Watcher 700ms: vừa vào phiên -> bé chạy lên dải trên + nhảy chào;
@@ -1063,6 +1140,193 @@
     /* ---------------- Bé Rái Cá TRÒ CHUYỆN (chatter, additive) ---------------- */
     try { initChatter(); } catch (eChatter) {
       if (window.console && console.warn) console.warn("Guide chatter off:", eChatter);
+    }
+
+    /* ---------------- Bé Rái Cá THEO VÀO MỌI KHU HỌC (zones, additive) ---------------- */
+    try { initZones(); } catch (eZones) {
+      if (window.console && console.warn) console.warn("Guide zones off:", eZones);
+    }
+    function initZones() {
+      /* Bảng zone — thứ tự ưu tiên từ trên xuống (chỉ một lớp phủ toàn màn
+         hình mở tại một thời điểm trong thực tế):
+         - path:    fullscreen lộ trình (GIỮ NGUYÊN hành vi cũ — watcher
+                    initGuidePathFs lo di chuyển + CSS #guide-fs-style lo
+                    z-index 2147483000; zone này chỉ đăng ký trạng thái).
+         - auto:    Học auto fullscreen (.otter2-auto-fs-open, portal ra
+                    body, z-index 200000; nút Thoát cố định 200001) — QUIET.
+         - ach:     Bảng thành tích fullscreen (#ttcAchHost.ttc-ach-fs,
+                    z-index 1000060; toolbar có nút THOÁT ở TRÊN).
+         - write:   Overlay Viết chữ Hán (#ttcWriteOverlay, z-index 100000;
+                    thẻ 560px căn giữa, nút đóng ở góc trên-phải của thẻ).
+         - reading: Màn Luyện tập (screen panel thường, không phải lớp phủ)
+                    — QUIET, bé giữ hành vi trang chính, chỉ câm giọng.
+         Dock của các zone phủ = GÓC DƯỚI-TRÁI, bé thu nhỏ 88px (74px ở
+         mobile) như trong lộ trình: các nút Thoát/đóng của cả ba khu đều
+         nằm ở phía TRÊN (auto: trên-phải; ach: toolbar trên; write: đầu
+         thẻ trên-phải), thẻ câu/nút điều khiển của Học auto nằm giữa-trên,
+         ô giấy viết nằm giữa thẻ — góc dưới-trái là vùng thoáng duy nhất
+         không chạm vào đâu quan trọng ở cả ba khu. */
+      var zoneStyle = document.createElement("style");
+      zoneStyle.id = "guide-zone-style";
+      zoneStyle.textContent =
+        "[data-guide-root].guide-zone-auto .guide-roam{z-index:200050 !important;width:88px}" +
+        "[data-guide-root].guide-zone-auto .guide-wrap{z-index:200051 !important}" +
+        "[data-guide-root].guide-zone-auto .guide-restore{z-index:200050 !important}" +
+        "[data-guide-root].guide-zone-auto .guide-spot-overlay{z-index:200049 !important}" +
+        "[data-guide-root].guide-zone-ach .guide-roam{z-index:1000070 !important;width:88px}" +
+        "[data-guide-root].guide-zone-ach .guide-wrap{z-index:1000071 !important}" +
+        "[data-guide-root].guide-zone-ach .guide-restore{z-index:1000070 !important}" +
+        "[data-guide-root].guide-zone-ach .guide-spot-overlay{z-index:1000069 !important}" +
+        "[data-guide-root].guide-zone-write .guide-roam{z-index:100010 !important;width:88px}" +
+        "[data-guide-root].guide-zone-write .guide-wrap{z-index:100011 !important}" +
+        "[data-guide-root].guide-zone-write .guide-restore{z-index:100010 !important}" +
+        "[data-guide-root].guide-zone-write .guide-spot-overlay{z-index:100009 !important}" +
+        "@media (max-width:720px){" +
+        "[data-guide-root].guide-zone-auto .guide-roam,[data-guide-root].guide-zone-ach .guide-roam,[data-guide-root].guide-zone-write .guide-roam{width:74px}}" +
+        ".guide-bubble.guide-bubble-emoji{width:auto;max-width:62vw;padding:9px 13px}" +
+        ".guide-bubble.guide-bubble-emoji p{font-size:1.5rem;line-height:1.3;text-align:center;white-space:nowrap}" +
+        ".guide-bubble.guide-bubble-emoji .guide-hint{display:none}";
+      document.head.appendChild(zoneStyle);
+
+      function detectZone() {
+        if (pathFsActive()) return "path";
+        try {
+          if (document.body.classList.contains("otter2-auto-fs-lock") &&
+              document.querySelector("#autoLearning.otter2-auto-fs-open,#ttcExampleAutoV2.otter2-auto-fs-open")) return "auto";
+        } catch (eA) {}
+        try {
+          var ach = document.getElementById("ttcAchHost");
+          if ((ach && ach.classList.contains("ttc-ach-fs")) ||
+              document.body.classList.contains("ttc-ach-fs-lock")) return "ach";
+        } catch (eB) {}
+        try {
+          var w = document.getElementById("ttcWriteOverlay");
+          if (w && !w.hidden && (!w.style || w.style.display !== "none")) return "write";
+        } catch (eC) {}
+        try {
+          var rp = document.querySelector('[data-otter2-screen-panel="reading"]');
+          if (rp && !rp.hidden && isVisible(rp)) return "reading";
+        } catch (eD) {}
+        return null;
+      }
+
+      /* ----- Phản ứng theo nội dung trong Học auto (chỉ emoji, câm giọng) -----
+         Engine câu ví dụ ghi câu vào #ttcEA2Hanzi, engine từ vựng ghi từ
+         vào #autoLearningWord (cả hai phần tử tồn tại cố định sau khi shell
+         được dựng, panel chỉ portal đi nơi khác — observer bám theo phần tử
+         nên vẫn chạy trong fullscreen). Phản ứng có xác suất + cooldown
+         >= 20s để bé không "ồn" theo từng câu. */
+      var autoReact = { lastHanzi: null, lastWord: null, lastAt: 0, changes: 0, wasPlaying: false, celebrated: false };
+      function autoPlayingNow() {
+        var btn = document.getElementById("ttcEA2Auto");
+        if (btn && /Dừng/.test(btn.textContent || "")) return true;
+        var st = document.getElementById("autoLearningStatus");
+        if (st && /Đang học/.test(st.textContent || "")) return true;
+        return false;
+      }
+      function resetAutoWatch() {
+        var h = document.getElementById("ttcEA2Hanzi");
+        var w = document.getElementById("autoLearningWord");
+        autoReact.lastHanzi = h ? (h.textContent || "").replace(/\s+/g, " ").trim() : null;
+        autoReact.lastWord = w ? (w.textContent || "").replace(/\s+/g, " ").trim() : null;
+        autoReact.changes = 0;
+        autoReact.celebrated = false;
+        try { autoReact.wasPlaying = autoPlayingNow(); } catch (eP0) { autoReact.wasPlaying = false; }
+        ensureAutoWatchers();
+      }
+      function onAutoContent(kind, rawText) {
+        if (activeZoneId !== "auto") return;
+        var text = (rawText || "").replace(/\s+/g, " ").trim();
+        if (!text) return;
+        var key = kind === "ex" ? "lastHanzi" : "lastWord";
+        if (autoReact[key] === text) return;
+        var isFirst = autoReact[key] === null;
+        autoReact[key] = text;
+        if (isFirst) return; /* câu/từ đầu tiên sau khi vào khu: chỉ ghi mốc */
+        autoReact.changes++;
+        var now = Date.now();
+        if (now - autoReact.lastAt < 20000) return;  /* cooldown tối thiểu 20 giây */
+        if (Math.random() > 0.45) return;            /* chỉ thỉnh thoảng ~45% */
+        if (roam.hidden || !guidePanel.hidden || tripActive) return;
+        autoReact.lastAt = now;
+        jumpOtter();
+        showEmojiBubble();
+      }
+      function watchAutoEl(id, kind) {
+        var el = document.getElementById(id);
+        if (!el || el.__guideZoneWatched) return;
+        el.__guideZoneWatched = true;
+        try {
+          var mo = new MutationObserver(function () { onAutoContent(kind, el.textContent); });
+          mo.observe(el, { childList: true, characterData: true, subtree: true });
+        } catch (eM) {}
+      }
+      function ensureAutoWatchers() {
+        watchAutoEl("ttcEA2Hanzi", "ex");
+        watchAutoEl("autoLearningWord", "voc");
+      }
+      ensureAutoWatchers();
+      /* Kết thúc phiên Học auto: nút Tự động của engine câu ví dụ lật từ
+         "⏸️ Dừng tự động" về "▶️ Tự động" (engine từ vựng: status rời
+         "▶️ Đang học") SAU khi đã có ít nhất 1 lần đổi câu/từ -> bé ăn mừng
+         bằng emoji, 1 lần cho mỗi phiên phát. */
+      function autoPlayTick() {
+        if (activeZoneId !== "auto") { autoReact.wasPlaying = false; return; }
+        var playing = false;
+        try { playing = autoPlayingNow(); } catch (eP) {}
+        if (playing && !autoReact.wasPlaying) { autoReact.celebrated = false; autoReact.changes = 0; }
+        if (!playing && autoReact.wasPlaying && !autoReact.celebrated && autoReact.changes >= 1) {
+          autoReact.celebrated = true;
+          if (!roam.hidden && guidePanel.hidden && !tripActive) {
+            jumpOtter();
+            showEmojiBubble("🎉👏✨");
+          }
+        }
+        autoReact.wasPlaying = playing;
+      }
+
+      function onZoneChange(prev, z) {
+        if (z === "auto") resetAutoWatch();
+        if (roam.hidden || tripActive) return; /* bé đang nghỉ: không xuất hiện ở zone nào */
+        var overlayIn = z === "auto" || z === "ach" || z === "write";
+        var overlayOut = prev === "auto" || prev === "ach" || prev === "write";
+        if (overlayIn) {
+          /* CHẠY (runTo) tới dock của zone — không teleport; reduced-motion
+             thì runTo tự đặt vị trí tức thì và jumpOtter tự bỏ qua. */
+          runTo(dockX("left"), dockY(), function () { jumpOtter(); });
+        } else if (overlayOut && z !== "path") {
+          runTo(dockX("right"), dockY()); /* rời zone phủ -> về góc quen thuộc */
+        }
+        /* z === "path" / rời path: watcher initGuidePathFs lo di chuyển.
+           z === "reading": màn thường — không di chuyển, chỉ câm giọng. */
+      }
+
+      var lastZone = null;
+      function zoneTick() {
+        var z = detectZone();
+        if (z !== lastZone) {
+          var prev = lastZone;
+          lastZone = z;
+          activeZoneId = z;
+          root.classList.remove("guide-zone-auto", "guide-zone-ach", "guide-zone-write");
+          if (z === "auto" || z === "ach" || z === "write") root.classList.add("guide-zone-" + z);
+          try { onZoneChange(prev, z); } catch (eZc) {}
+        }
+        try { autoPlayTick(); } catch (eAp) {}
+      }
+      setInterval(zoneTick, 700);
+      zoneTick();
+
+      /* Phơi ra cho kiểm thử tự động + gỡ lỗi tay; vô hại khi chạy thật. */
+      window.__otter2GuideZones = {
+        id: function () { return activeZoneId; },
+        quiet: zoneQuiet,
+        silent: zoneSilent,
+        tick: zoneTick,
+        emoji: showEmojiBubble,
+        react: onAutoContent,
+        emojis: EMOJI_REACTIONS.slice()
+      };
     }
     function initGuidePathFs() {
       var fsStyle = document.createElement("style");
@@ -1079,13 +1343,22 @@
       var wasFs = false;
       setInterval(function () {
         var on = pathFsActive();
-        if (on === wasFs) return;
-        wasFs = on;
-        if (roam.hidden || tripActive) return;
-        if (on) {
-          runTo(dockX("left"), dockY(), jumpOtter);
-        } else {
-          runTo(dockX("right"), dockY());
+        if (on !== wasFs) {
+          wasFs = on;
+          if (roam.hidden || tripActive) return;
+          if (on) {
+            runTo(dockX("left"), dockY(), jumpOtter);
+          } else {
+            runTo(dockX("right"), dockY());
+          }
+          return;
+        }
+        /* Đang ở trong fs: nếu đáy ticker thay đổi (xoay màn hình, đổi
+           breakpoint làm ticker cao/thấp khác) khiến vị trí hiện tại của
+           bé lấn lên dải ticker, hạ bé xuống đúng mốc dock mới. */
+        if (on && !roam.hidden && !tripActive && !rafId) {
+          var needY = dockY();
+          if (pos.y < needY - 1) runTo(pos.x, needY);
         }
       }, 700);
     }
@@ -1387,9 +1660,12 @@
        - Công tắc "💬 Bé trò chuyện" trong panel, ngay dưới hàng "⏰ Nhắc học";
          lưu ở key riêng "otter2_guide_chatter_v1" ({enabled}), mặc định BẬT.
          Tắt là huỷ luôn đồng hồ đang đếm — bé im hẳn.
-       - Chu kỳ: mỗi 60–120 giây (ngẫu nhiên) xét điều kiện một lần; lỡ điều
-         kiện thì thử lại sau ~25 giây. Câu đầu tiên không sớm hơn 45 giây
-         sau khi tải trang.
+       - Chu kỳ (đặc tả chủ web chốt 2026-11-17 — "ở màn hình chính mỗi
+         1 phút nói 1 câu"): hai câu liên tiếp cách nhau 55–70 giây (ngẫu
+         nhiên nhẹ quanh mốc 60s cho tự nhiên); due() còn giữ khoảng cách
+         tối thiểu 55 giây kể từ câu trước nên nhịp không bao giờ dày hơn.
+         Lỡ điều kiện thì thử lại sau ~25 giây. Câu đầu tiên được hẹn ở
+         45–60 giây sau khi tải trang (và due() không cho sớm hơn 45s).
        - Điều kiện nói (phải thỏa TẤT CẢ): công tắc bật; bé đang hiển thị
          (không ở chế độ nghỉ/ẩn); panel đang đóng; không trong chuyến dẫn
          đường (tripActive); không đang chạy (rafId); không bị park trong
@@ -1402,6 +1678,13 @@
     function initChatter() {
       var CHAT_KEY = "otter2_guide_chatter_v1";
       var FIRST_AFTER_MS = 45000;
+      /* Nhịp thoại màn hình chính: ~1 câu/phút (xem ghi chú ở đầu hàm). */
+      var GAP_MIN_MS = 55000;
+      var GAP_MAX_MS = 70000;
+      var FIRST_MIN_MS = 45000;
+      var FIRST_MAX_MS = 60000;
+      function nextGap() { return GAP_MIN_MS + Math.random() * (GAP_MAX_MS - GAP_MIN_MS); }
+      function firstDelay() { return FIRST_MIN_MS + Math.random() * (FIRST_MAX_MS - FIRST_MIN_MS); }
       var chatEnabled = true;
       try {
         var rawC = localStorage.getItem(CHAT_KEY);
@@ -1432,6 +1715,8 @@
       var bornAt = Date.now();
       var lastActAt = 0;
       var lastLineIdx = -1;
+      var lastFireAt = 0;      /* mốc câu chatter gần nhất đã phát (giữ nhịp >= 55s) */
+      var lastChatDelay = 0;   /* delay vừa hẹn cho tick kế (phơi cho kiểm thử) */
       var chatTimer = null;
 
       /* Mốc tương tác gần nhất của người dùng (mọi thao tác ngoài guide). */
@@ -1490,12 +1775,21 @@
         if (document.hidden) return false;             /* tab không hiển thị */
         var now = Date.now();
         if (now - bornAt < FIRST_AFTER_MS) return false;
+        if (lastFireAt && now - lastFireAt < GAP_MIN_MS) return false; /* nhịp ~1 câu/phút: câu trước chưa đủ 55s thì chưa nói tiếp */
         if (now < parkUntil || now - lastPark < 15000) return false;
         if (lastActAt && now - lastActAt < 20000) return false;
         if (!roamBubble.hidden) return false;          /* bong bóng đang bận (chào/khen/nhắc) */
         return true;
       }
       function fireChatter() {
+        lastFireAt = Date.now();
+        /* Vùng yên lặng: câu trò chuyện chuyển thành biểu cảm emoji —
+           không giọng (speak() cũng tự chặn), không bong bóng chữ. */
+        if (zoneQuiet()) {
+          showEmojiBubble();
+          if (Math.random() < 0.35) jumpOtter();
+          return;
+        }
         var idx = Math.floor(Math.random() * CHAT_LINES.length);
         if (CHAT_LINES.length > 1 && idx === lastLineIdx) idx = (idx + 1) % CHAT_LINES.length;
         lastLineIdx = idx;
@@ -1507,7 +1801,8 @@
       function scheduleChatter(delay) {
         clearTimeout(chatTimer);
         if (!chatEnabled) { chatTimer = null; return; }
-        chatTimer = setTimeout(chatterTick, delay == null ? 60000 + Math.random() * 60000 : delay);
+        lastChatDelay = delay == null ? nextGap() : delay;
+        chatTimer = setTimeout(chatterTick, lastChatDelay);
       }
       function chatterTick() {
         chatTimer = null;
@@ -1520,12 +1815,14 @@
         if (document.hidden) { clearTimeout(chatTimer); chatTimer = null; }
         else if (chatEnabled && !chatTimer) scheduleChatter(20000);
       });
-      scheduleChatter();
+      scheduleChatter(firstDelay()); /* câu đầu tiên: hẹn ở 45–60s sau khi tải trang */
 
       /* Phơi ra cho kiểm thử tự động + gỡ lỗi tay; vô hại khi chạy thật. */
       window.__otter2GuideChatter = {
         due: chatterDue,
         fire: fireChatter,
+        tick: chatterTick,
+        lastDelay: function () { return lastChatDelay; },
         enabled: function () { return chatEnabled; },
         setEnabled: setChatterEnabled,
         lines: CHAT_LINES.slice()

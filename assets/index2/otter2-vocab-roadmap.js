@@ -1376,48 +1376,25 @@ if (typeof window.ttcHanVietName !== "function") {
       return a;
     }
     function pathSfxClap(){
+      // Vỗ tay bình thường (chủ web 2026-11-17: bản cũ phát file khán giả vỗ
+      // tay + hò reo 2,5s ở vol x1,45 — nghe "quá lố"). Nay chỉ là 6 tiếng vỗ
+      // tay ngắn tổng hợp bằng noise burst qua bandpass (pathSfxNoiseBurst):
+      // tổng ~0,95s, gain = vol x peak (<= ~0,16 ở vol mặc định 0,32, êm hơn
+      // hẳn bản cũ ~0,46). KHÔNG giai điệu, KHÔNG nốt nhạc, KHÔNG file khán giả.
       if (pathSfx.muted) return;
       var nowMs = Date.now();
       if (pathSfx._clapLockUntil && nowMs < pathSfx._clapLockUntil) return;
-      var playMs = Math.max(1000, Math.min(3000, Number(pathSfx._clapPlayMs) || 2200));
-      pathSfx._clapLockUntil = nowMs + playMs + 200;
-      try { pathSfxEnsure(); } catch (eEns) {}
+      pathSfx._clapLockUntil = nowMs + 1300;
+      var c = pathSfxEnsure(); if (!c) return;
       try {
-        var a = pathSfxGetClapAudio();
-        a.volume = Math.max(0.08, Math.min(0.9, (pathSfx.vol || 0.32) * 1.45));
-        try { a.pause(); } catch (eP) {}
-        try { a.currentTime = 0; } catch (eT) {}
-        if (pathSfx._clapStopTimer) {
-          try { clearTimeout(pathSfx._clapStopTimer); } catch (eC) {}
-          pathSfx._clapStopTimer = 0;
+        var t0 = c.currentTime + 0.02;
+        var gaps = [0, 0.16, 0.33, 0.49, 0.66, 0.84];
+        for (var i = 0; i < gaps.length; i++) {
+          var jitter = i === 0 ? 0 : (Math.random() * 0.03 - 0.015);
+          var peak = Math.max(0.34, 0.5 - i * 0.03);
+          pathSfxNoiseBurst(t0 + gaps[i] + jitter, 0.09, peak);
         }
-        var stopLater = function(){
-          pathSfx._clapStopTimer = setTimeout(function(){
-            try { a.pause(); } catch (eStop) {}
-            try { a.currentTime = 0; } catch (eRew) {}
-            pathSfx._clapStopTimer = 0;
-          }, playMs);
-        };
-        var p = a.play();
-        if (p && typeof p.then === "function") {
-          p.then(function(){ stopLater(); }).catch(function(){
-            try {
-              if (pathSfx._clapDataUri) {
-                a.src = pathSfx._clapDataUri;
-                a.volume = Math.max(0.08, Math.min(0.9, (pathSfx.vol || 0.32) * 1.45));
-                var p2 = a.play();
-                if (p2 && typeof p2.then === "function") {
-                  p2.then(function(){ stopLater(); }).catch(function(){});
-                } else { stopLater(); }
-              }
-            } catch (e2) {}
-          });
-        } else {
-          stopLater();
-        }
-      } catch (eClap) {
-        // Do not synthesize fireworks/noise — fail silently if audio blocked
-      }
+      } catch (eClap) {}
     }
     function pathSfxUnlockApplause(){
       try {
@@ -2625,9 +2602,9 @@ if (typeof window.ttcHanVietName !== "function") {
         score.classList.add("ttc-path-score-flash");
       }
       if (!delta) return;
-      if (delta > 0 && typeof window.ttcPathSfxPlay === "function") {
-        setTimeout(function(){ window.ttcPathSfxPlay("xp"); }, 260);
-      }
+      // Âm đúng-câu chỉ còn tràng vỗ tay ngắn (pathShowFeedback -> "clap");
+      // bỏ tiếng "xp" (arpeggio 3 nốt) từng phát kèm khi cộng EXP cho đỡ "lố"
+      // (chủ web 2026-11-17). Hiệu ứng hình ảnh +EXP bên dưới giữ nguyên.
       var fromEl = box.querySelector(".ttc-path-feedback") || box.querySelector(".ttc-path-choices") || box.querySelector(".ttc-path-quiz") || box;
       var toEl = xpCard || xpVal || score || box;
       var from = fromEl.getBoundingClientRect ? fromEl.getBoundingClientRect() : { left: 0, top: 0, width: 40, height: 20 };

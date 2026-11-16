@@ -1060,19 +1060,19 @@
     html[data-theme="sea"] .otter2-shell{background:#f0f9ff}
     html[data-theme="sunset"] .otter2-shell{background:#fff7ed}
     html[data-theme="night"] .otter2-shell{border-color:#1f2937;box-shadow:0 30px 80px rgba(0,0,0,.55),0 4px 18px rgba(0,0,0,.4)}
-    /* --- Thanh trên cùng kiểu mockup: phẳng trong cửa sổ, pill điều hướng, nút đang chọn màu đen --- */
+    /* --- Thanh trên cùng kiểu mockup: phẳng trong cửa sổ, pill điều hướng, nút đang chọn màu đỏ (trước là đen, đổi theo ý chủ web 2026-11-17) --- */
     #otter2Nav{
       background:transparent;border:0;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;
       border-radius:0;margin:0 0 4px;padding:6px 2px 12px;
     }
     html[data-theme="night"] #otter2Nav{border-color:transparent !important}
     #otter2NavLinks{background:#f1f2f6;border-color:transparent;padding:5px}
-    #otter2NavLinks > button[aria-current="page"]{background:#17181c;color:#fff;box-shadow:0 8px 18px rgba(15,17,23,.28)}
-    #otter2NavLinks > button[aria-current="page"]:hover{background:#000;color:#fff}
+    #otter2NavLinks > button[aria-current="page"]{background:#e11d48;color:#fff;box-shadow:0 8px 18px rgba(225,29,72,.28)}
+    #otter2NavLinks > button[aria-current="page"]:hover{background:#be123c;color:#fff}
     html[data-theme="night"] #otter2NavLinks{background:#1e293b}
     html[data-theme="night"] #otter2NavLinks > button{color:#cbd5e1}
     html[data-theme="night"] #otter2NavLinks > button:hover{background:#0f172a;color:#fff}
-    html[data-theme="night"] #otter2NavLinks > button[aria-current="page"]{background:#f1f5f9;color:#0f172a;box-shadow:none}
+    html[data-theme="night"] #otter2NavLinks > button[aria-current="page"]{background:#e11d48;color:#fff;box-shadow:none}
     /* Logo rái cá (ảnh linh vật toàn thân sẵn có của trang) + tiêu đề lớn hơn */
     .otter2-logo{
       width:44px;height:44px;color:transparent;font-size:0;
@@ -1728,6 +1728,13 @@ html[data-theme="night"] .ttc-write-status{color:#4ade80}
   min-height: 0;
   overflow-y: auto;
 }
+/* fs: "Chỉnh mục tiêu" chỉ giữ MỘT nút ở toolbar — #otter2-path-fixes-js di
+   dời .ttc-path-goals-toggle vào #ttcPathFsToolbar, nhưng mỗi lần module
+   draw() lại nó render thêm một nút mới trong .ttc-path-goals-bar, thành ra
+   hiện 2 nút (ảnh chủ web 2026-11-17). Ẩn hàng goals-bar trong fs; panel
+   thiết lập .ttc-path-goals là phần tử riêng nên không bị ẩn theo, và nút ở
+   toolbar giữ nguyên handler toggle của module. */
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-goals-bar { display: none !important; }
 #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-learn {
   flex: 1 1 auto;
   min-height: 0;
