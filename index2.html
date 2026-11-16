@@ -800,6 +800,213 @@
     .otter2-node{transition:transform .15s ease}
     .otter2-node:hover{transform:scale(1.08)}
 </style>
+<style id="otter2-dash-css">
+    /* ===== Dashboard trang chủ (phong cách Mondly) — dùng token --otter2-* sẵn có ===== */
+    .otter2-dash-strip{
+      display:flex;gap:4px;align-items:stretch;background:#fff;border:1px solid var(--otter2-line);
+      border-radius:999px;padding:6px;box-shadow:var(--otter2-shadow);margin:0 0 16px;
+      overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;max-width:100%;box-sizing:border-box;
+    }
+    .otter2-dash-strip::-webkit-scrollbar{display:none}
+    .otter2-dash-chip{
+      flex:1 0 auto;border:0;background:transparent;border-radius:999px;padding:8px 10px;cursor:pointer;
+      font-weight:700;font-size:13px;color:var(--otter2-muted);min-height:44px;white-space:nowrap;line-height:1.25;
+    }
+    .otter2-dash-chip small{display:block;font-size:10.5px;font-weight:600;opacity:.85}
+    .otter2-dash-chip:hover{background:var(--otter2-pink);color:var(--otter2-ink)}
+    .otter2-dash-chip.is-cur{background:var(--otter2-red);color:#fff}
+    .otter2-dash{
+      display:grid;grid-template-columns:minmax(0,1fr) 348px;gap:16px;align-items:start;margin:0 0 16px;
+    }
+    .otter2-dash-main,.otter2-dash-side{display:grid;gap:16px;min-width:0}
+    .otter2-dash-card{
+      background:#fff;border:1px solid var(--otter2-line);border-radius:var(--otter2-radius);
+      padding:18px;box-shadow:var(--otter2-shadow);min-width:0;
+    }
+    .otter2-dash-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+    .otter2-dash-head h2{font-size:17px;font-weight:800;margin:0;color:var(--otter2-ink)}
+    .otter2-dash-sub{font-size:12.5px;color:var(--otter2-muted);font-weight:600}
+    .otter2-dash-hero{
+      background:linear-gradient(135deg,var(--otter2-red),var(--otter2-red-deep));color:#fff;
+      border-radius:16px;padding:16px;position:relative;overflow:hidden;
+    }
+    .otter2-dash-hero::after{
+      content:"学";position:absolute;right:8px;top:-30px;font-size:118px;font-weight:900;line-height:1;
+      color:rgba(255,255,255,.13);pointer-events:none;
+    }
+    .otter2-dash-badge{display:inline-block;background:var(--otter2-gold);color:#3a2703;font-size:11px;font-weight:800;padding:3px 10px;border-radius:999px;letter-spacing:.04em;text-transform:uppercase}
+    .otter2-dash-hero h3{margin:10px 0 2px;font-size:19px;font-weight:800;position:relative;z-index:1}
+    .otter2-dash-hero p{margin:0;font-size:13.5px;color:rgba(255,255,255,.88);position:relative;z-index:1}
+    .otter2-dash-prow{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;margin-top:16px;color:rgba(255,255,255,.88);position:relative;z-index:1}
+    .otter2-dash-prow b{color:#fff}
+    .otter2-dash-bar{height:7px;border-radius:99px;background:rgba(255,255,255,.28);margin-top:6px;overflow:hidden;position:relative;z-index:1}
+    .otter2-dash-bar>i{display:block;height:100%;border-radius:99px;background:var(--otter2-gold);transition:width .6s ease}
+    /* Feature row chuyển vào thẻ khóa học: hiển thị dạng danh sách (giữ nguyên id/handler) */
+    .otter2-dash-course .otter2-feature-row{display:grid;grid-template-columns:1fr !important;gap:8px;margin:12px 0 0}
+    .otter2-dash-course .otter2-feature{
+      display:flex;align-items:center;gap:12px;text-align:left;min-height:54px;height:auto;width:100%;
+      padding:10px 14px;background:var(--otter2-pink);border-radius:14px;box-shadow:none;
+    }
+    .otter2-dash-course .otter2-feature strong{font-size:14.5px}
+    .otter2-dash-course .otter2-feature .otter2-ico{width:38px;height:38px;font-size:19px;background:#fff}
+    .otter2-dash-course .otter2-feature--vocab{background:linear-gradient(135deg,var(--otter2-red),var(--otter2-red-deep));color:#fff;border-color:transparent}
+    .otter2-dash-course .otter2-feature--vocab .otter2-ico{background:rgba(255,255,255,.2)}
+    /* Bài học mỗi ngày */
+    .otter2-dash-search{
+      display:flex;align-items:center;gap:9px;background:var(--otter2-pink);border:1px solid var(--otter2-line);
+      border-radius:12px;padding:0 13px;margin-bottom:6px;
+    }
+    .otter2-dash-search input{border:0;background:transparent;flex:1;font:inherit;font-size:14px;color:var(--otter2-ink);padding:11px 0;min-width:0}
+    .otter2-dash-search input:focus{outline:none}
+    .otter2-dash-lesson{
+      display:grid;grid-template-columns:46px minmax(0,1fr) auto;gap:12px;align-items:center;width:100%;
+      padding:13px 4px;border:0;border-top:1px solid var(--otter2-line);background:transparent;text-align:left;
+      color:var(--otter2-ink);font:inherit;cursor:pointer;text-decoration:none;box-sizing:border-box;
+    }
+    article.otter2-dash-lesson{cursor:default}
+    .otter2-dash-thumb{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-weight:900;font-size:19px;flex:none}
+    .otter2-dash-thumb.r{background:#fdecea;color:var(--otter2-red-deep)}
+    .otter2-dash-thumb.t{background:#e2f3f0;color:#0e7a6d}
+    .otter2-dash-thumb.g{background:#fdf1de;color:#b97a14}
+    .otter2-dash-thumb.v{background:#ece7fb;color:#6c4bd8}
+    .otter2-dash-thumb.o{background:#fdeee2;color:#e8722a}
+    .otter2-dash-lesson-main{min-width:0}
+    .otter2-dash-lesson-main strong{display:block;font-size:14.5px;font-weight:700}
+    .otter2-dash-lesson-main small{display:block;margin-top:2px;font-size:12.5px;color:var(--otter2-muted);line-height:1.45}
+    .otter2-dash-tag{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:7px;background:#e2f3f0;color:#0e7a6d;margin-top:6px}
+    .otter2-dash-tag.video{background:#fdecea;color:var(--otter2-red-deep)}
+    .otter2-dash-tag.pdf{background:#fdf1de;color:#b97a14}
+    .otter2-dash-status{font-size:11.5px;font-weight:800;padding:5px 9px;border-radius:7px;color:#fff;background:#94a3b8;white-space:nowrap}
+    .otter2-dash-status.done{background:#1f9d63}
+    .otter2-dash-status.today{background:var(--otter2-red)}
+    .otter2-dash-noresult{margin:14px 0 2px;color:var(--otter2-muted);font-size:13.5px}
+    /* Trình độ & kỹ năng */
+    .otter2-dash-retest{
+      border:1px solid var(--otter2-line);background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;
+      font-size:13px;font-weight:700;color:var(--otter2-ink);min-height:38px;
+    }
+    .otter2-dash-retest:hover{background:var(--otter2-pink)}
+    .otter2-dash-levelbig{display:flex;align-items:center;gap:14px}
+    .otter2-dash-levelbig .lv{font-size:44px;font-weight:900;letter-spacing:-.02em;line-height:1;color:var(--otter2-ink)}
+    .otter2-dash-levelbig .meta{font-size:12.5px;color:var(--otter2-muted);line-height:1.5}
+    .otter2-dash-skill{margin-top:16px;background:var(--otter2-pink);border-radius:14px;padding:13px 14px}
+    .otter2-dash-skill h4{margin:0 0 10px;font-size:13.5px;font-weight:700;color:var(--otter2-ink)}
+    .otter2-dash-track{height:10px;border-radius:99px;background:rgba(15,23,42,.10);overflow:hidden}
+    .otter2-dash-track>i{display:block;height:100%;border-radius:99px;background:#1f9d63;transition:width .6s ease}
+    .otter2-dash-skill .cap{display:block;margin-top:8px;font-size:12.5px;font-weight:700;color:var(--otter2-muted)}
+    .otter2-dash-skillgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+    .otter2-dash-skilltile{
+      border:1px solid var(--otter2-line);background:#fff;border-radius:14px;padding:12px 13px;cursor:pointer;
+      text-align:left;color:var(--otter2-ink);font:inherit;display:grid;gap:2px;min-height:64px;
+    }
+    .otter2-dash-skilltile:hover{background:var(--otter2-pink)}
+    .otter2-dash-skilltile strong{font-size:13.5px}
+    .otter2-dash-skilltile small{font-size:12px;color:var(--otter2-muted);font-weight:600}
+    /* Hoạt động */
+    .otter2-dash-actnum{display:flex;align-items:center;gap:12px}
+    .otter2-dash-actnum .n{font-size:48px;font-weight:900;letter-spacing:-.02em;line-height:1;color:var(--otter2-ink)}
+    .otter2-dash-actnum .lbl{font-size:13px;color:var(--otter2-muted);line-height:1.45;font-weight:600}
+    .otter2-dash-lvgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:16px}
+    .otter2-dash-lvcell{background:var(--otter2-pink);border-radius:11px;padding:8px 6px;text-align:center}
+    .otter2-dash-lvcell b{display:block;font-size:12.5px;color:var(--otter2-ink)}
+    .otter2-dash-lvcell span{font-size:11.5px;color:var(--otter2-muted);font-weight:700}
+    .otter2-dash-lvcell.has{background:#e4f5ec}
+    .otter2-dash-note{font-size:13px;color:var(--otter2-muted);margin:14px 0 0;line-height:1.55}
+    /* Nhiệm vụ hôm nay */
+    .otter2-dash-task{
+      display:flex;align-items:center;gap:12px;width:100%;border:0;background:transparent;text-align:left;
+      padding:11px 2px;color:var(--otter2-ink);border-radius:12px;font:inherit;cursor:pointer;box-sizing:border-box;
+    }
+    .otter2-dash-task + .otter2-dash-task{border-top:1px solid var(--otter2-line)}
+    .otter2-dash-task .ic{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;flex:none;font-size:18px;background:var(--otter2-pink)}
+    .otter2-dash-task .ic.c1{background:#e2f3f0}
+    .otter2-dash-task .ic.c2{background:#fdf1de}
+    .otter2-dash-task .ic.c3{background:#ece7fb}
+    .otter2-dash-task .tt{flex:1;min-width:0}
+    .otter2-dash-task .tt small{display:block;color:var(--otter2-muted);font-size:11.5px;font-weight:600}
+    .otter2-dash-task .tt span{font-weight:700;font-size:14px}
+    .otter2-dash-task .mins{background:var(--otter2-pink);border-radius:9px;padding:5px 10px;font-size:12.5px;font-weight:800;color:var(--otter2-muted);flex:none}
+    .otter2-dash-cta{
+      width:100%;background:var(--otter2-ink);color:#fff;border:0;border-radius:14px;padding:14px;cursor:pointer;
+      font-weight:800;font-size:15px;margin-top:14px;min-height:50px;
+    }
+    .otter2-dash-cta:hover{opacity:.92}
+    /* Học tiếp */
+    .otter2-dash-kicker{font-size:12px;color:var(--otter2-muted);font-weight:700}
+    .otter2-dash-continue h3{margin:5px 0 10px;font-size:17px;font-weight:800;color:var(--otter2-ink)}
+    .otter2-dash-continue img{width:100%;border-radius:14px;display:block;aspect-ratio:16/9;object-fit:cover}
+    .otter2-dash-continue p{margin:12px 0 14px;font-size:13.5px;color:var(--otter2-muted);line-height:1.6}
+    .otter2-dash-ctared{
+      width:100%;background:var(--otter2-red);color:#fff;border:0;border-radius:14px;padding:14px;cursor:pointer;
+      font-weight:800;font-size:15px;min-height:50px;
+    }
+    .otter2-dash-ctared:hover{background:var(--otter2-red-deep)}
+    /* Lộ trình */
+    .otter2-dash-road{grid-column:1/-1}
+    .otter2-dash-steps{display:grid;grid-template-columns:repeat(9,1fr);gap:8px}
+    .otter2-dash-step{
+      border-radius:16px;padding:13px 8px 11px;text-align:center;border:1px solid var(--otter2-line);
+      background:var(--otter2-pink);cursor:pointer;color:var(--otter2-ink);font:inherit;min-width:0;
+    }
+    .otter2-dash-step .n{display:block;font-size:16px;font-weight:900}
+    .otter2-dash-step small{display:block;font-size:10.5px;color:var(--otter2-muted);font-weight:600;margin-top:2px;line-height:1.4}
+    .otter2-dash-step .learned{color:#0e7a6d;font-weight:700}
+    .otter2-dash-step.grp2{background:#e2f3f0}
+    .otter2-dash-step.grp3{background:#ece7fb}
+    .otter2-dash-step.is-cur{background:var(--otter2-red);border-color:var(--otter2-red);color:#fff}
+    .otter2-dash-step.is-cur small{color:rgba(255,255,255,.85)}
+    .otter2-dash-step.is-cur .learned{color:#ffe9a8}
+    /* Bám theo 5 theme sẵn có (cùng bảng màu với otter2-theme.css) */
+    html[data-theme="night"] .otter2-dash-card,
+    html[data-theme="night"] .otter2-dash-strip{background:#111827;color:#e5e7eb;border-color:#334155}
+    html[data-theme="night"] .otter2-dash-head h2,
+    html[data-theme="night"] .otter2-dash-levelbig .lv,
+    html[data-theme="night"] .otter2-dash-actnum .n,
+    html[data-theme="night"] .otter2-dash-continue h3,
+    html[data-theme="night"] .otter2-dash-lesson-main strong{color:#e5e7eb}
+    html[data-theme="night"] .otter2-dash-sub,
+    html[data-theme="night"] .otter2-dash-note,
+    html[data-theme="night"] .otter2-dash-lesson-main small,
+    html[data-theme="night"] .otter2-dash-skill .cap{color:#94a3b8}
+    html[data-theme="night"] .otter2-dash-course .otter2-feature,
+    html[data-theme="night"] .otter2-dash-skilltile,
+    html[data-theme="night"] .otter2-dash-retest{background:#1e293b;color:#e5e7eb;border-color:#334155}
+    html[data-theme="night"] .otter2-dash-course .otter2-feature--vocab{background:linear-gradient(135deg,var(--otter2-red),var(--otter2-red-deep));color:#fff}
+    html[data-theme="night"] .otter2-dash-skill,
+    html[data-theme="night"] .otter2-dash-lvcell,
+    html[data-theme="night"] .otter2-dash-step,
+    html[data-theme="night"] .otter2-dash-search,
+    html[data-theme="night"] .otter2-dash-task .mins{background:#1e293b}
+    html[data-theme="night"] .otter2-dash-skill h4,
+    html[data-theme="night"] .otter2-dash-lvcell b,
+    html[data-theme="night"] .otter2-dash-step .n,
+    html[data-theme="night"] .otter2-dash-search input{color:#e5e7eb}
+    html[data-theme="night"] .otter2-dash-lvcell.has{background:#14532d}
+    html[data-theme="night"] .otter2-dash-track{background:rgba(255,255,255,.14)}
+    html[data-theme="night"] .otter2-dash-cta{background:#e5e7eb;color:#111827}
+    html[data-theme="night"] .otter2-dash-chip{color:#94a3b8}
+    html[data-theme="night"] .otter2-dash-chip:hover{background:#1e293b;color:#e5e7eb}
+    html[data-theme="night"] .otter2-dash-chip.is-cur{background:var(--otter2-red);color:#fff}
+    html[data-theme="paper"] .otter2-dash-card,
+    html[data-theme="paper"] .otter2-dash-strip{background:#fffaf3}
+    html[data-theme="forest"] .otter2-dash-card,
+    html[data-theme="forest"] .otter2-dash-strip{background:#f0fdf4}
+    html[data-theme="sea"] .otter2-dash-card,
+    html[data-theme="sea"] .otter2-dash-strip{background:#f0f9ff}
+    html[data-theme="sunset"] .otter2-dash-card,
+    html[data-theme="sunset"] .otter2-dash-strip{background:#fff7ed}
+    @media (max-width:1020px){
+      .otter2-dash{grid-template-columns:1fr}
+    }
+    @media (max-width:760px){
+      .otter2-dash-steps{grid-template-columns:repeat(3,1fr)}
+      .otter2-dash-lesson{grid-template-columns:46px minmax(0,1fr)}
+      .otter2-dash-status{grid-column:2;justify-self:start}
+    }
+    @media (max-width:420px){
+      .otter2-dash-skillgrid{grid-template-columns:1fr}
+    }
+</style>
 </head>
 <body class="otter2-body">
   
@@ -947,6 +1154,33 @@
         <a class="otter2-fb-banner-btn" href="https://www.facebook.com/thich.tieng.trung.3.0" target="_blank" rel="noopener">Theo dõi trang →</a>
       </div>
 
+      <!-- ===== DASHBOARD TRANG CHỦ (phong cách Mondly) — bọc quanh các khối chức năng sẵn có ===== -->
+      <div class="otter2-dash-strip" role="group" aria-label="Chọn cấp HSK">
+        <button type="button" class="otter2-dash-chip" data-dash-hsk="1">HSK 1<small>Sơ cấp</small></button>
+        <button type="button" class="otter2-dash-chip" data-dash-hsk="2">HSK 2<small>Sơ cấp</small></button>
+        <button type="button" class="otter2-dash-chip" data-dash-hsk="3">HSK 3<small>Sơ cấp</small></button>
+        <button type="button" class="otter2-dash-chip" data-dash-hsk="4">HSK 4<small>Trung cấp</small></button>
+        <button type="button" class="otter2-dash-chip" data-dash-hsk="5">HSK 5<small>Trung cấp</small></button>
+        <button type="button" class="otter2-dash-chip" data-dash-hsk="6">HSK 6<small>Trung cấp</small></button>
+        <button type="button" class="otter2-dash-chip" data-dash-hsk="7">HSK 7<small>Cao cấp</small></button>
+        <button type="button" class="otter2-dash-chip" data-dash-hsk="8">HSK 8<small>Cao cấp</small></button>
+        <button type="button" class="otter2-dash-chip" data-dash-hsk="9">HSK 9<small>Cao cấp</small></button>
+      </div>
+
+      <div class="otter2-dash">
+        <div class="otter2-dash-main">
+          <section class="otter2-dash-card otter2-dash-course" aria-labelledby="otter2DashCourseTitle">
+            <div class="otter2-dash-head">
+              <h2 id="otter2DashCourseTitle">Khóa tự học</h2>
+              <span class="otter2-dash-sub">Kho từ vựng HSK 1–9 · 11.000 từ</span>
+            </div>
+            <div class="otter2-dash-hero">
+              <span class="otter2-dash-badge">Đang học</span>
+              <h3>HSK <span id="otter2DashCourseLevel">1</span> — Lộ trình từ vựng</h3>
+              <p>Học theo cấp độ, đánh dấu từ đã thuộc và theo dõi tiến độ thật của bạn.</p>
+              <div class="otter2-dash-prow"><span>Tiến độ cấp này</span><b id="otter2DashCourseProg">0 / 300 từ</b></div>
+              <div class="otter2-dash-bar"><i id="otter2DashCourseBar" style="width:0%"></i></div>
+            </div>
       <div class="otter2-feature-row" aria-label="Cửa học tập">
         <button type="button" class="otter2-feature otter2-feature--vocab" id="otter2OpenVocabBankBtn" aria-expanded="false" aria-controls="otter2HskJourney">
           <span class="otter2-ico">📚</span><strong>Kho từ vựng HSK</strong>
@@ -956,6 +1190,7 @@
         <button type="button" class="otter2-feature" id="otter2FeatFlashcard"><span class="otter2-ico">💬</span><strong>Flashcard</strong></button>
         <button type="button" class="otter2-feature" id="otter2FeatRadicals"><span class="otter2-ico">🌸</span><strong>214 Bộ thủ</strong></button>
       </div>
+          </section>
 
       <div class="otter2-panel otter2-hsk-journey" id="otter2HskJourney" hidden>
         <h2>Hành trình chinh phục HSK</h2>
@@ -988,6 +1223,153 @@
           <div class="otter2-hsk1-cards" id="otter2Hsk1Cards"></div>
         </div>
       </div>
+
+          <section class="otter2-dash-card" aria-labelledby="otter2DashLessonsTitle">
+            <div class="otter2-dash-head">
+              <h2 id="otter2DashLessonsTitle">Bài học mỗi ngày — chuỗi HSK 1</h2>
+              <span class="otter2-dash-sub">Mỗi ngày 1 bài · 19:30 trên Facebook</span>
+            </div>
+            <label class="otter2-dash-search">
+              <span aria-hidden="true">🔍</span>
+              <input type="search" id="otter2DashLessonSearch" placeholder="Tìm bài học… (ví dụ: chào, số đếm, trà)" aria-label="Tìm bài học" />
+            </label>
+            <div id="otter2DashLessonList">
+              <button type="button" class="otter2-dash-lesson" id="otter2DashLesson1" data-search="bài 1 tập viết chữ hán số 0 chào trà bắc kinh">
+                <span class="otter2-dash-thumb r" aria-hidden="true">你</span>
+                <span class="otter2-dash-lesson-main">
+                  <strong>Bài 1 · Tập viết chữ Hán từ số 0</strong>
+                  <small>16 chữ đầu tiên: 你 好 您 爱 八 爸 杯 子 北 京 茶… — học ngay trong Kho từ vựng HSK 1</small>
+                  <span class="otter2-dash-tag video">Video + PDF tập viết</span>
+                </span>
+                <span class="otter2-dash-status done">Đã phát hành</span>
+              </button>
+              <a class="otter2-dash-lesson" href="https://www.facebook.com/thich.tieng.trung.3.0" target="_blank" rel="noopener" data-search="bài 2 đại từ chào hỏi nâng cao nhân xưng tôi bạn">
+                <span class="otter2-dash-thumb t" aria-hidden="true">您</span>
+                <span class="otter2-dash-lesson-main">
+                  <strong>Bài 2 · Đại từ &amp; chào hỏi nâng cao</strong>
+                  <small>Phát sóng 17/11 · 19:30 · 我 你 他 她 · 您好, 谢谢 — xem trên trang Facebook</small>
+                  <span class="otter2-dash-tag video">Video + Audio phát âm</span>
+                </span>
+                <span class="otter2-dash-status today">17/11 · 19:30</span>
+              </a>
+              <article class="otter2-dash-lesson" data-search="bài 3 số đếm ngày tháng tuổi năm sinh nhật">
+                <span class="otter2-dash-thumb g" aria-hidden="true">八</span>
+                <span class="otter2-dash-lesson-main">
+                  <strong>Bài 3 · Số đếm, ngày tháng &amp; tuổi</strong>
+                  <small>一 đến 一百 · hôm nay là ngày mấy? · bạn bao nhiêu tuổi?</small>
+                  <span class="otter2-dash-tag">Từ vựng</span>
+                </span>
+                <span class="otter2-dash-status">Sắp mở</span>
+              </article>
+              <article class="otter2-dash-lesson" data-search="bài 4 gia đình bố mẹ anh chị em nhà">
+                <span class="otter2-dash-thumb v" aria-hidden="true">家</span>
+                <span class="otter2-dash-lesson-main">
+                  <strong>Bài 4 · Gia đình của tôi</strong>
+                  <small>爸爸 妈妈 哥哥 姐姐 · giới thiệu người thân</small>
+                  <span class="otter2-dash-tag">Từ vựng</span>
+                </span>
+                <span class="otter2-dash-status">Sắp mở</span>
+              </article>
+              <article class="otter2-dash-lesson" data-search="bài 5 ăn uống đồ ăn trà cơm nhà hàng gọi món">
+                <span class="otter2-dash-thumb o" aria-hidden="true">茶</span>
+                <span class="otter2-dash-lesson-main">
+                  <strong>Bài 5 · Ăn uống &amp; gọi món</strong>
+                  <small>茶 米饭 菜 · vào quán gọi món như người bản xứ</small>
+                  <span class="otter2-dash-tag pdf">PDF tập viết</span>
+                </span>
+                <span class="otter2-dash-status">Sắp mở</span>
+              </article>
+            </div>
+            <p class="otter2-dash-noresult" id="otter2DashNoResult" hidden>Không thấy bài nào khớp — thử từ khóa khác nhé.</p>
+          </section>
+        </div>
+
+        <div class="otter2-dash-side">
+          <section class="otter2-dash-card" aria-labelledby="otter2DashLevelTitle">
+            <div class="otter2-dash-head">
+              <h2 id="otter2DashLevelTitle">Trình độ &amp; kỹ năng</h2>
+              <button type="button" class="otter2-dash-retest" id="otter2DashAchBtn">🏆 Bảng thành tích</button>
+            </div>
+            <div class="otter2-dash-levelbig">
+              <span class="lv" id="otter2DashLevelBig">HSK 1</span>
+              <span class="meta">Cấp đang học<br />Chuẩn HSK 3.0 mới nhất</span>
+            </div>
+            <div class="otter2-dash-skill">
+              <h4>Từ vựng — tiến độ thật của bạn</h4>
+              <div class="otter2-dash-track"><i id="otter2DashVocabBar" style="width:0%"></i></div>
+              <span class="cap" id="otter2DashVocabTxt">Đã học 0 / 300 từ của cấp này</span>
+            </div>
+            <div class="otter2-dash-skillgrid">
+              <button type="button" class="otter2-dash-skilltile" data-dash-goto="reading"><strong>🎧 Nghe &amp; Đọc</strong><small>Vào khu Luyện tập →</small></button>
+              <button type="button" class="otter2-dash-skilltile" data-dash-goto="write"><strong>✍️ Viết chữ Hán</strong><small>Mở workspace cấp này →</small></button>
+              <button type="button" class="otter2-dash-skilltile" data-dash-goto="speak"><strong>🎙️ Nói &amp; phát âm</strong><small>Mở Luyện phát âm →</small></button>
+              <button type="button" class="otter2-dash-skilltile" data-dash-goto="auto"><strong>🌸 Học tự động</strong><small>Chế độ Học auto →</small></button>
+            </div>
+          </section>
+
+          <section class="otter2-dash-card" aria-labelledby="otter2DashActTitle">
+            <div class="otter2-dash-head">
+              <h2 id="otter2DashActTitle">Hoạt động học tập</h2>
+            </div>
+            <div class="otter2-dash-actnum">
+              <span class="n" id="otter2DashLearnedTotal">0</span>
+              <span class="lbl">từ đã học<br />trên thiết bị này</span>
+            </div>
+            <div class="otter2-dash-lvgrid" id="otter2DashLevelGrid" aria-label="Tiến độ theo cấp HSK"></div>
+            <p class="otter2-dash-note">Kho từ vựng có tổng <b>11.000 từ</b> HSK 1–9. Số liệu trên lấy từ tiến trình học thật được lưu trên thiết bị của bạn — học tiếp để con số lớn dần nhé!</p>
+          </section>
+
+          <section class="otter2-dash-card" aria-labelledby="otter2DashTasksTitle">
+            <div class="otter2-dash-head">
+              <h2 id="otter2DashTasksTitle">Nhiệm vụ hôm nay</h2>
+              <span class="otter2-dash-sub">Theo lộ trình của bạn</span>
+            </div>
+            <button type="button" class="otter2-dash-task" data-dash-goto="review">
+              <span class="ic c1" aria-hidden="true">↻</span>
+              <span class="tt"><small>Ôn tập</small><span>Ôn lại từ đã học</span></span>
+              <span class="mins" id="otter2DashTaskReview">0 từ</span>
+            </button>
+            <button type="button" class="otter2-dash-task" data-dash-goto="new">
+              <span class="ic c2" aria-hidden="true">💡</span>
+              <span class="tt"><small>Học mới</small><span>Học từ mới của cấp này</span></span>
+              <span class="mins" id="otter2DashTaskNew">300 từ</span>
+            </button>
+            <button type="button" class="otter2-dash-task" data-dash-goto="reading">
+              <span class="ic c3" aria-hidden="true">✎</span>
+              <span class="tt"><small>Kỹ năng</small><span>Luyện nghe · đọc · phản xạ</span></span>
+              <span class="mins">Vào →</span>
+            </button>
+            <button type="button" class="otter2-dash-cta" id="otter2DashGoBtn">Vào học ngay</button>
+          </section>
+
+          <section class="otter2-dash-card otter2-dash-continue" aria-labelledby="otter2DashContinueTitle">
+            <span class="otter2-dash-kicker">Học tiếp · Lộ trình HSK</span>
+            <h3 id="otter2DashContinueTitle">Tiếp tục hành trình HSK</h3>
+            <img src="assets/index2/mascot/poses/otter-cheer.jpg" alt="Rái cá cổ vũ học viên tiếp tục học" width="640" height="360" loading="lazy" decoding="async" />
+            <p id="otter2DashContinueTxt">Bạn đang ở HSK 1 — đã học 0 / 300 từ. Tiếp tục nào!</p>
+            <button type="button" class="otter2-dash-ctared" id="otter2DashContinueBtn">▶ Học tiếp</button>
+          </section>
+        </div>
+
+        <section class="otter2-dash-card otter2-dash-road" aria-labelledby="otter2DashRoadTitle">
+          <div class="otter2-dash-head">
+            <h2 id="otter2DashRoadTitle">Lộ trình HSK 1–9</h2>
+            <span class="otter2-dash-sub">Bấm vào cấp để mở kho từ vựng của cấp đó</span>
+          </div>
+          <div class="otter2-dash-steps">
+            <button type="button" class="otter2-dash-step" data-dash-hsk="1"><span class="n">HSK 1</span><small>Sơ cấp · 300 từ</small><small class="learned" data-dash-learned="1"></small></button>
+            <button type="button" class="otter2-dash-step" data-dash-hsk="2"><span class="n">HSK 2</span><small>Sơ cấp · 200 từ</small><small class="learned" data-dash-learned="2"></small></button>
+            <button type="button" class="otter2-dash-step" data-dash-hsk="3"><span class="n">HSK 3</span><small>Sơ cấp · 500 từ</small><small class="learned" data-dash-learned="3"></small></button>
+            <button type="button" class="otter2-dash-step grp2" data-dash-hsk="4"><span class="n">HSK 4</span><small>Trung cấp · 1.000 từ</small><small class="learned" data-dash-learned="4"></small></button>
+            <button type="button" class="otter2-dash-step grp2" data-dash-hsk="5"><span class="n">HSK 5</span><small>Trung cấp · 1.600 từ</small><small class="learned" data-dash-learned="5"></small></button>
+            <button type="button" class="otter2-dash-step grp2" data-dash-hsk="6"><span class="n">HSK 6</span><small>Trung cấp · 1.800 từ</small><small class="learned" data-dash-learned="6"></small></button>
+            <button type="button" class="otter2-dash-step grp3" data-dash-hsk="7"><span class="n">HSK 7</span><small>Cao cấp · 1.867 từ</small><small class="learned" data-dash-learned="7"></small></button>
+            <button type="button" class="otter2-dash-step grp3" data-dash-hsk="8"><span class="n">HSK 8</span><small>Cao cấp · 1.867 từ</small><small class="learned" data-dash-learned="8"></small></button>
+            <button type="button" class="otter2-dash-step grp3" data-dash-hsk="9"><span class="n">HSK 9</span><small>Cao cấp · 1.866 từ</small><small class="learned" data-dash-learned="9"></small></button>
+          </div>
+        </section>
+      </div>
+      <!-- ===== HẾT DASHBOARD ===== -->
     </section>
 
     <!-- SCREEN 2: DICTIONARY (engine Otter2, dữ liệu HSK 1–9) -->
@@ -21013,6 +21395,206 @@ setupFlashcardMobile();
   </script>
   <!-- ========== END LEARN4 + GRAMMAR EMBEDDED ========== -->
 
+<script id="otter2-dash-js">
+(function () {
+  "use strict";
+  if (window.__OTTER2_DASH_V1__) return;
+  window.__OTTER2_DASH_V1__ = true;
+
+  /* Nguồn dữ liệu THẬT, chỉ đọc:
+     - Tiến trình học: localStorage "otter2_hsk_vocab_progress_v1" (engine HSK ghi:
+       { "<cấp>": { detailIndex, learned: [chữ Hán đã học] } })
+     - Số từ mỗi cấp: window.OTTER2_HSK_ALL_DATA.counts (kho 11.000 từ) */
+  var PROGRESS_KEY = "otter2_hsk_vocab_progress_v1";
+  var FALLBACK_COUNTS = { "1": 300, "2": 200, "3": 500, "4": 1000, "5": 1600, "6": 1800, "7": 1867, "8": 1867, "9": 1866 };
+
+  function $(id) { return document.getElementById(id); }
+  function setText(id, txt) { var el = $(id); if (el) el.textContent = txt; }
+  function fmt(n) { return String(Math.max(0, Number(n) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
+
+  function getCounts() {
+    try {
+      var d = window.OTTER2_HSK_ALL_DATA;
+      if (d && d.counts && Number(d.counts["1"]) > 0) return d.counts;
+    } catch (e) {}
+    return FALLBACK_COUNTS;
+  }
+  function getProgressMap() {
+    try {
+      var raw = localStorage.getItem(PROGRESS_KEY);
+      var o = raw ? JSON.parse(raw) : null;
+      return o && typeof o === "object" ? o : {};
+    } catch (e) { return {}; }
+  }
+  function learnedOf(map, lv) {
+    var slot = map[String(lv)];
+    return slot && Array.isArray(slot.learned) ? slot.learned.length : 0;
+  }
+  function currentLevel() {
+    try {
+      if (window.otter2Hsk1 && Number(window.otter2Hsk1.currentHSK) >= 1) return Number(window.otter2Hsk1.currentHSK);
+    } catch (e) {}
+    var c = Number(window.currentHSK);
+    return c >= 1 && c <= 9 ? c : 1;
+  }
+
+  function render() {
+    var map = getProgressMap();
+    var counts = getCounts();
+    var lv = currentLevel();
+    var totalLv = Number(counts[String(lv)]) || 0;
+    var learnedLv = learnedOf(map, lv);
+    var pct = totalLv ? Math.round((learnedLv / totalLv) * 100) : 0;
+
+    setText("otter2DashCourseLevel", String(lv));
+    setText("otter2DashCourseProg", fmt(learnedLv) + " / " + fmt(totalLv) + " từ");
+    var bar = $("otter2DashCourseBar");
+    if (bar) bar.style.width = pct + "%";
+
+    setText("otter2DashLevelBig", "HSK " + lv);
+    var vbar = $("otter2DashVocabBar");
+    if (vbar) vbar.style.width = pct + "%";
+    setText("otter2DashVocabTxt", "Đã học " + fmt(learnedLv) + " / " + fmt(totalLv) + " từ của HSK " + lv + " · " + pct + "%");
+
+    var totalLearned = 0;
+    var grid = $("otter2DashLevelGrid");
+    var gridHtml = "";
+    for (var i = 1; i <= 9; i++) {
+      var li = learnedOf(map, i);
+      totalLearned += li;
+      gridHtml += '<div class="otter2-dash-lvcell' + (li > 0 ? " has" : "") + '"><b>HSK ' + i + "</b><span>" + fmt(li) + "/" + fmt(Number(counts[String(i)]) || 0) + "</span></div>";
+    }
+    if (grid) grid.innerHTML = gridHtml;
+    setText("otter2DashLearnedTotal", fmt(totalLearned));
+
+    setText("otter2DashTaskReview", fmt(learnedLv) + " từ");
+    setText("otter2DashTaskNew", fmt(Math.max(0, totalLv - learnedLv)) + " từ");
+    setText("otter2DashContinueTxt", "Bạn đang ở HSK " + lv + " — đã học " + fmt(learnedLv) + " / " + fmt(totalLv) + " từ. Tiếp tục nào!");
+
+    document.querySelectorAll("[data-dash-learned]").forEach(function (el) {
+      var n = Number(el.getAttribute("data-dash-learned"));
+      var c = learnedOf(map, n);
+      el.textContent = c > 0 ? "Đã học " + fmt(c) + " từ" : "";
+    });
+    document.querySelectorAll("[data-dash-hsk]").forEach(function (el) {
+      el.classList.toggle("is-cur", Number(el.getAttribute("data-dash-hsk")) === lv);
+    });
+  }
+
+  /* Điều hướng: luôn đi qua ĐÚNG nút điều khiển thật của trang */
+  function openJourney() {
+    var j = $("otter2HskJourney");
+    var b = $("otter2OpenVocabBankBtn");
+    if (j && j.hidden && b) b.click();
+  }
+  function gotoLevel(n) {
+    n = Number(n);
+    if (!(n >= 1 && n <= 9)) return;
+    openJourney();
+    var node = null;
+    document.querySelectorAll("#otter2HskLevelRow [data-otter2-hsk]").forEach(function (b) {
+      if (Number(b.getAttribute("data-otter2-hsk")) === n) node = b;
+    });
+    if (!node) return;
+    var ws = $("otter2Hsk1Workspace");
+    if (ws && !ws.hidden && currentLevel() === n) {
+      node.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      return;
+    }
+    node.click();
+  }
+  function clickNavScreen(name) {
+    var found = null;
+    document.querySelectorAll("#otter2NavLinks [data-otter2-screen]").forEach(function (b) {
+      if (b.getAttribute("data-otter2-screen") === name) found = b;
+    });
+    if (found) { found.click(); return true; }
+    if (typeof window.otter2ShowScreen === "function") { window.otter2ShowScreen(name); return true; }
+    return false;
+  }
+  function gotoPractice() {
+    clickNavScreen("reading");
+    setTimeout(function () {
+      var hub = $("otter2PracticeHub");
+      if (hub) hub.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 380);
+  }
+  function gotoSpeak() {
+    var home = $("otter2-home");
+    if (home && home.hidden) clickNavScreen("home");
+    setTimeout(function () {
+      var f = $("otter2FeatPronun");
+      if (f) f.click();
+    }, 80);
+  }
+
+  function bind() {
+    document.querySelectorAll("[data-dash-hsk]").forEach(function (el) {
+      el.addEventListener("click", function () { gotoLevel(el.getAttribute("data-dash-hsk")); });
+    });
+    document.querySelectorAll("[data-dash-goto]").forEach(function (el) {
+      el.addEventListener("click", function () {
+        var to = el.getAttribute("data-dash-goto");
+        if (to === "reading") gotoPractice();
+        else if (to === "speak") gotoSpeak();
+        else if (to === "auto") clickNavScreen("auto");
+        else gotoLevel(currentLevel());
+      });
+    });
+    var ach = $("otter2DashAchBtn");
+    if (ach) ach.addEventListener("click", function () {
+      var real = $("otter2AchNavBtn");
+      if (real) real.click();
+    });
+    var go = $("otter2DashGoBtn");
+    if (go) go.addEventListener("click", function () {
+      openJourney();
+      var j = $("otter2HskJourney");
+      if (j) j.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    var cont = $("otter2DashContinueBtn");
+    if (cont) cont.addEventListener("click", function () { gotoLevel(currentLevel()); });
+    var lesson1 = $("otter2DashLesson1");
+    if (lesson1) lesson1.addEventListener("click", function () { gotoLevel(1); });
+
+    var search = $("otter2DashLessonSearch");
+    var list = $("otter2DashLessonList");
+    if (search && list) {
+      search.addEventListener("input", function () {
+        var q = search.value.trim().toLowerCase();
+        var any = false;
+        list.querySelectorAll("[data-search]").forEach(function (row) {
+          var hay = (row.getAttribute("data-search") + " " + row.textContent).toLowerCase();
+          var show = !q || hay.indexOf(q) !== -1;
+          row.style.display = show ? "" : "none";
+          if (show) any = true;
+        });
+        var nr = $("otter2DashNoResult");
+        if (nr) nr.hidden = any;
+      });
+    }
+
+    /* Làm mới số liệu sau khi học viên thao tác trong workspace (đánh dấu đã học…) */
+    var home = $("otter2-home");
+    var t = null;
+    if (home) home.addEventListener("click", function () {
+      if (t) clearTimeout(t);
+      t = setTimeout(render, 450);
+    });
+    window.addEventListener("focus", render);
+  }
+
+  function init() {
+    try { bind(); } catch (e) {}
+    try { render(); } catch (e) {}
+    /* Dữ liệu HSK nạp bất đồng bộ ở một số luồng — vẽ lại khi đã sẵn sàng */
+    setTimeout(function () { try { render(); } catch (e) {} }, 1200);
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+  else init();
+})();
+</script>
   <script src="assets/index2/otter2-guide.js" defer></script>
 </body>
 </html>
