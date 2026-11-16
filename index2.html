@@ -1266,6 +1266,49 @@
 .ttc-dict-sub{margin-top:6px;color:#64748b;font-size:13px;font-weight:700}
 html[data-theme="night"] .ttc-han-viet{color:#fb7185}
 html[data-theme="night"] .ttc-dict-sub{color:#94a3b8}
+
+/* ===== FIX A (kiem chung live): the tu dien — badge HSK/type de len chu Han =====
+   Nguyen nhan: otter2-practice.css (CSS global thua ke tu index1) co rule tran
+   .hsk{position:absolute;top:12px;left:12px} va .type{position:absolute;top:12px;right:12px}.
+   CSS rieng cua tu dien (#otter2DictRoot .otter2-dict-card .hsk) thiet ke badge nam
+   trong flow (inline-block) nhung khong khai bao "position", nen khai bao position
+   cua rule global thang -> badge bi keo ra khoi flow, nam de len dong .hanzi va che
+   chu Han (sau khi module Han Viet gan them span do [TEN] thi dong chu dai ra, phan
+   bi che lo ro hon). Tra ca hai badge ve flow dung thiet ke goc cua tu dien;
+   dung hay khong co span [TEN] thi chu Han van hien tron ven. */
+#otter2DictRoot .otter2-dict-card .hsk,
+#otter2DictRoot .otter2-dict-card .type{position:static}
+
+/* ===== FIX B (kiem chung live): header desktop — nhan nav tran/chong nhau =====
+   Nguyen nhan: .otter2-nav-links > button dung flex:1 1 0 (chia deu chieu rong con
+   lai) + white-space:nowrap + khong cat tran, trong khi cum phai da lon len (pill
+   Gian/Phon + o theme + chat + tai khoan) va vo trang cap o 1240px — nut "Bang thanh
+   tich" can rong hon phan duoc chia nen chu tran sang "Hoc auto"/"Tim kiem".
+   Sua: nut nav ve kich thuoc tu nhien (flex:0 1 auto; nhom van can giua nho
+   justify-content:center cua khung chua), cat gon dem/co chu o cac khoang trung
+   gian, thu nhe pill tai khoan; rieng 901–1240px cho header xuong 2 hang (hang 2 =
+   thanh nav full-width can giua) de nhan luon du rong doc het. Khong dung vao
+   <=900px (layout tablet/mobile stage 4–5 giu nguyen), khong doi bo cuc tong the
+   desktop (brand trai / nav giua / cum phai phai), khong dung tieu de 7 mau. */
+@media (min-width:901px){
+  #otter2Nav{gap:10px}
+  #otter2Nav .otter2-nav-links{gap:4px;padding:4px 6px}
+  #otter2Nav .otter2-nav-links > button{flex:0 1 auto}
+  #otter2Nav .otter2-nav-links > button .otter2-pill-txt{overflow:hidden;text-overflow:ellipsis}
+  #otter2Nav .ttc-script-switch{padding:0 10px}
+  #otter2Nav .otter2-avatar{max-width:110px}
+}
+@media (min-width:1241px) and (max-width:1368px){
+  #otter2Nav .otter2-nav-links > button{font-size:11.5px;padding:0 8px}
+}
+@media (min-width:1369px){
+  #otter2Nav .otter2-nav-links > button{font-size:12px;padding:0 9px}
+}
+@media (min-width:901px) and (max-width:1240px){
+  #otter2Nav{flex-wrap:wrap;border-radius:24px}
+  #otter2Nav .otter2-nav-links{order:4;flex:1 1 100%}
+  #otter2Nav .otter2-nav-links > button{font-size:12px;padding:0 10px}
+}
 </style>
 <style id="otter2-themes-extra-style">
 /* ===== THEME BỔ SUNG (tổng 10 giao diện) =====

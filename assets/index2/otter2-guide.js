@@ -685,7 +685,7 @@
     }
 
     /* ---------------- Non-interference: park while the user is learning ---------------- */
-    var LEARN_SEL = "#otter2Hsk1Workspace,#otter2DictRoot,#otter2PracticeHub,#otter2PracticePanels,#otter2AutoHub,#otter2AutoPanels";
+    var LEARN_SEL = "#otter2Hsk1Workspace,#otter2DictRoot,#otter2DictDetail,#otter2PracticeHub,#otter2PracticePanels,#otter2AutoHub,#otter2AutoPanels,#flashcardSection";
     function parkOtter() {
       var now = Date.now();
       parkUntil = now + 5000;
