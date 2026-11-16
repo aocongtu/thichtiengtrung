@@ -1934,7 +1934,18 @@
       function chatterTick() {
         chatTimer = null;
         if (!chatEnabled) return;
-        if (document.hidden) return; /* visibilitychange sẽ hẹn lại khi tab hiện */
+        /* Tab đang bị che: KHÔNG phát câu (due() cũng chặn), nhưng PHẢI
+           hẹn thử lại sau ~25s thay vì return chết. Trước đây tick rơi
+           vào lúc hidden là toàn bộ chuỗi chatter chết tại đó (chatTimer
+           đã null, không ai hẹn lại) và chỉ trông chờ visibilitychange
+           bắn khi tab hiện lại — sự kiện đó có thể không bao giờ bắn
+           (vd tab của trình duyệt tự động kiểm chứng dường như luôn ở
+           trạng thái hidden dù vẫn render, hoặc visible đã xảy ra trước
+           khi script nạp), khiến chatter không bao giờ hồi sinh dù file
+           trên máy chủ đã đúng bản mới. Giờ chuỗi tự hồi phục trong mọi
+           môi trường; visibilitychange vẫn giữ vai trò đường tắt khi tab
+           hiện lại. */
+        if (document.hidden) { scheduleChatter(25000); return; }
         if (chatterDue()) { fireChatter(); scheduleChatter(); }
         else scheduleChatter(25000);
       }
