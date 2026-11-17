@@ -736,7 +736,7 @@
        bằng function/var trong cùng scope build() nên mọi chỗ gọi trước
        (speak, say, parkOtter, chatter...) đều thấy — function declaration
        được hoist, còn activeZoneId chỉ đổi khi watcher chạy (sau build). */
-    var activeZoneId = null; /* "path" | "auto" | "ach" | "write" | "reading" | "exam" | null */
+    var activeZoneId = null; /* "path" | "auto" | "ach" | "write" | "reading" | "exam" | "story" | null */
     function zoneQuiet() {
       /* Học auto + Luyện phát âm/Nghe & Đọc: web đang phát giọng đọc bài
          học — bé KHÔNG được phát giọng ở đây, chỉ biểu cảm bằng emoji. */
@@ -753,7 +753,7 @@
          là "nhà" + điểm rơi an toàn của bé trong zone; từ 2026-11-17 bé
          còn ROAMING 2D tự do ngay trong các zone này (xem roamStep) —
          chướng ngại được cộng thêm nội dung của chính overlay đang mở. */
-      return activeZoneId === "auto" || activeZoneId === "ach" || activeZoneId === "write" || activeZoneId === "exam";
+      return activeZoneId === "auto" || activeZoneId === "ach" || activeZoneId === "write" || activeZoneId === "exam" || activeZoneId === "story";
     }
     /* Chướng ngại CỘNG THÊM theo zone (khảo sát selector thật trong
        index2.html + otter2-vocab-roadmap.js/css + module auto/viết):
@@ -767,13 +767,17 @@
        - ach:   cả thẻ bảng .ttc-ach-panel (toolbar + bảng xếp hạng nằm
                 trong thẻ) — chỗ thoáng chỉ còn lề ngoài thẻ.
        - write: cả thẻ .ttc-write-card (đầu thẻ, ô giấy 田字格, thanh công
-                cụ, strip chọn chữ đều nằm trong thẻ). */
+                cụ, strip chọn chữ đều nằm trong thẻ).
+       - story: cả thẻ .ttc-story-shell (khung phát video + danh sách
+                truyện đều nằm trong thẻ) — bé chỉ roaming ở lề nền
+                ngoài thẻ, tuyệt đối không che video đang phát. */
     var ZONE_OBSTACLE_SEL = {
       path: "#ttcPathWorldTicker,#ttcPathFsToolbar,.ttc-path-fs-toolbar,.ttc-path-game-hud,.ttc-path-goals-bar,.ttc-path-learn,.ttc-path-feedback,.ttc-path-explain-panel,.ttc-path-overview,.ttc-path-levels,.ttc-path-cancel-overlay,.ttc-path-conflict",
       auto: "#autoLearningBody,#ttcEA2Body,.otter2-auto-fs-exit",
       ach: ".ttc-ach-panel,.ttc-ach-toolbar",
       write: ".ttc-write-card",
-      exam: ".ttc-exam-card"
+      exam: ".ttc-exam-card",
+      story: ".ttc-story-shell"
     };
     /* Gốc của từng zone: thao tác chạm/bấm vào BẤT KỲ đâu trong gốc (kể cả
        nền của overlay) khi zone đang mở đều tính là "người học đang thao
@@ -783,7 +787,8 @@
       auto: "#autoLearning,#ttcExampleAutoV2",
       ach: "#ttcAchHost",
       write: "#ttcWriteOverlay",
-      exam: "#ttcExamOverlay,#ttcScoreBoardOverlay"
+      exam: "#ttcExamOverlay,#ttcScoreBoardOverlay",
+      story: "#ttcStoryVideoOverlay"
     };
     function zoneObstacleSel() {
       return activeZoneId ? (ZONE_OBSTACLE_SEL[activeZoneId] || null) : null;
@@ -2008,6 +2013,10 @@
                     thẻ 560px căn giữa, nút đóng ở góc trên-phải của thẻ).
          - reading: Màn Luyện tập (screen panel thường, không phải lớp phủ)
                     — QUIET, bé giữ hành vi trang chính, chỉ câm giọng.
+         - story:   Overlay Truyện kể HSK (#ttcStoryVideoOverlay,
+                    z-index 1000202; thẻ .ttc-story-shell căn giữa, nút
+                    đóng ở đầu thẻ) — chướng ngại là CẢ thẻ nên bé chỉ ở
+                    lề nền ngoài thẻ, không bao giờ che video đang phát.
          Dock của các zone phủ = GÓC DƯỚI-TRÁI, bé thu nhỏ 88px (74px ở
          mobile) như trong lộ trình: các nút Thoát/đóng của cả ba khu đều
          nằm ở phía TRÊN (auto: trên-phải; ach: toolbar trên; write: đầu
@@ -2037,13 +2046,17 @@
         "[data-guide-root].guide-zone-exam .guide-wrap{z-index:1000211 !important}" +
         "[data-guide-root].guide-zone-exam .guide-restore{z-index:1000210 !important}" +
         "[data-guide-root].guide-zone-exam .guide-spot-overlay{z-index:1000209 !important}" +
+        "[data-guide-root].guide-zone-story .guide-roam{z-index:1000212 !important;width:88px}" +
+        "[data-guide-root].guide-zone-story .guide-wrap{z-index:1000213 !important}" +
+        "[data-guide-root].guide-zone-story .guide-restore{z-index:1000212 !important}" +
+        "[data-guide-root].guide-zone-story .guide-spot-overlay{z-index:1000211 !important}" +
         "@media (max-width:720px){" +
-        "[data-guide-root].guide-zone-auto .guide-roam,[data-guide-root].guide-zone-ach .guide-roam,[data-guide-root].guide-zone-write .guide-roam,[data-guide-root].guide-zone-exam .guide-roam{width:74px}}" +
+        "[data-guide-root].guide-zone-auto .guide-roam,[data-guide-root].guide-zone-ach .guide-roam,[data-guide-root].guide-zone-write .guide-roam,[data-guide-root].guide-zone-exam .guide-roam,[data-guide-root].guide-zone-story .guide-roam{width:74px}}" +
         /* Roaming trong zone đưa bé lên gần mép trên được: bong bóng lật
            XUỐNG dưới bé (placeBubble gắn .guide-bubble-below) — cùng kiểu
            với rule fs của lộ trình trong #guide-fs-style. */
-        "[data-guide-root].guide-zone-auto .guide-roam.guide-bubble-below .guide-bubble,[data-guide-root].guide-zone-ach .guide-roam.guide-bubble-below .guide-bubble,[data-guide-root].guide-zone-write .guide-roam.guide-bubble-below .guide-bubble,[data-guide-root].guide-zone-exam .guide-roam.guide-bubble-below .guide-bubble{bottom:auto;top:calc(100% + 10px);border-radius:16px 4px 16px 16px}" +
-        "[data-guide-root].guide-zone-auto .guide-roam.guide-bubble-below.guide-bubble-left .guide-bubble,[data-guide-root].guide-zone-ach .guide-roam.guide-bubble-below.guide-bubble-left .guide-bubble,[data-guide-root].guide-zone-write .guide-roam.guide-bubble-below.guide-bubble-left .guide-bubble,[data-guide-root].guide-zone-exam .guide-roam.guide-bubble-below.guide-bubble-left .guide-bubble{border-radius:4px 16px 16px 16px}" +
+        "[data-guide-root].guide-zone-auto .guide-roam.guide-bubble-below .guide-bubble,[data-guide-root].guide-zone-ach .guide-roam.guide-bubble-below .guide-bubble,[data-guide-root].guide-zone-write .guide-roam.guide-bubble-below .guide-bubble,[data-guide-root].guide-zone-exam .guide-roam.guide-bubble-below .guide-bubble,[data-guide-root].guide-zone-story .guide-roam.guide-bubble-below .guide-bubble{bottom:auto;top:calc(100% + 10px);border-radius:16px 4px 16px 16px}" +
+        "[data-guide-root].guide-zone-auto .guide-roam.guide-bubble-below.guide-bubble-left .guide-bubble,[data-guide-root].guide-zone-ach .guide-roam.guide-bubble-below.guide-bubble-left .guide-bubble,[data-guide-root].guide-zone-write .guide-roam.guide-bubble-below.guide-bubble-left .guide-bubble,[data-guide-root].guide-zone-exam .guide-roam.guide-bubble-below.guide-bubble-left .guide-bubble,[data-guide-root].guide-zone-story .guide-roam.guide-bubble-below.guide-bubble-left .guide-bubble{border-radius:4px 16px 16px 16px}" +
         ".guide-bubble.guide-bubble-emoji{width:auto;max-width:62vw;padding:9px 13px}" +
         ".guide-bubble.guide-bubble-emoji p{font-size:1.5rem;line-height:1.3;text-align:center;white-space:nowrap}" +
         ".guide-bubble.guide-bubble-emoji .guide-hint{display:none}";
@@ -2070,6 +2083,10 @@
           var sbx = document.getElementById("ttcScoreBoardOverlay");
           if (sbx && sbx.classList.contains("open")) return "exam";
         } catch (eX) {}
+        try {
+          var sv = document.getElementById("ttcStoryVideoOverlay");
+          if (sv && sv.classList.contains("open")) return "story";
+        } catch (eS) {}
         try {
           var rp = document.querySelector('[data-otter2-screen-panel="reading"]');
           if (rp && !rp.hidden && isVisible(rp)) return "reading";
@@ -2155,8 +2172,8 @@
       function onZoneChange(prev, z) {
         if (z === "auto") resetAutoWatch();
         if (roam.hidden || tripActive) return; /* bé đang nghỉ: không xuất hiện ở zone nào */
-        var overlayIn = z === "auto" || z === "ach" || z === "write" || z === "exam";
-        var overlayOut = prev === "auto" || prev === "ach" || prev === "write" || prev === "exam";
+        var overlayIn = z === "auto" || z === "ach" || z === "write" || z === "exam" || z === "story";
+        var overlayOut = prev === "auto" || prev === "ach" || prev === "write" || prev === "exam" || prev === "story";
         if (overlayIn) {
           /* CHẠY (runTo) tới dock của zone trước — không teleport;
              reduced-motion thì runTo tự đặt vị trí tức thì và jumpOtter
@@ -2189,7 +2206,7 @@
           try { relocateIfBlocked(); } catch (eZr) {}
         }, 600);
       }
-      var ZONE_WATCH_IDS = ["ttcPathPanel", "autoLearning", "ttcExampleAutoV2", "ttcAchHost", "ttcWriteOverlay", "ttcExamOverlay", "ttcScoreBoardOverlay"];
+      var ZONE_WATCH_IDS = ["ttcPathPanel", "autoLearning", "ttcExampleAutoV2", "ttcAchHost", "ttcWriteOverlay", "ttcExamOverlay", "ttcScoreBoardOverlay", "ttcStoryVideoOverlay"];
       function ensureZoneRelocateWatchers() {
         for (var i = 0; i < ZONE_WATCH_IDS.length; i++) {
           var el = document.getElementById(ZONE_WATCH_IDS[i]);
@@ -2210,8 +2227,8 @@
           var prev = lastZone;
           lastZone = z;
           activeZoneId = z;
-          root.classList.remove("guide-zone-auto", "guide-zone-ach", "guide-zone-write", "guide-zone-exam");
-          if (z === "auto" || z === "ach" || z === "write" || z === "exam") root.classList.add("guide-zone-" + z);
+          root.classList.remove("guide-zone-auto", "guide-zone-ach", "guide-zone-write", "guide-zone-exam", "guide-zone-story");
+          if (z === "auto" || z === "ach" || z === "write" || z === "exam" || z === "story") root.classList.add("guide-zone-" + z);
           try { onZoneChange(prev, z); } catch (eZc) {}
         }
         try { autoPlayTick(); } catch (eAp) {}
