@@ -2649,8 +2649,19 @@
         else scheduleChatter(25000);
       }
       document.addEventListener("visibilitychange", function () {
-        if (document.hidden) { clearTimeout(chatTimer); chatTimer = null; }
-        else if (chatEnabled && !chatTimer) scheduleChatter(20000);
+        /* KHÔNG clearTimeout khi hidden nữa (bản cũ clear ở đây và chỉ hẹn
+           lại khi sự kiện visible bắn): chatterTick đã tự xử lý lúc hidden
+           (không phát câu, hẹn lại sau 25s) nên cứ để chuỗi tự sống sót qua
+           mọi lần tab bị che. Trên điện thoại/webview, sự kiện visible có
+           thể KHÔNG bao giờ bắn sau một lần hidden (chuyển app rồi quay lại
+           bằng đường khác, trình duyệt đóng băng trang nền...) — bản cũ khi
+           đó chết vĩnh viễn trong phiên: due() vẫn thỏa mọi điều kiện nhưng
+           không còn tick nào gọi nó nữa (tái hiện jsdom 2026-11-17: hidden
+           một lần + lỡ visible -> quá 75s không một câu chatter nào, trong
+           khi trên máy tính ít chuyển tab nên vẫn nói bình thường). Nhánh
+           visible giữ nguyên làm đường tắt hồi sinh khi chuỗi đã chết vì
+           lý do khác (vd vừa bật lại công tắc lúc timer đang trống). */
+        if (!document.hidden && chatEnabled && !chatTimer) scheduleChatter(20000);
       });
       scheduleChatter(firstDelay()); /* câu đầu tiên: hẹn ở 45–60s sau khi tải trang */
 
