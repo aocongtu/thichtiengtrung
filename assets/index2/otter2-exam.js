@@ -978,6 +978,19 @@
     ".ttc-sb-badge.bad{background:#fee2e2;color:#991b1b}",
     ".ttc-sb-badge.na{background:#e2e8f0;color:#475569}",
     ".ttc-sb-view{border:1px solid #2563eb;background:#eff6ff;color:#1d4ed8;border-radius:9px;padding:6px 8px;font-weight:700;cursor:pointer;font-size:13px}",
+    ".ttc-cb-wrap{margin-top:22px;border-top:2px dashed #e2e8f0;padding-top:16px}",
+    ".ttc-cb-chips{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0 12px}",
+    ".ttc-cb-chip{border:1.5px solid #e2e8f0;background:#fff;color:#334155;border-radius:99px;padding:6px 13px;font-weight:800;font-size:13.5px;cursor:pointer;min-height:36px}",
+    ".ttc-cb-chip.on{background:#2563eb;border-color:#2563eb;color:#fff}",
+    ".ttc-cb-table{display:grid;gap:7px}",
+    ".ttc-cb-row{display:grid;grid-template-columns:64px 1fr .72fr .62fr .62fr;gap:7px;align-items:center;border:1px solid #eef1f5;border-radius:11px;padding:8px 10px;font-size:13.5px;color:#334155;background:#fbfcfe}",
+    ".ttc-cb-row.head{background:#f1f5f9;font-weight:700;color:#172033;border-color:#e2e8f0}",
+    ".ttc-cb-row .ctr{text-align:center}",
+    ".ttc-cb-row.top1{border-color:#fde68a;background:#fffbeb}",
+    ".ttc-cb-row.top2{border-color:#e5e7eb;background:#f8fafc}",
+    ".ttc-cb-row.top3{border-color:#fed7aa;background:#fff7ed}",
+    ".ttc-cb-more{display:block;margin:12px auto 2px;border:1px solid #2563eb;background:#eff6ff;color:#1d4ed8;border-radius:11px;padding:10px 22px;font-weight:800;cursor:pointer;font-size:14px;min-height:44px}",
+    "@media (max-width:860px){.ttc-cb-row{grid-template-columns:52px 1fr .7fr .58fr .58fr;font-size:12.5px}}",
     "@media (max-width:860px){.ttc-sb-row{grid-template-columns:96px 44px 1fr .6fr .6fr .6fr .6fr .78fr 64px 78px;font-size:12.5px}}",
     "/* Panel Luyện thi: thẻ hero gradient riêng, đứng TRÊN thẻ Trình độ & kỹ năng ở cột giữa. Đợt 3: panel + thẻ kỹ năng nằm trong .ttc-exam-midstack (1 item lưới flex cột ở cột 2/hàng 1, gap 18px) để thẻ kỹ năng sát ngay dưới panel, hết phụ thuộc chiều cao cột trái; mobile stack tan (display:contents) cho 2 thẻ về đúng grid-area exam/level. */",
     "#otter2-home #otter2ExamPanel{position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.4);background:linear-gradient(135deg,#f97316 0%,#e11d48 52%,#7c3aed 105%);box-shadow:0 20px 42px rgba(190,18,60,.38),0 4px 14px rgba(124,58,237,.22);color:#fff}",
@@ -1479,6 +1492,18 @@
       passMark: score.passMark, passed: score.passed, weakest: score.weakest,
       reviewId: savedReview ? reviewId : null
     });
+    /* Gửi điểm lên bảng cộng đồng (chỉ khi đã đăng nhập; lỗi thì
+       bỏ qua lặng lẽ — điểm local ở trên vẫn là nguồn chính). */
+    submitScoreToServer({
+      p_hsk_level: exam.level, p_mode: exam.mode,
+      p_test_id: state.testId || null,
+      p_seed: state.seed != null ? state.seed : null,
+      p_sections: score.perSection,
+      p_total_score: score.totalScore, p_scale_max: score.scaleMax,
+      p_pass_mark: score.passMark, p_passed: !!score.passed,
+      p_correct: correct, p_total_q: exam.total,
+      p_seconds_used: secondsUsed
+    });
     renderResult(score, secondsUsed, auto);
   }
 
@@ -1576,6 +1601,163 @@
     if (state.view === "result" || state.view === "review") state.view = "review";
   }
 
+  /* ---------------- Điểm cộng đồng (Supabase) ----------------
+     Backend đã live (2026-11-17): bảng public.exam_scores + RPC
+     ttc_exam_score_submit / ttc_exam_score_board trên Supabase.
+     Lấy client đúng mẫu fetchHskAchievementPage của
+     otter2-vocab-roadmap.js. Mọi lỗi đều nuốt lặng lẽ: điểm cá
+     nhân trong localStorage luôn là nguồn chính, nộp bài không
+     bao giờ bị chặn bởi đường gửi điểm này. */
+  var CB_PAGE = 20;
+  var CB_MODES = ["full", "reduced", "catalog", "mini", "standard"];
+  function examSupabaseClient() {
+    var client = null;
+    try {
+      client = typeof getSupabaseClient === "function" ? getSupabaseClient() : (window.supabase || null);
+    } catch (e) {
+      client = window.supabase || null;
+    }
+    return (client && typeof client.rpc === "function") ? client : null;
+  }
+  function examAuthUser() {
+    try {
+      var u = window.currentUser || (window.otter2Account && window.otter2Account.user) || null;
+      return (u && u.id) ? u : null;
+    } catch (e) { return null; }
+  }
+  function submitScoreToServer(payload) {
+    try {
+      if (!examAuthUser()) return; /* chưa đăng nhập -> bỏ qua */
+      if (CB_MODES.indexOf(payload && payload.p_mode) < 0) return;
+      var client = examSupabaseClient();
+      if (!client) return;
+      Promise.resolve(client.rpc("ttc_exam_score_submit", payload)).then(
+        function () {}, function () {}
+      );
+    } catch (e) {}
+  }
+  function fetchExamBoardPage(level, offset) {
+    var hsk = Number(level);
+    var off = Math.max(0, Number(offset) || 0);
+    if (!(hsk >= 1 && hsk <= 9)) {
+      return Promise.resolve({ ok: false, message: "Cấp HSK không hợp lệ.", rows: [], hasMore: false });
+    }
+    var client = examSupabaseClient();
+    if (!client) {
+      return Promise.resolve({ ok: false, message: "Chưa kết nối được máy chủ.", rows: [], hasMore: false });
+    }
+    return Promise.resolve(client.rpc("ttc_exam_score_board", {
+      p_hsk_level: hsk, p_limit: CB_PAGE, p_offset: off
+    })).then(function (res) {
+      if (res && res.error) {
+        return { ok: false, message: (res.error && res.error.message) ? String(res.error.message) : "Lỗi tải bảng cộng đồng.", rows: [], hasMore: false };
+      }
+      var data = res && res.data;
+      if (!data || data.ok === false) {
+        return { ok: false, message: (data && data.message) ? String(data.message) : "Không lấy được dữ liệu cộng đồng.", rows: [], hasMore: false };
+      }
+      var rows = (Array.isArray(data.rows) ? data.rows : []).map(function (r) {
+        r = r || {};
+        return {
+          nickname: r.nickname != null ? String(r.nickname) : null,
+          bestScore: Number(r.best_score) || 0,
+          scaleMax: Number(r.scale_max) || 300,
+          attempts: Number(r.attempts) || 0,
+          passRate: r.pass_rate == null ? null : Number(r.pass_rate),
+          rank: Number(r.rank) || null
+        };
+      });
+      return { ok: true, rows: rows, hasMore: !!data.has_more };
+    }, function () {
+      return { ok: false, message: "Lỗi mạng khi tải bảng cộng đồng.", rows: [], hasMore: false };
+    });
+  }
+  var cb = { level: 1, touched: false, rows: [], hasMore: false, loading: false, loaded: false, error: "" };
+  var cbSeq = 0;
+  function loadCommunity(reset) {
+    if (cb.loading && !reset) return;
+    if (reset) { cb.rows = []; cb.hasMore = false; cb.loaded = false; cb.error = ""; }
+    var seq = ++cbSeq;
+    var lvl = cb.level;
+    cb.loading = true;
+    renderCommunityBody();
+    fetchExamBoardPage(lvl, cb.rows.length).then(function (res) {
+      if (seq !== cbSeq) return; /* đã đổi cấp / mở lại bảng — bỏ phản hồi cũ */
+      cb.loading = false;
+      if (res.ok) {
+        cb.rows = cb.rows.concat(res.rows);
+        cb.hasMore = res.hasMore;
+        cb.loaded = true;
+        cb.error = "";
+      } else if (!cb.rows.length) {
+        cb.error = res.message || "Không tải được bảng cộng đồng.";
+      }
+      renderCommunityBody();
+    });
+  }
+  function renderCommunityBody() {
+    var el = document.getElementById("ttcCbBody");
+    if (!el) return;
+    var chipsBox = document.getElementById("ttcCbChips");
+    if (chipsBox) {
+      chipsBox.querySelectorAll("[data-cb-level]").forEach(function (c) {
+        c.classList.toggle("on", Number(c.getAttribute("data-cb-level")) === cb.level);
+      });
+    }
+    if (cb.loading && !cb.rows.length) {
+      el.innerHTML = '<div class="ttc-exam-note">⏳ Đang tải bảng cộng đồng…</div>';
+      return;
+    }
+    if (cb.error && !cb.rows.length) {
+      el.innerHTML = '<div class="ttc-exam-note">⚠️ ' + esc(cb.error) + ' <button type="button" class="ttc-sb-view" id="ttcCbRetry">Thử lại</button></div>';
+      var rt = document.getElementById("ttcCbRetry");
+      if (rt) rt.addEventListener("click", function () { loadCommunity(true); });
+      return;
+    }
+    if (cb.loaded && !cb.rows.length) {
+      el.innerHTML = '<div class="ttc-exam-note">Chưa có điểm cộng đồng cho cấp HSK ' + cb.level + " — hãy là người đầu tiên! 🎉" +
+        '<br><span style="color:#64748b;font-size:13px">Đăng nhập rồi làm một bài thi ở cấp này, điểm của bạn sẽ xuất hiện tại đây.</span></div>';
+      return;
+    }
+    if (!cb.rows.length) {
+      el.innerHTML = '<div class="ttc-exam-note">⏳ Đang tải bảng cộng đồng…</div>';
+      return;
+    }
+    var head = '<div class="ttc-cb-row head"><span class="ctr">Hạng</span><span>Học viên</span>' +
+      '<span class="ctr">Điểm cao nhất</span><span class="ctr">Lượt thi</span><span class="ctr">Tỉ lệ đạt</span></div>';
+    var rowsHtml = cb.rows.map(function (r, i) {
+      var rank = (typeof r.rank === "number" && r.rank > 0) ? r.rank : (i + 1);
+      var medal = rank === 1 ? "🥇 " : rank === 2 ? "🥈 " : rank === 3 ? "🥉 " : "";
+      return '<div class="ttc-cb-row' + (rank <= 3 ? " top" + rank : "") + '">' +
+        '<span class="ctr"><b>' + medal + rank + "</b></span>" +
+        "<span>" + esc(r.nickname || "Học viên") + "</span>" +
+        '<span class="ctr"><b>' + esc(r.bestScore) + "/" + esc(r.scaleMax) + "</b></span>" +
+        '<span class="ctr">' + esc(r.attempts) + "</span>" +
+        '<span class="ctr">' + (r.passRate == null ? "—" : esc(r.passRate) + "%") + "</span></div>";
+    }).join("");
+    var guestNote = examAuthUser() ? "" :
+      '<p style="color:#94a3b8;font-size:12.5px;margin-top:8px">Bạn đang xem như khách — ai cũng xem được bảng này. Đăng nhập và làm bài thi để điểm của bạn cũng được xếp hạng tại đây.</p>';
+    var more = cb.hasMore
+      ? '<button type="button" class="ttc-cb-more" id="ttcCbMore">' + (cb.loading ? "⏳ Đang tải…" : "⬇️ Tải thêm") + "</button>"
+      : "";
+    el.innerHTML = '<div class="ttc-cb-table">' + head + rowsHtml + "</div>" + more + guestNote;
+    var m = document.getElementById("ttcCbMore");
+    if (m) m.addEventListener("click", function () { loadCommunity(false); });
+  }
+  function communitySectionHtml() {
+    var chips = "";
+    for (var lv = 1; lv <= 9; lv++) {
+      chips += '<button type="button" class="ttc-cb-chip' + (lv === cb.level ? " on" : "") +
+        '" data-cb-level="' + lv + '">HSK ' + lv + "</button>";
+    }
+    return '<div class="ttc-cb-wrap">' +
+      '<div style="font-size:17px;font-weight:900;color:#172033">🏆 Cộng đồng</div>' +
+      '<p style="color:#475569;font-size:13.5px;line-height:1.55;margin:4px 0 0">Điểm của <b>mọi học viên</b> trên thichtiengtrung.io.vn theo từng cấp: điểm cao nhất, số lượt thi và tỉ lệ đạt của mỗi người. Điểm của bạn được gửi lên tự động sau mỗi bài thi khi bạn đã đăng nhập.</p>' +
+      '<div class="ttc-cb-chips" id="ttcCbChips">' + chips + "</div>" +
+      '<div id="ttcCbBody"></div>' +
+      "</div>";
+  }
+
   /* ---------------- Bảng Điểm Thi (Phần 2) ----------------
      Điểm mở: nút điều hướng #otter2AchNavBtn (hàng nút điều hướng)
      được đổi nhãn thành "Bảng Điểm Thi" và mở bảng này. Nút 🏆 ở
@@ -1661,6 +1843,10 @@
   }
   function renderScoreBoardList() {
     var hist = loadHistory();
+    if (!cb.touched) {
+      var lv0 = hist.length ? Number(hist[0] && hist[0].level) : 1;
+      cb.level = (lv0 >= 1 && lv0 <= 9) ? lv0 : 1;
+    }
     var reviews = {};
     loadReviews().forEach(function (r) { reviews[r.id] = r; });
     var st = sbStats(hist);
@@ -1705,14 +1891,26 @@
       statsHtml +
       (hist.length
         ? '<div class="ttc-sb-table">' + head + rows + "</div>" +
-          '<p style="color:#94a3b8;font-size:12.5px;margin-top:10px">Các bài làm trước bản nâng cấp này chỉ lưu điểm tổng (%) nên một số ô hiện "—". Bảng điểm cộng đồng (xem điểm của mọi học viên) cần thêm backend — bản nháp đã được chuẩn bị riêng cho chủ web.</p>'
+          '<p style="color:#94a3b8;font-size:12.5px;margin-top:10px">Các bài làm trước bản nâng cấp này chỉ lưu điểm tổng (%) nên một số ô hiện "—".</p>'
         : '<div class="ttc-exam-note" style="margin-top:12px">Bạn chưa làm bài luyện thi nào. Hãy vào khu Luyện thi và làm đề đầu tiên — điểm sẽ hiện ở đây.</div>' +
-          '<div class="ttc-exam-nav" style="justify-content:center"><button type="button" class="ttc-exam-btn primary" id="ttcSbGoExam">🏆 Vào Luyện thi</button></div>');
+          '<div class="ttc-exam-nav" style="justify-content:center"><button type="button" class="ttc-exam-btn primary" id="ttcSbGoExam">🏆 Vào Luyện thi</button></div>') +
+      communitySectionHtml();
     sb.content.querySelectorAll("[data-sb-review]").forEach(function (b) {
       b.addEventListener("click", function () { renderScoreBoardReview(b.getAttribute("data-sb-review")); });
     });
     var go = document.getElementById("ttcSbGoExam");
     if (go) go.addEventListener("click", function () { closeScoreBoard(); openExam(); });
+    sb.content.querySelectorAll("[data-cb-level]").forEach(function (c) {
+      c.addEventListener("click", function () {
+        var lv = Number(c.getAttribute("data-cb-level"));
+        if (!(lv >= 1 && lv <= 9)) return;
+        cb.touched = true;
+        if (lv === cb.level && cb.loaded) { renderCommunityBody(); return; }
+        cb.level = lv;
+        loadCommunity(true);
+      });
+    });
+    loadCommunity(true);
   }
   function renderScoreBoardReview(reviewId) {
     var rec = null;
@@ -1915,6 +2113,10 @@
     close: closeExam,
     openScoreBoard: openScoreBoard,
     closeScoreBoard: closeScoreBoard,
+    submitScoreToServer: submitScoreToServer,
+    fetchExamBoardPage: fetchExamBoardPage,
+    loadCommunity: loadCommunity,
+    communityState: function () { return cb; },
     expireNow: function () {
       if (state.view !== "exam") return;
       if (isFullMode()) { state.sectionRemaining = 0; advanceSection(true); }
