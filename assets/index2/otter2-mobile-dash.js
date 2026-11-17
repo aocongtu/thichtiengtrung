@@ -4,43 +4,52 @@
    breakpoint với lưới #otter2-home). Desktop >1020px không đổi bất kỳ pixel nào.
 
    ĐỢT 1 — cụm nút "Cửa học tập" trong thẻ "Khóa tự học"
-   (.otter2-dash-course .otter2-feature-row):
-     - Hàng nút thành lưới 2 cột, gap 10px (ghi đè luật 1 cột !important cũ).
-     - "Kho từ vựng HSK" (.otter2-feature--vocab): thanh ngang mỏng phủ cả
-       2 cột, icon trái + chữ phải trên 1 hàng, cao 54px.
-     - 4 nút còn lại (Ngữ pháp / Luyện phát âm / Flashcard / 214 Bộ thủ):
-       lưới 2 cột x 2 hàng, mỗi ô cao 70px, icon trên chữ dưới, cả ô bấm được.
-   Tổng cụm: 54 + 10 + 70 + 10 + 70 = 214px (cũ ~424px) — giảm ~một nửa.
+   (.otter2-dash-course .otter2-feature-row): Kho từ vựng = thanh ngang mỏng,
+   4 nút còn lại = ô gọn (lúc đó thẻ khóa học còn phủ cả bề ngang mobile).
 
-   ĐỢT 2 — chia TẤT CẢ các mục trang chủ thành 2 cột nhỏ gọn (ý chủ web:
-   "như khu luyện thi ở giữa trên máy tính", theo ảnh chụp iPhone 13:08):
-     - Lưới #otter2-home chuyển thành 2 cột: các khối lớn thật sự cần bề ngang
-       (lời chào, dải chip HSK, thẻ Khóa tự học, panel Luyện thi, thẻ Trình
-       độ & kỹ năng, mục Bài học mỗi ngày, Hành trình HSK, banner Facebook)
-       phủ cả 2 cột; các khối vừa/nhỏ GHÉP ĐÔI thành 1 hàng 2 cột:
-         [Hoạt động học tập | Nhiệm vụ hôm nay] — số liệu thu nhỏ, lưới cấp
-           3 cột giữ nguyên trong ô hẹp; hàng nhiệm vụ xếp lại dạng lưới
-           icon trái / chữ trên / nhãn dưới cho vừa ô ~150px.
-         [Tiếp tục hành trình | Lộ trình HSK 1–9] — ảnh bìa 16/9 thu theo ô,
-           9 bậc lộ trình chuyển từ 1 hàng 9 ô sang lưới 3x3 trong ô hẹp.
-       Panel Luyện thi giữ full-width: nó là panel hero chủ lực với 9 chip
-       chọn cấp + dòng điểm lần gần nhất + nút CTA lớn — ép xuống nửa cột
-       (~150px) sẽ vỡ chip và nút; thay vào đó ép gọn bên trong (huy hiệu
-       54→44px, mô tả cắt 2 dòng, chip nhỏ lại, nút 52→48px).
-     - Bên trong các khối phủ 2 cột cũng được ép chiều cao: hero lộ trình
-       xanh trong thẻ Khóa tự học (padding/chữ/mô tả cắt 2 dòng), thẻ Trình
-       độ (số cấp 44→32px, ô kỹ năng 64→54px), hàng Bài học (đệm 13→9px,
-       mô tả cắt 2 dòng), Hành trình (nút tròn 72→60px, đệm thẻ 18→12px).
-     - Mọi luật đợt 2 dùng selector có #otter2-home nên thắng CSS runtime
-       mà otter2-exam.js bơm vào sau (nó chỉ đặt grid-area — tên area giữ
-       nguyên: exam / level / ...). Thứ tự + cấu trúc .ttc-exam-midstack
-       (panel thi → thẻ kỹ năng) không đổi; panel vẫn mang class
-       .otter2-dash-card nên cơ chế vật cản của Bé Rái Cá không bị ảnh hưởng.
-     - Khu Học qua video đã được chủ web thu khỏi bản live (2026-11-17):
-       module này KHÔNG tham chiếu panel video; khi khu video trở lại theo
-       hướng nội dung mới, panel của nó sẽ tự thích ứng với lưới 2 cột này.
+   ĐỢT 2 — chia các mục trang chủ thành hàng 2 cột kiểu ghép đôi
+   [Hoạt động | Nhiệm vụ], [Học tiếp | Lộ trình]; các khối lớn (lời chào, chip
+   HSK, thẻ Khóa tự học, panel Luyện thi, thẻ Trình độ) phủ cả 2 cột.
 
-   Chỉ trình bày: không đụng DOM, id, handler hay màu nền sẵn có của các nút. */
+   ĐỢT 3 — CHỈ ĐẠO MỚI của chủ web (2026-11-17, theo ảnh desktop anh vẽ tay):
+   trên điện thoại, TRÊN CÙNG là 2 cột đúng như 2 cột đầu của desktop —
+     cột TRÁI  = cột 1 desktop: lời chào (hero) -> dải chip HSK (strip)
+                 -> thẻ "Khóa tự học" (course);
+     cột PHẢI  = cột 2 desktop: cụm .ttc-exam-midstack theo đúng thứ tự
+                 panel Luyện thi (exam) -> thẻ Trình độ & kỹ năng (level)
+                 -> panel Truyện kể (story);
+   cột 3 desktop ("Hoạt động học tập" -> "Nhiệm vụ hôm nay") CẮT XUỐNG DƯỚI,
+   mỗi thẻ phủ cả bề ngang; phía dưới nữa giữ thứ tự cũ: Bài học mỗi ngày ->
+   [Học tiếp | Lộ trình] -> Hành trình HSK -> banner Facebook.
+   Cách dựng bằng grid-template-areas (mỗi tên area là hình chữ nhật):
+     'hero exam' / 'strip exam'     — panel thi ôm 2 hàng đầu cột phải,
+     'course level' / 'course story' — thẻ khóa học ôm 2 hàng cuối cột trái,
+   nhờ vậy 2 cột tự cân chiều cao, khối nào cũng đứng đúng cột + đúng thứ tự
+   trong cột của mình. #otter2-home vốn align-items:start nên khối không bị
+   kéo giãn theo hàng.
+   Selector lưới dùng section#otter2-home.otter2-screen (đặc hiệu 1,1,1) để
+   thắng luật areas mà otter2-storyvideo.js bơm SAU module này (1,1,0) —
+   panel truyện vì thế vào đúng cột phải thay vì phủ cả bề ngang như đợt 2.
+   Bên trong từng khối ép gọn cho bề ngang ~nửa màn hình (390px -> cột ~179px,
+   360px -> cột ~164px):
+     - Hero: tiêu đề 20px vừa nửa cột, dòng phụ cắt 3 dòng; dải chip giữ
+       cuộn ngang (flex + overflow-x sẵn có), chip nhỏ lại.
+     - Thẻ Khóa tự học: hero lộ trình gọn; cụm "Cửa học tập" xếp DỌC 1 cột —
+       Kho từ vựng vẫn là thanh ngang mỏng 48px, 4 nút còn lại thành hàng
+       ngang gọn cao 46px (icon trái, chữ phải, cả hàng bấm được).
+     - Panel Luyện thi: cúp 38px, tiêu đề 16px, mô tả cắt 2 dòng, chip cấp
+       32px bọc dòng, nút vào thi 44px.
+     - Thẻ Trình độ: số cấp 27px, lưới kỹ năng 2x2 ô 48px.
+     - Panel Truyện kể: đệm 12px, nút phát 40px, tiêu đề 16px, mô tả cắt 2
+       dòng, nút xem 44px (chỉ nén trình bày — nền gradient khóa bằng
+       selector ID của chính module truyện, không đụng vào).
+     - Hoạt động (nay full-width): số lớn 34px, lưới 9 cấp giữ 3 cột với ô
+       thoáng hơn bản nửa cột đợt 2. Nhiệm vụ (full-width): hàng nhiệm vụ
+       trở lại dạng ngang như desktop (icon 38px + chữ + nhãn phút), nút
+       CTA 46px.
+   Chỉ trình bày: không đụng DOM, id, handler hay màu nền sẵn có của các nút;
+   panel thi/truyện vẫn mang class .otter2-dash-card nên cơ chế vật cản của
+   Bé Rái Cá không bị ảnh hưởng. */
 (function () {
   "use strict";
   if (window.__OTTER2_MOBILE_DASH_V1__) return;
@@ -52,74 +61,88 @@
   var css = [
     "@media (max-width:1020px){",
 
-    /* ===== ĐỢT 1: cụm 5 nút "Cửa học tập" ===== */
-    ".otter2-dash-course .otter2-feature-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:10px;margin:12px 0 0}",
-    ".otter2-dash-course .otter2-feature{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:70px;height:70px;width:100%;padding:8px 6px;gap:5px;border-radius:14px;box-sizing:border-box}",
-    ".otter2-dash-course .otter2-feature .otter2-ico{width:30px;height:30px;font-size:16px;border-radius:9px}",
-    ".otter2-dash-course .otter2-feature strong{font-size:13.5px;line-height:1.2}",
-    ".otter2-dash-course .otter2-feature--vocab{grid-column:1/-1;flex-direction:row;justify-content:flex-start;text-align:left;min-height:54px;height:54px;padding:8px 14px;gap:10px}",
-    ".otter2-dash-course .otter2-feature--vocab .otter2-ico{width:32px;height:32px;font-size:17px}",
-    ".otter2-dash-course .otter2-feature--vocab strong{font-size:14.5px}",
-
-    /* ===== ĐỢT 2: lưới nhà 2 cột ===== */
-    "#otter2-home.otter2-screen{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-areas:'hero hero' 'strip strip' 'course course' 'exam exam' 'level level' 'activity tasks' 'lessons lessons' 'continue road' 'journey journey' 'banner banner';gap:12px}",
-    "#otter2-home .otter2-dash-card{padding:14px}",
+    /* ===== ĐỢT 3: lưới nhà — cột 1 + cột 2 desktop lên trên, cột 3 xuống dưới ===== */
+    "section#otter2-home.otter2-screen{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-areas:'hero exam' 'strip exam' 'course level' 'course story' 'activity activity' 'tasks tasks' 'lessons lessons' 'continue road' 'journey journey' 'banner banner';gap:12px}",
+    "#otter2-home .otter2-dash-card{padding:12px}",
     "#otter2-home .otter2-dash-head{margin-bottom:10px}",
 
-    /* Lời chào + dải chip HSK: giữ full-width (khối chữ giới thiệu + thanh chip
-       trượt ngang), chỉ ép nhẹ chiều cao. */
-    "#otter2-home .otter2-hero{padding-top:4px}",
-    "#otter2-home .otter2-sub{font-size:14px}",
-    "#otter2-home .otter2-dash-chip{padding:7px 14px}",
+    /* ===== CỘT TRÁI (cột 1 desktop) ===== */
+    /* Lời chào: tiêu đề nhỏ lại vừa nửa cột, dòng phụ cắt 3 dòng */
+    "#otter2-home .otter2-hero{padding-top:2px;min-width:0}",
+    "#otter2-home #otter2VoiceSystemBtn{font-size:12px;padding:6px 10px;max-width:100%}",
+    "#otter2-home .otter2-title{font-size:20px;line-height:1.25;margin:0 0 5px}",
+    "#otter2-home .otter2-sub{font-size:12.5px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}",
 
-    /* Thẻ Khóa tự học: hero lộ trình gọn lại (thẻ chính — giữ full-width vì
-       chứa thanh tiến độ + cụm nút đợt 1 + hub lộ trình bên dưới). */
-    "#otter2-home .otter2-dash-hero{padding:12px}",
-    "#otter2-home .otter2-dash-hero h3{font-size:17px;margin:6px 0 2px}",
-    "#otter2-home .otter2-dash-hero p{font-size:12.5px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}",
-    "#otter2-home .otter2-dash-prow{margin-top:10px}",
+    /* Dải chip HSK: giữ cuộn ngang trong nửa cột, chip nhỏ lại */
+    "#otter2-home .otter2-dash-strip{min-width:0;padding:4px;gap:2px}",
+    "#otter2-home .otter2-dash-chip{padding:6px 9px;min-height:38px;font-size:12px}",
+    "#otter2-home .otter2-dash-chip small{font-size:9.5px}",
+
+    /* Thẻ Khóa tự học: hero lộ trình gọn lại */
+    "#otter2-home .otter2-dash-course .otter2-dash-sub{font-size:11px}",
+    "#otter2-home .otter2-dash-hero{padding:11px}",
+    "#otter2-home .otter2-dash-hero h3{font-size:15.5px;line-height:1.3;margin:6px 0 2px}",
+    "#otter2-home .otter2-dash-hero p{font-size:12px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}",
+    "#otter2-home .otter2-dash-prow{margin-top:9px;font-size:12px}",
     "#otter2-home .otter2-dash-hero-cta{margin-top:8px}",
 
-    /* Panel Luyện thi: giữ full-width (9 chip cấp + CTA lớn không vừa nửa
-       cột), ép gọn bên trong — chip và dòng lần gần nhất vẫn hiện đầy đủ. */
-    "#otter2-home .ttc-exam-panel-trophy{width:44px;height:44px;font-size:23px}",
-    "#otter2-home .ttc-exam-panel-title{font-size:18px}",
-    "#otter2-home .ttc-exam-panel-desc{margin-top:9px;font-size:13.5px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}",
-    "#otter2-home .ttc-exam-panel-chips{gap:6px;margin-top:10px}",
-    "#otter2-home .ttc-exam-panel-chip{padding:6px 11px;font-size:12.5px;min-height:34px}",
-    "#otter2-home .ttc-exam-panel-last{margin-top:10px;padding:7px 11px;font-size:12.5px}",
-    "#otter2-home .ttc-exam-panel-btn{margin-top:11px;min-height:48px;padding:12px 16px;font-size:15.5px}",
+    /* Cụm "Cửa học tập": xếp dọc 1 cột trong thẻ nửa màn hình — Kho từ vựng
+       vẫn là thanh ngang mỏng; 4 nút còn lại = hàng ngang gọn 46px. */
+    ".otter2-dash-course .otter2-feature-row{display:grid;grid-template-columns:minmax(0,1fr) !important;gap:8px;margin:12px 0 0}",
+    ".otter2-dash-course .otter2-feature{display:flex;flex-direction:row;align-items:center;justify-content:flex-start;text-align:left;min-height:46px;height:46px;width:100%;padding:6px 10px;gap:9px;border-radius:12px;box-sizing:border-box}",
+    ".otter2-dash-course .otter2-feature .otter2-ico{width:28px;height:28px;font-size:15px;border-radius:8px;flex:none}",
+    ".otter2-dash-course .otter2-feature strong{font-size:13px;line-height:1.2}",
+    ".otter2-dash-course .otter2-feature--vocab{grid-column:1/-1;min-height:48px;height:48px;padding:6px 12px;gap:10px}",
+    ".otter2-dash-course .otter2-feature--vocab .otter2-ico{width:30px;height:30px;font-size:16px}",
+    ".otter2-dash-course .otter2-feature--vocab strong{font-size:13.5px}",
 
-    /* Thẻ Trình độ & kỹ năng: giữ full-width (lưới kỹ năng 2x2 cần bề ngang),
-       ép chiều cao bên trong. */
-    "#otter2-home .otter2-dash-levelbig{gap:10px}",
-    "#otter2-home .otter2-dash-levelbig .lv{font-size:32px}",
-    "#otter2-home .otter2-dash-skill{margin-top:10px;padding:10px 12px}",
-    "#otter2-home .otter2-dash-skillgrid{gap:8px;margin-top:10px}",
-    "#otter2-home .otter2-dash-skilltile{min-height:54px;padding:9px 10px}",
+    /* ===== CỘT PHẢI (cột 2 desktop — cụm midstack) ===== */
+    /* Panel Luyện thi: nén cho nửa cột — chip cấp bọc dòng, CTA vẫn lớn dễ bấm */
+    "#otter2-home .ttc-exam-panel-trophy{width:38px;height:38px;font-size:20px}",
+    "#otter2-home .ttc-exam-panel-title{font-size:16px;line-height:1.25}",
+    "#otter2-home .ttc-exam-panel-desc{margin-top:8px;font-size:12.5px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}",
+    "#otter2-home .ttc-exam-panel-chips{gap:5px;margin-top:9px}",
+    "#otter2-home .ttc-exam-panel-chip{padding:5px 9px;font-size:12px;min-height:32px}",
+    "#otter2-home .ttc-exam-panel-last{margin-top:9px;padding:6px 9px;font-size:12px;line-height:1.4}",
+    "#otter2-home .ttc-exam-panel-btn{margin-top:10px;min-height:44px;padding:11px 12px;font-size:14.5px}",
+
+    /* Thẻ Trình độ & kỹ năng: số cấp nhỏ lại, lưới kỹ năng 2x2 gọn */
+    "#otter2-home .otter2-dash-levelbig{gap:8px}",
+    "#otter2-home .otter2-dash-levelbig .lv{font-size:27px}",
+    "#otter2-home .otter2-dash-skill{margin-top:9px;padding:9px 10px}",
+    "#otter2-home .otter2-dash-skillgrid{gap:7px;margin-top:9px}",
+    "#otter2-home .otter2-dash-skilltile{min-height:48px;padding:8px}",
     "#otter2-home .otter2-dash-skilltile small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
 
-    /* Thẻ Hoạt động (nửa cột): số lớn + lưới cấp thu nhỏ, ghi chú chữ nhỏ */
-    "#otter2-home .otter2-dash-card[aria-labelledby='otter2DashActTitle'] h2{font-size:15px}",
-    "#otter2-home .otter2-dash-actnum{gap:8px}",
-    "#otter2-home .otter2-dash-actnum .n{font-size:30px}",
-    "#otter2-home .otter2-dash-actnum .lbl{font-size:12px;line-height:1.4}",
-    "#otter2-home .otter2-dash-lvgrid{gap:5px;margin-top:10px}",
-    "#otter2-home .otter2-dash-lvcell{padding:6px 3px;border-radius:9px}",
-    "#otter2-home .otter2-dash-lvcell b{font-size:11.5px}",
-    "#otter2-home .otter2-dash-lvcell span{font-size:10px}",
-    "#otter2-home .otter2-dash-note{font-size:11.5px;line-height:1.5;margin-top:10px}",
+    /* Panel Truyện kể: nén như panel thi (nền gradient do module truyện khóa
+       bằng selector ID riêng — không đụng vào ở đây) */
+    "#otter2-home .ttc-story-panel{padding:12px}",
+    "#otter2-home .ttc-story-panel-play{width:40px;height:40px;flex-basis:40px;font-size:17px}",
+    "#otter2-home .ttc-story-panel-title{font-size:16px;line-height:1.25}",
+    "#otter2-home .ttc-story-panel-desc{font-size:12.5px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}",
+    "#otter2-home .ttc-story-panel-btn{min-height:44px}",
 
-    /* Thẻ Nhiệm vụ (nửa cột): hàng nhiệm vụ xếp lưới icon/chữ/nhãn */
-    "#otter2-home .otter2-dash-card[aria-labelledby='otter2DashTasksTitle'] h2{font-size:15px}",
-    "#otter2-home .otter2-dash-task{display:grid;grid-template-columns:32px minmax(0,1fr);column-gap:9px;row-gap:3px;align-items:center;padding:9px 2px}",
-    "#otter2-home .otter2-dash-task .ic{grid-column:1;grid-row:1/span 2;width:32px;height:32px;font-size:15px}",
-    "#otter2-home .otter2-dash-task .tt span{font-size:12.5px}",
-    "#otter2-home .otter2-dash-task .tt small{font-size:10.5px}",
-    "#otter2-home .otter2-dash-task .mins{grid-column:2;justify-self:start;padding:3px 8px;font-size:11px}",
-    "#otter2-home .otter2-dash-cta{min-height:44px;padding:11px;font-size:14px;margin-top:10px;border-radius:12px}",
+    /* ===== CỘT 3 DESKTOP — cắt xuống dưới, phủ cả bề ngang ===== */
+    /* Hoạt động học tập: lưới cấp giữ 3 cột, ô thoáng hơn bản nửa cột đợt 2 */
+    "#otter2-home .otter2-dash-actnum{gap:10px}",
+    "#otter2-home .otter2-dash-actnum .n{font-size:34px}",
+    "#otter2-home .otter2-dash-actnum .lbl{font-size:12.5px;line-height:1.4}",
+    "#otter2-home .otter2-dash-lvgrid{gap:6px;margin-top:12px}",
+    "#otter2-home .otter2-dash-lvcell{padding:8px 4px;border-radius:10px}",
+    "#otter2-home .otter2-dash-lvcell b{font-size:13px}",
+    "#otter2-home .otter2-dash-lvcell span{font-size:11.5px}",
+    "#otter2-home .otter2-dash-note{font-size:12.5px;line-height:1.5;margin-top:10px}",
 
-    /* Bài học mỗi ngày: giữ full-width (danh sách bài + ô tìm kiếm), hàng gọn */
+    /* Nhiệm vụ hôm nay: hàng nhiệm vụ dạng ngang như desktop, gọn nhẹ */
+    "#otter2-home .otter2-dash-task{display:flex;align-items:center;gap:10px;padding:10px 2px}",
+    "#otter2-home .otter2-dash-task .ic{width:38px;height:38px;font-size:16px}",
+    "#otter2-home .otter2-dash-task .tt span{font-size:13.5px}",
+    "#otter2-home .otter2-dash-task .tt small{font-size:11px}",
+    "#otter2-home .otter2-dash-task .mins{padding:4px 9px;font-size:12px}",
+    "#otter2-home .otter2-dash-cta{min-height:46px;padding:11px;font-size:14.5px;margin-top:10px;border-radius:12px}",
+
+    /* ===== PHÍA DƯỚI NỮA — giữ như đợt 2 ===== */
+    /* Bài học mỗi ngày: full-width, hàng gọn */
     "#otter2-home .otter2-dash-search input{padding:8px 0}",
     "#otter2-home .otter2-dash-lesson{grid-template-columns:38px minmax(0,1fr) auto;gap:10px;padding:9px 2px}",
     "#otter2-home .otter2-dash-thumb{width:38px;height:38px;font-size:16px}",
@@ -138,11 +161,11 @@
     "#otter2-home .otter2-dash-step .n{font-size:14px}",
     "#otter2-home .otter2-dash-step small{font-size:10px}",
 
-    /* Hành trình HSK: giữ full-width (workspace học từ), chỉ ép đệm + nút tròn */
+    /* Hành trình HSK: full-width, chỉ ép đệm + nút tròn */
     "#otter2-home #otter2HskJourney.otter2-panel{padding:12px}",
     "#otter2-home .otter2-node{width:60px;height:60px}",
 
-    /* Banner Facebook: giữ full-width (banner ngang), ép đệm + cắt mô tả 2 dòng */
+    /* Banner Facebook: full-width, ép đệm + cắt mô tả 2 dòng */
     "#otter2-home .otter2-fb-banner{padding:10px 12px}",
     "#otter2-home .otter2-fb-banner-text strong{font-size:14.5px}",
     "#otter2-home .otter2-fb-banner-text span{font-size:12.5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}",
