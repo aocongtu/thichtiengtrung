@@ -979,7 +979,7 @@
     ".ttc-sb-badge.na{background:#e2e8f0;color:#475569}",
     ".ttc-sb-view{border:1px solid #2563eb;background:#eff6ff;color:#1d4ed8;border-radius:9px;padding:6px 8px;font-weight:700;cursor:pointer;font-size:13px}",
     "@media (max-width:860px){.ttc-sb-row{grid-template-columns:96px 44px 1fr .6fr .6fr .6fr .6fr .78fr 64px 78px;font-size:12.5px}}",
-    "/* Panel Luyện thi: thẻ hero gradient riêng, đứng TRÊN thẻ Trình độ & kỹ năng ở cột giữa */",
+    "/* Panel Luyện thi: thẻ hero gradient riêng, đứng TRÊN thẻ Trình độ & kỹ năng ở cột giữa. Đợt 3: panel + thẻ kỹ năng nằm trong .ttc-exam-midstack (1 item lưới flex cột ở cột 2/hàng 1, gap 18px) để thẻ kỹ năng sát ngay dưới panel, hết phụ thuộc chiều cao cột trái; mobile stack tan (display:contents) cho 2 thẻ về đúng grid-area exam/level. */",
     "#otter2-home #otter2ExamPanel{position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.4);background:linear-gradient(135deg,#f97316 0%,#e11d48 52%,#7c3aed 105%);box-shadow:0 20px 42px rgba(190,18,60,.38),0 4px 14px rgba(124,58,237,.22);color:#fff}",
     "#otter2ExamPanel::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 88% -10%,rgba(255,255,255,.35),transparent 42%),radial-gradient(circle at -6% 108%,rgba(255,255,255,.22),transparent 46%);pointer-events:none}",
     "#otter2ExamPanel::after{content:'考';position:absolute;right:10px;bottom:-48px;font-size:150px;font-weight:900;line-height:1;color:rgba(255,255,255,.13);pointer-events:none}",
@@ -1003,8 +1003,8 @@
     ".ttc-exam-panel-btn:hover{transform:translateY(-1px);box-shadow:0 16px 30px rgba(0,0,0,.28)}",
     ".ttc-exam-panel-btn:active{transform:translateY(0)}",
     ".ttc-exam-panel-btn-txt{background:linear-gradient(90deg,#ea580c,#db2777,#7c3aed);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:#7c3aed}",
-    "@media (min-width:1021px){#otter2-home #otter2ExamPanel{grid-column:2;grid-row:1}#otter2-home .otter2-dash-card[aria-labelledby='otter2DashLevelTitle']{grid-row:2}#otter2-home .otter2-dash-main>section[aria-labelledby='otter2DashLessonsTitle']{grid-row:3}}",
-    "@media (max-width:1020px){#otter2-home{grid-template-areas:'hero' 'strip' 'course' 'exam' 'level' 'activity' 'tasks' 'lessons' 'continue' 'road' 'journey' 'banner'}#otter2-home #otter2ExamPanel{grid-area:exam}}",
+    "@media (min-width:1021px){#otter2-home .ttc-exam-midstack{grid-column:2;grid-row:1;display:flex;flex-direction:column;gap:18px;min-width:0}#otter2-home .otter2-dash-main>section[aria-labelledby='otter2DashLessonsTitle']{grid-row:2}}",
+    "@media (max-width:1020px){#otter2-home{grid-template-areas:'hero' 'strip' 'course' 'exam' 'level' 'activity' 'tasks' 'lessons' 'continue' 'road' 'journey' 'banner'}#otter2-home #otter2ExamPanel{grid-area:exam}#otter2-home .ttc-exam-midstack{display:contents}}",
     "@media (max-width:720px){.ttc-exam-stem{font-size:16px}.ttc-exam-sub{font-size:17px}.ttc-exam-score{font-size:36px}.ttc-exam-secbar .nm{flex-basis:118px}.ttc-exam-secbar .val{flex-basis:92px}}"
   ].join("\n");
 
@@ -1768,10 +1768,15 @@
      tiêm) lên cột giữa; (2) HOÁN ĐỔI vị trí — panel thành THẺ RIÊNG
      (.otter2-dash-card) đứng NGAY TRƯỚC thẻ "Trình độ & kỹ năng"
      trong .otter2-dash-main, làm hero gradient sặc sỡ vì đây là
-     kênh hút học viên từ Facebook. CSS tiêm kèm lo phần lưới:
-     desktop panel = cột 2/hàng 1, thẻ kỹ năng xuống hàng 2, bài học
-     xuống hàng 3; mobile (dash-main display:contents) panel nhận
-     grid-area "exam" ngay trước "level". Dashboard chỉ còn MỘT
+     kênh hút học viên từ Facebook. (3) Đợt 3 — sửa khoảng trống:
+     chủ web xem live thấy thẻ kỹ năng bị đẩy xuống quá sâu vì hàng 1
+     của lưới .otter2-dash-main dùng chung với thẻ khóa học cột trái
+     rất cao. Nay injectPanel bọc panel + thẻ kỹ năng vào MỘT item
+     lưới .ttc-exam-midstack (flex cột, gap 18px = gap chuẩn của
+     dash-main) đặt ở cột 2/hàng 1; thẻ Bài học về hàng 2 như luật
+     gốc của trang; mobile stack display:contents nên panel/thẻ kỹ
+     năng vẫn nhận grid-area "exam"/"level" ngay trước/sau nhau.
+     Dashboard chỉ còn MỘT
      điểm mở khu thi: nút #otter2FeatExam trong panel. Panel là
      .otter2-dash-card + chứa button/h3/p nên cơ chế vật cản của
      rái cá (OBSTACLE_SEL gồm .otter2-dash-card, button, h1-h6,
@@ -1839,7 +1844,18 @@
       '<p class="ttc-exam-panel-last" id="otter2ExamPanelLast" hidden></p>' +
       '<button type="button" class="ttc-exam-panel-btn" id="otter2FeatExam"><span class="ttc-exam-panel-btn-txt">Vào luyện thi →</span></button>' +
       "</div>";
-    section.parentNode.insertBefore(panel, section);
+    /* Đợt 3: bọc panel + thẻ kỹ năng vào MỘT item lưới .ttc-exam-midstack
+       (flex cột, gap 18px). Khi còn là 2 item lưới riêng, hàng 1 của
+       .otter2-dash-main bị thẻ khóa học cột trái (rất cao) kéo giãn nên
+       thẻ kỹ năng ở hàng 2 bắt đầu từ đáy cột trái → khoảng trống lớn
+       dưới panel. Nay khoảng cách panel→kỹ năng chỉ còn là gap của
+       stack, không phụ thuộc chiều cao cột trái/phải nữa. appendChild
+       DỜI nguyên node thẻ kỹ năng (giữ nguyên listener/nội dung). */
+    var stack = document.createElement("div");
+    stack.className = "ttc-exam-midstack";
+    section.parentNode.insertBefore(stack, section);
+    stack.appendChild(panel);
+    stack.appendChild(section);
     Array.prototype.forEach.call(panel.querySelectorAll("[data-panel-level]"), function (chip) {
       chip.addEventListener("click", function () {
         panelLevel = Number(chip.getAttribute("data-panel-level"));
