@@ -68,7 +68,7 @@
     var css = [
       "/* Panel Truyện kể: hero gradient hoàng hôn truyện tranh (tím -> fuchsia -> hổ phách), phân biệt với panel Luyện thi (cam -> hồng -> tím) và panel video cũ (xanh dương -> cyan -> ngọc, đã thu hồi). */",
       "/* Selector ID kép (như panel Luyện thi dùng #otter2ExamPanel): trên mobile có luật nền thẻ chung thắng selector class .ttc-story-panel khiến panel bị nhạt nhoà (chủ web phản ánh 2026-11-17) — khóa nền bằng #otter2-home #otter2StoryVideoPanel cho chắc. */",
-      "#otter2-home #otter2StoryVideoPanel{position:relative;overflow:hidden;border:none;border-radius:20px;padding:20px;color:#fff;background:linear-gradient(135deg,#6d28d9 0%,#a21caf 54%,#d97706 125%);box-shadow:0 20px 42px rgba(162,28,175,.32)}",
+      "#otter2-home #otter2StoryVideoPanel{position:relative;overflow:hidden;border:none;border-radius:20px;padding:20px;color:#fff;background:linear-gradient(135deg,#9668cf 0%,#bd6fb8 54%,#e2a763 125%);box-shadow:0 20px 42px rgba(162,28,175,.32)}",
       "/* Nhấn dễ tìm cho thẻ Trình độ & kỹ năng (hàng xóm midstack, chủ web phản ánh khó nhìn/khó tìm trên mobile 2026-11-17): viền + bóng tím nhẹ, nền phớt lavender, tiêu đề có vạch accent. */",
       "#otter2-home .otter2-dash-card[aria-labelledby='otter2DashLevelTitle']{border:1.5px solid rgba(124,58,237,.38);box-shadow:0 12px 28px rgba(124,58,237,.13);background:linear-gradient(180deg,#faf8ff,#ffffff)}",
       "#otter2DashLevelTitle{border-left:5px solid #7c3aed;padding-left:10px;border-radius:2px}",
