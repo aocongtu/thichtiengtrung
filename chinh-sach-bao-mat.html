@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chính sách bảo mật — Thích Tiếng Trung 3.0</title>
+<meta name="description" content="Chính sách bảo mật của Thích Tiếng Trung 3.0: dữ liệu nào được lưu, lưu ở đâu, dùng để làm gì và quyền của người dùng.">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#fffdf6;color:#2b2440;line-height:1.65}
+  .wrap{max-width:820px;margin:0 auto;padding:20px 16px 40px}
+  header.brand{padding:18px 2px 6px}
+  .brand-name{font-size:24px;font-weight:900;color:#3b1470;margin:0}
+  .brand-tag{margin:4px 0 0;color:#6d6785;font-size:14px}
+  a.back{display:inline-block;margin:14px 0 4px;padding:9px 16px;border-radius:999px;border:1.5px solid rgba(124,58,237,.4);background:rgba(124,58,237,.06);color:#5b21b6;font-weight:800;font-size:14px;text-decoration:none}
+  a.back:hover{background:rgba(124,58,237,.13)}
+  main.card{background:#fff;border:1px solid rgba(124,58,237,.16);border-radius:18px;box-shadow:0 14px 34px rgba(76,29,149,.08);padding:26px 24px;margin-top:14px}
+  h1{font-size:26px;margin:0 0 6px;color:#3b1470}
+  h2{font-size:19px;margin:26px 0 8px;color:#6d28d9}
+  p{margin:8px 0}
+  ul{margin:8px 0;padding-left:22px}
+  li{margin:5px 0}
+  a{color:#5b21b6;font-weight:600}
+  footer.mini{margin-top:22px;border-top:1px solid rgba(124,58,237,.16);padding-top:14px;color:#6d6785;font-size:13px}
+  footer.mini nav{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:8px}
+  footer.mini a{color:#5b21b6;text-decoration:none;font-weight:600}
+  footer.mini a:hover{text-decoration:underline}
+  @media (prefers-color-scheme:dark){
+    body{background:#131022;color:#ddd6f3}
+    main.card{background:#1b1730;border-color:rgba(216,180,254,.2);box-shadow:none}
+    .brand-name,h1{color:#e9d5ff}
+    h2{color:#c4b5fd}
+    .brand-tag,footer.mini{color:#a49ec4}
+    a,.mini a{color:#d8b4fe}
+    a.back{color:#d8b4fe;border-color:rgba(216,180,254,.4);background:rgba(124,58,237,.16)}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="brand">
+    <p class="brand-name">Thích Tiếng Trung 3.0</p>
+    <p class="brand-tag">Học tiếng Trung HSK 1–9 theo chuẩn HSK 3.0 — cùng Bé Rái Cá 🦦</p>
+    <a class="back" href="/">← Về trang chủ</a>
+  </header>
+
+  <main class="card">
+    <h1>Chính sách bảo mật</h1>
+    <p>Chính sách này mô tả rõ ràng và đúng thực tế kỹ thuật cách Thích Tiếng Trung 3.0 (thichtiengtrung.io.vn) xử lý dữ liệu của người dùng. Nguyên tắc xuyên suốt: chỉ lưu những gì cần cho việc học, và <strong>không bao giờ bán dữ liệu cá nhân</strong>.</p>
+
+    <h2>1. Dữ liệu chúng tôi lưu</h2>
+    <ul>
+      <li><strong>Thông tin tài khoản</strong> (khi bạn đăng ký): địa chỉ email và tên hiển thị. Thông tin này được lưu trên hệ thống Supabase — nhà cung cấp cơ sở dữ liệu và đăng nhập của nền tảng. Mật khẩu do hệ thống đăng nhập xử lý theo cơ chế mã hóa, chúng tôi không lưu mật khẩu dạng văn bản thô.</li>
+      <li><strong>Dữ liệu học tập</strong>: tiến độ học từ vựng, từ đã học, kết quả luyện thi, điểm số và các lựa chọn cá nhân hóa (giọng đọc, giao diện…). Dữ liệu này trước hết được lưu ngay trên thiết bị của bạn (bộ nhớ localStorage của trình duyệt); khi bạn đăng nhập, một phần dữ liệu học tập được đồng bộ lên Supabase để bạn học tiếp trên thiết bị khác và xuất hiện trên bảng thành tích.</li>
+      <li><strong>Dữ liệu cộng đồng</strong> (khi bạn dùng Chat Online hoặc bảng thành tích): tên hiển thị/biệt danh và nội dung tin nhắn bạn gửi.</li>
+      <li><strong>Dữ liệu trên thiết bị</strong>: một số tùy chọn (âm thanh, nhân vật đồng hành, truyện đã xem…) chỉ nằm trong localStorage của trình duyệt trên máy bạn và không được gửi đi đâu.</li>
+    </ul>
+
+    <h2>2. Mục đích sử dụng</h2>
+    <p>Dữ liệu chỉ dùng để: vận hành việc học (lưu tiến độ, đồng bộ giữa các thiết bị), hiển thị bảng thành tích và bảng điểm thi, kích hoạt gói Premium cho đúng tài khoản, và hỗ trợ khi bạn liên hệ. Chúng tôi không dùng dữ liệu của bạn cho quảng cáo của bên thứ ba.</p>
+
+    <h2>3. Bên thứ ba liên quan</h2>
+    <ul>
+      <li><strong>Supabase</strong>: lưu trữ cơ sở dữ liệu, tài khoản đăng nhập và tệp video truyện kể của nền tảng.</li>
+      <li><strong>Google</strong>: một số dịch vụ tích hợp của Google có thể tham gia vào việc phát nội dung và vận hành kỹ thuật.</li>
+      <li><strong>Facebook / Instagram (Meta)</strong>: website có liên kết tới Facebook Page và Instagram của Thích Tiếng Trung 3.0. Khi bạn bấm sang các nền tảng đó, chính sách riêng tư của Meta sẽ áp dụng cho hoạt động của bạn ở đó.</li>
+    </ul>
+
+    <h2>4. Quyền của bạn</h2>
+    <ul>
+      <li>Bạn có quyền yêu cầu <strong>xem, chỉnh sửa hoặc xóa</strong> dữ liệu tài khoản và dữ liệu học tập đã đồng bộ của mình — chỉ cần gửi email tới <a href="mailto:aocongtu34@gmail.com">aocongtu34@gmail.com</a> từ địa chỉ email đã đăng ký.</li>
+      <li>Bạn có thể tự xóa dữ liệu lưu trên thiết bị bất cứ lúc nào bằng cách xóa dữ liệu trang web (localStorage) trong trình duyệt; lưu ý tiến độ chưa đồng bộ sẽ mất theo.</li>
+      <li>Bạn có thể học phần lớn nội dung miễn phí mà không cần đăng ký tài khoản.</li>
+    </ul>
+
+    <h2>5. Thay đổi chính sách</h2>
+    <p>Khi có thay đổi quan trọng, nội dung mới sẽ được cập nhật ngay tại trang này. Việc bạn tiếp tục sử dụng website sau khi chính sách thay đổi đồng nghĩa với việc bạn chấp nhận bản cập nhật.</p>
+
+    <h2>6. Liên hệ về riêng tư</h2>
+    <p>Email: <a href="mailto:aocongtu34@gmail.com">aocongtu34@gmail.com</a> · Facebook Page: <a href="https://www.facebook.com/thich.tieng.trung.3.0" target="_blank" rel="noopener">Thích Tiếng Trung 3.0</a>.</p>
+  </main>
+
+  <footer class="mini">
+    <div>© 2026 Thích Tiếng Trung 3.0 — Được sáng tạo và vận hành độc lập bởi Trần Tiểu Huy.</div>
+    <nav>
+      <a href="/">Trang chủ</a>
+      <a href="gioi-thieu.html">Giới thiệu</a>
+      <a href="chinh-sach-bao-mat.html">Chính sách bảo mật</a>
+      <a href="dieu-khoan-su-dung.html">Điều khoản sử dụng</a>
+      <a href="huong-dan-thanh-toan.html">Hướng dẫn thanh toán</a>
+      <a href="chinh-sach-hoan-tien-khieu-nai.html">Hoàn tiền &amp; khiếu nại</a>
+    </nav>
+  </footer>
+</div>
+</body>
+</html>
