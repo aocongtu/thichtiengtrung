@@ -440,7 +440,10 @@ if (typeof window.ttcHanVietName !== "function") {
     return copy;
   }
   var ACH_PAGE = 20;
-  var achUi = { view: "closed", level: null, offset: 0, rows: [], loading: false, error: "", unavailable: false, reason: "" };
+  /* Trần an toàn cho MỘT lượt tải trọn danh sách một cấp HSK (xem loadAchievementLevel):
+     chạm trần mà server vẫn còn dữ liệu thì nút "Tải thêm" nới tiếp thêm ACH_MAX_ROWS nữa. */
+  var ACH_MAX_ROWS = 500;
+  var achUi = { view: "closed", level: null, offset: 0, rows: [], loading: false, error: "", unavailable: false, reason: "", hasMore: false, loadingCount: 0, partialError: "", capped: false };
 
   function sortAchievementRows(rows){
     return (rows || []).slice().sort(function(a, b){
@@ -687,7 +690,9 @@ if (typeof window.ttcHanVietName !== "function") {
       + "</div>"
       + renderAchievementMascot();
     if (achUi.loading) {
-      html += "<p class='ttc-ach-status'>Đang tải bảng thành tích HSK " + level + "…</p>";
+      html += "<p class='ttc-ach-status'>Đang tải bảng thành tích HSK " + level + "…"
+        + (achUi.loadingCount ? " (đã tải " + achUi.loadingCount + " người)" : "")
+        + "</p>";
     } else if (achUi.unavailable) {
       html += "<p class='ttc-ach-status ttc-ach-warn'>" + esc(achUi.reason || "Chưa có nguồn dữ liệu công khai hợp lệ.") + "</p>"
         + "<p class='ttc-ach-note'>Thứ tự xếp hạng khi có dữ liệu: số từ thực sự ghi nhớ ↓, rồi EXP ↓. Không dùng EXP thay số từ ghi nhớ. Không tạo số liệu giả.</p>";
@@ -698,10 +703,13 @@ if (typeof window.ttcHanVietName !== "function") {
       if (achUi.rows && achUi.rows.length) {
         html += "<p class='ttc-ach-note'>🏆 Xếp hạng theo <b>số từ đã thuộc</b> ↓ · EXP là điểm cần cù (siêng năng), chỉ phân hạng khi bằng số từ.</p>";
       }
+      if (achUi.partialError) {
+        html += "<p class='ttc-ach-status ttc-ach-error'>⚠️ Chưa tải hết được danh sách (" + esc(achUi.partialError) + ") — thứ hạng trên mới tính trên " + (achUi.rows ? achUi.rows.length : 0) + " người đã tải. Bấm “Tải thêm” để thử tải tiếp.</p>";
+      }
       if (achUi.hasMore) {
         html += "<button type='button' class='ttc-ach-more' id='ttcAchMore'>Tải thêm</button>";
       } else if (achUi.rows && achUi.rows.length) {
-        html += "<p class='ttc-ach-note'>Đã hết danh sách trang hiện tại.</p>";
+        html += "<p class='ttc-ach-note'>Đã tải hết toàn bộ danh sách.</p>";
       }
     }
     html += "</div>";
@@ -723,15 +731,38 @@ if (typeof window.ttcHanVietName !== "function") {
     bindAchievementBoard(box);
   }
 
+  var achLoadSeq = 0;
+  /*
+    Xử lý nợ phân trang (2026-11-17, chủ web duyệt phương án phía client):
+    RPC ttc_hsk_achievement_board phân trang theo THỨ TỰ CỦA SERVER (theo EXP),
+    nên nếu client chỉ tải từng trang 20 hàng như trước, người nhiều từ nhưng
+    EXP thấp có thể nằm ngoài các trang đầu và thứ hạng toàn cục bị sai.
+    Nay mỗi lần mở bảng / đổi cấp / làm mới, client tự vòng tải HẾT các trang
+    của cấp đó (tới khi has_more = false) rồi mới xếp hạng trên toàn bộ danh
+    sách theo luật hiện hành (số từ đã thuộc ↓, EXP ↓).
+    - Trần an toàn: mỗi lượt tải tối đa ACH_MAX_ROWS hàng; chạm trần mà server
+      còn dữ liệu (has_more) thì nút "Tải thêm" vẫn hiện để nới tiếp.
+    - Lỗi giữa chừng: giữ phần đã tải, báo rõ thứ hạng mới tính trên phần đó
+      (achUi.partialError) và để "Tải thêm" thử tải tiếp từ đúng vị trí dở dang.
+    - Đổi cấp/đóng bảng giữa chừng: achLoadSeq + kiểm tra view/level khiến
+      lượt tải cũ tự hủy, không ghi đè lên màn hình hiện tại.
+    Bản sửa gốc rễ phía server (RPC ORDER BY words_mastered DESC, xp DESC)
+    đã soạn nháp ở ~/workspace/supabase_fix/ — khi nào áp dụng thì vòng tải
+    này vẫn đúng, chỉ là tải ít trang hơn.
+  */
   function loadAchievementLevel(box, level, append){
     achUi.view = "board";
     achUi.level = level;
     achUi.loading = true;
     achUi.error = "";
+    achUi.partialError = "";
     achUi.unavailable = false;
+    var mySeq = ++achLoadSeq;
+    var acc = append ? achUi.rows.slice() : [];
     if (!append) {
       achUi.offset = 0;
       achUi.rows = [];
+      achUi.capped = false;
       try {
         var ck;
         for (ck in achFetchCache) {
@@ -741,33 +772,66 @@ if (typeof window.ttcHanVietName !== "function") {
         }
       } catch (eClr) {}
     }
+    var targetCap = acc.length + ACH_MAX_ROWS;
+    achUi.loadingCount = acc.length;
     paintAchievementBoard(box);
-    fetchHskAchievementPage(level, achUi.offset).then(function(res){
+    var off = acc.length;
+    var serverHasMore = true;
+    function stale(){
+      return mySeq !== achLoadSeq || achUi.view !== "board" || Number(achUi.level) !== Number(level);
+    }
+    function finish(outcome){
+      if (stale()) return;
       achUi.loading = false;
-      if (!res || res.unavailable) {
-        achUi.unavailable = true;
-        achUi.reason = (res && res.message) || "Chưa có nguồn dữ liệu công khai hợp lệ.";
+      achUi.loadingCount = 0;
+      if (outcome && outcome.error) {
+        achUi.unavailable = false;
+        achUi.error = outcome.error;
         achUi.rows = [];
         achUi.hasMore = false;
-      } else if (!res.ok) {
-        achUi.unavailable = false;
-        achUi.error = res.message || "Lỗi tải dữ liệu.";
-        achUi.hasMore = false;
+        achUi.capped = false;
+        achUi.partialError = "";
       } else {
         achUi.unavailable = false;
-        var pageRows = sortAchievementRows(res.rows || []);
-        achUi.rows = append ? achUi.rows.concat(pageRows) : pageRows;
-        achUi.hasMore = !!res.hasMore;
-        if (append) achUi.offset = achUi.rows.length;
-        else achUi.offset = 0;
+        achUi.error = "";
+        achUi.rows = sortAchievementRows(acc);
+        achUi.offset = achUi.rows.length;
+        achUi.partialError = (outcome && outcome.partialError) || "";
+        achUi.capped = !!(serverHasMore && acc.length >= targetCap);
+        achUi.hasMore = !!((outcome && outcome.hasMore) || achUi.capped);
       }
       paintAchievementBoard(box);
-    }).catch(function(err){
-      achUi.loading = false;
-      achUi.unavailable = false;
-      achUi.error = (err && err.message) ? err.message : "Lỗi mạng.";
-      paintAchievementBoard(box);
-    });
+    }
+    function step(){
+      if (stale()) return;
+      if (!serverHasMore || acc.length >= targetCap) {
+        finish(null);
+        return;
+      }
+      fetchHskAchievementPage(level, off).then(function(res){
+        if (stale()) return;
+        if (!res || !res.ok) {
+          var msg = (res && res.message) || "Lỗi tải dữ liệu.";
+          if (!acc.length) finish({ error: msg });
+          else finish({ partialError: msg, hasMore: true });
+          return;
+        }
+        var pageRows = res.rows || [];
+        acc = acc.concat(pageRows);
+        off += pageRows.length;
+        /* Trang rỗng mà has_more vẫn true: coi như hết để tránh vòng lặp vô hạn */
+        serverHasMore = !!res.hasMore && pageRows.length > 0;
+        achUi.loadingCount = acc.length;
+        paintAchievementBoard(box);
+        step();
+      }).catch(function(err){
+        if (stale()) return;
+        var msg = (err && err.message) ? err.message : "Lỗi mạng.";
+        if (!acc.length) finish({ error: msg });
+        else finish({ partialError: msg, hasMore: true });
+      });
+    }
+    step();
   }
 
   function bindAchievementBoard(box){
@@ -786,6 +850,9 @@ if (typeof window.ttcHanVietName !== "function") {
       achUi.hasMore = false;
       achUi.loading = false;
       achUi.error = "";
+      achUi.partialError = "";
+      achUi.capped = false;
+      achUi.loadingCount = 0;
       achUi.unavailable = false;
       paintAchievementBoard(box);
     }
