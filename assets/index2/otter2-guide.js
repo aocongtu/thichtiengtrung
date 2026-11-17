@@ -159,8 +159,11 @@
     if (!guidePanel || !roam || !otterBtn) return;
 
     /* ---------------- Tủ đồ của Bé (additive, 2026-11-17) ----------------
-       Như game avatar: mỗi giới tính có 3 trang phục x 3 kiểu tóc/mũ, chọn
-       trong panel của bé (xem initGenderVoice). Tổ hợp mặc định (1,1) dùng
+       Như game avatar: NAM 3 trang phục x 3 kiểu tóc/mũ; NỮ (v3) 5 trang
+       phục x 6 kiểu tóc + biến thể LÔNG TRẮNG ("da trắng") dạng capsule:
+       lông trắng chỉ áp cho 2 váy mới (4,5) x đủ 6 kiểu tóc, nạp lười từ
+       bundle riêng otter2-wardrobe-imgs-f-white.js (khóa "f-w-o{o}h{h}").
+       Chọn trong panel của bé (xem initGenderVoice). Tổ hợp mặc định (1,1) dùng
        ĐÚNG 2 ảnh nhúng sẵn IMG_SRC / IMG_SRC_FEMALE như trước; 8 tổ hợp còn
        lại của mỗi giới được đóng gói thành data URI trong bundle JS theo
        giới (otter2-wardrobe-imgs-{m|f}.js — sinh từ đúng các file
@@ -189,6 +192,30 @@
       var bag = null;
       try { bag = window.__otter2WardrobeImgs || null; } catch (eWdBag) {}
       return (bag && bag[wdImgKey(gender, o, h)]) || null;
+    }
+    /* Lông trắng (nữ): bundle riêng nạp lười khi lông trắng được dùng lần đầu. */
+    var wdWhiteState = 0; /* 0 chưa nạp, 1 đang nạp, 2 xong, 3 lỗi */
+    function wdWhiteKey(o, h) { return "f-w-o" + o + "h" + h; }
+    function wdWhiteData(o, h) {
+      var bag = null;
+      try { bag = window.__otter2WardrobeImgs || null; } catch (eWdBagW) {}
+      return (bag && bag[wdWhiteKey(o, h)]) || null;
+    }
+    function ensureWardrobeWhite() {
+      if (wdWhiteData(4, 1)) { wdWhiteState = 2; return; }
+      if (wdWhiteState !== 0) return;
+      wdWhiteState = 1;
+      try {
+        var wdSW = document.createElement("script");
+        wdSW.src = WARDROBE_BASE + "otter2-wardrobe-imgs-f-white.js";
+        wdSW.setAttribute("data-guide-wardrobe-imgs", "female-white");
+        wdSW.addEventListener("load", function () {
+          wdWhiteState = 2;
+          try { applyGuideGender(); } catch (eWdOnW) {}
+        });
+        wdSW.addEventListener("error", function () { wdWhiteState = 3; });
+        (document.head || document.documentElement).appendChild(wdSW);
+      } catch (eWdLoadW) { wdWhiteState = 3; }
     }
     function ensureWardrobeImgs(gender) {
       if (wdImgData(gender, 2, 1) || wdImgData(gender, 1, 2)) { wdImgsState[gender] = 2; return; }
@@ -223,25 +250,39 @@
         outfits: [
           { id: 1, emoji: "🎀", name: "Đồng phục + váy" },
           { id: 2, emoji: "🧧", name: "Áo dài Tết" },
-          { id: 3, emoji: "⚽", name: "Thể thao" }
+          { id: 3, emoji: "⚽", name: "Thể thao" },
+          { id: 4, emoji: "💜", name: "Váy lavender" },
+          { id: 5, emoji: "👗", name: "Váy denim" }
         ],
         hairs: [
           { id: 1, emoji: "🎀", name: "Mũ nồi hồng" },
           { id: 2, emoji: "🍒", name: "Hai búi + nơ" },
-          { id: 3, emoji: "💁", name: "Tóc xõa + kẹp nơ" }
+          { id: 3, emoji: "💁", name: "Tóc xõa + kẹp nơ" },
+          { id: 4, emoji: "🌊", name: "Xoăn sóng dài" },
+          { id: 5, emoji: "🎗️", name: "Thẳng + bờm nơ" },
+          { id: 6, emoji: "💫", name: "Đuôi ngựa cao" }
+        ],
+        furs: [
+          { id: "cream", emoji: "🍦", name: "Lông kem" },
+          { id: "white", emoji: "🤍", name: "Lông trắng" }
         ]
       }
     };
-    var wardrobe = { male: { o: 1, h: 1 }, female: { o: 1, h: 1 } };
+    /* Lông trắng (nữ) là capsule: chỉ có ở trang phục 4/5. */
+    var WD_WHITE_OUTFITS = { 4: true, 5: true };
+    var wardrobe = { male: { o: 1, h: 1 }, female: { o: 1, h: 1, fur: "cream" } };
     try {
       var wdSaved = JSON.parse(localStorage.getItem(WARDROBE_KEY) || "null");
       if (wdSaved) {
         ["male", "female"].forEach(function (wdG) {
           var wdS = wdSaved[wdG];
           if (!wdS) return;
-          if (wdS.o >= 1 && wdS.o <= 3) wardrobe[wdG].o = wdS.o | 0;
-          if (wdS.h >= 1 && wdS.h <= 3) wardrobe[wdG].h = wdS.h | 0;
+          var wdCfg = WARDROBE[wdG];
+          if (wdS.o >= 1 && wdS.o <= wdCfg.outfits.length) wardrobe[wdG].o = wdS.o | 0;
+          if (wdS.h >= 1 && wdS.h <= wdCfg.hairs.length) wardrobe[wdG].h = wdS.h | 0;
+          if (wdG === "female" && wdS.fur === "white") wardrobe.female.fur = "white";
         });
+        if (wardrobe.female.fur === "white" && !WD_WHITE_OUTFITS[wardrobe.female.o]) wardrobe.female.o = 4;
       }
     } catch (eWdLoad) {}
     function saveWardrobe() {
@@ -257,20 +298,42 @@
       ensureWardrobeImgs(gender);
       return null;
     }
+    /* Src theo màu lông: nữ + lông trắng -> khóa capsule "f-w-..."; trong lúc
+       bundle trắng chưa nạp, tạm rơi về ảnh lông kem cùng tổ hợp. */
+    function wardrobeFurSrc(gender, fur, o, h) {
+      if (gender === "female" && fur === "white") {
+        if (!WD_WHITE_OUTFITS[o]) o = 4;
+        var wdata = wdWhiteData(o, h);
+        if (wdata) return wdata;
+        ensureWardrobeWhite();
+        return wardrobeComboSrc(gender, o, h);
+      }
+      return wardrobeComboSrc(gender, o, h);
+    }
     function guideDisplaySrc() {
       var wdW = wardrobe[guideGender] || wardrobe.male;
-      return wardrobeComboSrc(guideGender, wdW.o, wdW.h) ||
+      return wardrobeFurSrc(guideGender, wdW.fur, wdW.o, wdW.h) ||
         (guideGender === "female" ? IMG_SRC_FEMALE : IMG_SRC);
     }
     var guideWardrobeUiRefresh = null; /* initGenderVoice() đăng ký hàm vẽ lưới tủ đồ vào đây */
     function setWardrobe(kind, id) {
       var wdW = wardrobe[guideGender];
       if (!wdW) return;
+      if (kind === "f") {
+        if (guideGender !== "female") return;
+        if (id !== "white" && id !== "cream") return;
+        wdW.fur = id;
+        if (id === "white" && !WD_WHITE_OUTFITS[wdW.o]) wdW.o = 4;
+        saveWardrobe();
+        applyGuideGender();
+        return;
+      }
+      var wdCfg = WARDROBE[guideGender];
       id = id | 0;
-      if (id < 1 || id > 3) return;
-      if (kind === "o") wdW.o = id;
-      else if (kind === "h") wdW.h = id;
+      if (kind === "o") { if (id < 1 || id > wdCfg.outfits.length) return; wdW.o = id; }
+      else if (kind === "h") { if (id < 1 || id > wdCfg.hairs.length) return; wdW.h = id; }
       else return;
+      if (guideGender === "female" && wdW.fur === "white" && kind === "o" && !WD_WHITE_OUTFITS[wdW.o]) wdW.fur = "cream";
       saveWardrobe();
       applyGuideGender();
     }
@@ -1609,7 +1672,7 @@
          Chỉ dựng lưới (và bắt đầu tải ảnh biến thể) khi panel MỞ lần đầu —
          MutationObserver canh thuộc tính hidden của panel; đổi giới tính /
          bấm chọn thì applyGuideGender -> guideWardrobeUiRefresh vẽ lại. ----- */
-      var wdBox = null, wdOutfitsEl = null, wdHairsEl = null, wdRendered = false;
+      var wdBox = null, wdOutfitsEl = null, wdHairsEl = null, wdFursEl = null, wdFurLabelEl = null, wdRendered = false;
       try {
         var wdStyle = document.createElement("style");
         wdStyle.id = "guide-wd-style";
@@ -1634,18 +1697,23 @@
           '<div class="guide-wd-grid" id="guideWdOutfits"></div>' +
           '<p class="guide-wd-label">Kiểu tóc / mũ</p>' +
           '<div class="guide-wd-grid" id="guideWdHairs"></div>' +
+          '<p class="guide-wd-label" id="guideWdFurLabel">Màu lông</p>' +
+          '<div class="guide-wd-grid" id="guideWdFurs"></div>' +
           '<p class="guide-wd-note">Chọn bộ nào là Bé mặc bộ đó ở khắp nơi Bé tới đó 🎀</p>';
         var gvToggleWrap = gvContainer.querySelector(".guide-gv-toggle");
         if (gvToggleWrap && gvToggleWrap.parentNode) gvToggleWrap.parentNode.insertBefore(wdBox, gvToggleWrap);
         else gvContainer.appendChild(wdBox);
         wdOutfitsEl = wdBox.querySelector("#guideWdOutfits");
         wdHairsEl = wdBox.querySelector("#guideWdHairs");
+        wdFursEl = wdBox.querySelector("#guideWdFurs");
+        wdFurLabelEl = wdBox.querySelector("#guideWdFurLabel");
       } catch (eWdDom) { /* panel phụ lỗi thì bỏ qua, guide chính vẫn chạy */ }
       function wdCell(kind, item) {
         var wdW = wardrobe[guideGender];
         var o = kind === "o" ? item.id : wdW.o;
         var h = kind === "h" ? item.id : wdW.h;
-        var isOn = (kind === "o" ? wdW.o : wdW.h) === item.id;
+        var isOn = kind === "f" ? wdW.fur === item.id
+          : (kind === "o" ? wdW.o : wdW.h) === item.id;
         var btn = document.createElement("button");
         btn.type = "button";
         btn.className = "guide-wd-cell" + (isOn ? " is-on" : "");
@@ -1653,7 +1721,13 @@
         btn.setAttribute("data-wd-kind", kind);
         btn.setAttribute("data-wd-id", String(item.id));
         var img = document.createElement("img");
-        var cellSrc = wardrobeComboSrc(guideGender, o, h);
+        var cellSrc;
+        if (kind === "f") {
+          if (item.id === "white" && !WD_WHITE_OUTFITS[o]) o = 4;
+          cellSrc = wardrobeFurSrc(guideGender, item.id, o, h);
+        } else {
+          cellSrc = wardrobeFurSrc(guideGender, wdW.fur, o, h);
+        }
         if (cellSrc) { img.src = cellSrc; }
         else {
           /* Bundle chưa nạp xong: khung chờ nhẹ = ảnh mặc định của giới, mờ đi;
@@ -1676,10 +1750,23 @@
         ensureWardrobeImgs(guideGender); /* thumbnail biến thể cần data URI từ bundle */
         var cfg = WARDROBE[guideGender];
         if (!cfg) return;
+        var wdW = wardrobe[guideGender];
+        var whiteMode = guideGender === "female" && wdW.fur === "white";
+        if (whiteMode) ensureWardrobeWhite();
         wdOutfitsEl.innerHTML = "";
         wdHairsEl.innerHTML = "";
-        cfg.outfits.forEach(function (it) { wdOutfitsEl.appendChild(wdCell("o", it)); });
+        cfg.outfits.forEach(function (it) {
+          if (whiteMode && !WD_WHITE_OUTFITS[it.id]) return; /* capsule trắng: chỉ váy 4/5 */
+          wdOutfitsEl.appendChild(wdCell("o", it));
+        });
         cfg.hairs.forEach(function (it) { wdHairsEl.appendChild(wdCell("h", it)); });
+        if (wdFursEl && wdFurLabelEl) {
+          wdFursEl.innerHTML = "";
+          var showFur = guideGender === "female" && !!cfg.furs;
+          wdFursEl.style.display = showFur ? "" : "none";
+          wdFurLabelEl.style.display = showFur ? "" : "none";
+          if (showFur) cfg.furs.forEach(function (it) { wdFursEl.appendChild(wdCell("f", it)); });
+        }
         wdRendered = true;
       }
       guideWardrobeUiRefresh = function () {
@@ -1689,6 +1776,7 @@
         var wdObs = new MutationObserver(function () {
           if (!guidePanel.hidden) {
             if (wdImgsState[guideGender] === 3) wdImgsState[guideGender] = 0; /* lần nạp trước lỗi: mở lại panel thì thử lại */
+            if (wdWhiteState === 3) wdWhiteState = 0;
             if (!wdRendered) renderWardrobe();
           }
         });
