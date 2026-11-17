@@ -4,9 +4,10 @@
    dữ liệu 100% là video truyện TỰ SẢN XUẤT của chủ web.)
    Panel "🎬 Học theo video" là con thứ 3 của .ttc-exam-midstack
    (sau panel Luyện thi + thẻ kỹ năng), mở overlay #ttcStoryVideoOverlay:
-   tab theo cấp HSK 1–9, phát bằng iframe Google Drive preview
-   (30/30 file HSK1 đã anyone-with-link — kiểm chứng qua Drive API
-   ngày 2026-11-17), tiến độ đã xem ở localStorage
+   tab theo cấp HSK 1–9, phát bằng thẻ <video> HTML5 với nguồn phát
+   trực tiếp từ Google Drive (uc?export=download — hỗ trợ range/206,
+   kiểm chứng 2026-11-17; bản iframe preview cũ bị đen/mờ trên mobile
+   nên đã thay), tiến độ đã xem ở localStorage
    "otter2_storyvideo_watched_v1" (khóa theo key truyện ổn định).
    Dữ liệu: otter2-storyvideo-catalog.js
    (window.OTTER2_STORYVIDEO_CATALOG, sinh tự động từ manifest).
@@ -110,7 +111,7 @@
       ".ttc-story-item .ttc-story-check{color:#059669;font-weight:900}",
       ".ttc-story-stage{min-width:0}",
       ".ttc-story-frame-wrap{position:relative;padding-top:56.25%;border-radius:14px;overflow:hidden;background:#0f172a}",
-      ".ttc-story-frame-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0}",
+      ".ttc-story-frame-wrap iframe,.ttc-story-frame-wrap video{position:absolute;inset:0;width:100%;height:100%;border:0;background:#000}",
       ".ttc-story-empty{padding:34px 16px;text-align:center;color:#64748b;font-size:14px;border:1.5px dashed rgba(100,116,139,.4);border-radius:14px;line-height:1.6}",
       ".ttc-story-now{margin:12px 0 2px;font-size:17px;font-weight:900}",
       ".ttc-story-now-vi{margin:0 0 4px;font-size:13.5px;color:#64748b;font-weight:700}",
@@ -243,9 +244,9 @@
     var next = idx >= 0 && idx < state.flat.length - 1 ? state.flat[idx + 1] : null;
     var dur = fmtDur(entry.duration_s);
     stageEl.innerHTML =
-      '<div class="ttc-story-frame-wrap"><iframe id="ttcStoryVideoFrame" title="' + esc(entry.title_zh) + '" ' +
-      'src="https://drive.google.com/file/d/' + encodeURIComponent(entry.drive_id) + '/preview" ' +
-      'allow="autoplay; fullscreen; encrypted-media" allowfullscreen></iframe></div>' +
+      '<div class="ttc-story-frame-wrap"><video id="ttcStoryVideoFrame" title="' + esc(entry.title_zh) + '" ' +
+      'src="https://drive.google.com/uc?export=download&id=' + encodeURIComponent(entry.drive_id) + '" ' +
+      'controls playsinline preload="auto"></video></div>' +
       '<h3 class="ttc-story-now">' + esc(entry.title_zh) + "</h3>" +
       (entry.title_vi ? '<p class="ttc-story-now-vi">' + esc(entry.title_vi) + "</p>" : "") +
       '<p class="ttc-story-meta-line">HSK ' + entry.level + (dur ? " · ⏱ " + esc(dur) : "") +
@@ -259,6 +260,10 @@
     var nb = stageEl.querySelector("#ttcStoryNext");
     if (pb && prev) pb.addEventListener("click", function () { playStory(prev); });
     if (nb && next) nb.addEventListener("click", function () { playStory(next); });
+    var vid = stageEl.querySelector("#ttcStoryVideoFrame");
+    if (vid) vid.addEventListener("play", function () {
+      if (!loadWatched()[entry.key]) { markWatched(entry.key); renderList(); }
+    });
   }
 
   function playStory(entry) {
@@ -266,7 +271,6 @@
     return gateFor(entry.level).then(function (ok) {
       if (!ok) { renderStageLocked(entry); return false; }
       state.currentKey = entry.key;
-      markWatched(entry.key);
       renderStage(entry);
       renderList();
       return true;
