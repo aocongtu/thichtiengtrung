@@ -4,10 +4,11 @@
    dữ liệu 100% là video truyện TỰ SẢN XUẤT của chủ web.)
    Panel "🎬 Học theo video" là con thứ 3 của .ttc-exam-midstack
    (sau panel Luyện thi + thẻ kỹ năng), mở overlay #ttcStoryVideoOverlay:
-   tab theo cấp HSK 1–9, phát bằng thẻ <video> HTML5 với nguồn phát
-   trực tiếp từ Google Drive (uc?export=download — hỗ trợ range/206,
-   kiểm chứng 2026-11-17; bản iframe preview cũ bị đen/mờ trên mobile
-   nên đã thay), tiến độ đã xem ở localStorage
+   tab theo cấp HSK 1–9, phát bằng thẻ <video> HTML5: nguồn chính là
+   Supabase Storage của web (trường stream trong catalog — Drive phát
+   trực tiếp bị iOS chặn vì Content-Disposition: attachment, bản
+   iframe preview trước đó bị đen/mờ trên mobile), dự phòng mới dùng
+   link Drive. Tiến độ đã xem ở localStorage
    "otter2_storyvideo_watched_v1" (khóa theo key truyện ổn định).
    Dữ liệu: otter2-storyvideo-catalog.js
    (window.OTTER2_STORYVIDEO_CATALOG, sinh tự động từ manifest).
@@ -66,7 +67,11 @@
     styleDone = true;
     var css = [
       "/* Panel Truyện kể: hero gradient hoàng hôn truyện tranh (tím -> fuchsia -> hổ phách), phân biệt với panel Luyện thi (cam -> hồng -> tím) và panel video cũ (xanh dương -> cyan -> ngọc, đã thu hồi). */",
-      ".ttc-story-panel{position:relative;overflow:hidden;border:none;border-radius:20px;padding:20px;color:#fff;background:linear-gradient(135deg,#6d28d9 0%,#a21caf 54%,#d97706 125%);box-shadow:0 20px 42px rgba(162,28,175,.32)}",
+      "/* Selector ID kép (như panel Luyện thi dùng #otter2ExamPanel): trên mobile có luật nền thẻ chung thắng selector class .ttc-story-panel khiến panel bị nhạt nhoà (chủ web phản ánh 2026-11-17) — khóa nền bằng #otter2-home #otter2StoryVideoPanel cho chắc. */",
+      "#otter2-home #otter2StoryVideoPanel{position:relative;overflow:hidden;border:none;border-radius:20px;padding:20px;color:#fff;background:linear-gradient(135deg,#6d28d9 0%,#a21caf 54%,#d97706 125%);box-shadow:0 20px 42px rgba(162,28,175,.32)}",
+      "/* Nhấn dễ tìm cho thẻ Trình độ & kỹ năng (hàng xóm midstack, chủ web phản ánh khó nhìn/khó tìm trên mobile 2026-11-17): viền + bóng tím nhẹ, nền phớt lavender, tiêu đề có vạch accent. */",
+      "#otter2-home .otter2-dash-card[aria-labelledby='otter2DashLevelTitle']{border:1.5px solid rgba(124,58,237,.38);box-shadow:0 12px 28px rgba(124,58,237,.13);background:linear-gradient(180deg,#faf8ff,#ffffff)}",
+      "#otter2DashLevelTitle{border-left:5px solid #7c3aed;padding-left:10px;border-radius:2px}",
       ".ttc-story-panel::before{content:'';position:absolute;inset:0;background:radial-gradient(420px 200px at 12% -10%,rgba(255,255,255,.28),transparent 60%),radial-gradient(380px 220px at 95% 115%,rgba(255,255,255,.18),transparent 60%);pointer-events:none}",
       ".ttc-story-panel::after{content:'書';position:absolute;right:6px;bottom:-38px;font-size:150px;font-weight:900;color:rgba(255,255,255,.13);line-height:1;pointer-events:none}",
       ".ttc-story-panel-in{position:relative;z-index:1;display:flex;flex-direction:column;gap:10px}",
@@ -245,7 +250,7 @@
     var dur = fmtDur(entry.duration_s);
     stageEl.innerHTML =
       '<div class="ttc-story-frame-wrap"><video id="ttcStoryVideoFrame" title="' + esc(entry.title_zh) + '" ' +
-      'src="https://drive.google.com/uc?export=download&id=' + encodeURIComponent(entry.drive_id) + '" ' +
+      'src="' + esc(entry.stream || ("https://drive.google.com/uc?export=download&id=" + encodeURIComponent(entry.drive_id))) + '" ' +
       'controls playsinline preload="auto"></video></div>' +
       '<h3 class="ttc-story-now">' + esc(entry.title_zh) + "</h3>" +
       (entry.title_vi ? '<p class="ttc-story-now-vi">' + esc(entry.title_vi) + "</p>" : "") +
