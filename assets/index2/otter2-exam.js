@@ -1,6 +1,16 @@
 /* ============================================================
    OTTER2 EXAM v2 — Khu Luyện thi HSK + Bảng Điểm Thi.
 
+   v2.1 (2026-11-17) — LỚP BẢO ĐẢM MỘT ĐÁP ÁN DUY NHẤT: sau khi
+   chủ web tự thi thử và bắt lỗi câu điền khuyết "现在＿＿点。"
+   (五/七/九 đều điền được), bộ sinh đề được vá ở tầng sinh:
+   khoét từ chỉ tại vị trí "sạch" (không nằm giữa từ dài hơn),
+   loại mọi lựa chọn nhiễu cũng đúng (câu có thật trong corpus
+   khi điền vào, số đếm/đại từ cùng lớp trong khung không ghim,
+   nghĩa/cách đọc khác của cùng chữ Hán, gloss chồng lấn, câu
+   đồng âm khi nghe). Blueprint, thang điểm, chế độ thi, giao
+   diện và khóa localStorage giữ nguyên.
+
    v2 (2026-11-17) nâng cấp từ v1:
    - ĐỀ SÁT ĐỀ THẬT: blueprint theo cấu trúc đề HSK thật từng cấp
      (HSK1: Nghe 20 + Đọc 20, thang 200, đạt 120; HSK2: 35+25/200/120;
@@ -134,7 +144,7 @@
      Câu hỏi SẮP XẾP: { ..., type: 'write-order'|'read-order',
        options[mảnh xáo trộn], answerSeq[vị trí đúng], chunks[mảng đúng],
        correctText } — KHÔNG có answer số.                            */
-  function distractors(pool, valueOf, normOf, correctVal, n, rng, prefer) {
+  function distractors(pool, valueOf, normOf, correctVal, n, rng, prefer, reject) {
     var correctN = normOf(correctVal);
     var seen = {}; seen[correctN] = 1;
     var out = [];
@@ -143,6 +153,7 @@
     for (var i = 0; i < ordered.length && out.length < n; i++) {
       var v = valueOf(ordered[i]);
       if (v == null || String(v).trim() === "") continue;
+      if (reject && reject(ordered[i], v)) continue;
       var nv = normOf(v);
       if (seen[nv]) continue;
       seen[nv] = 1;
@@ -165,9 +176,203 @@
     };
   }
 
+  /* ============================================================
+     LỚP BẢO ĐẢM "MỘT ĐÁP ÁN DUY NHẤT" (vá chất lượng 2026-11-17,
+     sau phản hồi của chủ web: câu 现在＿＿点。 nhận cả 五/七/九).
+     Nguyên tắc: một lựa chọn nhiễu bị loại nếu nó CŨNG đúng —
+       (1) điền vào chỗ trống cho ra câu có thật trong corpus
+           (mọi câu ví dụ + mọi câu bài đọc của chính trang);
+       (2) cùng lớp đóng với từ đích trong khung tự do thay thế
+           (số đếm trước đơn vị 点/岁/个/本..., đại từ chủ ngữ)
+           khi ngữ cảnh không ghim giá trị;
+       (3) là nghĩa/cách đọc khác của cùng chữ Hán (đa âm tiết)
+           trong khi đề chỉ hiện chữ Hán;
+       (4) gloss chồng lấn cụm từ với đáp án đúng (cũng là một
+           nghĩa đúng của từ đích);
+       (5) đồng âm hoàn toàn với câu đúng (dạng nghe chọn câu).
+     Và từ đích không bao giờ bị khoét ở vị trí nằm giữa một từ
+     dài hơn (vd 爱 trong 可爱, 电话 trong 打电话).            */
+  var NUM_CHARS = "一二三四五六七八九十百千万亿两半几";
+  function isNumeralWord(s) {
+    s = String(s || "");
+    if (!s || s.length > 3) return false;
+    for (var i = 0; i < s.length; i++) if (NUM_CHARS.indexOf(s.charAt(i)) < 0) return false;
+    return true;
+  }
+  var PRONOUN_SET = { "我": 1, "你": 1, "他": 1, "她": 1, "它": 1, "我们": 1, "你们": 1, "他们": 1, "她们": 1, "它们": 1, "您": 1, "谁": 1, "这": 1, "那": 1, "哪": 1, "自己": 1, "大家": 1, "别人": 1, "这儿": 1, "那儿": 1, "哪儿": 1 };
+  var TIME_WORD_SET = { "今天": 1, "明天": 1, "昨天": 1, "前天": 1, "后天": 1, "现在": 1, "上午": 1, "中午": 1, "下午": 1, "晚上": 1, "早上": 1, "早晨": 1, "夜里": 1, "半夜": 1, "周末": 1, "平时": 1, "每天": 1, "每年": 1, "今年": 1, "明年": 1, "去年": 1, "这会儿": 1, "那会儿": 1, "刚才": 1, "以后": 1, "以前": 1, "后来": 1, "最近": 1, "当时": 1 };
+  function isTimeWord(s) {
+    s = String(s || "");
+    return !!TIME_WORD_SET[s] || /^星期[一二三四五六日天]$/.test(s) || /^周[一二三四五六日天末]$/.test(s);
+  }
+  var POSITION_SET = { "上": 1, "下": 1, "里": 1, "外": 1, "前": 1, "后": 1, "左": 1, "右": 1, "边": 1, "面": 1, "上边": 1, "下边": 1, "里边": 1, "外边": 1, "前边": 1, "后边": 1, "左边": 1, "右边": 1, "上面": 1, "下面": 1, "里面": 1, "外面": 1, "前面": 1, "后面": 1, "东边": 1, "西边": 1, "南边": 1, "北边": 1 };
+  var QUANT_AFTER = "点岁个本张件条只双把杯瓶碗块元角分秒天周月年号楼层路次遍课种样口家间辆班人";
+  var _hanziSet = null;
+  function allWordHanziSet() {
+    if (_hanziSet) return _hanziSet;
+    var set = {};
+    allWords().forEach(function (w) { if (w && w.h) set[String(w.h)] = 1; });
+    _hanziSet = set;
+    return set;
+  }
+  var _corpusSet = null;
+  function corpusSentenceSet() {
+    if (_corpusSet) return _corpusSet;
+    var set = {};
+    allWords().forEach(function (w) {
+      if (w && w.example) set[String(w.example).replace(/\s+/g, "")] = 1;
+    });
+    var bank = readingBank();
+    if (bank) Object.keys(bank).forEach(function (k) {
+      (bank[k] || []).forEach(function (p) {
+        splitSentences(p.zh).forEach(function (s) { set[s.replace(/\s+/g, "")] = 1; });
+      });
+    });
+    _corpusSet = set;
+    return set;
+  }
+  function filledIsAttested(blanked, filler) {
+    var filled = String(blanked).replace("＿＿", String(filler)).replace(/\s+/g, "");
+    return !!corpusSentenceSet()[filled];
+  }
+  function countOcc(haystack, needle) {
+    if (!needle) return 0;
+    return String(haystack || "").split(String(needle)).length - 1;
+  }
+  /* Ngữ cảnh "ghim" đáp án khi từ đích còn xuất hiện thêm ít nhất
+     một lần nữa trong câu nguồn hoặc trong đoạn văn đi kèm. */
+  function clozePinned(sentence, passage, target) {
+    if (!target) return false;
+    if (countOcc(sentence, target) >= 2) return true;
+    if (passage && countOcc(passage, target) >= 2) return true;
+    return false;
+  }
+  function clozeQuantFrame(blanked) {
+    var s = String(blanked || "");
+    var i = s.indexOf("＿＿");
+    if (i < 0) return false;
+    var after = s.charAt(i + 2), before = i > 0 ? s.charAt(i - 1) : "";
+    return QUANT_AFTER.indexOf(after) >= 0 || before === "第";
+  }
+  function clozeRejectFn(targetEntry, blanked, sentence, passage) {
+    var T = String(targetEntry && targetEntry.h || "");
+    var pinned = clozePinned(sentence, passage, T);
+    var quant = clozeQuantFrame(blanked);
+    return function (entry) {
+      var D = String(entry && entry.h || "");
+      if (!D || D === T) return true;
+      if (filledIsAttested(blanked, D)) return true;
+      if (!pinned && quant && isNumeralWord(T) && isNumeralWord(D)) return true;
+      if (!pinned && PRONOUN_SET[T] && PRONOUN_SET[D]) return true;
+      if (!pinned && isTimeWord(T) && isTimeWord(D)) return true;
+      if (!pinned && POSITION_SET[T] && POSITION_SET[D]) return true;
+      return false;
+    };
+  }
+  /* Khoét từ tại một vị trí "sạch": vị trí mà từ đích không nằm
+     giữa một từ dài hơn trong từ điển. Không có vị trí sạch -> null. */
+  function blankOutSmart(sentence, word) {
+    var s = String(sentence), w = String(word);
+    if (!w) return null;
+    var set = allWordHanziSet();
+    var from = 0;
+    while (true) {
+      var idx = s.indexOf(w, from);
+      if (idx < 0) return null;
+      var prev = idx > 0 ? s.charAt(idx - 1) : "";
+      var next = idx + w.length < s.length ? s.charAt(idx + w.length) : "";
+      var dirty = false;
+      var cands = [];
+      if (prev) cands.push(prev + w);
+      if (next) cands.push(w + next);
+      if (prev && next) cands.push(prev + w + next);
+      for (var i = 0; i < cands.length; i++) {
+        if (cands[i] !== w && set[cands[i]]) { dirty = true; break; }
+      }
+      if (!dirty) return s.slice(0, idx) + "＿＿" + s.slice(idx + w.length);
+      from = idx + 1;
+    }
+  }
+  /* So khớp gloss tiếng Việt theo cụm từ (tách theo , ; 、 /):
+     hai gloss "chồng lấn" khi một cụm của bên này chứa / bị chứa
+     theo dãy từ liên tiếp trong cụm của bên kia — trừ khi phần
+     chung chỉ là một từ quá phổ biến (học, làm, tôi, ta...). */
+  var GLOSS_STOP_SINGLE = { "học": 1, "dạy": 1, "làm": 1, "đi": 1, "ăn": 1, "uống": 1, "nói": 1, "nghe": 1, "nhìn": 1, "xem": 1, "đọc": 1, "viết": 1, "người": 1, "nhà": 1, "nước": 1, "sách": 1, "xe": 1, "tiền": 1, "việc": 1, "sự": 1, "cái": 1, "con": 1, "ngày": 1, "năm": 1, "tháng": 1, "giờ": 1, "phút": 1, "giây": 1, "tôi": 1, "ta": 1, "mình": 1, "họ": 1, "nó": 1, "anh": 1, "chị": 1, "em": 1, "ông": 1, "bà": 1, "ngài": 1, "bạn": 1, "chúng": 1, "các": 1, "những": 1, "một": 1 };
+  function glossPhrasesM(m) {
+    return String(m || "").toLowerCase().split(/[,;、\/]+/).map(function (x) {
+      return x.trim().replace(/\.+$/, "").replace(/\s+/g, " ");
+    }).filter(function (x) { return x.length >= 2; });
+  }
+  function phraseContainsM(a, b) {
+    var aw = a.split(" "), bw = b.split(" ");
+    if (aw.length < bw.length) return false;
+    for (var i = 0; i + bw.length <= aw.length; i++) {
+      var ok = true;
+      for (var j = 0; j < bw.length; j++) if (aw[i + j] !== bw[j]) { ok = false; break; }
+      if (ok) return true;
+    }
+    return false;
+  }
+  function glossOverlapM(m1, m2) {
+    var A = glossPhrasesM(m1), B = glossPhrasesM(m2);
+    for (var i = 0; i < A.length; i++) for (var j = 0; j < B.length; j++) {
+      var pa = A[i], pb = B[j];
+      if (pa === pb) return true;
+      if (phraseContainsM(pa, pb) || phraseContainsM(pb, pa)) {
+        var shorter = pa.split(" ").length <= pb.split(" ").length ? pa : pb;
+        if (shorter.split(" ").length === 1 && GLOSS_STOP_SINGLE[shorter]) continue;
+        return true;
+      }
+    }
+    return false;
+  }
+  function meaningRejectFn(targetEntry) {
+    var T = String(targetEntry && targetEntry.h || "");
+    var correct = String(targetEntry && targetEntry.m || "");
+    return function (entry) {
+      if (!entry) return false;
+      if (T && String(entry.h || "") === T) return true; /* entry khác cùng chữ Hán: nghĩa của cách đọc khác */
+      return glossOverlapM(correct, String(entry.m || ""));
+    };
+  }
+  function pinyinRejectFn(targetEntry) {
+    var T = String(targetEntry && targetEntry.h || "");
+    return function (entry) {
+      if (!entry) return false;
+      return !!T && String(entry.h || "") === T; /* cách đọc khác của cùng chữ Hán */
+    };
+  }
+  function normSpeakPy(s) {
+    return normPy(s).replace(/[^a-z0-9ā-ſ\u01d6-\u01dcü]/g, "");
+  }
+  function listenSentenceRejectFn(targetEntry) {
+    var target = normSpeakPy(targetEntry && targetEntry.examplePinyin || "");
+    return function (entry) {
+      if (!entry || !target) return false;
+      return normSpeakPy(entry.examplePinyin || "") === target;
+    };
+  }
+  function listenMeaningRejectFn(correctMeaning) {
+    var correct = String(correctMeaning || "");
+    return function (entry) {
+      if (!entry) return false;
+      return glossOverlapM(correct, String(entry.exampleMeaning || ""));
+    };
+  }
+  var TIME_CHUNK_RE = /今天|明天|昨天|前天|后天|现在|早上|上午|中午|下午|晚上|夜里|周末|星期|每天|每年|今年|明年|去年|刚才|以后|以前|后来/;
+  function orderRisky(chunks) {
+    var hasTime = false, hasPlace = false, hasPron = false;
+    (chunks || []).forEach(function (c) {
+      if (TIME_CHUNK_RE.test(c)) hasTime = true;
+      if (c.indexOf("在") === 0 && c.length >= 3) hasPlace = true;
+      if (PRONOUN_SET[c]) hasPron = true;
+    });
+    return (hasTime || hasPlace) && hasPron;
+  }
+
   function genListenMeaning(level, pool, rng) {
     var w = pickOne(pool, rng);
-    var wrongs = distractors(pool, function (x) { return x.exampleMeaning; }, normOpt, w.exampleMeaning, 3, rng, null);
+    var wrongs = distractors(pool, function (x) { return x.exampleMeaning; }, normOpt, w.exampleMeaning, 3, rng, null, listenMeaningRejectFn(w.exampleMeaning));
     if (wrongs.length < 3) return null;
     return finalize({
       section: "listen", type: "listen-meaning",
@@ -186,7 +391,7 @@
     var wrongs = distractors(pool, function (x) { return x.example; }, normOpt, w.example, 3, rng, function (a, b) {
       var da = Math.abs(String(a.example).length - targetLen), db = Math.abs(String(b.example).length - targetLen);
       return da - db;
-    });
+    }, listenSentenceRejectFn(w));
     if (wrongs.length < 3) return null;
     return finalize({
       section: "listen", type: "listen-sentence",
@@ -225,7 +430,7 @@
       var shared = ds.filter(function (w) { return w !== a && sharesVocab(a.example, w); });
       var b = shared.length ? pickOne(shared, rng) : pickOne(ds, rng);
       if (!b || b === a) continue;
-      var wrongs = distractors(pool, function (x) { return x.exampleMeaning; }, normOpt, b.exampleMeaning, 3, rng, null);
+      var wrongs = distractors(pool, function (x) { return x.exampleMeaning; }, normOpt, b.exampleMeaning, 3, rng, null, listenMeaningRejectFn(b.exampleMeaning));
       if (wrongs.length < 3) continue;
       return finalize({
         section: "listen", type: "listen-dialogue",
@@ -243,7 +448,7 @@
   }
   function genVocabMeaning(level, pool, rng) {
     var w = pickOne(pool, rng);
-    var wrongs = distractors(pool, function (x) { return x.m; }, normOpt, w.m, 3, rng, sameTypeFirst(w));
+    var wrongs = distractors(pool, function (x) { return x.m; }, normOpt, w.m, 3, rng, sameTypeFirst(w), meaningRejectFn(w));
     if (wrongs.length < 3) return null;
     return finalize({
       section: "vocab", type: "vocab-meaning",
@@ -257,7 +462,7 @@
   }
   function genVocabPinyin(level, pool, rng) {
     var w = pickOne(pool, rng);
-    var wrongs = distractors(pool, function (x) { return x.p; }, normPy, w.p, 3, rng, null);
+    var wrongs = distractors(pool, function (x) { return x.p; }, normPy, w.p, 3, rng, null, pinyinRejectFn(w));
     if (wrongs.length < 3) return null;
     return finalize({
       section: "vocab", type: "vocab-pinyin",
@@ -274,21 +479,25 @@
     return String(sentence).slice(0, idx) + "＿＿" + String(sentence).slice(idx + String(word).length);
   }
   function genCloze(level, poolAll, poolEx, rng) {
-    var w = pickOne(poolEx, rng);
-    var blanked = blankOut(w.example, w.h);
-    if (!blanked) return null;
-    var wrongs = distractors(poolAll, function (x) { return x.h; }, normOpt, w.h, 3, rng, sameTypeFirst(w));
-    if (wrongs.length < 3) return null;
-    return finalize({
-      section: "vocab", type: "cloze",
-      stem: "Điền từ thích hợp vào chỗ trống:",
-      sub: blanked, passage: null, passageTitle: "", speakText: null,
-      explainHead: String(w.example),
-      explainBody: String(w.examplePinyin) + " — " + String(w.exampleMeaning) +
-        "\nTừ cần điền: " + String(w.h) + " (" + String(w.p) + ") — " + String(w.m),
-      srcKey: "V" + level + "|" + w.h + "|" + w.p,
-      sourceSentence: String(w.example), targetWord: String(w.h)
-    }, String(w.h), wrongs, rng);
+    for (var t = 0; t < 24; t++) {
+      var w = pickOne(poolEx, rng);
+      if (!w) return null;
+      var blanked = blankOutSmart(w.example, w.h);
+      if (!blanked) continue;
+      var wrongs = distractors(poolAll, function (x) { return x.h; }, normOpt, w.h, 3, rng, sameTypeFirst(w), clozeRejectFn(w, blanked, w.example, null));
+      if (wrongs.length < 3) continue;
+      return finalize({
+        section: "vocab", type: "cloze",
+        stem: "Điền từ thích hợp vào chỗ trống:",
+        sub: blanked, passage: null, passageTitle: "", speakText: null,
+        explainHead: String(w.example),
+        explainBody: String(w.examplePinyin) + " — " + String(w.exampleMeaning) +
+          "\nTừ cần điền: " + String(w.h) + " (" + String(w.p) + ") — " + String(w.m),
+        srcKey: "V" + level + "|" + w.h + "|" + w.p,
+        sourceSentence: String(w.example), targetWord: String(w.h)
+      }, String(w.h), wrongs, rng);
+    }
+    return null;
   }
 
   /* --- Sắp xếp từ thành câu (phần Viết) ---
@@ -339,6 +548,7 @@
       var chunks = segmentSentence(w.example, dict);
       if (!chunks) continue;
       if (chunks.indexOf(String(w.h)) < 0) continue;
+      if (orderRisky(chunks)) continue; /* mảnh thời gian/nơi chốn + chủ ngữ đại từ: hoán vị vẫn đúng ngữ pháp */
       return makeOrderQuestion({
         section: "writing", type: "write-order",
         stem: "Sắp xếp các mảnh từ sau thành câu đúng:",
@@ -367,7 +577,7 @@
     var useCands = longCands.length ? longCands : cands;
     if (useCands.length) {
       var w = pickOne(useCands.slice(0, 40), rng);
-      var wrongs = distractors(poolAll, function (x) { return x.m; }, normOpt, w.m, 3, rng, sameTypeFirst(w));
+      var wrongs = distractors(poolAll, function (x) { return x.m; }, normOpt, w.m, 3, rng, sameTypeFirst(w), meaningRejectFn(w));
       if (wrongs.length >= 3) {
         var sent = splitSentences(zh).filter(function (s) { return s.indexOf(String(w.h)) >= 0; })[0] || "";
         qs.push(finalize({
@@ -389,21 +599,24 @@
       var inSent = poolAll.filter(function (w) { return String(w.h || "").length >= 2 && s.indexOf(String(w.h)) >= 0; });
       if (!inSent.length) inSent = poolAll.filter(function (w) { return String(w.h || "").length >= 1 && s.indexOf(String(w.h)) >= 0; });
       if (!inSent.length) continue;
-      var cw = pickOne(inSent, rng);
-      var blanked = blankOut(s, cw.h);
-      if (!blanked) continue;
-      var cwrongs = distractors(poolAll, function (x) { return x.h; }, normOpt, cw.h, 3, rng, sameTypeFirst(cw));
-      if (cwrongs.length < 3) continue;
-      qs.push(finalize({
-        section: "reading", type: "read-cloze",
-        stem: "Điền từ thích hợp vào chỗ trống trong câu trích từ bài đọc:",
-        sub: blanked, passage: zh, passageTitle: title, speakText: null,
-        explainHead: s,
-        explainBody: "Từ cần điền: " + String(cw.h) + " (" + String(cw.p) + ") — " + String(cw.m),
-        srcKey: "R" + level + "|" + passage.id + "|cloze|" + cw.h,
-        sourceSentence: s, targetWord: String(cw.h)
-      }, String(cw.h), cwrongs, rng));
-      clozeDone = true;
+      var candWords = shuffle(inSent, rng);
+      for (var cwi = 0; cwi < candWords.length && !clozeDone; cwi++) {
+        var cw = candWords[cwi];
+        var blanked = blankOutSmart(s, cw.h);
+        if (!blanked) continue;
+        var cwrongs = distractors(poolAll, function (x) { return x.h; }, normOpt, cw.h, 3, rng, sameTypeFirst(cw), clozeRejectFn(cw, blanked, s, zh));
+        if (cwrongs.length < 3) continue;
+        qs.push(finalize({
+          section: "reading", type: "read-cloze",
+          stem: "Điền từ thích hợp vào chỗ trống trong câu trích từ bài đọc:",
+          sub: blanked, passage: zh, passageTitle: title, speakText: null,
+          explainHead: s,
+          explainBody: "Từ cần điền: " + String(cw.h) + " (" + String(cw.p) + ") — " + String(cw.m),
+          srcKey: "R" + level + "|" + passage.id + "|cloze|" + cw.h,
+          sourceSentence: s, targetWord: String(cw.h)
+        }, String(cw.h), cwrongs, rng));
+        clozeDone = true;
+      }
     }
     /* 3) Câu nào có trong bài */
     var longSents = sents.filter(function (s) { return s.length >= 8; });
@@ -413,7 +626,9 @@
       otherPassages.forEach(function (p) {
         splitSentences(p.zh).forEach(function (s) { if (s.length >= 8) otherSents.push(s); });
       });
-      var swrongs = distractors(otherSents.map(function (s) { return { s: s }; }), function (x) { return x.s; }, normOpt, correct, 3, rng, null);
+      var ownSentSet = {};
+      sents.forEach(function (x) { ownSentSet[x] = 1; });
+      var swrongs = distractors(otherSents.map(function (s) { return { s: s }; }), function (x) { return x.s; }, normOpt, correct, 3, rng, null, function (entry) { return !!ownSentSet[entry.s]; });
       if (swrongs.length >= 3) {
         qs.push(finalize({
           section: "reading", type: "read-sentence",
@@ -461,9 +676,9 @@
       var inSent = poolAll.filter(function (w) { return String(w.h || "").length >= 2 && s.indexOf(String(w.h)) >= 0; });
       if (!inSent.length) continue;
       var cw = pickOne(inSent, rng);
-      var blanked = blankOut(s, cw.h);
+      var blanked = blankOutSmart(s, cw.h);
       if (!blanked) continue;
-      var wrongs = distractors(poolAll, function (x) { return x.h; }, normOpt, cw.h, 3, rng, sameTypeFirst(cw));
+      var wrongs = distractors(poolAll, function (x) { return x.h; }, normOpt, cw.h, 3, rng, sameTypeFirst(cw), clozeRejectFn(cw, blanked, s, String(p.zh || "")));
       if (wrongs.length < 3) continue;
       return finalize({
         section: "writing", type: "write-cloze",
