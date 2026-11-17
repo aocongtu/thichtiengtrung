@@ -210,7 +210,7 @@
       male: {
         outfits: [
           { id: 1, emoji: "🎓", name: "Đồng phục" },
-          { id: 2, emoji: "🧧", name: "Áo dài xanh" },
+          { id: 2, emoji: "🧧", name: "Áo dài Tết" },
           { id: 3, emoji: "⚽", name: "Thể thao" }
         ],
         hairs: [
@@ -222,7 +222,7 @@
       female: {
         outfits: [
           { id: 1, emoji: "🎀", name: "Đồng phục + váy" },
-          { id: 2, emoji: "🌸", name: "Áo dài hồng" },
+          { id: 2, emoji: "🧧", name: "Áo dài Tết" },
           { id: 3, emoji: "⚽", name: "Thể thao" }
         ],
         hairs: [
