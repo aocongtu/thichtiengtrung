@@ -32,8 +32,8 @@
    panel truyện vì thế vào đúng cột phải thay vì phủ cả bề ngang như đợt 2.
    Bên trong từng khối ép gọn cho bề ngang ~nửa màn hình (390px -> cột ~179px,
    360px -> cột ~164px):
-     - Hero: tiêu đề 20px vừa nửa cột, dòng phụ cắt 3 dòng; dải chip giữ
-       cuộn ngang (flex + overflow-x sẵn có), chip nhỏ lại.
+     - Hero: tiêu đề 20px vừa nửa cột, dòng phụ cắt 3 dòng; dải chip HSK
+       xếp lưới 3x3 (vá lỗi 1 bên dưới).
      - Thẻ Khóa tự học: hero lộ trình gọn; cụm "Cửa học tập" xếp DỌC 1 cột —
        Kho từ vựng vẫn là thanh ngang mỏng 48px, 4 nút còn lại thành hàng
        ngang gọn cao 46px (icon trái, chữ phải, cả hàng bấm được).
@@ -47,6 +47,20 @@
        thoáng hơn bản nửa cột đợt 2. Nhiệm vụ (full-width): hàng nhiệm vụ
        trở lại dạng ngang như desktop (icon 38px + chữ + nhãn phút), nút
        CTA 46px.
+   VÁ 2 LỖI + GIẢM TÔNG (phản hồi của chủ web sau khi xem bản đợt 3 live):
+     1) Dải chip HSK ở cột trái: từ 1 hàng cuộn ngang -> lưới 3x3
+        (3 hàng x 3 cấp, hết cuộn ngang), pill nén cho vừa ô nửa cột;
+        trạng thái active/handler chọn cấp giữ nguyên (chỉ đổi trình bày).
+     2) Panel Luyện thi: nhãn vàng "MIỄN PHÍ" bị mép panel cắt mất chữ
+        (header flex không gói dòng + panel overflow:hidden) -> header cho
+        gói dòng, tiêu đề min-width:0 co được, nhãn nowrap và gọn lại:
+        khi nửa cột chật, nhãn tự xuống hàng riêng, luôn hiện đầy đủ.
+     3) Giảm tông màu mobile (chủ web chê "quá loè loẹt") cho đúng 2 khối:
+        panel thi gradient #f97316 -> #e11d48 -> #7c3aed giảm thành
+        #e8835f -> #d9576b -> #845ec9 (selector 2 ID + 2 class, đặc hiệu
+        (2,2,0), thắng cả biến thể nền đêm html[data-theme='night']
+        (2,1,1) của exam.js); hero lộ trình xanh lá #22c55e -> #15803d
+        giảm thành #4cab6d -> #2e7c4f. Desktop + mọi khối khác giữ màu gốc.
    Chỉ trình bày: không đụng DOM, id, handler hay màu nền sẵn có của các nút;
    panel thi/truyện vẫn mang class .otter2-dash-card nên cơ chế vật cản của
    Bé Rái Cá không bị ảnh hưởng. */
@@ -73,14 +87,19 @@
     "#otter2-home .otter2-title{font-size:20px;line-height:1.25;margin:0 0 5px}",
     "#otter2-home .otter2-sub{font-size:12.5px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}",
 
-    /* Dải chip HSK: giữ cuộn ngang trong nửa cột, chip nhỏ lại */
-    "#otter2-home .otter2-dash-strip{min-width:0;padding:4px;gap:2px}",
-    "#otter2-home .otter2-dash-chip{padding:6px 9px;min-height:38px;font-size:12px}",
-    "#otter2-home .otter2-dash-chip small{font-size:9.5px}",
+    /* Dải chip HSK: lưới 3x3 (3 hàng x 3 cấp) trong nửa cột — hết cuộn
+       ngang (chỉ đạo của chủ web sau đợt 3); pill nén cho vừa ô ~51px ở
+       390px / ~46px ở 360px, chữ HSK + dòng cấp vẫn đọc rõ, vẫn bấm được */
+    "#otter2-home .otter2-dash-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));overflow-x:visible;border-radius:20px;min-width:0;padding:6px;gap:6px}",
+    "#otter2-home .otter2-dash-chip{box-sizing:border-box;padding:6px 1px;min-height:38px;font-size:11.5px;letter-spacing:0;text-align:center}",
+    "#otter2-home .otter2-dash-chip small{font-size:8.5px}",
 
     /* Thẻ Khóa tự học: hero lộ trình gọn lại */
     "#otter2-home .otter2-dash-course .otter2-dash-sub{font-size:11px}",
     "#otter2-home .otter2-dash-hero{padding:11px}",
+    /* Giảm tông xanh lá hero lộ trình trên mobile (gốc #22c55e -> #15803d
+       quá chói theo phản hồi của chủ web); chữ trắng vẫn tương phản tốt */
+    "#otter2-home .otter2-dash-course .otter2-dash-hero{background:linear-gradient(135deg,#4cab6d,#2e7c4f)}",
     "#otter2-home .otter2-dash-hero h3{font-size:15.5px;line-height:1.3;margin:6px 0 2px}",
     "#otter2-home .otter2-dash-hero p{font-size:12px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}",
     "#otter2-home .otter2-dash-prow{margin-top:9px;font-size:12px}",
@@ -97,9 +116,16 @@
     ".otter2-dash-course .otter2-feature--vocab strong{font-size:13.5px}",
 
     /* ===== CỘT PHẢI (cột 2 desktop — cụm midstack) ===== */
-    /* Panel Luyện thi: nén cho nửa cột — chip cấp bọc dòng, CTA vẫn lớn dễ bấm */
+    /* Panel Luyện thi: nén cho nửa cột — chip cấp bọc dòng, CTA vẫn lớn dễ bấm.
+       Giảm tông gradient (selector 2 ID + 2 class thắng luật nền khóa bằng
+       #otter2ExamPanel và cả biến thể nền đêm của exam.js) */
+    "#otter2-home #otter2ExamPanel.otter2-dash-card.ttc-exam-panel{background:linear-gradient(135deg,#e8835f 0%,#d9576b 52%,#845ec9 105%)}",
     "#otter2-home .ttc-exam-panel-trophy{width:38px;height:38px;font-size:20px}",
-    "#otter2-home .ttc-exam-panel-title{font-size:16px;line-height:1.25}",
+    /* Header gói dòng + tiêu đề co được + nhãn MIỄN PHÍ nowrap: nhãn không
+       còn bị mép panel (overflow:hidden) cắt mất chữ ở nửa cột */
+    "#otter2-home .ttc-exam-panel-head{flex-wrap:wrap;gap:8px}",
+    "#otter2-home .ttc-exam-panel-title{font-size:16px;line-height:1.25;flex:1 1 64px;min-width:0}",
+    "#otter2-home .ttc-exam-panel-free{white-space:nowrap;font-size:11.5px;padding:6px 11px;letter-spacing:.05em}",
     "#otter2-home .ttc-exam-panel-desc{margin-top:8px;font-size:12.5px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}",
     "#otter2-home .ttc-exam-panel-chips{gap:5px;margin-top:9px}",
     "#otter2-home .ttc-exam-panel-chip{padding:5px 9px;font-size:12px;min-height:32px}",
