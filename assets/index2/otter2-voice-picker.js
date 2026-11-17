@@ -669,6 +669,7 @@
     classifyGender: classifyGender,
     voiceGroup: voiceGroup,
     refreshVoices: refreshVoices,
+    preview: preview,
     _applyChoice: applyChoice,
     _avatarURI: avatarURI
   };
