@@ -979,23 +979,32 @@
     ".ttc-sb-badge.na{background:#e2e8f0;color:#475569}",
     ".ttc-sb-view{border:1px solid #2563eb;background:#eff6ff;color:#1d4ed8;border-radius:9px;padding:6px 8px;font-weight:700;cursor:pointer;font-size:13px}",
     "@media (max-width:860px){.ttc-sb-row{grid-template-columns:96px 44px 1fr .6fr .6fr .6fr .6fr .78fr 64px 78px;font-size:12.5px}}",
-    ".ttc-exam-panel{margin-top:16px;border:1.5px solid rgba(225,29,72,.28);background:linear-gradient(135deg,var(--otter2-pink,#fff1f2),#ffe4e6);border-radius:18px;padding:14px 16px}",
-    ".ttc-exam-panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}",
-    ".ttc-exam-panel-title{font-size:16.5px;font-weight:800;color:#172033}",
-    ".ttc-exam-panel-free{background:var(--otter2-gold,#f59e0b);color:#3a2703;font-size:11px;font-weight:800;padding:3px 10px;border-radius:999px;letter-spacing:.04em}",
-    ".ttc-exam-panel-desc{margin:8px 0 0;font-size:13.5px;color:#475569;line-height:1.55}",
-    ".ttc-exam-panel-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:11px}",
-    ".ttc-exam-panel-chip{border:1px solid #dde1ea;background:#fff;color:#3c4356;border-radius:999px;padding:5px 11px;font-size:12.5px;font-weight:700;cursor:pointer}",
-    ".ttc-exam-panel-chip.is-cur{background:var(--otter2-red,#e11d48);border-color:var(--otter2-red,#e11d48);color:#fff}",
-    ".ttc-exam-panel-last{margin:10px 0 0;font-size:13px;font-weight:700;color:#166534}",
-    ".ttc-exam-panel-btn{display:block;width:100%;margin-top:12px;border:0;border-radius:12px;background:var(--otter2-red,#e11d48);color:#fff;font-size:15.5px;font-weight:800;padding:12px 14px;cursor:pointer;min-height:48px}",
-    ".ttc-exam-panel-btn:hover{background:var(--otter2-red-deep,#be123c)}",
-    "html[data-theme='night'] .ttc-exam-panel{background:linear-gradient(135deg,#3f1d2b,#2a1622);border-color:#7f1d3a}",
-    "html[data-theme='night'] .ttc-exam-panel-title{color:#f1f5f9}",
-    "html[data-theme='night'] .ttc-exam-panel-desc{color:#cbd5e1}",
-    "html[data-theme='night'] .ttc-exam-panel-chip{background:#1e293b;border-color:#334155;color:#cbd5e1}",
-    "html[data-theme='night'] .ttc-exam-panel-chip.is-cur{background:var(--otter2-red,#e11d48);color:#fff}",
-    "html[data-theme='night'] .ttc-exam-panel-last{color:#86efac}",
+    "/* Panel Luyện thi: thẻ hero gradient riêng, đứng TRÊN thẻ Trình độ & kỹ năng ở cột giữa */",
+    "#otter2-home #otter2ExamPanel{position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.4);background:linear-gradient(135deg,#f97316 0%,#e11d48 52%,#7c3aed 105%);box-shadow:0 20px 42px rgba(190,18,60,.38),0 4px 14px rgba(124,58,237,.22);color:#fff}",
+    "#otter2ExamPanel::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 88% -10%,rgba(255,255,255,.35),transparent 42%),radial-gradient(circle at -6% 108%,rgba(255,255,255,.22),transparent 46%);pointer-events:none}",
+    "#otter2ExamPanel::after{content:'考';position:absolute;right:10px;bottom:-48px;font-size:150px;font-weight:900;line-height:1;color:rgba(255,255,255,.13);pointer-events:none}",
+    "html[data-theme='night'] #otter2-home #otter2ExamPanel{background:linear-gradient(135deg,#ea580c 0%,#be123c 52%,#6d28d9 105%)}",
+    ".ttc-exam-panel-in{position:relative;z-index:1}",
+    ".ttc-exam-panel-head{display:flex;align-items:center;gap:12px}",
+    ".ttc-exam-panel-trophy{flex:none;width:54px;height:54px;border-radius:50%;display:grid;place-items:center;font-size:29px;line-height:1;background:rgba(255,255,255,.22);border:1.5px solid rgba(255,255,255,.6);box-shadow:0 0 0 6px rgba(255,255,255,.12),0 8px 20px rgba(0,0,0,.2)}",
+    ".ttc-exam-panel-title{margin:0;font-size:21px;font-weight:900;letter-spacing:.01em;line-height:1.2;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.22)}",
+    ".ttc-exam-panel-free{margin-left:auto;flex:none;background:linear-gradient(135deg,#fde047,#f59e0b);color:#451a03;font-size:12.5px;font-weight:900;padding:7px 14px;border-radius:999px;letter-spacing:.07em;box-shadow:0 6px 16px rgba(245,158,11,.55);animation:ttcExamFreePulse 2.2s ease-in-out infinite}",
+    "@keyframes ttcExamFreePulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}",
+    "@media (prefers-reduced-motion:reduce){.ttc-exam-panel-free{animation:none}}",
+    ".ttc-exam-panel-desc{margin:12px 0 0;font-size:14px;color:rgba(255,255,255,.95);line-height:1.6;text-shadow:0 1px 3px rgba(0,0,0,.18)}",
+    ".ttc-exam-panel-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:13px}",
+    ".ttc-exam-panel-chip{border:1px solid rgba(255,255,255,.5);background:rgba(255,255,255,.16);color:#fff;border-radius:999px;padding:8px 13px;font-size:13px;font-weight:800;cursor:pointer;min-height:38px;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);transition:background .15s ease,transform .15s ease}",
+    ".ttc-exam-panel-chip:hover{background:rgba(255,255,255,.3)}",
+    ".ttc-exam-panel-chip:active{transform:scale(.96)}",
+    ".ttc-exam-panel-chip.is-cur{background:#fff;border-color:#fff;color:#7c3aed;box-shadow:0 6px 16px rgba(0,0,0,.22)}",
+    ".ttc-exam-panel-last{margin:13px 0 0;font-size:13px;font-weight:700;color:#fff;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);border-radius:12px;padding:8px 12px}",
+    ".ttc-exam-panel-last[hidden]{display:none}",
+    ".ttc-exam-panel-btn{display:block;width:100%;margin-top:14px;border:0;border-radius:14px;background:#fff;font-size:16.5px;font-weight:900;padding:14px 16px;cursor:pointer;min-height:52px;box-shadow:0 12px 26px rgba(0,0,0,.25);transition:transform .15s ease,box-shadow .15s ease}",
+    ".ttc-exam-panel-btn:hover{transform:translateY(-1px);box-shadow:0 16px 30px rgba(0,0,0,.28)}",
+    ".ttc-exam-panel-btn:active{transform:translateY(0)}",
+    ".ttc-exam-panel-btn-txt{background:linear-gradient(90deg,#ea580c,#db2777,#7c3aed);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:#7c3aed}",
+    "@media (min-width:1021px){#otter2-home #otter2ExamPanel{grid-column:2;grid-row:1}#otter2-home .otter2-dash-card[aria-labelledby='otter2DashLevelTitle']{grid-row:2}#otter2-home .otter2-dash-main>section[aria-labelledby='otter2DashLessonsTitle']{grid-row:3}}",
+    "@media (max-width:1020px){#otter2-home{grid-template-areas:'hero' 'strip' 'course' 'exam' 'level' 'activity' 'tasks' 'lessons' 'continue' 'road' 'journey' 'banner'}#otter2-home #otter2ExamPanel{grid-area:exam}}",
     "@media (max-width:720px){.ttc-exam-stem{font-size:16px}.ttc-exam-sub{font-size:17px}.ttc-exam-score{font-size:36px}.ttc-exam-secbar .nm{flex-basis:118px}.ttc-exam-secbar .val{flex-basis:92px}}"
   ].join("\n");
 
@@ -1754,14 +1763,23 @@
   }, true);
 
   /* ---------------- Panel Luyện thi ở CỘT GIỮA dashboard ----------------
-     Lệnh của chủ web 2026-11-17: CHUYỂN điểm mở khu thi khỏi danh
-     sách tính năng cột trái (thẻ .otter2-feature-row do v1 tiêm) lên
-     vùng trống cột giữa — panel nằm trong thẻ "Trình độ & kỹ năng",
-     ngay dưới 4 thẻ workspace (.otter2-dash-skillgrid). Dashboard
-     chỉ còn MỘT điểm mở khu thi: nút #otter2FeatExam trong panel.
-     Panel nằm trong .otter2-dash-card + chứa button/h3/p nên cơ chế
-     vật cản của rái cá (OBSTACLE_SEL gồm .otter2-dash-card, button,
-     h1-h6, p...) đã tự coi là nội dung học — bé không đứng đè lên. */
+     Lệnh của chủ web 2026-11-17 (2 đợt): (1) CHUYỂN điểm mở khu thi
+     khỏi danh sách tính năng cột trái (thẻ .otter2-feature-row do v1
+     tiêm) lên cột giữa; (2) HOÁN ĐỔI vị trí — panel thành THẺ RIÊNG
+     (.otter2-dash-card) đứng NGAY TRƯỚC thẻ "Trình độ & kỹ năng"
+     trong .otter2-dash-main, làm hero gradient sặc sỡ vì đây là
+     kênh hút học viên từ Facebook. CSS tiêm kèm lo phần lưới:
+     desktop panel = cột 2/hàng 1, thẻ kỹ năng xuống hàng 2, bài học
+     xuống hàng 3; mobile (dash-main display:contents) panel nhận
+     grid-area "exam" ngay trước "level". Dashboard chỉ còn MỘT
+     điểm mở khu thi: nút #otter2FeatExam trong panel. Panel là
+     .otter2-dash-card + chứa button/h3/p nên cơ chế vật cản của
+     rái cá (OBSTACLE_SEL gồm .otter2-dash-card, button, h1-h6,
+     p...) đã tự coi là nội dung học — bé không đứng đè lên.
+     LƯU Ý: injectPanel phải tự gọi ensureStyle() — trước đây style
+     chỉ nạp khi mở overlay thi/bảng điểm nên panel hiện TRẦN (chữ
+     thuần, nút mặc định) ở lần tải trang đầu, đúng phàn nàn của
+     chủ web khi xem live. */
   var panelLevel = 0;
   function currentStudyLevel() {
     var chip = document.querySelector(".otter2-dash-chip.is-cur");
@@ -1791,6 +1809,7 @@
   }
   function injectPanel() {
     if (document.getElementById("otter2ExamPanel")) return true;
+    ensureStyle();
     /* Gỡ launcher cũ ở cột trái nếu còn sót (đây là lệnh CHUYỂN). */
     var legacy = document.querySelectorAll(".otter2-feature-row #otter2FeatExam");
     Array.prototype.forEach.call(legacy, function (el) { el.remove(); });
@@ -1799,25 +1818,28 @@
       var grid = document.querySelector(".otter2-dash-skillgrid");
       if (grid) section = grid.closest("section") || grid.parentElement;
     }
-    if (!section) return false;
+    if (!section || !section.parentNode) return false;
     if (!panelLevel) panelLevel = currentStudyLevel();
     var chips = "";
     for (var n = 1; n <= 9; n++) {
       chips += '<button type="button" class="ttc-exam-panel-chip' + (n === panelLevel ? " is-cur" : "") +
         '" data-panel-level="' + n + '" aria-pressed="' + (n === panelLevel ? "true" : "false") + '">HSK ' + n + "</button>";
     }
-    var panel = document.createElement("div");
-    panel.className = "ttc-exam-panel";
+    var panel = document.createElement("section");
+    panel.className = "otter2-dash-card ttc-exam-panel";
     panel.id = "otter2ExamPanel";
     panel.setAttribute("aria-label", "Luyện thi HSK");
     panel.innerHTML =
-      '<div class="ttc-exam-panel-head"><span class="ttc-exam-panel-title">🏆 Luyện thi HSK</span>' +
+      '<div class="ttc-exam-panel-in">' +
+      '<div class="ttc-exam-panel-head"><span class="ttc-exam-panel-trophy" aria-hidden="true">🏆</span>' +
+      '<h3 class="ttc-exam-panel-title">Luyện thi HSK</h3>' +
       '<span class="ttc-exam-panel-free">MIỄN PHÍ</span></div>' +
       '<p class="ttc-exam-panel-desc">40 đề mỗi cấp · sát cấu trúc đề thật · chấm điểm thang 200/300 · xem lại từng câu</p>' +
       '<div class="ttc-exam-panel-chips" role="group" aria-label="Chọn nhanh cấp thi">' + chips + "</div>" +
       '<p class="ttc-exam-panel-last" id="otter2ExamPanelLast" hidden></p>' +
-      '<button type="button" class="ttc-exam-panel-btn" id="otter2FeatExam">Vào luyện thi →</button>';
-    section.appendChild(panel);
+      '<button type="button" class="ttc-exam-panel-btn" id="otter2FeatExam"><span class="ttc-exam-panel-btn-txt">Vào luyện thi →</span></button>' +
+      "</div>";
+    section.parentNode.insertBefore(panel, section);
     Array.prototype.forEach.call(panel.querySelectorAll("[data-panel-level]"), function (chip) {
       chip.addEventListener("click", function () {
         panelLevel = Number(chip.getAttribute("data-panel-level"));
