@@ -158,6 +158,123 @@
     var otterRestore = document.getElementById("guideRestore");
     if (!guidePanel || !roam || !otterBtn) return;
 
+    /* ---------------- Tủ đồ của Bé (additive, 2026-11-17) ----------------
+       Như game avatar: mỗi giới tính có 3 trang phục x 3 kiểu tóc/mũ, chọn
+       trong panel của bé (xem initGenderVoice). Tổ hợp mặc định (1,1) dùng
+       ĐÚNG 2 ảnh nhúng sẵn IMG_SRC / IMG_SRC_FEMALE như trước; 8 tổ hợp còn
+       lại của mỗi giới được đóng gói thành data URI trong bundle JS theo
+       giới (otter2-wardrobe-imgs-{m|f}.js — sinh từ đúng các file
+       otter-wardrobe-{m|f}-o{1..3}h{1..3}.webp bằng
+       guide_build/wardrobe/build_bundles.js, data URI giải mã ra đúng
+       bytes gốc; các file .webp đó từ nay CHỈ còn ở local làm nguồn sinh
+       bundle, không đẩy lên host nữa vì công cụ đẩy chỉ nhận text UTF-8).
+       Bundle do guide TỰ TIÊM <script> nạp lười khi cần lần đầu (mở panel
+       / chọn bộ khác mặc định / khôi phục bộ đã lưu khác mặc định); trong
+       lúc chờ nạp, bé và thumbnail dùng tạm ảnh mặc định của giới đó, nạp
+       xong tự đổi sang ảnh thật; nạp lỗi thì giữ bộ mặc định, panel không
+       vỡ (mở lại panel sẽ thử nạp lại). Lựa chọn lưu ở localStorage
+       "otter2GuideWardrobeV1" dạng {male:{o,h}, female:{o,h}} — tách theo
+       giới tính. Khối này phải nằm TRƯỚC khối giới tính vì
+       applyGuideGender() dùng guideDisplaySrc(). */
+    var WARDROBE_KEY = "otter2GuideWardrobeV1";
+    var WARDROBE_BASE = "assets/index2/";
+    try {
+      var wdScript = document.currentScript;
+      if (wdScript && wdScript.src) WARDROBE_BASE = wdScript.src.replace(/[^\/]+$/, "");
+    } catch (eWdBase) {}
+    /* Trạng thái nạp bundle ảnh theo giới: 0 chưa nạp, 1 đang nạp, 2 xong, 3 lỗi. */
+    var wdImgsState = { male: 0, female: 0 };
+    function wdImgKey(gender, o, h) { return (gender === "female" ? "f" : "m") + "-o" + o + "h" + h; }
+    function wdImgData(gender, o, h) {
+      var bag = null;
+      try { bag = window.__otter2WardrobeImgs || null; } catch (eWdBag) {}
+      return (bag && bag[wdImgKey(gender, o, h)]) || null;
+    }
+    function ensureWardrobeImgs(gender) {
+      if (wdImgData(gender, 2, 1) || wdImgData(gender, 1, 2)) { wdImgsState[gender] = 2; return; }
+      if (wdImgsState[gender] !== 0) return; /* đang nạp / đã xong / đã lỗi (mở lại panel mới thử lại) */
+      wdImgsState[gender] = 1;
+      try {
+        var wdS = document.createElement("script");
+        wdS.src = WARDROBE_BASE + "otter2-wardrobe-imgs-" + (gender === "female" ? "f" : "m") + ".js";
+        wdS.setAttribute("data-guide-wardrobe-imgs", gender);
+        wdS.addEventListener("load", function () {
+          wdImgsState[gender] = 2;
+          try { applyGuideGender(); } catch (eWdOn) {} /* tự đổi sang ảnh thật + vẽ lại lưới nếu panel đang mở */
+        });
+        wdS.addEventListener("error", function () { wdImgsState[gender] = 3; });
+        (document.head || document.documentElement).appendChild(wdS);
+      } catch (eWdLoad2) { wdImgsState[gender] = 3; }
+    }
+    var WARDROBE = {
+      male: {
+        outfits: [
+          { id: 1, emoji: "🎓", name: "Đồng phục" },
+          { id: 2, emoji: "🧧", name: "Áo dài xanh" },
+          { id: 3, emoji: "⚽", name: "Thể thao" }
+        ],
+        hairs: [
+          { id: 1, emoji: "🔵", name: "Mũ nồi xanh" },
+          { id: 2, emoji: "🧢", name: "Mũ lưỡi trai" },
+          { id: 3, emoji: "💇", name: "Tóc vuốt gọn" }
+        ]
+      },
+      female: {
+        outfits: [
+          { id: 1, emoji: "🎀", name: "Đồng phục + váy" },
+          { id: 2, emoji: "🌸", name: "Áo dài hồng" },
+          { id: 3, emoji: "⚽", name: "Thể thao" }
+        ],
+        hairs: [
+          { id: 1, emoji: "🎀", name: "Mũ nồi hồng" },
+          { id: 2, emoji: "🍒", name: "Hai búi + nơ" },
+          { id: 3, emoji: "💁", name: "Tóc xõa + kẹp nơ" }
+        ]
+      }
+    };
+    var wardrobe = { male: { o: 1, h: 1 }, female: { o: 1, h: 1 } };
+    try {
+      var wdSaved = JSON.parse(localStorage.getItem(WARDROBE_KEY) || "null");
+      if (wdSaved) {
+        ["male", "female"].forEach(function (wdG) {
+          var wdS = wdSaved[wdG];
+          if (!wdS) return;
+          if (wdS.o >= 1 && wdS.o <= 3) wardrobe[wdG].o = wdS.o | 0;
+          if (wdS.h >= 1 && wdS.h <= 3) wardrobe[wdG].h = wdS.h | 0;
+        });
+      }
+    } catch (eWdLoad) {}
+    function saveWardrobe() {
+      try { localStorage.setItem(WARDROBE_KEY, JSON.stringify(wardrobe)); } catch (eWdSave) {}
+    }
+    /* Src của một tổ hợp: mặc định -> ảnh nhúng; biến thể -> data URI từ
+       bundle (null nếu bundle chưa nạp xong — caller dùng tạm ảnh mặc định
+       và ensureWardrobeImgs() đã được kích hoạt để nạp). */
+    function wardrobeComboSrc(gender, o, h) {
+      if (o === 1 && h === 1) return gender === "female" ? IMG_SRC_FEMALE : IMG_SRC;
+      var data = wdImgData(gender, o, h);
+      if (data) return data;
+      ensureWardrobeImgs(gender);
+      return null;
+    }
+    function guideDisplaySrc() {
+      var wdW = wardrobe[guideGender] || wardrobe.male;
+      return wardrobeComboSrc(guideGender, wdW.o, wdW.h) ||
+        (guideGender === "female" ? IMG_SRC_FEMALE : IMG_SRC);
+    }
+    var guideWardrobeUiRefresh = null; /* initGenderVoice() đăng ký hàm vẽ lưới tủ đồ vào đây */
+    function setWardrobe(kind, id) {
+      var wdW = wardrobe[guideGender];
+      if (!wdW) return;
+      id = id | 0;
+      if (id < 1 || id > 3) return;
+      if (kind === "o") wdW.o = id;
+      else if (kind === "h") wdW.h = id;
+      else return;
+      saveWardrobe();
+      applyGuideGender();
+    }
+
     /* ---------------- Giới tính Bé Rái Cá Nam/Nữ (additive, 2026-11-17) ----------------
        Lưu ở localStorage "otter2GuideGenderV1": "female" = bé gái (mũ nồi
        hồng), còn lại = "male" (mặc định — mũ nồi xanh, đúng ảnh gốc). Đổi
@@ -172,7 +289,7 @@
     } catch (eGenderLoad) {}
     var guideGenderUiRefresh = null; /* initGenderVoice() đăng ký hàm làm mới nút Nam/Nữ vào đây */
     function applyGuideGender() {
-      var src = guideGender === "female" ? IMG_SRC_FEMALE : IMG_SRC;
+      var src = guideDisplaySrc();
       try {
         var headImg = guidePanel.querySelector(".guide-head img");
         if (headImg) headImg.src = src;
@@ -193,6 +310,9 @@
       try { root.setAttribute("data-guide-gender", guideGender); } catch (eG4) {}
       if (typeof guideGenderUiRefresh === "function") {
         try { guideGenderUiRefresh(); } catch (eG5) {}
+      }
+      if (typeof guideWardrobeUiRefresh === "function") {
+        try { guideWardrobeUiRefresh(); } catch (eG6) {}
       }
     }
     function setGuideGender(g) {
@@ -224,18 +344,43 @@
         frameFallback: "#otter2OpenVocabBankBtn",
         text: "Kho từ vựng HSK có hơn 11.000 từ của cả 9 cấp độ: mỗi từ có chữ Hán, pinyin, nghĩa tiếng Việt và câu ví dụ, lại còn nghe được phát âm nữa.",
         arrive: "Tới kho từ vựng rồi! Bạn chọn cấp độ HSK ở hàng nút phía trên, rồi bấm vào từng thẻ từ để xem chi tiết và nghe đọc mẫu nhé." },
+      { key: "exam", label: "Luyện thi HSK", selector: "#otter2ExamPanel", screen: "home",
+        text: "Khu Luyện thi HSK có sẵn 40 đề mô phỏng cho mỗi cấp từ HSK 1 tới HSK 9, cấu trúc sát đề thi thật, chấm điểm từng phần như đi thi thật — mà hoàn toàn MIỄN PHÍ đó!",
+        arrive: "Đây là panel Luyện thi HSK nè! Bạn chọn cấp ở hàng chip phía trên rồi bấm nút Vào luyện thi để mở đề — sau mỗi bài có điểm số và đáp án chi tiết luôn." },
       { key: "dict", label: "Tra từ điển", selector: "#otter2DictRoot", screen: "vocab",
         text: "Từ điển tra cứu nhanh: gõ chữ Hán, pinyin hay nghĩa tiếng Việt đều tìm được từ, kèm cách đọc và ví dụ minh hoạ.",
         arrive: "Tới từ điển rồi! Bạn gõ thử một từ vào ô tìm kiếm — ví dụ 北京 (Bắc Kinh) — xem sao nhé." },
       { key: "practice", label: "Luyện tập", selector: "#otter2PracticeHub", screen: "reading",
         text: "Khu luyện tập có đủ món: luyện nghe, luyện đọc, ghép từ, gõ chữ và phản xạ nhanh — học xong từ vựng thì qua đây vận động cho nhớ lâu.",
         arrive: "Tới khu luyện tập rồi! Bạn chọn một kiểu luyện ở đây và làm thử vài câu nhé, sai cũng không sao đâu." },
+      { key: "reading", label: "Luyện đọc", selector: "#ttcReadingLauncher", screen: "reading",
+        text: "Khu Luyện đọc có các bài đọc theo từng cấp HSK: bấm vào từng từ trong bài là tra được pinyin và nghĩa ngay tại chỗ, lại có giọng đọc mẫu đọc cả bài cho bạn nghe theo.",
+        arrive: "Đây là nút mở khu Luyện đọc trong khu Luyện tập nè! Bấm vào đó để chọn bài đọc theo cấp của bạn nhé." },
       { key: "auto", label: "Học tự động", selector: "#otter2AutoHub", screen: "auto",
         text: "Chế độ Học tự động (Auto) sẽ tự chạy bài học cho bạn: từ vựng, câu ví dụ nối tiếp nhau — hợp lúc bạn muốn ôn nhẹ nhàng mà không cần bấm nhiều.",
         arrive: "Tới khu Học tự động rồi! Bạn chọn gói học rồi bấm chạy, để máy tự dẫn bài cho mình nhé." },
+      { key: "write", label: "Viết chữ Hán", selector: ".otter2-dash-skilltile[data-dash-goto=\"write\"]", screen: "home",
+        text: "Khu Viết chữ Hán cho bạn luyện viết từng nét theo đúng thứ tự nét bút, có chữ mẫu mờ để đồ theo và xem được nét mẫu chạy — tự tay viết vài lần là nhớ mặt chữ liền.",
+        arrive: "Đây là ô Viết chữ Hán trong thẻ Trình độ & kỹ năng nè! Bấm vào ô này để mở bàn viết và luyện nét nhé." },
+      { key: "grammar", label: "Ngữ pháp", selector: "#otter2FeatGrammar", screen: "home",
+        text: "Khu Ngữ pháp tổng hợp các điểm ngữ pháp theo từng cấp HSK, giải thích bằng tiếng Việt dễ hiểu kèm câu ví dụ — học tới đâu chắc tới đó.",
+        arrive: "Đây là nút Ngữ pháp trong Khóa tự học nè! Bấm vào để xem các điểm ngữ pháp theo cấp của bạn nhé." },
+      { key: "pronun", label: "Luyện phát âm", selector: "#otter2FeatPronun", screen: "home",
+        text: "Khu Luyện phát âm cho bạn thu âm giọng đọc của mình và được chấm điểm theo nội dung, thanh điệu và độ trôi chảy — biết ngay mình đọc chưa chuẩn ở âm nào.",
+        arrive: "Đây là nút Luyện phát âm trong Khóa tự học nè! Bấm vào, chọn một câu mẫu rồi đọc theo để được chấm điểm nhé." },
+      { key: "radicals", label: "214 Bộ thủ", selector: "#otter2FeatRadicals", screen: "home",
+        text: "Mục 214 Bộ thủ là bảng tra 214 bộ thủ gốc của chữ Hán: nắm được bộ thủ là bạn đoán được nghĩa của bao nhiêu chữ mới và nhớ chữ nhanh hơn hẳn đó.",
+        arrive: "Đây là nút 214 Bộ thủ trong Khóa tự học nè! Bấm vào để tra từng bộ thủ và xem các chữ Hán chứa bộ đó nhé." },
       { key: "flash", label: "Thẻ ghi nhớ", selector: "#otter2FeatFlashcard", screen: "home",
         text: "Thẻ ghi nhớ (flashcard) giúp bạn ôn từ theo kiểu lật thẻ: nhìn chữ Hán, đoán pinyin và nghĩa, rồi lật lại kiểm tra — ôn nhanh mà nhớ rất lâu.",
         arrive: "Đây là lối vào Thẻ ghi nhớ nè! Bấm vào thẻ để bắt đầu ôn từ theo kiểu lật thẻ nhé." },
+      { key: "ach", label: "Bảng thành tích", selector: "#otter2DashAchBtn", screen: "home",
+        text: "Bảng thành tích xếp hạng các bạn học viên theo số từ đã học được: học càng nhiều từ thì hạng càng cao, còn EXP chỉ là điểm cần cù ghi nhận công sức thôi.",
+        arrive: "Đây là nút Bảng thành tích trong thẻ Trình độ & kỹ năng nè! Bấm vào để xem thứ hạng theo số từ đã học của mọi người nhé." },
+      { key: "scores", label: "Bảng điểm thi", selector: "#otter2AchNavBtn", screen: null,
+        text: "Bảng Điểm Thi lưu lại mọi lần luyện thi của bạn: điểm từng phần Nghe – Đọc – Viết, tổng điểm, kết quả Đạt hay chưa và xem lại đáp án được luôn.",
+        arrive: "Nút Bảng Điểm Thi ở thanh trên cùng nè! Bấm vào đó để xem lại điểm số và đáp án các bài thi thử của bạn nhé.",
+        arriveHidden: "Nút Bảng Điểm Thi nằm ở thanh trên cùng của trang — bạn kéo lên đầu trang là thấy nút đó, bấm vào để xem lại điểm các bài thi thử nhé!" },
       { key: "fb", label: "Cộng đồng Facebook", selector: ".otter2-fb-banner", screen: "home",
         text: "Cộng đồng Thích Tiếng Trung 3.0 trên Facebook đăng bài học mới mỗi ngày lúc 19:30: video bài khoá, audio phát âm và file PDF tập viết chữ Hán miễn phí.",
         arrive: "Đây là banner cộng đồng Facebook nè! Bấm nút Theo dõi trang để nhận bài học mới mỗi ngày lúc 19:30 nhé." },
@@ -1460,6 +1605,97 @@
       if (gvFemaleBtn) gvFemaleBtn.addEventListener("click", function () { setGuideGender("female"); });
       refreshGenderUi();
 
+      /* ----- Tủ đồ của Bé: lưới trang phục + kiểu tóc của giới tính hiện tại.
+         Chỉ dựng lưới (và bắt đầu tải ảnh biến thể) khi panel MỞ lần đầu —
+         MutationObserver canh thuộc tính hidden của panel; đổi giới tính /
+         bấm chọn thì applyGuideGender -> guideWardrobeUiRefresh vẽ lại. ----- */
+      var wdBox = null, wdOutfitsEl = null, wdHairsEl = null, wdRendered = false;
+      try {
+        var wdStyle = document.createElement("style");
+        wdStyle.id = "guide-wd-style";
+        wdStyle.textContent =
+          ".guide-wd{margin-top:12px;border-top:1px dashed #e3e0d8;padding-top:2px}" +
+          ".guide-wd-label{font-size:.74rem;font-weight:700;color:#8a877e;margin:8px 0 5px}" +
+          ".guide-wd-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}" +
+          ".guide-wd-cell{border:1.5px solid #e3e0d8;background:#fff;border-radius:12px;padding:5px 3px 6px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;font:inherit}" +
+          ".guide-wd-cell img{width:44px;height:56px;object-fit:cover;object-position:top center;border-radius:8px;background:#fdf4e3}" +
+          ".guide-wd-name{font-size:.62rem;font-weight:700;color:#23222b;line-height:1.25;text-align:center}" +
+          ".guide-wd-cell.guide-wd-wait img{opacity:.45;filter:saturate(.55)}" +
+          ".guide-wd-cell:hover{border-color:#fda4af;background:#fff7f8}" +
+          ".guide-wd-cell.is-on{border-color:#e11d48;background:#fff1f2;box-shadow:0 0 0 1px #e11d48 inset}" +
+          ".guide-wd-note{font-size:.7rem;color:#8a877e;margin:8px 0 0}";
+        document.head.appendChild(wdStyle);
+        wdBox = document.createElement("div");
+        wdBox.className = "guide-wd";
+        wdBox.id = "guideWardrobe";
+        wdBox.innerHTML =
+          '<p class="guide-gv-group-title">👗 Tủ đồ của Bé</p>' +
+          '<p class="guide-wd-label">Trang phục</p>' +
+          '<div class="guide-wd-grid" id="guideWdOutfits"></div>' +
+          '<p class="guide-wd-label">Kiểu tóc / mũ</p>' +
+          '<div class="guide-wd-grid" id="guideWdHairs"></div>' +
+          '<p class="guide-wd-note">Chọn bộ nào là Bé mặc bộ đó ở khắp nơi Bé tới đó 🎀</p>';
+        var gvToggleWrap = gvContainer.querySelector(".guide-gv-toggle");
+        if (gvToggleWrap && gvToggleWrap.parentNode) gvToggleWrap.parentNode.insertBefore(wdBox, gvToggleWrap);
+        else gvContainer.appendChild(wdBox);
+        wdOutfitsEl = wdBox.querySelector("#guideWdOutfits");
+        wdHairsEl = wdBox.querySelector("#guideWdHairs");
+      } catch (eWdDom) { /* panel phụ lỗi thì bỏ qua, guide chính vẫn chạy */ }
+      function wdCell(kind, item) {
+        var wdW = wardrobe[guideGender];
+        var o = kind === "o" ? item.id : wdW.o;
+        var h = kind === "h" ? item.id : wdW.h;
+        var isOn = (kind === "o" ? wdW.o : wdW.h) === item.id;
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "guide-wd-cell" + (isOn ? " is-on" : "");
+        btn.setAttribute("aria-pressed", isOn ? "true" : "false");
+        btn.setAttribute("data-wd-kind", kind);
+        btn.setAttribute("data-wd-id", String(item.id));
+        var img = document.createElement("img");
+        var cellSrc = wardrobeComboSrc(guideGender, o, h);
+        if (cellSrc) { img.src = cellSrc; }
+        else {
+          /* Bundle chưa nạp xong: khung chờ nhẹ = ảnh mặc định của giới, mờ đi;
+             nạp xong applyGuideGender -> vẽ lại lưới với ảnh thật. */
+          img.src = guideGender === "female" ? IMG_SRC_FEMALE : IMG_SRC;
+          btn.classList.add("guide-wd-wait");
+        }
+        img.alt = "";
+        img.setAttribute("aria-hidden", "true");
+        btn.appendChild(img);
+        var lb = document.createElement("span");
+        lb.className = "guide-wd-name";
+        lb.textContent = item.emoji + " " + item.name;
+        btn.appendChild(lb);
+        btn.addEventListener("click", function () { setWardrobe(kind, item.id); });
+        return btn;
+      }
+      function renderWardrobe() {
+        if (!wdBox || !wdOutfitsEl || !wdHairsEl) return;
+        ensureWardrobeImgs(guideGender); /* thumbnail biến thể cần data URI từ bundle */
+        var cfg = WARDROBE[guideGender];
+        if (!cfg) return;
+        wdOutfitsEl.innerHTML = "";
+        wdHairsEl.innerHTML = "";
+        cfg.outfits.forEach(function (it) { wdOutfitsEl.appendChild(wdCell("o", it)); });
+        cfg.hairs.forEach(function (it) { wdHairsEl.appendChild(wdCell("h", it)); });
+        wdRendered = true;
+      }
+      guideWardrobeUiRefresh = function () {
+        if (!guidePanel.hidden) renderWardrobe();
+      };
+      try {
+        var wdObs = new MutationObserver(function () {
+          if (!guidePanel.hidden) {
+            if (wdImgsState[guideGender] === 3) wdImgsState[guideGender] = 0; /* lần nạp trước lỗi: mở lại panel thì thử lại */
+            if (!wdRendered) renderWardrobe();
+          }
+        });
+        wdObs.observe(guidePanel, { attributes: true, attributeFilter: ["hidden"] });
+      } catch (eWdObs) {}
+      if (!guidePanel.hidden) renderWardrobe();
+
       /* ----- Khu chọn giọng ----- */
       function gvAvatar(vp, gender) {
         try { if (vp && typeof vp._avatarURI === "function") return vp._avatarURI(gender) || ""; } catch (eAv) {}
@@ -1662,7 +1898,12 @@
         renderVoices: renderVoiceLists,
         osKind: osKind,
         voicePlan: function () { return computeGuideVoicePlan(); },
-        voiceState: function () { return guideVoiceState; }
+        voiceState: function () { return guideVoiceState; },
+        getWardrobe: function () { return JSON.parse(JSON.stringify(wardrobe)); },
+        setWardrobe: setWardrobe,
+        wardrobeSrc: function () { return guideDisplaySrc(); },
+        wardrobeImgsState: function () { return JSON.parse(JSON.stringify(wdImgsState)); },
+        renderWardrobe: renderWardrobe
       };
     }
     function initZones() {
