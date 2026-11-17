@@ -1,27 +1,48 @@
 /* ============================================================
-   OTTER2 EXAM — Khu Luyện thi HSK (đề thi thử TỰ SINH từ kho dữ
-   liệu của trang: từ vựng + câu ví dụ + kho bài đọc). Đây là đề
-   LUYỆN TẬP tự sinh, không phải đề thi HSK chính thức.
+   OTTER2 EXAM v2 — Khu Luyện thi HSK + Bảng Điểm Thi.
+
+   v2 (2026-11-17) nâng cấp từ v1:
+   - ĐỀ SÁT ĐỀ THẬT: blueprint theo cấu trúc đề HSK thật từng cấp
+     (HSK1: Nghe 20 + Đọc 20, thang 200, đạt 120; HSK2: 35+25/200/120;
+     HSK3: 40+30+Viết 10, thang 300, đạt 180; HSK4: 45+40+15/300/180;
+     HSK5: 45+45+10/300/180; HSK6: 50+50+Viết thay thế 10/300/180 —
+     bài luận HSK6 được thay bằng sắp xếp từ + điền khuyết nâng cao,
+     ghi chú rõ trong UI; HSK7–9: bản mô phỏng thang 300).
+     Hai chế độ blueprint: "Thi thật mô phỏng" (đúng số câu, bấm giờ
+     TỪNG PHẦN, hết giờ phần tự chuyển, không quay lại) và "Thi rút
+     gọn" (thu nhỏ theo đúng tỉ lệ, giữ nguyên thang điểm). Chế độ
+     Mini/Chuẩn của v1 giữ nguyên làm "luyện nhanh".
+   - Dạng câu mới: Nghe hội thoại 2 lượt (hai câu ví dụ thật, TTS đọc
+     nối tiếp), Viết = sắp xếp từ thành câu (cấp >= 3), Đọc = sắp
+     xếp thứ tự câu trong đoạn. Mọi đáp án đều kiểm chứng bằng dữ liệu.
+   - CHẤM KIỂU STUDY4: điểm từng phần quy thang 100, tổng thang
+     200/300 theo cấp, đối chiếu mốc đạt -> Đạt/Chưa đạt + nhận định
+     sẵn sàng sinh từ điểm từng phần thật.
+   - NGÂN HÀNG ĐỀ: mỗi cấp 40 đề rút gọn đánh số (Đề 1..40), sinh
+     XÁC ĐỊNH theo hạt giống (mulberry32) + sổ xoay vòng nguồn câu
+     hỏi để hạn chế trùng lặp giữa các đề trong cùng cấp; thư viện
+     đề ở trang chủ khu thi hiện điểm cao nhất của từng đề.
+   - BẢNG ĐIỂM THI: nút điều hướng "Bảng thành tích" cũ (hàng nav)
+     được đổi thành "Bảng Điểm Thi" mở bảng điểm cá nhân đầy đủ
+     (điểm từng phần, tổng, Đạt/Chưa, xem lại bài, thống kê). Bảng
+     thành tích theo SỐ TỪ ĐÃ HỌC (#ttcAchHost, mở bằng nút 🏆 ở
+     trang chủ) giữ nguyên không đổi. Chưa có backend điểm thi trên
+     Supabase — bảng này đọc từ lịch sử thi trên thiết bị; nháp
+     backend ở ~/workspace/supabase_fix/exam_scores.md.
 
    Cộng thêm hoàn toàn (additive): không sửa script inline nào
-   trong index2.html. Thẻ mở "🏆 Luyện thi HSK" được tiêm vào
-   hàng .otter2-feature cạnh #otter2FeatPronun lúc chạy; overlay
-   #ttcExamOverlay dựng ở document.body theo mẫu
-   #ttcPronunciationOverlay (.ttc-hub-card + class "open").
-
-   Cổng Premium: đúng mẫu module Luyện phát âm — HSK 1–2 tự do;
-   chọn cấp >= 3 (và lúc bấm Bắt đầu) phải qua
-   window.checkPremiumAccess(level); phần Đọc dùng chung kho
-   window.__ttcReadingBank của module Luyện đọc và KHÔNG có
-   đường nào tới nội dung cấp >= 3 ngoài cổng đó.
-
-   Rái cá hướng dẫn: zone "exam" đã đăng ký trong otter2-guide.js
-   (dock dưới-trái, câm giọng, chỉ chữ/emoji như mọi khu học).
+   trong index2.html (v2 không cần thêm thẻ script nào mới).
+   CHÍNH SÁCH FREE (chủ web chốt 2026-11-17): khu thi miễn phí
+   toàn bộ — KHÔNG cổng Premium, không cần đăng nhập ở mọi cấp
+   HSK1–9 (gỡ hẳn checkPremiumAccess/otter2AssertHskAvailable
+   khỏi luồng thi so với v1). Các module khác giữ cổng của chúng.
+   Rái cá: zone "exam" trong otter2-guide.js (câm giọng) — overlay
+   Bảng Điểm Thi dùng chung zone "exam".
    ============================================================ */
 (function () {
   "use strict";
-  if (window.__OTTER2_EXAM_V1__) return;
-  window.__OTTER2_EXAM_V1__ = true;
+  if (window.__OTTER2_EXAM_V2__) return;
+  window.__OTTER2_EXAM_V2__ = true;
 
   /* ---------------- Tiện ích ---------------- */
   function esc(v) {
@@ -37,6 +58,14 @@
       t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
       return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
     };
+  }
+  function hashStr(s) {
+    var h = 2166136261;
+    s = String(s);
+    for (var i = 0; i < s.length; i++) {
+      h = Math.imul(h ^ s.charCodeAt(i), 16777619);
+    }
+    return h >>> 0;
   }
   function shuffle(arr, rng) {
     var a = arr.slice();
@@ -81,17 +110,36 @@
     var parts = String(zh || "").replace(/\s+/g, "").match(/[^。！？；]+[。！？；]?/g) || [];
     return parts.map(function (s) { return s.trim(); }).filter(function (s) { return s.length >= 6; });
   }
+  /* Từ điển tách câu cho dạng sắp xếp từ: mọi từ vựng ở cấp <= level. */
+  var segDictCache = {};
+  function segDict(level) {
+    var key = String(level);
+    if (segDictCache[key]) return segDictCache[key];
+    var map = {};
+    allWords().forEach(function (w) {
+      if (w && Number(w.hsk) <= Number(level) && String(w.h || "").length >= 2) map[String(w.h)] = 1;
+    });
+    segDictCache[key] = map;
+    return map;
+  }
+  function isInterrogative(text) {
+    return /？|\?|吗|什么|怎么|谁|哪|多少|为什么/.test(String(text || "")) ||
+      /(^|[^几])几[^天月日年]/.test(String(text || ""));
+  }
 
-  /* ---------------- Bộ sinh đề ----------------
-     Mỗi câu hỏi: { section, type, stem, sub, passage, passageTitle,
+  /* ---------------- Bộ sinh đề — phần tử cơ bản ----------------
+     Câu hỏi MCQ: { section, type, stem, sub, passage, passageTitle,
        speakText, options[4], answer, correctText,
-       explainHead, explainBody, srcKey }                        */
+       explainHead, explainBody, srcKey }
+     Câu hỏi SẮP XẾP: { ..., type: 'write-order'|'read-order',
+       options[mảnh xáo trộn], answerSeq[vị trí đúng], chunks[mảng đúng],
+       correctText } — KHÔNG có answer số.                            */
   function distractors(pool, valueOf, normOf, correctVal, n, rng, prefer) {
     var correctN = normOf(correctVal);
     var seen = {}; seen[correctN] = 1;
     var out = [];
     var ordered = shuffle(pool, rng);
-    if (prefer) ordered.sort(prefer); /* ưu tiên (vd cùng từ loại) lên trước, vẫn giữ ngẫu nhiên trong nhóm */
+    if (prefer) ordered.sort(prefer);
     for (var i = 0; i < ordered.length && out.length < n; i++) {
       var v = valueOf(ordered[i]);
       if (v == null || String(v).trim() === "") continue;
@@ -150,6 +198,49 @@
       srcKey: "L" + level + "|" + w.h + "|" + w.p
     }, String(w.example), wrongs, rng);
   }
+  /* Nghe hội thoại 2 lượt: lượt 1 = câu hỏi thật từ kho câu ví dụ,
+     lượt 2 = câu trả lời (ưu tiên câu có dùng chung từ vựng với lượt 1).
+     Đáp án kiểm chứng = nghĩa của lượt 2 trong dữ liệu. */
+  var COMMON_BIGRAMS = { "的是": 1, "了我": 1, "我的": 1, "他的": 1, "她的": 1, "我们": 1, "他们": 1, "她们": 1, "不是": 1, "什么": 1, "一个": 1, "这个": 1, "那个": 1, "的人": 1, "了的": 1, "在的": 1, "和我": 1, "我想": 1, "你想": 1, "是的": 1 };
+  function sharesVocab(textA, entryB) {
+    var a = hanOnly(textA), b = hanOnly(entryB.example);
+    if (!a || !b) return false;
+    if (a.indexOf(String(entryB.h)) >= 0) return true;
+    var grams = {};
+    for (var i = 0; i + 1 < a.length; i++) {
+      var g = a.substr(i, 2);
+      if (!COMMON_BIGRAMS[g]) grams[g] = 1;
+    }
+    for (var j = 0; j + 1 < b.length; j++) {
+      if (grams[b.substr(j, 2)]) return true;
+    }
+    return false;
+  }
+  function genListenDialogue(level, pool, rng) {
+    var qs = [], ds = [];
+    pool.forEach(function (w) { (isInterrogative(w.example) ? qs : ds).push(w); });
+    if (!qs.length || ds.length < 4) return null;
+    for (var t = 0; t < 14; t++) {
+      var a = pickOne(qs, rng);
+      var shared = ds.filter(function (w) { return w !== a && sharesVocab(a.example, w); });
+      var b = shared.length ? pickOne(shared, rng) : pickOne(ds, rng);
+      if (!b || b === a) continue;
+      var wrongs = distractors(pool, function (x) { return x.exampleMeaning; }, normOpt, b.exampleMeaning, 3, rng, null);
+      if (wrongs.length < 3) continue;
+      return finalize({
+        section: "listen", type: "listen-dialogue",
+        stem: "Nghe đoạn hội thoại ngắn (2 lượt nói) và chọn nghĩa tiếng Việt ĐÚNG của câu trả lời — lượt nói thứ hai.",
+        sub: "", passage: null, passageTitle: "",
+        speakText: String(a.example) + "\n" + String(b.example),
+        explainHead: "Hội thoại:\n🗣️ " + String(a.example) + "\n🗣️ " + String(b.example),
+        explainBody: String(a.examplePinyin) + " — " + String(a.exampleMeaning) +
+          "\n" + String(b.examplePinyin) + " — " + String(b.exampleMeaning) +
+          "\nCâu trả lời cần chọn nghĩa: " + String(b.example),
+        srcKey: "L" + level + "|dlg|" + a.h + "|" + b.h
+      }, String(b.exampleMeaning), wrongs, rng);
+    }
+    return null;
+  }
   function genVocabMeaning(level, pool, rng) {
     var w = pickOne(pool, rng);
     var wrongs = distractors(pool, function (x) { return x.m; }, normOpt, w.m, 3, rng, sameTypeFirst(w));
@@ -200,7 +291,71 @@
     }, String(w.h), wrongs, rng);
   }
 
-  function passageQuestions(level, passage, poolAll, rng, otherPassages) {
+  /* --- Sắp xếp từ thành câu (phần Viết) ---
+     Tách câu ví dụ thành các mảnh bằng từ điển từ vựng cấp <= level
+     (tham lam, dài nhất trước). Chỉ nhận câu tách được 4–8 mảnh,
+     không mảnh nào trùng nhau, và từ đích là một mảnh nguyên vẹn. */
+  function segmentSentence(rawZh, dict) {
+    var s = hanOnly(rawZh);
+    if (s.length < 8 || s.length > 18) return null;
+    var chunks = [], i = 0;
+    while (i < s.length) {
+      var matched = null;
+      for (var L = Math.min(5, s.length - i); L >= 2; L--) {
+        var sub = s.substr(i, L);
+        if (dict[sub]) { matched = sub; break; }
+      }
+      if (!matched) matched = s.substr(i, 1);
+      chunks.push(matched);
+      i += matched.length;
+    }
+    if (chunks.length < 4 || chunks.length > 8) return null;
+    var seen = {};
+    for (var c = 0; c < chunks.length; c++) {
+      if (seen[chunks[c]]) return null;
+      seen[chunks[c]] = 1;
+    }
+    return chunks;
+  }
+  function makeOrderQuestion(base, chunks, rng) {
+    var n = chunks.length;
+    var order = shuffle(chunks.map(function (_, i) { return i; }), rng);
+    var identity = order.every(function (v, i) { return v === i; });
+    if (identity) { var t = order[0]; order[0] = order[1]; order[1] = t; }
+    var options = order.map(function (ci) { return chunks[ci]; });
+    var inv = new Array(n);
+    order.forEach(function (ci, pos) { inv[ci] = pos; });
+    base.options = options;
+    base.chunks = chunks.slice();
+    base.answerSeq = chunks.map(function (_, k) { return inv[k]; });
+    base.correctText = chunks.join("");
+    return base;
+  }
+  function genWriteOrder(level, poolAll, poolEx, rng) {
+    var dict = segDict(level);
+    for (var t = 0; t < 48; t++) {
+      var w = pickOne(poolEx, rng);
+      if (!w) continue;
+      var chunks = segmentSentence(w.example, dict);
+      if (!chunks) continue;
+      if (chunks.indexOf(String(w.h)) < 0) continue;
+      return makeOrderQuestion({
+        section: "writing", type: "write-order",
+        stem: "Sắp xếp các mảnh từ sau thành câu đúng:",
+        sub: "", passage: null, passageTitle: "", speakText: null,
+        explainHead: String(w.example),
+        explainBody: String(w.examplePinyin) + " — " + String(w.exampleMeaning) +
+          "\nTừ trọng tâm: " + String(w.h) + " (" + String(w.p) + ") — " + String(w.m),
+        srcKey: "W" + level + "|ord|" + w.h + "|" + w.p,
+        sourceSentence: String(w.example), targetWord: String(w.h)
+      }, chunks, rng);
+    }
+    return null;
+  }
+
+  /* --- Câu hỏi từ một bài đọc ---
+     opts.order = true -> thêm dạng sắp xếp thứ tự câu (bản blueprint). */
+  function passageQuestions(level, passage, poolAll, rng, otherPassages, opts) {
     var qs = [];
     var zh = String(passage.zh || "");
     var title = String(passage.title || "");
@@ -270,7 +425,57 @@
         }, String(correct), swrongs, rng));
       }
     }
+    /* 4) Sắp xếp thứ tự câu trong đoạn (chỉ bản blueprint) */
+    if (opts && opts.order) {
+      var win = null;
+      for (var wi = 0; wi + 3 < sents.length && !win; wi++) {
+        var cand = sents.slice(wi, wi + 4);
+        var okWin = cand.every(function (x) { return x.length >= 6 && x.length <= 42; });
+        var dupCheck = {};
+        cand.forEach(function (x) { dupCheck[x] = (dupCheck[x] || 0) + 1; });
+        if (okWin && Object.keys(dupCheck).length === 4) win = cand;
+      }
+      if (win) {
+        qs.push(makeOrderQuestion({
+          section: "reading", type: "read-order",
+          stem: "Sắp xếp 4 câu sau theo đúng thứ tự trong bài đọc:",
+          sub: "", passage: zh, passageTitle: title, speakText: null,
+          explainHead: "Thứ tự đúng trong bài:",
+          explainBody: win.join("\n"),
+          srcKey: "R" + level + "|" + passage.id + "|ord"
+        }, win, rng));
+      }
+    }
     return qs;
+  }
+
+  /* Điền khuyết nâng cao từ bài đọc — dùng cho phần Viết HSK6
+     (thay thế tương đương bài luận, cùng với sắp xếp từ). */
+  function genWritingPassageCloze(level, poolAll, passages, rng) {
+    if (!passages.length) return null;
+    for (var t = 0; t < 16; t++) {
+      var p = pickOne(passages, rng);
+      var sents = splitSentences(p.zh).filter(function (s) { return s.length >= 12; });
+      if (!sents.length) continue;
+      var s = pickOne(sents, rng);
+      var inSent = poolAll.filter(function (w) { return String(w.h || "").length >= 2 && s.indexOf(String(w.h)) >= 0; });
+      if (!inSent.length) continue;
+      var cw = pickOne(inSent, rng);
+      var blanked = blankOut(s, cw.h);
+      if (!blanked) continue;
+      var wrongs = distractors(poolAll, function (x) { return x.h; }, normOpt, cw.h, 3, rng, sameTypeFirst(cw));
+      if (wrongs.length < 3) continue;
+      return finalize({
+        section: "writing", type: "write-cloze",
+        stem: "Điền từ thích hợp vào chỗ trống trong câu trích từ bài đọc (điền khuyết nâng cao):",
+        sub: blanked, passage: String(p.zh || ""), passageTitle: String(p.title || ""), speakText: null,
+        explainHead: s,
+        explainBody: "Từ cần điền: " + String(cw.h) + " (" + String(cw.p) + ") — " + String(cw.m),
+        srcKey: "W" + level + "|pcloze|" + p.id + "|" + cw.h,
+        sourceSentence: s, targetWord: String(cw.h)
+      }, String(cw.h), wrongs, rng);
+    }
+    return null;
   }
 
   function fallbackPassage(level, poolEx, rng) {
@@ -286,13 +491,40 @@
     };
   }
 
+  /* ---------------- Blueprint đề thật + chế độ thi ----------------
+     sec: [khóa phần, số câu, số giây] theo thứ tự đề thật.
+     thang: tổng điểm tối đa; dat: mốc đạt. Mỗi phần quy thang 100. */
+  var BLUEPRINT = {
+    1: { sec: [["listen", 20, 780], ["reading", 20, 1020]], scale: 200, pass: 120 },
+    2: { sec: [["listen", 35, 1500], ["reading", 25, 1320]], scale: 200, pass: 120 },
+    3: { sec: [["listen", 40, 2100], ["reading", 30, 1800], ["writing", 10, 900]], scale: 300, pass: 180 },
+    4: { sec: [["listen", 45, 1800], ["reading", 40, 2400], ["writing", 15, 1500]], scale: 300, pass: 180 },
+    5: { sec: [["listen", 45, 1800], ["reading", 45, 2700], ["writing", 10, 2400]], scale: 300, pass: 180 },
+    6: { sec: [["listen", 50, 2100], ["reading", 50, 3000], ["writing", 10, 2700]], scale: 300, pass: 180, writingSub: true }
+  };
+  var SIM_BLUEPRINT = { sec: [["listen", 20, 1500], ["reading", 20, 1800], ["writing", 10, 1200]], scale: 300, pass: 180, simulated: true };
+  function blueprintFor(level) {
+    return BLUEPRINT[Number(level)] || SIM_BLUEPRINT;
+  }
+  function reducedCounts(bp) {
+    var totalQ = bp.sec.reduce(function (a, s) { return a + s[1]; }, 0);
+    var f = 20 / totalQ;
+    return bp.sec.map(function (s) { return Math.max(2, Math.round(s[1] * f)); });
+  }
   var SIZE_SPEC = {
     mini: { total: 10, listen: 3, vocab: 4, reading: 3, passages: 1, seconds: 600, label: "Mini · 10 câu · 10 phút" },
     standard: { total: 20, listen: 6, vocab: 8, reading: 6, passages: 2, seconds: 1500, label: "Chuẩn · 20 câu · 25 phút" }
   };
+  var MODE_LABEL = {
+    full: "Thi thật mô phỏng",
+    reduced: "Thi rút gọn",
+    catalog: "Đề thư viện (rút gọn)",
+    mini: "Luyện nhanh Mini",
+    standard: "Luyện nhanh Chuẩn"
+  };
 
-  function generateExam(level, sizeKey, rng) {
-    rng = rng || Math.random;
+  /* ---------------- Sinh đề kiểu v1 (Mini / Chuẩn) ---------------- */
+  function generateLegacyExam(level, sizeKey, rng) {
     var spec = SIZE_SPEC[sizeKey] || SIZE_SPEC.mini;
     var poolAll = wordsOfLevel(level);
     var poolEx = exampleWordsOfLevel(level);
@@ -304,14 +536,12 @@
       used[q.srcKey] = 1;
       return true;
     }
-    /* --- Nghe --- */
     var listenMakers = [genListenMeaning, genListenSentence];
     var li = 0, guard = 0;
     while (li < spec.listen && guard++ < 80) {
       var q = listenMakers[li % 2](level, poolEx, rng);
       if (fresh(q)) { questions.push(q); li++; }
     }
-    /* --- Từ vựng & ngữ pháp --- */
     var vocabMakers = [genVocabMeaning, genCloze, genVocabPinyin];
     var order = shuffle([0, 1, 2], rng);
     var vi2 = 0; guard = 0;
@@ -322,7 +552,6 @@
         : genVocabMeaning(level, poolAll, rng);
       if (fresh(q2)) { questions.push(q2); vi2++; }
     }
-    /* --- Đọc hiểu --- */
     var passages = passagesOfLevel(level);
     var chosenPassages = shuffle(passages, rng).slice(0, spec.passages);
     if (!chosenPassages.length) {
@@ -332,29 +561,221 @@
     var ri = 0;
     for (var pi = 0; pi < chosenPassages.length && ri < spec.reading; pi++) {
       var others = passages.filter(function (p) { return p !== chosenPassages[pi]; });
-      var pqs = passageQuestions(level, chosenPassages[pi], poolAll, rng, others);
+      var pqs = passageQuestions(level, chosenPassages[pi], poolAll, rng, others, null);
       for (var qi = 0; qi < pqs.length && ri < spec.reading; qi++) {
         if (fresh(pqs[qi])) { questions.push(pqs[qi]); ri++; }
       }
     }
-    /* Bù thiếu bằng câu từ vựng nếu một phần chưa đủ (dữ liệu mỏng) */
     guard = 0;
     while (questions.length < spec.total && guard++ < 200) {
       var q3 = genVocabMeaning(level, poolAll, rng);
       if (fresh(q3)) questions.push(q3);
     }
+    var plan = [
+      { key: "listen", count: spec.listen, seconds: 0 },
+      { key: "vocab", count: spec.vocab, seconds: 0 },
+      { key: "reading", count: spec.reading, seconds: 0 }
+    ];
     return {
-      level: Number(level), sizeKey: sizeKey, spec: spec,
+      level: Number(level), mode: sizeKey, sizeKey: sizeKey, spec: spec,
       questions: questions, total: questions.length,
-      seconds: spec.seconds, generatedAt: Date.now()
+      seconds: spec.seconds, sectionPlan: plan,
+      scaleMax: 300, passMark: 180,
+      passagesUsed: chosenPassages.map(function (p) { return p.id; }),
+      generatedAt: Date.now()
     };
   }
 
+  /* ---------------- Sinh đề theo blueprint ---------------- */
+  function generateBlueprintExam(level, mode, rng, opts) {
+    opts = opts || {};
+    var bp = blueprintFor(level);
+    var counts = mode === "full" ? bp.sec.map(function (s) { return s[1]; }) : reducedCounts(bp);
+    var poolAll = wordsOfLevel(level);
+    var poolEx = exampleWordsOfLevel(level);
+    var passages = passagesOfLevel(level);
+    var used = {}, usedTyped = {};
+    var questions = [];
+    var passagesUsed = [];
+    function fresh(q, relax) {
+      if (!q) return false;
+      if (!relax && used[q.srcKey]) return false;
+      if (relax && usedTyped[q.srcKey + "#" + q.type]) return false;
+      used[q.srcKey] = 1;
+      usedTyped[q.srcKey + "#" + q.type] = 1;
+      return true;
+    }
+    function take(maker, relax) {
+      var q = maker();
+      if (fresh(q, relax)) { questions.push(q); return true; }
+      return false;
+    }
+    var plan = [];
+    bp.sec.forEach(function (sDef, sIdx) {
+      var key = sDef[0], want = counts[sIdx];
+      var before = questions.length;
+      var guard;
+      if (key === "listen") {
+        var makers = [
+          function () { return genListenDialogue(level, poolEx, rng); },
+          function () { return genListenMeaning(level, poolEx, rng); },
+          function () { return genListenSentence(level, poolEx, rng); }
+        ];
+        var li = 0; guard = 0;
+        while (li < want && guard++ < want * 40) {
+          if (take(makers[li % 3], false)) li++;
+          else makers.push(makers.shift()); /* dạng này đang bí nguồn — xoay sang dạng khác */
+        }
+        guard = 0;
+        while (li < want && guard++ < want * 40) { if (take(makers[li % 3], true)) li++; }
+      } else if (key === "reading") {
+        var orderedPassages = opts.preferPassages && opts.preferPassages.length
+          ? opts.preferPassages.slice()
+          : shuffle(passages, rng);
+        if (!orderedPassages.length) {
+          var fb = fallbackPassage(level, poolEx, rng);
+          if (fb) orderedPassages = [fb];
+        }
+        var ri = 0;
+        for (var pi = 0; pi < orderedPassages.length && ri < want; pi++) {
+          var p = orderedPassages[pi];
+          var others = passages.filter(function (x) { return x !== p; });
+          var pqs = passageQuestions(level, p, poolAll, rng, others, { order: true });
+          var usedThisPassage = false;
+          for (var qi = 0; qi < pqs.length && ri < want; qi++) {
+            if (fresh(pqs[qi], false)) { questions.push(pqs[qi]); ri++; usedThisPassage = true; }
+          }
+          if (usedThisPassage && passagesUsed.indexOf(p.id) < 0) passagesUsed.push(p.id);
+        }
+        guard = 0;
+        var fillMakers = [
+          function () { var q = genCloze(level, poolAll, poolEx, rng); if (q) q.section = "reading"; return q; },
+          function () { var q = genVocabMeaning(level, poolAll, rng); if (q) q.section = "reading"; return q; },
+          function () { var q = genVocabPinyin(level, poolAll, rng); if (q) q.section = "reading"; return q; }
+        ];
+        var fi = 0;
+        while (ri < want && guard++ < want * 40) { if (take(fillMakers[fi % 3], false)) { ri++; } fi++; }
+        guard = 0;
+        while (ri < want && guard++ < want * 40) { if (take(fillMakers[fi % 3], true)) { ri++; } fi++; }
+      } else if (key === "writing") {
+        var wi = 0; guard = 0;
+        var usePassageCloze = !!bp.writingSub;
+        while (wi < want && guard++ < want * 60) {
+          var mkW = (usePassageCloze && wi % 2 === 1)
+            ? function () { return genWritingPassageCloze(level, poolAll, passages, rng); }
+            : function () { return genWriteOrder(level, poolAll, poolEx, rng); };
+          if (take(mkW, false)) wi++;
+        }
+        guard = 0;
+        while (wi < want && guard++ < want * 60) {
+          var mkW2 = (usePassageCloze && wi % 2 === 1)
+            ? function () { return genWritingPassageCloze(level, poolAll, passages, rng); }
+            : function () { return genWriteOrder(level, poolAll, poolEx, rng); };
+          if (take(mkW2, true)) wi++;
+        }
+      }
+      var got = questions.length - before;
+      plan.push({ key: key, count: got, seconds: sDef[2] });
+    });
+    var totalSeconds = mode === "full"
+      ? bp.sec.reduce(function (a, s) { return a + s[2]; }, 0)
+      : Math.round(bp.sec.reduce(function (a, s) { return a + s[2]; }, 0) *
+          (questions.length / Math.max(1, bp.sec.reduce(function (a, s) { return a + s[1]; }, 0))));
+    return {
+      level: Number(level), mode: mode, sizeKey: mode, spec: null,
+      questions: questions, total: questions.length,
+      seconds: totalSeconds, sectionPlan: plan,
+      scaleMax: bp.scale, passMark: bp.pass,
+      simulated: !!bp.simulated, writingSub: !!bp.writingSub,
+      passagesUsed: passagesUsed,
+      generatedAt: Date.now()
+    };
+  }
+
+  function generateExam(level, modeKey, rng, opts) {
+    rng = rng || Math.random;
+    if (modeKey === "mini" || modeKey === "standard") return generateLegacyExam(level, modeKey, rng);
+    return generateBlueprintExam(level, modeKey === "full" ? "full" : "reduced", rng, opts);
+  }
+
+  /* ---------------- Chấm điểm kiểu Study4 ---------------- */
+  function isOrderType(q) { return q && (q.type === "write-order" || q.type === "read-order"); }
+  function isCorrectAnswer(q, a) {
+    if (!q) return false;
+    if (isOrderType(q)) {
+      if (!Array.isArray(a) || !Array.isArray(q.answerSeq)) return false;
+      if (a.length !== q.answerSeq.length) return false;
+      for (var i = 0; i < a.length; i++) if (a[i] !== q.answerSeq[i]) return false;
+      return true;
+    }
+    return a === q.answer;
+  }
+  function isAnswered(q, a) {
+    if (isOrderType(q)) return Array.isArray(a) && a.length === (q.options || []).length;
+    return typeof a === "number" && a >= 0;
+  }
+  function computeScore(exam, answers) {
+    var per = {};
+    (exam.sectionPlan || []).forEach(function (p) { per[p.key] = { n: 0, ok: 0, score: null }; });
+    exam.questions.forEach(function (q, i) {
+      if (!per[q.section]) per[q.section] = { n: 0, ok: 0, score: null };
+      per[q.section].n++;
+      if (isCorrectAnswer(q, answers[i])) per[q.section].ok++;
+    });
+    var totalScore = 0, weakest = null, weakestScore = Infinity;
+    Object.keys(per).forEach(function (k) {
+      var s = per[k];
+      s.score = s.n ? Math.round(100 * s.ok / s.n) : null;
+      if (s.score != null) {
+        totalScore += s.score;
+        if (s.score < weakestScore) { weakestScore = s.score; weakest = k; }
+      }
+    });
+    var scaleMax = exam.scaleMax || 300;
+    var passMark = exam.passMark || Math.round(scaleMax * 0.6);
+    var pct = scaleMax ? Math.round(1000 * totalScore / scaleMax) / 10 : 0;
+    var passed = totalScore >= passMark;
+    var verdict;
+    if (pct >= 85) {
+      verdict = { tier: "ready", text: "🏆 Mức sẵn sàng: ĐIỂM SỐ NÀY ĐỦ TỰ TIN ĐĂNG KÝ THI THẬT. Hãy giữ nhịp ôn tập và làm thêm đề thư viện để ổn định phong độ." };
+    } else if (passed) {
+      verdict = { tier: "pass", text: "💪 Mức sẵn sàng: ĐÃ ĐẠT MỐC ĐIỂM QUA MÔN (" + passMark + "/" + scaleMax + "). Để chắc chắn hơn khi thi thật, hãy ôn thêm phần yếu nhất: " + sectionName(weakest) + "." };
+    } else {
+      verdict = { tier: "fail", text: "🌱 Mức sẵn sàng: CHƯA ĐẠT MỐC " + passMark + "/" + scaleMax + ". Cần ôn kỹ phần yếu nhất: " + sectionName(weakest) + " trước khi đăng ký thi thật." };
+    }
+    return {
+      perSection: per, totalScore: totalScore, scaleMax: scaleMax,
+      passMark: passMark, passed: passed, pct: pct,
+      weakest: weakest, verdict: verdict
+    };
+  }
+  var SECTION_LABEL = {
+    listen: "🎧 Nghe hiểu", vocab: "📚 Từ vựng & ngữ pháp",
+    reading: "📖 Đọc hiểu", writing: "✍️ Viết"
+  };
+  function sectionName(key) { return SECTION_LABEL[key] || key || "—"; }
+
+  /* ---------------- Kiểm chứng đề ---------------- */
   function validateExam(exam) {
     var errs = [];
     if (!exam || !Array.isArray(exam.questions)) return ["no questions"];
     exam.questions.forEach(function (q, i) {
       var tag = "Q" + (i + 1) + "(" + q.type + ")";
+      if (!String(q.stem || "").trim()) errs.push(tag + ": empty stem");
+      if (isOrderType(q)) {
+        var m = (q.options || []).length;
+        if (m < 4 || m > 9) errs.push(tag + ": order options " + m);
+        var seenO = {};
+        (q.options || []).forEach(function (o) { seenO[normOpt(o)] = (seenO[normOpt(o)] || 0) + 1; });
+        if (Object.keys(seenO).length !== m) errs.push(tag + ": duplicate order chunks");
+        if (!Array.isArray(q.answerSeq) || q.answerSeq.length !== m) { errs.push(tag + ": bad answerSeq"); return; }
+        var perm = q.answerSeq.slice().sort(function (a, b) { return a - b; });
+        for (var pi2 = 0; pi2 < m; pi2++) if (perm[pi2] !== pi2) { errs.push(tag + ": answerSeq not permutation"); break; }
+        var rebuilt = q.answerSeq.map(function (oi) { return q.options[oi]; }).join("");
+        if (rebuilt !== q.correctText) errs.push(tag + ": answerSeq rebuild != correctText");
+        if (Array.isArray(q.chunks) && q.chunks.join("") !== q.correctText) errs.push(tag + ": chunks != correctText");
+        return;
+      }
       if (!Array.isArray(q.options) || q.options.length !== 4) { errs.push(tag + ": options!=4"); return; }
       var seen = {};
       q.options.forEach(function (o) { seen[normOpt(o)] = (seen[normOpt(o)] || 0) + 1; });
@@ -362,37 +783,115 @@
       if (typeof q.answer !== "number" || q.answer < 0 || q.answer > 3) errs.push(tag + ": bad answer idx");
       else if (q.options[q.answer] !== q.correctText) errs.push(tag + ": answer!=correctText");
       if (q.section === "listen" && !String(q.speakText || "").trim()) errs.push(tag + ": listen without speakText");
-      if ((q.type === "cloze" || q.type === "read-cloze")) {
+      if ((q.type === "cloze" || q.type === "read-cloze" || q.type === "write-cloze")) {
         if (!q.sourceSentence || String(q.sourceSentence).indexOf(q.targetWord) < 0) errs.push(tag + ": cloze source lacks target");
         if (!q.sub || q.sub.indexOf("＿＿") < 0) errs.push(tag + ": cloze not blanked");
       }
-      if (!String(q.stem || "").trim()) errs.push(tag + ": empty stem");
     });
     return errs;
   }
 
-  /* ---------------- TTS (mẫu speakHub của trang) ---------------- */
+  /* ---------------- Ngân hàng đề (Phần 3) ----------------
+     40 đề/cấp, sinh xác định: seed = hash(testId + lượt thử).
+     Dựng tăng dần Đề 1 -> Đề N trong bộ nhớ phiên: sổ ledger ghi
+     nguồn câu hỏi (srcKey -> các dạng đã dùng) + số lần dùng từng
+     bài đọc của các đề trước; mỗi đề mới thử tối đa 5 hạt giống,
+     chọn bản có độ trùng nguồn thấp nhất (trùng nguyên dạng tính 1,
+     trùng nguồn nhưng khác dạng tính 0,4). */
+  var CATALOG_PER_LEVEL = 40;
+  var CATALOG_ATTEMPTS = 5;
+  var catalogCache = {};
+  function testIdOf(level, n) { return "HSK" + Number(level) + "-D" + n; }
+  function catalogSeed(level, n, attempt) {
+    return hashStr("TTC-CATALOG|" + level + "|" + n + "|" + attempt);
+  }
+  function overlapOf(exam, ledger) {
+    if (!exam || !exam.total) return 1;
+    var wsum = 0;
+    exam.questions.forEach(function (q) {
+      var types = ledger[q.srcKey];
+      if (types) wsum += types[q.type] ? 1 : 0.4;
+    });
+    return wsum / exam.total;
+  }
+  function buildCatalogUpTo(level, n) {
+    level = Number(level);
+    var c = catalogCache[level];
+    if (!c) {
+      c = catalogCache[level] = { tests: [], ledger: {}, passageUse: {} };
+    }
+    while (c.tests.length < n) {
+      var idx = c.tests.length + 1;
+      var passages = passagesOfLevel(level);
+      var prefer = passages.slice().sort(function (a, b) {
+        var ca = c.passageUse[a.id] || 0, cb = c.passageUse[b.id] || 0;
+        if (ca !== cb) return ca - cb;
+        return String(a.id) < String(b.id) ? -1 : 1;
+      });
+      var best = null, bestOv = Infinity, bestSeed = 0;
+      for (var att = 0; att < CATALOG_ATTEMPTS; att++) {
+        var seed = catalogSeed(level, idx, att);
+        var cand = generateExam(level, "reduced", mulberry32(seed), { preferPassages: prefer });
+        var ov = overlapOf(cand, c.ledger);
+        if (ov < bestOv) { bestOv = ov; best = cand; bestSeed = seed; }
+        if (ov === 0 || (att >= 1 && ov <= 0.12)) break; /* đủ tốt — ưu tiên tốc độ mở đề */
+      }
+      best.mode = "catalog";
+      best.testId = testIdOf(level, idx);
+      best.seed = bestSeed;
+      best.overlapIn = Math.round(bestOv * 1000) / 1000;
+      best.questions.forEach(function (q) {
+        if (!c.ledger[q.srcKey]) c.ledger[q.srcKey] = {};
+        c.ledger[q.srcKey][q.type] = 1;
+      });
+      (best.passagesUsed || []).forEach(function (pid) {
+        c.passageUse[pid] = (c.passageUse[pid] || 0) + 1;
+      });
+      c.tests.push(best);
+    }
+    return c.tests[n - 1];
+  }
+  function catalogBestMap() {
+    var map = {};
+    loadHistory().forEach(function (h) {
+      if (!h || !h.testId) return;
+      var cur = map[h.testId];
+      if (!cur || (typeof h.totalScore === "number" && h.totalScore > (cur.totalScore || -1))) map[h.testId] = h;
+    });
+    return map;
+  }
+
+  /* ---------------- TTS (mẫu speakHub của trang) ----------------
+     speakText có thể chứa nhiều lượt nói cách nhau bằng "\n"
+     (hội thoại) — đọc nối tiếp bằng hàng đợi utterance. */
   function speak(text) {
     if (!text || !("speechSynthesis" in window)) return;
     try {
       window.speechSynthesis.cancel();
-      var u = new SpeechSynthesisUtterance(String(text));
-      u.lang = "zh-CN";
-      u.rate = typeof window.selectedRate === "number" ? window.selectedRate : 0.9;
-      u.pitch = 1; u.volume = 1;
-      window.speechSynthesis.speak(u);
+      var parts = String(text).split(/\n+/).map(function (s) { return s.trim(); }).filter(Boolean);
+      if (!parts.length) parts = [String(text)];
+      parts.forEach(function (p) {
+        var u = new SpeechSynthesisUtterance(p);
+        u.lang = "zh-CN";
+        u.rate = typeof window.selectedRate === "number" ? window.selectedRate : 0.9;
+        u.pitch = 1; u.volume = 1;
+        window.speechSynthesis.speak(u);
+      });
     } catch (e) {}
   }
   function stopSpeak() {
     if ("speechSynthesis" in window) { try { window.speechSynthesis.cancel(); } catch (e) {} }
   }
 
-  /* ---------------- CSS riêng của khu thi ---------------- */
+  /* ---------------- CSS riêng của khu thi + bảng điểm ---------------- */
   var CSS = [
     "#ttcExamOverlay{position:fixed;inset:0;z-index:1000200;background:rgba(15,23,42,.62);display:none;align-items:flex-start;justify-content:center;padding:12px;overflow:auto}",
     "#ttcExamOverlay.open{display:flex}",
+    "#ttcScoreBoardOverlay{position:fixed;inset:0;z-index:1000201;background:rgba(15,23,42,.62);display:none;align-items:flex-start;justify-content:center;padding:12px;overflow:auto}",
+    "#ttcScoreBoardOverlay.open{display:flex}",
     ".ttc-exam-card{width:min(980px,98vw)}",
     ".ttc-exam-note{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:12px;padding:10px 12px;font-size:14px;line-height:1.5}",
+    ".ttc-exam-free{background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;border-radius:12px;padding:10px 12px;font-size:14px;line-height:1.5}",
     ".ttc-exam-levels{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}",
     ".ttc-exam-level{border:2px solid #e2e8f0;background:#fff;border-radius:14px;padding:10px 14px;font-size:15px;font-weight:600;cursor:pointer;color:#172033}",
     ".ttc-exam-level small{display:block;font-weight:500;color:#64748b;font-size:12px;margin-top:2px}",
@@ -400,11 +899,18 @@
     ".ttc-exam-sizes{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 14px}",
     ".ttc-exam-size{border:2px solid #e2e8f0;background:#fff;border-radius:999px;padding:8px 16px;font-weight:600;cursor:pointer;color:#172033}",
     ".ttc-exam-size.on{border-color:#2563eb;background:#eff6ff}",
+    ".ttc-exam-modedesc{font-size:13.5px;color:#475569;margin:-6px 0 12px;line-height:1.55}",
     ".ttc-exam-start{background:#f59e0b;color:#fff;border:none;border-radius:14px;padding:13px 26px;font-size:17px;font-weight:700;cursor:pointer}",
     ".ttc-exam-start:disabled{opacity:.5;cursor:wait}",
     ".ttc-exam-hist{margin-top:18px}",
     ".ttc-exam-hist h3{margin:0 0 8px;font-size:16px;color:#172033}",
     ".ttc-exam-hist-item{display:flex;justify-content:space-between;gap:10px;padding:8px 10px;border:1px solid #eef1f5;border-radius:10px;margin-bottom:6px;font-size:14px;color:#334155;background:#fbfcfe}",
+    ".ttc-exam-lib{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px;margin:10px 0 4px}",
+    ".ttc-exam-libcell{border:2px solid #e2e8f0;background:#fff;border-radius:13px;padding:9px 8px;cursor:pointer;color:#172033;font-weight:700;font-size:14.5px;text-align:center;line-height:1.35}",
+    ".ttc-exam-libcell small{display:block;font-weight:600;font-size:12px;color:#64748b;margin-top:2px}",
+    ".ttc-exam-libcell.done{border-color:#93c5fd;background:#eff6ff}",
+    ".ttc-exam-libcell.pass{border-color:#16a34a;background:#f0fdf4}",
+    ".ttc-exam-libcell small b{color:#166534}",
     ".ttc-exam-topbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}",
     ".ttc-exam-timer{font-weight:800;font-size:18px;color:#172033;background:#f1f5f9;border-radius:10px;padding:6px 12px}",
     ".ttc-exam-timer.low{color:#b91c1c;background:#fef2f2}",
@@ -420,6 +926,14 @@
     ".ttc-exam-opt:hover{border-color:#cbd5e1}",
     ".ttc-exam-opt.sel{border-color:#2563eb;background:#eff6ff}",
     ".ttc-exam-opt .ttc-exam-letter{display:inline-block;min-width:26px;font-weight:800;color:#2563eb}",
+    ".ttc-exam-ord-answer{min-height:52px;border:2px dashed #93c5fd;background:#eff6ff;border-radius:13px;padding:8px;display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin-top:10px}",
+    ".ttc-exam-ord-answer:empty:before{content:'Bấm các mảnh từ bên dưới để xếp thành câu…';color:#64748b;font-size:14px}",
+    ".ttc-exam-ord-pool{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}",
+    ".ttc-exam-ord-pool.long,.ttc-exam-ord-answer.long{display:grid;gap:7px}",
+    ".ttc-exam-chip{border:2px solid #e2e8f0;background:#fff;border-radius:11px;padding:9px 13px;font-size:16.5px;cursor:pointer;color:#172033;line-height:1.5;text-align:left}",
+    ".ttc-exam-chip:hover{border-color:#2563eb}",
+    ".ttc-exam-chip.in-answer{border-color:#2563eb;background:#dbeafe;font-weight:600}",
+    ".ttc-exam-ord-reset{margin-top:10px}",
     ".ttc-exam-nav{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;align-items:center}",
     ".ttc-exam-btn{border:1px solid #e2e8f0;background:#f8fafc;border-radius:11px;padding:10px 16px;font-weight:600;cursor:pointer;color:#172033}",
     ".ttc-exam-btn.primary{background:#f59e0b;color:#fff;border-color:#f59e0b}",
@@ -429,6 +943,19 @@
     ".ttc-exam-gcell.done{background:#dbeafe;border-color:#93c5fd;color:#1d4ed8}",
     ".ttc-exam-gcell.cur{border-color:#f59e0b;color:#b45309}",
     ".ttc-exam-score{font-size:44px;font-weight:800;color:#172033;line-height:1.1}",
+    ".ttc-exam-total{font-size:21px;font-weight:800;color:#172033}",
+    ".ttc-exam-passbadge{display:inline-block;font-weight:800;border-radius:99px;padding:5px 16px;font-size:15px;margin-top:8px}",
+    ".ttc-exam-passbadge.ok{background:#dcfce7;color:#166534}",
+    ".ttc-exam-passbadge.bad{background:#fee2e2;color:#991b1b}",
+    ".ttc-exam-secbar{display:flex;align-items:center;gap:10px;margin:7px 0;font-size:14.5px;color:#334155}",
+    ".ttc-exam-secbar .nm{flex:0 0 168px;font-weight:600}",
+    ".ttc-exam-secbar .bar{flex:1;height:12px;background:#eef1f5;border-radius:99px;overflow:hidden}",
+    ".ttc-exam-secbar .bar i{display:block;height:100%;background:#2563eb;border-radius:99px}",
+    ".ttc-exam-secbar .val{flex:0 0 118px;text-align:right;font-weight:700;color:#172033}",
+    ".ttc-exam-verdict{border-radius:13px;padding:12px 14px;font-size:15px;line-height:1.6;margin-top:14px;text-align:left}",
+    ".ttc-exam-verdict.ready{background:#f0fdf4;border:1px solid #bbf7d0;color:#14532d}",
+    ".ttc-exam-verdict.pass{background:#fffbeb;border:1px solid #fde68a;color:#78350f}",
+    ".ttc-exam-verdict.fail{background:#fef2f2;border:1px solid #fecaca;color:#7f1d1d}",
     ".ttc-exam-reviewq{border:1px solid #eef1f5;border-radius:14px;padding:13px 14px;margin-bottom:12px;background:#fbfcfe}",
     ".ttc-exam-reviewq .ttc-exam-opt{cursor:default}",
     ".ttc-exam-opt.right{border-color:#16a34a;background:#f0fdf4}",
@@ -438,19 +965,58 @@
     ".ttc-exam-tag.ok{background:#dcfce7;color:#166534}",
     ".ttc-exam-tag.bad{background:#fee2e2;color:#991b1b}",
     ".ttc-exam-tag.skip{background:#e2e8f0;color:#475569}",
-    "@media (max-width:720px){.ttc-exam-stem{font-size:16px}.ttc-exam-sub{font-size:17px}.ttc-exam-score{font-size:36px}}"
+    ".ttc-sb-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px;margin:12px 0}",
+    ".ttc-sb-stat{border:1px solid #eef1f5;background:#fbfcfe;border-radius:13px;padding:11px 12px}",
+    ".ttc-sb-stat b{display:block;font-size:20px;color:#172033;line-height:1.25}",
+    ".ttc-sb-stat span{font-size:13px;color:#64748b}",
+    ".ttc-sb-table{display:grid;gap:7px;margin-top:8px}",
+    ".ttc-sb-row{display:grid;grid-template-columns:118px 52px 1.25fr .62fr .62fr .62fr .62fr .8fr 74px 86px;gap:7px;align-items:center;border:1px solid #eef1f5;border-radius:11px;padding:8px 10px;font-size:13.5px;color:#334155;background:#fbfcfe}",
+    ".ttc-sb-row.head{background:#f1f5f9;font-weight:700;color:#172033;border-color:#e2e8f0}",
+    ".ttc-sb-row .ctr{text-align:center}",
+    ".ttc-sb-badge{display:inline-block;font-weight:800;border-radius:99px;padding:2px 10px;font-size:12.5px}",
+    ".ttc-sb-badge.ok{background:#dcfce7;color:#166534}",
+    ".ttc-sb-badge.bad{background:#fee2e2;color:#991b1b}",
+    ".ttc-sb-badge.na{background:#e2e8f0;color:#475569}",
+    ".ttc-sb-view{border:1px solid #2563eb;background:#eff6ff;color:#1d4ed8;border-radius:9px;padding:6px 8px;font-weight:700;cursor:pointer;font-size:13px}",
+    "@media (max-width:860px){.ttc-sb-row{grid-template-columns:96px 44px 1fr .6fr .6fr .6fr .6fr .78fr 64px 78px;font-size:12.5px}}",
+    ".ttc-exam-panel{margin-top:16px;border:1.5px solid rgba(225,29,72,.28);background:linear-gradient(135deg,var(--otter2-pink,#fff1f2),#ffe4e6);border-radius:18px;padding:14px 16px}",
+    ".ttc-exam-panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}",
+    ".ttc-exam-panel-title{font-size:16.5px;font-weight:800;color:#172033}",
+    ".ttc-exam-panel-free{background:var(--otter2-gold,#f59e0b);color:#3a2703;font-size:11px;font-weight:800;padding:3px 10px;border-radius:999px;letter-spacing:.04em}",
+    ".ttc-exam-panel-desc{margin:8px 0 0;font-size:13.5px;color:#475569;line-height:1.55}",
+    ".ttc-exam-panel-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:11px}",
+    ".ttc-exam-panel-chip{border:1px solid #dde1ea;background:#fff;color:#3c4356;border-radius:999px;padding:5px 11px;font-size:12.5px;font-weight:700;cursor:pointer}",
+    ".ttc-exam-panel-chip.is-cur{background:var(--otter2-red,#e11d48);border-color:var(--otter2-red,#e11d48);color:#fff}",
+    ".ttc-exam-panel-last{margin:10px 0 0;font-size:13px;font-weight:700;color:#166534}",
+    ".ttc-exam-panel-btn{display:block;width:100%;margin-top:12px;border:0;border-radius:12px;background:var(--otter2-red,#e11d48);color:#fff;font-size:15.5px;font-weight:800;padding:12px 14px;cursor:pointer;min-height:48px}",
+    ".ttc-exam-panel-btn:hover{background:var(--otter2-red-deep,#be123c)}",
+    "html[data-theme='night'] .ttc-exam-panel{background:linear-gradient(135deg,#3f1d2b,#2a1622);border-color:#7f1d3a}",
+    "html[data-theme='night'] .ttc-exam-panel-title{color:#f1f5f9}",
+    "html[data-theme='night'] .ttc-exam-panel-desc{color:#cbd5e1}",
+    "html[data-theme='night'] .ttc-exam-panel-chip{background:#1e293b;border-color:#334155;color:#cbd5e1}",
+    "html[data-theme='night'] .ttc-exam-panel-chip.is-cur{background:var(--otter2-red,#e11d48);color:#fff}",
+    "html[data-theme='night'] .ttc-exam-panel-last{color:#86efac}",
+    "@media (max-width:720px){.ttc-exam-stem{font-size:16px}.ttc-exam-sub{font-size:17px}.ttc-exam-score{font-size:36px}.ttc-exam-secbar .nm{flex-basis:118px}.ttc-exam-secbar .val{flex-basis:92px}}"
   ].join("\n");
 
-  /* ---------------- Trạng thái + lịch sử ---------------- */
+  /* ---------------- Trạng thái + lịch sử ----------------
+     KHU THI FREE TOÀN BỘ (chính sách chủ web 2026-11-17): không
+     cổng Premium, không cần đăng nhập ở bất kỳ cấp nào. */
   var HISTORY_KEY = "otter2_exam_history_v1";
+  var REVIEW_KEY = "otter2_exam_review_v1";
+  var REVIEW_MAX = 6;
+  var REVIEW_BYTES = 2500000;
   var state = {
     overlay: null, content: null,
     view: "home",
-    level: 1, sizeKey: "mini",
+    level: 1, mode: "reduced",
     exam: null, answers: [], cur: 0,
+    testId: null, seed: null,
+    sectionIdx: 0, sectionRemaining: 0, sectionNote: "",
     startedAt: 0, remaining: 0, timerId: null,
     submitted: false, submitArmed: false, submitArmTimer: null,
-    closeArmed: false, closeArmTimer: null
+    closeArmed: false, closeArmTimer: null,
+    lastSecondsUsed: 0, lastAuto: false
   };
   function loadHistory() {
     try {
@@ -465,6 +1031,30 @@
       localStorage.setItem(HISTORY_KEY, JSON.stringify(list.slice(0, 50)));
     } catch (e) {}
   }
+  function loadReviews() {
+    try {
+      var raw = JSON.parse(localStorage.getItem(REVIEW_KEY) || "[]");
+      return Array.isArray(raw) ? raw : [];
+    } catch (e) { return []; }
+  }
+  function saveReview(entry) {
+    try {
+      var list = loadReviews();
+      list.unshift(entry);
+      list = list.slice(0, REVIEW_MAX);
+      var s = JSON.stringify(list);
+      while (s.length > REVIEW_BYTES && list.length > 1) { list.pop(); s = JSON.stringify(list); }
+      localStorage.setItem(REVIEW_KEY, s);
+      return true;
+    } catch (e) {
+      try {
+        var l2 = loadReviews().slice(0, 2);
+        l2.unshift(entry);
+        localStorage.setItem(REVIEW_KEY, JSON.stringify(l2));
+        return true;
+      } catch (e2) { return false; }
+    }
+  }
   function fmtDate(ts) {
     try { return new Date(ts).toLocaleString("vi-VN", { hour12: false }); } catch (e) { return ""; }
   }
@@ -472,19 +1062,6 @@
     sec = Math.max(0, Math.floor(sec));
     var m = Math.floor(sec / 60), s = sec % 60;
     return (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
-  }
-
-  /* ---------------- Cổng Premium (đúng mẫu module phát âm) ---------------- */
-  async function gateLevel(n) {
-    if (typeof window.otter2AssertHskAvailable === "function" && !window.otter2AssertHskAvailable(n)) return false;
-    if (Number(n) < 3) return true;
-    var ok = false;
-    try { ok = typeof window.checkPremiumAccess === "function" && await window.checkPremiumAccess(Number(n)); }
-    catch (e) { ok = false; }
-    if (!ok && typeof window.checkPremiumAccess !== "function") {
-      alert("🔒 Luyện thi HSK " + n + " là nội dung Premium.");
-    }
-    return !!ok;
   }
 
   /* ---------------- Dựng overlay + thẻ mở ---------------- */
@@ -540,11 +1117,36 @@
     if (state.overlay) state.overlay.classList.remove("open");
     document.body.classList.remove("ttc-hub-lock-scroll");
     state.view = "home"; state.exam = null; state.submitted = false;
+    state.testId = null; state.seed = null;
+    refreshPanel();
   }
 
   /* ---------------- Trang chủ khu thi ---------------- */
   function levelCounts(n) {
     return { words: wordsOfLevel(n).length, passages: passagesOfLevel(n).length };
+  }
+  var MODES = [
+    { key: "full", label: "🏅 Thi thật mô phỏng" },
+    { key: "reduced", label: "📐 Thi rút gọn" },
+    { key: "mini", label: "⚡ Mini · 10 câu" },
+    { key: "standard", label: "⚡ Chuẩn · 20 câu" }
+  ];
+  function modeDesc(level, mode) {
+    var bp = blueprintFor(level);
+    var parts = bp.sec.map(function (s) { return sectionName(s[0]).replace(/^\S+ /, "") + " " + s[1]; }).join(" · ");
+    if (mode === "full") {
+      return (bp.simulated
+        ? "Bản MÔ PHỎNG đầy đủ cho HSK" + level + " (chưa có blueprint chính thức trong hệ thống): "
+        : "Đúng cấu trúc đề HSK" + level + " thật: ") + parts +
+        " câu — tổng thang " + bp.scale + " điểm, mốc đạt " + bp.pass + ". Bấm giờ TỪNG PHẦN, hết giờ phần tự chuyển và không quay lại được, như phòng thi thật.";
+    }
+    if (mode === "reduced") {
+      var rc = reducedCounts(bp);
+      var rparts = bp.sec.map(function (s, i) { return sectionName(s[0]).replace(/^\S+ /, "") + " " + rc[i]; }).join(" · ");
+      return "Thu nhỏ theo đúng tỉ lệ đề thật (" + rparts + " câu) nhưng vẫn chấm trên thang " + bp.scale + " điểm, mốc đạt " + bp.pass + " — hợp để đo năng lực nhanh. Thư viện đề bên dưới dùng đúng bản rút gọn này.";
+    }
+    if (mode === "mini") return "Luyện nhanh 10 câu (Nghe 3 · Từ vựng 4 · Đọc 3), 10 phút, chấm thang 300.";
+    return "Luyện nhanh 20 câu (Nghe 6 · Từ vựng 8 · Đọc 6), 25 phút, chấm thang 300.";
   }
   function renderHome() {
     state.view = "home";
@@ -552,113 +1154,239 @@
     for (var n = 1; n <= 9; n++) {
       var c = levelCounts(n);
       lvHtml += '<button type="button" class="ttc-exam-level' + (state.level === n ? " on" : "") + '" data-exam-level="' + n + '">' +
-        "HSK " + n + "<small>" + (n >= 3 ? "Premium · " : "") + c.words + " từ · " + c.passages + " bài đọc</small></button>";
+        "HSK " + n + "<small>" + c.words + " từ · " + c.passages + " bài đọc</small></button>";
     }
-    var sizeHtml = Object.keys(SIZE_SPEC).map(function (k) {
-      return '<button type="button" class="ttc-exam-size' + (state.sizeKey === k ? " on" : "") + '" data-exam-size="' + k + '">' + esc(SIZE_SPEC[k].label) + "</button>";
+    var modeHtml = MODES.map(function (m) {
+      var label = m.label;
+      if (m.key === "full" && blueprintFor(state.level).simulated) label = "🏅 Mô phỏng đầy đủ · thang 300";
+      return '<button type="button" class="ttc-exam-size' + (state.mode === m.key ? " on" : "") + '" data-exam-mode="' + m.key + '">' + esc(label) + "</button>";
     }).join("");
+    var extraNote = "";
+    if (state.level === 6) {
+      extraNote = '<div class="ttc-exam-note" style="margin-top:10px">✍️ Lưu ý HSK6: đề thật có 1 bài luận tự viết (không chấm tự động được). Trong bản thi thử này, phần Viết được thay bằng <b>sắp xếp từ thành câu + điền khuyết nâng cao</b> với trọng số điểm tương đương — đề thi thử khác (Study4…) cũng xử lý tương tự.</div>';
+    } else if (state.level >= 7) {
+      extraNote = '<div class="ttc-exam-note" style="margin-top:10px">ℹ️ HSK7–9 dùng <b>bản mô phỏng</b> theo tỉ lệ phần của đề cấp cao, chấm thang 300, mốc đạt 180.</div>';
+    }
+    var best = catalogBestMap();
+    var libHtml = "";
+    for (var dn = 1; dn <= CATALOG_PER_LEVEL; dn++) {
+      var tid = testIdOf(state.level, dn);
+      var b = best[tid];
+      libHtml += '<button type="button" class="ttc-exam-libcell' + (b ? (b.passed ? " pass" : " done") : "") + '" data-exam-lib="' + dn + '">Đề ' + dn +
+        (b ? "<small>🏅 <b>" + esc(b.totalScore) + "/" + esc(b.scaleMax) + "</b>" + (b.passed ? " · ĐẠT" : "") + "</small>" : "<small>Chưa làm</small>") + "</button>";
+    }
     var hist = loadHistory();
     var histHtml = hist.length
       ? hist.slice(0, 10).map(function (h) {
+          if (typeof h.totalScore === "number") {
+            return '<div class="ttc-exam-hist-item"><span>📅 ' + esc(fmtDate(h.ts)) + " · HSK " + esc(h.level) + " · " + esc(h.modeLabel || "") + (h.testId ? " · " + esc(h.testId) : "") + "</span><b>" +
+              esc(h.totalScore) + "/" + esc(h.scaleMax) + "đ · " + (h.passed ? "ĐẠT ✓" : "Chưa đạt") + " · ⏱ " + esc(fmtClock(h.secondsUsed)) + "</b></div>";
+          }
           return '<div class="ttc-exam-hist-item"><span>📅 ' + esc(fmtDate(h.ts)) + " · HSK " + esc(h.level) + " · " + esc(h.sizeLabel || "") + "</span><b>" +
             esc(h.correct) + "/" + esc(h.total) + " câu · " + esc(h.pct) + "% · ⏱ " + esc(fmtClock(h.secondsUsed)) + "</b></div>";
         }).join("")
       : '<p style="color:#64748b;font-size:14px">Chưa có lượt làm bài nào. Hãy bắt đầu đề đầu tiên của bạn!</p>';
     state.content.innerHTML =
-      '<div class="ttc-exam-note">📝 Đây là <b>đề thi thử tự luyện</b>, được sinh tự động từ kho từ vựng, câu ví dụ và bài đọc của Thích Tiếng Trung 3.0 — <b>không phải đề thi HSK chính thức</b>. Gồm 3 phần: Nghe hiểu · Từ vựng &amp; ngữ pháp · Đọc hiểu.</div>' +
+      '<div class="ttc-exam-free">🎉 <b>Khu Luyện thi MIỄN PHÍ TOÀN BỘ</b> — cả 9 cấp HSK1–9 đều mở tự do, không cần tài khoản Premium. Đề được sinh tự động từ kho từ vựng, câu ví dụ và bài đọc của Thích Tiếng Trung 3.0 — là <b>đề thi thử tự luyện</b>, không phải đề thi HSK chính thức, nhưng bám sát cấu trúc và thang điểm đề thật để bạn đo năng lực của mình.</div>' +
       '<h3 style="margin:16px 0 4px;color:#172033">1️⃣ Chọn cấp độ</h3><div class="ttc-exam-levels">' + lvHtml + "</div>" +
-      '<h3 style="margin:10px 0 4px;color:#172033">2️⃣ Chọn độ dài đề</h3><div class="ttc-exam-sizes">' + sizeHtml + "</div>" +
+      '<h3 style="margin:10px 0 4px;color:#172033">2️⃣ Chọn chế độ thi</h3><div class="ttc-exam-sizes">' + modeHtml + "</div>" +
+      '<div class="ttc-exam-modedesc">' + esc(modeDesc(state.level, state.mode)) + "</div>" + extraNote +
       '<button type="button" class="ttc-exam-start" id="ttcExamStart">🚀 Bắt đầu làm bài</button>' +
+      '<h3 style="margin:22px 0 4px;color:#172033">📚 Thư viện đề — HSK ' + state.level + ' (' + CATALOG_PER_LEVEL + ' đề rút gọn)</h3>' +
+      '<p style="color:#64748b;font-size:13.5px;margin:0">Mỗi đề là một bộ câu hỏi riêng, sinh ổn định theo mã đề — làm lại đề cũ sẽ gặp đúng bộ câu đó. Ô đề hiện điểm cao nhất bạn từng đạt.</p>' +
+      '<div class="ttc-exam-lib">' + libHtml + "</div>" +
       '<div class="ttc-exam-hist"><h3>🕘 Lịch sử làm bài</h3>' + histHtml + "</div>";
     state.content.querySelectorAll("[data-exam-level]").forEach(function (b) {
-      b.addEventListener("click", async function () {
-        var n = Number(b.getAttribute("data-exam-level"));
-        if (n === state.level) return;
-        var ok = await gateLevel(n);
-        if (!ok) return;
-        state.level = n;
+      b.addEventListener("click", function () {
+        state.level = Number(b.getAttribute("data-exam-level"));
         renderHome();
       });
     });
-    state.content.querySelectorAll("[data-exam-size]").forEach(function (b) {
+    state.content.querySelectorAll("[data-exam-mode]").forEach(function (b) {
       b.addEventListener("click", function () {
-        state.sizeKey = b.getAttribute("data-exam-size");
+        state.mode = b.getAttribute("data-exam-mode");
         renderHome();
+      });
+    });
+    state.content.querySelectorAll("[data-exam-lib]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        startCatalog(Number(b.getAttribute("data-exam-lib")), b);
       });
     });
     document.getElementById("ttcExamStart").addEventListener("click", startExam);
   }
 
   /* ---------------- Làm bài ---------------- */
+  function computeRanges(exam) {
+    var ranges = [], pos = 0;
+    (exam.sectionPlan || []).forEach(function (p) {
+      ranges.push({ key: p.key, start: pos, end: pos + p.count, seconds: p.seconds || 0 });
+      pos += p.count;
+    });
+    return ranges;
+  }
+  function beginWithExam(exam) {
+    state.exam = exam;
+    exam._ranges = computeRanges(exam);
+    state.answers = exam.questions.map(function (q) { return isOrderType(q) ? [] : -1; });
+    state.cur = 0;
+    state.submitted = false;
+    state.submitArmed = false;
+    state.sectionNote = "";
+    state.startedAt = Date.now();
+    if (exam.mode === "full" && exam._ranges.length) {
+      state.sectionIdx = 0;
+      state.sectionRemaining = exam._ranges[0].seconds;
+    } else {
+      state.sectionIdx = 0;
+      state.remaining = exam.seconds;
+    }
+    renderQuestion();
+    startTimer();
+  }
   function startExam() {
     var btn = document.getElementById("ttcExamStart");
-    (async function () {
-      var ok = await gateLevel(state.level);
-      if (!ok) return;
-      if (btn) { btn.disabled = true; btn.textContent = "⏳ Đang sinh đề…"; }
-      var exam = generateExam(state.level, state.sizeKey);
+    if (btn) { btn.disabled = true; btn.textContent = "⏳ Đang sinh đề…"; }
+    setTimeout(function () {
+      var exam = generateExam(state.level, state.mode);
       if (!exam.questions.length) {
         if (btn) { btn.disabled = false; btn.textContent = "🚀 Bắt đầu làm bài"; }
         alert("⚠️ Chưa đủ dữ liệu để sinh đề ở cấp này. Vui lòng thử cấp khác.");
         return;
       }
-      state.exam = exam;
-      state.answers = exam.questions.map(function () { return -1; });
-      state.cur = 0;
-      state.submitted = false;
-      state.submitArmed = false;
-      state.startedAt = Date.now();
-      state.remaining = exam.seconds;
-      renderQuestion();
-      startTimer();
-    })();
+      state.testId = null; state.seed = null;
+      beginWithExam(exam);
+    }, 10);
+  }
+  function startCatalog(n, btn) {
+    if (btn) { btn.disabled = true; btn.innerHTML = "Đề " + n + "<small>Đang chuẩn bị…</small>"; }
+    setTimeout(function () {
+      var exam = buildCatalogUpTo(state.level, n);
+      if (!exam || !exam.questions.length) {
+        if (btn) { btn.disabled = false; }
+        alert("⚠️ Chưa đủ dữ liệu để sinh đề này. Vui lòng thử đề khác.");
+        renderHome();
+        return;
+      }
+      state.testId = exam.testId;
+      state.seed = exam.seed;
+      beginWithExam(exam);
+    }, 10);
+  }
+  function isFullMode() { return state.exam && state.exam.mode === "full"; }
+  function curRange() {
+    if (!state.exam || !state.exam._ranges) return null;
+    return state.exam._ranges[state.sectionIdx] || null;
   }
   function startTimer() {
     stopTimer();
     state.timerId = setInterval(function () {
-      state.remaining -= 0.5;
-      var t = document.getElementById("ttcExamTimer");
-      if (t) {
-        t.textContent = "⏱ " + fmtClock(state.remaining);
-        t.classList.toggle("low", state.remaining <= 60);
+      if (!state.exam || state.submitted) return;
+      if (isFullMode()) {
+        state.sectionRemaining -= 0.5;
+        var t = document.getElementById("ttcExamTimer");
+        if (t) {
+          t.textContent = "⏱ " + fmtClock(state.sectionRemaining);
+          t.classList.toggle("low", state.sectionRemaining <= 60);
+        }
+        if (state.sectionRemaining <= 0) advanceSection(true);
+      } else {
+        state.remaining -= 0.5;
+        var t2 = document.getElementById("ttcExamTimer");
+        if (t2) {
+          t2.textContent = "⏱ " + fmtClock(state.remaining);
+          t2.classList.toggle("low", state.remaining <= 60);
+        }
+        if (state.remaining <= 0) { submitExam(true); }
       }
-      if (state.remaining <= 0) { submitExam(true); }
     }, 500);
   }
   function stopTimer() { if (state.timerId) { clearInterval(state.timerId); state.timerId = null; } }
+  function advanceSection(auto) {
+    if (!isFullMode() || state.submitted) return;
+    stopSpeak();
+    var ranges = state.exam._ranges;
+    if (state.sectionIdx >= ranges.length - 1) { submitExam(true); return; }
+    var finishedKey = ranges[state.sectionIdx].key;
+    state.sectionIdx++;
+    state.sectionRemaining = ranges[state.sectionIdx].seconds;
+    state.cur = ranges[state.sectionIdx].start;
+    state.sectionNote = auto
+      ? "⏰ Đã hết giờ phần " + sectionName(finishedKey) + " — hệ thống tự chuyển sang phần " + sectionName(ranges[state.sectionIdx].key) + ". Đề thi thật không cho quay lại phần trước."
+      : "➡️ Bạn đã kết thúc phần " + sectionName(finishedKey) + " và chuyển sang phần " + sectionName(ranges[state.sectionIdx].key) + ". Không quay lại phần trước được.";
+    renderQuestion();
+  }
 
-  var SECTION_LABEL = { listen: "🎧 Phần 1 · Nghe hiểu", vocab: "📚 Phần 2 · Từ vựng & ngữ pháp", reading: "📖 Phần 3 · Đọc hiểu" };
+  function orderQuestionHtml(q) {
+    var chosen = Array.isArray(state.answers[state.cur]) ? state.answers[state.cur] : [];
+    var usedIdx = {};
+    chosen.forEach(function (oi) { usedIdx[oi] = 1; });
+    var long = q.type === "read-order" ? " long" : "";
+    var answerChips = chosen.map(function (oi, pos) {
+      return '<button type="button" class="ttc-exam-chip in-answer" data-exam-ord-remove="' + pos + '">' + esc(q.options[oi]) + "</button>";
+    }).join("");
+    var poolChips = q.options.map(function (o, oi) {
+      if (usedIdx[oi]) return "";
+      return '<button type="button" class="ttc-exam-chip" data-exam-ord-pick="' + oi + '">' + esc(o) + "</button>";
+    }).join("");
+    return '<div class="ttc-exam-ord-answer' + long + '" id="ttcExamOrdAnswer">' + answerChips + "</div>" +
+      '<div class="ttc-exam-ord-pool' + long + '">' + poolChips + "</div>" +
+      '<button type="button" class="ttc-exam-btn ttc-exam-ord-reset" id="ttcExamOrdReset">↺ Xếp lại từ đầu</button>' +
+      '<div style="font-size:13px;color:#64748b;margin-top:6px">Bấm vào mảnh ở hàng dưới để đưa lên câu; bấm vào mảnh đã xếp để bỏ xuống.</div>';
+  }
   function renderQuestion() {
     state.view = "exam";
     var exam = state.exam, q = exam.questions[state.cur];
-    var answered = state.answers.filter(function (a) { return a >= 0; }).length;
+    var full = isFullMode();
+    var range = full ? curRange() : { start: 0, end: exam.total };
+    var answered = exam.questions.filter(function (qq, i) { return isAnswered(qq, state.answers[i]); }).length;
+    var secPos = (exam.sectionPlan || []).findIndex(function (p) { return p.key === q.section; });
+    var timerVal = full ? state.sectionRemaining : state.remaining;
     var html = "";
-    html += '<div class="ttc-exam-topbar"><span class="ttc-exam-timer" id="ttcExamTimer">⏱ ' + fmtClock(state.remaining) + "</span>" +
+    html += '<div class="ttc-exam-topbar"><span class="ttc-exam-timer" id="ttcExamTimer">⏱ ' + fmtClock(timerVal) + "</span>" +
       '<div class="ttc-exam-progress"><i style="width:' + Math.round(answered / exam.total * 100) + '%"></i></div>' +
-      "<span style='font-weight:700;color:#475569'>Câu " + (state.cur + 1) + "/" + exam.total + " · Đã làm " + answered + "</span></div>";
-    html += '<div class="ttc-exam-section">' + esc(SECTION_LABEL[q.section] || "") + "</div>";
+      "<span style='font-weight:700;color:#475569'>Câu " + (state.cur + 1) + "/" + exam.total + " · Đã làm " + answered +
+      (state.testId ? " · " + esc(state.testId) : "") + "</span></div>";
+    if (state.sectionNote) {
+      html += '<div class="ttc-exam-note" style="margin-bottom:10px">' + esc(state.sectionNote) + "</div>";
+      state.sectionNote = "";
+    }
+    html += '<div class="ttc-exam-section">' + (full ? "Phần " + (state.sectionIdx + 1) + "/" + exam._ranges.length + " · " : "") +
+      esc(sectionName(q.section)) + (secPos >= 0 && !full ? "" : "") + "</div>";
     if (q.passage) {
       html += '<div class="ttc-exam-passage">' + (q.passageTitle ? "<b>📖 " + esc(q.passageTitle) + "</b>\n" : "") + esc(q.passage) + "</div>";
     }
     html += '<div class="ttc-exam-stem">' + esc(q.stem) + "</div>";
     if (q.sub) html += '<div class="ttc-exam-sub">' + esc(q.sub) + "</div>";
     if (q.section === "listen") {
-      html += '<button type="button" class="ttc-exam-listenbtn" id="ttcExamListen">🔊 Nghe câu</button>' +
-        '<div style="font-size:13px;color:#64748b">Bạn có thể nghe lại nhiều lần. Chữ của câu sẽ hiện ở phần xem lại sau khi nộp bài.</div>';
+      html += '<button type="button" class="ttc-exam-listenbtn" id="ttcExamListen">🔊 Nghe</button>' +
+        '<div style="font-size:13px;color:#64748b">Bạn có thể nghe lại nhiều lần. Nội dung nghe sẽ hiện ở phần xem lại sau khi nộp bài.</div>';
     }
-    html += '<div class="ttc-exam-opts">' + q.options.map(function (o, i) {
-      return '<button type="button" class="ttc-exam-opt' + (state.answers[state.cur] === i ? " sel" : "") + '" data-exam-opt="' + i + '">' +
-        '<span class="ttc-exam-letter">' + "ABCD"[i] + ".</span>" + esc(o) + "</button>";
-    }).join("") + "</div>";
+    if (isOrderType(q)) {
+      html += orderQuestionHtml(q);
+    } else {
+      html += '<div class="ttc-exam-opts">' + q.options.map(function (o, i) {
+        return '<button type="button" class="ttc-exam-opt' + (state.answers[state.cur] === i ? " sel" : "") + '" data-exam-opt="' + i + '">' +
+          '<span class="ttc-exam-letter">' + "ABCD"[i] + ".</span>" + esc(o) + "</button>";
+      }).join("") + "</div>";
+    }
+    var isLastSection = !full || state.sectionIdx >= exam._ranges.length - 1;
     html += '<div class="ttc-exam-nav">' +
-      '<button type="button" class="ttc-exam-btn" id="ttcExamPrev"' + (state.cur === 0 ? " disabled" : "") + ">← Câu trước</button>" +
-      '<button type="button" class="ttc-exam-btn" id="ttcExamNext"' + (state.cur === exam.total - 1 ? " disabled" : "") + ">Câu tiếp →</button>" +
+      '<button type="button" class="ttc-exam-btn" id="ttcExamPrev"' + (state.cur <= range.start ? " disabled" : "") + ">← Câu trước</button>" +
+      '<button type="button" class="ttc-exam-btn" id="ttcExamNext"' + (state.cur >= range.end - 1 ? " disabled" : "") + ">Câu tiếp →</button>" +
       '<span style="flex:1"></span>' +
-      '<button type="button" class="ttc-exam-btn primary' + (state.submitArmed ? " armed" : "") + '" id="ttcExamSubmit">' +
-        (state.submitArmed ? "⚠️ Bấm lần nữa để nộp bài" : "📩 Nộp bài") + "</button></div>";
-    html += '<div class="ttc-exam-grid">' + exam.questions.map(function (_, i) {
-      return '<button type="button" class="ttc-exam-gcell' + (state.answers[i] >= 0 ? " done" : "") + (i === state.cur ? " cur" : "") + '" data-exam-goto="' + i + '">' + (i + 1) + "</button>";
+      (isLastSection
+        ? '<button type="button" class="ttc-exam-btn primary' + (state.submitArmed ? " armed" : "") + '" id="ttcExamSubmit">' +
+            (state.submitArmed ? "⚠️ Bấm lần nữa để nộp bài" : "📩 Nộp bài") + "</button>"
+        : '<button type="button" class="ttc-exam-btn primary" id="ttcExamEndSection">⏭ Kết thúc phần này</button>') +
+      "</div>";
+    html += '<div class="ttc-exam-grid">' + exam.questions.slice(range.start, range.end).map(function (_, k) {
+      var i = range.start + k;
+      return '<button type="button" class="ttc-exam-gcell' + (isAnswered(exam.questions[i], state.answers[i]) ? " done" : "") + (i === state.cur ? " cur" : "") + '" data-exam-goto="' + i + '">' + (i + 1) + "</button>";
     }).join("") + "</div>";
+    if (full) {
+      html += '<div style="font-size:13px;color:#64748b;margin-top:8px">Chế độ thi thật mô phỏng: bạn chỉ làm được câu trong phần hiện tại; hết giờ phần sẽ tự chuyển.</div>';
+    }
     state.content.innerHTML = html;
     state.content.querySelectorAll("[data-exam-opt]").forEach(function (b) {
       b.addEventListener("click", function () {
@@ -666,28 +1394,53 @@
         renderQuestion();
       });
     });
+    state.content.querySelectorAll("[data-exam-ord-pick]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var arr = Array.isArray(state.answers[state.cur]) ? state.answers[state.cur] : [];
+        arr.push(Number(b.getAttribute("data-exam-ord-pick")));
+        state.answers[state.cur] = arr;
+        renderQuestion();
+      });
+    });
+    state.content.querySelectorAll("[data-exam-ord-remove]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var arr = Array.isArray(state.answers[state.cur]) ? state.answers[state.cur].slice() : [];
+        arr.splice(Number(b.getAttribute("data-exam-ord-remove")), 1);
+        state.answers[state.cur] = arr;
+        renderQuestion();
+      });
+    });
+    var resetBtn = document.getElementById("ttcExamOrdReset");
+    if (resetBtn) resetBtn.addEventListener("click", function () { state.answers[state.cur] = []; renderQuestion(); });
     state.content.querySelectorAll("[data-exam-goto]").forEach(function (b) {
       b.addEventListener("click", function () { state.cur = Number(b.getAttribute("data-exam-goto")); stopSpeak(); renderQuestion(); });
     });
     var prev = document.getElementById("ttcExamPrev");
-    if (prev) prev.addEventListener("click", function () { if (state.cur > 0) { state.cur--; stopSpeak(); renderQuestion(); } });
+    if (prev) prev.addEventListener("click", function () { if (state.cur > range.start) { state.cur--; stopSpeak(); renderQuestion(); } });
     var next = document.getElementById("ttcExamNext");
-    if (next) next.addEventListener("click", function () { if (state.cur < exam.total - 1) { state.cur++; stopSpeak(); renderQuestion(); } });
+    if (next) next.addEventListener("click", function () { if (state.cur < range.end - 1) { state.cur++; stopSpeak(); renderQuestion(); } });
     var lb = document.getElementById("ttcExamListen");
     if (lb) lb.addEventListener("click", function () { speak(q.speakText); });
-    document.getElementById("ttcExamSubmit").addEventListener("click", function () { submitExam(false); });
+    var sub = document.getElementById("ttcExamSubmit");
+    if (sub) sub.addEventListener("click", function () { submitExam(false); });
+    var endSec = document.getElementById("ttcExamEndSection");
+    if (endSec) endSec.addEventListener("click", function () { advanceSection(false); });
   }
 
   function submitExam(auto) {
     if (!state.exam || state.submitted) return;
-    var unanswered = state.answers.filter(function (a) { return a < 0; }).length;
+    var exam = state.exam;
+    var full = isFullMode();
+    var range = full ? curRange() : { start: 0, end: exam.total };
+    var unanswered = 0;
+    for (var i = range.start; i < range.end; i++) if (!isAnswered(exam.questions[i], state.answers[i])) unanswered++;
     if (!auto && unanswered > 0 && !state.submitArmed) {
       state.submitArmed = true;
       renderQuestion();
       var note = document.createElement("div");
       note.className = "ttc-exam-note";
       note.style.marginTop = "12px";
-      note.textContent = "⚠️ Còn " + unanswered + " câu chưa làm. Bấm «Nộp bài» lần nữa để nộp với các câu trống (tính là sai), hoặc quay lại làm tiếp.";
+      note.textContent = "⚠️ Còn " + unanswered + " câu chưa làm trong phần này. Bấm «Nộp bài» lần nữa để nộp (câu trống tính là sai), hoặc quay lại làm tiếp.";
       state.content.appendChild(note);
       clearTimeout(state.submitArmTimer);
       state.submitArmTimer = setTimeout(function () { state.submitArmed = false; }, 6000);
@@ -695,108 +1448,403 @@
     }
     state.submitted = true;
     stopTimer(); stopSpeak();
-    var exam = state.exam;
-    var correct = 0;
-    exam.questions.forEach(function (q, i) { if (state.answers[i] === q.answer) correct++; });
+    var score = computeScore(exam, state.answers);
+    var correct = exam.questions.filter(function (q, i) { return isCorrectAnswer(q, state.answers[i]); }).length;
     var secondsUsed = Math.min(exam.seconds, Math.round((Date.now() - state.startedAt) / 1000));
-    if (auto) secondsUsed = exam.seconds;
-    var pct = exam.total ? Math.round(correct / exam.total * 100) : 0;
-    saveHistory({
-      ts: Date.now(), level: exam.level, sizeKey: exam.sizeKey,
-      sizeLabel: exam.sizeKey === "mini" ? "Mini 10" : "Chuẩn 20",
-      total: exam.total, correct: correct, pct: pct, secondsUsed: secondsUsed, auto: !!auto
+    if (auto && !full) secondsUsed = exam.seconds;
+    state.lastSecondsUsed = secondsUsed;
+    state.lastAuto = !!auto;
+    var reviewId = "r" + Date.now();
+    var savedReview = saveReview({
+      id: reviewId, ts: Date.now(), level: exam.level, mode: exam.mode,
+      testId: state.testId || null, total: exam.total,
+      questions: exam.questions, answers: state.answers.slice()
     });
-    renderResult(correct, pct, secondsUsed, auto);
+    saveHistory({
+      v: 2, ts: Date.now(), level: exam.level,
+      mode: exam.mode, modeLabel: MODE_LABEL[exam.mode] || exam.mode,
+      sizeKey: exam.sizeKey, sizeLabel: MODE_LABEL[exam.mode] || exam.mode,
+      testId: state.testId || null, seed: state.seed != null ? state.seed : null,
+      total: exam.total, correct: correct, pct: score.pct, secondsUsed: secondsUsed, auto: !!auto,
+      sections: score.perSection, totalScore: score.totalScore, scaleMax: score.scaleMax,
+      passMark: score.passMark, passed: score.passed, weakest: score.weakest,
+      reviewId: savedReview ? reviewId : null
+    });
+    renderResult(score, secondsUsed, auto);
   }
 
   /* ---------------- Kết quả + xem lại ---------------- */
-  function sectionStats() {
-    var stats = {};
-    state.exam.questions.forEach(function (q, i) {
-      stats[q.section] = stats[q.section] || { n: 0, ok: 0 };
-      stats[q.section].n++;
-      if (state.answers[i] === q.answer) stats[q.section].ok++;
-    });
-    return stats;
-  }
-  function renderResult(correct, pct, secondsUsed, auto) {
+  function renderResult(score, secondsUsed, auto) {
     state.view = "result";
-    var stats = sectionStats();
-    var rows = Object.keys(stats).map(function (k) {
-      return "<div class='ttc-exam-hist-item'><span>" + esc(SECTION_LABEL[k] || k) + "</span><b>" + stats[k].ok + "/" + stats[k].n + " câu đúng</b></div>";
+    score = score || computeScore(state.exam, state.answers);
+    var exam = state.exam;
+    var bars = (exam.sectionPlan || []).map(function (p) {
+      var s = score.perSection[p.key];
+      if (!s) return "";
+      return '<div class="ttc-exam-secbar"><span class="nm">' + esc(sectionName(p.key)) + '</span>' +
+        '<span class="bar"><i style="width:' + (s.score || 0) + '%"></i></span>' +
+        '<span class="val">' + (s.score == null ? "—" : s.score + "/100") + " · " + s.ok + "/" + s.n + " câu</span></div>";
     }).join("");
+    var bestNote = "";
+    if (state.testId) {
+      var best = catalogBestMap()[state.testId];
+      bestNote = '<p style="color:#475569;margin:4px 0">📚 ' + esc(state.testId) + (best && typeof best.totalScore === "number"
+        ? " · Điểm cao nhất của đề này: <b>" + best.totalScore + "/" + best.scaleMax + "</b>" : "") + "</p>";
+    }
     state.content.innerHTML =
       '<div style="text-align:center;padding:10px 0 4px">' +
-        '<div style="font-size:40px">' + (pct >= 80 ? "🎉" : pct >= 50 ? "💪" : "🌱") + "</div>" +
-        '<div class="ttc-exam-score">' + pct + "%</div>" +
-        "<p style='color:#475569;margin:6px 0'>Đúng <b>" + correct + "/" + state.exam.total + "</b> câu · HSK " + state.exam.level +
-        " · Thời gian: <b>" + fmtClock(secondsUsed) + "</b>" + (auto ? " · ⏰ Hết giờ — bài được nộp tự động" : "") + "</p></div>" +
-      "<div>" + rows + "</div>" +
+        '<div style="font-size:40px">' + (score.pct >= 85 ? "🏆" : score.passed ? "🎉" : "🌱") + "</div>" +
+        '<div class="ttc-exam-score">' + score.pct + "%</div>" +
+        '<div class="ttc-exam-total">Tổng điểm: ' + score.totalScore + "/" + score.scaleMax + " · Mốc đạt: " + score.passMark + "</div>" +
+        '<div><span class="ttc-exam-passbadge ' + (score.passed ? "ok" : "bad") + '">' + (score.passed ? "✅ ĐẠT" : "❌ CHƯA ĐẠT") + "</span></div>" +
+        "<p style='color:#475569;margin:8px 0'>Đúng <b>" + exam.questions.filter(function (q, i) { return isCorrectAnswer(q, state.answers[i]); }).length + "/" + exam.total + "</b> câu · HSK " + exam.level +
+        " · " + esc(MODE_LABEL[exam.mode] || exam.mode) + " · Thời gian: <b>" + fmtClock(secondsUsed) + "</b>" + (auto ? " · ⏰ Hết giờ — bài được nộp tự động" : "") + "</p>" +
+        bestNote + "</div>" +
+      "<div>" + bars + "</div>" +
+      '<div class="ttc-exam-verdict ' + score.verdict.tier + '">' + esc(score.verdict.text) + "</div>" +
       '<div class="ttc-exam-nav" style="justify-content:center;margin-top:18px">' +
         '<button type="button" class="ttc-exam-btn primary" id="ttcExamReview">🔍 Xem lại bài</button>' +
-        '<button type="button" class="ttc-exam-btn" id="ttcExamAgain">🔄 Làm đề mới</button>' +
+        '<button type="button" class="ttc-exam-btn" id="ttcExamAgain">🔄 ' + (state.testId ? "Về thư viện đề" : "Làm đề mới") + "</button>" +
         '<button type="button" class="ttc-exam-btn" id="ttcExamHome">🏠 Trang chủ khu thi</button></div>';
-    document.getElementById("ttcExamReview").addEventListener("click", renderReview);
-    document.getElementById("ttcExamAgain").addEventListener("click", function () { renderHome(); setTimeout(function () { var b = document.getElementById("ttcExamStart"); if (b) b.click(); }, 0); });
+    document.getElementById("ttcExamReview").addEventListener("click", function () {
+      renderReviewInto(state.content, state.exam, state.answers, {
+        backLabel: "← Về kết quả",
+        onBack: function () { renderResult(null, state.lastSecondsUsed, state.lastAuto); }
+      });
+    });
+    document.getElementById("ttcExamAgain").addEventListener("click", function () {
+      if (state.testId) { renderHome(); return; }
+      startExam();
+    });
     document.getElementById("ttcExamHome").addEventListener("click", renderHome);
   }
-  function renderReview() {
-    state.view = "review";
-    var exam = state.exam;
-    var html = '<h3 style="margin:4px 0 12px;color:#172033">🔍 Xem lại bài — HSK ' + exam.level + " · Đúng " +
-      exam.questions.filter(function (q, i) { return state.answers[i] === q.answer; }).length + "/" + exam.total + "</h3>";
+  function userArrangementText(q, a) {
+    if (!Array.isArray(a) || !a.length) return "(chưa sắp xếp)";
+    return a.map(function (oi) { return q.options[oi]; }).join(q.type === "read-order" ? " → " : "");
+  }
+  function renderReviewInto(el, exam, answers, opts) {
+    opts = opts || {};
+    var correctCount = exam.questions.filter(function (q, i) { return isCorrectAnswer(q, answers[i]); }).length;
+    var html = '<h3 style="margin:4px 0 12px;color:#172033">🔍 Xem lại bài — HSK ' + exam.level + " · Đúng " + correctCount + "/" + exam.total + "</h3>";
     exam.questions.forEach(function (q, i) {
-      var mine = state.answers[i];
-      var tag = mine === q.answer ? '<span class="ttc-exam-tag ok">✓ Đúng</span>'
-        : mine < 0 ? '<span class="ttc-exam-tag skip">— Chưa làm</span>'
+      var mine = answers[i];
+      var done = isAnswered(q, mine);
+      var right = isCorrectAnswer(q, mine);
+      var tag = right ? '<span class="ttc-exam-tag ok">✓ Đúng</span>'
+        : !done ? '<span class="ttc-exam-tag skip">— Chưa làm</span>'
         : '<span class="ttc-exam-tag bad">✗ Sai</span>';
-      html += '<div class="ttc-exam-reviewq"><div class="ttc-exam-section">' + esc(SECTION_LABEL[q.section] || "") + " · Câu " + (i + 1) + tag + "</div>";
+      html += '<div class="ttc-exam-reviewq"><div class="ttc-exam-section">' + esc(sectionName(q.section)) + " · Câu " + (i + 1) + tag + "</div>";
       if (q.passage) html += '<div class="ttc-exam-passage">' + (q.passageTitle ? "<b>📖 " + esc(q.passageTitle) + "</b>\n" : "") + esc(q.passage) + "</div>";
       html += '<div class="ttc-exam-stem">' + esc(q.stem) + "</div>";
       if (q.sub) html += '<div class="ttc-exam-sub">' + esc(q.sub) + "</div>";
       if (q.section === "listen") html += '<button type="button" class="ttc-exam-listenbtn" data-exam-replay="' + i + '">🔊 Nghe lại</button>';
-      html += '<div class="ttc-exam-opts">' + q.options.map(function (o, oi) {
-        var cls = "ttc-exam-opt";
-        if (oi === q.answer) cls += " right";
-        else if (oi === mine) cls += " wrong";
-        return '<div class="' + cls + '"><span class="ttc-exam-letter">' + "ABCD"[oi] + ".</span>" + esc(o) +
-          (oi === q.answer ? " ✓" : "") + (oi === mine && mine !== q.answer ? " (bạn chọn)" : "") + "</div>";
-      }).join("") + "</div>";
+      if (isOrderType(q)) {
+        html += '<div class="ttc-exam-explain"><b>Câu đúng:</b> ' + esc(q.type === "read-order" ? q.chunks.join("\n") : q.correctText) +
+          "\n<b>Bạn đã xếp:</b> " + esc(userArrangementText(q, mine)) + "</div>";
+      } else {
+        html += '<div class="ttc-exam-opts">' + q.options.map(function (o, oi) {
+          var cls = "ttc-exam-opt";
+          if (oi === q.answer) cls += " right";
+          else if (oi === mine) cls += " wrong";
+          return '<div class="' + cls + '"><span class="ttc-exam-letter">' + "ABCD"[oi] + ".</span>" + esc(o) +
+            (oi === q.answer ? " ✓" : "") + (oi === mine && mine !== q.answer ? " (bạn chọn)" : "") + "</div>";
+        }).join("") + "</div>";
+      }
       html += '<div class="ttc-exam-explain"><b>💡 Giải thích</b>\n<b>' + esc(q.explainHead) + "</b>\n" + esc(q.explainBody) + "</div></div>";
     });
-    html += '<div class="ttc-exam-nav" style="justify-content:center"><button type="button" class="ttc-exam-btn" id="ttcExamHome2">🏠 Trang chủ khu thi</button>' +
-      '<button type="button" class="ttc-exam-btn primary" id="ttcExamAgain2">🔄 Làm đề mới</button></div>';
-    state.content.innerHTML = html;
-    state.content.querySelectorAll("[data-exam-replay]").forEach(function (b) {
+    html += '<div class="ttc-exam-nav" style="justify-content:center">' +
+      (opts.onBack ? '<button type="button" class="ttc-exam-btn" data-review-back="1">' + esc(opts.backLabel || "← Quay lại") + "</button>" : "") +
+      "</div>";
+    el.innerHTML = html;
+    el.querySelectorAll("[data-exam-replay]").forEach(function (b) {
       b.addEventListener("click", function () {
         var q = exam.questions[Number(b.getAttribute("data-exam-replay"))];
         if (q) speak(q.speakText);
       });
     });
-    document.getElementById("ttcExamHome2").addEventListener("click", renderHome);
-    document.getElementById("ttcExamAgain2").addEventListener("click", function () { renderHome(); setTimeout(function () { var b = document.getElementById("ttcExamStart"); if (b) b.click(); }, 0); });
+    var back = el.querySelector("[data-review-back]");
+    if (back && opts.onBack) back.addEventListener("click", opts.onBack);
+    if (state.view === "result" || state.view === "review") state.view = "review";
   }
 
-  /* ---------------- Tiêm thẻ mở vào hàng tính năng ---------------- */
-  function injectLauncher() {
-    if (document.getElementById("otter2FeatExam")) return true;
-    var row = document.querySelector(".otter2-feature-row");
-    if (!row) return false;
-    var btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "otter2-feature";
-    btn.id = "otter2FeatExam";
-    btn.innerHTML = '<span class="otter2-ico">🏆</span><strong>Luyện thi HSK</strong>';
-    btn.addEventListener("click", function (e) { e.preventDefault(); openExam(); });
-    row.appendChild(btn);
+  /* ---------------- Bảng Điểm Thi (Phần 2) ----------------
+     Điểm mở: nút điều hướng #otter2AchNavBtn (hàng nút điều hướng)
+     được đổi nhãn thành "Bảng Điểm Thi" và mở bảng này. Nút 🏆 ở
+     trang chủ (#otter2DashAchBtn) vẫn mở Bảng thành tích theo số
+     từ: handler gốc của nó gọi .click() lên nút nav (sự kiện KHÔNG
+     trusted) — ta để các click không-trusted đi qua nguyên vẹn về
+     handler gốc, chỉ chặn click thật của người dùng trên nút nav. */
+  var sb = { overlay: null, content: null };
+  function buildScoreBoard() {
+    if (sb.overlay) return sb.overlay;
+    ensureStyle();
+    var ov = document.createElement("div");
+    ov.id = "ttcScoreBoardOverlay";
+    ov.setAttribute("role", "dialog");
+    ov.setAttribute("aria-label", "Bảng Điểm Thi");
+    ov.innerHTML =
+      '<div class="ttc-hub-card ttc-exam-card">' +
+        '<div class="ttc-hub-head"><div class="ttc-hub-title">📝 Bảng Điểm Thi</div>' +
+        '<button type="button" class="ttc-hub-close" id="ttcScoreBoardClose" aria-label="Đóng">×</button></div>' +
+        '<div id="ttcScoreBoardContent"></div>' +
+      '</div>';
+    document.body.appendChild(ov);
+    sb.overlay = ov;
+    sb.content = ov.querySelector("#ttcScoreBoardContent");
+    ov.querySelector("#ttcScoreBoardClose").addEventListener("click", closeScoreBoard);
+    ov.addEventListener("click", function (e) { if (e.target === ov) closeScoreBoard(); });
+    return ov;
+  }
+  function openScoreBoard() {
+    if (state.overlay && state.overlay.classList.contains("open")) closeExam();
+    buildScoreBoard();
+    sb.overlay.classList.add("open");
+    document.body.classList.add("ttc-hub-lock-scroll");
+    renderScoreBoardList();
+  }
+  function closeScoreBoard() {
+    stopSpeak();
+    if (sb.overlay) sb.overlay.classList.remove("open");
+    if (!state.overlay || !state.overlay.classList.contains("open")) {
+      document.body.classList.remove("ttc-hub-lock-scroll");
+    }
+  }
+  function sbStats(hist) {
+    var v2 = hist.filter(function (h) { return h && typeof h.totalScore === "number"; });
+    var passCount = v2.filter(function (h) { return h.passed; }).length;
+    var bestByLevel = {};
+    v2.forEach(function (h) {
+      var k = "HSK" + h.level;
+      if (!bestByLevel[k] || h.totalScore > bestByLevel[k].score) {
+        bestByLevel[k] = { score: h.totalScore, scale: h.scaleMax };
+      }
+    });
+    var secSum = {}, secCnt = {};
+    v2.forEach(function (h) {
+      if (!h.sections) return;
+      Object.keys(h.sections).forEach(function (k) {
+        var s = h.sections[k];
+        if (s && typeof s.score === "number") {
+          secSum[k] = (secSum[k] || 0) + s.score;
+          secCnt[k] = (secCnt[k] || 0) + 1;
+        }
+      });
+    });
+    var weakest = null, weakestAvg = Infinity;
+    Object.keys(secSum).forEach(function (k) {
+      var avg = secSum[k] / secCnt[k];
+      if (avg < weakestAvg) { weakestAvg = avg; weakest = k; }
+    });
+    return {
+      attempts: hist.length,
+      scored: v2.length,
+      passRate: v2.length ? Math.round(100 * passCount / v2.length) : null,
+      bestByLevel: bestByLevel,
+      weakest: weakest,
+      weakestAvg: weakest ? Math.round(weakestAvg) : null
+    };
+  }
+  function sbSectionCell(h, key) {
+    if (h && h.sections && h.sections[key] && typeof h.sections[key].score === "number") {
+      return String(h.sections[key].score);
+    }
+    return "—";
+  }
+  function renderScoreBoardList() {
+    var hist = loadHistory();
+    var reviews = {};
+    loadReviews().forEach(function (r) { reviews[r.id] = r; });
+    var st = sbStats(hist);
+    var bestChips = Object.keys(st.bestByLevel).sort().map(function (k) {
+      return k + ": " + st.bestByLevel[k].score + "/" + st.bestByLevel[k].scale;
+    }).join(" · ");
+    var statsHtml =
+      '<div class="ttc-sb-stats">' +
+        '<div class="ttc-sb-stat"><b>' + st.attempts + '</b><span>Số lượt thi (trên thiết bị này)</span></div>' +
+        '<div class="ttc-sb-stat"><b>' + (st.passRate == null ? "—" : st.passRate + "%") + '</b><span>Tỉ lệ đạt (các bài có điểm quy đổi)</span></div>' +
+        '<div class="ttc-sb-stat"><b style="font-size:15.5px;line-height:1.45">' + (bestChips ? esc(bestChips) : "—") + '</b><span>Điểm cao nhất từng cấp</span></div>' +
+        '<div class="ttc-sb-stat"><b>' + (st.weakest ? esc(sectionName(st.weakest).replace(/^\S+ /, "")) + " · " + st.weakestAvg + "/100" : "—") + '</b><span>Phần yếu nhất (điểm phần trung bình thấp nhất)</span></div>' +
+      "</div>";
+    var head = '<div class="ttc-sb-row head"><span>Ngày thi</span><span class="ctr">Cấp</span><span>Chế độ / Đề</span>' +
+      '<span class="ctr">Nghe</span><span class="ctr">Từ vựng</span><span class="ctr">Đọc</span><span class="ctr">Viết</span>' +
+      '<span class="ctr">Tổng</span><span class="ctr">Kết quả</span><span class="ctr">Bài làm</span></div>';
+    var rows = hist.map(function (h) {
+      var isV2 = typeof h.totalScore === "number";
+      var modeTxt = isV2 ? (h.modeLabel || "") : (h.sizeLabel || "");
+      if (h.testId) modeTxt += " · " + h.testId;
+      var totalTxt = isV2 ? (h.totalScore + "/" + h.scaleMax) : (h.pct != null ? h.pct + "%" : "—");
+      var badge = isV2
+        ? '<span class="ttc-sb-badge ' + (h.passed ? "ok" : "bad") + '">' + (h.passed ? "ĐẠT" : "Chưa đạt") + "</span>"
+        : '<span class="ttc-sb-badge na">—</span>';
+      var canReview = !!(h.reviewId && reviews[h.reviewId]);
+      var viewBtn = canReview
+        ? '<button type="button" class="ttc-sb-view" data-sb-review="' + esc(h.reviewId) + '">Xem lại</button>'
+        : '<span style="color:#94a3b8" title="Bài cũ chỉ lưu điểm tổng, không lưu chi tiết câu hỏi">—</span>';
+      return '<div class="ttc-sb-row"><span>' + esc(fmtDate(h.ts)) + "</span>" +
+        '<span class="ctr"><b>HSK ' + esc(h.level) + "</b></span>" +
+        "<span>" + esc(modeTxt) + "</span>" +
+        '<span class="ctr">' + sbSectionCell(h, "listen") + "</span>" +
+        '<span class="ctr">' + sbSectionCell(h, "vocab") + "</span>" +
+        '<span class="ctr">' + sbSectionCell(h, "reading") + "</span>" +
+        '<span class="ctr">' + sbSectionCell(h, "writing") + "</span>" +
+        '<span class="ctr"><b>' + esc(totalTxt) + "</b></span>" +
+        '<span class="ctr">' + badge + "</span>" +
+        '<span class="ctr">' + viewBtn + "</span></div>";
+    }).join("");
+    sb.content.innerHTML =
+      '<p style="color:#475569;font-size:14px;line-height:1.55;margin:2px 0 0">Điểm đầy đủ các bài luyện thi của <b>bạn</b> trên thiết bị này, chấm theo thang điểm đề thật (từng phần quy về 100). Khác với <b>Bảng thành tích</b> xếp hạng theo số từ đã học — mở bằng nút 🏆 ở trang chủ.</p>' +
+      statsHtml +
+      (hist.length
+        ? '<div class="ttc-sb-table">' + head + rows + "</div>" +
+          '<p style="color:#94a3b8;font-size:12.5px;margin-top:10px">Các bài làm trước bản nâng cấp này chỉ lưu điểm tổng (%) nên một số ô hiện "—". Bảng điểm cộng đồng (xem điểm của mọi học viên) cần thêm backend — bản nháp đã được chuẩn bị riêng cho chủ web.</p>'
+        : '<div class="ttc-exam-note" style="margin-top:12px">Bạn chưa làm bài luyện thi nào. Hãy vào khu Luyện thi và làm đề đầu tiên — điểm sẽ hiện ở đây.</div>' +
+          '<div class="ttc-exam-nav" style="justify-content:center"><button type="button" class="ttc-exam-btn primary" id="ttcSbGoExam">🏆 Vào Luyện thi</button></div>');
+    sb.content.querySelectorAll("[data-sb-review]").forEach(function (b) {
+      b.addEventListener("click", function () { renderScoreBoardReview(b.getAttribute("data-sb-review")); });
+    });
+    var go = document.getElementById("ttcSbGoExam");
+    if (go) go.addEventListener("click", function () { closeScoreBoard(); openExam(); });
+  }
+  function renderScoreBoardReview(reviewId) {
+    var rec = null;
+    loadReviews().forEach(function (r) { if (r.id === reviewId) rec = r; });
+    if (!rec) { renderScoreBoardList(); return; }
+    var examLike = {
+      level: rec.level, mode: rec.mode, total: rec.total || rec.questions.length,
+      questions: rec.questions
+    };
+    renderReviewInto(sb.content, examLike, rec.answers, {
+      backLabel: "← Về Bảng Điểm Thi",
+      onBack: renderScoreBoardList
+    });
+  }
+
+  /* --- Đổi nhãn + chặn click nút điều hướng --- */
+  var dashForwardUntil = 0;
+  function relabelNavBtn() {
+    var b = document.getElementById("otter2AchNavBtn");
+    if (!b || b.__sbRelabeled) return !!b;
+    b.__sbRelabeled = true;
+    var ico = b.querySelector(".otter2-pill-ico");
+    if (ico) ico.textContent = "📝";
+    var txt = b.querySelector(".otter2-pill-txt");
+    if (txt) txt.textContent = "Bảng Điểm Thi";
+    b.title = "Bảng Điểm Thi — điểm các bài luyện thi của bạn";
+    b.setAttribute("aria-label", "Bảng Điểm Thi");
+    return true;
+  }
+  document.addEventListener("click", function (ev) {
+    var t = ev.target;
+    if (!t || !t.closest) return;
+    if (t.closest("#otter2DashAchBtn")) {
+      /* Nút 🏆 trang chủ: để handler gốc chạy (nó sẽ .click() nút nav
+         bằng sự kiện không-trusted -> mở Bảng thành tích số từ). */
+      dashForwardUntil = Date.now() + 1500;
+      return;
+    }
+    var navBtn = t.closest("#otter2AchNavBtn");
+    if (!navBtn) return;
+    if (!ev.isTrusted || Date.now() <= dashForwardUntil) {
+      dashForwardUntil = 0;
+      return; /* click chuyển tiếp (từ nút 🏆 hoặc rái cá) -> giữ hành vi gốc */
+    }
+    ev.preventDefault();
+    ev.stopPropagation();
+    openScoreBoard();
+  }, true);
+
+  /* ---------------- Panel Luyện thi ở CỘT GIỮA dashboard ----------------
+     Lệnh của chủ web 2026-11-17: CHUYỂN điểm mở khu thi khỏi danh
+     sách tính năng cột trái (thẻ .otter2-feature-row do v1 tiêm) lên
+     vùng trống cột giữa — panel nằm trong thẻ "Trình độ & kỹ năng",
+     ngay dưới 4 thẻ workspace (.otter2-dash-skillgrid). Dashboard
+     chỉ còn MỘT điểm mở khu thi: nút #otter2FeatExam trong panel.
+     Panel nằm trong .otter2-dash-card + chứa button/h3/p nên cơ chế
+     vật cản của rái cá (OBSTACLE_SEL gồm .otter2-dash-card, button,
+     h1-h6, p...) đã tự coi là nội dung học — bé không đứng đè lên. */
+  var panelLevel = 0;
+  function currentStudyLevel() {
+    var chip = document.querySelector(".otter2-dash-chip.is-cur");
+    var n = chip ? Number(chip.getAttribute("data-dash-hsk")) : 0;
+    if (!(n >= 1 && n <= 9)) {
+      var lvEl = document.getElementById("otter2DashCourseLevel");
+      n = lvEl ? Number(String(lvEl.textContent).replace(/\D/g, "")) : 0;
+    }
+    return n >= 1 && n <= 9 ? n : 1;
+  }
+  function refreshPanel() {
+    var line = document.getElementById("otter2ExamPanelLast");
+    if (!line) return;
+    var hist = loadHistory();
+    var h = hist && hist[0];
+    if (!h) { line.hidden = true; line.textContent = ""; return; }
+    var txt = "Lần gần nhất: HSK " + h.level + " · ";
+    if (typeof h.totalScore === "number" && h.scaleMax) {
+      txt += h.totalScore + "/" + h.scaleMax + " · " + (h.passed ? "ĐẠT ✓" : "Chưa đạt");
+    } else {
+      txt += h.pct + "% đúng";
+    }
+    if (h.testId) txt += " · " + h.testId;
+    txt += " · " + fmtDate(h.ts);
+    line.textContent = txt;
+    line.hidden = false;
+  }
+  function injectPanel() {
+    if (document.getElementById("otter2ExamPanel")) return true;
+    /* Gỡ launcher cũ ở cột trái nếu còn sót (đây là lệnh CHUYỂN). */
+    var legacy = document.querySelectorAll(".otter2-feature-row #otter2FeatExam");
+    Array.prototype.forEach.call(legacy, function (el) { el.remove(); });
+    var section = document.querySelector('.otter2-dash-card[aria-labelledby="otter2DashLevelTitle"]');
+    if (!section) {
+      var grid = document.querySelector(".otter2-dash-skillgrid");
+      if (grid) section = grid.closest("section") || grid.parentElement;
+    }
+    if (!section) return false;
+    if (!panelLevel) panelLevel = currentStudyLevel();
+    var chips = "";
+    for (var n = 1; n <= 9; n++) {
+      chips += '<button type="button" class="ttc-exam-panel-chip' + (n === panelLevel ? " is-cur" : "") +
+        '" data-panel-level="' + n + '" aria-pressed="' + (n === panelLevel ? "true" : "false") + '">HSK ' + n + "</button>";
+    }
+    var panel = document.createElement("div");
+    panel.className = "ttc-exam-panel";
+    panel.id = "otter2ExamPanel";
+    panel.setAttribute("aria-label", "Luyện thi HSK");
+    panel.innerHTML =
+      '<div class="ttc-exam-panel-head"><span class="ttc-exam-panel-title">🏆 Luyện thi HSK</span>' +
+      '<span class="ttc-exam-panel-free">MIỄN PHÍ</span></div>' +
+      '<p class="ttc-exam-panel-desc">40 đề mỗi cấp · sát cấu trúc đề thật · chấm điểm thang 200/300 · xem lại từng câu</p>' +
+      '<div class="ttc-exam-panel-chips" role="group" aria-label="Chọn nhanh cấp thi">' + chips + "</div>" +
+      '<p class="ttc-exam-panel-last" id="otter2ExamPanelLast" hidden></p>' +
+      '<button type="button" class="ttc-exam-panel-btn" id="otter2FeatExam">Vào luyện thi →</button>';
+    section.appendChild(panel);
+    Array.prototype.forEach.call(panel.querySelectorAll("[data-panel-level]"), function (chip) {
+      chip.addEventListener("click", function () {
+        panelLevel = Number(chip.getAttribute("data-panel-level"));
+        state.level = panelLevel;
+        Array.prototype.forEach.call(panel.querySelectorAll("[data-panel-level]"), function (c) {
+          var on = Number(c.getAttribute("data-panel-level")) === panelLevel;
+          c.classList.toggle("is-cur", on);
+          c.setAttribute("aria-pressed", on ? "true" : "false");
+        });
+      });
+    });
+    panel.querySelector("#otter2FeatExam").addEventListener("click", function (e) {
+      e.preventDefault();
+      state.level = panelLevel || currentStudyLevel();
+      openExam();
+    });
+    refreshPanel();
     return true;
   }
   function init() {
-    if (injectLauncher()) return;
+    relabelNavBtn();
+    if (injectPanel()) return;
     var tries = 0;
     var iv = setInterval(function () {
       tries++;
-      if (injectLauncher() || tries > 20) clearInterval(iv);
+      relabelNavBtn();
+      if (injectPanel() || tries > 20) clearInterval(iv);
     }, 300);
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
@@ -804,15 +1852,36 @@
 
   /* Phơi ra cho kiểm thử tự động + gỡ lỗi; vô hại khi chạy thật. */
   window.otter2OpenExam = openExam;
+  window.otter2OpenScoreBoard = openScoreBoard;
   window.__ttcExam = {
     generate: generateExam,
     validate: validateExam,
+    computeScore: computeScore,
+    isCorrect: isCorrectAnswer,
+    blueprint: blueprintFor,
+    reducedCounts: reducedCounts,
+    catalog: {
+      perLevel: CATALOG_PER_LEVEL,
+      seed: catalogSeed,
+      buildUpTo: buildCatalogUpTo,
+      testIdOf: testIdOf,
+      overlapOf: overlapOf,
+      cache: function () { return catalogCache; },
+      reset: function () { catalogCache = {}; }
+    },
     pools: function (level) {
       return { words: wordsOfLevel(level).length, withExample: exampleWordsOfLevel(level).length, passages: passagesOfLevel(level).length };
     },
     state: function () { return state; },
     open: openExam,
     close: closeExam,
-    expireNow: function () { if (state.view === "exam") { state.remaining = 0; submitExam(true); } }
+    openScoreBoard: openScoreBoard,
+    closeScoreBoard: closeScoreBoard,
+    expireNow: function () {
+      if (state.view !== "exam") return;
+      if (isFullMode()) { state.sectionRemaining = 0; advanceSection(true); }
+      else { state.remaining = 0; submitExam(true); }
+    },
+    finishSectionNow: function () { if (state.view === "exam") advanceSection(true); }
   };
 })();

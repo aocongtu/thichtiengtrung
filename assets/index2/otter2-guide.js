@@ -469,7 +469,7 @@
       auto: "#autoLearning,#ttcExampleAutoV2",
       ach: "#ttcAchHost",
       write: "#ttcWriteOverlay",
-      exam: "#ttcExamOverlay"
+      exam: "#ttcExamOverlay,#ttcScoreBoardOverlay"
     };
     function zoneObstacleSel() {
       return activeZoneId ? (ZONE_OBSTACLE_SEL[activeZoneId] || null) : null;
@@ -1292,6 +1292,8 @@
         try {
           var ex = document.getElementById("ttcExamOverlay");
           if (ex && ex.classList.contains("open")) return "exam";
+          var sbx = document.getElementById("ttcScoreBoardOverlay");
+          if (sbx && sbx.classList.contains("open")) return "exam";
         } catch (eX) {}
         try {
           var rp = document.querySelector('[data-otter2-screen-panel="reading"]');
@@ -1412,7 +1414,7 @@
           try { relocateIfBlocked(); } catch (eZr) {}
         }, 600);
       }
-      var ZONE_WATCH_IDS = ["ttcPathPanel", "autoLearning", "ttcExampleAutoV2", "ttcAchHost", "ttcWriteOverlay", "ttcExamOverlay"];
+      var ZONE_WATCH_IDS = ["ttcPathPanel", "autoLearning", "ttcExampleAutoV2", "ttcAchHost", "ttcWriteOverlay", "ttcExamOverlay", "ttcScoreBoardOverlay"];
       function ensureZoneRelocateWatchers() {
         for (var i = 0; i < ZONE_WATCH_IDS.length; i++) {
           var el = document.getElementById(ZONE_WATCH_IDS[i]);
