@@ -119,7 +119,7 @@
       ".ttc-story-navrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0 4px}",
       ".ttc-story-navbtn{border:1.5px solid rgba(162,28,175,.45);background:transparent;color:inherit;border-radius:999px;padding:7px 13px;font-weight:800;font-size:13px;cursor:pointer;min-height:38px}",
       ".ttc-story-navbtn:disabled{opacity:.4;cursor:default}",
-      ".ttc-story-drive{margin-left:auto;font-size:13px;font-weight:700;color:#a21caf}"
+      ".ttc-story-navrow .ttc-story-navbtn:last-child{margin-left:auto}"
     ].join("\n");
     var st = document.createElement("style");
     st.id = "ttcStoryVideoStyle";
@@ -253,9 +253,7 @@
       (entry.voice_label ? " · 🎙 " + esc(entry.voice_label) : "") + "</p>" +
       '<div class="ttc-story-navrow">' +
       '<button type="button" class="ttc-story-navbtn" id="ttcStoryPrev"' + (prev ? "" : " disabled") + ">← Truyện trước</button>" +
-      '<button type="button" class="ttc-story-navbtn" id="ttcStoryNext"' + (next ? "" : " disabled") + ">Truyện tiếp →</button>" +
-      '<a class="ttc-story-drive" target="_blank" rel="noopener" href="https://drive.google.com/file/d/' +
-      encodeURIComponent(entry.drive_id) + '/view">Mở trong Google Drive ↗</a></div>';
+      '<button type="button" class="ttc-story-navbtn" id="ttcStoryNext"' + (next ? "" : " disabled") + ">Truyện tiếp →</button></div>";
     var pb = stageEl.querySelector("#ttcStoryPrev");
     var nb = stageEl.querySelector("#ttcStoryNext");
     if (pb && prev) pb.addEventListener("click", function () { playStory(prev); });
