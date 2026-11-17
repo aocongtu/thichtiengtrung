@@ -647,11 +647,16 @@ if (typeof window.ttcHanVietName !== "function") {
     rows = sortAchievementRows(rows);
     var html = "<div class='ttc-ach-table' role='table' aria-label='Bảng thành tích HSK " + level + "'>"
       + "<div class='ttc-ach-head' role='row'>"
-      + "<span>Hạng</span><span>Nickname</span><span>HSK</span><span title='Số từ status=mastered'>Đã thuộc</span><span title='Điểm kinh nghiệm lộ trình'>EXP</span>"
+      + "<span>Hạng</span><span>Nickname</span><span>HSK</span><span title='Tiêu chí xếp hạng chính: số từ đã thuộc (status=mastered)'>Đã thuộc ↓</span><span title='Điểm cần cù (siêng năng học tập) — chỉ dùng phân hạng khi bằng số từ đã thuộc'>EXP · cần cù</span>"
       + "</div>";
     for (var i = 0; i < rows.length; i++) {
       var row = rows[i] || {};
-      var rank = Number(row.rank) || (offset + i + 1);
+      /* Sửa 2026-11-17 theo ý chủ web: hạng hiển thị = vị trí SAU khi sắp xếp
+         theo luật mới (số từ đã thuộc ↓, EXP ↓) trong danh sách đã tải.
+         KHÔNG dùng row.rank của RPC nữa — rank máy chủ đi theo thứ tự riêng
+         của server (theo EXP) nên trước đây số hạng/huy chương lệch hẳn
+         khỏi tiêu chí số từ. EXP chỉ còn là điểm cần cù + tiêu chí phụ. */
+      var rank = i + 1;
       var medal = medalForRank(rank);
       var top = rank <= 3 ? " ttc-ach-top" + rank : "";
       var nick = String(row.nickname || "Bạn học");
@@ -690,6 +695,9 @@ if (typeof window.ttcHanVietName !== "function") {
       html += "<p class='ttc-ach-status ttc-ach-error'>Không tải được dữ liệu. " + esc(achUi.error) + "</p>";
     } else {
       html += renderAchievementRows(level, achUi.rows, achUi.offset);
+      if (achUi.rows && achUi.rows.length) {
+        html += "<p class='ttc-ach-note'>🏆 Xếp hạng theo <b>số từ đã thuộc</b> ↓ · EXP là điểm cần cù (siêng năng), chỉ phân hạng khi bằng số từ.</p>";
+      }
       if (achUi.hasMore) {
         html += "<button type='button' class='ttc-ach-more' id='ttcAchMore'>Tải thêm</button>";
       } else if (achUi.rows && achUi.rows.length) {
