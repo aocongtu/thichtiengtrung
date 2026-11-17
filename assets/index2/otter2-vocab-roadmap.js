@@ -459,7 +459,10 @@ if (typeof window.ttcHanVietName !== "function") {
 
   /*
     Phase 3D — nguồn thật qua RPC ttc_hsk_achievement_board:
-    - ĐÃ THUỘC: count ttc_vocab_memory.status = 'mastered' theo hsk_level
+    - ĐÃ THUỘC: count ttc_vocab_memory theo hsk_level với status = 'mastered'
+      HOẶC stability >= 1 (sửa phía server 2026-11-17: luật mastered thuần túy
+      cần ~25 ngày ôn cách quãng mỗi từ nên mọi học viên đều 0 từ, bảng lặng lẽ
+      xếp theo EXP — trái ý chủ web "xếp hạng theo số từ đã thuộc")
     - EXP: ttc_hsk_path_state.xp cùng cấp HSK
     - Nickname: community_nicknames.display_name (RPC ẩn nếu có @)
     RPC SECURITY DEFINER chỉ trả tổng hợp; không trả user_id/email/từ/event.
@@ -650,7 +653,7 @@ if (typeof window.ttcHanVietName !== "function") {
     rows = sortAchievementRows(rows);
     var html = "<div class='ttc-ach-table' role='table' aria-label='Bảng thành tích HSK " + level + "'>"
       + "<div class='ttc-ach-head' role='row'>"
-      + "<span>Hạng</span><span>Nickname</span><span>HSK</span><span title='Tiêu chí xếp hạng chính: số từ đã thuộc (status=mastered)'>Đã thuộc ↓</span><span title='Điểm cần cù (siêng năng học tập) — chỉ dùng phân hạng khi bằng số từ đã thuộc'>EXP · cần cù</span>"
+      + "<span>Hạng</span><span>Nickname</span><span>HSK</span><span title='Tiêu chí xếp hạng chính: số từ đã thuộc (từ đã ôn đúng, độ ổn định ≥ 1 trong bộ nhớ từ vựng, gồm cả từ mastered)'>Đã thuộc ↓</span><span title='Điểm cần cù (siêng năng học tập) — chỉ dùng phân hạng khi bằng số từ đã thuộc'>EXP · cần cù</span>"
       + "</div>";
     for (var i = 0; i < rows.length; i++) {
       var row = rows[i] || {};
@@ -2004,7 +2007,7 @@ if (typeof window.ttcHanVietName !== "function") {
         +     "<li><b>Tiến độ mục tiêu hôm nay</b>: đã học / mục tiêu · %.</li>"
         +     "<li><b>Tiến độ lộ trình</b>: vị trí từ hiện tại / tổng từ cấp đó.</li>"
         +     "<li><b>Chuỗi ngày</b>: số ngày học liên tiếp theo dữ liệu lộ trình.</li>"
-        +     "<li><b>Số từ đã thuộc</b>: xem ở bảng thành tích — chỉ đếm từ có trạng thái mastered trong bộ nhớ từ vựng.</li>"
+        +     "<li><b>Số từ đã thuộc</b>: xem ở bảng thành tích — đếm các từ đã ôn đúng và đạt độ ổn định ≥ 1 trong bộ nhớ từ vựng (từ mastered được tính gồm luôn).</li>"
         +   "</ul>"
         +   "<p><b>D. Ghi nhớ từ vựng</b></p>"
         +   "<ul>"
