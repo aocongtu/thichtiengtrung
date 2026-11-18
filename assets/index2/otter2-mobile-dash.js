@@ -114,11 +114,11 @@
     /* Giảm tông xanh lá hero lộ trình trên mobile: gốc #22c55e -> #15803d
        quá chói; vòng 1 về #4cab6d -> #2e7c4f vẫn bị chê đậm nên vòng 2
        nâng sáng thêm một bậc; chữ trắng vẫn tương phản tốt */
-    "#otter2-home .otter2-dash-course .otter2-dash-hero{background:linear-gradient(135deg,#6fbf8a,#459a68)}",
+    "#otter2-home .otter2-dash-course .otter2-dash-hero{background:#fff}",
     /* Nút Kho từ vựng dùng chung xanh gốc gắt #22c55e -> #15803d (kể cả
        biến thể nền đêm của core, đặc hiệu (0,3,1)) — giảm nhẹ theo hero
        mới cho hài hoà; selector có #otter2-home (1,2,0) thắng cả hai */
-    "#otter2-home .otter2-dash-course .otter2-feature--vocab{background:linear-gradient(135deg,#57b877,#3c8a5a)}",
+    "#otter2-home .otter2-dash-course .otter2-feature--vocab{background:#fff}",
     "#otter2-home .otter2-dash-hero h3{font-size:15.5px;line-height:1.3;margin:6px 0 2px}",
     "#otter2-home .otter2-dash-hero p{font-size:12px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}",
     "#otter2-home .otter2-dash-prow{margin-top:9px;font-size:12px}",
@@ -138,7 +138,7 @@
     /* Panel Luyện thi: nén cho nửa cột — chip cấp bọc dòng, CTA vẫn lớn dễ bấm.
        Giảm tông gradient (selector 2 ID + 2 class thắng luật nền khóa bằng
        #otter2ExamPanel và cả biến thể nền đêm của exam.js) */
-    "#otter2-home #otter2ExamPanel.otter2-dash-card.ttc-exam-panel{background:linear-gradient(135deg,#e8835f 0%,#d9576b 52%,#845ec9 105%)}",
+    "#otter2-home #otter2ExamPanel.otter2-dash-card.ttc-exam-panel{background:#fff}",
     "#otter2-home .ttc-exam-panel-trophy{width:38px;height:38px;font-size:20px}",
     /* Header gói dòng + tiêu đề co được + nhãn MIỄN PHÍ nowrap: nhãn không
        còn bị mép panel (overflow:hidden) cắt mất chữ ở nửa cột */
@@ -161,23 +161,23 @@
     /* Tô màu 4 nút kỹ năng (chủ web: nền trắng quá nhạt) — pastel phân
        biệt theo data-dash-goto, viền đậm hơn nền một tông, chữ tối giữ
        nguyên như core; chỉ nền/viền, không đổi kích thước/handler */
-    "#otter2-home .otter2-dash-skilltile[data-dash-goto='reading']{background:#dcebfd;border-color:#9cc3f5}",
-    "#otter2-home .otter2-dash-skilltile[data-dash-goto='write']{background:#fdeec9;border-color:#eec25f}",
-    "#otter2-home .otter2-dash-skilltile[data-dash-goto='speak']{background:#ffe0d1;border-color:#f2a183}",
-    "#otter2-home .otter2-dash-skilltile[data-dash-goto='auto']{background:#fde3f1;border-color:#efa3cf}",
+    "#otter2-home .otter2-dash-skilltile[data-dash-goto='reading']{background:#fff;border-color:#e7e9ee;color:#2563eb}",
+    "#otter2-home .otter2-dash-skilltile[data-dash-goto='write']{background:#fff;border-color:#e7e9ee;color:#b45309}",
+    "#otter2-home .otter2-dash-skilltile[data-dash-goto='speak']{background:#fff;border-color:#e7e9ee;color:#ea580c}",
+    "#otter2-home .otter2-dash-skilltile[data-dash-goto='auto']{background:#fff;border-color:#e7e9ee;color:#c026d3}",
     /* Ban đêm: cùng hệ màu nhưng trầm xuống để chữ sáng (#e5e7eb của core
        đêm) vẫn đọc rõ — selector thêm html[data-theme] (1,3,1) thắng cả
        luật pastel ngày (1,2,0) lẫn luật đêm của core (0,2,1) */
-    "html[data-theme='night'] #otter2-home .otter2-dash-skilltile[data-dash-goto='reading']{background:#1d3a5f;border-color:#2e5a8c}",
-    "html[data-theme='night'] #otter2-home .otter2-dash-skilltile[data-dash-goto='write']{background:#463a16;border-color:#7a6423}",
-    "html[data-theme='night'] #otter2-home .otter2-dash-skilltile[data-dash-goto='speak']{background:#472b1e;border-color:#7c4a30}",
-    "html[data-theme='night'] #otter2-home .otter2-dash-skilltile[data-dash-goto='auto']{background:#42203a;border-color:#6f3560}",
+    "html[data-theme='night'] #otter2-home .otter2-dash-skilltile[data-dash-goto='reading']{background:#1e293b;border-color:#334155;color:#93c5fd}",
+    "html[data-theme='night'] #otter2-home .otter2-dash-skilltile[data-dash-goto='write']{background:#1e293b;border-color:#334155;color:#fcd34d}",
+    "html[data-theme='night'] #otter2-home .otter2-dash-skilltile[data-dash-goto='speak']{background:#1e293b;border-color:#334155;color:#fdba74}",
+    "html[data-theme='night'] #otter2-home .otter2-dash-skilltile[data-dash-goto='auto']{background:#1e293b;border-color:#334155;color:#f0abfc}",
 
     /* Panel Truyện kể: nén như panel thi + GIẢM TÔNG vòng 2 cho nền
        gradient (chủ web chê tím vẫn đậm): selector 2 ID + 2 class (2,2,0)
        thắng luật nền khóa #otter2-home #otter2StoryVideoPanel (2,0,0)
        của storyvideo.js — giữ hệ tím -> hồng -> cam, nâng sáng rõ rệt */
-    "#otter2-home #otter2StoryVideoPanel.otter2-dash-card.ttc-story-panel{background:linear-gradient(135deg,#9668cf 0%,#bd6fb8 54%,#e2a763 125%)}",
+    "#otter2-home #otter2StoryVideoPanel.otter2-dash-card.ttc-story-panel{background:#fff}",
     "#otter2-home .ttc-story-panel{padding:12px}",
     "#otter2-home .ttc-story-panel-play{width:40px;height:40px;flex-basis:40px;font-size:17px}",
     "#otter2-home .ttc-story-panel-title{font-size:16px;line-height:1.25}",

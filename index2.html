@@ -63,10 +63,7 @@
     body.otter2-body{
       margin:0;min-height:100vh;color:var(--otter2-ink);max-width:100%;
       font-family:"Segoe UI",system-ui,-apple-system,"PingFang SC","Noto Sans SC",sans-serif;
-      background:
-        radial-gradient(1000px 480px at 0% -8%, rgba(254,205,211,.55), transparent 55%),
-        radial-gradient(900px 420px at 100% 0%, rgba(186,230,253,.4), transparent 50%),
-        linear-gradient(180deg, var(--otter2-pearl) 0%, #f8fafc 48%, var(--otter2-pink) 100%);
+      background:#f5f6f8;
       overflow-x:hidden;
     }
     img{max-width:100%;height:auto;display:block}
@@ -289,7 +286,7 @@
       background:rgba(255,255,255,.94);border:1px solid var(--otter2-line);border-radius:18px;padding:14px;
       backdrop-filter:blur(8px);max-width:420px;
     }
-    .otter2-progress h3{margin:0 0 4px;font-size:15px}
+    .otter2-progress h3{margin:0 0 4px;font-size:15px;color:#15803d}
     .otter2-progress p{margin:0;font-size:13px;color:var(--otter2-muted)}
     .otter2-bar{height:10px;border-radius:999px;background:#ffe4e6;overflow:hidden;margin:8px 0 12px}
     .otter2-bar>i{display:block;height:100%;width:68%;background:linear-gradient(90deg,#fb7185,#e11d48);border-radius:inherit}
@@ -406,16 +403,16 @@
     .otter2-journey{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;max-width:100%;width:100%;box-sizing:border-box}
     .otter2-node{
       flex:0 0 auto;width:72px;height:72px;display:grid;place-items:center;text-align:center;
-      border-radius:50%;background:var(--otter2-pink);border:2px solid #fecdd3;
+      border-radius:50%;background:#fff;border:2px solid #e7e9ee;
       font-size:var(--ui-btn-font-sm);font-weight:800;line-height:1.15;
       box-shadow:0 6px 14px rgba(225,29,72,.08);color:var(--otter2-ink);box-sizing:border-box;
     }
     .otter2-node.is-on{background:var(--otter2-red);color:#fff;border-color:var(--otter2-red);transform:scale(1.06)}
-    .otter2-node.is-done{background:#fff7ed;border-color:#fdba74;color:#9a3412}
+    .otter2-node.is-done{background:#f8fafc;border-color:#e7e9ee;color:#64748b}
     .otter2-ach{display:flex;gap:12px;align-items:center}
     .otter2-ach-trophy{
-      width:64px;height:64px;border-radius:18px;background:linear-gradient(160deg,#fde68a,#f59e0b);
-      display:grid;place-items:center;font-size:28px;flex:none;box-shadow:0 10px 20px rgba(245,158,11,.3);
+      width:64px;height:64px;border-radius:18px;background:#fde68a;
+      display:grid;place-items:center;font-size:28px;flex:none;box-shadow:0 8px 16px rgba(245,158,11,.22);
     }
     .otter2-ach ul{margin:0;padding:0;list-style:none;font-size:13px;font-weight:700}
     .otter2-ach li{margin:4px 0;color:var(--otter2-ink)}
@@ -772,28 +769,22 @@
     /* ===== Muse 2026-11-16: banner Facebook + lam moi trang chu ===== */
     .otter2-fb-banner{
       display:flex;align-items:center;gap:14px;flex-wrap:wrap;
-      margin:14px 0 4px;padding:16px 20px;border-radius:24px;color:#fff;
-      background:linear-gradient(100deg, var(--otter2-red-deep) 0%, var(--otter2-red) 55%, #f43f5e 100%);
-      box-shadow:0 16px 34px rgba(190,18,60,.28);
+      margin:14px 0 4px;padding:16px 20px;border-radius:24px;color:var(--otter2-ink);
+      background:#fff;border:1px solid #e7e9ee;
+      box-shadow:0 10px 24px rgba(15,23,42,.06);
     }
     .otter2-fb-banner-text{flex:1 1 320px;display:grid;gap:3px}
-    .otter2-fb-banner-text strong{font-size:16.5px;font-weight:800;letter-spacing:.1px}
+    .otter2-fb-banner-text strong{font-size:16.5px;font-weight:800;letter-spacing:.1px;color:var(--otter2-red-deep)}
     .otter2-fb-banner-text span{font-size:13.5px;line-height:1.45;opacity:.94}
     .otter2-fb-banner-btn{
       flex:none;display:inline-flex;align-items:center;justify-content:center;
-      min-height:46px;padding:0 20px;border-radius:999px;background:#fff;color:var(--otter2-red-deep);
-      font-weight:800;font-size:14.5px;text-decoration:none;box-shadow:0 8px 18px rgba(0,0,0,.18);
+      min-height:46px;padding:0 20px;border-radius:999px;background:var(--otter2-red);color:#fff;
+      font-weight:800;font-size:14.5px;text-decoration:none;box-shadow:0 8px 18px rgba(225,29,72,.25);
       transition:transform .15s ease, box-shadow .15s ease;
     }
-    .otter2-fb-banner-btn:hover{transform:translateY(-2px);box-shadow:0 12px 22px rgba(0,0,0,.22)}
+    .otter2-fb-banner-btn:hover{transform:translateY(-2px);box-shadow:0 12px 22px rgba(225,29,72,.30)}
     @media (max-width:720px){ .otter2-fb-banner{padding:14px 16px} .otter2-fb-banner-btn{width:100%} }
-    body.otter2-body{
-      background:
-        radial-gradient(1100px 520px at -5% -10%, rgba(253,164,175,.50), transparent 55%),
-        radial-gradient(900px 460px at 105% -5%, rgba(147,197,253,.38), transparent 52%),
-        radial-gradient(720px 380px at 50% 118%, rgba(252,211,77,.26), transparent 60%),
-        linear-gradient(180deg, #fff7f2 0%, #fffcfa 46%, #eef7ff 100%);
-    }
+    body.otter2-body{background:#f5f6f8}
     .otter2-hero{border-radius:30px;border-color:rgba(225,29,72,.22);box-shadow:0 22px 44px rgba(190,18,60,.12)}
     .otter2-feature{transition:transform .18s ease, box-shadow .18s ease}
     .otter2-feature:hover{transform:translateY(-3px);box-shadow:0 16px 30px rgba(15,23,42,.12)}
@@ -813,7 +804,7 @@
       font-weight:700;font-size:13px;color:var(--otter2-muted);min-height:44px;white-space:nowrap;line-height:1.25;
     }
     .otter2-dash-chip small{display:block;font-size:10.5px;font-weight:600;opacity:.85}
-    .otter2-dash-chip:hover{background:var(--otter2-pink);color:var(--otter2-ink)}
+    .otter2-dash-chip:hover{background:#f8fafc;color:var(--otter2-ink)}
     .otter2-dash-chip.is-cur{background:var(--otter2-red);color:#fff}
     .otter2-dash{
       display:grid;grid-template-columns:minmax(0,1fr) 348px;gap:16px;align-items:start;margin:0 0 16px;
@@ -827,33 +818,33 @@
     .otter2-dash-head h2{font-size:17px;font-weight:800;margin:0;color:var(--otter2-ink)}
     .otter2-dash-sub{font-size:12.5px;color:var(--otter2-muted);font-weight:600}
     .otter2-dash-hero{
-      background:linear-gradient(135deg,var(--otter2-red),var(--otter2-red-deep));color:#fff;
+      background:#fff;color:var(--otter2-ink);border:1px solid #e7e9ee;
       border-radius:16px;padding:16px;position:relative;overflow:hidden;
     }
     .otter2-dash-hero::after{
       content:"学";position:absolute;right:8px;top:-30px;font-size:118px;font-weight:900;line-height:1;
-      color:rgba(255,255,255,.13);pointer-events:none;
+      color:rgba(21,128,61,.07);pointer-events:none;
     }
-    .otter2-dash-badge{display:inline-block;background:var(--otter2-gold);color:#3a2703;font-size:11px;font-weight:800;padding:3px 10px;border-radius:999px;letter-spacing:.04em;text-transform:uppercase}
-    .otter2-dash-hero h3{margin:10px 0 2px;font-size:19px;font-weight:800;position:relative;z-index:1}
-    .otter2-dash-hero p{margin:0;font-size:13.5px;color:rgba(255,255,255,.88);position:relative;z-index:1}
-    .otter2-dash-prow{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;margin-top:16px;color:rgba(255,255,255,.88);position:relative;z-index:1}
-    .otter2-dash-prow b{color:#fff}
-    .otter2-dash-bar{height:7px;border-radius:99px;background:rgba(255,255,255,.28);margin-top:6px;overflow:hidden;position:relative;z-index:1}
+    .otter2-dash-badge{display:inline-block;background:#fef3c7;color:#92400e;font-size:11px;font-weight:800;padding:3px 10px;border-radius:999px;letter-spacing:.04em;text-transform:uppercase}
+    .otter2-dash-hero h3{margin:10px 0 2px;font-size:19px;font-weight:800;position:relative;z-index:1;color:#15803d}
+    .otter2-dash-hero p{margin:0;font-size:13.5px;color:var(--otter2-muted);position:relative;z-index:1}
+    .otter2-dash-prow{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;margin-top:16px;color:var(--otter2-muted);position:relative;z-index:1}
+    .otter2-dash-prow b{color:var(--otter2-ink)}
+    .otter2-dash-bar{height:7px;border-radius:99px;background:rgba(15,23,42,.10);margin-top:6px;overflow:hidden;position:relative;z-index:1}
     .otter2-dash-bar>i{display:block;height:100%;border-radius:99px;background:var(--otter2-gold);transition:width .6s ease}
     /* Feature row chuyển vào thẻ khóa học: hiển thị dạng danh sách (giữ nguyên id/handler) */
     .otter2-dash-course .otter2-feature-row{display:grid;grid-template-columns:1fr !important;gap:8px;margin:12px 0 0}
     .otter2-dash-course .otter2-feature{
       display:flex;align-items:center;gap:12px;text-align:left;min-height:54px;height:auto;width:100%;
-      padding:10px 14px;background:var(--otter2-pink);border-radius:14px;box-shadow:none;
+      padding:10px 14px;background:#fff;border:1px solid #e7e9ee;border-radius:14px;box-shadow:none;
     }
-    .otter2-dash-course .otter2-feature strong{font-size:14.5px}
-    .otter2-dash-course .otter2-feature .otter2-ico{width:38px;height:38px;font-size:19px;background:#fff}
-    .otter2-dash-course .otter2-feature--vocab{background:linear-gradient(135deg,var(--otter2-red),var(--otter2-red-deep));color:#fff;border-color:transparent}
-    .otter2-dash-course .otter2-feature--vocab .otter2-ico{background:rgba(255,255,255,.2)}
+    .otter2-dash-course .otter2-feature strong{font-size:14.5px;color:#15803d}
+    .otter2-dash-course .otter2-feature .otter2-ico{width:38px;height:38px;font-size:19px;background:#f8fafc}
+    .otter2-dash-course .otter2-feature--vocab{background:#fff;color:#15803d;border-color:#e7e9ee}
+    .otter2-dash-course .otter2-feature--vocab .otter2-ico{background:#f8fafc}
     /* Bài học mỗi ngày */
     .otter2-dash-search{
-      display:flex;align-items:center;gap:9px;background:var(--otter2-pink);border:1px solid var(--otter2-line);
+      display:flex;align-items:center;gap:9px;background:#f8fafc;border:1px solid var(--otter2-line);
       border-radius:12px;padding:0 13px;margin-bottom:6px;
     }
     .otter2-dash-search input{border:0;background:transparent;flex:1;font:inherit;font-size:14px;color:var(--otter2-ink);padding:11px 0;min-width:0}
@@ -865,32 +856,32 @@
     }
     article.otter2-dash-lesson{cursor:default}
     .otter2-dash-thumb{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-weight:900;font-size:19px;flex:none}
-    .otter2-dash-thumb.r{background:#fdecea;color:var(--otter2-red-deep)}
-    .otter2-dash-thumb.t{background:#e2f3f0;color:#0e7a6d}
-    .otter2-dash-thumb.g{background:#fdf1de;color:#b97a14}
-    .otter2-dash-thumb.v{background:#ece7fb;color:#6c4bd8}
-    .otter2-dash-thumb.o{background:#fdeee2;color:#e8722a}
+    .otter2-dash-thumb.r{background:#f1f5f9;color:var(--otter2-red-deep)}
+    .otter2-dash-thumb.t{background:#f1f5f9;color:#0e7a6d}
+    .otter2-dash-thumb.g{background:#f1f5f9;color:#b97a14}
+    .otter2-dash-thumb.v{background:#f1f5f9;color:#6c4bd8}
+    .otter2-dash-thumb.o{background:#f1f5f9;color:#e8722a}
     .otter2-dash-lesson-main{min-width:0}
     .otter2-dash-lesson-main strong{display:block;font-size:14.5px;font-weight:700}
     .otter2-dash-lesson-main small{display:block;margin-top:2px;font-size:12.5px;color:var(--otter2-muted);line-height:1.45}
-    .otter2-dash-tag{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:7px;background:#e2f3f0;color:#0e7a6d;margin-top:6px}
-    .otter2-dash-tag.video{background:#fdecea;color:var(--otter2-red-deep)}
-    .otter2-dash-tag.pdf{background:#fdf1de;color:#b97a14}
+    .otter2-dash-tag{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:7px;background:#f1f5f9;color:#0e7a6d;margin-top:6px}
+    .otter2-dash-tag.video{background:#f1f5f9;color:var(--otter2-red-deep)}
+    .otter2-dash-tag.pdf{background:#f1f5f9;color:#b97a14}
     .otter2-dash-status{font-size:11.5px;font-weight:800;padding:5px 9px;border-radius:7px;color:#fff;background:#94a3b8;white-space:nowrap}
     .otter2-dash-status.done{background:#1f9d63}
     .otter2-dash-status.today{background:var(--otter2-red)}
     .otter2-dash-noresult{margin:14px 0 2px;color:var(--otter2-muted);font-size:13.5px}
     /* Trình độ & kỹ năng */
     .otter2-dash-retest{
-      border:1px solid var(--otter2-line);background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;
-      font-size:13px;font-weight:700;color:var(--otter2-ink);min-height:38px;
+      border:1px solid #2563eb;background:#2563eb;border-radius:999px;padding:7px 14px;cursor:pointer;
+      font-size:13px;font-weight:700;color:#fff;min-height:38px;
     }
-    .otter2-dash-retest:hover{background:var(--otter2-pink)}
+    .otter2-dash-retest:hover{background:#1d4ed8}
     .otter2-dash-levelbig{display:flex;align-items:center;gap:14px}
     .otter2-dash-levelbig .lv{font-size:44px;font-weight:900;letter-spacing:-.02em;line-height:1;color:var(--otter2-ink)}
     .otter2-dash-levelbig .meta{font-size:12.5px;color:var(--otter2-muted);line-height:1.5}
-    .otter2-dash-skill{margin-top:16px;background:var(--otter2-pink);border-radius:14px;padding:13px 14px}
-    .otter2-dash-skill h4{margin:0 0 10px;font-size:13.5px;font-weight:700;color:var(--otter2-ink)}
+    .otter2-dash-skill{margin-top:16px;background:#f8fafc;border-radius:14px;padding:13px 14px}
+    .otter2-dash-skill h4{margin:0 0 10px;font-size:13.5px;font-weight:700;color:#2563eb}
     .otter2-dash-track{height:10px;border-radius:99px;background:rgba(15,23,42,.10);overflow:hidden}
     .otter2-dash-track>i{display:block;height:100%;border-radius:99px;background:#1f9d63;transition:width .6s ease}
     .otter2-dash-skill .cap{display:block;margin-top:8px;font-size:12.5px;font-weight:700;color:var(--otter2-muted)}
@@ -899,23 +890,24 @@
       border:1px solid var(--otter2-line);background:#fff;border-radius:14px;padding:12px 13px;cursor:pointer;
       text-align:left;color:var(--otter2-ink);font:inherit;display:grid;gap:2px;min-height:64px;
     }
-    .otter2-dash-skilltile:hover{background:var(--otter2-pink)}
+    .otter2-dash-skilltile:hover{background:#f8fafc}
     .otter2-dash-skilltile strong{font-size:13.5px}
     .otter2-dash-skilltile small{font-size:12px;color:var(--otter2-muted);font-weight:600}
     /* Tô màu 4 nút kỹ năng trên desktop — đồng bộ bảng màu pastel đã duyệt trên mobile (2026-11-17) */
-    .otter2-dash-skilltile[data-dash-goto="reading"]{background:#dcebfd;border-color:#9cc3f5}
-    .otter2-dash-skilltile[data-dash-goto="write"]{background:#fdeec9;border-color:#eec25f}
-    .otter2-dash-skilltile[data-dash-goto="speak"]{background:#ffe0d1;border-color:#f2a183}
-    .otter2-dash-skilltile[data-dash-goto="auto"]{background:#fde3f1;border-color:#efa3cf}
+    .otter2-dash-skilltile[data-dash-goto="reading"]{background:#fff;border-color:#e7e9ee;color:#2563eb}
+    .otter2-dash-skilltile[data-dash-goto="write"]{background:#fff;border-color:#e7e9ee;color:#b45309}
+    .otter2-dash-skilltile[data-dash-goto="speak"]{background:#fff;border-color:#e7e9ee;color:#ea580c}
+    .otter2-dash-skilltile[data-dash-goto="auto"]{background:#fff;border-color:#e7e9ee;color:#c026d3}
     /* Hoạt động */
     .otter2-dash-actnum{display:flex;align-items:center;gap:12px}
-    .otter2-dash-actnum .n{font-size:48px;font-weight:900;letter-spacing:-.02em;line-height:1;color:var(--otter2-ink)}
+    .otter2-dash-actnum .n{font-size:48px;font-weight:900;letter-spacing:-.02em;line-height:1;color:#0f766e}
     .otter2-dash-actnum .lbl{font-size:13px;color:var(--otter2-muted);line-height:1.45;font-weight:600}
     .otter2-dash-lvgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:16px}
-    .otter2-dash-lvcell{background:var(--otter2-pink);border-radius:11px;padding:8px 6px;text-align:center}
+    .otter2-dash-lvcell{background:#f8fafc;border-radius:11px;padding:8px 6px;text-align:center}
     .otter2-dash-lvcell b{display:block;font-size:12.5px;color:var(--otter2-ink)}
     .otter2-dash-lvcell span{font-size:11.5px;color:var(--otter2-muted);font-weight:700}
-    .otter2-dash-lvcell.has{background:#e4f5ec}
+    .otter2-dash-lvcell.has{background:#f8fafc}
+    .otter2-dash-lvcell.has b::after{content:"";display:inline-block;width:7px;height:7px;margin-left:5px;border-radius:50%;background:#1f9d63;vertical-align:middle}
     .otter2-dash-note{font-size:13px;color:var(--otter2-muted);margin:14px 0 0;line-height:1.55}
     /* Nhiệm vụ hôm nay */
     .otter2-dash-task{
@@ -923,22 +915,22 @@
       padding:11px 2px;color:var(--otter2-ink);border-radius:12px;font:inherit;cursor:pointer;box-sizing:border-box;
     }
     .otter2-dash-task + .otter2-dash-task{border-top:1px solid var(--otter2-line)}
-    .otter2-dash-task .ic{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;flex:none;font-size:18px;background:var(--otter2-pink)}
-    .otter2-dash-task .ic.c1{background:#e2f3f0}
-    .otter2-dash-task .ic.c2{background:#fdf1de}
-    .otter2-dash-task .ic.c3{background:#ece7fb}
+    .otter2-dash-task .ic{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;flex:none;font-size:18px;background:#f1f5f9}
+    .otter2-dash-task .ic.c1{background:#f1f5f9}
+    .otter2-dash-task .ic.c2{background:#f1f5f9}
+    .otter2-dash-task .ic.c3{background:#f1f5f9}
     .otter2-dash-task .tt{flex:1;min-width:0}
     .otter2-dash-task .tt small{display:block;color:var(--otter2-muted);font-size:11.5px;font-weight:600}
     .otter2-dash-task .tt span{font-weight:700;font-size:14px}
-    .otter2-dash-task .mins{background:var(--otter2-pink);border-radius:9px;padding:5px 10px;font-size:12.5px;font-weight:800;color:var(--otter2-muted);flex:none}
+    .otter2-dash-task .mins{background:#f1f5f9;border-radius:9px;padding:5px 10px;font-size:12.5px;font-weight:800;color:#b45309;flex:none}
     .otter2-dash-cta{
-      width:100%;background:var(--otter2-ink);color:#fff;border:0;border-radius:14px;padding:14px;cursor:pointer;
+      width:100%;background:#b45309;color:#fff;border:0;border-radius:14px;padding:14px;cursor:pointer;
       font-weight:800;font-size:15px;margin-top:14px;min-height:50px;
     }
     .otter2-dash-cta:hover{opacity:.92}
     /* Học tiếp */
-    .otter2-dash-kicker{font-size:12px;color:var(--otter2-muted);font-weight:700}
-    .otter2-dash-continue h3{margin:5px 0 10px;font-size:17px;font-weight:800;color:var(--otter2-ink)}
+    .otter2-dash-kicker{font-size:12px;color:var(--otter2-red);font-weight:700}
+    .otter2-dash-continue h3{margin:5px 0 10px;font-size:17px;font-weight:800;color:var(--otter2-red)}
     .otter2-dash-continue img{width:100%;border-radius:14px;display:block;aspect-ratio:16/9;object-fit:cover}
     .otter2-dash-continue p{margin:12px 0 14px;font-size:13.5px;color:var(--otter2-muted);line-height:1.6}
     .otter2-dash-ctared{
@@ -951,14 +943,14 @@
     .otter2-dash-steps{display:grid;grid-template-columns:repeat(9,1fr);gap:8px}
     .otter2-dash-step{
       border-radius:16px;padding:13px 8px 11px;text-align:center;border:1px solid var(--otter2-line);
-      background:var(--otter2-pink);cursor:pointer;color:var(--otter2-ink);font:inherit;min-width:0;
+      background:#fff;cursor:pointer;color:var(--otter2-ink);font:inherit;min-width:0;
     }
     .otter2-dash-step .n{display:block;font-size:16px;font-weight:900}
     .otter2-dash-step small{display:block;font-size:10.5px;color:var(--otter2-muted);font-weight:600;margin-top:2px;line-height:1.4}
     .otter2-dash-step .learned{color:#0e7a6d;font-weight:700}
-    .otter2-dash-step.grp2{background:#e2f3f0}
-    .otter2-dash-step.grp3{background:#ece7fb}
-    .otter2-dash-step.is-cur{background:var(--otter2-red);border-color:var(--otter2-red);color:#fff}
+    .otter2-dash-step.grp2{background:#fff}
+    .otter2-dash-step.grp3{background:#fff}
+    .otter2-dash-step.is-cur{background:#c026d3;border-color:#c026d3;color:#fff}
     .otter2-dash-step.is-cur small{color:rgba(255,255,255,.85)}
     .otter2-dash-step.is-cur .learned{color:#ffe9a8}
     /* Bám theo 5 theme sẵn có (cùng bảng màu với otter2-theme.css) */
@@ -976,12 +968,12 @@
     html[data-theme="night"] .otter2-dash-course .otter2-feature,
     html[data-theme="night"] .otter2-dash-skilltile,
     html[data-theme="night"] .otter2-dash-retest{background:#1e293b;color:#e5e7eb;border-color:#334155}
-    html[data-theme="night"] .otter2-dash-course .otter2-feature--vocab{background:linear-gradient(135deg,var(--otter2-red),var(--otter2-red-deep));color:#fff}
+    html[data-theme="night"] .otter2-dash-course .otter2-feature--vocab{background:#1e293b;color:#4ade80}
     /* Ban đêm: 4 nút kỹ năng trầm cùng hệ màu pastel (đồng bộ mobile đã duyệt) */
-    html[data-theme="night"] .otter2-dash-skilltile[data-dash-goto="reading"]{background:#1d3a5f;border-color:#2e5a8c}
-    html[data-theme="night"] .otter2-dash-skilltile[data-dash-goto="write"]{background:#463a16;border-color:#7a6423}
-    html[data-theme="night"] .otter2-dash-skilltile[data-dash-goto="speak"]{background:#472b1e;border-color:#7c4a30}
-    html[data-theme="night"] .otter2-dash-skilltile[data-dash-goto="auto"]{background:#42203a;border-color:#6f3560}
+    html[data-theme="night"] .otter2-dash-skilltile[data-dash-goto="reading"]{background:#1e293b;border-color:#334155;color:#93c5fd}
+    html[data-theme="night"] .otter2-dash-skilltile[data-dash-goto="write"]{background:#1e293b;border-color:#334155;color:#fcd34d}
+    html[data-theme="night"] .otter2-dash-skilltile[data-dash-goto="speak"]{background:#1e293b;border-color:#334155;color:#fdba74}
+    html[data-theme="night"] .otter2-dash-skilltile[data-dash-goto="auto"]{background:#1e293b;border-color:#334155;color:#f0abfc}
     html[data-theme="night"] .otter2-dash-skill,
     html[data-theme="night"] .otter2-dash-lvcell,
     html[data-theme="night"] .otter2-dash-step,
@@ -991,7 +983,7 @@
     html[data-theme="night"] .otter2-dash-lvcell b,
     html[data-theme="night"] .otter2-dash-step .n,
     html[data-theme="night"] .otter2-dash-search input{color:#e5e7eb}
-    html[data-theme="night"] .otter2-dash-lvcell.has{background:#14532d}
+    html[data-theme="night"] .otter2-dash-lvcell.has{background:#1e293b}
     html[data-theme="night"] .otter2-dash-track{background:rgba(255,255,255,.14)}
     html[data-theme="night"] .otter2-dash-cta{background:#e5e7eb;color:#111827}
     html[data-theme="night"] .otter2-dash-chip{color:#94a3b8}
@@ -1017,7 +1009,7 @@
     html[data-theme="night"] #otter2HskJourney h2{color:#e5e7eb}
     html[data-theme="night"] #otter2HskJourney .otter2-node{background:#1e293b;color:#e5e7eb;border-color:#334155}
     html[data-theme="night"] #otter2HskJourney .otter2-node.is-on{background:var(--otter2-red);color:#fff;border-color:var(--otter2-red)}
-    html[data-theme="night"] #otter2HskJourney .otter2-node.is-done{background:#14532d;color:#e5e7eb;border-color:#166534}
+    html[data-theme="night"] #otter2HskJourney .otter2-node.is-done{background:#1e293b;color:#94a3b8;border-color:#334155}
     html[data-theme="night"] #otter2HskJourney .otter2-type-btn,
     html[data-theme="night"] #otter2HskJourney .otter2-btn:not(.otter2-btn-primary){background:#1e293b;color:#e5e7eb;border-color:#334155}
     html[data-theme="night"] #otter2HskJourney .otter2-type-btn.is-on{background:var(--otter2-red);color:#fff;border-color:var(--otter2-red)}
@@ -1059,7 +1051,7 @@
        Nguyên tắc: chỉ trình bày (CSS) + vị trí DOM đã sắp ở HTML;
        không đổi id / data-* / JS. Cửa sổ = .otter2-shell; lưới trang chủ = #otter2-home. */
     /* --- Bệ nền + cửa sổ app --- */
-    body.otter2-body{background:linear-gradient(180deg,#edeef5 0%,#e2e4ef 100%)}
+    body.otter2-body{background:#f5f6f8}
     .otter2-shell{
       background:#fff;border:1px solid rgba(203,208,225,.85);border-radius:30px;
       box-shadow:0 30px 80px rgba(31,35,58,.16),0 4px 18px rgba(31,35,58,.08);
@@ -1104,7 +1096,7 @@
     #otter2-home .otter2-dash-main{grid-area:main}
     #otter2-home .otter2-dash-side{grid-area:side;gap:18px}
     #otter2-home #otter2HskJourney{grid-area:journey;margin:0;border-radius:26px;padding:18px}
-    #otter2-home .otter2-fb-banner{grid-area:banner;margin:0;padding:13px 18px;border-radius:20px;box-shadow:0 12px 26px rgba(190,18,60,.22)}
+    #otter2-home .otter2-fb-banner{grid-area:banner;margin:0;padding:13px 18px;border-radius:20px;box-shadow:0 10px 24px rgba(15,23,42,.06)}
     #otter2-home .otter2-dash-road{grid-area:road}
     /* Hero cũ -> khối lời chào sạch kiểu mockup (bỏ nền ảnh hoa anh đào + linh vật trang trí) */
     #otter2-home .otter2-hero{
@@ -1331,19 +1323,19 @@ html[data-theme="night"] .ttc-dict-sub{color:#94a3b8}
    (.ttc-han-viet), tiêu đề cầu vồng, banner Facebook, đỏ ngữ nghĩa (báo sai, HỦY LỘ TRÌNH), header.
    Thanh tiến độ: .otter2-dash-track>i vốn đã xanh (#1f9d63) nên không cần đổi;
    .otter2-dash-bar>i giữ vàng (--otter2-gold, màu phụ của web, hài hoà trên nền xanh). */
-.otter2-dash-hero{background:linear-gradient(135deg,#6fbf8a,#459a68);color:#fff}
-.otter2-dash-course .otter2-feature--vocab{background:linear-gradient(135deg,#57b877,#3c8a5a);color:#fff;border-color:transparent}
+.otter2-dash-hero{background:#fff;color:var(--otter2-ink);border:1px solid #e7e9ee}
+.otter2-dash-course .otter2-feature--vocab{background:#fff;color:#15803d;border-color:#e7e9ee}
 .otter2-dash-chip.is-cur{background:#16a34a;color:#fff}
 #otter2-home .otter2-dash-chip.is-cur{background:#16a34a;border-color:#16a34a;color:#fff}
-.otter2-dash-step.is-cur{background:#16a34a;border-color:#16a34a;color:#fff}
-.otter2-dash-ctared{background:#16a34a}
-.otter2-dash-ctared:hover{background:#15803d}
+.otter2-dash-step.is-cur{background:#c026d3;border-color:#c026d3;color:#fff}
+.otter2-dash-ctared{background:#e11d48}
+.otter2-dash-ctared:hover{background:#be123c}
 .otter2-dash-status.today{background:#16a34a}
-.otter2-dash-thumb.r{background:#dcfce7;color:#15803d}
-.otter2-dash-tag.video{background:#dcfce7;color:#15803d}
+.otter2-dash-thumb.r{background:#f1f5f9;color:#15803d}
+.otter2-dash-tag.video{background:#f1f5f9;color:#15803d}
 #otter2-home #otter2HskJourney .otter2-node.is-on{background:#16a34a;color:#fff;border-color:#16a34a}
 #otter2-home #otter2HskJourney .otter2-type-btn.is-on{background:#16a34a;color:#fff;border-color:#16a34a}
-html[data-theme="night"] .otter2-dash-course .otter2-feature--vocab{background:linear-gradient(135deg,#57b877,#3c8a5a);color:#fff}
+html[data-theme="night"] .otter2-dash-course .otter2-feature--vocab{background:#1e293b;color:#4ade80}
 html[data-theme="night"] .otter2-dash-chip.is-cur{background:#16a34a;color:#fff}
 html[data-theme="night"] #otter2-home .otter2-dash-chip.is-cur{background:#16a34a;border-color:#16a34a;color:#fff}
 html[data-theme="night"] #otter2-home #otter2HskJourney .otter2-node.is-on{background:#16a34a;color:#fff;border-color:#16a34a}
@@ -1358,7 +1350,34 @@ html[data-theme="night"] #otter2-home #otter2HskJourney .otter2-type-btn.is-on{b
 .otter2-dash-hero{cursor:pointer;transition:filter .18s ease}
 .otter2-dash-hero:hover{filter:brightness(1.06)}
 .otter2-dash-hero:focus-visible{outline:3px solid #16a34a;outline-offset:2px}
-.otter2-dash-hero-cta{display:inline-flex;align-items:center;gap:6px;margin-top:11px;padding:5px 13px;border-radius:999px;background:rgba(255,255,255,.22);color:#fff;font-size:.78rem;font-weight:800;letter-spacing:.01em;pointer-events:none}
+.otter2-dash-hero-cta{display:inline-flex;align-items:center;gap:6px;margin-top:11px;padding:5px 13px;border-radius:999px;background:#15803d;color:#fff;font-size:.78rem;font-weight:800;letter-spacing:.01em;pointer-events:none}
+/* ===== LUẬT MÀU THEO KHU (chủ web 2026-11-18): "Tiêu đề màu nào thì nút bấm màu đó — cấm sử dụng màu đen" =====
+   Mỗi khu trang chủ một màu chủ đạo: chữ tiêu đề + nút chính cùng màu. Bề mặt vẫn trắng/xám nhạt như đợt tông trắng.
+   Bản đồ màu: Khóa tự học #15803d (xanh lá) · Luyện thi #c2410c (cam, trong otter2-exam.js) · Trình độ & kỹ năng
+   #2563eb (xanh dương, vạch accent trong otter2-storyvideo.js) · Học theo video #7c3aed (tím, otter2-storyvideo.js) ·
+   Bài học mỗi ngày #be123c (đỏ) · Hoạt động học tập #0f766e (teal) · Nhiệm vụ hôm nay #b45309 (hổ phách) ·
+   Học tiếp #e11d48 (đỏ) · Lộ trình HSK 1–9 #c026d3 (fuchsia) · Banner Facebook #be123c (đỏ, luật riêng ở trên). */
+#otter2DashCourseTitle{color:#15803d}
+#otter2DashLessonsTitle{color:#be123c}
+#otter2DashActTitle{color:#0f766e}
+#otter2DashTasksTitle{color:#b45309}
+#otter2DashRoadTitle{color:#c026d3}
+/* Ban đêm: cùng bản đồ màu nhưng tông sáng để đọc rõ trên nền tối (đồng hệ với biến thể đêm của 4 nút kỹ năng) */
+html[data-theme="night"] #otter2DashCourseTitle{color:#4ade80}
+html[data-theme="night"] #otter2DashLevelTitle{color:#93c5fd;border-left-color:#93c5fd}
+html[data-theme="night"] #otter2DashLessonsTitle{color:#fb7185}
+html[data-theme="night"] #otter2DashActTitle{color:#2dd4bf}
+html[data-theme="night"] #otter2DashTasksTitle{color:#fcd34d}
+html[data-theme="night"] #otter2DashRoadTitle{color:#f0abfc}
+html[data-theme="night"] .otter2-dash-actnum .n{color:#2dd4bf}
+html[data-theme="night"] .otter2-dash-continue h3{color:#fb7185}
+html[data-theme="night"] .otter2-dash-kicker{color:#fb7185}
+html[data-theme="night"] .otter2-dash-skill h4{color:#93c5fd}
+html[data-theme="night"] .otter2-dash-task .mins{color:#fcd34d}
+html[data-theme="night"] .otter2-dash-cta{background:#b45309;color:#fff}
+html[data-theme="night"] .otter2-dash-retest{background:#2563eb;border-color:#2563eb;color:#fff}
+html[data-theme="night"] .otter2-dash-course .otter2-feature strong{color:#4ade80}
+html[data-theme="night"] .otter2-progress h3{color:#4ade80}
 </style>
 <style id="ttc-write-css">
 /* ===== LUYỆN VIẾT CHỮ HÁN (module additive, prefix ttc-write-) ===== */
@@ -4400,6 +4419,7 @@ window.OTTER2_HSK_MANIFEST = {
   <script defer src="assets/index2/otter2-storyvideo-catalog.js"></script>
   <script defer src="assets/index2/otter2-storyvideo.js"></script>
   <script defer src="assets/index2/otter2-footer.js"></script>
+  <script defer src="assets/index2/otter2-menu.js"></script>
   <script defer src="assets/index2/otter2-practice-typing.js"></script>
   <script defer src="assets/index2/otter2-practice-match.js"></script>
   <script defer src="assets/index2/otter2-practice-reflex.js"></script>

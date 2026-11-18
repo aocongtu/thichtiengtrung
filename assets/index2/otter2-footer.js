@@ -67,7 +67,7 @@
     if (styleDone) return;
     styleDone = true;
     var css = [
-      ".ttc-footer{position:relative;margin-top:28px;border-top:3px solid transparent;background:linear-gradient(#fffdf6,#fffdf6) padding-box,linear-gradient(90deg,#7c3aed,#c026d3,#e11d48) border-box;color:#2b2440;font-size:14px;line-height:1.55}",
+      ".ttc-footer{position:relative;margin-top:28px;border-top:3px solid transparent;background:linear-gradient(#ffffff,#ffffff) padding-box,linear-gradient(90deg,#7c3aed,#c026d3,#e11d48) border-box;color:#2b2440;font-size:14px;line-height:1.55}",
       ".ttc-footer-in{max-width:1180px;margin:0 auto;padding:26px 20px 8px;display:grid;grid-template-columns:1.45fr 1fr 1fr 1.15fr;gap:26px}",
       ".ttc-footer-brand{margin:0 0 8px;font-size:20px;font-weight:900;color:#3b1470;letter-spacing:.2px}",
       ".ttc-footer-desc{margin:0 0 14px;color:#5b5470;max-width:34em}",

@@ -20,11 +20,21 @@
    toàn bộ .ttc-story-shell) — bé dock góc dưới-trái, câm giọng
    (zoneSilent áp cho mọi zone), roaming chỉ ở lề nền ngoài thẻ
    video nên không bao giờ che video đang phát.
+   Bổ sung 2026-11-18 theo phản hồi chủ web: (1) hàng nút chỉnh
+   TỐC ĐỘ PHÁT 0.5×–1.5× ngay dưới khung video (người học cần
+   nghe chậm lại), lựa chọn lưu ở localStorage
+   "otter2_storyvideo_rate_v1" và áp cho mọi truyện mở sau;
+   (2) chọn truyện nào (danh sách hoặc nút trước/tiếp) overlay
+   cũng TỰ CUỘN MƯỢT đưa trình phát lên đầu tầm nhìn
+   (scrollIntoView trên .ttc-story-frame-wrap + scroll-margin)
+   — trước đây bấm truyện ở cuối danh sách phải tự cuộn lên.
    ============================================================ */
 (function () {
   "use strict";
 
   var LS_KEY = "otter2_storyvideo_watched_v1";
+  var RATE_LS_KEY = "otter2_storyvideo_rate_v1";
+  var RATES = [0.5, 0.75, 1, 1.25, 1.5]; /* mức tốc độ phát cho người học chọn */
   var FREE_MAX_LEVEL = 2; /* HSK1–2 miễn phí; HSK3–9 qua cổng Premium */
 
   function catalog() { return window.OTTER2_STORYVIDEO_CATALOG || null; }
@@ -68,23 +78,23 @@
     var css = [
       "/* Panel Truyện kể: hero gradient hoàng hôn truyện tranh (tím -> fuchsia -> hổ phách), phân biệt với panel Luyện thi (cam -> hồng -> tím) và panel video cũ (xanh dương -> cyan -> ngọc, đã thu hồi). */",
       "/* Selector ID kép (như panel Luyện thi dùng #otter2ExamPanel): trên mobile có luật nền thẻ chung thắng selector class .ttc-story-panel khiến panel bị nhạt nhoà (chủ web phản ánh 2026-11-17) — khóa nền bằng #otter2-home #otter2StoryVideoPanel cho chắc. */",
-      "#otter2-home #otter2StoryVideoPanel{position:relative;overflow:hidden;border:none;border-radius:20px;padding:20px;color:#fff;background:linear-gradient(135deg,#9668cf 0%,#bd6fb8 54%,#e2a763 125%);box-shadow:0 20px 42px rgba(162,28,175,.32)}",
+      "#otter2-home #otter2StoryVideoPanel{position:relative;overflow:hidden;border:1px solid #e7e9ee;border-radius:20px;padding:20px;color:#0f172a;background:#fff;box-shadow:0 14px 34px rgba(23,25,40,.07)}",
       "/* Nhấn dễ tìm cho thẻ Trình độ & kỹ năng (hàng xóm midstack, chủ web phản ánh khó nhìn/khó tìm trên mobile 2026-11-17): viền + bóng tím nhẹ, nền phớt lavender, tiêu đề có vạch accent. */",
-      "#otter2-home .otter2-dash-card[aria-labelledby='otter2DashLevelTitle']{border:1.5px solid rgba(124,58,237,.38);box-shadow:0 12px 28px rgba(124,58,237,.13);background:linear-gradient(180deg,#faf8ff,#ffffff)}",
-      "#otter2DashLevelTitle{border-left:5px solid #7c3aed;padding-left:10px;border-radius:2px}",
-      ".ttc-story-panel::before{content:'';position:absolute;inset:0;background:radial-gradient(420px 200px at 12% -10%,rgba(255,255,255,.28),transparent 60%),radial-gradient(380px 220px at 95% 115%,rgba(255,255,255,.18),transparent 60%);pointer-events:none}",
-      ".ttc-story-panel::after{content:'書';position:absolute;right:6px;bottom:-38px;font-size:150px;font-weight:900;color:rgba(255,255,255,.13);line-height:1;pointer-events:none}",
+      "#otter2-home .otter2-dash-card[aria-labelledby='otter2DashLevelTitle']{border:1px solid #e7e9ee;box-shadow:0 14px 34px rgba(23,25,40,.07);background:#fff}",
+      "#otter2DashLevelTitle{border-left:5px solid #2563eb;padding-left:10px;border-radius:2px;color:#2563eb}",
+      ".ttc-story-panel::before{content:'';position:absolute;inset:0;background:none;pointer-events:none}",
+      ".ttc-story-panel::after{content:'書';position:absolute;right:6px;bottom:-38px;font-size:150px;font-weight:900;color:rgba(124,58,237,.06);line-height:1;pointer-events:none}",
       ".ttc-story-panel-in{position:relative;z-index:1;display:flex;flex-direction:column;gap:10px}",
       ".ttc-story-panel-head{display:flex;align-items:center;gap:12px}",
-      ".ttc-story-panel-play{width:54px;height:54px;flex:0 0 54px;border-radius:50%;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.45);display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 0 24px rgba(255,255,255,.35)}",
-      ".ttc-story-panel-title{margin:0;font-size:21px;font-weight:900;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.25)}",
-      ".ttc-story-panel-free{margin-left:auto;background:linear-gradient(135deg,#fde047,#f59e0b);color:#451a03;font-weight:900;font-size:12px;padding:6px 12px;border-radius:999px;letter-spacing:.4px;box-shadow:0 6px 16px rgba(245,158,11,.45);animation:ttcStoryPulse 2.2s ease-in-out infinite}",
+      ".ttc-story-panel-play{width:54px;height:54px;flex:0 0 54px;border-radius:50%;background:#f5f3ff;border:1px solid #ddd6fe;color:#7c3aed;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 8px 20px rgba(124,58,237,.12)}",
+      ".ttc-story-panel-title{margin:0;font-size:21px;font-weight:900;color:#7c3aed;text-shadow:none}",
+      ".ttc-story-panel-free{margin-left:auto;background:#fde68a;color:#451a03;font-weight:900;font-size:12px;padding:6px 12px;border-radius:999px;letter-spacing:.4px;box-shadow:0 6px 16px rgba(245,158,11,.35);animation:ttcStoryPulse 2.2s ease-in-out infinite}",
       "@keyframes ttcStoryPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}",
       "@media (prefers-reduced-motion:reduce){.ttc-story-panel-free{animation:none}}",
-      ".ttc-story-panel-desc{margin:0;color:rgba(255,255,255,.95);font-size:13.5px;text-shadow:0 1px 6px rgba(0,0,0,.2)}",
-      ".ttc-story-panel-btn{margin-top:2px;min-height:52px;border:none;border-radius:14px;background:#fff;cursor:pointer;font-size:16px;font-weight:900;padding:12px 18px;box-shadow:0 10px 24px rgba(0,0,0,.22);transition:transform .15s ease}",
+      ".ttc-story-panel-desc{margin:0;color:#475569;font-size:13.5px;text-shadow:none}",
+      ".ttc-story-panel-btn{margin-top:2px;min-height:52px;border:1px solid #7c3aed;border-radius:14px;background:#7c3aed;color:#fff;cursor:pointer;font-size:16px;font-weight:900;padding:12px 18px;box-shadow:0 10px 22px rgba(124,58,237,.28);transition:transform .15s ease}",
       ".ttc-story-panel-btn:hover{transform:translateY(-1px)}",
-      ".ttc-story-panel-btn-txt{background:linear-gradient(90deg,#7c3aed,#c026d3,#ea580c);-webkit-background-clip:text;background-clip:text;color:transparent}",
+      ".ttc-story-panel-btn-txt{background:none;-webkit-text-fill-color:currentColor;color:#fff}",
       "html[data-theme='night'] .ttc-story-panel{box-shadow:0 20px 42px rgba(0,0,0,.5)}",
       "/* Mobile <=1020px: midstack tan (display:contents) — panel nhận grid-area 'story' ngay dưới hàng 'level', full-width nén như panel Luyện thi. Luật areas PHẢI thắng luật của otter2-mobile-dash.js: cùng độ đặc hiệu (#otter2-home.otter2-screen), style này được bơm SAU vì thẻ script của module nằm sau mobile-dash trong index2.html. */",
       "@media (max-width:1020px){#otter2-home.otter2-screen{grid-template-areas:'hero hero' 'strip strip' 'course course' 'exam exam' 'level level' 'story story' 'activity tasks' 'lessons lessons' 'continue road' 'journey journey' 'banner banner'}#otter2-home #otter2StoryVideoPanel{grid-area:story}.ttc-story-panel{padding:14px}.ttc-story-panel-play{width:44px;height:44px;flex-basis:44px;font-size:19px}.ttc-story-panel-title{font-size:18px}.ttc-story-panel-desc{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.ttc-story-panel-btn{min-height:48px}}",
@@ -124,7 +134,15 @@
       ".ttc-story-navrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0 4px}",
       ".ttc-story-navbtn{border:1.5px solid rgba(162,28,175,.45);background:transparent;color:inherit;border-radius:999px;padding:7px 13px;font-weight:800;font-size:13px;cursor:pointer;min-height:38px}",
       ".ttc-story-navbtn:disabled{opacity:.4;cursor:default}",
-      ".ttc-story-navrow .ttc-story-navbtn:last-child{margin-left:auto}"
+      ".ttc-story-navrow .ttc-story-navbtn:last-child{margin-left:auto}",
+      "/* Tự cuộn khi chọn truyện: chừa đệm 10px phía trên trình phát khi scrollIntoView neo vào. */",
+      ".ttc-story-frame-wrap{scroll-margin-top:10px}",
+      "/* Hàng nút chỉnh tốc độ phát — ngay dưới khung video, tông tím #7c3aed của khu truyện; mức đang chọn tô đặc. */",
+      ".ttc-story-raterow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:10px 0 0}",
+      ".ttc-story-rate-label{font-size:13px;font-weight:800;color:#7c3aed;margin-right:2px}",
+      ".ttc-story-ratebtn{border:1.5px solid rgba(124,58,237,.45);background:transparent;color:inherit;border-radius:999px;padding:6px 12px;font-weight:800;font-size:13px;cursor:pointer;min-height:36px;min-width:54px}",
+      ".ttc-story-ratebtn:hover{border-color:#7c3aed}",
+      ".ttc-story-ratebtn.is-cur{background:#7c3aed;color:#fff;border-color:#7c3aed}"
     ].join("\n");
     var st = document.createElement("style");
     st.id = "ttcStoryVideoStyle";
@@ -145,6 +163,20 @@
       try { localStorage.setItem(LS_KEY, JSON.stringify(w)); } catch (e) {}
     }
   }
+
+  /* ---------------- tốc độ phát (lưu theo thiết bị) ---------------- */
+  function loadRate() {
+    try {
+      var r = parseFloat(localStorage.getItem(RATE_LS_KEY) || "1");
+      return RATES.indexOf(r) >= 0 ? r : 1;
+    } catch (e) { return 1; }
+  }
+  var currentRate = loadRate();
+  function saveRate(r) {
+    currentRate = r;
+    try { localStorage.setItem(RATE_LS_KEY, String(r)); } catch (e) {}
+  }
+  function rateLabel(r) { return String(r) + "×"; }
 
   /* ---------------- state ---------------- */
   var state = { tab: 1, currentKey: null, flat: [] };
@@ -248,10 +280,16 @@
     var prev = idx > 0 ? state.flat[idx - 1] : null;
     var next = idx >= 0 && idx < state.flat.length - 1 ? state.flat[idx + 1] : null;
     var dur = fmtDur(entry.duration_s);
+    var rateBtns = RATES.map(function (r) {
+      var on = r === currentRate;
+      return '<button type="button" class="ttc-story-ratebtn' + (on ? " is-cur" : "") +
+        '" data-story-rate="' + r + '" aria-pressed="' + (on ? "true" : "false") + '">' + rateLabel(r) + "</button>";
+    }).join("");
     stageEl.innerHTML =
       '<div class="ttc-story-frame-wrap"><video id="ttcStoryVideoFrame" title="' + esc(entry.title_zh) + '" ' +
       'src="' + esc(entry.stream || ("https://drive.google.com/uc?export=download&id=" + encodeURIComponent(entry.drive_id))) + '" ' +
       'controls playsinline preload="auto"></video></div>' +
+      '<div class="ttc-story-raterow" role="group" aria-label="Tốc độ phát"><span class="ttc-story-rate-label">🐢 Tốc độ:</span>' + rateBtns + "</div>" +
       '<h3 class="ttc-story-now">' + esc(entry.title_zh) + "</h3>" +
       (entry.title_vi ? '<p class="ttc-story-now-vi">' + esc(entry.title_vi) + "</p>" : "") +
       '<p class="ttc-story-meta-line">HSK ' + entry.level + (dur ? " · ⏱ " + esc(dur) : "") +
@@ -263,19 +301,50 @@
     var nb = stageEl.querySelector("#ttcStoryNext");
     if (pb && prev) pb.addEventListener("click", function () { playStory(prev); });
     if (nb && next) nb.addEventListener("click", function () { playStory(next); });
-    var vid = stageEl.querySelector("#ttcStoryVideoFrame");
-    if (vid) vid.addEventListener("play", function () {
-      if (!loadWatched()[entry.key]) { markWatched(entry.key); renderList(); }
+    Array.prototype.forEach.call(stageEl.querySelectorAll("[data-story-rate]"), function (btn) {
+      btn.addEventListener("click", function () {
+        var r = parseFloat(btn.getAttribute("data-story-rate"));
+        if (RATES.indexOf(r) < 0) return;
+        saveRate(r);
+        var v = stageEl.querySelector("#ttcStoryVideoFrame");
+        if (v) { try { v.playbackRate = r; v.defaultPlaybackRate = r; } catch (e) {} }
+        Array.prototype.forEach.call(stageEl.querySelectorAll("[data-story-rate]"), function (b2) {
+          var on = parseFloat(b2.getAttribute("data-story-rate")) === r;
+          b2.classList.toggle("is-cur", on);
+          b2.setAttribute("aria-pressed", on ? "true" : "false");
+        });
+      });
     });
+    var vid = stageEl.querySelector("#ttcStoryVideoFrame");
+    if (vid) {
+      try { vid.playbackRate = currentRate; vid.defaultPlaybackRate = currentRate; } catch (e) {}
+      vid.addEventListener("play", function () {
+        if (!loadWatched()[entry.key]) { markWatched(entry.key); renderList(); }
+      });
+    }
+  }
+
+  /* Tự cuộn mượt đưa trình phát lên đầu tầm nhìn trong overlay
+     (overlay là container cuộn; scrollIntoView tự cuộn đúng nó). */
+  function scrollToPlayer() {
+    if (!stageEl) return;
+    var target = stageEl.querySelector(".ttc-story-frame-wrap") || stageEl;
+    var go = function () {
+      try { target.scrollIntoView({ behavior: "smooth", block: "start" }); }
+      catch (e) { try { target.scrollIntoView(); } catch (e2) {} }
+    };
+    if (window.requestAnimationFrame) window.requestAnimationFrame(go);
+    else go();
   }
 
   function playStory(entry) {
     if (!entry) return Promise.resolve(false);
     return gateFor(entry.level).then(function (ok) {
-      if (!ok) { renderStageLocked(entry); return false; }
+      if (!ok) { renderStageLocked(entry); scrollToPlayer(); return false; }
       state.currentKey = entry.key;
       renderStage(entry);
       renderList();
+      scrollToPlayer();
       return true;
     });
   }
