@@ -186,7 +186,21 @@
       ".ttc-story-subrow .ttc-ss-zh{font-size:15.5px}",
       ".ttc-story-subrow .ttc-ss-py{font-size:12.5px}",
       ".ttc-story-subrow .ttc-ss-vi{font-size:12.5px}",
-      ".ttc-story-subrow .ttc-ss-time{flex:0 0 auto;font-size:11.5px;color:#64748b;font-weight:700;padding-top:3px}"
+      ".ttc-story-subrow .ttc-ss-time{flex:0 0 auto;font-size:11.5px;color:#64748b;font-weight:700;padding-top:3px}",
+      "/* ==== Desktop >=1021px: PHÒNG HỌC 2 CỘT kiểu corodomo khi truyện CÓ phụ đề (body.has-subs do buildSubUI bật, renderStage* tắt) ==== */",
+      "/* Chẩn đoán 2026-11-19: bố cục cũ xếp một cột dọc dưới video 16:9 cao ~455px khiến danh sách câu bị đẩy hẳn xuống dưới mép màn hình laptop (0px visible ở viewport 1536x725) — chủ web tưởng desktop không có tính năng. Nay: video + tốc độ + tiêu đề + nút chuyển truyện ở cột trái ~2/3; toàn bộ lớp phụ đề (thanh câu hiện tại + công tắc lớp + lặp A–B + danh sách câu) ở cột phải ~1/3, ngang hàng video, luôn trong tầm mắt; danh sách câu co giãn theo chiều cao cột phải. Truyện chưa có dữ liệu phụ đề (HSK2+) giữ nguyên bố cục cũ; mobile <=860px không đổi. */",
+      "/* Cách dựng: stage chừa 1/3 phải bằng padding, subzone position:absolute bám full chiều cao stage (do cột trái quyết định) — tránh bẫy grid-span: item grid vắt nhiều hàng sẽ bơm chiều cao các hàng theo nội dung của nó (danh sách 17 câu ~1.900px), absolute thì không tham gia flow nên không bơm được. */",
+      "@media (min-width:1021px){",
+      ".ttc-story-body.has-subs{grid-template-columns:280px minmax(0,1fr)}",
+      ".ttc-story-body.has-subs .ttc-story-stage{position:relative;padding-right:calc((100% - 16px) / 3 + 16px)}",
+      ".ttc-story-body.has-subs .ttc-story-subzone{position:absolute;top:0;right:0;bottom:0;width:calc((100% - 16px) / 3);display:flex;flex-direction:column;min-width:0}",
+      ".ttc-story-body.has-subs .ttc-story-subzone[hidden]{display:none}",
+      "/* Ba khối cố định không được co: riêng subbar có min-height:64px trong CSS gốc — min-height khai báo sẵn sẽ THAY minimum tự động của flex item, nên khi cột phải thiếu chỗ, flex co subbar xuống đúng 64px và chữ tràn ra ngoài viền (đã đo: hộp 64px, nội dung 157px). flex:0 0 auto ghim chúng theo đúng chiều cao nội dung; chỉ danh sách câu (min-height:0) co giãn + cuộn trong. */",
+      ".ttc-story-body.has-subs .ttc-story-subbar{margin-top:0;flex:0 0 auto}",
+      ".ttc-story-body.has-subs .ttc-story-subtools{flex:0 0 auto}",
+      ".ttc-story-body.has-subs .ttc-story-abrow{flex:0 0 auto}",
+      ".ttc-story-body.has-subs .ttc-story-sublist{flex:1 1 auto;min-height:0;max-height:none}",
+      "}"
     ].join("\n");
     var st = document.createElement("style");
     st.id = "ttcStoryVideoStyle";
@@ -270,6 +284,12 @@
   }
   /* Trạng thái phụ đề của truyện đang phát (reset mỗi lần renderStage). */
   var subState = null;
+  /* Bật/tắt bố cục phòng học 2 cột trên desktop (class has-subs trên
+     .ttc-story-body): chỉ bật khi truyện đang phát CÓ dữ liệu phụ đề. */
+  function setSubsLayout(on) {
+    var bodyEl = stageEl && stageEl.parentNode;
+    if (bodyEl && bodyEl.classList) bodyEl.classList.toggle("has-subs", !!on);
+  }
   function tradText(zh) {
     if (!subPrefs.trad) return zh;
     if (typeof window.__ttcTraditionalHanzi === "function") {
@@ -362,6 +382,7 @@
   }
 
   function renderStageEmpty() {
+    setSubsLayout(false);
     if (levelItems(state.tab).length) {
       stageEl.innerHTML = '<div class="ttc-story-empty">▶ Chọn một truyện trong danh sách để xem video kể chuyện có tranh minh họa chuyển động và giọng đọc.</div>';
     } else {
@@ -371,11 +392,13 @@
   }
 
   function renderStageLocked(entry) {
+    setSubsLayout(false);
     stageEl.innerHTML = '<div class="ttc-story-empty">🔒 <b>' + esc(entry.title_zh || "Truyện Premium") + '</b><br>' +
       "Truyện HSK " + entry.level + " là nội dung Premium. Vui lòng đăng nhập tài khoản Premium để xem.</div>";
   }
 
   function renderStage(entry) {
+    setSubsLayout(false);
     var idx = state.flat.indexOf(entry);
     var prev = idx > 0 ? state.flat[idx - 1] : null;
     var next = idx >= 0 && idx < state.flat.length - 1 ? state.flat[idx + 1] : null;
@@ -442,6 +465,7 @@
     var cues = data.cues;
     subState = { key: entry.key, cues: cues, cur: -2, A: null, B: null, loop: false };
     zone.hidden = false;
+    setSubsLayout(true);
     zone.innerHTML =
       '<div class="ttc-story-subbar" id="ttcStorySubBar">' +
       '<div class="ttc-ss-tag" id="ttcStorySubTag">📜 PHỤ ĐỀ TỪNG CÂU</div>' +
@@ -563,7 +587,13 @@
     }
     function scrollRowIntoList(row) {
       if (!row) return;
-      var target = row.offsetTop - listEl2.clientHeight / 2 + row.clientHeight / 2;
+      /* Đo theo rect tương đối với chính khung danh sách: công thức offsetTop
+         cũ lệ thuộc offsetParent (thay đổi theo bố cục — trên desktop 2 cột
+         stage có position:relative nên offsetTop bị cộng dồn chiều cao các
+         khối phía trên, cuộn quá đà và câu hiện tại bị trôi khỏi khung). */
+      var lr = listEl2.getBoundingClientRect();
+      var rr = row.getBoundingClientRect();
+      var target = listEl2.scrollTop + (rr.top - lr.top) - listEl2.clientHeight / 2 + rr.height / 2;
       listEl2.scrollTop = Math.max(0, target);
     }
     function syncToTime(force) {
