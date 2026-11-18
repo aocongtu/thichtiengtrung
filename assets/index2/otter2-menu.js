@@ -56,6 +56,37 @@
    xoá/đổi id nào. Panel gắn vào <body> (không nằm trong header)
    để tránh backdrop-filter của .otter2-nav "giam" position:fixed
    — cùng lý do #otter2AccountMenu đứng ngoài nav.
+
+   MỞ RỘNG ĐẦY ĐỦ (2026-11-18, chủ web test live và yêu cầu "menu
+   này sẽ có đầy đủ nội dung học", liệt kê tới TỪNG chức năng lá):
+   kiểm kê theo 18 điểm đến của Bé (otter2-guide.js) + nav chính +
+   các module, nhóm HỌC TẬP nay gồm mọi khu/chức năng học thật:
+   Lộ trình từ vựng (bấm đúng #ttcPathLauncher — cùng nút thẻ hero
+   bấm, qua window.ttcEnsurePathShell khi nút chưa dựng), Hành
+   trình HSK (mở #otter2HskJourney rồi cuộn tới, không mở
+   workspace), Tra từ điển (màn "vocab" + cuộn tới #otter2DictRoot
+   + focus ô #otter2DictSearch), 4 chế độ Thi thử (mở overlay thi
+   rồi bấm đúng chip [data-exam-mode] thật trong overlay: full /
+   reduced / mini / standard), Ngữ pháp / Luyện phát âm / 214 Bộ
+   thủ / Thẻ ghi nhớ (bấm các nút #otter2Feat* thật ở Khóa tự học),
+   Học tự động + 2 nút lá của nó (#otter2AutoVocabBtn /
+   #otter2AutoExampleBtn trên màn "auto"), Hệ thống giọng đọc
+   (#otter2VoiceSystemBtn). Bảng điểm thi nay gọi thẳng API module
+   thi đã phơi (window.otter2OpenScoreBoard) khi có — chuyến dẫn
+   đường của Bé chỉ còn là dự phòng.
+   Nhóm LUYỆN TẬP MỚI (màu teal #0f766e — màu "Hoạt động học tập"
+   của trang, theo đúng luật màu): 6 chức năng lá của khu Luyện
+   tập, mỗi mục bấm thẳng nút THẬT tương ứng trong
+   #ttcActionFrameButtons (Test từ vựng / Luyện câu / Luyện đọc /
+   Gõ Hán tự / Nối từ đúng / Phản xạ đoán nghĩa) sau khi chuyển
+   màn "reading" — vào thẳng từng chức năng, không dừng ở hub.
+   Loại trừ có lý do (đã kiểm kê, không đưa vào menu): nút Giản ⇄
+   Phồn + bảng màu giao diện + Chat Online (đã nằm sẵn ở header);
+   Premium (mục thương mại, chủ web đã loại từ đợt đầu); banner
+   Cộng đồng Facebook (không phải nội dung học, banner nằm sẵn ở
+   trang chủ); thẻ Bài học mỗi ngày + các nút tắt dashboard Học
+   tiếp / Nhiệm vụ hôm nay (chỉ là lối tắt về các đích đã có mục
+   riêng); màn Tổng quan (không có lối vào điều hướng thật).
    VỊ TRÍ NÚT: desktop/tablet nút nằm cuối .otter2-nav-right (góc
    phải header). Điện thoại (≤767px, header dạng lưới stage 5):
    CSS của module gán #ttcMenuBtn vào grid-area "account" + lùi
@@ -69,12 +100,38 @@
 
   var STUDY_ITEMS = [
     { act: "vocab", icon: "📚", label: "Học từ vựng HSK1–9" },
+    { act: "path", icon: "🗺️", label: "Lộ trình từ vựng" },
+    { act: "journey", icon: "🧭", label: "Hành trình HSK 1–9" },
+    { act: "dict", icon: "🔍", label: "Tra từ điển" },
     { act: "reading", icon: "📖", label: "Luyện đọc" },
     { act: "story", icon: "🎬", label: "Học theo video" },
     { act: "exam", icon: "📝", label: "Thi thử HSK" },
+    { act: "examfull", icon: "🏅", label: "Thi thật mô phỏng" },
+    { act: "examreduced", icon: "📐", label: "Thi rút gọn" },
+    { act: "exammini", icon: "⚡", label: "Thi Mini · 10 câu" },
+    { act: "examstandard", icon: "🎯", label: "Thi Chuẩn · 20 câu" },
     { act: "ach", icon: "🏆", label: "Bảng thành tích" },
     { act: "scores", icon: "📋", label: "Bảng điểm thi" },
-    { act: "write", icon: "✍️", label: "Luyện viết chữ Hán" }
+    { act: "write", icon: "✍️", label: "Luyện viết chữ Hán" },
+    { act: "grammar", icon: "📗", label: "Ngữ pháp" },
+    { act: "pronun", icon: "🗣️", label: "Luyện phát âm" },
+    { act: "radicals", icon: "部", label: "214 Bộ thủ" },
+    { act: "flash", icon: "🃏", label: "Thẻ ghi nhớ" },
+    { act: "auto", icon: "🌸", label: "Học tự động" },
+    { act: "autovocab", icon: "🔊", label: "Học tự động từ vựng HSK" },
+    { act: "autoexample", icon: "🟢", label: "Học tự động câu ví dụ HSK" },
+    { act: "voice", icon: "🎙️", label: "Hệ thống giọng đọc" }
+  ];
+
+  /* 6 chức năng lá của khu Luyện tập — mỗi mục bấm thẳng nút thật
+     tương ứng trong hub, không dừng ở màn hình hub. */
+  var PRACTICE_ITEMS = [
+    { act: "ptest", icon: "📝", label: "Test từ vựng" },
+    { act: "psent", icon: "✍️", label: "Luyện câu" },
+    { act: "preading", icon: "📖", label: "Luyện đọc" },
+    { act: "ptype", icon: "⌨️", label: "Gõ Hán tự" },
+    { act: "pmatch", icon: "🧩", label: "Nối từ đúng" },
+    { act: "plisten", icon: "🔊", label: "Phản xạ đoán nghĩa" }
   ];
 
   var POLICY_LINKS = [
@@ -133,6 +190,7 @@
       ".ttc-menu-ico{flex:0 0 auto;width:22px;text-align:center;font-size:17px}",
       "/* LUẬT MÀU: mỗi nhóm một màu chủ đạo — tiêu đề nhóm và chữ nút/hàng mục cùng màu đó; cấm đen */",
       ".ttc-menu-sec[data-sec='study'] .ttc-menu-h,.ttc-menu-sec[data-sec='study'] .ttc-menu-item{color:#be123c}",
+      ".ttc-menu-sec[data-sec='practice'] .ttc-menu-h,.ttc-menu-sec[data-sec='practice'] .ttc-menu-item{color:#0f766e}",
       ".ttc-menu-sec[data-sec='account'] .ttc-menu-h,.ttc-menu-sec[data-sec='account'] .ttc-menu-item{color:#5b21b6}",
       ".ttc-menu-sec[data-sec='info'] .ttc-menu-h,.ttc-menu-sec[data-sec='info'] .ttc-menu-item{color:#0369a1}",
       "/* ĐIỆN THOẠI (≤767px): header là lưới 3 hàng, .otter2-nav-right bị display:contents nên nút ☰ thành grid item — gán nó vào đúng ô 'account' (góc PHẢI TRÊN CÙNG, hàng 1) và lùi trái 50px (= nút tài khoản tròn 42px + 8px khoảng cách) để nằm ngay cạnh trái nút tài khoản, ngang hàng thương hiệu. */",
@@ -158,6 +216,15 @@
       out += '<li><button type="button" class="ttc-menu-item" data-act="' + STUDY_ITEMS[i].act + '">' +
         '<span class="ttc-menu-ico" aria-hidden="true">' + STUDY_ITEMS[i].icon + "</span>" +
         esc(STUDY_ITEMS[i].label) + "</button></li>";
+    }
+    return out;
+  }
+  function practiceHtml() {
+    var out = "";
+    for (var i = 0; i < PRACTICE_ITEMS.length; i++) {
+      out += '<li><button type="button" class="ttc-menu-item" data-act="' + PRACTICE_ITEMS[i].act + '">' +
+        '<span class="ttc-menu-ico" aria-hidden="true">' + PRACTICE_ITEMS[i].icon + "</span>" +
+        esc(PRACTICE_ITEMS[i].label) + "</button></li>";
     }
     return out;
   }
@@ -237,6 +304,8 @@
     panel.innerHTML =
       '<div class="ttc-menu-sec" data-sec="study"><p class="ttc-menu-h">Học tập</p>' +
       '<ul class="ttc-menu-list">' + studyHtml() + "</ul></div>" +
+      '<div class="ttc-menu-sec" data-sec="practice"><p class="ttc-menu-h">Luyện tập</p>' +
+      '<ul class="ttc-menu-list">' + practiceHtml() + "</ul></div>" +
       '<div class="ttc-menu-sec" data-sec="account"><p class="ttc-menu-h">Tài khoản</p>' +
       '<div id="ttcMenuAccount"></div></div>' +
       '<div class="ttc-menu-sec" data-sec="info"><p class="ttc-menu-h">Thông tin</p>' +
@@ -313,6 +382,26 @@
     setTimeout(function () { var el = $(sel); if (el) el.click(); }, ms);
   }
 
+  /* Mở overlay Thi thử rồi bấm đúng chip chế độ thật trong overlay
+     ([data-exam-mode]) — chế độ được chọn sẵn khi overlay hiện. */
+  function examMode(key) {
+    ensureScreen("home");
+    clickLater("#otter2FeatExam", 120);
+    var tries = 0;
+    (function check() {
+      var chip = document.querySelector('#ttcExamOverlay.open [data-exam-mode="' + key + '"]');
+      if (chip) { chip.click(); return; }
+      tries++;
+      if (tries < 15) setTimeout(check, 200);
+    })();
+  }
+  /* Vào thẳng một chức năng lá của khu Luyện tập: chuyển màn
+     "reading" rồi bấm đúng nút thật của chức năng trong hub. */
+  function practiceBtn(sel) {
+    ensureScreen("reading");
+    clickLater(sel, 380);
+  }
+
   var ACTIONS = {
     vocab: function () {
       ensureScreen("home");
@@ -333,6 +422,52 @@
         });
       });
     },
+    path: function () {
+      /* Lộ trình từ vựng: bấm đúng nút #ttcPathLauncher mà thẻ hero
+         bấm (cùng handler, cùng cổng premium của module lộ trình).
+         Nút do module roadmap dựng — chưa có thì nhờ shell dựng hộ,
+         đúng cách openPathFromHero() của trang làm. */
+      ensureScreen("home");
+      setTimeout(function () {
+        var launcher = byId("ttcPathLauncher");
+        if (!launcher && typeof window.ttcEnsurePathShell === "function") {
+          try { window.ttcEnsurePathShell(); } catch (e) {}
+          launcher = byId("ttcPathLauncher");
+        }
+        if (launcher) { launcher.click(); return; }
+        var panel = byId("ttcPathPanel");
+        if (panel && typeof window.ttcEnterPathFullscreen === "function" &&
+            typeof window.checkPremiumAccess === "function") {
+          Promise.resolve(window.checkPremiumAccess(1)).then(function (ok) {
+            if (!ok) return;
+            panel.hidden = false;
+            window.ttcEnterPathFullscreen();
+            try { if (typeof window.__ttcPathRedraw === "function") window.__ttcPathRedraw(); } catch (e2) {}
+          });
+        }
+      }, 150);
+    },
+    journey: function () {
+      ensureScreen("home");
+      var journey = byId("otter2HskJourney");
+      if (!isVis(journey)) {
+        var openBtn = byId("otter2OpenVocabBankBtn");
+        if (openBtn) openBtn.click();
+      }
+      whenVisible("#otter2HskJourney", function (el) {
+        var t = el || byId("otter2HskJourney");
+        if (t) t.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    },
+    dict: function () {
+      ensureScreen("vocab");
+      setTimeout(function () {
+        var root = byId("otter2DictRoot");
+        if (root) root.scrollIntoView({ behavior: "smooth", block: "start" });
+        var input = byId("otter2DictSearch");
+        if (input) { try { input.focus({ preventScroll: true }); } catch (e) { try { input.focus(); } catch (e2) {} } }
+      }, 380);
+    },
     reading: function () {
       ensureScreen("reading");
       clickLater("#ttcReadingLauncher", 380);
@@ -345,6 +480,10 @@
       ensureScreen("home");
       clickLater("#otter2FeatExam", 120);
     },
+    examfull: function () { examMode("full"); },
+    examreduced: function () { examMode("reduced"); },
+    exammini: function () { examMode("mini"); },
+    examstandard: function () { examMode("standard"); },
     ach: function () {
       var d = byId("otter2DashAchBtn");
       if (d) { d.click(); return; }
@@ -352,8 +491,12 @@
       if (n) n.click();
     },
     scores: function () {
-      /* Bảng Điểm Thi chỉ mở bằng click thật lên nút nav — nhờ Bé
-         dẫn đường tới đóng khung nút đó (đúng cơ chế của Bé). */
+      /* Ưu tiên API module thi đã phơi sẵn (otter2-exam.js):
+         window.otter2OpenScoreBoard mở thẳng bảng điểm. */
+      if (typeof window.otter2OpenScoreBoard === "function") { window.otter2OpenScoreBoard(); return; }
+      /* Dự phòng (module thi chưa nạp): Bảng Điểm Thi chỉ mở bằng
+         click thật lên nút nav — nhờ Bé dẫn đường tới đóng khung
+         nút đó (đúng cơ chế của Bé). */
       var chips = byId("guideChips");
       var go = byId("guideGo");
       if (chips && go) {
@@ -370,6 +513,55 @@
       ensureScreen("home");
       clickLater('.otter2-dash-skilltile[data-dash-goto="write"]', 120);
     },
+    grammar: function () {
+      ensureScreen("home");
+      clickLater("#otter2FeatGrammar", 120);
+    },
+    pronun: function () {
+      ensureScreen("home");
+      clickLater("#otter2FeatPronun", 120);
+    },
+    radicals: function () {
+      ensureScreen("home");
+      clickLater("#otter2FeatRadicals", 120);
+    },
+    flash: function () {
+      ensureScreen("home");
+      clickLater("#otter2FeatFlashcard", 120);
+    },
+    auto: function () {
+      ensureScreen("auto");
+      setTimeout(function () {
+        var hub = byId("otter2AutoHub");
+        if (hub) hub.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 380);
+    },
+    autovocab: function () {
+      ensureScreen("auto");
+      clickLater("#otter2AutoVocabBtn", 380);
+    },
+    autoexample: function () {
+      ensureScreen("auto");
+      clickLater("#otter2AutoExampleBtn", 380);
+    },
+    voice: function () {
+      ensureScreen("home");
+      clickLater("#otter2VoiceSystemBtn", 120);
+    },
+    /* ---- 6 chức năng lá của khu Luyện tập ---- */
+    ptest: function () {
+      practiceBtn('#ttcActionFrameButtons button[onclick*="openVocabularyTestChooser"]');
+    },
+    psent: function () {
+      practiceBtn('#ttcActionFrameButtons button[onclick*="openSentences"]');
+    },
+    preading: function () {
+      ensureScreen("reading");
+      clickLater("#ttcReadingLauncher", 380);
+    },
+    ptype: function () { practiceBtn("#ttcListeningLauncher"); },
+    pmatch: function () { practiceBtn("#ttcMatchLauncher"); },
+    plisten: function () { practiceBtn("#ttcListenLauncher"); },
     login: function () {
       if (typeof window.otter2AccountOpenLogin === "function") { window.otter2AccountOpenLogin(); return; }
       var b = byId("otter2OpenLoginBtn");
