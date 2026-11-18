@@ -212,6 +212,121 @@
   var SCEN_ORDER = ["intro", "food", "shop", "dir"];
   var LOBBY_LINE = L("你好！我是小贝。你想学习什么？", "Nǐ hǎo! Wǒ shì Xiǎobèi. Nǐ xiǎng xuéxí shénme?", "Chào bạn! Mình là Tiểu Bối. Hôm nay bạn muốn luyện tình huống nào?");
 
+  /* ================= Lobby free-text brain (fix1) =================
+     Free text in the lobby is understood three ways, in order:
+     1) small talk (greetings / classic HSK1 exchanges) -> a varied reply,
+     2) a practice intent (Vietnamese / Chinese / tone-free pinyin)
+        -> jump straight into that scenario,
+     3) anything else -> a rotating soft suggestion.
+     No Bé line is ever sent twice in a row (see the guard in addBeMessage). */
+  var FALLBACKS = [
+    FALLBACK,
+    L("对不起，我没有听明白。", "Duìbuqǐ, wǒ méiyǒu tīng míngbai.", "Xin lỗi, Bé chưa nghe rõ."),
+    L("对不起，我没有听见。你说什么？", "Duìbuqǐ, wǒ méiyǒu tīngjiàn. Nǐ shuō shénme?", "Xin lỗi, Bé chưa nghe thấy. Bạn nói gì thế?")
+  ];
+  var GUARD_POOL = [
+    L("好，我听你说。", "Hǎo, wǒ tīng nǐ shuō.", "Được, Bé nghe bạn nói đây."),
+    L("好。你想说什么？", "Hǎo. Nǐ xiǎng shuō shénme?", "Được. Bạn muốn nói gì nào?"),
+    L("我们说汉语，好吗？", "Wǒmen shuō Hànyǔ, hǎo ma?", "Mình nói tiếng Trung nhé, được không?")
+  ];
+  var LOBBY_SOFT = [
+    L("好！你想学什么？", "Hǎo! Nǐ xiǎng xué shénme?", "Được! Bạn muốn học gì nào? Gõ điều bạn muốn luyện, hoặc chọn một tình huống bên dưới nhé."),
+    L("好。你想学习什么？", "Hǎo. Nǐ xiǎng xuéxí shénme?", "Được. Bạn muốn học gì nào?"),
+    L("没关系。我们说汉语，好吗？", "Méi guānxi. Wǒmen shuō Hànyǔ, hǎo ma?", "Không sao. Mình nói tiếng Trung nhé, được không?")
+  ];
+  var SMALLTALK_POOLS = {
+    greet: [
+      L("你好！见到你很高兴。", "Nǐ hǎo! Jiàn dào nǐ hěn gāoxìng.", "Chào bạn! Gặp bạn mình rất vui."),
+      L("你好！你今天怎么样？", "Nǐ hǎo! Nǐ jīntiān zěnmeyàng?", "Chào bạn! Hôm nay bạn thế nào?"),
+      L("你好！我们学习汉语吧。", "Nǐ hǎo! Wǒmen xuéxí Hànyǔ ba.", "Chào bạn! Mình học tiếng Trung nhé.")
+    ],
+    how: [
+      L("我很好，谢谢！你呢？", "Wǒ hěn hǎo, xièxie! Nǐ ne?", "Mình rất khỏe, cảm ơn! Còn bạn?"),
+      L("我很好！你怎么样？", "Wǒ hěn hǎo! Nǐ zěnmeyàng?", "Mình rất khỏe! Bạn thế nào?")
+    ],
+    name: [
+      L("我叫小贝。你叫什么名字？", "Wǒ jiào Xiǎobèi. Nǐ jiào shénme míngzi?", "Mình là Tiểu Bối. Bạn tên là gì?"),
+      L("我的名字是小贝。你呢？", "Wǒ de míngzi shì Xiǎobèi. Nǐ ne?", "Tên mình là Tiểu Bối. Còn bạn?")
+    ],
+    country: [
+      L("我是小贝，我是你的中文老师。你是哪国人？", "Wǒ shì Xiǎobèi, wǒ shì nǐ de Zhōngwén lǎoshī. Nǐ shì nǎ guó rén?", "Mình là Tiểu Bối, thầy tiếng Trung của bạn. Bạn là người nước nào?"),
+      L("我是小贝！你是哪国人？", "Wǒ shì Xiǎobèi! Nǐ shì nǎ guó rén?", "Mình là Tiểu Bối! Bạn là người nước nào?")
+    ],
+    han: [
+      L("我很喜欢汉语！你喜欢汉语吗？", "Wǒ hěn xǐhuan Hànyǔ! Nǐ xǐhuan Hànyǔ ma?", "Mình rất thích tiếng Trung! Bạn có thích tiếng Trung không?"),
+      L("我喜欢汉语，我天天说汉语。", "Wǒ xǐhuan Hànyǔ, wǒ tiāntiān shuō Hànyǔ.", "Mình thích tiếng Trung, ngày nào mình cũng nói tiếng Trung.")
+    ],
+    thanks: [
+      L("不客气！", "Bú kèqi!", "Không có gì!"),
+      L("不客气。你说得很好！", "Bú kèqi. Nǐ shuō de hěn hǎo!", "Không có gì. Bạn nói tốt lắm!")
+    ],
+    noproblem: [
+      L("好，谢谢你！", "Hǎo, xièxie nǐ!", "Ừ, cảm ơn bạn!"),
+      L("好！我们学习吧。", "Hǎo! Wǒmen xuéxí ba.", "Ừ! Mình học nhé.")
+    ],
+    bye: [
+      L("再见！明天见。", "Zàijiàn! Míngtiān jiàn.", "Tạm biệt! Mai gặp nhé."),
+      L("再见！你今天说得很好。", "Zàijiàn! Nǐ jīntiān shuō de hěn hǎo.", "Tạm biệt! Hôm nay bạn nói rất tốt.")
+    ],
+    good: [
+      L("很好！我很高兴。你想学习什么？", "Hěn hǎo! Wǒ hěn gāoxìng. Nǐ xiǎng xuéxí shénme?", "Tốt quá! Mình rất vui. Bạn muốn học gì nào?"),
+      L("太好了！我们学习吧。", "Tài hǎo le! Wǒmen xuéxí ba.", "Tuyệt quá! Mình học nhé.")
+    ]
+  };
+  var talkRot = {};
+  function pickRot(key, pool) {
+    var i = talkRot[key] || 0;
+    talkRot[key] = i + 1;
+    return pool[i % pool.length];
+  }
+  function flatText(s) {
+    return String(s || "").toLowerCase().normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "").replace(/\u0111/g, "d");
+  }
+  function flatHas(flat, phrase) {
+    var esc = phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return new RegExp("(^|[^a-z])" + esc + "([^a-z]|$)").test(flat);
+  }
+  function smallTalkReply(text) {
+    var raw = String(text || "").trim().replace(/[！!。.？?~～、，,\s]+$/, "");
+    var flat = flatText(raw);
+    if (/^(你好|您好)$/.test(raw)) return pickRot("greet", SMALLTALK_POOLS.greet);
+    if (raw.indexOf("你好吗") >= 0 || raw.indexOf("你怎么样") >= 0 || raw.indexOf("你最近怎么样") >= 0) return pickRot("how", SMALLTALK_POOLS.how);
+    if (raw.indexOf("你叫什么名字") >= 0 || raw.indexOf("你的名字是什么") >= 0) return pickRot("name", SMALLTALK_POOLS.name);
+    if (raw.indexOf("你是哪国人") >= 0 || raw.indexOf("你是哪个国家的人") >= 0) return pickRot("country", SMALLTALK_POOLS.country);
+    if (raw.indexOf("你学汉语吗") >= 0 || raw.indexOf("你喜欢汉语吗") >= 0 || raw.indexOf("你会说汉语吗") >= 0 || raw.indexOf("你会不会说汉语") >= 0) return pickRot("han", SMALLTALK_POOLS.han);
+    if (raw.indexOf("谢谢") >= 0 && raw.length <= 8) return pickRot("thanks", SMALLTALK_POOLS.thanks);
+    if (raw.indexOf("没关系") >= 0 && raw.length <= 8) return pickRot("noproblem", SMALLTALK_POOLS.noproblem);
+    if (/^(再见|拜拜)/.test(raw)) return pickRot("bye", SMALLTALK_POOLS.bye);
+    if (raw.indexOf("我很好") >= 0 && raw.indexOf("吗") < 0) return pickRot("good", SMALLTALK_POOLS.good);
+    if (/^(chao|xin chao|hi|hello|alo|hey|chao be|chao ban)$/.test(flat)) return pickRot("greet", SMALLTALK_POOLS.greet);
+    return null;
+  }
+  function lobbyIntent(text) {
+    var raw = String(text || "");
+    var flat = flatText(raw);
+    function has() { for (var i = 0; i < arguments.length; i++) if (flatHas(flat, arguments[i])) return true; return false; }
+    function hasZh() { for (var i = 0; i < arguments.length; i++) if (raw.indexOf(arguments[i]) >= 0) return true; return false; }
+    /* Vietnamese topics (diacritic-free matching, word-boundaried) */
+    if (has("chao hoi", "gioi thieu", "tu gioi thieu", "hoc ten", "cai ten", "hoi ten", "lam quen")) return "intro";
+    if (has("goi mon", "mon an", "an uong", "nha hang", "doi bung", "an gi", "uong gi", "an com", "hoc an", "an mi", "an pho", "an banh")) return "food";
+    if (has("mua sam", "mua do", "hoi gia", "bao tien", "bao nhieu tien", "bao nhieu", "mac ca", "dat qua", "cai ao", "quan ao", "mua ao")) return "shop";
+    if (has("hoi duong", "duong di", "di dau", "o dau", "loi di", "ga tau", "benh vien", "truong hoc", "di xe")) return "dir";
+    /* the learner starts introducing themself -> straight into scenario 1 */
+    if (/^我叫/.test(raw.trim()) || /我是.+人/.test(raw)) return "intro";
+    /* Chinese topics */
+    if (hasZh("介绍")) return "intro";
+    if (hasZh("吃", "喝", "饭店", "点菜", "菜单", "饿")) return "food";
+    if (hasZh("去", "在哪", "怎么走", "学校", "医院", "火车站", "路")) return "dir";
+    if (hasZh("多少钱", "买", "贵", "便宜", "衣服")) return "shop";
+    /* tone-free pinyin */
+    if (has("jieshao", "mingzi")) return "intro";
+    if (has("dian cai", "chi fan")) return "food";
+    if (has("duoshao qian")) return "shop";
+    if (has("zenme zou", "zai nar", "qu nar")) return "dir";
+    return null;
+  }
+
   /* ================= Mock brain ================= */
   function mockBrain(state, text) {
     var scen = SCENARIOS[state.scenId];
@@ -306,6 +421,106 @@
   } catch (e) {}
   function saveStore() { try { localStorage.setItem(LS_KEY, JSON.stringify(store)); } catch (e) {} }
 
+  /* ================= Avatar: use the guide's own image (fix1) =================
+     The old file path (assets/index2/otter-full.webp) is not part of the
+     deployed text-only bundle set, so it 404s on the live site and iOS shows
+     a "?" placeholder. The guide (otter2-guide.js) ships Bé as an embedded
+     data-URI and renders it in #guideRoam — read the avatar from there so
+     the chat always shows the very same Bé (and follows the Nam/Nữ toggle). */
+  var FALLBACK_AVA = "data:image/svg+xml;utf8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96"><circle cx="48" cy="48" r="48" fill="#f0fdfa"/><text x="48" y="67" font-size="50" text-anchor="middle">🦦</text></svg>');
+  var avatarSrc = null;
+  function currentAvatarSrc() { return avatarSrc || CONFIG.avatarUrl; }
+  function avaImg(cls, alt) {
+    var img = document.createElement("img");
+    if (cls) img.className = cls;
+    img.alt = alt || "";
+    img.classList.add("aichat-ava");
+    img.dataset.avaSrc = currentAvatarSrc();
+    img.src = currentAvatarSrc();
+    img.addEventListener("error", function () {
+      if (img.src !== FALLBACK_AVA) { img.dataset.avaSrc = FALLBACK_AVA; img.src = FALLBACK_AVA; }
+    });
+    return img;
+  }
+  function applyAvatar(src) {
+    document.querySelectorAll("img.aichat-ava").forEach(function (img) {
+      if (img.dataset.avaSrc !== src) { img.dataset.avaSrc = src; img.src = src; }
+    });
+  }
+  function guideAvatarImg() {
+    return document.querySelector("#guideRoam img") ||
+           document.querySelector("#guideOtterBtn img") ||
+           document.querySelector(".guide-head img");
+  }
+  var avatarObserver = null;
+  function watchGuideAvatar() {
+    if (avatarObserver || !window.MutationObserver) return;
+    var img = guideAvatarImg();
+    if (!img) return;
+    avatarObserver = new MutationObserver(function () { resolveAvatar(); });
+    avatarObserver.observe(img, { attributes: true, attributeFilter: ["src"] });
+  }
+  function resolveAvatar() {
+    var img = guideAvatarImg();
+    if (img && img.src) {
+      if (img.src !== avatarSrc) { avatarSrc = img.src; applyAvatar(avatarSrc); }
+      watchGuideAvatar();
+      return true;
+    }
+    return false;
+  }
+  function startAvatarResolution() {
+    if (resolveAvatar()) return;
+    var tries = 0;
+    var poll = setInterval(function () {
+      tries++;
+      if (resolveAvatar() || tries > 30) clearInterval(poll);
+    }, 500);
+  }
+
+  /* ================= Scroll lock + viewport fit (fix1) ================= */
+  var scrollLock = null;
+  function lockBodyScroll() {
+    if (scrollLock) return;
+    var b = document.body, h = document.documentElement;
+    scrollLock = {
+      y: window.scrollY || window.pageYOffset || 0,
+      bPos: b.style.position, bTop: b.style.top, bLeft: b.style.left,
+      bRight: b.style.right, bWidth: b.style.width, bOverflow: b.style.overflow,
+      hOverflow: h.style.overflow
+    };
+    h.classList.add("aichat-locked"); b.classList.add("aichat-locked");
+    b.style.overflow = "hidden";
+    b.style.position = "fixed";
+    b.style.top = (-scrollLock.y) + "px";
+    b.style.left = "0"; b.style.right = "0"; b.style.width = "100%";
+  }
+  function unlockBodyScroll() {
+    if (!scrollLock) return;
+    var b = document.body, h = document.documentElement, s = scrollLock;
+    scrollLock = null;
+    b.style.position = s.bPos; b.style.top = s.bTop; b.style.left = s.bLeft;
+    b.style.right = s.bRight; b.style.width = s.bWidth; b.style.overflow = s.bOverflow;
+    h.style.overflow = s.hOverflow;
+    h.classList.remove("aichat-locked"); b.classList.remove("aichat-locked");
+    window.scrollTo(0, s.y);
+  }
+  function fitPanel() {
+    if (!panel || !panel.classList.contains("open")) return;
+    if (window.innerWidth > 767) { panel.style.height = ""; panel.style.top = ""; return; }
+    var vv = window.visualViewport;
+    if (!vv) return;
+    panel.style.height = vv.height + "px";
+    panel.style.top = vv.offsetTop + "px";
+  }
+  var vvBound = false;
+  function bindViewport() {
+    if (vvBound || !window.visualViewport) return;
+    vvBound = true;
+    window.visualViewport.addEventListener("resize", fitPanel);
+    window.visualViewport.addEventListener("scroll", fitPanel);
+  }
+
   /* ================= DOM build ================= */
   function el(tag, cls, text) {
     var n = document.createElement(tag);
@@ -323,8 +538,7 @@
     launcher.id = "aichatLauncher";
     launcher.type = "button";
     launcher.setAttribute("aria-label", "Trò chuyện cùng Bé");
-    var li = document.createElement("img");
-    li.src = CONFIG.avatarUrl; li.alt = "Bé";
+    var li = avaImg(null, "Bé");
     var lt = el("span", null, "Trò chuyện cùng Bé");
     var dot = el("span", "aichat-launcher-dot", "1");
     launcher.appendChild(li); launcher.appendChild(lt); launcher.appendChild(dot);
@@ -340,6 +554,7 @@
 
     buildListView();
     buildThreadView();
+    startAvatarResolution();
   }
 
   function buildListView() {
@@ -386,8 +601,7 @@
 
     listEmpty = el("div", "aichat-empty");
     listEmpty.style.display = "none";
-    var ei = document.createElement("img");
-    ei.src = CONFIG.avatarUrl; ei.alt = "";
+    var ei = avaImg(null, "");
     var es = el("strong", null, "Không tìm thấy cuộc trò chuyện nào");
     var ep = el("p", null, "Thử gõ từ khóa khác nhé — Bé và 4 tình huống HSK1 luôn ở đây chờ bạn.");
     listEmpty.appendChild(ei); listEmpty.appendChild(es); listEmpty.appendChild(ep);
@@ -407,8 +621,7 @@
     be.type = "button";
     be.dataset.search = "bé trò chuyện luyện nói ai";
     var av = el("div", "aichat-avatar");
-    var img = document.createElement("img");
-    img.src = CONFIG.avatarUrl; img.alt = "Bé";
+    var img = avaImg(null, "Bé");
     var on = el("span", "aichat-online");
     av.appendChild(img); av.appendChild(on);
     var main = el("div", "aichat-convo-main");
@@ -470,8 +683,7 @@
     back.style.fontSize = "22px";
     back.addEventListener("click", showList);
     var av = el("div", "aichat-avatar");
-    var img = document.createElement("img");
-    img.src = CONFIG.avatarUrl; img.alt = "Bé";
+    var img = avaImg(null, "Bé");
     av.appendChild(img);
     var twrap = el("div", null);
     twrap.appendChild(el("div", "aichat-thread-name", "Bé — Thầy tiếng Trung"));
@@ -660,7 +872,7 @@
       return { label: SCENARIOS[id].icon + " " + SCENARIOS[id].name, action: function () { startScenario(id, false); } };
     }));
   }
-  function startScenario(id, restart) {
+  function startScenario(id, restart, keepText) {
     var scen = SCENARIOS[id];
     thread.scenId = id; thread.stepIdx = 0; thread.fails = 0; thread.started = true; thread.userTurns = 0;
     store.progress[id] = "doing"; saveStore();
@@ -668,6 +880,7 @@
     msgBox.innerHTML = "";
     history = [];
     addDivider();
+    if (keepText) addUserMessage(keepText, null);
     renderProgress();
     var step = scen.steps[0];
     deliverBe(step.prompt, step.tts);
@@ -690,10 +903,20 @@
     d.appendChild(el("span", null, "Hôm nay · Luyện nói HSK1"));
     msgBox.appendChild(d);
   }
+  var lastBeZh = "";
+  var guardRot = 0;
   function addBeMessage(line, ttsFile) {
+    // hard rule (fix1): Bé never sends the same line twice in a row —
+    // swap a would-be repeat for a rotating continuation line instead.
+    if (line && line.zh) {
+      if (line.zh === lastBeZh) {
+        var g = GUARD_POOL[guardRot % GUARD_POOL.length]; guardRot++;
+        if (g.zh !== lastBeZh) line = g;
+      }
+      lastBeZh = line.zh;
+    }
     var row = el("div", "aichat-row be");
-    var img = document.createElement("img");
-    img.className = "aichat-msg-avatar"; img.src = CONFIG.avatarUrl; img.alt = "Bé";
+    var img = avaImg("aichat-msg-avatar", "Bé");
     var bub = el("div", "aichat-bubble");
     var speakBtn = el("button", "aichat-speak", "🔊");
     speakBtn.type = "button"; speakBtn.title = "Nghe lại";
@@ -713,7 +936,7 @@
     msgBox.appendChild(t);
     history.push({ role: "be", zh: line.zh });
     store.lastPreview = line.zh; store.lastTime = fmtTime(new Date()); saveStore();
-    return row;
+    return line;
   }
   function addUserMessage(text, voice) {
     var row = el("div", "aichat-row me");
@@ -752,8 +975,7 @@
     if (!thread.lastUserSeenEl) return;
     thread.lastUserSeenEl.textContent = fmtTime(new Date());
     var seen = el("div", "aichat-seen");
-    var img = document.createElement("img");
-    img.src = CONFIG.avatarUrl; img.alt = "";
+    var img = avaImg(null, "");
     seen.appendChild(img);
     seen.appendChild(el("span", null, "Bé đã xem"));
     msgBox.appendChild(seen);
@@ -762,8 +984,7 @@
   function showTyping() {
     var row = el("div", "aichat-row be");
     row.id = "aichatTypingRow";
-    var img = document.createElement("img");
-    img.className = "aichat-msg-avatar"; img.src = CONFIG.avatarUrl; img.alt = "";
+    var img = avaImg("aichat-msg-avatar", "");
     var bub = el("div", "aichat-bubble aichat-typing-bubble");
     bub.appendChild(el("i", null)); bub.appendChild(el("i", null)); bub.appendChild(el("i", null));
     row.appendChild(img); row.appendChild(bub);
@@ -819,10 +1040,12 @@
     setChips(step.chips.map(function (c) { return { label: c, text: c }; }));
   }
   function deliverBe(lines, ttsFile) {
+    var firstUsed = null;
     (lines || []).forEach(function (line, i) {
-      addBeMessage(line, i === 0 ? ttsFile : null);
+      var used = addBeMessage(line, i === 0 ? ttsFile : null);
+      if (i === 0) firstUsed = used;
     });
-    if (lines && lines.length) speak(lines[0].zh, ttsFile || null);
+    if (firstUsed) speak(firstUsed.zh, firstUsed === lines[0] ? (ttsFile || null) : null);
     markSeen();
     scrollBottom(true);
   }
@@ -836,19 +1059,33 @@
     handleUserText(text, null);
   }
 
+  function handleLobbyText(text, voice) {
+    addUserMessage(text, voice);
+    scrollBottom(true);
+    var st = smallTalkReply(text);
+    var intent = st ? null : lobbyIntent(text);
+    thread.busy = true;
+    sendBtn.disabled = true;
+    showTyping();
+    setTimeout(function () {
+      hideTyping();
+      thread.busy = false;
+      sendBtn.disabled = false;
+      if (st) {
+        deliverBe([st], null);
+      } else if (intent) {
+        // jump straight into the scenario; startScenario re-adds the user's
+        // own message at the top of the fresh thread (keepText)
+        startScenario(intent, false, text);
+      } else {
+        deliverBe([pickRot("soft", LOBBY_SOFT)], null);
+      }
+      scrollBottom(true);
+    }, 650);
+  }
+
   function handleUserText(text, voice) {
-    if (!thread.scenId) {
-      // lobby: treat as choosing nothing; nudge to pick a scenario
-      addUserMessage(text, voice);
-      showTyping();
-      setTimeout(function () {
-        hideTyping();
-        addBeMessage(LOBBY_LINE, null);
-        toast("Chọn một tình huống bên dưới để bắt đầu nhé 👇");
-        scrollBottom(true);
-      }, 700);
-      return;
-    }
+    if (!thread.scenId) { handleLobbyText(text, voice); return; }
     thread.busy = true;
     sendBtn.disabled = true;
     addUserMessage(text, voice);
@@ -883,7 +1120,7 @@
         }
       } else if (result.retry) {
         thread.fails++;
-        deliverBe([FALLBACK], null);
+        deliverBe([FALLBACKS[(thread.fails - 1) % FALLBACKS.length]], null);
         if (thread.fails >= 2 && stepBefore && stepBefore.model) {
           addCard("hint", "💡 Gợi ý của Bé", [
             { label: "Thử nói:", text: stepBefore.model, cls: "aichat-card-right" }
@@ -997,6 +1234,10 @@
   function togglePanel() { panel.classList.contains("open") ? closePanel() : openPanel(); }
   function openPanel() {
     panel.classList.add("open");
+    lockBodyScroll();
+    bindViewport();
+    fitPanel();
+    resolveAvatar();
     launcher.classList.remove("has-unread");
     if (firstOpen) {
       firstOpen = false;
@@ -1013,6 +1254,9 @@
   }
   function closePanel() {
     panel.classList.remove("open");
+    panel.style.height = "";
+    panel.style.top = "";
+    unlockBodyScroll();
     stopRecording(); stopSpeak();
   }
   document.addEventListener("keydown", function (ev) {
@@ -1020,13 +1264,21 @@
   });
 
   window.__ttcAIChat = {
-    version: "pilot-2-messenger-shell",
+    version: "pilot-2.1-fix1",
     open: openPanel,
     close: closePanel,
     toggle: togglePanel,
     _thread: thread,
     _scenarios: SCENARIOS,
-    _segment: segment
+    _segment: segment,
+    _lobbyIntent: lobbyIntent,
+    _smallTalk: smallTalkReply,
+    _avatarSrc: currentAvatarSrc,
+    _lobbyLines: function () {
+      var all = [LOBBY_LINE, FALLBACK].concat(FALLBACKS, GUARD_POOL, LOBBY_SOFT);
+      Object.keys(SMALLTALK_POOLS).forEach(function (k) { all = all.concat(SMALLTALK_POOLS[k]); });
+      return all;
+    }
   };
 
   if (document.readyState === "loading") {
