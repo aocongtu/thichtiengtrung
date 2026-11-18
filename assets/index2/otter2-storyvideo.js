@@ -28,6 +28,17 @@
    cũng TỰ CUỘN MƯỢT đưa trình phát lên đầu tầm nhìn
    (scrollIntoView trên .ttc-story-frame-wrap + scroll-margin)
    — trước đây bấm truyện ở cuối danh sách phải tự cuộn lên.
+   Bổ sung CHẶNG 1 (2026-11-18, học theo corodomo): LỚP PHỤ ĐỀ
+   ĐỒNG BỘ TỪNG CÂU + LẶP A–B, pilot trên 30 truyện HSK1. Thanh
+   câu hiện tại (Hán tự + pinyin + nghĩa Việt) chạy khớp giọng đọc;
+   danh sách câu bấm để nhảy đoạn (seek); công tắc từng lớp
+   Hán tự/Pinyin/Nghĩa Việt + chuyển Phồn thể (dùng lại engine
+   __ttcTraditionalHanzi của trang), lưu ở localStorage
+   "otter2_storyvideo_sub_v1". Dữ liệu cues nạp lười từ
+   otter2-storysub-hsk<level>.js (sinh từ intermediates TTS từng
+   câu, đã hiệu chuẩn theo audio thật). Cấp chưa có dữ liệu phụ đề
+   thì player giữ nguyên như cũ. Lặp A–B: đặt A/B tại thời điểm
+   đang phát, chạm B quay về A, có nút xoá lặp riêng.
    ============================================================ */
 (function () {
   "use strict";
@@ -142,7 +153,40 @@
       ".ttc-story-rate-label{font-size:13px;font-weight:800;color:#7c3aed;margin-right:2px}",
       ".ttc-story-ratebtn{border:1.5px solid rgba(124,58,237,.45);background:transparent;color:inherit;border-radius:999px;padding:6px 12px;font-weight:800;font-size:13px;cursor:pointer;min-height:36px;min-width:54px}",
       ".ttc-story-ratebtn:hover{border-color:#7c3aed}",
-      ".ttc-story-ratebtn.is-cur{background:#7c3aed;color:#fff;border-color:#7c3aed}"
+      ".ttc-story-ratebtn.is-cur{background:#7c3aed;color:#fff;border-color:#7c3aed}",
+      "/* ==== CHẶNG 1 (2026-11-18): phụ đề đồng bộ từng câu + lặp A–B ==== */",
+      "/* Thanh câu hiện tại (karaoke): nền trắng, viền tím nhạt khu truyện, câu chữ Hán lớn; lớp nào tắt thì ẩn hẳn. */",
+      ".ttc-story-subbar{margin:12px 0 0;border:1.5px solid rgba(124,58,237,.35);border-radius:14px;background:#fff;padding:12px 14px;min-height:64px}",
+      "html[data-theme='night'] .ttc-story-subbar{background:#1e293b}",
+      ".ttc-ss-tag{font-size:11.5px;font-weight:900;color:#7c3aed;letter-spacing:.4px;margin-bottom:4px}",
+      ".ttc-ss-zh{display:block;font-size:21px;font-weight:800;line-height:1.45;color:#0f172a}",
+      "html[data-theme='night'] .ttc-ss-zh{color:#f1f5f9}",
+      ".ttc-ss-py{display:block;font-size:14.5px;font-weight:700;color:#c2410c;margin-top:2px;line-height:1.4}",
+      ".ttc-ss-vi{display:block;font-size:14px;color:#475569;margin-top:2px;line-height:1.45}",
+      "html[data-theme='night'] .ttc-ss-vi{color:#cbd5e1}",
+      ".ttc-ss-idle{font-size:14.5px;color:#64748b;font-weight:700}",
+      ".ttc-sub-off-zh .ttc-ss-zh,.ttc-sub-off-py .ttc-ss-py,.ttc-sub-off-vi .ttc-ss-vi{display:none}",
+      "/* Hàng công tắc lớp phụ đề + hàng lặp A–B: chip viền tím, đang bật thì tô đặc tím như nút tốc độ. */",
+      ".ttc-story-subtools,.ttc-story-abrow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:10px 0 0}",
+      ".ttc-story-subtools-label,.ttc-story-ab-label{font-size:13px;font-weight:800;color:#7c3aed;margin-right:2px}",
+      ".ttc-story-subchip,.ttc-story-abbtn{border:1.5px solid rgba(124,58,237,.45);background:transparent;color:inherit;border-radius:999px;padding:6px 12px;font-weight:800;font-size:13px;cursor:pointer;min-height:36px}",
+      ".ttc-story-subchip:hover,.ttc-story-abbtn:hover{border-color:#7c3aed}",
+      ".ttc-story-subchip.is-cur,.ttc-story-abbtn.is-cur{background:#7c3aed;color:#fff;border-color:#7c3aed}",
+      ".ttc-story-abbtn:disabled{opacity:.4;cursor:default}",
+      ".ttc-story-ab-status{font-size:12.5px;font-weight:700;color:#475569}",
+      "/* Danh sách câu: bấm để nhảy tới đoạn; câu đang đọc tô nền tím nhạt + vạch trái tím, tự cuộn trong khung. */",
+      ".ttc-story-sublist{margin:10px 0 0;max-height:264px;overflow:auto;border:1.5px solid rgba(100,116,139,.25);border-radius:14px;background:#fff}",
+      "html[data-theme='night'] .ttc-story-sublist{background:#1e293b}",
+      ".ttc-story-subrow{display:flex;gap:9px;align-items:flex-start;width:100%;text-align:left;border:0;border-bottom:1px solid rgba(100,116,139,.14);background:transparent;color:inherit;padding:8px 11px;cursor:pointer;font-size:13.5px;line-height:1.4}",
+      ".ttc-story-subrow:last-child{border-bottom:0}",
+      ".ttc-story-subrow:hover{background:rgba(124,58,237,.05)}",
+      ".ttc-story-subrow.is-cur{background:rgba(124,58,237,.10);box-shadow:inset 3px 0 0 #7c3aed}",
+      ".ttc-story-subrow .ttc-ss-num{flex:0 0 auto;font-weight:900;color:#7c3aed;font-size:12px;padding-top:3px}",
+      ".ttc-story-subrow .ttc-ss-main{min-width:0;flex:1}",
+      ".ttc-story-subrow .ttc-ss-zh{font-size:15.5px}",
+      ".ttc-story-subrow .ttc-ss-py{font-size:12.5px}",
+      ".ttc-story-subrow .ttc-ss-vi{font-size:12.5px}",
+      ".ttc-story-subrow .ttc-ss-time{flex:0 0 auto;font-size:11.5px;color:#64748b;font-weight:700;padding-top:3px}"
     ].join("\n");
     var st = document.createElement("style");
     st.id = "ttcStoryVideoStyle";
@@ -177,6 +221,62 @@
     try { localStorage.setItem(RATE_LS_KEY, String(r)); } catch (e) {}
   }
   function rateLabel(r) { return String(r) + "×"; }
+
+  /* ---------------- CHẶNG 1: phụ đề đồng bộ + lặp A–B ----------------
+     Dữ liệu cues [start, end, zh, py, vi] sinh từ intermediates TTS từng
+     câu (~/workspace/story_sub_build/gen_subtitles.py), nạp LƯỜI theo cấp
+     qua file otter2-storysub-hsk<level>.js nằm cạnh file này. Pilot: HSK1
+     (30/30 truyện). Cấp chưa có dữ liệu -> không hiện lớp phụ đề, player
+     chạy như cũ. Chuyển Phồn thể dùng lại đúng engine của web
+     (window.__ttcTraditionalHanzi — OpenCC + bản đồ dự phòng của trang). */
+  var SUB_LS_KEY = "otter2_storyvideo_sub_v1";
+  var subPrefs = { zh: true, py: true, vi: true, trad: false };
+  try {
+    var sp = JSON.parse(localStorage.getItem(SUB_LS_KEY) || "null");
+    if (sp) { for (var pk in subPrefs) if (typeof sp[pk] === "boolean") subPrefs[pk] = sp[pk]; }
+  } catch (e) {}
+  function saveSubPrefs() {
+    try { localStorage.setItem(SUB_LS_KEY, JSON.stringify(subPrefs)); } catch (e) {}
+  }
+  var SELF_SRC = (function () {
+    var s = document.querySelector('script[src*="otter2-storyvideo.js"]');
+    return s ? s.getAttribute("src") : "assets/index2/otter2-storyvideo.js";
+  })();
+  var subLoadedLv = {}, subFailedLv = {};
+  function subsDataFor(level, key) {
+    var all = window.OTTER2_STORYSUB;
+    if (!all || !all[String(level)]) return null;
+    return all[String(level)][key] || null;
+  }
+  function ensureSubs(level) {
+    return new Promise(function (res) {
+      if (window.OTTER2_STORYSUB && window.OTTER2_STORYSUB[String(level)]) return res(true);
+      if (subLoadedLv[level] || subFailedLv[level]) return res(false);
+      var sc = document.createElement("script");
+      sc.src = SELF_SRC.replace(/otter2-storyvideo\.js([?#].*)?$/, "otter2-storysub-hsk" + level + ".js");
+      sc.onload = function () {
+        subLoadedLv[level] = 1;
+        res(!!(window.OTTER2_STORYSUB && window.OTTER2_STORYSUB[String(level)]));
+      };
+      sc.onerror = function () { subFailedLv[level] = 1; res(false); };
+      document.head.appendChild(sc);
+    });
+  }
+  function fmtClock(sec) {
+    var s = Math.max(0, Number(sec) || 0);
+    var m = Math.floor(s / 60);
+    var r = s - m * 60;
+    return m + ":" + (r < 10 ? "0" : "") + r.toFixed(1);
+  }
+  /* Trạng thái phụ đề của truyện đang phát (reset mỗi lần renderStage). */
+  var subState = null;
+  function tradText(zh) {
+    if (!subPrefs.trad) return zh;
+    if (typeof window.__ttcTraditionalHanzi === "function") {
+      try { return window.__ttcTraditionalHanzi(zh) || zh; } catch (e) { return zh; }
+    }
+    return zh;
+  }
 
   /* ---------------- state ---------------- */
   var state = { tab: 1, currentKey: null, flat: [] };
@@ -290,6 +390,7 @@
       'src="' + esc(entry.stream || ("https://drive.google.com/uc?export=download&id=" + encodeURIComponent(entry.drive_id))) + '" ' +
       'controls playsinline preload="auto"></video></div>' +
       '<div class="ttc-story-raterow" role="group" aria-label="Tốc độ phát"><span class="ttc-story-rate-label">🐢 Tốc độ:</span>' + rateBtns + "</div>" +
+      '<div class="ttc-story-subzone" id="ttcStorySubZone" hidden></div>' +
       '<h3 class="ttc-story-now">' + esc(entry.title_zh) + "</h3>" +
       (entry.title_vi ? '<p class="ttc-story-now-vi">' + esc(entry.title_vi) + "</p>" : "") +
       '<p class="ttc-story-meta-line">HSK ' + entry.level + (dur ? " · ⏱ " + esc(dur) : "") +
@@ -322,6 +423,195 @@
         if (!loadWatched()[entry.key]) { markWatched(entry.key); renderList(); }
       });
     }
+    /* Chặng 1: nạp dữ liệu phụ đề của cấp này (nếu có) rồi dựng lớp phụ đề;
+       video phát ngay, không chờ phụ đề. Guard theo currentKey để tránh
+       dựng nhầm khi người học đã chuyển truyện khác. */
+    subState = null;
+    ensureSubs(entry.level).then(function () {
+      if (state.currentKey !== entry.key) return;
+      var data = subsDataFor(entry.level, entry.key);
+      if (data && data.cues && data.cues.length) buildSubUI(entry, data);
+    });
+  }
+
+  /* ---------------- dựng lớp phụ đề + lặp A–B cho 1 truyện ---------------- */
+  function buildSubUI(entry, data) {
+    var zone = stageEl.querySelector("#ttcStorySubZone");
+    var vid = stageEl.querySelector("#ttcStoryVideoFrame");
+    if (!zone || !vid) return;
+    var cues = data.cues;
+    subState = { key: entry.key, cues: cues, cur: -2, A: null, B: null, loop: false };
+    zone.hidden = false;
+    zone.innerHTML =
+      '<div class="ttc-story-subbar" id="ttcStorySubBar">' +
+      '<div class="ttc-ss-tag" id="ttcStorySubTag">📜 PHỤ ĐỀ TỪNG CÂU</div>' +
+      '<span class="ttc-ss-idle" id="ttcStorySubIdle">🎬 Phần mở đầu…</span>' +
+      '<span class="ttc-ss-zh" id="ttcStorySubZh"></span>' +
+      '<span class="ttc-ss-py" id="ttcStorySubPy"></span>' +
+      '<span class="ttc-ss-vi" id="ttcStorySubVi"></span></div>' +
+      '<div class="ttc-story-subtools" role="group" aria-label="Lớp phụ đề hiển thị">' +
+      '<span class="ttc-story-subtools-label">💬 Phụ đề:</span>' +
+      '<button type="button" class="ttc-story-subchip" data-sub-pref="zh">Hán tự</button>' +
+      '<button type="button" class="ttc-story-subchip" data-sub-pref="py">Pinyin</button>' +
+      '<button type="button" class="ttc-story-subchip" data-sub-pref="vi">Nghĩa Việt</button>' +
+      '<button type="button" class="ttc-story-subchip" data-sub-pref="trad">Phồn thể</button></div>' +
+      '<div class="ttc-story-abrow" role="group" aria-label="Lặp đoạn A–B">' +
+      '<span class="ttc-story-ab-label">🔁 Lặp A–B:</span>' +
+      '<button type="button" class="ttc-story-abbtn" id="ttcStorySetA">⏺ Đặt A</button>' +
+      '<button type="button" class="ttc-story-abbtn" id="ttcStorySetB">⏺ Đặt B</button>' +
+      '<button type="button" class="ttc-story-abbtn" id="ttcStoryLoopToggle" disabled aria-pressed="false">Lặp: Tắt</button>' +
+      '<button type="button" class="ttc-story-abbtn" id="ttcStoryClearAB" disabled>✖ Xoá lặp</button>' +
+      '<span class="ttc-story-ab-status" id="ttcStoryABStatus">Bấm “Đặt A” tại điểm bắt đầu, “Đặt B” tại điểm kết thúc.</span></div>' +
+      '<div class="ttc-story-sublist" id="ttcStorySubList" aria-label="Danh sách câu — bấm để nhảy tới đoạn"></div>';
+
+    var bar = zone.querySelector("#ttcStorySubBar");
+    var tagEl = zone.querySelector("#ttcStorySubTag");
+    var idleEl = zone.querySelector("#ttcStorySubIdle");
+    var zhEl = zone.querySelector("#ttcStorySubZh");
+    var pyEl = zone.querySelector("#ttcStorySubPy");
+    var viEl = zone.querySelector("#ttcStorySubVi");
+    var listEl2 = zone.querySelector("#ttcStorySubList");
+    var statusEl = zone.querySelector("#ttcStoryABStatus");
+    var loopBtn = zone.querySelector("#ttcStoryLoopToggle");
+    var clearBtn = zone.querySelector("#ttcStoryClearAB");
+
+    function cueZh(i) { return tradText(cues[i][2]); }
+    function renderList() {
+      var html = "";
+      cues.forEach(function (c, i) {
+        html += '<button type="button" class="ttc-story-subrow" data-sub-idx="' + i + '">' +
+          '<span class="ttc-ss-num">' + (i + 1) + "</span>" +
+          '<span class="ttc-ss-main">' +
+          '<span class="ttc-ss-zh">' + esc(cueZh(i)) + "</span>" +
+          '<span class="ttc-ss-py">' + esc(c[3]) + "</span>" +
+          '<span class="ttc-ss-vi">' + esc(c[4]) + "</span></span>" +
+          '<span class="ttc-ss-time">' + fmtClock(c[0]) + "</span></button>";
+      });
+      listEl2.innerHTML = html;
+      Array.prototype.forEach.call(listEl2.querySelectorAll("[data-sub-idx]"), function (row) {
+        row.addEventListener("click", function () {
+          var i = Number(row.getAttribute("data-sub-idx"));
+          try { vid.currentTime = cues[i][0] + 0.01; } catch (e) {}
+          var p = vid.play(); if (p && p.catch) p.catch(function () {});
+        });
+      });
+    }
+    function applyPrefs() {
+      zone.classList.toggle("ttc-sub-off-zh", !subPrefs.zh);
+      zone.classList.toggle("ttc-sub-off-py", !subPrefs.py);
+      zone.classList.toggle("ttc-sub-off-vi", !subPrefs.vi);
+      Array.prototype.forEach.call(zone.querySelectorAll("[data-sub-pref]"), function (chip) {
+        var k = chip.getAttribute("data-sub-pref");
+        var on = !!subPrefs[k];
+        chip.classList.toggle("is-cur", on);
+        chip.setAttribute("aria-pressed", on ? "true" : "false");
+      });
+    }
+    Array.prototype.forEach.call(zone.querySelectorAll("[data-sub-pref]"), function (chip) {
+      chip.addEventListener("click", function () {
+        var k = chip.getAttribute("data-sub-pref");
+        subPrefs[k] = !subPrefs[k];
+        saveSubPrefs();
+        applyPrefs();
+        if (k === "trad") { renderList(); if (subState) { var c = subState.cur; subState.cur = -2; syncToTime(true); } }
+      });
+    });
+    function abStatus(msg) {
+      if (msg) { statusEl.textContent = msg; return; }
+      var a = subState.A, b = subState.B;
+      if (a == null && b == null) statusEl.textContent = "Bấm “Đặt A” tại điểm bắt đầu, “Đặt B” tại điểm kết thúc.";
+      else if (a != null && b == null) statusEl.textContent = "A = " + fmtClock(a) + " · hãy bấm “Đặt B” tại điểm kết thúc.";
+      else if (a == null && b != null) statusEl.textContent = "B = " + fmtClock(b) + " · hãy bấm “Đặt A” tại điểm bắt đầu.";
+      else statusEl.textContent = "A = " + fmtClock(a) + " · B = " + fmtClock(b) + (subState.loop ? " · đang lặp đoạn này" : "");
+    }
+    function abRefresh() {
+      var ok = subState.A != null && subState.B != null && subState.B > subState.A;
+      loopBtn.disabled = !ok;
+      clearBtn.disabled = subState.A == null && subState.B == null;
+      loopBtn.classList.toggle("is-cur", !!subState.loop);
+      loopBtn.setAttribute("aria-pressed", subState.loop ? "true" : "false");
+      loopBtn.textContent = subState.loop ? "Lặp: Bật" : "Lặp: Tắt";
+      abStatus();
+    }
+    zone.querySelector("#ttcStorySetA").addEventListener("click", function () {
+      subState.A = vid.currentTime;
+      if (subState.B != null && subState.B <= subState.A) { subState.B = null; subState.loop = false; }
+      else if (subState.B != null) subState.loop = true;
+      abRefresh();
+    });
+    zone.querySelector("#ttcStorySetB").addEventListener("click", function () {
+      var t = vid.currentTime;
+      if (subState.A != null && t <= subState.A) { abStatus("⚠ Điểm B phải nằm SAU điểm A (" + fmtClock(subState.A) + ")."); return; }
+      subState.B = t;
+      if (subState.A != null) subState.loop = true;
+      abRefresh();
+    });
+    loopBtn.addEventListener("click", function () { subState.loop = !subState.loop; abRefresh(); });
+    clearBtn.addEventListener("click", function () {
+      subState.A = null; subState.B = null; subState.loop = false; abRefresh();
+    });
+
+    function findCue(t) {
+      var lo = 0, hi = cues.length - 1, ans = -1;
+      while (lo <= hi) {
+        var mid = (lo + hi) >> 1;
+        if (cues[mid][0] <= t) { ans = mid; lo = mid + 1; } else hi = mid - 1;
+      }
+      if (ans < 0) return -1;
+      return t < cues[ans][1] ? ans : (ans + 1 < cues.length ? -1 : cues.length);
+      /* -1 = đang ở intro/khoảng lặng; cues.length = đã qua câu cuối (phần kết) */
+    }
+    function scrollRowIntoList(row) {
+      if (!row) return;
+      var target = row.offsetTop - listEl2.clientHeight / 2 + row.clientHeight / 2;
+      listEl2.scrollTop = Math.max(0, target);
+    }
+    function syncToTime(force) {
+      if (!subState || subState.key !== entry.key) return;
+      var t = vid.currentTime || 0;
+      var idx = findCue(t);
+      if (idx === subState.cur && !force) return;
+      subState.cur = idx;
+      if (idx < 0) {
+        tagEl.textContent = "📜 PHỤ ĐỀ TỪNG CÂU";
+        idleEl.style.display = "";
+        idleEl.textContent = "🎬 Phần mở đầu…";
+        zhEl.textContent = ""; pyEl.textContent = ""; viEl.textContent = "";
+      } else if (idx >= cues.length) {
+        tagEl.textContent = "📜 PHỤ ĐỀ TỪNG CÂU";
+        idleEl.style.display = "";
+        idleEl.textContent = "✦ Phần kết — bấm vào một câu để nghe lại nhé!";
+        zhEl.textContent = ""; pyEl.textContent = ""; viEl.textContent = "";
+      } else {
+        tagEl.textContent = "📜 CÂU " + (idx + 1) + "/" + cues.length;
+        idleEl.style.display = "none";
+        zhEl.textContent = cueZh(idx);
+        pyEl.textContent = cues[idx][3];
+        viEl.textContent = cues[idx][4];
+      }
+      Array.prototype.forEach.call(listEl2.querySelectorAll(".ttc-story-subrow"), function (row, i) {
+        var on = i === idx;
+        if (on !== row.classList.contains("is-cur")) {
+          row.classList.toggle("is-cur", on);
+          if (on) scrollRowIntoList(row);
+        }
+      });
+    }
+    vid.addEventListener("timeupdate", function () {
+      if (!subState || subState.key !== entry.key) return;
+      /* Lặp A–B: chạm B thì quay về A (chừa 0.06s chống dội do timeupdate 4Hz). */
+      if (subState.loop && subState.A != null && subState.B != null &&
+          vid.currentTime >= subState.B - 0.02) {
+        try { vid.currentTime = subState.A + 0.01; } catch (e) {}
+        return;
+      }
+      syncToTime(false);
+    });
+    vid.addEventListener("seeked", function () { syncToTime(true); });
+    renderList();
+    applyPrefs();
+    abRefresh();
+    syncToTime(true);
   }
 
   /* Tự cuộn mượt đưa trình phát lên đầu tầm nhìn trong overlay
@@ -370,6 +660,7 @@
     if (!overlay) return;
     overlay.classList.remove("open");
     document.body.style.overflow = "";
+    subState = null;
     var f = overlay.querySelector("#ttcStoryVideoFrame");
     if (f) f.src = "about:blank";
   }
@@ -435,6 +726,10 @@
     gate: gateFor,
     state: function () { return state; },
     catalog: catalog,
-    watched: loadWatched
+    watched: loadWatched,
+    subState: function () { return subState; },
+    subPrefs: function () { return subPrefs; },
+    ensureSubs: ensureSubs,
+    subsDataFor: subsDataFor
   };
 })();
