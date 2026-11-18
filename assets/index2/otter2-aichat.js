@@ -15,7 +15,7 @@
 
   var CONFIG = Object.assign(
     {
-      brainEndpoint: "", // POST {scenario, mode, step, history, text} -> brain JSON
+      brainEndpoint: "https://nkwdunamzvqrldkkcajz.supabase.co/functions/v1/aichat-brain", // POST {scenario, mode, step, history, text} -> brain JSON (Supabase Edge Function "aichat-brain"; kill switch: set back to "")
       ttsEndpoint: "",   // POST {text} -> audio blob (production: Supabase Edge Function)
       avatarUrl: "assets/index2/otter-full.webp",
       ttsBase: "assets/index2/aichat-tts/"
@@ -358,15 +358,124 @@
     return { advanceTo: null, retry: true };
   }
 
+  /* ================= Real-AI brain gate (BRAIN_WIRING.md §4) =================
+     - Endpoint: Supabase Edge Function "aichat-brain" (Gemini free tier).
+       A reply only counts as a REAL AI turn when it carries source:"gemini".
+     - Non-premium learners get 5 real-AI turns/day (localStorage
+       otter2_aichat_ai_trial_v1, local date). Errors/quota never consume.
+     - Premium check: the premium module's own pure predicate
+       window.hasPremiumAccess() (membership or free-trial), cached per
+       panel session. checkPremiumAccess(level) is a UI flow (login/alert)
+       so it is only invoked from the invite card's button, never silently.
+       If neither exists -> treated as non-premium (trial still applies). */
+  var TRIAL_KEY = "otter2_aichat_ai_trial_v1";
+  var TRIAL_MAX = 5;
+  var quotaChip = null;
+  var premiumCache = null;   // null = unknown, true/false once checked
+  var premiumPending = null; // in-flight check promise
+  var inviteShown = false;   // premium invite card: once per panel session
+
+  function trialState() {
+    var today = new Date();
+    var key = today.getFullYear() + "-" + String(today.getMonth() + 1).padStart(2, "0") + "-" + String(today.getDate()).padStart(2, "0");
+    var st = { date: key, used: 0 };
+    try {
+      var raw = localStorage.getItem(TRIAL_KEY);
+      if (raw) {
+        var p = JSON.parse(raw);
+        if (p && p.date === key && typeof p.used === "number" && p.used >= 0) st.used = Math.min(Math.floor(p.used), TRIAL_MAX);
+      }
+    } catch (e) {}
+    return st;
+  }
+  function trialLeft() { return Math.max(0, TRIAL_MAX - trialState().used); }
+  function trialConsume() {
+    var st = trialState();
+    st.used = Math.min(st.used + 1, TRIAL_MAX);
+    try { localStorage.setItem(TRIAL_KEY, JSON.stringify(st)); } catch (e) {}
+    return st.used;
+  }
+  function renderQuotaChip() {
+    if (!quotaChip) return;
+    if (!CONFIG.brainEndpoint) { quotaChip.style.display = "none"; return; }
+    quotaChip.style.display = "";
+    quotaChip.textContent = premiumCache === true
+      ? "✨ AI thật · Premium"
+      : "✨ AI thật · còn " + trialLeft() + "/" + TRIAL_MAX + " lượt hôm nay";
+  }
+  function checkPremiumCached() {
+    if (premiumCache !== null) return Promise.resolve(premiumCache);
+    if (typeof window.hasPremiumAccess !== "function") {
+      premiumCache = false;
+      return Promise.resolve(false);
+    }
+    if (!premiumPending) {
+      premiumPending = Promise.resolve()
+        .then(function () { return window.hasPremiumAccess(); })
+        .then(function (ok) {
+          premiumCache = !!ok; premiumPending = null;
+          renderQuotaChip();
+          return premiumCache;
+        }, function () {
+          premiumCache = false; premiumPending = null;
+          return false;
+        });
+    }
+    return premiumPending;
+  }
+  function resetBrainSession() {
+    premiumCache = null;
+    premiumPending = null;
+    inviteShown = false;
+    renderQuotaChip();
+    checkPremiumCached(); // warm the cache so the chip is right when the thread opens
+  }
+  function showPremiumInvite() {
+    if (inviteShown) return;
+    inviteShown = true;
+    var card;
+    card = addCard("premium", "✨ Hết lượt Bé AI thật hôm nay", [
+      { text: "Bạn đã dùng hết " + TRIAL_MAX + " lượt trò chuyện với Bé AI thật trong ngày. Bé thường (kịch bản) vẫn luyện cùng bạn miễn phí như mọi khi." }
+    ], "Gói Premium mở khóa trò chuyện AI không giới hạn — nói sai không sợ, Bé sửa ngay cho bạn.", [
+      { label: "Tìm hiểu Premium", solid: true, action: function () {
+          if (typeof window.checkPremiumAccess === "function") {
+            try { window.checkPremiumAccess(1); } catch (e) {}
+          }
+        } },
+      { label: "Tiếp tục với Bé thường", action: function () { if (card) card.remove(); } }
+    ]);
+    scrollBottom(true);
+  }
+
   async function brainRespond(state, text, history) {
     if (CONFIG.brainEndpoint) {
+      var premium = await checkPremiumCached();
+      if (!premium && trialLeft() <= 0) {
+        // Out of free AI turns: never call the endpoint; invite once, script brain answers.
+        showPremiumInvite();
+        return mockBrain(state, text);
+      }
       try {
         var res = await fetch(CONFIG.brainEndpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ scenario: state.scenId, mode: state.mode, step: state.stepIdx, text: text, history: history })
         });
-        if (res.ok) return await res.json();
+        if (res.ok) {
+          var data = await res.json();
+          if (data && data.source === "gemini" && !premium) {
+            trialConsume();
+            renderQuotaChip();
+          }
+          return data;
+        }
+        if (res.status === 429) {
+          // Google free quota exhausted: soft toast + scripted fallback, no trial charge.
+          var m = mockBrain(state, text);
+          m._quotaToast = true;
+          return m;
+        }
+        // 502/503/other -> silent fall through to the scripted brain.
       } catch (e) { /* fall through to mock */ }
     }
     return mockBrain(state, text);
@@ -706,6 +815,7 @@
 
     var ctx = el("div", "aichat-context-bar");
     scenChip = el("span", "aichat-scen-chip", "Sảnh chờ");
+    quotaChip = el("span", "aichat-ai-quota", "");
     progressBox = el("div", "aichat-progress");
     modeToggle = el("div", "aichat-mode-toggle");
     var mChat = el("button", null, "💬 Hội thoại");
@@ -716,7 +826,8 @@
       b.addEventListener("click", function () { setMode(b.dataset.mode); });
       modeToggle.appendChild(b);
     });
-    ctx.appendChild(scenChip); ctx.appendChild(progressBox); ctx.appendChild(modeToggle);
+    ctx.appendChild(scenChip); ctx.appendChild(quotaChip); ctx.appendChild(progressBox); ctx.appendChild(modeToggle);
+    renderQuotaChip();
     threadView.appendChild(ctx);
 
     var msgWrap = el("div", null);
@@ -862,6 +973,7 @@
   }
   function startLobby() {
     thread.scenId = null; thread.started = false;
+    renderQuotaChip();
     scenChip.textContent = "🏠 Sảnh chờ";
     progressBox.innerHTML = "";
     msgBox.innerHTML = "";
@@ -875,6 +987,7 @@
   function startScenario(id, restart, keepText) {
     var scen = SCENARIOS[id];
     thread.scenId = id; thread.stepIdx = 0; thread.fails = 0; thread.started = true; thread.userTurns = 0;
+    renderQuotaChip();
     store.progress[id] = "doing"; saveStore();
     scenChip.textContent = scen.icon + " " + scen.name;
     msgBox.innerHTML = "";
@@ -1100,6 +1213,9 @@
       try { result = await brainRespond(thread, text, history.slice()); }
       catch (e) { result = { retry: true }; }
       hideTyping();
+      if (result._quotaToast) {
+        toast("Bé AI đang nghỉ một chút (hết lượt miễn phí của Google hôm nay) — mình luyện tiếp với Bé thường nhé", 4600);
+      }
       if (result.correction) {
         addCard("", result.correction.title, [
           { label: "Bạn nói:", text: result.correction.userText },
@@ -1108,16 +1224,24 @@
       } else if (result.praise) {
         addCard("praise", "✓ Câu này đúng rồi!", [], "Bé không phải sửa gì cả. Mình nói tiếp nhé!", null);
       }
+      var aiLines = (result.source === "gemini" && Array.isArray(result.lines) && result.lines.length) ? result.lines : null;
       if (result.advanceTo != null && result.advanceTo !== thread.stepIdx) {
         thread.stepIdx = result.advanceTo;
         thread.fails = 0;
         renderProgress();
         var step = scen.steps[thread.stepIdx];
         if (step) {
-          deliverBe(step.prompt, step.tts);
+          // Real-AI lines ARE Bé's next utterance; they replace the scripted
+          // opening line of the new step. Scripted results keep the old path.
+          if (aiLines) deliverBe(aiLines, null);
+          else deliverBe(step.prompt, step.tts);
           if (step.done) { finishScenario(); }
           else setChipsFromStep(step);
         }
+      } else if (aiLines) {
+        // AI answered without advancing (hint/encouragement): speak its lines.
+        deliverBe(aiLines, null);
+        scrollBottom(true);
       } else if (result.retry) {
         thread.fails++;
         deliverBe([FALLBACKS[(thread.fails - 1) % FALLBACKS.length]], null);
@@ -1234,6 +1358,7 @@
   function togglePanel() { panel.classList.contains("open") ? closePanel() : openPanel(); }
   function openPanel() {
     panel.classList.add("open");
+    resetBrainSession();
     lockBodyScroll();
     bindViewport();
     fitPanel();
@@ -1264,10 +1389,16 @@
   });
 
   window.__ttcAIChat = {
-    version: "pilot-2.1-fix1",
+    version: "pilot-2.2-brain",
     open: openPanel,
     close: closePanel,
     toggle: togglePanel,
+    _brain: {
+      trialLeft: trialLeft,
+      trialState: trialState,
+      premiumCached: function () { return premiumCache; },
+      endpoint: function () { return CONFIG.brainEndpoint; }
+    },
     _thread: thread,
     _scenarios: SCENARIOS,
     _segment: segment,
