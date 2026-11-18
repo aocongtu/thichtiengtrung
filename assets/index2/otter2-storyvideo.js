@@ -411,7 +411,7 @@
     stageEl.innerHTML =
       '<div class="ttc-story-frame-wrap"><video id="ttcStoryVideoFrame" title="' + esc(entry.title_zh) + '" ' +
       'src="' + esc(entry.stream || ("https://drive.google.com/uc?export=download&id=" + encodeURIComponent(entry.drive_id))) + '" ' +
-      'controls playsinline preload="auto"></video></div>' +
+      'controls playsinline preload="auto" controlslist="nodownload" disablepictureinpicture></video></div>' +
       '<div class="ttc-story-raterow" role="group" aria-label="Tốc độ phát"><span class="ttc-story-rate-label">🐢 Tốc độ:</span>' + rateBtns + "</div>" +
       '<div class="ttc-story-subzone" id="ttcStorySubZone" hidden></div>' +
       '<h3 class="ttc-story-now">' + esc(entry.title_zh) + "</h3>" +
@@ -442,6 +442,14 @@
     var vid = stageEl.querySelector("#ttcStoryVideoFrame");
     if (vid) {
       try { vid.playbackRate = currentRate; vid.defaultPlaybackRate = currentRate; } catch (e) {}
+      /* Bảo vệ nội dung gốc (truyện là tài sản của trang, HSK 3–9 còn là
+         Premium): tắt nút tải xuống + hình-trong-hình trong menu gốc của
+         trình duyệt và chặn menu chuột phải — CHỈ trên phạm vi video,
+         chuột phải ở phần còn lại của trang vẫn bình thường. Đây là lớp
+         chặn tải-thông-thường; bảo vệ mạnh cho Premium (link ký tên hết
+         hạn) là quyết định riêng, không nằm trong thay đổi này. */
+      try { vid.disablePictureInPicture = true; } catch (e) {}
+      vid.addEventListener("contextmenu", function (e) { e.preventDefault(); });
       vid.addEventListener("play", function () {
         if (!loadWatched()[entry.key]) { markWatched(entry.key); renderList(); }
       });
