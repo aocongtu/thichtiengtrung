@@ -193,6 +193,9 @@
       ".ttc-menu-sec[data-sec='practice'] .ttc-menu-h,.ttc-menu-sec[data-sec='practice'] .ttc-menu-item{color:#0f766e}",
       ".ttc-menu-sec[data-sec='account'] .ttc-menu-h,.ttc-menu-sec[data-sec='account'] .ttc-menu-item{color:#5b21b6}",
       ".ttc-menu-sec[data-sec='info'] .ttc-menu-h,.ttc-menu-sec[data-sec='info'] .ttc-menu-item{color:#0369a1}",
+      "/* PWA (2026-11-19): nhóm Ứng dụng dùng đỏ thương hiệu — hành động của chính thương hiệu; mục ẩn mặc định, otter2-pwa.js chỉ hiện khi cài đặt khả thi (chưa cài + trình duyệt hỗ trợ + chưa bị người dùng tắt nhắc 30 ngày). */",
+      ".ttc-menu-sec[data-sec='app'] .ttc-menu-h,.ttc-menu-sec[data-sec='app'] .ttc-menu-item{color:#be123c}",
+      "#ttcMenuAppSec[hidden]{display:none}",
       "/* ĐIỆN THOẠI (≤767px): header là lưới 3 hàng, .otter2-nav-right bị display:contents nên nút ☰ thành grid item — gán nó vào đúng ô 'account' (góc PHẢI TRÊN CÙNG, hàng 1) và lùi trái 50px (= nút tài khoản tròn 42px + 8px khoảng cách) để nằm ngay cạnh trái nút tài khoản, ngang hàng thương hiệu. */",
       "@media (max-width:767px){#ttcMenuBtn{grid-area:account;justify-self:end;align-self:center;margin:0 50px 0 0}}",
       "/* DESKTOP/TABLET (≥768px): các nút cụm phải của web có order 1–4 (🎨/Giản-Phồn/💬/Tài khoản) — cho ☰ order 5 để nó luôn là nút PHẢI NHẤT của header, đồng bộ góc phải với bản điện thoại. */",
@@ -308,6 +311,9 @@
       '<ul class="ttc-menu-list">' + practiceHtml() + "</ul></div>" +
       '<div class="ttc-menu-sec" data-sec="account"><p class="ttc-menu-h">Tài khoản</p>' +
       '<div id="ttcMenuAccount"></div></div>' +
+      '<div class="ttc-menu-sec" data-sec="app" id="ttcMenuAppSec" hidden><p class="ttc-menu-h">Ứng dụng</p>' +
+      '<ul class="ttc-menu-list"><li><button type="button" class="ttc-menu-item" data-act="install">' +
+      '<span class="ttc-menu-ico" aria-hidden="true">📲</span>Cài ứng dụng vào điện thoại</button></li></ul></div>' +
       '<div class="ttc-menu-sec" data-sec="info"><p class="ttc-menu-h">Thông tin</p>' +
       '<ul class="ttc-menu-list">' + policyHtml() + "</ul></div>";
     document.body.appendChild(panel);
@@ -576,6 +582,14 @@
     logout: function () {
       var b = byId("otter2LogoutBtn");
       if (b) b.click();
+    },
+    /* PWA (2026-11-19): uỷ thác hoàn toàn cho otter2-pwa.js —
+       Android/Chrome: mở hộp cài thật; iOS Safari: mở hộp hướng
+       dẫn 2 bước; module PWA vắng mặt thì im lặng bỏ qua. */
+    install: function () {
+      if (window.__ttcPwa && typeof window.__ttcPwa.requestInstall === "function") {
+        window.__ttcPwa.requestInstall();
+      }
     }
   };
 
