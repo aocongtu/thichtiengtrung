@@ -26,6 +26,7 @@
   "use strict";
 
   var FB_URL = "https://www.facebook.com/thich.tieng.trung.3.0";
+  var FB_GROUP_URL = "https://www.facebook.com/groups/1455760359978433/";
   var IG_URL = "https://www.instagram.com/aocongtu34";
   var EMAIL = "aocongtu34@gmail.com";
 
@@ -137,6 +138,7 @@
           'rất nhiều nội dung hoàn toàn miễn phí, học cùng Bé Rái Cá 🦦 mỗi ngày.</p>' +
           '<div class="ttc-footer-social">' +
             '<a href="' + FB_URL + '" target="_blank" rel="noopener">📘 Facebook</a>' +
+            '<a href="' + FB_GROUP_URL + '" target="_blank" rel="noopener">👥 Nhóm cộng đồng trên Facebook</a>' +
             '<a href="' + IG_URL + '" target="_blank" rel="noopener">📸 Instagram</a>' +
           "</div>" +
         "</div>" +
