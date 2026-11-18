@@ -1,0 +1,166 @@
+/* ============================================================
+   GÓI BÀI TẬP TRUYỆN — Phòng Truyện (otter2-storypack.js)
+   Luật màu: bề mặt trắng; tím khu video #7c3aed cho tiêu đề + nút chính;
+   chữ thân slate #0f172a; KHÔNG đen cho tiêu đề/nút.
+   ============================================================ */
+
+.ttc-pack-tabstrip {
+  display: flex; gap: 8px; margin: 14px 0 10px;
+}
+.ttc-pack-tab {
+  flex: 1; padding: 9px 10px; border-radius: 999px; cursor: pointer;
+  border: 1.5px solid #e2e8f0; background: #f8fafc; color: #7c3aed;
+  font: 600 14px/1.2 inherit; transition: background .15s, color .15s, border-color .15s;
+}
+.ttc-pack-tab.is-cur {
+  background: #7c3aed; border-color: #7c3aed; color: #ffffff;
+}
+
+/* Desktop >=1021px: phòng 2 cột của player có chiều cao cố định — dải tab phải
+   GỌN (segmented control mảnh) để không ăn vào chiều cao danh sách câu.
+   Mobile giữ nguyên tab to, dễ chạm. */
+@media (min-width:1021px) {
+  .ttc-pack-tabstrip { margin: 4px 0 2px; gap: 6px; }
+  .ttc-pack-tab { padding: 3px 8px; font-size: 12.5px; line-height: 1.15; }
+}
+
+.ttc-pack-panel {
+  background: #ffffff; border: 1px solid #ede9fe; border-radius: 16px;
+  padding: 16px; margin: 0 0 14px; color: #0f172a;
+  box-shadow: 0 2px 10px rgba(124, 58, 237, .06);
+}
+.ttc-pack-head { margin-bottom: 12px; }
+.ttc-pack-title {
+  margin: 0 0 6px; font-size: 17px; font-weight: 800; color: #7c3aed;
+}
+.ttc-pack-sub { margin: 0; font-size: 13.5px; line-height: 1.5; color: #475569; }
+.ttc-pack-sub b { color: #7c3aed; }
+
+.ttc-pack-cta {
+  display: block; width: 100%; padding: 13px 16px; margin: 10px 0;
+  border: none; border-radius: 12px; cursor: pointer;
+  background: #7c3aed; color: #ffffff; font: 700 15.5px/1.25 inherit;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, .25);
+}
+.ttc-pack-cta:active { transform: translateY(1px); }
+.ttc-pack-back {
+  display: block; width: 100%; padding: 11px 16px; margin: 10px 0 0;
+  border: 1.5px solid #e2e8f0; border-radius: 12px; cursor: pointer;
+  background: #f8fafc; color: #7c3aed; font: 600 14.5px/1.25 inherit;
+}
+
+.ttc-pack-rows { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+.ttc-pack-row {
+  display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+  padding: 12px 14px; border: 1px solid #eef2f7; border-radius: 14px;
+  background: #ffffff; cursor: pointer; color: #0f172a; font: inherit;
+}
+.ttc-pack-row:hover { border-color: #ddd6fe; background: #faf9ff; }
+.ttc-pack-row-ic { font-size: 22px; line-height: 1; }
+.ttc-pack-row-tx { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.ttc-pack-row-tx b { font-size: 15px; font-weight: 700; }
+.ttc-pack-row-tx small { font-size: 12.5px; color: #64748b; }
+.ttc-pack-row-n { font-size: 12.5px; font-weight: 700; color: #7c3aed; white-space: nowrap; }
+.ttc-pack-row-go { font-size: 20px; color: #c4b5fd; }
+
+.ttc-pack-prog {
+  display: flex; justify-content: space-between; gap: 10px;
+  font-size: 13px; font-weight: 700; color: #7c3aed; margin-bottom: 6px;
+}
+.ttc-pack-progbar {
+  height: 7px; border-radius: 999px; background: #f1f5f9; overflow: hidden; margin-bottom: 14px;
+}
+.ttc-pack-progbar i { display: block; height: 100%; background: #7c3aed; border-radius: 999px; transition: width .25s; }
+
+.ttc-pack-q { margin-bottom: 12px; }
+.ttc-pack-hint { margin: 8px 0; font-size: 14px; line-height: 1.55; color: #334155; }
+.ttc-pack-vi { margin: 6px 0; font-size: 14px; line-height: 1.55; color: #475569; }
+.ttc-pack-sentence { margin: 6px 0; font-size: 19px; line-height: 1.6; font-weight: 600; color: #0f172a; }
+.ttc-pack-blank { color: #7c3aed; font-weight: 800; letter-spacing: 2px; }
+
+.ttc-pack-play {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 10px 18px; border: none; border-radius: 999px; cursor: pointer;
+  background: #7c3aed; color: #ffffff; font: 700 15px/1.2 inherit;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, .25);
+}
+
+.ttc-pack-opts { display: flex; flex-direction: column; gap: 8px; }
+.ttc-pack-opt {
+  width: 100%; text-align: left; padding: 12px 14px; cursor: pointer;
+  border: 1.5px solid #e2e8f0; border-radius: 12px; background: #ffffff;
+  color: #0f172a; font: 500 15px/1.45 inherit;
+}
+.ttc-pack-opt:hover:not(:disabled) { border-color: #c4b5fd; }
+.ttc-pack-opt:disabled { cursor: default; opacity: .92; }
+.ttc-pack-opt.is-ok { border-color: #16a34a; background: #f0fdf4; }
+.ttc-pack-opt.is-bad { border-color: #e11d48; background: #fff1f2; }
+.ttc-pack-opt-w { display: flex; align-items: baseline; gap: 10px; }
+.ttc-pack-opt-w b { font-size: 18px; }
+.ttc-pack-opt-w small { color: #64748b; font-size: 13px; }
+
+.ttc-pack-input {
+  width: 100%; box-sizing: border-box; padding: 12px 14px; margin: 4px 0 6px;
+  border: 1.5px solid #e2e8f0; border-radius: 12px; background: #ffffff;
+  color: #0f172a; font: 500 18px/1.5 inherit;
+}
+.ttc-pack-input:focus { outline: none; border-color: #7c3aed; }
+
+.ttc-pack-tiles { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+.ttc-pack-tile {
+  padding: 9px 14px; border: 1.5px solid #ddd6fe; border-radius: 999px; cursor: pointer;
+  background: #f5f3ff; color: #5b21b6; font: 600 16.5px/1.2 inherit;
+}
+.ttc-pack-tile.is-used { opacity: .35; }
+.ttc-pack-built {
+  min-height: 46px; padding: 10px 12px; margin: 8px 0;
+  border: 1.5px dashed #c4b5fd; border-radius: 12px; background: #faf9ff;
+  display: flex; flex-wrap: wrap; gap: 4px; align-items: center;
+  font-size: 18px; font-weight: 600; color: #0f172a;
+}
+.ttc-pack-built-ph { font-size: 13.5px; font-weight: 400; color: #94a3b8; }
+
+.ttc-pack-fb {
+  margin: 12px 0 4px; padding: 12px 14px; border-radius: 12px;
+  font-size: 14.5px; font-weight: 700; line-height: 1.5;
+}
+.ttc-pack-fb.is-ok { background: #f0fdf4; color: #15803d; }
+.ttc-pack-fb.is-bad { background: #fff7ed; color: #c2410c; }
+.ttc-pack-reveal { margin-top: 8px; font-weight: 500; color: #0f172a; }
+.ttc-pack-reveal .ttc-pack-zh { display: block; font-size: 18px; font-weight: 700; }
+.ttc-pack-reveal .ttc-pack-py { display: block; font-size: 13.5px; color: #64748b; margin-top: 2px; }
+.ttc-pack-note { display: block; font-size: 13px; font-weight: 500; margin-top: 4px; }
+.ttc-pack-ch-ok { color: #15803d; }
+.ttc-pack-ch-bad { color: #e11d48; text-decoration: underline; }
+
+.ttc-pack-done { text-align: center; padding: 8px 0 2px; }
+.ttc-pack-done-ic { font-size: 44px; margin-bottom: 6px; }
+.ttc-pack-done .ttc-pack-title { text-align: center; }
+.ttc-pack-done .ttc-pack-sub { text-align: center; }
+
+.ttc-pack-vlist { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.ttc-pack-vrow {
+  display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+  padding: 10px 12px; border: 1px solid #eef2f7; border-radius: 12px;
+  background: #ffffff; cursor: pointer; color: #0f172a; font: inherit;
+}
+.ttc-pack-vrow:hover { border-color: #ddd6fe; }
+.ttc-pack-vw { display: flex; flex-direction: column; min-width: 86px; }
+.ttc-pack-vw b { font-size: 18px; }
+.ttc-pack-vw small { color: #64748b; font-size: 12.5px; }
+.ttc-pack-vm { flex: 1; font-size: 14px; color: #334155; }
+.ttc-pack-vbadge {
+  font-size: 11.5px; font-weight: 700; padding: 4px 8px; border-radius: 999px;
+  background: #f0fdf4; color: #15803d; white-space: nowrap;
+}
+.ttc-pack-vbadge.is-new { background: #f5f3ff; color: #7c3aed; }
+.ttc-pack-setdone {
+  margin: 10px 0; padding: 11px 14px; border-radius: 12px;
+  background: #f0fdf4; color: #15803d; font-size: 14px; font-weight: 600; line-height: 1.5;
+}
+
+@media (max-width: 640px) {
+  .ttc-pack-panel { padding: 13px; border-radius: 14px; }
+  .ttc-pack-sentence { font-size: 17.5px; }
+  .ttc-pack-vw { min-width: 74px; }
+}

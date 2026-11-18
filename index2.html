@@ -4427,6 +4427,7 @@ window.OTTER2_HSK_MANIFEST = {
   <script defer src="assets/index2/otter2-mobile-dash.js"></script>
   <script defer src="assets/index2/otter2-storyvideo-catalog.js"></script>
   <script defer src="assets/index2/otter2-storyvideo.js"></script>
+  <script defer src="assets/index2/otter2-storypack.js"></script>
   <script defer src="assets/index2/otter2-footer.js"></script>
   <script defer src="assets/index2/otter2-menu.js"></script>
   <script defer src="assets/index2/otter2-pwa.js"></script>
@@ -4445,7 +4446,8 @@ window.OTTER2_HSK_MANIFEST = {
 #homeButton{
   position:fixed;
   right:max(23px, env(safe-area-inset-right, 0px));
-  bottom:max(12px, env(safe-area-inset-bottom, 0px));
+  /* stack above #aichatLauncher (bottom:20px + 48px tall + 12px gap) so the chat pill never covers this button */
+  bottom:calc(80px + env(safe-area-inset-bottom, 0px));
   width:48px; height:48px;
   border:none; border-radius:50%; background:#ffffff;
   box-shadow:0 4px 14px rgba(0,0,0,.18); font-size:32px; cursor:pointer;
@@ -4459,7 +4461,8 @@ window.OTTER2_HSK_MANIFEST = {
 @media (max-width:480px){
   #homeButton{
     right:max(14px, env(safe-area-inset-right, 0px));
-    bottom:max(14px, env(safe-area-inset-bottom, 0px));
+    /* mobile launcher: bottom:16px + 48px tall + 10px gap */
+    bottom:calc(74px + env(safe-area-inset-bottom, 0px));
     width:46px; height:46px; font-size:28px;
   }
 }
