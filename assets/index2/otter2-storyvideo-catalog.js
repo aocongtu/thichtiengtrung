@@ -464,7 +464,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "level": 2,
     "title_zh": "天气变了",
     "title_vi": "Thời tiết thay đổi",
-    "duration_s": 137.2,
+    "duration_s": 137.3,
     "drive_id": "11d4vsk8oCblTgRUNcOtS3dYfLxBheYdd",
     "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk2-12.mp4",
     "voice": "google:cmn-CN-Wavenet-A",
@@ -668,7 +668,339 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "voice": "google:cmn-CN-Wavenet-A",
     "voice_label": "Giọng Google · Nữ"
    }
+  ],
+  "3": [
+   {
+    "key": "hsk3-01",
+    "level": 3,
+    "title_zh": "换一个好习惯",
+    "title_vi": "Đổi sang một thói quen tốt",
+    "duration_s": 259.9,
+    "drive_id": "1Z5-tsdhu9ksrKXtkh1UKeQTDIlQ86eB1",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk3-01.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk3-02",
+    "level": 3,
+    "title_zh": "一次误会",
+    "title_vi": "Một lần hiểu lầm",
+    "duration_s": 262.7,
+    "drive_id": "1cGW734l3XoJiBrcGCyMtVfjMAXUxZUxm",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk3-02.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   },
+   {
+    "key": "hsk3-03",
+    "level": 3,
+    "title_zh": "社区的旧书店",
+    "title_vi": "Hiệu sách cũ trong khu dân cư",
+    "duration_s": 256.1,
+    "drive_id": "1OOh-ftSRLz6GPW5SR2uWQBQRLuutTLOI",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk3-03.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk3-04",
+    "level": 3,
+    "title_zh": "学骑自行车",
+    "title_vi": "Học đi xe đạp",
+    "duration_s": 260.2,
+    "drive_id": "1mf_IqSb9eFTyjrOhK05x-oOoA09lGnfs",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk3-04.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   },
+   {
+    "key": "hsk3-05",
+    "level": 3,
+    "title_zh": "参观博物馆",
+    "title_vi": "Tham quan bảo tàng",
+    "duration_s": 265.5,
+    "drive_id": "1jtwxrxa21G6H85FRpdZeATvCG8TpNXtj",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk3-05.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk3-06",
+    "level": 3,
+    "title_zh": "一次面试",
+    "title_vi": "Một lần phỏng vấn",
+    "duration_s": 292.6,
+    "drive_id": "1S1oEugR5ncJEeZNHFAMIFmgCSlXX7qyS",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk3-06.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   },
+   {
+    "key": "hsk3-07",
+    "level": 3,
+    "title_zh": "节约用水",
+    "title_vi": "Tiết kiệm nước",
+    "duration_s": 258.5,
+    "drive_id": "1eg_Vi-YzVvNY013_JWmFBXS67zLbureK",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk3-07.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk3-08",
+    "level": 3,
+    "title_zh": "爷爷的花园",
+    "title_vi": "Khu vườn của ông",
+    "duration_s": 282.1,
+    "drive_id": "1kvXiHNrhHVMkrzJ6vRNELeqxawFwOZ6D",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk3-08.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   },
+   {
+    "key": "hsk3-09",
+    "level": 3,
+    "title_zh": "丢了又找到",
+    "title_vi": "Mất rồi lại tìm thấy",
+    "duration_s": 272.8,
+    "drive_id": "1W5PsqyIyxygR-1KeLHNzkTkEVDZ10f2t",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk3-09.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk3-10",
+    "level": 3,
+    "title_zh": "学做笔记",
+    "title_vi": "Học cách ghi chép",
+    "duration_s": 293.1,
+    "drive_id": "1jXX6pJJZkUYJfQMTkWfY7xM2E96tQNc5",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk3-10.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   },
+   {
+    "key": "hsk3-11",
+    "level": 3,
+    "title_zh": "运动会",
+    "title_vi": "Hội thao trường học",
+    "duration_s": 347.3,
+    "drive_id": "12B9yknZKKuOzV5Q4yBB_zcOD3dO5htdm",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk3-11.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk3-12",
+    "level": 3,
+    "title_zh": "网购的经验",
+    "title_vi": "Kinh nghiệm mua hàng online",
+    "duration_s": 296.5,
+    "drive_id": "1FOA08j7zksQ_DhpDqIIyjcB6y3Zbp8qs",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk3-12.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   },
+   {
+    "key": "hsk3-13",
+    "level": 3,
+    "title_zh": "雨夜回家",
+    "title_vi": "Về nhà trong đêm mưa",
+    "duration_s": 292,
+    "drive_id": "1Kv8xANI_y1BPcl0XPzROFu9qUruGnL1u",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk3-13.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk3-14",
+    "level": 3,
+    "title_zh": "和父母沟通",
+    "title_vi": "Trò chuyện với bố mẹ",
+    "duration_s": 353,
+    "drive_id": "1sgzntOuXX0C4awls3YXm-wj8ebWNyw51",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk3-14.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   },
+   {
+    "key": "hsk3-15",
+    "level": 3,
+    "title_zh": "志愿者的一天",
+    "title_vi": "Một ngày làm tình nguyện viên",
+    "duration_s": 331.8,
+    "drive_id": "1sGOZn8r-EpYHszp0KBYoBz9e_FwNNauj",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk3-15.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk3-16",
+    "level": 3,
+    "title_zh": "适应新城市",
+    "title_vi": "Thích nghi với thành phố mới",
+    "duration_s": 306.8,
+    "drive_id": "1cY0oGuKcSX52Uo_7LfECRTJLjrMnMa60",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk3-16.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   },
+   {
+    "key": "hsk3-17",
+    "level": 3,
+    "title_zh": "一部纪录片",
+    "title_vi": "Một bộ phim tài liệu",
+    "duration_s": 293.8,
+    "drive_id": "1OoBhMEjGQ7f5jGfhp-Dk2CqwlGFAjH-4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk3-17.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk3-18",
+    "level": 3,
+    "title_zh": "制定学习计划",
+    "title_vi": "Lập kế hoạch học tập",
+    "duration_s": 310.8,
+    "drive_id": "1w21K3XWHK-Xzcv3R1oJbic7mvYHPYK0O",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk3-18.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   },
+   {
+    "key": "hsk3-19",
+    "level": 3,
+    "title_zh": "邻里之间",
+    "title_vi": "Giữa những người hàng xóm",
+    "duration_s": 321.1,
+    "drive_id": "10u0BVzV9Nq_vuvNLzJNzqcg3GNIK3ADA",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk3-19.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk3-20",
+    "level": 3,
+    "title_zh": "选择专业",
+    "title_vi": "Chọn chuyên ngành",
+    "duration_s": 335.1,
+    "drive_id": "1XJf03uCNpcEbP1Pnq80R_-Ejwi01fQOs",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk3-20.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   },
+   {
+    "key": "hsk3-21",
+    "level": 3,
+    "title_zh": "第一次坐高铁",
+    "title_vi": "Lần đầu đi tàu cao tốc",
+    "duration_s": 313.2,
+    "drive_id": "1JRUWh839xrudoKTBWPn59VM4CfmtWxVb",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk3-21.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk3-22",
+    "level": 3,
+    "title_zh": "养成早起的习惯",
+    "title_vi": "Tập thói quen dậy sớm",
+    "duration_s": 288.4,
+    "drive_id": "10lUz7TiymRxnqQ5R_i7Jgs53zU7Pu9u-",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk3-22.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   },
+   {
+    "key": "hsk3-23",
+    "level": 3,
+    "title_zh": "和邻居相处",
+    "title_vi": "Sống hòa thuận với hàng xóm",
+    "duration_s": 293.9,
+    "drive_id": "1HQPB-fI1vc8uzzWKFAlOIdLe15HGTnln",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk3-23.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk3-24",
+    "level": 3,
+    "title_zh": "学做一道菜",
+    "title_vi": "Học nấu một món ăn",
+    "duration_s": 306.3,
+    "drive_id": "1LWIVN8Fxw6KRNuSC_TpXukDcy-hhAca7",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk3-24.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   },
+   {
+    "key": "hsk3-25",
+    "level": 3,
+    "title_zh": "找兼职工作",
+    "title_vi": "Tìm việc làm thêm",
+    "duration_s": 306.9,
+    "drive_id": "1or7xPSmvuk2F1Jg-JJwuVjnyyjhI4sOt",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk3-25.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk3-26",
+    "level": 3,
+    "title_zh": "减少玩手机的时间",
+    "title_vi": "Giảm thời gian chơi điện thoại",
+    "duration_s": 269,
+    "drive_id": "1J8OBMzu8iZoxnoVesX99XSVGoAWj4p6d",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk3-26.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   },
+   {
+    "key": "hsk3-27",
+    "level": 3,
+    "title_zh": "《一次误会》",
+    "title_vi": "Một lần hiểu lầm",
+    "duration_s": 258.2,
+    "drive_id": "1X3COC7rBjPoPNFUzACew-jjp1gy5BTJD",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk3-27.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk3-28",
+    "level": 3,
+    "title_zh": "《照顾生病的家人》",
+    "title_vi": "Chăm sóc người nhà bị ốm",
+    "duration_s": 258.5,
+    "drive_id": "1w3iuWtYU7Ley-IjI8m1KuU4M01ftkCVN",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk3-28.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   },
+   {
+    "key": "hsk3-29",
+    "level": 3,
+    "title_zh": "《参加兴趣班》",
+    "title_vi": "Tham gia lớp sở thích",
+    "duration_s": 275.3,
+    "drive_id": "1o84-p-7ON69TBrIrpyPHi6OXNO0_zVGp",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk3-29.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk3-30",
+    "level": 3,
+    "title_zh": "《旅行中的小事》",
+    "title_vi": "Chuyện nhỏ trong chuyến đi",
+    "duration_s": 266.5,
+    "drive_id": "1DiywpTvOCDxNUtLVfecyAXJEAFpTrbIs",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk3-30.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   }
   ]
  },
- "total": 60
+ "total": 90
 };
