@@ -13,7 +13,7 @@
      song song, không đụng handler sẵn có.
 
    Nội dung:
-   1) SIDEBAR TRÁI cố định (desktop ≥1200px): 6 đích — Trang chủ ·
+   1) SIDEBAR TRÁI cố định (desktop ≥900px, xem V3): 6 đích — Trang chủ ·
       Lộ trình HSK · Phòng truyện · Phòng đọc · Thi HSK · Tin nhắn;
       dưới cùng: khối hồ sơ học viên (đọc trạng thái tài khoản thật)
       + thống kê tiến độ THẬT (đọc otter2_hsk_vocab_progress_v1 và
@@ -72,6 +72,32 @@
    tĩnh nào bị xoá, không id nào mất, không script inline nào đổi,
    không khoá dữ liệu nào bị đụng — "bỏ cái cũ" = bỏ hình thức cũ,
    toàn bộ chức năng + dữ liệu học viên nguyên vẹn.
+
+   ===== V3 — KHỚP MẪU Ở MỌI BỀ NGANG MÁY TÍNH (2026-11-19) =====
+   Chủ web xem trên laptop thật: "chưa giống ở trên máy tính lắm /
+   tài khoản không thấy phải nhấn menu mới xuất hiện". Đo đủ 13 bề
+   ngang (redesign_impl/WIDTH_AUDIT.md) thấy HAI lỗi:
+   (A) Sidebar chỉ hiện ≥1200px VÀ không có cuộn nội bộ: nội dung
+       sidebar cao 833px nên ở màn hình thấp (1366×768, 1280×800,
+       1536@125%…) khối HỒ SƠ ở đáy bị CẮT khỏi tầm mắt, không với
+       tới được — tài khoản chỉ còn trong menu ☰.
+   (B) Dải 768–1199px là VÙNG CHẾT: không sidebar, trang rơi về
+       thanh pill cũ — không giống mẫu. Dải này chứa hầu hết laptop
+       thật khi Windows phóng to (1536@150% = 1024px CSS, 1366@125%
+       = 1093px CSS…).
+   Sửa (vẫn chỉ otter2-shell.js):
+   - Sidebar hiện từ ≥900px; dải 900–1199 dùng bản MỎNG 208px.
+   - Thanh pill cũ nghỉ hưu từ ≥900px; cụm tiện ích (Giản/Phồn,
+     Giao diện, ☰ Menu) dời vào sidebar theo cùng mốc 900px.
+   - Đáy sidebar không bao giờ bị cắt nữa: các khối nén gọn lại,
+     vùng MENU ĐIỀU HƯỚNG là phần co giãn + cuộn nội bộ
+     (flex:1 + min-height:0 + overflow-y:auto), còn thương hiệu /
+     tiện ích / thống kê / HỒ SƠ là flex:none — hồ sơ luôn GHIM
+     hiện ở đáy sidebar ở mọi chiều cao; bản thân sidebar có
+     overflow-y:auto làm lưới an toàn cuối. Màn hình rất thấp
+     (≤700px) có thêm một nấc nén nữa.
+   - 768–899px giữ header mỏng (nút Tài khoản THẬT của header vốn
+     đã hiện sẵn không cần mở menu — đã đo kiểm); ≤767px giữ nguyên.
    ============================================================ */
 (function () {
   "use strict";
@@ -226,9 +252,16 @@
   function ensureStyle() {
     if (byId("ttcShellStyle")) return;
     var css = [
-      /* ===== SIDEBAR (chỉ hiện ≥1200px) ===== */
-      "#ttcShellSidebar{position:fixed;left:0;top:0;bottom:0;width:236px;background:#ffffff;border-right:1px solid #e7e9ee;z-index:80;display:none;flex-direction:column;padding:18px 14px calc(14px + env(safe-area-inset-bottom,0px));box-sizing:border-box;font-size:15px;line-height:1.45;color:#0f172a}",
-      "@media (min-width:1200px){#ttcShellSidebar{display:flex}html body.otter2-body{padding-left:236px}}",
+      /* ===== SIDEBAR (hiện ≥900px; 900–1199 bản mỏng 208px) ===== */
+      "#ttcShellSidebar{position:fixed;left:0;top:0;bottom:0;width:236px;background:#ffffff;border-right:1px solid #e7e9ee;z-index:80;display:none;flex-direction:column;padding:14px 14px calc(12px + env(safe-area-inset-bottom,0px));box-sizing:border-box;font-size:15px;line-height:1.45;color:#0f172a;overflow-y:auto;overflow-x:hidden}",
+      "@media (min-width:900px){#ttcShellSidebar{display:flex}html body.otter2-body{padding-left:236px}}",
+      "@media (min-width:900px) and (max-width:1199px){#ttcShellSidebar{width:208px;padding:12px 10px calc(10px + env(safe-area-inset-bottom,0px))}html body.otter2-body{padding-left:208px}#ttcShellSidebar .ttc-shell-brand-name{font-size:15px}#ttcShellSidebar .ttc-shell-item{padding:9px 10px;font-size:14.5px}#ttcShellSidebar #ttcMenuBtn{padding:9px 10px;font-size:14.5px}}",
+      /* Đáy sidebar không bị cắt: điều hướng là phần co giãn + cuộn nội bộ; hồ sơ ghim hiện ở đáy */
+      "#ttcShellSidebar .ttc-shell-brand{flex:0 0 auto}",
+      "#ttcShellSidebar .ttc-shell-util{flex:0 0 auto}",
+      "#ttcShellSidebar .ttc-shell-stats{flex:0 0 auto}",
+      "#ttcShellSidebar>div:last-child{flex:0 0 auto}",
+      "@media (min-width:900px) and (max-height:700px){#ttcShellSidebar .ttc-shell-item{padding:7px 12px}#ttcShellSidebar .ttc-shell-brand{padding-bottom:8px}#ttcShellSidebar .ttc-shell-brand img{width:34px;height:34px}#ttcShellSidebar .ttc-shell-stats .ttc-shell-stats-num{font-size:21px}#ttcShellSidebar .ttc-shell-stats{padding-top:9px}#ttcShellSidebar .ttc-shell-profile{padding-top:9px;margin-top:7px}}",
       /* Học tiếp lên HÀNG 1 phủ 2 cột của lưới cột giữa (desktop ≥1021px, nơi .otter2-dash-main là lưới thật); khoá học + cụm thi lùi hàng 2, bài học hàng 3 — đúng thứ tự mẫu duyệt: Học tiếp → Khoá học → Bài học. Selector chép đúng selector gốc để thắng bằng thứ tự nạp. */
       "@media (min-width:1021px){",
       "#otter2-home .otter2-dash-continue{grid-column:1/-1;grid-row:1}",
@@ -236,27 +269,27 @@
       "#otter2-home .ttc-exam-midstack{grid-row:2}",
       "#otter2-home .otter2-dash-main > section[aria-labelledby=\"otter2DashLessonsTitle\"]{grid-row:3}",
       "}",
-      ".ttc-shell-brand{display:flex;align-items:center;gap:10px;padding:2px 6px 14px;border-bottom:1px solid #f1f5f9}",
+      ".ttc-shell-brand{display:flex;align-items:center;gap:10px;padding:2px 6px 8px;border-bottom:1px solid #f1f5f9}",
       ".ttc-shell-brand img{width:40px;height:40px;border-radius:12px;object-fit:cover;flex:0 0 auto}",
       ".ttc-shell-brand .ttc-shell-brand-name{font-weight:900;font-size:16.5px;line-height:1.2;background:linear-gradient(90deg,#e11d48,#f59e0b,#16a34a,#2563eb,#7c3aed);-webkit-background-clip:text;background-clip:text;color:transparent}",
       ".ttc-shell-brand .ttc-shell-brand-sub{font-size:11.5px;color:#64748b;font-weight:600}",
-      ".ttc-shell-nav{display:flex;flex-direction:column;gap:4px;padding:14px 0 6px}",
-      ".ttc-shell-item{display:flex;align-items:center;gap:11px;width:100%;box-sizing:border-box;padding:11px 12px;border:none;border-radius:12px;background:#ffffff;font:inherit;font-size:15px;font-weight:600;color:#0f172a;text-align:left;cursor:pointer;box-shadow:inset 0 0 0 rgba(0,0,0,0)}",
+      ".ttc-shell-nav{display:flex;flex-direction:column;gap:4px;padding:10px 0 4px;flex:1 1 auto;min-height:0;overflow-y:auto}",
+      ".ttc-shell-item{display:flex;align-items:center;gap:11px;width:100%;box-sizing:border-box;padding:9px 12px;border:none;border-radius:12px;background:#ffffff;font:inherit;font-size:15px;font-weight:600;color:#0f172a;text-align:left;cursor:pointer;box-shadow:inset 0 0 0 rgba(0,0,0,0);flex:0 0 auto}",
       ".ttc-shell-item:hover{background:#f8fafc}",
       ".ttc-shell-item:focus-visible{outline:2px solid var(--ttc-shell-c,#be123c);outline-offset:-2px}",
       ".ttc-shell-item .ttc-shell-ico{flex:0 0 auto;width:32px;height:32px;border-radius:10px;background:#f1f5f9;display:inline-flex;align-items:center;justify-content:center;font-size:16px}",
       ".ttc-shell-item.is-active{background:#f8fafc;font-weight:800;color:var(--ttc-shell-c,#be123c);box-shadow:inset 3px 0 0 var(--ttc-shell-c,#be123c)}",
-      ".ttc-shell-stats{margin-top:auto;border-top:1px solid #f1f5f9;padding:14px 6px 4px}",
-      ".ttc-shell-stats .ttc-shell-stats-num{font-size:26px;font-weight:900;color:#15803d;line-height:1.1}",
+      ".ttc-shell-stats{margin-top:auto;border-top:1px solid #f1f5f9;padding:9px 6px 3px}",
+      ".ttc-shell-stats .ttc-shell-stats-num{font-size:24px;font-weight:900;color:#15803d;line-height:1.1}",
       ".ttc-shell-stats .ttc-shell-stats-lbl{font-size:12.5px;color:#64748b;font-weight:600}",
       ".ttc-shell-stats .ttc-shell-stats-bar{height:8px;border-radius:99px;background:#f1f5f9;margin:9px 0 5px;overflow:hidden}",
       ".ttc-shell-stats .ttc-shell-stats-bar i{display:block;height:100%;background:#15803d;border-radius:99px;width:0%}",
       ".ttc-shell-stats .ttc-shell-stats-cap{font-size:12px;color:#64748b}",
-      ".ttc-shell-profile{display:flex;align-items:center;gap:10px;border-top:1px solid #f1f5f9;padding-top:14px;margin-top:10px}",
+      ".ttc-shell-profile{display:flex;align-items:center;gap:10px;border-top:1px solid #f1f5f9;padding-top:9px;margin-top:6px}",
       ".ttc-shell-avatar{flex:0 0 auto;width:42px;height:42px;border-radius:50%;background:#5b21b6;color:#ffffff;display:inline-flex;align-items:center;justify-content:center;font-weight:900;font-size:17px}",
       ".ttc-shell-profile .ttc-shell-pname{font-weight:800;font-size:14.5px;line-height:1.25;word-break:break-word}",
       ".ttc-shell-profile .ttc-shell-pmail{font-size:12px;color:#64748b;word-break:break-all}",
-      ".ttc-shell-pbtn{margin-top:10px;width:100%;padding:10px 12px;border:none;border-radius:12px;background:#5b21b6;color:#ffffff;font:inherit;font-size:14px;font-weight:800;cursor:pointer}",
+      ".ttc-shell-pbtn{margin-top:7px;width:100%;padding:9px 12px;border:none;border-radius:12px;background:#5b21b6;color:#ffffff;font:inherit;font-size:14px;font-weight:800;cursor:pointer}",
       ".ttc-shell-pbtn:hover{background:#4c1d95}",
       /* ===== THẺ BẢNG THÀNH TÍCH Ở CỘT PHẢI (mọi bề ngang) ===== */
       "#ttcShellRailAch .ttc-shell-ach-num{font-size:30px;font-weight:900;color:#2563eb;line-height:1.1}",
@@ -281,7 +314,7 @@
       "#otter2-home .otter2-fb-banner{display:none}",
       "#otter2-home .otter2-dash-strip{display:none}",
       "#otter2-home .otter2-dash-card[aria-labelledby=\"otter2DashActTitle\"]{display:none}",
-      "@media (min-width:1200px){#otter2Nav{display:none}}",
+      "@media (min-width:900px){#otter2Nav{display:none}}",
       "@media (max-width:1199px){#otter2NavLinks{display:none !important}}",
       /* lưới trang chủ: bỏ hàng hero/strip/banner; lộ trình đã vào cột giữa */
       "@media (min-width:1021px){",
@@ -300,7 +333,9 @@
       "#otter2-home .otter2-dash-continue button{justify-self:start}",
       "@media (max-width:767px){#otter2-home .otter2-dash-continue{grid-template-columns:minmax(0,1fr)}#otter2-home .otter2-dash-continue img{grid-column:1;grid-row:auto;width:100%;height:110px;justify-self:stretch}}",
       /* cụm tiện ích trong sidebar (các nút THẬT dời từ thanh trên xuống) */
-      ".ttc-shell-util{display:flex;flex-direction:column;gap:4px;padding:10px 0 4px}",
+      ".ttc-shell-util{display:flex;flex-direction:column;gap:4px;padding:6px 0 2px}",
+      /* dải mỏng 900–1199: cột giữa hẹp, 9 nấc Lộ trình xếp 5+4 cho dễ đọc (mặc định 9 nấc 1 hàng bị ép ~45px/nấc) */
+      "@media (min-width:900px) and (max-width:1199px){#otter2-home .otter2-dash-steps{grid-template-columns:repeat(5,1fr)}}",
       "#ttcShellSidebar .ttc-script-switch{width:100%;box-sizing:border-box;text-align:center;padding:9px 10px;border-radius:12px;font-size:13.5px}",
       "#ttcShellSidebar .otter2-theme-slot{display:flex;align-items:center;gap:11px;width:100%;box-sizing:border-box;padding:2px 6px;position:relative}",
       "#ttcShellSidebar #ttcMenuBtn{width:100%;height:auto;margin:0;padding:11px 12px;justify-content:flex-start;gap:11px;border-radius:12px;border:1px solid #e7e9ee;background:#ffffff;font:inherit;font-size:15px;font-weight:600;color:#0f172a;box-shadow:none}",
@@ -410,10 +445,10 @@
     return true;
   }
 
-  /* V2: dời các nút THẬT của thanh trên vào sidebar ở desktop
-     (≥1200px) và trả về chỗ cũ khi <1200px. Dời node = giữ nguyên
+  /* V2/V3: dời các nút THẬT của thanh trên vào sidebar ở desktop
+     (≥900px) và trả về chỗ cũ khi <900px. Dời node = giữ nguyên
      handler + id; nhãn chữ chỉ hiện trong sidebar (CSS ẩn ở header). */
-  var mqDesk = window.matchMedia ? window.matchMedia("(min-width:1200px)") : { matches: false, addEventListener: null, addListener: null };
+  var mqDesk = window.matchMedia ? window.matchMedia("(min-width:900px)") : { matches: false, addEventListener: null, addListener: null };
   function ensureUtilLabel(host, afterEl, text) {
     if (!host) return;
     if (host.querySelector(".ttc-shell-util-lbl")) return;
