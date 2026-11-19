@@ -1638,7 +1638,7 @@
     } else {
       html += '<div class="ttc-exam-opts">' + q.options.map(function (o, i) {
         return '<button type="button" class="ttc-exam-opt' + (state.answers[state.cur] === i ? " sel" : "") + '" data-exam-opt="' + i + '">' +
-          '<span class="ttc-exam-letter">' + "ABCD"[i] + ".</span>" + esc(o) + "</button>";
+          '<span class="ttc-exam-letter">' + "ABCDEFGH"[i] + ".</span>" + esc(o) + "</button>";
       }).join("") + "</div>";
     }
     var isLastSection = !full || state.sectionIdx >= exam._ranges.length - 1;
@@ -1852,7 +1852,7 @@
           var cls = "ttc-exam-opt";
           if (oi === q.answer) cls += " right";
           else if (oi === mine) cls += " wrong";
-          return '<div class="' + cls + '"><span class="ttc-exam-letter">' + "ABCD"[oi] + ".</span>" + esc(o) +
+          return '<div class="' + cls + '"><span class="ttc-exam-letter">' + "ABCDEFGH"[oi] + ".</span>" + esc(o) +
             (oi === q.answer ? " ✓" : "") + (oi === mine && mine !== q.answer ? " (bạn chọn)" : "") + "</div>";
         }).join("") + "</div>";
       }
@@ -1973,7 +1973,7 @@
         } else {
           html += '<div class="ttc-exam-opts">' + q.options.map(function (o, oi) {
             return '<button type="button" class="ttc-exam-opt' + (state.answers[qi] === oi ? " sel" : "") + '" data-deep-opt="' + qi + ":" + oi + '">' +
-              '<span class="ttc-exam-letter">' + "ABCD"[oi] + ".</span>" + esc(o) + "</button>";
+              '<span class="ttc-exam-letter">' + "ABCDEFGH"[oi] + ".</span>" + esc(o) + "</button>";
           }).join("") + "</div>";
         }
         html += "</div>";
