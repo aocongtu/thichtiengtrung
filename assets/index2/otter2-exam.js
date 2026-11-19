@@ -1233,7 +1233,25 @@
     ".ttc-exam-panel-btn-txt{background:none;-webkit-background-clip:initial;background-clip:initial;-webkit-text-fill-color:currentColor;color:#fff}",
     "@media (min-width:1021px){#otter2-home .ttc-exam-midstack{grid-column:2;grid-row:1;display:flex;flex-direction:column;gap:18px;min-width:0}#otter2-home .otter2-dash-main>section[aria-labelledby='otter2DashLessonsTitle']{grid-row:2}}",
     "@media (max-width:1020px){#otter2-home{grid-template-areas:'hero' 'strip' 'course' 'exam' 'level' 'activity' 'tasks' 'lessons' 'continue' 'road' 'journey' 'banner'}#otter2-home #otter2ExamPanel{grid-area:exam}#otter2-home .ttc-exam-midstack{display:contents}}",
-    "@media (max-width:720px){.ttc-exam-stem{font-size:16px}.ttc-exam-sub{font-size:17px}.ttc-exam-score{font-size:36px}.ttc-exam-secbar .nm{flex-basis:118px}.ttc-exam-secbar .val{flex-basis:92px}}"
+    "@media (max-width:720px){.ttc-exam-stem{font-size:16px}.ttc-exam-sub{font-size:17px}.ttc-exam-score{font-size:36px}.ttc-exam-secbar .nm{flex-basis:118px}.ttc-exam-secbar .val{flex-basis:92px}}",
+    "/* DEEP-2: phien thi nang sau (2026-11-19) */",
+    ".ttc-exam-stickwrap{position:sticky;top:0;z-index:6;background:#fff;padding:6px 0 8px}",
+    ".ttc-exam-listenbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}",
+    ".ttc-exam-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}",
+    ".ttc-exam-tab{border:1.5px solid #e2e8f0;background:#fff;color:#475569;border-radius:99px;padding:6px 13px;font-weight:700;cursor:pointer;font-size:13.5px}",
+    ".ttc-exam-tab.on{border-color:#c2410c;color:#c2410c;background:#fff7ed}",
+    ".ttc-exam-tab:disabled{opacity:.6;cursor:default}",
+    ".ttc-exam-tab .cnt{color:#c2410c;font-weight:800}",
+    ".ttc-exam-gcell{position:relative}",
+    ".ttc-exam-gcell.marked{box-shadow:inset 0 0 0 2px #f59e0b}",
+    ".ttc-exam-gcell.marked::after{content:'\uD83D\uDEA9';position:absolute;top:-8px;right:-6px;font-size:10px}",
+    ".ttc-exam-btn.marked{background:#fef3c7;border-color:#f59e0b;color:#92400e}",
+    ".ttc-exam-draft{border:1.5px solid #f59e0b;background:#fffbeb;border-radius:14px;padding:13px 14px;margin:0 0 16px;color:#451a03;font-size:14.5px;line-height:1.55}",
+    ".ttc-exam-dialog-wrap{position:fixed;inset:0;background:rgba(15,23,42,.45);display:flex;align-items:center;justify-content:center;z-index:1000300;padding:16px}",
+    ".ttc-exam-dialog{background:#fff;border-radius:16px;max-width:430px;width:100%;padding:20px;box-shadow:0 24px 60px rgba(0,0,0,.25)}",
+    ".ttc-exam-dlg-row{display:flex;justify-content:space-between;border-top:1px solid #eef1f5;padding:6px 0;font-size:14px;color:#334155}",
+    ".ttc-exam-pq{border:1px solid #eef1f5;border-radius:14px;padding:13px 14px;margin-bottom:12px;background:#fbfcfe}",
+    ".ttc-exam-pq .ttc-exam-btn{padding:6px 11px;font-size:13px}"
   ].join("\n");
 
   /* ---------------- Trạng thái + lịch sử ----------------
@@ -1252,6 +1270,7 @@
     sectionIdx: 0, sectionRemaining: 0, sectionNote: "",
     startedAt: 0, remaining: 0, timerId: null,
     submitted: false, submitArmed: false, submitArmTimer: null,
+    marks: [], paperView: false, confirmSubmit: false, _tickN: 0, /* DEEP-2 */
     closeArmed: false, closeArmTimer: null,
     lastSecondsUsed: 0, lastAuto: false
   };
@@ -1329,7 +1348,7 @@
       if (state.view === "exam" && !state.submitted && !state.closeArmed) {
         state.closeArmed = true;
         this.textContent = "?";
-        this.title = "Bạn đang làm bài — bấm lần nữa để thoát (bài làm sẽ không được lưu)";
+        this.title = "Bạn đang làm bài — bấm lần nữa để thoát (bài làm được lưu tự động, quay lại làm tiếp sau)";
         var btn = this;
         clearTimeout(state.closeArmTimer);
         state.closeArmTimer = setTimeout(function () {
@@ -1350,6 +1369,7 @@
   }
   function closeExam() {
     stopTimer(); stopSpeak();
+    if (state.view === "exam" && !state.submitted) persistDraft(); /* DEEP-2: giữ nháp để làm tiếp sau */
     state.closeArmed = false;
     if (state.overlay) state.overlay.classList.remove("open");
     document.body.classList.remove("ttc-hub-lock-scroll");
@@ -1451,6 +1471,7 @@
       });
     });
     document.getElementById("ttcExamStart").addEventListener("click", startExam);
+    deepHomeExtras(); /* DEEP-2: banner bài đang làm dở */
   }
 
   /* ---------------- Làm bài ---------------- */
@@ -1467,6 +1488,9 @@
     exam._ranges = computeRanges(exam);
     state.answers = exam.questions.map(function (q) { return isOrderType(q) ? [] : -1; });
     state.cur = 0;
+    /* DEEP-2: phiên mới — reset đánh dấu/chế độ xem, bỏ nháp cũ */
+    state.marks = []; state.paperView = false; state.confirmSubmit = false;
+    clearDraft();
     state.submitted = false;
     state.submitArmed = false;
     state.sectionNote = "";
@@ -1480,6 +1504,7 @@
     }
     renderQuestion();
     startTimer();
+    persistDraft(); /* DEEP-2 */
   }
   function startExam() {
     var btn = document.getElementById("ttcExamStart");
@@ -1519,6 +1544,7 @@
     stopTimer();
     state.timerId = setInterval(function () {
       if (!state.exam || state.submitted) return;
+      if ((state._tickN = (state._tickN || 0) + 1) % 10 === 0) persistDraft(); /* DEEP-2 */
       if (isFullMode()) {
         state.sectionRemaining -= 0.5;
         var t = document.getElementById("ttcExamTimer");
@@ -1552,6 +1578,7 @@
       ? "⏰ Đã hết giờ phần " + sectionName(finishedKey) + " — hệ thống tự chuyển sang phần " + sectionName(ranges[state.sectionIdx].key) + ". Đề thi thật không cho quay lại phần trước."
       : "➡️ Bạn đã kết thúc phần " + sectionName(finishedKey) + " và chuyển sang phần " + sectionName(ranges[state.sectionIdx].key) + ". Không quay lại phần trước được.";
     renderQuestion();
+    persistDraft(); /* DEEP-2 */
   }
 
   function orderQuestionHtml(q) {
@@ -1573,6 +1600,7 @@
   }
   function renderQuestion() {
     state.view = "exam";
+    if (state.paperView) { renderPaperView(); return; } /* DEEP-2 */
     var exam = state.exam, q = exam.questions[state.cur];
     var full = isFullMode();
     var range = full ? curRange() : { start: 0, end: exam.total };
@@ -1580,10 +1608,16 @@
     var secPos = (exam.sectionPlan || []).findIndex(function (p) { return p.key === q.section; });
     var timerVal = full ? state.sectionRemaining : state.remaining;
     var html = "";
-    html += '<div class="ttc-exam-topbar"><span class="ttc-exam-timer" id="ttcExamTimer">⏱ ' + fmtClock(timerVal) + "</span>" +
+    html += '<div class="ttc-exam-stickwrap"><div class="ttc-exam-topbar"><span class="ttc-exam-timer" id="ttcExamTimer">⏱ ' + fmtClock(timerVal) + "</span>" +
       '<div class="ttc-exam-progress"><i style="width:' + Math.round(answered / exam.total * 100) + '%"></i></div>' +
       "<span style='font-weight:700;color:#475569'>Câu " + (state.cur + 1) + "/" + exam.total + " · Đã làm " + answered +
       (state.testId ? " · " + esc(state.testId) : "") + "</span></div>";
+    /* DEEP-2: thanh nghe dính + tab phần thi, trong wrapper dính trên cùng */
+    if (q.section === "listen") {
+      html += '<div class="ttc-exam-listenbar"><button type="button" class="ttc-exam-listenbtn" id="ttcExamListenTop">🔊 Nghe câu này</button>' +
+        '<button type="button" class="ttc-exam-btn" id="ttcExamStopTop">⏹ Dừng nghe</button></div>';
+    }
+    html += deepTabsHtml() + "</div>";
     if (state.sectionNote) {
       html += '<div class="ttc-exam-note" style="margin-bottom:10px">' + esc(state.sectionNote) + "</div>";
       state.sectionNote = "";
@@ -1611,6 +1645,8 @@
     html += '<div class="ttc-exam-nav">' +
       '<button type="button" class="ttc-exam-btn" id="ttcExamPrev"' + (state.cur <= range.start ? " disabled" : "") + ">← Câu trước</button>" +
       '<button type="button" class="ttc-exam-btn" id="ttcExamNext"' + (state.cur >= range.end - 1 ? " disabled" : "") + ">Câu tiếp →</button>" +
+      '<button type="button" class="ttc-exam-btn' + (isMarked(state.cur) ? " marked" : "") + '" id="ttcExamMark">' + (isMarked(state.cur) ? "🚩 Đã đánh dấu" : "🚩 Đánh dấu") + "</button>" +
+      '<button type="button" class="ttc-exam-btn" id="ttcExamPaperView">📄 Xem cả phần</button>' +
       '<span style="flex:1"></span>' +
       (isLastSection
         ? '<button type="button" class="ttc-exam-btn primary' + (state.submitArmed ? " armed" : "") + '" id="ttcExamSubmit">' +
@@ -1619,7 +1655,7 @@
       "</div>";
     html += '<div class="ttc-exam-grid">' + exam.questions.slice(range.start, range.end).map(function (_, k) {
       var i = range.start + k;
-      return '<button type="button" class="ttc-exam-gcell' + (isAnswered(exam.questions[i], state.answers[i]) ? " done" : "") + (i === state.cur ? " cur" : "") + '" data-exam-goto="' + i + '">' + (i + 1) + "</button>";
+      return '<button type="button" class="ttc-exam-gcell' + (isAnswered(exam.questions[i], state.answers[i]) ? " done" : "") + (i === state.cur ? " cur" : "") + (isMarked(i) ? " marked" : "") + '" data-exam-goto="' + i + '">' + (i + 1) + "</button>";
     }).join("") + "</div>";
     if (full) {
       html += '<div style="font-size:13px;color:#64748b;margin-top:8px">Chế độ thi thật mô phỏng: bạn chỉ làm được câu trong phần hiện tại; hết giờ phần sẽ tự chuyển.</div>';
@@ -1662,6 +1698,19 @@
     if (sub) sub.addEventListener("click", function () { submitExam(false); });
     var endSec = document.getElementById("ttcExamEndSection");
     if (endSec) endSec.addEventListener("click", function () { advanceSection(false); });
+    /* DEEP-2: gắn sự kiện cho điều khiển mới */
+    var lbt = document.getElementById("ttcExamListenTop");
+    if (lbt) lbt.addEventListener("click", function () { speak(q.speakText); });
+    var stp = document.getElementById("ttcExamStopTop");
+    if (stp) stp.addEventListener("click", function () { stopSpeak(); });
+    var mk = document.getElementById("ttcExamMark");
+    if (mk) mk.addEventListener("click", function () { toggleMark(state.cur); persistDraft(); renderQuestion(); });
+    var pv = document.getElementById("ttcExamPaperView");
+    if (pv) pv.addEventListener("click", function () { state.paperView = true; renderPaperView(); });
+    state.content.querySelectorAll("[data-exam-tab]").forEach(function (b) {
+      b.addEventListener("click", function () { state.cur = Number(b.getAttribute("data-exam-tab")); stopSpeak(); renderQuestion(); });
+    });
+    persistDraft(); /* DEEP-2: lưu nháp sau mỗi lần dựng câu hỏi (mỗi thao tác trả lời/điều hướng đều qua đây) */
   }
 
   function submitExam(auto) {
@@ -1671,7 +1720,9 @@
     var range = full ? curRange() : { start: 0, end: exam.total };
     var unanswered = 0;
     for (var i = range.start; i < range.end; i++) if (!isAnswered(exam.questions[i], state.answers[i])) unanswered++;
-    if (!auto && unanswered > 0 && !state.submitArmed) {
+    /* DEEP-2: hộp thoại xác nhận nộp bài (tóm tắt) thay cơ chế arm hai chạm */
+    if (!auto && !state.confirmSubmit) { deepSubmitDialog(); return; }
+    if (!auto && !state.confirmSubmit && unanswered > 0 && !state.submitArmed) {
       state.submitArmed = true;
       renderQuestion();
       var note = document.createElement("div");
@@ -1707,9 +1758,15 @@
       passMark: score.passMark, passed: score.passed, weakest: score.weakest,
       reviewId: savedReview ? reviewId : null
     });
+    /* DEEP-2: nộp xong thì xóa nháp + báo module nâng sâu (sổ câu sai bền vững) */
+    state.confirmSubmit = false;
+    clearDraft();
+    if (window.__ttcExamDeep && typeof window.__ttcExamDeep.onSubmit === "function") {
+      try { window.__ttcExamDeep.onSubmit(exam, state.answers.slice(), score); } catch (e) {}
+    }
     /* Gửi điểm lên bảng cộng đồng (chỉ khi đã đăng nhập; lỗi thì
        bỏ qua lặng lẽ — điểm local ở trên vẫn là nguồn chính). */
-    submitScoreToServer({
+    if (!exam.custom || exam.boardOk) submitScoreToServer({
       p_hsk_level: exam.level, p_mode: exam.mode,
       p_test_id: state.testId || null,
       p_seed: state.seed != null ? state.seed : null,
@@ -1815,6 +1872,330 @@
     if (back && opts.onBack) back.addEventListener("click", opts.onBack);
     if (state.view === "result" || state.view === "review") state.view = "review";
   }
+
+  /* ================================================================
+     DEEP-2 (2026-11-19) — NÂNG CẤP SÂU KHU THI, khối 1: PHIÊN THI.
+     Thêm vào engine sẵn có (không đụng bộ sinh đề / chấm điểm /
+     bảng cộng đồng): tab phần thi, đánh dấu xem lại (🚩), thanh
+     nghe dính trên cùng, xem cả phần trên một trang, hộp thoại xác
+     nhận nộp bài, LƯU/TIẾP TỤC bài đang làm dở (bản nháp local),
+     và hai móc cho module otter2-examdeep.js: beginCustom (phiên
+     ôn câu sai / đề thật) + onSubmit (sổ câu sai bền vững).
+     ================================================================ */
+  var DRAFT_KEY = "otter2_exam_draft_v1";
+  MODE_LABEL.review = "🔁 Ôn câu sai";
+  MODE_LABEL.paper = "📄 Đề thật";
+
+  function isMarked(i) { return (state.marks || []).indexOf(i) >= 0; }
+  function toggleMark(i) {
+    var m = state.marks || (state.marks = []);
+    var k = m.indexOf(i);
+    if (k >= 0) m.splice(k, 1); else m.push(i);
+  }
+  function deepRanges() { return state.exam && state.exam._ranges ? state.exam._ranges : computeRanges(state.exam); }
+
+  /* ---- Tab phần thi: non-full bấm để nhảy phần; full chỉ hiển thị
+     (phần bị khóa như phòng thi thật). ---- */
+  function deepTabsHtml() {
+    var exam = state.exam;
+    if (!exam || !exam.sectionPlan || exam.sectionPlan.length < 2) return "";
+    var ranges = deepRanges();
+    var full = isFullMode();
+    var curSec = exam.questions[state.cur] ? exam.questions[state.cur].section : null;
+    var html = '<div class="ttc-exam-tabs" role="tablist">';
+    exam.sectionPlan.forEach(function (p, si) {
+      var r = ranges[si]; if (!r) return;
+      var done = 0;
+      for (var i = r.start; i < r.end; i++) if (isAnswered(exam.questions[i], state.answers[i])) done++;
+      var on = full ? (si === state.sectionIdx) : (p.key === curSec);
+      html += '<button type="button" class="ttc-exam-tab' + (on ? " on" : "") + '" data-exam-tab="' + r.start + '"' +
+        (full ? " disabled title=\"Chế độ thi thật: phần bị khóa, không quay lại được\"" : "") + ">" +
+        esc(sectionName(p.key)) + ' <span class="cnt">' + done + "/" + p.count + "</span></button>";
+    });
+    return html + "</div>";
+  }
+
+  /* ---- Xem cả phần: mọi câu của phần hiện tại trên một trang cuộn ---- */
+  function deepOrderHtml(q, qi) {
+    var chosen = Array.isArray(state.answers[qi]) ? state.answers[qi] : [];
+    var usedIdx = {};
+    chosen.forEach(function (oi) { usedIdx[oi] = 1; });
+    var long = q.type === "read-order" ? " long" : "";
+    var answerChips = chosen.map(function (oi, pos) {
+      return '<button type="button" class="ttc-exam-chip in-answer" data-deep-ord-remove="' + qi + ":" + pos + '">' + esc(q.options[oi]) + "</button>";
+    }).join("");
+    var poolChips = q.options.map(function (o, oi) {
+      if (usedIdx[oi]) return "";
+      return '<button type="button" class="ttc-exam-chip" data-deep-ord-pick="' + qi + ":" + oi + '">' + esc(o) + "</button>";
+    }).join("");
+    return '<div class="ttc-exam-ord-answer' + long + '">' + answerChips + "</div>" +
+      '<div class="ttc-exam-ord-pool' + long + '">' + poolChips + "</div>" +
+      '<button type="button" class="ttc-exam-btn" data-deep-ord-reset="' + qi + '">↺ Xếp lại từ đầu</button>';
+  }
+  function renderPaperView() {
+    state.view = "exam";
+    var exam = state.exam;
+    var full = isFullMode();
+    var range = full ? curRange() : { start: 0, end: exam.total };
+    var answered = exam.questions.filter(function (qq, i) { return isAnswered(qq, state.answers[i]); }).length;
+    var timerVal = full ? state.sectionRemaining : state.remaining;
+    var html = "";
+    html += '<div class="ttc-exam-stickwrap"><div class="ttc-exam-topbar"><span class="ttc-exam-timer" id="ttcExamTimer">⏱ ' + fmtClock(timerVal) + "</span>" +
+      '<div class="ttc-exam-progress"><i style="width:' + Math.round(answered / exam.total * 100) + '%"></i></div>' +
+      "<span style='font-weight:700;color:#475569'>Đã làm " + answered + "/" + exam.total +
+      (state.testId ? " · " + esc(state.testId) : "") + "</span></div>";
+    html += deepTabsHtml() + "</div>";
+    if (state.sectionNote) {
+      html += '<div class="ttc-exam-note" style="margin-bottom:10px">' + esc(state.sectionNote) + "</div>";
+      state.sectionNote = "";
+    }
+    var lastSec = null;
+    for (var i = range.start; i < range.end; i++) {
+      (function (qi) {
+        var q = exam.questions[qi];
+        if (q.section !== lastSec) {
+          lastSec = q.section;
+          html += '<div class="ttc-exam-section" style="margin-top:14px">' + esc(sectionName(q.section)) + "</div>";
+        }
+        html += '<div class="ttc-exam-pq" id="ttcExamPQ' + qi + '"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
+          '<b style="color:#c2410c">Câu ' + (qi + 1) + "</b>" +
+          '<span style="flex:1"></span>' +
+          '<button type="button" class="ttc-exam-btn' + (isMarked(qi) ? " marked" : "") + '" data-deep-mark="' + qi + '">' +
+          (isMarked(qi) ? "🚩 Đã đánh dấu" : "🚩 Đánh dấu") + "</button></div>";
+        if (q.passage) html += '<div class="ttc-exam-passage">' + (q.passageTitle ? "<b>📖 " + esc(q.passageTitle) + "</b>\n" : "") + esc(q.passage) + "</div>";
+        html += '<div class="ttc-exam-stem">' + esc(q.stem) + "</div>";
+        if (q.sub) html += '<div class="ttc-exam-sub">' + esc(q.sub) + "</div>";
+        if (q.section === "listen") {
+          html += '<button type="button" class="ttc-exam-listenbtn" data-deep-listen="' + qi + '">🔊 Nghe</button>';
+        }
+        if (isOrderType(q)) {
+          html += deepOrderHtml(q, qi);
+        } else {
+          html += '<div class="ttc-exam-opts">' + q.options.map(function (o, oi) {
+            return '<button type="button" class="ttc-exam-opt' + (state.answers[qi] === oi ? " sel" : "") + '" data-deep-opt="' + qi + ":" + oi + '">' +
+              '<span class="ttc-exam-letter">' + "ABCD"[oi] + ".</span>" + esc(o) + "</button>";
+          }).join("") + "</div>";
+        }
+        html += "</div>";
+      })(i);
+    }
+    var isLastSection = !full || state.sectionIdx >= exam._ranges.length - 1;
+    html += '<div class="ttc-exam-nav">' +
+      '<button type="button" class="ttc-exam-btn" id="ttcExamSingleView">🔎 Xem từng câu</button>' +
+      '<span style="flex:1"></span>' +
+      (isLastSection
+        ? '<button type="button" class="ttc-exam-btn primary" id="ttcExamSubmit">📩 Nộp bài</button>'
+        : '<button type="button" class="ttc-exam-btn primary" id="ttcExamEndSection">⏭ Kết thúc phần này</button>') +
+      "</div>";
+    html += '<div class="ttc-exam-grid">' + exam.questions.slice(range.start, range.end).map(function (_, k) {
+      var gi = range.start + k;
+      return '<button type="button" class="ttc-exam-gcell' + (isAnswered(exam.questions[gi], state.answers[gi]) ? " done" : "") + (isMarked(gi) ? " marked" : "") + '" data-exam-goto="' + gi + '">' + (gi + 1) + "</button>";
+    }).join("") + "</div>";
+    var prevScroll = state.content ? state.content.scrollTop : 0;
+    state.content.innerHTML = html;
+    state.content.querySelectorAll("[data-deep-opt]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var parts = b.getAttribute("data-deep-opt").split(":");
+        state.answers[Number(parts[0])] = Number(parts[1]);
+        persistDraft(); renderPaperView();
+      });
+    });
+    state.content.querySelectorAll("[data-deep-mark]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        toggleMark(Number(b.getAttribute("data-deep-mark")));
+        persistDraft(); renderPaperView();
+      });
+    });
+    state.content.querySelectorAll("[data-deep-listen]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var q = exam.questions[Number(b.getAttribute("data-deep-listen"))];
+        if (q) speak(q.speakText);
+      });
+    });
+    state.content.querySelectorAll("[data-deep-ord-pick]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var parts = b.getAttribute("data-deep-ord-pick").split(":");
+        var qi = Number(parts[0]);
+        var arr = Array.isArray(state.answers[qi]) ? state.answers[qi] : [];
+        arr.push(Number(parts[1]));
+        state.answers[qi] = arr;
+        persistDraft(); renderPaperView();
+      });
+    });
+    state.content.querySelectorAll("[data-deep-ord-remove]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var parts = b.getAttribute("data-deep-ord-remove").split(":");
+        var qi = Number(parts[0]);
+        var arr = Array.isArray(state.answers[qi]) ? state.answers[qi].slice() : [];
+        arr.splice(Number(parts[1]), 1);
+        state.answers[qi] = arr;
+        persistDraft(); renderPaperView();
+      });
+    });
+    state.content.querySelectorAll("[data-deep-ord-reset]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        state.answers[Number(b.getAttribute("data-deep-ord-reset"))] = [];
+        persistDraft(); renderPaperView();
+      });
+    });
+    state.content.querySelectorAll("[data-exam-goto]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var t = document.getElementById("ttcExamPQ" + b.getAttribute("data-exam-goto"));
+        if (t && t.scrollIntoView) t.scrollIntoView({ block: "start" });
+      });
+    });
+    state.content.querySelectorAll("[data-exam-tab]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        state.cur = Number(b.getAttribute("data-exam-tab"));
+        stopSpeak(); renderPaperView();
+      });
+    });
+    var sv = document.getElementById("ttcExamSingleView");
+    if (sv) sv.addEventListener("click", function () { state.paperView = false; renderQuestion(); });
+    var sub = document.getElementById("ttcExamSubmit");
+    if (sub) sub.addEventListener("click", function () { submitExam(false); });
+    var endSec = document.getElementById("ttcExamEndSection");
+    if (endSec) endSec.addEventListener("click", function () { advanceSection(false); });
+    if (state.content) state.content.scrollTop = prevScroll;
+  }
+
+  /* ---- Bản nháp: lưu / khôi phục bài đang làm dở ---- */
+  function persistDraft() {
+    try {
+      if (!state.exam || state.submitted || state.view !== "exam") return;
+      var exam = state.exam;
+      var slim = {};
+      Object.keys(exam).forEach(function (k) { if (k !== "_ranges") slim[k] = exam[k]; });
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({
+        v: 1, ts: Date.now(),
+        level: exam.level, mode: exam.mode,
+        testId: state.testId || null, seed: state.seed != null ? state.seed : null,
+        exam: slim, answers: state.answers, marks: state.marks || [],
+        cur: state.cur, sectionIdx: state.sectionIdx,
+        remaining: state.remaining, sectionRemaining: state.sectionRemaining,
+        elapsedBase: state.startedAt ? (Date.now() - state.startedAt) : 0
+      }));
+    } catch (e) {}
+  }
+  function loadDraft() {
+    try {
+      var d = JSON.parse(localStorage.getItem(DRAFT_KEY) || "null");
+      if (!d || d.v !== 1 || !d.exam || !Array.isArray(d.exam.questions) || !d.exam.questions.length) return null;
+      return d;
+    } catch (e) { return null; }
+  }
+  function clearDraft() { try { localStorage.removeItem(DRAFT_KEY); } catch (e) {} }
+  function deepResumeDraft() {
+    var d = loadDraft();
+    if (!d) { renderHome(); return; }
+    state.exam = d.exam;
+    state.exam._ranges = computeRanges(state.exam);
+    state.answers = Array.isArray(d.answers) ? d.answers : state.exam.questions.map(function (q) { return isOrderType(q) ? [] : -1; });
+    state.marks = Array.isArray(d.marks) ? d.marks : [];
+    state.cur = Math.min(Math.max(0, d.cur || 0), state.exam.total - 1);
+    state.testId = d.testId || null;
+    state.seed = d.seed != null ? d.seed : null;
+    state.submitted = false; state.submitArmed = false; state.confirmSubmit = false; state.paperView = false;
+    state.sectionNote = "";
+    state.startedAt = Date.now() - (d.elapsedBase || 0);
+    state.sectionIdx = d.sectionIdx || 0;
+    if (state.exam.mode === "full" && state.exam._ranges.length) {
+      state.sectionRemaining = d.sectionRemaining != null ? d.sectionRemaining : (state.exam._ranges[state.sectionIdx] || {}).seconds || 0;
+    } else {
+      state.remaining = d.remaining != null ? d.remaining : state.exam.seconds;
+    }
+    state.view = "exam";
+    renderQuestion();
+    startTimer();
+  }
+  function deepHomeExtras() {
+    var d = loadDraft();
+    if (!d || !state.content) return;
+    var exam = d.exam;
+    var answered = exam.questions.filter(function (q, i) { return isAnswered(q, (d.answers || [])[i]); }).length;
+    var remain = exam.mode === "full" ? d.sectionRemaining : d.remaining;
+    var div = document.createElement("div");
+    div.className = "ttc-exam-draft";
+    div.innerHTML = "<b>📌 Bạn có bài đang làm dở</b> — HSK " + esc(exam.level) + " · " + esc(MODE_LABEL[exam.mode] || exam.mode) +
+      (d.testId ? " · " + esc(d.testId) : "") + " · Đã làm " + answered + "/" + exam.total + " câu" +
+      (typeof remain === "number" ? " · Còn ⏱ " + fmtClock(remain) : "") +
+      '<div style="margin-top:9px;display:flex;gap:8px;flex-wrap:wrap">' +
+      '<button type="button" class="ttc-exam-btn primary" id="ttcExamDraftResume">▶️ Tiếp tục làm</button>' +
+      '<button type="button" class="ttc-exam-btn" id="ttcExamDraftDiscard">🗑 Bỏ bài này</button></div>' +
+      '<div style="font-size:12.5px;color:#92400e;margin-top:7px">Thời gian thi không bị trừ trong lúc bạn vắng mặt. Bài nháp chỉ lưu trên thiết bị này.</div>';
+    state.content.insertBefore(div, state.content.firstChild);
+    document.getElementById("ttcExamDraftResume").addEventListener("click", deepResumeDraft);
+    document.getElementById("ttcExamDraftDiscard").addEventListener("click", function () { clearDraft(); renderHome(); });
+  }
+
+  /* ---- Hộp thoại xác nhận nộp bài ---- */
+  function closeDeepDialog() {
+    var w = document.getElementById("ttcExamDialogWrap");
+    if (w && w.parentNode) w.parentNode.removeChild(w);
+  }
+  function deepSubmitDialog() {
+    closeDeepDialog();
+    var exam = state.exam;
+    var ranges = deepRanges();
+    var answered = 0;
+    exam.questions.forEach(function (q, i) { if (isAnswered(q, state.answers[i])) answered++; });
+    var perSec = (exam.sectionPlan || []).map(function (p, si) {
+      var r = ranges[si]; if (!r) return "";
+      var done = 0;
+      for (var i = r.start; i < r.end; i++) if (isAnswered(exam.questions[i], state.answers[i])) done++;
+      return '<div class="ttc-exam-dlg-row"><span>' + esc(sectionName(p.key)) + "</span><b>" + done + "/" + p.count + " câu</b></div>";
+    }).join("");
+    var wrap = document.createElement("div");
+    wrap.className = "ttc-exam-dialog-wrap";
+    wrap.id = "ttcExamDialogWrap";
+    wrap.innerHTML = '<div class="ttc-exam-dialog" role="dialog" aria-label="Xác nhận nộp bài">' +
+      '<h3 style="margin:0 0 8px;color:#c2410c">📩 Nộp bài?</h3>' +
+      '<p style="margin:0 0 10px;color:#334155;line-height:1.55">Đã làm <b>' + answered + "/" + exam.total + "</b> câu · Chưa làm <b>" + (exam.total - answered) +
+      "</b> câu · Đang đánh dấu <b>" + (state.marks || []).length + "</b> câu.</p>" +
+      perSec +
+      (exam.total - answered > 0
+        ? '<p style="color:#b91c1c;font-weight:600;margin:10px 0 0">Câu chưa làm sẽ tính là sai.</p>'
+        : '<p style="color:#15803d;font-weight:600;margin:10px 0 0">Bạn đã làm hết các câu 🎉</p>') +
+      '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap">' +
+      '<button type="button" class="ttc-exam-btn" id="ttcExamDialogBack">✏️ Làm tiếp</button>' +
+      '<button type="button" class="ttc-exam-btn primary" id="ttcExamDialogOk">📩 Nộp bài</button>' +
+      "</div></div>";
+    document.body.appendChild(wrap);
+    document.getElementById("ttcExamDialogBack").addEventListener("click", closeDeepDialog);
+    document.getElementById("ttcExamDialogOk").addEventListener("click", function () {
+      closeDeepDialog();
+      state.confirmSubmit = true;
+      submitExam(false);
+    });
+    wrap.addEventListener("click", function (e) { if (e.target === wrap) closeDeepDialog(); });
+  }
+
+  /* ---- Phiên tùy biến: ôn câu sai / đề thật (module examdeep gọi) ---- */
+  function beginCustom(questions, meta) {
+    meta = meta || {};
+    if (!Array.isArray(questions) || !questions.length) return false;
+    var plan = [], lastKey = null;
+    questions.forEach(function (q) {
+      if (q.section !== lastKey) { plan.push({ key: q.section || "vocab", count: 1, seconds: 0 }); lastKey = q.section; }
+      else plan[plan.length - 1].count++;
+    });
+    var scaleMax = meta.scaleMax || 300;
+    var exam = {
+      level: meta.level || Number(questions[0].level) || 1,
+      mode: meta.mode || "review", sizeKey: meta.mode || "review", spec: null,
+      questions: questions, total: questions.length,
+      seconds: meta.seconds || Math.max(300, questions.length * 60),
+      sectionPlan: plan, scaleMax: scaleMax,
+      passMark: meta.passMark != null ? meta.passMark : Math.round(scaleMax * 0.6),
+      simulated: false, writingSub: false, passagesUsed: [],
+      generatedAt: Date.now(),
+      custom: true, boardOk: !!meta.board, customTitle: meta.title || ""
+    };
+    state.testId = null; state.seed = null;
+    beginWithExam(exam);
+    return true;
+  }
+  /* ============================ HẾT KHỐI DEEP-2 ============================ */
 
   /* ---------------- Điểm cộng đồng (Supabase) ----------------
      Backend đã live (2026-11-17): bảng public.exam_scores + RPC
@@ -2332,6 +2713,9 @@
     fetchExamBoardPage: fetchExamBoardPage,
     loadCommunity: loadCommunity,
     communityState: function () { return cb; },
+    renderQuestion: renderQuestion,
+    beginCustom: beginCustom,
+    draft: { load: loadDraft, clear: clearDraft, resume: deepResumeDraft, persist: persistDraft },
     expireNow: function () {
       if (state.view !== "exam") return;
       if (isFullMode()) { state.sectionRemaining = 0; advanceSection(true); }
