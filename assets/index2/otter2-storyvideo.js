@@ -39,6 +39,14 @@
    câu, đã hiệu chuẩn theo audio thật). Cấp chưa có dữ liệu phụ đề
    thì player giữ nguyên như cũ. Lặp A–B: đặt A/B tại thời điểm
    đang phát, chạm B quay về A, có nút xoá lặp riêng.
+   Sửa 2026-11-19 theo ảnh laptop của chủ web: (A) trạng thái chưa
+   chọn truyện trên desktop — danh sách từng là panel phủ 308px chật
+   hẹp, che cả hàng chip cấp và bỏ trống phần lớn panel ("bảng chọn
+   bé tẹo") — nay trải lưới đầy bề ngang qua class .ttc-picking;
+   phòng đang phát giữ nguyên chuẩn corodomo đã duyệt. (B) Cổng
+   Premium đặt thêm ở MỨC TAB như Phòng đọc (trước đây ai cũng xem
+   được trọn danh sách HSK3–9, cổng chỉ chặn lúc phát) và gateFor
+   đổi sang fail-closed khi thiếu checkPremiumAccess.
    ============================================================ */
 (function () {
   "use strict";
@@ -72,7 +80,10 @@
   function gateFor(level) {
     var n = Number(level);
     if (!(n > FREE_MAX_LEVEL)) return Promise.resolve(true); /* HSK1–2: miễn phí thật */
-    if (typeof window.checkPremiumAccess !== "function") return Promise.resolve(true);
+    /* Cổng vắng mặt = CHẶN (fail-closed như Phòng đọc + Kho từ vựng).
+       Bản cũ trả true khi thiếu checkPremiumAccess: chỉ cần file cổng
+       lỗi tải là toàn bộ HSK3–9 mở toang (sửa 2026-11-19). */
+    if (typeof window.checkPremiumAccess !== "function") return Promise.resolve(false);
     try {
       return Promise.resolve(window.checkPremiumAccess(n)).then(
         function (ok) { return !!ok; },
@@ -230,6 +241,15 @@
       ".ttc-story-body.has-subs .ttc-story-subrow .ttc-ss-vi{font-size:11.5px}",
       ".ttc-kara-bar .ttc-kw-zh{font-size:21px}",
       ".ttc-kara-bar .ttc-kw-punct{font-size:21px}",
+      "/* Trạng thái CHƯA CHỌN TRUYỆN (.ttc-picking): danh sách truyện là nội dung chính của panel — trải LƯỚI đầy bề ngang (cột tối thiểu 330px), hàng chip cấp không còn bị panel phủ 308px che khuất, không còn khoảng trống lớn bên phải + icon ☰ lơ lửng giữa panel (chủ web phản ánh 'bảng chọn bé tẹo' 2026-11-19). Đang phát truyện thì class tắt: phòng học về đúng chuẩn corodomo đã duyệt (danh sách = panel phủ 308px mở bằng icon ở thanh cài đặt). */",
+      ".ttc-story-body.ttc-picking{display:flex;flex-direction:column;gap:14px;align-items:stretch}",
+      ".ttc-story-body.ttc-picking .ttc-story-stage{order:1}",
+      ".ttc-story-body.ttc-picking .ttc-story-list{order:2;position:static;width:auto;max-height:none;overflow:visible;display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:8px;padding:2px;background:transparent;border:0;box-shadow:none;animation:none}",
+      ".ttc-story-body.ttc-picking .ttc-story-listhead{grid-column:1/-1;margin:0}",
+      ".ttc-story-body.ttc-picking .ttc-story-list-close{display:none}",
+      ".ttc-story-body.ttc-picking .ttc-story-item{height:100%}",
+      ".ttc-story-body.ttc-picking .ttc-story-empty{padding:18px 16px}",
+      ".ttc-story-body.ttc-picking #ttcStoryPickBtn{display:none}",
       "}"
       ].join("\n");
     var st = document.createElement("style");
@@ -319,6 +339,14 @@
   function setSubsLayout(on) {
     var bodyEl = stageEl && stageEl.parentNode;
     if (bodyEl && bodyEl.classList) bodyEl.classList.toggle("has-subs", !!on);
+  }
+  /* Trạng thái CHƯA CHỌN TRUYỆN (chưa có currentKey): bật class
+     ttc-picking để CSS desktop trải danh sách truyện thành lưới đầy bề
+     ngang panel (mục CSS tương ứng ở khối @media min-width:1021px).
+     Đang phát truyện thì tắt — phòng học về đúng chuẩn corodomo. */
+  function syncPicking() {
+    var bodyEl = stageEl && stageEl.parentNode;
+    if (bodyEl && bodyEl.classList) bodyEl.classList.toggle("ttc-picking", !state.currentKey);
   }
   function tradText(zh) {
     if (!subPrefs.trad) return zh;
@@ -508,6 +536,7 @@
 
   function renderStageEmpty() {
     setSubsLayout(false);
+    syncPicking();
     if (levelItems(state.tab).length) {
       stageEl.innerHTML = '<div class="ttc-story-empty">▶ Chọn một truyện để xem video kể chuyện có tranh minh họa chuyển động và giọng đọc.<br><br>' +
         '<button type="button" class="ttc-story-navbtn" id="ttcStoryPickBtn" aria-label="Mở danh sách truyện" title="Danh sách phát" style="width:44px;height:44px;font-size:19px">☰</button></div>';
@@ -521,12 +550,14 @@
 
   function renderStageLocked(entry) {
     setSubsLayout(false);
+    syncPicking();
     stageEl.innerHTML = '<div class="ttc-story-empty">🔒 <b>' + esc(entry.title_zh || "Truyện Premium") + '</b><br>' +
       "Truyện HSK " + entry.level + " là nội dung Premium. Vui lòng đăng nhập tài khoản Premium để xem.</div>";
   }
 
   function renderStage(entry) {
     setSubsLayout(false);
+    syncPicking();
     var idx = state.flat.indexOf(entry);
     var prev = idx > 0 ? state.flat[idx - 1] : null;
     var next = idx >= 0 && idx < state.flat.length - 1 ? state.flat[idx + 1] : null;
@@ -828,13 +859,33 @@
     });
   }
 
-  function switchTab(level) {
-    state.tab = Number(level) || 1;
+  function applyTab(lv) {
+    state.tab = lv;
     state.currentKey = null;
     renderTabs();
     renderList();
     renderStageEmpty();
     applyListPref();
+  }
+
+  /* Cổng Premium ở MỨC TAB (chủ web phản ánh 2026-11-19: chip HSK 3 có
+     🔒 mà tài khoản Free vẫn mở xem trọn danh sách 30 truyện — trước đây
+     cổng chỉ đặt ở lúc PHÁT, danh sách thì ai cũng xem được). Nay bấm
+     chip cấp Premium phải qua đúng gateFor như Phòng đọc: cổng không
+     qua thì GIỮ NGUYÊN tab hiện tại, không dựng danh sách cấp đó; cổng
+     tự hiện lời mời Premium / form đăng nhập như mọi khu khác. Cấp miễn
+     phí + bấm lại tab đang mở: chuyển/dựng lại ngay như cũ. */
+  function switchTab(level) {
+    var lv = Number(level) || 1;
+    if (lv === state.tab || !isPremiumLevel(lv)) {
+      applyTab(lv);
+      return Promise.resolve(true);
+    }
+    return gateFor(lv).then(function (ok) {
+      if (!ok) { renderTabs(); return false; }
+      applyTab(lv);
+      return true;
+    });
   }
 
   function openZone() {
