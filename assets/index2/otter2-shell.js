@@ -247,6 +247,19 @@
     story: function () { ensureScreen("home"); clickLater("#otter2FeatStoryVideo", 120); },
     reading: function () { ensureScreen("reading"); clickLater("#ttcReadingLauncher", 380); },
     exam: function () { ensureScreen("home"); clickLater("#otter2FeatExam", 120); },
+    dict: function () {
+      /* Dùng ĐÚNG cơ chế tra từ sẵn có của Menu ☰ (otter2-menu.js):
+         mở màn Từ điển (vocab) + cuộn tới #otter2DictRoot + focus ô
+         #otter2DictSearch. Fallback tự làm tương tự nếu menu chưa nạp. */
+      if (window.__ttcMenu && window.__ttcMenu.actions && typeof window.__ttcMenu.actions.dict === "function") { window.__ttcMenu.actions.dict(); return; }
+      ensureScreen("vocab");
+      setTimeout(function () {
+        var root = document.getElementById("otter2DictRoot");
+        if (root && root.scrollIntoView) root.scrollIntoView({ behavior: "smooth", block: "start" });
+        var inp = document.getElementById("otter2DictSearch");
+        if (inp) { try { inp.focus({ preventScroll: true }); } catch (e) { inp.focus(); } }
+      }, 380);
+    },
     chat: function () {
       var tries = 0;
       (function check() {
@@ -376,7 +389,31 @@
       "#ttcShellSidebar #ttcMenuBtn{width:100%;height:auto;margin:0;padding:11px 12px;justify-content:flex-start;gap:11px;border-radius:12px;border:1px solid #e7e9ee;background:#ffffff;font:inherit;font-size:15px;font-weight:600;color:#0f172a;box-shadow:none}",
       "#ttcShellSidebar #ttcMenuBtn:hover{background:#f8fafc;border-color:#e7e9ee}",
       ".ttc-shell-util-lbl{font-size:15px;font-weight:600;color:#0f172a}",
-      "#otter2Nav .ttc-shell-util-lbl{display:none}"
+      "#otter2Nav .ttc-shell-util-lbl{display:none}",
+      /* ===== V3 (2026-11-19): nút Tìm kiếm ở cột trái + vá "trống hoác" trang chủ =====
+         (1) Anh Huy không thấy nút tìm kiếm: bản redesign chỉ còn lối vào
+         Từ điển chôn trong Menu ☰. Thêm ô tìm kiếm ngay dưới khối thương
+         hiệu ở cột trái (chỉ hiện ≥900px cùng cột trái; ≤899px dùng Menu ☰
+         → Từ điển như cũ), bấm vào đi thẳng cơ chế tra từ SẴN CÓ
+         (__ttcMenu.actions.dict: mở màn vocab + focus #otter2DictSearch).
+         (2) Khoảng trống: cột phải (Nhiệm vụ + Bảng thành tích) chỉ cao
+         ~570px trong khi cột giữa cao ~2000–3000px → ghim sticky để khối
+         tiện ích đi theo khi cuộn, hết dải trống dài bên phải.
+         (3) Dải 1021–1279px: hai cột giữa bị ép còn ~200–290px khiến thẻ
+         Khóa học và chồng thẻ giữa lệch nhau 280–690px (chồng giữa phình
+         cao) → xếp thành MỘT cột rộng: hết khoảng trống dưới thẻ Khóa
+         học, thẻ rộng và thấp hơn hẳn. ≥1280px giữ nguyên bố cục mẫu. */
+      ".ttc-shell-search{flex:0 0 auto;display:flex;align-items:center;gap:9px;margin:0 14px 10px;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:14px;background:#f8fafc;color:#64748b;font:inherit;font-size:14px;font-weight:600;cursor:pointer;text-align:left;transition:border-color .15s,background .15s,color .15s}",
+      ".ttc-shell-search:hover{border-color:#cbd5e1;background:#ffffff;color:#334155}",
+      ".ttc-shell-search:focus-visible{outline:2px solid #2563eb;outline-offset:2px}",
+      ".ttc-shell-search.is-active{border-color:#fda4af;background:#fff1f2;color:#be123c}",
+      ".ttc-shell-search-ico{font-size:15px;line-height:1;flex:0 0 auto}",
+      ".ttc-shell-search-tx{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}",
+      "html[data-theme=\"night\"] .ttc-shell-search{background:#0f172a;border-color:#334155;color:#94a3b8}",
+      "html[data-theme=\"night\"] .ttc-shell-search.is-active{background:#3b1220;border-color:#9f1239;color:#fda4af}",
+      /* (html overflow-x:visible ở ≥1021px: index2 đặt overflow-x:hidden trên CẢ html lẫn body khiến position:sticky bị Chrome vô hiệu thầm lặng — đã kiểm chứng thực nghiệm: nới riêng html là sticky chạy, body vẫn giữ hidden làm chốt chặn tràn ngang.) */
+      "@media (min-width:1021px){html{overflow-x:visible}#otter2-home .otter2-dash-side{position:sticky;top:16px;align-self:start}}",
+      "@media (min-width:1021px) and (max-width:1279px){#otter2-home .otter2-dash-main{grid-template-columns:minmax(0,1fr)}#otter2-home .otter2-dash-main>.otter2-dash-course{grid-column:1;grid-row:3}#otter2-home .ttc-exam-midstack{grid-column:1;grid-row:4}#otter2-home .otter2-dash-main>section[aria-labelledby=\"otter2DashLessonsTitle\"]{grid-column:1/-1;grid-row:5}}"
     ];
     var st = document.createElement("style");
     st.id = "ttcShellStyle";
@@ -407,6 +444,7 @@
       '<div class="ttc-shell-brand"><img src="' + BRAND_IMG + '" alt="" width="40" height="40" />' +
       '<div><div class="ttc-shell-brand-name ttt-rainbow">Thích Tiếng Trung 3.0</div>' +
       '<div class="ttc-shell-brand-sub">Học tiếng Trung · Thi HSK</div></div></div>' +
+      '<button type="button" class="ttc-shell-search" id="ttcShellSearch" aria-label="Tìm kiếm từ điển"><span class="ttc-shell-search-ico" aria-hidden="true">🔍</span><span class="ttc-shell-search-tx">Tìm kiếm từ điển</span></button>' +
       '<nav class="ttc-shell-nav" aria-label="Khu học tập">' + navButtonsHtml("ttc-shell-item", "ttc-shell-ico") + "</nav>" +
       '<div class="ttc-shell-util" id="ttcShellUtil"></div>' +
       '<div class="ttc-shell-stats"><div class="ttc-shell-stats-num" id="ttcShellStatsNum">0</div>' +
@@ -429,6 +467,10 @@
     profileEls.btn.addEventListener("click", function (ev) { if (ev) ev.stopPropagation(); runAction("account"); });
     var profRow = byId("ttcShellProfile");
     if (profRow) profRow.addEventListener("click", function (ev) { if (ev) ev.stopPropagation(); runAction("account"); });
+    /* Nút Tìm kiếm cột trái: listener riêng (không dùng data-shell-act
+       để không lẫn vào nhóm 6 điểm đến điều hướng của sidebar). */
+    var searchBtn = byId("ttcShellSearch");
+    if (searchBtn) searchBtn.addEventListener("click", function () { runAction("dict"); });
     return true;
   }
 
@@ -541,6 +583,8 @@
     Array.prototype.forEach.call(btns, function (b) {
       b.classList.toggle("is-active", b.getAttribute("data-shell-act") === active);
     });
+    var sBtn = byId("ttcShellSearch");
+    if (sBtn) sBtn.classList.toggle("is-active", scr === "vocab");
   }
   function renderStats() {
     var map = getProgressMap();
