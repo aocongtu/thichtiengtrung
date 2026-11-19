@@ -1000,7 +1000,339 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "voice": "google:cmn-CN-Wavenet-A",
     "voice_label": "Giọng Google · Nữ"
    }
+  ],
+  "4": [
+   {
+    "key": "hsk4-01",
+    "level": 4,
+    "title_zh": "城市里的慢生活",
+    "title_vi": "Sống chậm giữa thành phố",
+    "duration_s": 329.2,
+    "drive_id": "1adu1RDe9jJsvAJG2pWZ66zi3FpHo9mQA",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk4-01.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk4-02",
+    "level": 4,
+    "title_zh": "一次失败的演讲",
+    "title_vi": "Lần thuyết trình quên lời",
+    "duration_s": 354.6,
+    "drive_id": "1CisCdzlEJX0N5EIxz5oGPpsue2vuPxxZ",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk4-02.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   },
+   {
+    "key": "hsk4-03",
+    "level": 4,
+    "title_zh": "远程工作的两面",
+    "title_vi": "Hai mặt của làm việc từ xa",
+    "duration_s": 360.6,
+    "drive_id": "1ZY_3Z-1GO93-l0dFW0a5tcN84HdRtbML",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk4-03.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk4-04",
+    "level": 4,
+    "title_zh": "旧城改造",
+    "title_vi": "Phố cũ đổi thay",
+    "duration_s": 363,
+    "drive_id": "1eRBiCYI2jbgSnrjNm9Hy0q3cQN51aQl_",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk4-04.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   },
+   {
+    "key": "hsk4-05",
+    "level": 4,
+    "title_zh": "学会拒绝",
+    "title_vi": "Học cách nói không",
+    "duration_s": 343.2,
+    "drive_id": "1O6Q2ntFtP546fTqwWyCTLHsEvacZ2TE_",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk4-05.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk4-06",
+    "level": 4,
+    "title_zh": "垃圾分类以后",
+    "title_vi": "Từ ngày biết phân loại rác",
+    "duration_s": 364.5,
+    "drive_id": "1yzlWznywKYpTfeHLL0fc6kFccmaoad6g",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk4-06.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   },
+   {
+    "key": "hsk4-07",
+    "level": 4,
+    "title_zh": "重新开始运动",
+    "title_vi": "Đi bộ lại từ đầu",
+    "duration_s": 357.5,
+    "drive_id": "1eGjifJgC_R7f9FiL_j6wbd6HqTIb-a1c",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk4-07.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk4-08",
+    "level": 4,
+    "title_zh": "实习的第一个月",
+    "title_vi": "Tháng thực tập đầu tiên",
+    "duration_s": 356.2,
+    "drive_id": "1Y9LT5Anqw9a9QsJsGGp1g63jHvlfpmAt",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk4-08.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   },
+   {
+    "key": "hsk4-09",
+    "level": 4,
+    "title_zh": "父母的手机",
+    "title_vi": "Chiếc điện thoại của bố mẹ",
+    "duration_s": 350.8,
+    "drive_id": "1wXf5l_NqdmymXHuigOCHSmjI2iOhLvKm",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk4-09.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk4-10",
+    "level": 4,
+    "title_zh": "一家小馆的坚持",
+    "title_vi": "Quán mì nhỏ không đổi vị",
+    "duration_s": 366.1,
+    "drive_id": "1dyGQfJ1j8X-xDy1dn2_sEoyBSHcTaY4O",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk4-10.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   },
+   {
+    "key": "hsk4-11",
+    "level": 4,
+    "title_zh": "关于批评",
+    "title_vi": "Học cách nghe phê bình",
+    "duration_s": 324.7,
+    "drive_id": "1J_NgrM8bc_w1jhjEdd9cIsGIxPNPLo1N",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk4-11.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk4-12",
+    "level": 4,
+    "title_zh": "读一本书的方法",
+    "title_vi": "Cách đọc một cuốn sách",
+    "duration_s": 327.8,
+    "drive_id": "1lXYuDuDB-lM4EgaLhz53vfWnTtA7-xZP",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk4-12.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   },
+   {
+    "key": "hsk4-13",
+    "level": 4,
+    "title_zh": "旅行中的计划外",
+    "title_vi": "Chuyến đi ngoài kế hoạch",
+    "duration_s": 330.8,
+    "drive_id": "17yv68oHv_uH4bypF8ISzcgIzp3e-3_Q8",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk4-13.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk4-14",
+    "level": 4,
+    "title_zh": "公共场合的声音",
+    "title_vi": "Yên lặng nơi công cộng",
+    "duration_s": 341.7,
+    "drive_id": "1abEP3LtnBygzb7FKmU9XgbI9oEKEVbEd",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk4-14.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   },
+   {
+    "key": "hsk4-15",
+    "level": 4,
+    "title_zh": "选择住在哪里",
+    "title_vi": "Chọn nơi mình sống",
+    "duration_s": 325.1,
+    "drive_id": "1jYq1y7dcrmeFKThHEgpTd1GT7y9qCKC0",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk4-15.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk4-16",
+    "level": 4,
+    "title_zh": "团队里的安静人",
+    "title_vi": "Người ít nói trong nhóm",
+    "duration_s": 327.8,
+    "drive_id": "1IXUl54LU_MoLB51iWrRX7ZPWo5lwuB6w",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk4-16.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   },
+   {
+    "key": "hsk4-17",
+    "level": 4,
+    "title_zh": "节约并不寒酸",
+    "title_vi": "Tiết kiệm đâu phải keo kiệt",
+    "duration_s": 328.3,
+    "drive_id": "1MiIADbH0A5JFXUOXbv5bT2hRoFIZ3Oaq",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk4-17.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk4-18",
+    "level": 4,
+    "title_zh": "网络评论",
+    "title_vi": "Chậm lại mười giây",
+    "duration_s": 329.2,
+    "drive_id": "1P3A4Zaz8fi-zlr2YJ-7pgvBXnB32QDMU",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk4-18.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   },
+   {
+    "key": "hsk4-19",
+    "level": 4,
+    "title_zh": "把爱好留住",
+    "title_vi": "Giữ lấy một sở thích",
+    "duration_s": 324.2,
+    "drive_id": "1T0nVWOTMAvfJFezNFscJ5EGWZCJxvppE",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk4-19.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk4-20",
+    "level": 4,
+    "title_zh": "信任是慢慢来的",
+    "title_vi": "Lòng tin đến từ từ",
+    "duration_s": 333.2,
+    "drive_id": "1V8w_XVNc4QGHavSwLuzjAP7kiCXqFqmN",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk4-20.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   },
+   {
+    "key": "hsk4-21",
+    "level": 4,
+    "title_zh": "为什么越来越少人写信",
+    "title_vi": "Những lá thư viết tay",
+    "duration_s": 328.7,
+    "drive_id": "1rcCZsieusueOjnM8m1XyI9cZ_erjjZaf",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk4-21.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk4-22",
+    "level": 4,
+    "title_zh": "二手物品的价值",
+    "title_vi": "Đồ cũ, chuyện mới",
+    "duration_s": 341.2,
+    "drive_id": "1rXJ-QT-dYUEGlNjvm7bLhagEtuH_Vorf",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk4-22.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   },
+   {
+    "key": "hsk4-23",
+    "level": 4,
+    "title_zh": "在家办公的利弊",
+    "title_vi": "Hai người bạn làm việc ở nhà",
+    "duration_s": 339,
+    "drive_id": "1u6RDRbb1-w88fZ3wIbJCcF1rgassBCc_",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk4-23.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk4-24",
+    "level": 4,
+    "title_zh": "一堂失败的公开课",
+    "title_vi": "Bài học từ một tiết dạy hỏng",
+    "duration_s": 341.6,
+    "drive_id": "1mlJ6vm8bDhGaQyAAE24pNM53J7q72IqZ",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk4-24.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   },
+   {
+    "key": "hsk4-25",
+    "level": 4,
+    "title_zh": "社区花园",
+    "title_vi": "Khu vườn chung của xóm",
+    "duration_s": 336.6,
+    "drive_id": "1rhEFOhunsc7-SPt737ee039oxahmLSZk",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk4-25.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk4-26",
+    "level": 4,
+    "title_zh": "选择专业的标准",
+    "title_vi": "Bốn tiêu chí chọn ngành",
+    "duration_s": 364.7,
+    "drive_id": "11rrqsFG55j8V_rMt0qvwRC7ZxFp3iB0b",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk4-26.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   },
+   {
+    "key": "hsk4-27",
+    "level": 4,
+    "title_zh": "短视频时代的耐心",
+    "title_vi": "Tìm lại sự kiên nhẫn",
+    "duration_s": 359.1,
+    "drive_id": "1yIcd9_-vLV0VySgtSkw2HlO35tNH3lPT",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk4-27.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk4-28",
+    "level": 4,
+    "title_zh": "一次成功的道歉",
+    "title_vi": "Lời xin lỗi thật lòng",
+    "duration_s": 360.7,
+    "drive_id": "1DFimu54OCHFvZp_-FOX44eIbYsluCbqx",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk4-28.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   },
+   {
+    "key": "hsk4-29",
+    "level": 4,
+    "title_zh": "本地市场还是网购",
+    "title_vi": "Đi chợ hay mua online?",
+    "duration_s": 353.7,
+    "drive_id": "12s2DvAbrKc60hmAW_47O4J65UMJSo8oT",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk4-29.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk4-30",
+    "level": 4,
+    "title_zh": "把旧爱好重新捡起来",
+    "title_vi": "Cây đàn đợi mười năm",
+    "duration_s": 371.3,
+    "drive_id": "18FgWL78ezNIY4VOPXOH1-_YYUUIhmpRs",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk4-30.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   }
   ]
  },
- "total": 90
+ "total": 120
 };
