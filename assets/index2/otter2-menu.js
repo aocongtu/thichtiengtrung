@@ -92,46 +92,49 @@
    CSS của module gán #ttcMenuBtn vào grid-area "account" + lùi
    trái 50px → nút ☰ ở GÓC PHẢI TRÊN CÙNG, ngay cạnh trái nút
    tài khoản tròn (yêu cầu chủ web 2026-11-18, mẫu Study4).
+
+   GỌN MENU 12 MỤC / 3 NHÓM (REDESIGN GĐ1, 2026-11-19 — bản thiết
+   kế đã duyệt BLUEPRINT + ADDENDUM_FINAL, luật nút bấm: "gộp tính
+   năng, không gộp nút"; các tính năng lá chuyển vào PHÒNG):
+   - HỌC TẬP (đỏ, 6 mục): Phòng truyện · Phòng đọc · Phòng từ
+     vựng · Lộ trình từ vựng · Thi HSK · Bài học mỗi ngày.
+   - LUYỆN TẬP (teal, 6 mục): Tin nhắn · Bảng thành tích · Bảng
+     điểm thi · Từ điển · Viết chữ Hán · Bộ thủ.
+   - TÀI KHOẢN & THÔNG TIN (tím): khối tài khoản động như cũ +
+     5 liên kết chính sách (giữ nguyên màu xanh #0369a1 của nhóm
+     Thông tin cũ qua lớp .ttc-menu-info-link).
+   Nhóm Ứng dụng (PWA, #ttcMenuAppSec) giữ nguyên — chỉ hiện khi
+   cài đặt khả thi. Mọi ACTION cũ (4 chế độ thi, 6 chức năng lá
+   Luyện tập, Học tự động, giọng đọc…) VẪN nằm trong ACTIONS —
+   chúng nay được mở từ bên trong các Phòng (Kho từ / Phòng đọc /
+   cổng Thi HSK) và Bé guide vẫn tới được mọi đích như trước;
+   menu chỉ thôi LIỆT KÊ từng lá. Đổi tên mục = đổi NHÃN hiển thị
+   (Phòng truyện/Phòng đọc/Phòng từ), action và đích thật không
+   đổi — đúng luật dữ liệu của bản thiết kế.
    ============================================================ */
 (function () {
   "use strict";
   if (window.__TTC_MENU__) return;
   window.__TTC_MENU__ = true;
 
+  /* REDESIGN GĐ1 (2026-11-19): 12 mục / 3 nhóm — xem ghi chú đầu
+     file. Nhãn là tên PHÒNG mới; action giữ nguyên cơ chế thật. */
   var STUDY_ITEMS = [
-    { act: "vocab", icon: "📚", label: "Học từ vựng HSK1–9" },
+    { act: "story", icon: "🎬", label: "Phòng truyện" },
+    { act: "reading", icon: "📖", label: "Phòng đọc" },
+    { act: "vocab", icon: "📚", label: "Phòng từ vựng" },
     { act: "path", icon: "🗺️", label: "Lộ trình từ vựng" },
-    { act: "journey", icon: "🧭", label: "Hành trình HSK 1–9" },
-    { act: "dict", icon: "🔍", label: "Tra từ điển" },
-    { act: "reading", icon: "📖", label: "Luyện đọc" },
-    { act: "story", icon: "🎬", label: "Học theo video" },
-    { act: "exam", icon: "📝", label: "Thi thử HSK" },
-    { act: "examfull", icon: "🏅", label: "Thi thật mô phỏng" },
-    { act: "examreduced", icon: "📐", label: "Thi rút gọn" },
-    { act: "exammini", icon: "⚡", label: "Thi Mini · 10 câu" },
-    { act: "examstandard", icon: "🎯", label: "Thi Chuẩn · 20 câu" },
-    { act: "ach", icon: "🏆", label: "Bảng thành tích" },
-    { act: "scores", icon: "📋", label: "Bảng điểm thi" },
-    { act: "write", icon: "✍️", label: "Luyện viết chữ Hán" },
-    { act: "grammar", icon: "📗", label: "Ngữ pháp" },
-    { act: "pronun", icon: "🗣️", label: "Luyện phát âm" },
-    { act: "radicals", icon: "部", label: "214 Bộ thủ" },
-    { act: "flash", icon: "🃏", label: "Thẻ ghi nhớ" },
-    { act: "auto", icon: "🌸", label: "Học tự động" },
-    { act: "autovocab", icon: "🔊", label: "Học tự động từ vựng HSK" },
-    { act: "autoexample", icon: "🟢", label: "Học tự động câu ví dụ HSK" },
-    { act: "voice", icon: "🎙️", label: "Hệ thống giọng đọc" }
+    { act: "exam", icon: "📝", label: "Thi HSK" },
+    { act: "lessons", icon: "📅", label: "Bài học mỗi ngày" }
   ];
 
-  /* 6 chức năng lá của khu Luyện tập — mỗi mục bấm thẳng nút thật
-     tương ứng trong hub, không dừng ở màn hình hub. */
   var PRACTICE_ITEMS = [
-    { act: "ptest", icon: "📝", label: "Test từ vựng" },
-    { act: "psent", icon: "✍️", label: "Luyện câu" },
-    { act: "preading", icon: "📖", label: "Luyện đọc" },
-    { act: "ptype", icon: "⌨️", label: "Gõ Hán tự" },
-    { act: "pmatch", icon: "🧩", label: "Nối từ đúng" },
-    { act: "plisten", icon: "🔊", label: "Phản xạ đoán nghĩa" }
+    { act: "chat", icon: "💬", label: "Tin nhắn" },
+    { act: "ach", icon: "🏆", label: "Bảng thành tích" },
+    { act: "scores", icon: "📋", label: "Bảng điểm thi" },
+    { act: "dict", icon: "🔍", label: "Từ điển" },
+    { act: "write", icon: "✍️", label: "Viết chữ Hán" },
+    { act: "radicals", icon: "部", label: "Bộ thủ" }
   ];
 
   var POLICY_LINKS = [
@@ -193,6 +196,8 @@
       ".ttc-menu-sec[data-sec='practice'] .ttc-menu-h,.ttc-menu-sec[data-sec='practice'] .ttc-menu-item{color:#0f766e}",
       ".ttc-menu-sec[data-sec='account'] .ttc-menu-h,.ttc-menu-sec[data-sec='account'] .ttc-menu-item{color:#5b21b6}",
       ".ttc-menu-sec[data-sec='info'] .ttc-menu-h,.ttc-menu-sec[data-sec='info'] .ttc-menu-item{color:#0369a1}",
+      "/* REDESIGN GĐ1: liên kết chính sách nay nằm trong nhóm 'Tài khoản & Thông tin' (màu tím) nhưng giữ màu xanh Thông tin #0369a1 đã chốt — luật màu theo ĐÍCH, không theo vị trí. */",
+      ".ttc-menu-sec[data-sec='account'] .ttc-menu-item.ttc-menu-info-link{color:#0369a1}",
       "/* PWA (2026-11-19): nhóm Ứng dụng dùng đỏ thương hiệu — hành động của chính thương hiệu; mục ẩn mặc định, otter2-pwa.js chỉ hiện khi cài đặt khả thi (chưa cài + trình duyệt hỗ trợ + chưa bị người dùng tắt nhắc 30 ngày). */",
       ".ttc-menu-sec[data-sec='app'] .ttc-menu-h,.ttc-menu-sec[data-sec='app'] .ttc-menu-item{color:#be123c}",
       "#ttcMenuAppSec[hidden]{display:none}",
@@ -234,7 +239,7 @@
   function policyHtml() {
     var out = "";
     for (var i = 0; i < POLICY_LINKS.length; i++) {
-      out += '<li><a class="ttc-menu-item" href="' + esc(POLICY_LINKS[i].href) + '">' +
+      out += '<li><a class="ttc-menu-item ttc-menu-info-link" href="' + esc(POLICY_LINKS[i].href) + '">' +
         '<span class="ttc-menu-ico" aria-hidden="true">›</span>' + esc(POLICY_LINKS[i].label) + "</a></li>";
     }
     return out;
@@ -309,13 +314,12 @@
       '<ul class="ttc-menu-list">' + studyHtml() + "</ul></div>" +
       '<div class="ttc-menu-sec" data-sec="practice"><p class="ttc-menu-h">Luyện tập</p>' +
       '<ul class="ttc-menu-list">' + practiceHtml() + "</ul></div>" +
-      '<div class="ttc-menu-sec" data-sec="account"><p class="ttc-menu-h">Tài khoản</p>' +
-      '<div id="ttcMenuAccount"></div></div>' +
+      '<div class="ttc-menu-sec" data-sec="account"><p class="ttc-menu-h">Tài khoản &amp; Thông tin</p>' +
+      '<div id="ttcMenuAccount"></div>' +
+      '<ul class="ttc-menu-list">' + policyHtml() + "</ul></div>" +
       '<div class="ttc-menu-sec" data-sec="app" id="ttcMenuAppSec" hidden><p class="ttc-menu-h">Ứng dụng</p>' +
       '<ul class="ttc-menu-list"><li><button type="button" class="ttc-menu-item" data-act="install">' +
-      '<span class="ttc-menu-ico" aria-hidden="true">📲</span>Cài ứng dụng vào điện thoại</button></li></ul></div>' +
-      '<div class="ttc-menu-sec" data-sec="info"><p class="ttc-menu-h">Thông tin</p>' +
-      '<ul class="ttc-menu-list">' + policyHtml() + "</ul></div>";
+      '<span class="ttc-menu-ico" aria-hidden="true">📲</span>Cài ứng dụng vào điện thoại</button></li></ul></div>';
     document.body.appendChild(panel);
     accountBox = byId("ttcMenuAccount");
     renderAccount();
@@ -477,6 +481,29 @@
     reading: function () {
       ensureScreen("reading");
       clickLater("#ttcReadingLauncher", 380);
+    },
+    /* REDESIGN GĐ1: Bài học mỗi ngày = thẻ dashboard thật trên
+       trang chủ — chuyển về màn home rồi cuộn tới đúng thẻ. */
+    lessons: function () {
+      ensureScreen("home");
+      setTimeout(function () {
+        var card = document.querySelector('#otter2-home section[aria-labelledby="otter2DashLessonsTitle"]');
+        if (card) card.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 200);
+    },
+    /* REDESIGN GĐ1: Tin nhắn = mở đúng cửa sổ chat AI (nút thật
+       #aichatLauncher ở góc phải); dự phòng nút Chat Online thật
+       ở header khi module chat AI vắng mặt. */
+    chat: function () {
+      var tries = 0;
+      (function check() {
+        var l = byId("aichatLauncher");
+        if (l) { l.click(); return; }
+        tries++;
+        if (tries < 10) { setTimeout(check, 250); return; }
+        var c = byId("otter2ChatOnlineBtn");
+        if (c) c.click();
+      })();
     },
     story: function () {
       ensureScreen("home");
