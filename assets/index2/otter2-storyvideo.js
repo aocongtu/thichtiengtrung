@@ -112,7 +112,7 @@
       "/* Overlay khu truyện kể — khuôn như #ttcExamOverlay. z-index 1000202 như overlay video cũ; bé trong zone 'story' có z cao hơn nhưng bị chướng ngại .ttc-story-shell chặn khỏi thẻ video. */",
       "#ttcStoryVideoOverlay{position:fixed;inset:0;z-index:1000202;background:rgba(15,23,42,.62);display:none;align-items:flex-start;justify-content:center;padding:12px;overflow:auto}",
       "#ttcStoryVideoOverlay.open{display:flex}",
-      ".ttc-story-shell{background:#fff;border-radius:20px;max-width:1180px;width:100%;margin:auto;padding:18px;box-shadow:0 30px 80px rgba(2,6,23,.35)}",
+      ".ttc-story-shell{position:relative;background:#fff;border-radius:20px;max-width:1180px;width:100%;margin:auto;padding:18px;box-shadow:0 30px 80px rgba(2,6,23,.35)}",
       "html[data-theme='night'] .ttc-story-shell{background:#0f172a;color:#e2e8f0}",
       ".ttc-story-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}",
       ".ttc-story-top h2{margin:0;font-size:20px;font-weight:900}",
@@ -125,16 +125,18 @@
       "@media (max-width:860px){.ttc-story-body{grid-template-columns:1fr}}",
       ".ttc-story-list{display:flex;flex-direction:column;gap:6px;max-height:70vh;overflow:auto;padding-right:2px}",
       "@media (max-width:860px){.ttc-story-list{max-height:none;order:2}}",
-      ".ttc-story-prog{font-size:12.5px;font-weight:700;color:#a21caf;margin:2px 0 6px}",
-      ".ttc-story-item{text-align:left;border:1.5px solid rgba(100,116,139,.25);background:transparent;color:inherit;border-radius:12px;padding:9px 11px;cursor:pointer;font-size:13.5px;line-height:1.35;display:flex;gap:9px;align-items:flex-start;width:100%}",
+      ".ttc-story-listhead{display:flex;align-items:center;gap:8px;margin:2px 0 6px}",
+      ".ttc-story-prog{flex:1;font-size:12.5px;font-weight:700;color:#a21caf;margin:0}",
+      ".ttc-story-list-close{display:none;width:30px;height:30px;border-radius:50%;border:1px solid rgba(100,116,139,.35);background:transparent;color:inherit;font-size:13px;cursor:pointer;flex:0 0 auto}",
+      ".ttc-story-item{text-align:left;border:1.5px solid rgba(100,116,139,.25);background:transparent;color:inherit;border-radius:12px;padding:8px 10px;cursor:pointer;font-size:13px;line-height:1.35;display:flex;gap:8px;align-items:flex-start;width:100%}",
       ".ttc-story-item:hover{border-color:#c026d3}",
       ".ttc-story-item.is-cur{border-color:#c026d3;background:rgba(192,38,211,.08);font-weight:700}",
       ".ttc-story-item .ttc-story-num{flex:0 0 auto;font-weight:900;color:#a21caf;font-size:12.5px;padding-top:1px}",
       ".ttc-story-item .ttc-story-tt{min-width:0;flex:1}",
-      ".ttc-story-item .ttc-story-zh{display:block;font-size:15px;font-weight:800}",
+      ".ttc-story-item .ttc-story-zh{display:block;font-size:14.5px;font-weight:800}",
       ".ttc-story-item .ttc-story-vi{display:block;font-size:12px;color:#64748b;font-weight:600}",
       ".ttc-story-item .ttc-story-meta{flex:0 0 auto;text-align:right;font-size:11.5px;color:#64748b;line-height:1.5}",
-      ".ttc-story-item .ttc-story-check{color:#059669;font-weight:900}",
+      ".ttc-story-item .ttc-story-check{flex:0 0 auto;color:#059669;font-weight:900;font-size:13px;padding-top:2px}",
       ".ttc-story-stage{min-width:0}",
       ".ttc-story-frame-wrap{position:relative;padding-top:56.25%;border-radius:14px;overflow:hidden;background:#0f172a}",
       ".ttc-story-frame-wrap iframe,.ttc-story-frame-wrap video{position:absolute;inset:0;width:100%;height:100%;border:0;background:#000}",
@@ -143,65 +145,93 @@
       ".ttc-story-now-vi{margin:0 0 4px;font-size:13.5px;color:#64748b;font-weight:700}",
       ".ttc-story-meta-line{margin:2px 0 4px;font-size:12.5px;color:#64748b}",
       ".ttc-story-navrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0 4px}",
-      ".ttc-story-navbtn{border:1.5px solid rgba(162,28,175,.45);background:transparent;color:inherit;border-radius:999px;padding:7px 13px;font-weight:800;font-size:13px;cursor:pointer;min-height:38px}",
+      ".ttc-story-navbtn{border:1.5px solid rgba(162,28,175,.45);background:transparent;color:#a21caf;border-radius:50%;width:36px;height:36px;padding:0;font-weight:800;font-size:18px;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}",
       ".ttc-story-navbtn:disabled{opacity:.4;cursor:default}",
       ".ttc-story-navrow .ttc-story-navbtn:last-child{margin-left:auto}",
       "/* Tự cuộn khi chọn truyện: chừa đệm 10px phía trên trình phát khi scrollIntoView neo vào. */",
       ".ttc-story-frame-wrap{scroll-margin-top:10px}",
       "/* Hàng nút chỉnh tốc độ phát — ngay dưới khung video, tông tím #7c3aed của khu truyện; mức đang chọn tô đặc. */",
-      ".ttc-story-raterow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:10px 0 0}",
-      ".ttc-story-rate-label{font-size:13px;font-weight:800;color:#7c3aed;margin-right:2px}",
-      ".ttc-story-ratebtn{border:1.5px solid rgba(124,58,237,.45);background:transparent;color:inherit;border-radius:999px;padding:6px 12px;font-weight:800;font-size:13px;cursor:pointer;min-height:36px;min-width:54px}",
-      ".ttc-story-ratebtn:hover{border-color:#7c3aed}",
-      ".ttc-story-ratebtn.is-cur{background:#7c3aed;color:#fff;border-color:#7c3aed}",
-      "/* ==== CHẶNG 1 (2026-11-18): phụ đề đồng bộ từng câu + lặp A–B ==== */",
-      "/* Thanh câu hiện tại (karaoke): nền trắng, viền tím nhạt khu truyện, câu chữ Hán lớn; lớp nào tắt thì ẩn hẳn. */",
-      ".ttc-story-subbar{margin:12px 0 0;border:1.5px solid rgba(124,58,237,.35);border-radius:14px;background:#fff;padding:12px 14px;min-height:64px}",
-      "html[data-theme='night'] .ttc-story-subbar{background:#1e293b}",
-      ".ttc-ss-tag{font-size:11.5px;font-weight:900;color:#7c3aed;letter-spacing:.4px;margin-bottom:4px}",
-      ".ttc-ss-zh{display:block;font-size:21px;font-weight:800;line-height:1.45;color:#0f172a}",
-      "html[data-theme='night'] .ttc-ss-zh{color:#f1f5f9}",
-      ".ttc-ss-py{display:block;font-size:14.5px;font-weight:700;color:#c2410c;margin-top:2px;line-height:1.4}",
-      ".ttc-ss-vi{display:block;font-size:14px;color:#475569;margin-top:2px;line-height:1.45}",
-      "html[data-theme='night'] .ttc-ss-vi{color:#cbd5e1}",
-      ".ttc-ss-idle{font-size:14.5px;color:#64748b;font-weight:700}",
-      ".ttc-sub-off-zh .ttc-ss-zh,.ttc-sub-off-py .ttc-ss-py,.ttc-sub-off-vi .ttc-ss-vi{display:none}",
-      "/* Hàng công tắc lớp phụ đề + hàng lặp A–B: chip viền tím, đang bật thì tô đặc tím như nút tốc độ. */",
-      ".ttc-story-subtools,.ttc-story-abrow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:10px 0 0}",
-      ".ttc-story-subtools-label,.ttc-story-ab-label{font-size:13px;font-weight:800;color:#7c3aed;margin-right:2px}",
-      ".ttc-story-subchip,.ttc-story-abbtn{border:1.5px solid rgba(124,58,237,.45);background:transparent;color:inherit;border-radius:999px;padding:6px 12px;font-weight:800;font-size:13px;cursor:pointer;min-height:36px}",
-      ".ttc-story-subchip:hover,.ttc-story-abbtn:hover{border-color:#7c3aed}",
-      ".ttc-story-subchip.is-cur,.ttc-story-abbtn.is-cur{background:#7c3aed;color:#fff;border-color:#7c3aed}",
+      ".ttc-story-setbar{display:flex;flex-wrap:nowrap;gap:6px;align-items:center;margin:8px 0 0;min-height:30px}",
+      ".ttc-story-setbar-right{margin-left:auto;display:flex;align-items:center;gap:4px}",
+      "@media (max-width:860px){.ttc-story-setbar{flex-wrap:wrap}}",
+      ".ttc-story-rate-label{font-size:13px;margin-right:0}",
+      ".ttc-story-ratechip{border:1.5px solid rgba(124,58,237,.4);background:transparent;color:inherit;border-radius:999px;padding:3px 8px;font-weight:800;font-size:11.5px;cursor:pointer;min-height:26px;white-space:nowrap}",
+      ".ttc-story-iconbtn{width:30px;height:30px;flex:0 0 auto;border-radius:50%;border:1px solid rgba(100,116,139,.3);background:transparent;color:#64748b;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0}",
+      ".ttc-story-iconbtn.is-cur{background:#7c3aed;color:#fff;border-color:#7c3aed}",
+      ".ttc-story-ratechip:hover{border-color:#7c3aed}",
+      ".ttc-story-ratechip.is-cur{background:#7c3aed;color:#fff;border-color:#7c3aed}",
+      "/* ==== PHÒNG TRUYỆN CHUẨN CORODOMO (2026-11-19): karaoke dưới video + danh sách câu làm chủ cột phải + thanh cài đặt mảnh ==== */",
+      "/* Thanh karaoke: nền tối bo tròn ngay dưới video; pinyin TỪNG TỪ phía trên từng nhóm chữ Hán, gạch chân theo từ bằng tím nhạt của khu truyện; nghĩa Việt là dòng riêng ngay dưới thanh. */",
+      ".ttc-story-karaoke{margin:10px 0 0}",
+      ".ttc-kara-bar{position:relative;background:#26303f;border-radius:14px;padding:12px 14px 13px;min-height:60px;box-shadow:0 8px 22px rgba(15,23,42,.18)}",
+      ".ttc-kara-tag{position:absolute;top:7px;right:11px;font-size:10px;font-weight:800;letter-spacing:.4px;color:rgba(255,255,255,.55)}",
+      ".ttc-kara-idle{display:block;color:#cbd5e1;font-size:14px;font-weight:700;padding:8px 0 4px}",
+      ".ttc-kara-words{display:flex;flex-wrap:wrap;gap:3px 9px;align-items:flex-end;padding-right:88px}",
+      ".ttc-kw{display:inline-flex;flex-direction:column;align-items:center}",
+      ".ttc-kw-py{font-size:11.5px;font-weight:600;line-height:1.25;color:#c4b5fd;letter-spacing:.2px;text-transform:lowercase;white-space:nowrap}",
+      ".ttc-kw-zh{font-size:20px;font-weight:800;line-height:1.28;color:#fff;border-bottom:2.5px solid #a78bfa;padding-bottom:1px;white-space:nowrap}",
+      ".ttc-kw-punct{font-size:20px;font-weight:800;line-height:1.28;color:#fff;padding-bottom:3.5px}",
+      ".ttc-kara-fb-py{display:block;font-size:12.5px;font-weight:600;color:#c4b5fd;line-height:1.35}",
+      ".ttc-kara-fb-zh{display:block;font-size:20px;font-weight:800;color:#fff;line-height:1.35;margin-top:1px}",
+      ".ttc-kara-vi{margin:6px 2px 0;font-size:13.5px;font-weight:600;color:#334155;line-height:1.45}",
+      "html[data-theme='night'] .ttc-kara-vi{color:#cbd5e1}",
+      ".ttc-sub-off-zh .ttc-kw-zh,.ttc-sub-off-zh .ttc-kw-punct,.ttc-sub-off-zh .ttc-kara-fb-zh{display:none}",
+      ".ttc-sub-off-py .ttc-kw-py,.ttc-sub-off-py .ttc-kara-fb-py{display:none}",
+      ".ttc-sub-off-vi .ttc-kara-vi{display:none}",
+      "/* Chip lớp phụ đề nằm trong thanh cài đặt mảnh dưới video (setbar), không còn hàng riêng. */",
+      ".ttc-story-subtools{display:flex;flex-wrap:nowrap;gap:4px;align-items:center;margin:0}",
+      ".ttc-story-subchip{border:1.5px solid rgba(124,58,237,.4);background:transparent;color:inherit;border-radius:999px;padding:3px 9px;font-weight:800;font-size:12px;cursor:pointer;min-height:26px;white-space:nowrap}",
+      ".ttc-story-subchip:hover{border-color:#7c3aed}",
+      ".ttc-story-subchip.is-cur{background:#7c3aed;color:#fff;border-color:#7c3aed}",
+      "/* Thanh lặp A–B mảnh ở đầu vùng phụ đề (dưới hàng tab chế độ): nút nhỏ + trạng thái đúng 1 dòng. */",
+      ".ttc-story-abbar{display:flex;align-items:center;gap:4px;margin:0 0 6px}",
+      ".ttc-story-abbtn{border:1.5px solid rgba(124,58,237,.45);background:transparent;color:inherit;border-radius:999px;padding:3px 9px;font-weight:800;font-size:11.5px;cursor:pointer;min-height:26px;white-space:nowrap}",
+      ".ttc-story-abbtn:hover{border-color:#7c3aed}",
+      ".ttc-story-abbtn.is-cur{background:#7c3aed;color:#fff;border-color:#7c3aed}",
       ".ttc-story-abbtn:disabled{opacity:.4;cursor:default}",
-      ".ttc-story-ab-status{font-size:12.5px;font-weight:700;color:#475569}",
-      "/* Danh sách câu: bấm để nhảy tới đoạn; câu đang đọc tô nền tím nhạt + vạch trái tím, tự cuộn trong khung. */",
-      ".ttc-story-sublist{margin:10px 0 0;max-height:264px;overflow:auto;border:1.5px solid rgba(100,116,139,.25);border-radius:14px;background:#fff}",
+      ".ttc-story-ab-status{flex:1;min-width:0;font-size:11px;font-weight:700;color:#475569;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
+      "/* Vùng phụ đề là cột flex: tab chế độ (gói bài tập chèn) trên cùng, thanh A–B, rồi panel bài tập / danh sách câu chiếm toàn bộ phần còn lại. */",
+      ".ttc-story-subzone{display:flex;flex-direction:column}",
+      ".ttc-story-subzone .ttc-pack-tabstrip{order:1}",
+      ".ttc-story-subzone .ttc-story-abbar{order:2;flex:0 0 auto}",
+      ".ttc-story-subzone .ttc-pack-panel{order:3}",
+      ".ttc-story-subzone .ttc-story-sublist{order:3}",
+      "/* Danh sách câu: hàng 2 dòng gọn (Hán tự + nghĩa Việt nhỏ xám), nút play nhỏ bên trái, câu hiện tại tô nền tím nhạt + vạch trái. */",
+      ".ttc-story-sublist{margin:0;max-height:264px;overflow:auto;border:1.5px solid rgba(100,116,139,.25);border-radius:14px;background:#fff}",
       "html[data-theme='night'] .ttc-story-sublist{background:#1e293b}",
-      ".ttc-story-subrow{display:flex;gap:9px;align-items:flex-start;width:100%;text-align:left;border:0;border-bottom:1px solid rgba(100,116,139,.14);background:transparent;color:inherit;padding:8px 11px;cursor:pointer;font-size:13.5px;line-height:1.4}",
+      ".ttc-story-subrow{display:flex;gap:8px;align-items:center;width:100%;text-align:left;border:0;border-bottom:1px solid rgba(100,116,139,.14);background:transparent;color:inherit;padding:7px 10px;cursor:pointer;font-size:13.5px;line-height:1.3}",
       ".ttc-story-subrow:last-child{border-bottom:0}",
       ".ttc-story-subrow:hover{background:rgba(124,58,237,.05)}",
       ".ttc-story-subrow.is-cur{background:rgba(124,58,237,.10);box-shadow:inset 3px 0 0 #7c3aed}",
-      ".ttc-story-subrow .ttc-ss-num{flex:0 0 auto;font-weight:900;color:#7c3aed;font-size:12px;padding-top:3px}",
+      ".ttc-ss-play{flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:rgba(124,58,237,.13);color:#7c3aed;font-size:10px;display:flex;align-items:center;justify-content:center;padding-left:1px}",
+      ".ttc-story-subrow.is-cur .ttc-ss-play{background:#7c3aed;color:#fff}",
       ".ttc-story-subrow .ttc-ss-main{min-width:0;flex:1}",
-      ".ttc-story-subrow .ttc-ss-zh{font-size:15.5px}",
-      ".ttc-story-subrow .ttc-ss-py{font-size:12.5px}",
-      ".ttc-story-subrow .ttc-ss-vi{font-size:12.5px}",
-      ".ttc-story-subrow .ttc-ss-time{flex:0 0 auto;font-size:11.5px;color:#64748b;font-weight:700;padding-top:3px}",
-      "/* ==== Desktop >=1021px: PHÒNG HỌC 2 CỘT kiểu corodomo khi truyện CÓ phụ đề (body.has-subs do buildSubUI bật, renderStage* tắt) ==== */",
-      "/* Chẩn đoán 2026-11-19: bố cục cũ xếp một cột dọc dưới video 16:9 cao ~455px khiến danh sách câu bị đẩy hẳn xuống dưới mép màn hình laptop (0px visible ở viewport 1536x725) — chủ web tưởng desktop không có tính năng. Nay: video + tốc độ + tiêu đề + nút chuyển truyện ở cột trái ~2/3; toàn bộ lớp phụ đề (thanh câu hiện tại + công tắc lớp + lặp A–B + danh sách câu) ở cột phải ~1/3, ngang hàng video, luôn trong tầm mắt; danh sách câu co giãn theo chiều cao cột phải. Truyện chưa có dữ liệu phụ đề (HSK2+) giữ nguyên bố cục cũ; mobile <=860px không đổi. */",
-      "/* Cách dựng: stage chừa 1/3 phải bằng padding, subzone position:absolute bám full chiều cao stage (do cột trái quyết định) — tránh bẫy grid-span: item grid vắt nhiều hàng sẽ bơm chiều cao các hàng theo nội dung của nó (danh sách 17 câu ~1.900px), absolute thì không tham gia flow nên không bơm được. */",
+      ".ttc-story-subrow .ttc-ss-zh{display:block;font-size:14.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
+      ".ttc-story-subrow .ttc-ss-vi{display:block;font-size:12px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
+      ".ttc-sub-off-zh .ttc-story-subrow .ttc-ss-zh{display:none}",
+      ".ttc-sub-off-vi .ttc-story-subrow .ttc-ss-vi{display:none}",
+      "/* ==== Desktop >=1021px: PHÒNG HỌC chuẩn corodomo — danh sách truyện ẨN mặc định, mở bằng icon Danh sách phát ở thanh cài đặt dưới video, hiện dạng PANEL PHỦ trượt ở cạnh trái phòng (không đẩy bố cục); cột chính = video + karaoke + thanh cài đặt; vùng phụ đề chiếm 1/3 phải của stage và danh sách câu làm chủ chiều cao của nó. ==== */",
       "@media (min-width:1021px){",
-      ".ttc-story-body.has-subs{grid-template-columns:280px minmax(0,1fr)}",
+      ".ttc-story-body{grid-template-columns:minmax(0,1fr)}",
+      ".ttc-story-list{position:absolute;top:64px;left:10px;bottom:10px;width:308px;z-index:40;background:#fff;border:1px solid #e7e9ee;border-radius:16px;box-shadow:0 24px 60px rgba(2,6,23,.28);padding:12px;max-height:none;display:none}",
+      "html[data-theme='night'] .ttc-story-list{background:#1e293b}",
+      ".ttc-story-body.ttc-list-open .ttc-story-list{display:flex;animation:ttcListIn .18s ease}",
+      "@keyframes ttcListIn{from{transform:translateX(-10px);opacity:.3}to{transform:none;opacity:1}}",
+      ".ttc-story-list-close{display:inline-flex;align-items:center;justify-content:center}",
+      ".ttc-story-body:not(.has-subs) .ttc-story-frame-wrap{max-width:760px}",
       ".ttc-story-body.has-subs .ttc-story-stage{position:relative;padding-right:calc((100% - 16px) / 3 + 16px)}",
       ".ttc-story-body.has-subs .ttc-story-subzone{position:absolute;top:0;right:0;bottom:0;width:calc((100% - 16px) / 3);display:flex;flex-direction:column;min-width:0}",
       ".ttc-story-body.has-subs .ttc-story-subzone[hidden]{display:none}",
-      "/* Ba khối cố định không được co: riêng subbar có min-height:64px trong CSS gốc — min-height khai báo sẵn sẽ THAY minimum tự động của flex item, nên khi cột phải thiếu chỗ, flex co subbar xuống đúng 64px và chữ tràn ra ngoài viền (đã đo: hộp 64px, nội dung 157px). flex:0 0 auto ghim chúng theo đúng chiều cao nội dung; chỉ danh sách câu (min-height:0) co giãn + cuộn trong. */",
-      ".ttc-story-body.has-subs .ttc-story-subbar{margin-top:0;flex:0 0 auto}",
-      ".ttc-story-body.has-subs .ttc-story-subtools{flex:0 0 auto}",
-      ".ttc-story-body.has-subs .ttc-story-abrow{flex:0 0 auto}",
       ".ttc-story-body.has-subs .ttc-story-sublist{flex:1 1 auto;min-height:0;max-height:none}",
+      ".ttc-story-body.has-subs .ttc-pack-panel{flex:1 1 auto;min-height:0;overflow-y:auto;margin:0}",
+      ".ttc-story-body.has-subs .ttc-story-subzone:has(.ttc-pack-panel:not([hidden])) .ttc-story-abbar{display:none}",
+      ".ttc-story-body.has-subs .ttc-story-subrow{padding:6px 10px}",
+      ".ttc-story-body.has-subs .ttc-story-subrow .ttc-ss-zh{font-size:14px}",
+      ".ttc-story-body.has-subs .ttc-story-subrow .ttc-ss-vi{font-size:11.5px}",
+      ".ttc-kara-bar .ttc-kw-zh{font-size:21px}",
+      ".ttc-kara-bar .ttc-kw-punct{font-size:21px}",
       "}"
-    ].join("\n");
+      ].join("\n");
     var st = document.createElement("style");
     st.id = "ttcStoryVideoStyle";
     st.textContent = css;
@@ -298,6 +328,96 @@
     return zh;
   }
 
+  /* ---------------- danh sách phát: ẩn hẳn trên desktop, mở bằng icon ----------------
+     Chuẩn corodomo (chủ web duyệt 2026-11-19): trên desktop danh sách truyện
+     mặc định ẨN để video + cột phụ đề hưởng trọn bề ngang; icon ☰ ở thanh
+     cài đặt dưới video mở nó dạng panel phủ cạnh trái phòng. Trạng thái
+     nhớ trong localStorage, mặc định ĐÓNG. Chưa chọn truyện nào thì panel
+     tự mở (không ghi pref) để người học có đường vào chọn. */
+  var LIST_LS_KEY = "otter2_storyvideo_list_v1";
+  var listPrefOpen = false;
+  try { listPrefOpen = localStorage.getItem(LIST_LS_KEY) === "open"; } catch (e) {}
+  function isDesktopRoom() {
+    return !!(window.matchMedia && window.matchMedia("(min-width:1021px)").matches);
+  }
+  function listPanelVisible() {
+    var b = stageEl && stageEl.parentNode;
+    return !!(b && b.classList && b.classList.contains("ttc-list-open"));
+  }
+  function setListOpen(open, persist) {
+    var b = stageEl && stageEl.parentNode;
+    if (b && b.classList) b.classList.toggle("ttc-list-open", !!open);
+    var btn = stageEl ? stageEl.querySelector("#ttcStoryListBtn") : null;
+    if (btn) {
+      btn.classList.toggle("is-cur", !!open);
+      btn.setAttribute("aria-pressed", open ? "true" : "false");
+    }
+    if (persist) {
+      listPrefOpen = !!open;
+      try { localStorage.setItem(LIST_LS_KEY, open ? "open" : "closed"); } catch (e) {}
+    }
+  }
+  function applyListPref() { setListOpen(listPrefOpen || !state.currentKey, false); }
+
+  /* ---------------- tách từ cho thanh karaoke ----------------
+     Cùng thuật toán tách-từ-dài-nhất của gói bài tập (ngân hàng từ theo cấp
+     trong OTTER2_HSK_ALL_DATA): ghép pinyin TỪNG TỪ bằng cách căn âm tiết
+     của câu (mỗi chữ Hán = 1 âm tiết). Âm tiết không khớp số chữ -> trả
+     null, thanh karaoke hiển thị pinyin theo câu (chế độ dự phòng). */
+  var KARA_PUNCT_RE = /[，。？！：；、·…—「」『』""''“”‘’（）()《》〈〉\s]/;
+  var karaBankCache = {};
+  function karaBank(level) {
+    if (karaBankCache[level]) return karaBankCache[level];
+    var all = window.OTTER2_HSK_ALL_DATA;
+    if (!all || !all.words) return null;
+    var byLen = {}, maxLen = 1, n = 0;
+    all.words.forEach(function (w) {
+      if (!w || !w.h || Number(w.hsk) !== Number(level)) return;
+      var L = w.h.length;
+      if (!byLen[L]) byLen[L] = {};
+      byLen[L][w.h] = w; n++;
+      if (L > maxLen) maxLen = L;
+    });
+    if (!n) return null;
+    karaBankCache[level] = { byLen: byLen, maxLen: maxLen };
+    return karaBankCache[level];
+  }
+  function segmentCue(zh, bank) {
+    var toks = [], i = 0;
+    zh = String(zh || "");
+    while (i < zh.length) {
+      var ch = zh.charAt(i);
+      if (KARA_PUNCT_RE.test(ch)) { toks.push({ text: ch, punct: true }); i++; continue; }
+      var hit = null;
+      for (var L = Math.min(bank.maxLen, zh.length - i); L >= 1; L--) {
+        var cand = zh.substr(i, L);
+        if (bank.byLen[L] && bank.byLen[L][cand]) { hit = cand; break; }
+      }
+      if (hit) { toks.push({ text: hit }); i += hit.length; }
+      else { toks.push({ text: ch }); i++; }
+    }
+    return toks;
+  }
+  function karaokeWords(cue, level) {
+    var bank = karaBank(level);
+    if (!bank) return null;
+    var toks = segmentCue(cue[2], bank);
+    var han = 0;
+    toks.forEach(function (t) { if (!t.punct) han += t.text.length; });
+    var syl = String(cue[3] || "").split(/\s+/).filter(Boolean).map(function (t) {
+      return t.replace(/[，。？！：；、,.?!:;…]+$/, "");
+    }).filter(Boolean);
+    if (syl.length !== han) return null;
+    var out = [], k = 0;
+    toks.forEach(function (t) {
+      if (t.punct) { out.push({ punct: t.text }); return; }
+      var py = [];
+      for (var j = 0; j < t.text.length; j++) py.push(syl[k++]);
+      out.push({ zh: t.text, py: py.join(" ") });
+    });
+    return out;
+  }
+
   /* ---------------- state ---------------- */
   var state = { tab: 1, currentKey: null, flat: [] };
 
@@ -330,7 +450,9 @@
     overlay.querySelector("#ttcStoryVideoClose").addEventListener("click", closeZone);
     overlay.addEventListener("click", function (e) { if (e.target === overlay) closeZone(); });
     document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape" && overlay.classList.contains("open")) closeZone();
+      if (e.key !== "Escape" || !overlay.classList.contains("open")) return;
+      if (isDesktopRoom() && listPanelVisible() && state.currentKey) { setListOpen(false, true); return; }
+      closeZone();
     });
   }
 
@@ -360,7 +482,8 @@
     var done = items.filter(function (v) { return watched[v.key]; }).length;
     var html = "";
     if (items.length) {
-      html += '<p class="ttc-story-prog">Đã xem ' + done + "/" + items.length + " truyện · HSK " + state.tab + "</p>";
+      html += '<div class="ttc-story-listhead"><p class="ttc-story-prog">Đã xem ' + done + "/" + items.length + " truyện · HSK " + state.tab + "</p>" +
+        '<button type="button" class="ttc-story-list-close" id="ttcStoryListClose" aria-label="Đóng danh sách truyện">✕</button></div>';
       items.forEach(function (v, i) {
         var dur = fmtDur(v.duration_s);
         html += '<button type="button" class="ttc-story-item' + (v.key === state.currentKey ? " is-cur" : "") +
@@ -369,11 +492,13 @@
           '<span class="ttc-story-tt"><span class="ttc-story-zh">' + esc(v.title_zh) + "</span>" +
           (v.title_vi ? '<span class="ttc-story-vi">' + esc(v.title_vi) + "</span>" : "") + "</span>" +
           '<span class="ttc-story-meta">' +
-          (watched[v.key] ? '<span class="ttc-story-check" aria-label="Đã xem">✓ đã xem</span><br>' : "") +
-          (dur ? esc(dur) : "") + "<br>" + esc(v.voice_label || "") + "</span></button>";
+          (dur ? esc(dur) : "") + "<br>" + esc(v.voice_label || "") + "</span>" +
+          (watched[v.key] ? '<span class="ttc-story-check" aria-label="Đã xem">✓</span>' : "") + "</button>";
       });
     }
     listEl.innerHTML = html;
+    var lc = listEl.querySelector("#ttcStoryListClose");
+    if (lc) lc.addEventListener("click", function () { setListOpen(false, true); });
     Array.prototype.forEach.call(listEl.querySelectorAll("[data-story-idx]"), function (btn) {
       btn.addEventListener("click", function () {
         playStory(state.flat[Number(btn.getAttribute("data-story-idx"))]);
@@ -384,7 +509,10 @@
   function renderStageEmpty() {
     setSubsLayout(false);
     if (levelItems(state.tab).length) {
-      stageEl.innerHTML = '<div class="ttc-story-empty">▶ Chọn một truyện trong danh sách để xem video kể chuyện có tranh minh họa chuyển động và giọng đọc.</div>';
+      stageEl.innerHTML = '<div class="ttc-story-empty">▶ Chọn một truyện để xem video kể chuyện có tranh minh họa chuyển động và giọng đọc.<br><br>' +
+        '<button type="button" class="ttc-story-navbtn" id="ttcStoryPickBtn" aria-label="Mở danh sách truyện" title="Danh sách phát" style="width:44px;height:44px;font-size:19px">☰</button></div>';
+      var pk = stageEl.querySelector("#ttcStoryPickBtn");
+      if (pk) pk.addEventListener("click", function () { setListOpen(true, false); });
     } else {
       stageEl.innerHTML = '<div class="ttc-story-empty">🚧 <b>HSK ' + state.tab + ' — Sắp ra mắt</b><br>' +
         "Truyện kể cấp này đang được sản xuất. Hiện đã có truyện HSK 1 — mời bạn xem trước nhé!</div>";
@@ -405,22 +533,30 @@
     var dur = fmtDur(entry.duration_s);
     var rateBtns = RATES.map(function (r) {
       var on = r === currentRate;
-      return '<button type="button" class="ttc-story-ratebtn' + (on ? " is-cur" : "") +
+      return '<button type="button" class="ttc-story-ratechip' + (on ? " is-cur" : "") +
         '" data-story-rate="' + r + '" aria-pressed="' + (on ? "true" : "false") + '">' + rateLabel(r) + "</button>";
     }).join("");
     stageEl.innerHTML =
       '<div class="ttc-story-frame-wrap"><video id="ttcStoryVideoFrame" title="' + esc(entry.title_zh) + '" ' +
       'src="' + esc(entry.stream || ("https://drive.google.com/uc?export=download&id=" + encodeURIComponent(entry.drive_id))) + '" ' +
       'controls playsinline preload="auto" controlslist="nodownload" disablepictureinpicture></video></div>' +
-      '<div class="ttc-story-raterow" role="group" aria-label="Tốc độ phát"><span class="ttc-story-rate-label">🐢 Tốc độ:</span>' + rateBtns + "</div>" +
-      '<div class="ttc-story-subzone" id="ttcStorySubZone" hidden></div>' +
+      '<div class="ttc-story-setbar" id="ttcStorySetbar">' +
+      '<div class="ttc-story-subtools" id="ttcStorySubTools" role="group" aria-label="Lớp phụ đề hiển thị" hidden></div>' +
+      '<div class="ttc-story-setbar-right"><span class="ttc-story-rate-label" aria-hidden="true">🐢</span>' + rateBtns +
+      '<button type="button" class="ttc-story-iconbtn" id="ttcStoryListBtn" aria-label="Danh sách phát" title="Danh sách phát" aria-pressed="false">☰</button>' +
+      '<button type="button" class="ttc-story-iconbtn" id="ttcStorySetClose" aria-label="Đóng phòng truyện">✕</button></div></div>' +
       '<h3 class="ttc-story-now">' + esc(entry.title_zh) + "</h3>" +
       (entry.title_vi ? '<p class="ttc-story-now-vi">' + esc(entry.title_vi) + "</p>" : "") +
       '<p class="ttc-story-meta-line">HSK ' + entry.level + (dur ? " · ⏱ " + esc(dur) : "") +
       (entry.voice_label ? " · 🎙 " + esc(entry.voice_label) : "") + "</p>" +
       '<div class="ttc-story-navrow">' +
-      '<button type="button" class="ttc-story-navbtn" id="ttcStoryPrev"' + (prev ? "" : " disabled") + ">← Truyện trước</button>" +
-      '<button type="button" class="ttc-story-navbtn" id="ttcStoryNext"' + (next ? "" : " disabled") + ">Truyện tiếp →</button></div>";
+      '<button type="button" class="ttc-story-navbtn" id="ttcStoryPrev" aria-label="Truyện trước" title="Truyện trước"' + (prev ? "" : " disabled") + '>‹</button>' +
+      '<button type="button" class="ttc-story-navbtn" id="ttcStoryNext" aria-label="Truyện tiếp" title="Truyện tiếp"' + (next ? "" : " disabled") + '>›</button></div>' +
+      '<div class="ttc-story-subzone" id="ttcStorySubZone" hidden></div>';
+    var lb = stageEl.querySelector("#ttcStoryListBtn");
+    if (lb) lb.addEventListener("click", function () { setListOpen(!listPanelVisible(), true); });
+    var scb = stageEl.querySelector("#ttcStorySetClose");
+    if (scb) scb.addEventListener("click", function () { closeZone(); });
     var pb = stageEl.querySelector("#ttcStoryPrev");
     var nb = stageEl.querySelector("#ttcStoryNext");
     if (pb && prev) pb.addEventListener("click", function () { playStory(prev); });
@@ -474,50 +610,86 @@
     subState = { key: entry.key, cues: cues, cur: -2, A: null, B: null, loop: false };
     zone.hidden = false;
     setSubsLayout(true);
+
+    /* Thanh karaoke: chèn vào stage ngay TRƯỚC thanh cài đặt (tức ngay dưới
+       video) — câu hiện tại sống ở đây + nổi bật trong danh sách, không còn
+       khối câu khổ lớn trong cột phải. */
+    var kara = document.createElement("div");
+    kara.className = "ttc-story-karaoke";
+    kara.id = "ttcStoryKaraoke";
+    kara.innerHTML =
+      '<div class="ttc-kara-bar"><span class="ttc-kara-tag" id="ttcStorySubTag">📜 PHỤ ĐỀ TỪNG CÂU</span>' +
+      '<span class="ttc-kara-idle" id="ttcStorySubIdle">🎬 Phần mở đầu…</span>' +
+      '<span class="ttc-kara-words" id="ttcStoryKaraWords"></span></div>' +
+      '<p class="ttc-kara-vi" id="ttcStorySubVi"></p>';
+    var setbar = stageEl.querySelector("#ttcStorySetbar");
+    if (setbar && setbar.parentNode) setbar.parentNode.insertBefore(kara, setbar);
+    else stageEl.insertBefore(kara, zone);
+
+    /* Chip lớp phụ đề vào ô trái của thanh cài đặt mảnh dưới video. */
+    var tools = stageEl.querySelector("#ttcStorySubTools");
+    if (tools) {
+      tools.hidden = false;
+      tools.innerHTML =
+        '<button type="button" class="ttc-story-subchip" data-sub-pref="zh">Hán tự</button>' +
+        '<button type="button" class="ttc-story-subchip" data-sub-pref="py">Pinyin</button>' +
+        '<button type="button" class="ttc-story-subchip" data-sub-pref="vi">Nghĩa Việt</button>' +
+        '<button type="button" class="ttc-story-subchip" data-sub-pref="trad">Phồn thể</button>';
+    }
+
+    /* Cột phải chỉ còn: thanh lặp A–B mảnh + danh sách câu (tab Bài tập do
+       gói bài tập chèn lên trên cùng của vùng này). */
     zone.innerHTML =
-      '<div class="ttc-story-subbar" id="ttcStorySubBar">' +
-      '<div class="ttc-ss-tag" id="ttcStorySubTag">📜 PHỤ ĐỀ TỪNG CÂU</div>' +
-      '<span class="ttc-ss-idle" id="ttcStorySubIdle">🎬 Phần mở đầu…</span>' +
-      '<span class="ttc-ss-zh" id="ttcStorySubZh"></span>' +
-      '<span class="ttc-ss-py" id="ttcStorySubPy"></span>' +
-      '<span class="ttc-ss-vi" id="ttcStorySubVi"></span></div>' +
-      '<div class="ttc-story-subtools" role="group" aria-label="Lớp phụ đề hiển thị">' +
-      '<span class="ttc-story-subtools-label">💬 Phụ đề:</span>' +
-      '<button type="button" class="ttc-story-subchip" data-sub-pref="zh">Hán tự</button>' +
-      '<button type="button" class="ttc-story-subchip" data-sub-pref="py">Pinyin</button>' +
-      '<button type="button" class="ttc-story-subchip" data-sub-pref="vi">Nghĩa Việt</button>' +
-      '<button type="button" class="ttc-story-subchip" data-sub-pref="trad">Phồn thể</button></div>' +
-      '<div class="ttc-story-abrow" role="group" aria-label="Lặp đoạn A–B">' +
-      '<span class="ttc-story-ab-label">🔁 Lặp A–B:</span>' +
-      '<button type="button" class="ttc-story-abbtn" id="ttcStorySetA">⏺ Đặt A</button>' +
-      '<button type="button" class="ttc-story-abbtn" id="ttcStorySetB">⏺ Đặt B</button>' +
+      '<div class="ttc-story-abbar" role="group" aria-label="Lặp đoạn A–B">' +
+      '<button type="button" class="ttc-story-abbtn" id="ttcStorySetA">Đặt A</button>' +
+      '<button type="button" class="ttc-story-abbtn" id="ttcStorySetB">Đặt B</button>' +
+      '<span class="ttc-story-ab-status" id="ttcStoryABStatus">Đặt A · Đặt B để lặp đoạn.</span>' +
       '<button type="button" class="ttc-story-abbtn" id="ttcStoryLoopToggle" disabled aria-pressed="false">Lặp: Tắt</button>' +
-      '<button type="button" class="ttc-story-abbtn" id="ttcStoryClearAB" disabled>✖ Xoá lặp</button>' +
-      '<span class="ttc-story-ab-status" id="ttcStoryABStatus">Bấm “Đặt A” tại điểm bắt đầu, “Đặt B” tại điểm kết thúc.</span></div>' +
+      '<button type="button" class="ttc-story-abbtn" id="ttcStoryClearAB" disabled aria-label="Xoá lặp">✖</button></div>' +
       '<div class="ttc-story-sublist" id="ttcStorySubList" aria-label="Danh sách câu — bấm để nhảy tới đoạn"></div>';
 
-    var bar = zone.querySelector("#ttcStorySubBar");
-    var tagEl = zone.querySelector("#ttcStorySubTag");
-    var idleEl = zone.querySelector("#ttcStorySubIdle");
-    var zhEl = zone.querySelector("#ttcStorySubZh");
-    var pyEl = zone.querySelector("#ttcStorySubPy");
-    var viEl = zone.querySelector("#ttcStorySubVi");
+    var tagEl = kara.querySelector("#ttcStorySubTag");
+    var idleEl = kara.querySelector("#ttcStorySubIdle");
+    var wordsEl = kara.querySelector("#ttcStoryKaraWords");
+    var viEl = kara.querySelector("#ttcStorySubVi");
     var listEl2 = zone.querySelector("#ttcStorySubList");
     var statusEl = zone.querySelector("#ttcStoryABStatus");
     var loopBtn = zone.querySelector("#ttcStoryLoopToggle");
     var clearBtn = zone.querySelector("#ttcStoryClearAB");
 
     function cueZh(i) { return tradText(cues[i][2]); }
+    function renderKaraoke(idx) {
+      if (idx < 0 || idx >= cues.length) {
+        tagEl.textContent = "📜 PHỤ ĐỀ TỪNG CÂU";
+        idleEl.style.display = "";
+        idleEl.textContent = idx < 0 ? "🎬 Phần mở đầu…" : "✦ Phần kết — bấm vào một câu để nghe lại nhé!";
+        wordsEl.innerHTML = "";
+        viEl.textContent = "";
+        return;
+      }
+      tagEl.textContent = "📜 CÂU " + (idx + 1) + "/" + cues.length;
+      idleEl.style.display = "none";
+      var words = karaokeWords(cues[idx], entry.level);
+      if (words) {
+        wordsEl.innerHTML = words.map(function (w) {
+          if (w.punct) return '<span class="ttc-kw-punct">' + esc(w.punct) + "</span>";
+          return '<span class="ttc-kw"><span class="ttc-kw-py">' + esc(w.py) + '</span>' +
+            '<span class="ttc-kw-zh">' + esc(tradText(w.zh)) + "</span></span>";
+        }).join("");
+      } else {
+        wordsEl.innerHTML = '<span class="ttc-kara-fb"><span class="ttc-kara-fb-py">' + esc(cues[idx][3]) + '</span>' +
+          '<span class="ttc-kara-fb-zh">' + esc(cueZh(idx)) + "</span></span>";
+      }
+      viEl.textContent = cues[idx][4];
+    }
     function renderList() {
       var html = "";
       cues.forEach(function (c, i) {
         html += '<button type="button" class="ttc-story-subrow" data-sub-idx="' + i + '">' +
-          '<span class="ttc-ss-num">' + (i + 1) + "</span>" +
+          '<span class="ttc-ss-play" aria-hidden="true">▶</span>' +
           '<span class="ttc-ss-main">' +
           '<span class="ttc-ss-zh">' + esc(cueZh(i)) + "</span>" +
-          '<span class="ttc-ss-py">' + esc(c[3]) + "</span>" +
-          '<span class="ttc-ss-vi">' + esc(c[4]) + "</span></span>" +
-          '<span class="ttc-ss-time">' + fmtClock(c[0]) + "</span></button>";
+          '<span class="ttc-ss-vi">' + esc(c[4]) + "</span></span></button>";
       });
       listEl2.innerHTML = html;
       Array.prototype.forEach.call(listEl2.querySelectorAll("[data-sub-idx]"), function (row) {
@@ -529,32 +701,32 @@
       });
     }
     function applyPrefs() {
-      zone.classList.toggle("ttc-sub-off-zh", !subPrefs.zh);
-      zone.classList.toggle("ttc-sub-off-py", !subPrefs.py);
-      zone.classList.toggle("ttc-sub-off-vi", !subPrefs.vi);
-      Array.prototype.forEach.call(zone.querySelectorAll("[data-sub-pref]"), function (chip) {
+      stageEl.classList.toggle("ttc-sub-off-zh", !subPrefs.zh);
+      stageEl.classList.toggle("ttc-sub-off-py", !subPrefs.py);
+      stageEl.classList.toggle("ttc-sub-off-vi", !subPrefs.vi);
+      Array.prototype.forEach.call(stageEl.querySelectorAll("[data-sub-pref]"), function (chip) {
         var k = chip.getAttribute("data-sub-pref");
         var on = !!subPrefs[k];
         chip.classList.toggle("is-cur", on);
         chip.setAttribute("aria-pressed", on ? "true" : "false");
       });
     }
-    Array.prototype.forEach.call(zone.querySelectorAll("[data-sub-pref]"), function (chip) {
+    Array.prototype.forEach.call(stageEl.querySelectorAll("[data-sub-pref]"), function (chip) {
       chip.addEventListener("click", function () {
         var k = chip.getAttribute("data-sub-pref");
         subPrefs[k] = !subPrefs[k];
         saveSubPrefs();
         applyPrefs();
-        if (k === "trad") { renderList(); if (subState) { var c = subState.cur; subState.cur = -2; syncToTime(true); } }
+        if (k === "trad") { renderList(); if (subState) { subState.cur = -2; syncToTime(true); } }
       });
     });
     function abStatus(msg) {
       if (msg) { statusEl.textContent = msg; return; }
       var a = subState.A, b = subState.B;
-      if (a == null && b == null) statusEl.textContent = "Bấm “Đặt A” tại điểm bắt đầu, “Đặt B” tại điểm kết thúc.";
-      else if (a != null && b == null) statusEl.textContent = "A = " + fmtClock(a) + " · hãy bấm “Đặt B” tại điểm kết thúc.";
-      else if (a == null && b != null) statusEl.textContent = "B = " + fmtClock(b) + " · hãy bấm “Đặt A” tại điểm bắt đầu.";
-      else statusEl.textContent = "A = " + fmtClock(a) + " · B = " + fmtClock(b) + (subState.loop ? " · đang lặp đoạn này" : "");
+      if (a == null && b == null) statusEl.textContent = "Đặt A · Đặt B để lặp đoạn.";
+      else if (a != null && b == null) statusEl.textContent = "A = " + fmtClock(a) + " · bấm Đặt B.";
+      else if (a == null && b != null) statusEl.textContent = "B = " + fmtClock(b) + " · bấm Đặt A.";
+      else statusEl.textContent = "A = " + fmtClock(a) + " · B = " + fmtClock(b) + (subState.loop ? " · đang lặp" : "");
     }
     function abRefresh() {
       var ok = subState.A != null && subState.B != null && subState.B > subState.A;
@@ -591,14 +763,9 @@
       }
       if (ans < 0) return -1;
       return t < cues[ans][1] ? ans : (ans + 1 < cues.length ? -1 : cues.length);
-      /* -1 = đang ở intro/khoảng lặng; cues.length = đã qua câu cuối (phần kết) */
     }
     function scrollRowIntoList(row) {
       if (!row) return;
-      /* Đo theo rect tương đối với chính khung danh sách: công thức offsetTop
-         cũ lệ thuộc offsetParent (thay đổi theo bố cục — trên desktop 2 cột
-         stage có position:relative nên offsetTop bị cộng dồn chiều cao các
-         khối phía trên, cuộn quá đà và câu hiện tại bị trôi khỏi khung). */
       var lr = listEl2.getBoundingClientRect();
       var rr = row.getBoundingClientRect();
       var target = listEl2.scrollTop + (rr.top - lr.top) - listEl2.clientHeight / 2 + rr.height / 2;
@@ -610,23 +777,7 @@
       var idx = findCue(t);
       if (idx === subState.cur && !force) return;
       subState.cur = idx;
-      if (idx < 0) {
-        tagEl.textContent = "📜 PHỤ ĐỀ TỪNG CÂU";
-        idleEl.style.display = "";
-        idleEl.textContent = "🎬 Phần mở đầu…";
-        zhEl.textContent = ""; pyEl.textContent = ""; viEl.textContent = "";
-      } else if (idx >= cues.length) {
-        tagEl.textContent = "📜 PHỤ ĐỀ TỪNG CÂU";
-        idleEl.style.display = "";
-        idleEl.textContent = "✦ Phần kết — bấm vào một câu để nghe lại nhé!";
-        zhEl.textContent = ""; pyEl.textContent = ""; viEl.textContent = "";
-      } else {
-        tagEl.textContent = "📜 CÂU " + (idx + 1) + "/" + cues.length;
-        idleEl.style.display = "none";
-        zhEl.textContent = cueZh(idx);
-        pyEl.textContent = cues[idx][3];
-        viEl.textContent = cues[idx][4];
-      }
+      renderKaraoke(idx);
       Array.prototype.forEach.call(listEl2.querySelectorAll(".ttc-story-subrow"), function (row, i) {
         var on = i === idx;
         if (on !== row.classList.contains("is-cur")) {
@@ -637,7 +788,6 @@
     }
     vid.addEventListener("timeupdate", function () {
       if (!subState || subState.key !== entry.key) return;
-      /* Lặp A–B: chạm B thì quay về A (chừa 0.06s chống dội do timeupdate 4Hz). */
       if (subState.loop && subState.A != null && subState.B != null &&
           vid.currentTime >= subState.B - 0.02) {
         try { vid.currentTime = subState.A + 0.01; } catch (e) {}
@@ -671,6 +821,7 @@
       if (!ok) { renderStageLocked(entry); scrollToPlayer(); return false; }
       state.currentKey = entry.key;
       renderStage(entry);
+      setListOpen(listPrefOpen, false);
       renderList();
       scrollToPlayer();
       return true;
@@ -683,6 +834,7 @@
     renderTabs();
     renderList();
     renderStageEmpty();
+    applyListPref();
   }
 
   function openZone() {
@@ -691,6 +843,7 @@
     renderTabs();
     renderList();
     if (!state.currentKey) renderStageEmpty();
+    applyListPref();
     overlay.classList.add("open");
     document.body.style.overflow = "hidden";
   }
