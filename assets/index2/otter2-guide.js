@@ -78,9 +78,15 @@
       ".guide-head small{color:#8a877e;font-weight:600;font-size:.74rem}",
       ".guide-close{margin-left:auto;width:34px;height:34px;border-radius:50%;border:1px solid #e3e0d8;background:#fff;color:#55534d;display:grid;place-items:center;flex:none;font-size:.85rem;cursor:pointer}",
       ".guide-text{display:block;font-size:.92rem;line-height:1.6;margin:12px 0 0;max-height:none;overflow:visible;-webkit-line-clamp:none}",
-      ".guide-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:13px}",
+      ".guide-chips{display:flex;flex-direction:column;gap:7px;margin-top:13px}",
       ".guide-chips button{border:1px solid #e3e0d8;background:#f6f4ef;color:#23222b;border-radius:999px;padding:7px 12px;font-size:.8rem;font-weight:700;min-height:2.3rem;cursor:pointer}",
       ".guide-chips button.guide-active{background:#d63a2f;border-color:#d63a2f;color:#fff}",
+      ".guide-topic{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid #e3e0d8;background:#f6f4ef;color:#23222b;border-radius:12px;padding:9px 12px;font-size:.84rem;font-weight:700;min-height:2.6rem;cursor:pointer;user-select:none;-webkit-user-select:none}",
+      ".guide-topic[aria-expanded=\"true\"]{border-color:#d63a2f;color:#d63a2f;background:#fdf3ec}",
+      ".guide-topic-chev{font-size:.8rem;color:#8a877e;transition:transform .15s}",
+      ".guide-topic[aria-expanded=\"true\"] .guide-topic-chev{transform:rotate(180deg);color:#d63a2f}",
+      ".guide-topic-body{display:flex;flex-wrap:wrap;gap:7px;padding:1px 0 3px}",
+      ".guide-topic-body[hidden]{display:none}",
       ".guide-foot{display:flex;gap:8px;margin-top:13px;flex-wrap:wrap}",
       ".guide-voice{display:inline-flex;align-items:center;gap:7px;border:1px solid #e3e0d8;background:#f6f4ef;color:#23222b;border-radius:11px;padding:9px 12px;font-weight:700;font-size:.8rem;min-height:2.7rem;flex:none;cursor:pointer}",
       ".guide-voice svg{width:15px;height:15px;flex:none}",
@@ -540,8 +546,126 @@
       try { u.pitch = plan.pitch; } catch (eP4) {}
       guideVoiceState = plan;
     }
+    /* ---------------- Giọng mây (Google Cloud TTS) ----------------
+       Chủ web chốt 2026-11-20: giọng đọc của bé KHÔNG phụ thuộc giọng máy
+       của thiết bị nữa (máy học viên có thể chỉ có 1 giọng nam, không có
+       giọng nữ…) mà tổng hợp trên mây qua Supabase Edge Function "tts"
+       (Google Cloud TTS, cache theo hash câu+ngôn ngữ+giới tính — thiết kế:
+       ~/workspace/supabase_fix/tts_cloud.md). Giọng theo giới tính hiện tại
+       của bé: function tự map Nữ -> vi-VN-Wavenet-A, Nam -> vi-VN-Wavenet-D
+       (bảng VOICES phía server — đổi giọng chỉ sửa 1 hằng số phía server).
+       Thứ tự ưu tiên trong speak():
+         (1) người học đã CHỌN TAY giọng máy trong Giọng đọc -> giọng máy
+             thắng tuyệt đối (đúng luật cũ của pickGuideVoice), mây không chen;
+         (2) chưa chọn tay + Giọng mây đang bật -> thử mây trước;
+         (3) mây lỗi/timeout/mất mạng/chưa có tương tác đầu tiên -> rơi về
+             giọng máy như cũ (kèm biến đổi cao độ như đã live).
+       Giọng mây MẶC ĐỊNH BẬT (chủ web yêu cầu thay giọng); tắt bằng
+       localStorage "otter2CloudTtsV1" = "0". Phát bằng <audio> bất đồng
+       bộ: không chặn bong bóng chữ hay bước chạy của bé; đang tải/phát mây
+       thì bỏ qua câu mới (cùng lớp bảo vệ chống nói đè như giọng máy).
+       Câm theo zone áp cho CẢ hai đường: speak() chặn zoneSilent() trước,
+       và các callback mây kiểm tra lại zoneSilent() trước khi phát thật. */
+    var CLOUD_TTS_ENDPOINT = "https://nkwdunamzvqrldkkcajz.supabase.co/functions/v1/tts";
+    var CLOUD_TTS_TIMEOUT_MS = 3500;
+    var cloudAudio = null;        /* <audio> đang giữ giọng mây hiện tại */
+    var cloudAudioBusyFlag = false;
+    var cloudFetchBusy = false;   /* đang chờ function trả audio */
+    var userInteracted = false;   /* cổng autoplay: chỉ phát mây sau tương tác đầu */
+    try {
+      var markInteracted = function () { userInteracted = true; };
+      window.addEventListener("pointerdown", markInteracted, { passive: true });
+      window.addEventListener("keydown", markInteracted);
+      window.addEventListener("touchend", markInteracted, { passive: true });
+    } catch (eCI0) {}
+    function cloudTtsEnabled() {
+      try { return localStorage.getItem("otter2CloudTtsV1") !== "0"; }
+      catch (eCI1) { return true; }
+    }
+    function manualDeviceVoiceChosen() {
+      var vp = window.otter2VoicePicker || null;
+      try {
+        if (vp && typeof vp.getChoice === "function") return !!(vp.getChoice("vi") || "");
+        return !!(localStorage.getItem("otter2VoicePickViV1") || "");
+      } catch (eCI2) { return false; }
+    }
+    function cloudAudioBusy() { return cloudAudioBusyFlag || cloudFetchBusy; }
+    function stopCloudSpeech() {
+      cloudFetchBusy = false;
+      cloudAudioBusyFlag = false;
+      if (cloudAudio) {
+        try { cloudAudio.pause(); } catch (eCI3) {}
+        try { cloudAudio.removeAttribute("src"); } catch (eCI4) {}
+        cloudAudio = null;
+      }
+    }
+    function speakWithDevice(clean) {
+      if (!("speechSynthesis" in window)) return;
+      try {
+        var u = new SpeechSynthesisUtterance(clean);
+        u.lang = "vi-VN";
+        u.rate = 1;
+        pickGuideVoice(u);
+        window.speechSynthesis.speak(u);
+      } catch (e) { /* device has no TTS — the speech bubble still shows the text */ }
+    }
+    /* Thử phát câu bằng giọng mây. Trả true = đã nhận câu (đang tải/phát);
+       false = nhường ngay cho giọng máy. Lỗi xảy ra SAU khi đã nhận (fetch
+       hỏng, hết giờ, audio không phát được) cũng tự rơi về giọng máy trong
+       callback — trừ khi bé đã vào zone học, lúc đó câm hẳn theo luật. */
+    function speakCloud(clean) {
+      if (!cloudTtsEnabled()) return false;
+      if (manualDeviceVoiceChosen()) return false;
+      if (!userInteracted) return false;      /* autoplay: chờ tương tác đầu */
+      if (typeof window.fetch !== "function") return false;
+      cloudFetchBusy = true;
+      var settled = false;
+      var ctrl = (typeof window.AbortController === "function") ? new AbortController() : null;
+      var timer = setTimeout(function () { if (ctrl) { try { ctrl.abort(); } catch (eCI5) {} } }, CLOUD_TTS_TIMEOUT_MS);
+      var fail = function () {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        cloudFetchBusy = false;
+        if (zoneSilent()) return;   /* đã vào zone học: câm hẳn, không rơi về giọng máy */
+        speakWithDevice(clean);
+      };
+      try {
+        fetch(CLOUD_TTS_ENDPOINT, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: clean, lang: "vi", gender: guideGender }),
+          signal: ctrl ? ctrl.signal : undefined
+        }).then(function (res) {
+          if (!res || !res.ok) { fail(); return null; }
+          return res.blob();
+        }).then(function (blob) {
+          if (settled) return;
+          if (!blob || !blob.size) { fail(); return; }
+          settled = true;
+          clearTimeout(timer);
+          cloudFetchBusy = false;
+          if (zoneSilent()) return;   /* vào zone trong lúc tải: không phát nữa */
+          var url = "";
+          try { url = URL.createObjectURL(blob); } catch (eCI6) { speakWithDevice(clean); return; }
+          stopCloudSpeech();
+          cloudAudio = new Audio(url);
+          cloudAudioBusyFlag = true;
+          var release = function () {
+            cloudAudioBusyFlag = false;
+            try { URL.revokeObjectURL(url); } catch (eCI7) {}
+          };
+          cloudAudio.addEventListener("ended", release);
+          cloudAudio.addEventListener("error", release);
+          var p = null;
+          try { p = cloudAudio.play(); } catch (eCI8) { release(); speakWithDevice(clean); return; }
+          if (p && typeof p.catch === "function") p.catch(function () { release(); });
+        }).catch(fail);
+      } catch (eCI9) { fail(); }
+      return true;
+    }
     function speak(text) {
-      if (!voiceOn || !("speechSynthesis" in window)) return;
+      if (!voiceOn) return;
       /* ĐẶC TẢ GIỌNG THEO ZONE (chủ web chốt 2026-11-17): ở màn hình
          chính bé nói bình thường; hễ vào BẤT KỲ khu học toàn màn hình
          nào (zone khác null — lộ trình, Học auto, bảng thành tích, viết
@@ -554,19 +678,20 @@
         /* Lớp bảo vệ toàn cục: đang có giọng đọc khác phát (vd giọng đọc
            bài học của chính web) thì BỎ QUA câu này — không cancel, không
            nói đè lên bài học. */
-        if (window.speechSynthesis.speaking || window.speechSynthesis.pending) return;
-        window.speechSynthesis.cancel();
+        if (("speechSynthesis" in window) &&
+            (window.speechSynthesis.speaking || window.speechSynthesis.pending)) return;
+        if (cloudAudioBusy()) return; /* giọng mây của bé đang tải/phát — không nói đè chính mình */
+        if ("speechSynthesis" in window) window.speechSynthesis.cancel();
         var clean = text
           .replace(/你好/g, "ní hảo")
           .replace(/北京/g, "Bắc Kinh")
           .replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2190}-\u{21FF}]/gu, "")
           .replace(/\s+/g, " ")
           .trim();
-        var u = new SpeechSynthesisUtterance(clean);
-        u.lang = "vi-VN";
-        u.rate = 1;
-        pickGuideVoice(u);
-        window.speechSynthesis.speak(u);
+        /* Giọng mây thử trước (bất đồng bộ, tự rơi về giọng máy khi lỗi);
+           speakCloud trả false = nhường ngay cho giọng máy ở dòng dưới. */
+        if (speakCloud(clean)) return;
+        speakWithDevice(clean);
       } catch (e) { /* device has no TTS — the speech bubble still shows the text */ }
     }
     function say(text) {
@@ -579,7 +704,50 @@
       }
     }
 
-    /* ---------------- Destination chips ---------------- */
+    /* ---------------- Destination chips, grouped by topic ----------------
+       Owner direction 2026-11-20: the flat 18-chip grid becomes an
+       accordion — tap a TOPIC, it expands inside the panel, then pick the
+       destination. All 18 destinations keep their key/label/target and the
+       exact click behaviour below; only the grouping layer is new.
+       Topic headers are div[role=button], NOT <button>: menu.js and the
+       guide suites address the destinations as "#guideChips button", and
+       that set must stay exactly the 18 destination buttons. */
+    var guideTopics = [
+      { label: "📚 Học tập", keys: ["journey", "vocab", "practice", "reading", "auto", "flash"] },
+      { label: "✏️ Luyện kỹ năng", keys: ["write", "grammar", "pronun", "radicals"] },
+      { label: "🏆 Thi cử & thành tích", keys: ["exam", "ach", "scores"] },
+      { label: "🔎 Tra cứu & cộng đồng", keys: ["dict", "fb", "chat"] },
+      { label: "⚙️ Thêm", keys: ["voice", "premium"] }
+    ];
+    var guideTopicBodies = {};
+    guideTopics.forEach(function (t) {
+      var head = document.createElement("div");
+      head.className = "guide-topic";
+      head.setAttribute("role", "button");
+      head.setAttribute("tabindex", "0");
+      head.setAttribute("aria-expanded", "false");
+      head.innerHTML = "<span>" + t.label + "</span>" +
+        '<span class="guide-topic-chev" aria-hidden="true">▾</span>';
+      var body = document.createElement("div");
+      body.className = "guide-topic-body";
+      body.hidden = true;
+      function toggleTopic() {
+        var willOpen = body.hidden;
+        var bodies = guideChips.querySelectorAll(".guide-topic-body");
+        for (var i = 0; i < bodies.length; i++) bodies[i].hidden = true;
+        var heads = guideChips.querySelectorAll(".guide-topic");
+        for (var j = 0; j < heads.length; j++) heads[j].setAttribute("aria-expanded", "false");
+        body.hidden = !willOpen;
+        head.setAttribute("aria-expanded", willOpen ? "true" : "false");
+      }
+      head.addEventListener("click", toggleTopic);
+      head.addEventListener("keydown", function (ev) {
+        if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); toggleTopic(); }
+      });
+      guideChips.appendChild(head);
+      guideChips.appendChild(body);
+      t.keys.forEach(function (k) { guideTopicBodies[k] = body; });
+    });
     dests.forEach(function (d) {
       var b = document.createElement("button");
       b.type = "button";
@@ -598,7 +766,7 @@
         guideGo.textContent = "Dẫn mình tới đó →";
         say(d.text);
       });
-      guideChips.appendChild(b);
+      (guideTopicBodies[d.key] || guideChips).appendChild(b);
     });
 
     guideGo.addEventListener("click", function () {
@@ -1425,6 +1593,7 @@
       otterBtn.setAttribute("aria-expanded", "false");
       clearInterval(typeTimer);
       if ("speechSynthesis" in window) { try { window.speechSynthesis.cancel(); } catch (e) {} }
+      stopCloudSpeech();
       if (!skipDock && !roam.hidden) runTo(zoneOverlayActive() ? dockX("left") : dockX("right"), dockY());
     }
     otterBtn.addEventListener("click", function () {
@@ -1460,6 +1629,7 @@
       guideVoice.querySelector("span").textContent = voiceOn ? "Giọng đọc: Bật" : "Giọng đọc: Tắt";
       if (!voiceOn) {
         if ("speechSynthesis" in window) { try { window.speechSynthesis.cancel(); } catch (e) {} }
+        stopCloudSpeech();
       } else if (guideTextEl.textContent) {
         speak(guideTextEl.textContent);
       }
