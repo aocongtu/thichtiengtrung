@@ -41,6 +41,37 @@
    Truyện tím #7c3aed · Đọc xanh dương #2563eb · Thi cam #c2410c ·
    Tin nhắn teal #0f766e · Tài khoản tím đậm #5b21b6); chữ nhãn là
    slate #0f172a như toàn web (không đen thuần cho tiêu đề/nút).
+
+   ===== V2 — PASS TRUNG THỰC MẪU + NGHỈ HƯU GIAO DIỆN CŨ (2026-11-19) =====
+   Lệnh chủ web: "làm thay giống hệt này cho anh nhé! bỏ hết cái cũ"
+   + ảnh laptop chụp trang thật sau GĐ1 ("giao diện cũ vẫn còn tồn
+   đọng nhiều lắm"). GĐ1 mới DỰNG KHUNG quanh trang chủ cũ; pass này
+   cho các khối trình bày cũ NGHỈ HƯU khỏi mắt người học:
+   - Thanh pill trên cùng (#otter2Nav): desktop ≥1200px ẩn hẳn —
+     thương hiệu sống trong block brand của sidebar như mẫu; ba nút
+     THẬT của nó được DỜI (không nhân bản) vào sidebar: nút chuyển
+     Giản ⇄ Phồn (#ttcScriptSwitch — TÍNH NĂNG giữ nguyên, một chạm
+     như cũ), cụm chọn giao diện (.otter2-theme-slot) và nút ☰ menu
+     (#ttcMenuBtn). Khi <1200px chúng tự trở về .otter2-nav-right.
+     Dưới 1200px chỉ ẩn HÀNG PILL ĐIỀU HƯỚNG (#otter2NavLinks) —
+     điều hướng đã có sidebar/thanh dưới/menu; các nút thật ẩn vẫn
+     bấm được bằng JS nên Bé guide + menu + shell không mất cơ chế.
+   - Khối hero "Chào mừng bạn quay trở lại!" (.otter2-hero, chứa cả
+     chip Hệ thống giọng đọc — tính năng giọng đọc vẫn mở qua menu),
+     hàng chip HSK (.otter2-dash-strip — trùng với các nấc Lộ trình),
+     băng Facebook (.otter2-fb-banner) và thẻ Hoạt động học tập cũ
+     (lưới 9 ô + đoạn văn dài) được ẩn: cột phải từ đó GỌN như mẫu —
+     Nhiệm vụ hôm nay + Bảng thành tích; số liệu hoạt động thật vẫn
+     hiện ở sidebar + thẻ thành tích, các id dữ liệu (#otter2Dash-
+     LearnedTotal…) vẫn được code gốc cập nhật như thường.
+   - Thẻ "Học tiếp" nén GỌN kiểu mẫu: lưới 2 cột, ảnh nhỏ bên phải.
+   - Thẻ Lộ trình (.otter2-dash-road) được CHUYỂN vào cột giữa ngay
+     sau Học tiếp — thứ tự cột giữa đúng mẫu: Học tiếp → Lộ trình →
+     Khoá học + cụm thi → Bài học mỗi ngày.
+   Mọi thứ chỉ là TẦNG TRÌNH BÀY (CSS + dời node): không khối HTML
+   tĩnh nào bị xoá, không id nào mất, không script inline nào đổi,
+   không khoá dữ liệu nào bị đụng — "bỏ cái cũ" = bỏ hình thức cũ,
+   toàn bộ chức năng + dữ liệu học viên nguyên vẹn.
    ============================================================ */
 (function () {
   "use strict";
@@ -244,7 +275,38 @@
       "body #aichatLauncher{bottom:calc(64px + env(safe-area-inset-bottom,0px))}",
       "body #homeButton{bottom:calc(122px + env(safe-area-inset-bottom,0px))}",
       "body #guideRestore{bottom:calc(182px + env(safe-area-inset-bottom,0px))}",
-      "}"
+      "}",
+      /* ===== V2: NGHỈ HƯU TRÌNH BÀY CŨ + TRUNG THỰC MẪU ===== */
+      "#otter2-home .otter2-hero{display:none}",
+      "#otter2-home .otter2-fb-banner{display:none}",
+      "#otter2-home .otter2-dash-strip{display:none}",
+      "#otter2-home .otter2-dash-card[aria-labelledby=\"otter2DashActTitle\"]{display:none}",
+      "@media (min-width:1200px){#otter2Nav{display:none}}",
+      "@media (max-width:1199px){#otter2NavLinks{display:none !important}}",
+      /* lưới trang chủ: bỏ hàng hero/strip/banner; lộ trình đã vào cột giữa */
+      "@media (min-width:1021px){",
+      "#otter2-home{grid-template-areas:\"main main side\" \"journey journey journey\"}",
+      "#otter2-home .otter2-dash-main > .otter2-dash-road{grid-area:auto;grid-column:1/-1;grid-row:2}",
+      "#otter2-home .otter2-dash-course{grid-row:3}",
+      "#otter2-home .ttc-exam-midstack{grid-row:3}",
+      "#otter2-home .otter2-dash-main > section[aria-labelledby=\"otter2DashLessonsTitle\"]{grid-row:4}",
+      "}",
+      /* mobile: 1 cột như mẫu (thắng template 2 cột của otter2-mobile-dash bằng cùng đặc hiệu section#id.class + thứ tự nạp sau) */
+      "@media (max-width:1020px){section#otter2-home.otter2-screen{grid-template-columns:minmax(0,1fr);grid-template-areas:\"continue\" \"road\" \"course\" \"exam\" \"story\" \"level\" \"lessons\" \"tasks\" \"journey\"}}",
+      /* Học tiếp GỌN kiểu mẫu: chữ trái — ảnh nhỏ phải */
+      "#otter2-home .otter2-dash-continue{display:grid;grid-template-columns:minmax(0,1fr) 176px;column-gap:16px;align-items:center}",
+      "#otter2-home .otter2-dash-continue>*{grid-column:1;min-width:0}",
+      "#otter2-home .otter2-dash-continue img{grid-column:2;grid-row:1/6;width:176px;height:130px;object-fit:cover;border-radius:16px;justify-self:end}",
+      "#otter2-home .otter2-dash-continue button{justify-self:start}",
+      "@media (max-width:767px){#otter2-home .otter2-dash-continue{grid-template-columns:minmax(0,1fr)}#otter2-home .otter2-dash-continue img{grid-column:1;grid-row:auto;width:100%;height:110px;justify-self:stretch}}",
+      /* cụm tiện ích trong sidebar (các nút THẬT dời từ thanh trên xuống) */
+      ".ttc-shell-util{display:flex;flex-direction:column;gap:4px;padding:10px 0 4px}",
+      "#ttcShellSidebar .ttc-script-switch{width:100%;box-sizing:border-box;text-align:center;padding:9px 10px;border-radius:12px;font-size:13.5px}",
+      "#ttcShellSidebar .otter2-theme-slot{display:flex;align-items:center;gap:11px;width:100%;box-sizing:border-box;padding:2px 6px;position:relative}",
+      "#ttcShellSidebar #ttcMenuBtn{width:100%;height:auto;margin:0;padding:11px 12px;justify-content:flex-start;gap:11px;border-radius:12px;border:1px solid #e7e9ee;background:#ffffff;font:inherit;font-size:15px;font-weight:600;color:#0f172a;box-shadow:none}",
+      "#ttcShellSidebar #ttcMenuBtn:hover{background:#f8fafc;border-color:#e7e9ee}",
+      ".ttc-shell-util-lbl{font-size:15px;font-weight:600;color:#0f172a}",
+      "#otter2Nav .ttc-shell-util-lbl{display:none}"
     ];
     var st = document.createElement("style");
     st.id = "ttcShellStyle";
@@ -276,6 +338,7 @@
       '<div><div class="ttc-shell-brand-name">Thích Tiếng Trung 3.0</div>' +
       '<div class="ttc-shell-brand-sub">Học tiếng Trung · Thi HSK</div></div></div>' +
       '<nav class="ttc-shell-nav" aria-label="Khu học tập">' + navButtonsHtml("ttc-shell-item", "ttc-shell-ico") + "</nav>" +
+      '<div class="ttc-shell-util" id="ttcShellUtil"></div>' +
       '<div class="ttc-shell-stats"><div class="ttc-shell-stats-num" id="ttcShellStatsNum">0</div>' +
       '<div class="ttc-shell-stats-lbl">từ đã học trên thiết bị này</div>' +
       '<div class="ttc-shell-stats-bar"><i id="ttcShellStatsBar"></i></div>' +
@@ -337,6 +400,55 @@
     return true;
   }
 
+  /* V2: Lộ trình vào cột giữa, ngay sau Học tiếp (thứ tự của mẫu). */
+  function moveRoadCard() {
+    var road = $(".otter2-dash-road");
+    var course = $(".otter2-dash-course");
+    var main = $(".otter2-dash-main");
+    if (!road || !course || !main) return false;
+    if (road.parentNode !== main) main.insertBefore(road, course);
+    return true;
+  }
+
+  /* V2: dời các nút THẬT của thanh trên vào sidebar ở desktop
+     (≥1200px) và trả về chỗ cũ khi <1200px. Dời node = giữ nguyên
+     handler + id; nhãn chữ chỉ hiện trong sidebar (CSS ẩn ở header). */
+  var mqDesk = window.matchMedia ? window.matchMedia("(min-width:1200px)") : { matches: false, addEventListener: null, addListener: null };
+  function ensureUtilLabel(host, afterEl, text) {
+    if (!host) return;
+    if (host.querySelector(".ttc-shell-util-lbl")) return;
+    var s = document.createElement("span");
+    s.className = "ttc-shell-util-lbl";
+    s.textContent = text;
+    if (afterEl && afterEl.parentNode === host) host.insertBefore(s, afterEl.nextSibling);
+    else host.appendChild(s);
+  }
+  function placeUtility() {
+    var sw = byId("ttcScriptSwitch");
+    var slot = $(".otter2-theme-slot");
+    var mb = byId("ttcMenuBtn");
+    if (mqDesk.matches) {
+      var util = byId("ttcShellUtil");
+      if (!util) return;
+      if (sw && sw.parentNode !== util) util.appendChild(sw);
+      if (slot && slot.parentNode !== util) {
+        util.appendChild(slot);
+        ensureUtilLabel(slot, byId("otter2ThemeNavBtn"), "Giao diện");
+      }
+      if (mb && mb.parentNode !== util) {
+        util.appendChild(mb);
+        ensureUtilLabel(mb, null, "Menu");
+      }
+    } else {
+      var right = $(".otter2-nav-right");
+      if (!right) return;
+      var chat = byId("otter2ChatOnlineBtn");
+      if (sw && sw.parentNode !== right) right.insertBefore(sw, chat);
+      if (slot && slot.parentNode !== right) right.insertBefore(slot, chat);
+      if (mb && mb.parentNode !== right) right.appendChild(mb);
+    }
+  }
+
   /* ---------------- trạng thái + số liệu ---------------- */
   function currentScreen() {
     var panels = document.querySelectorAll("[data-otter2-screen-panel]");
@@ -385,7 +497,7 @@
     profileEls.mail.textContent = u.email ? String(u.email) : "";
     profileEls.btn.textContent = "Tài khoản của tôi";
   }
-  function renderAll() { renderStats(); renderProfile(); syncActive(); }
+  function renderAll() { renderStats(); renderProfile(); syncActive(); placeUtility(); }
 
   /* ---------------- khởi tạo ---------------- */
   var built = false;
@@ -395,9 +507,13 @@
     var okBar = buildBottomBar();
     var okRail = buildRailAch();
     var okMove = moveContinueCard();
-    if (okSidebar && okBar && okRail && okMove) {
+    var okRoad = moveRoadCard();
+    placeUtility();
+    if (okSidebar && okBar && okRail && okMove && okRoad) {
       if (!built) {
         built = true;
+        if (mqDesk.addEventListener) mqDesk.addEventListener("change", placeUtility);
+        else if (mqDesk.addListener) mqDesk.addListener(placeUtility);
         document.addEventListener("click", function (ev) {
           var t = ev.target && ev.target.closest ? ev.target.closest("[data-shell-act]") : null;
           if (t) { runAction(t.getAttribute("data-shell-act")); setTimeout(syncActive, 450); }
@@ -424,6 +540,7 @@
   window.__ttcShell = {
     actions: ACTIONS,
     els: function () { return { sidebar: sidebar, bottomBar: bottomBar, ach: byId("ttcShellRailAch") }; },
-    renderAll: renderAll
+    renderAll: renderAll,
+    placeUtility: placeUtility
   };
 })();
