@@ -2,16 +2,21 @@
    PHÒNG ĐỌC (REDESIGN GĐ2) — otter2-readingroom.js (2026-11-19)
 
    Biến khu đọc hiểu hiện có (otter2-practice-reading.js — 240 bài,
-   dữ liệu KHÔNG đổi) thành phòng 2 cột cùng ngôn ngữ phòng truyện:
-   - Cột trái: bài đọc nguyên bản của engine (từng đoạn zh + pinyin
-     + VI, bôi đen tra cứu, nghe cả bài… — mọi cơ chế giữ nguyên).
-   - Cột phải (tab): "Từ vựng của bài" (tách từ bằng chính lõi của
-     story-pack OTTER2_STORYPACK_CORE: longest-match trên kho từ
-     HSK ≤ cấp của bài; thẻ có pinyin + tên Hán-Việt ĐỎ + nghĩa VI +
-     nút phát âm + nhãn ✓ Đã học đọc từ kho tiến độ thật) và
-     "Bài tập" (nghe hiểu / chép chính tả / điền từ / luyện dịch
-     sinh từ CHÍNH các câu của bài — cùng bộ sinh của story-pack;
-     nghe bằng TTS vì bài đọc không có mốc âm thanh từng câu).
+   dữ liệu KHÔNG đổi) thành phòng học theo TAB cùng khuôn phòng
+   truyện (bản thiết kế đã duyệt: mỗi tab sở hữu toàn bộ không gian):
+   - Tab mặc định "Bài đọc": bài đọc nguyên bản của engine (từng
+     đoạn zh + pinyin + VI, bôi đen tra cứu, nghe cả bài… — mọi cơ
+     chế giữ nguyên) chiếm TRỌN chiều ngang phòng.
+   - Tab "Từ vựng của bài" (tách từ bằng chính lõi của story-pack
+     OTTER2_STORYPACK_CORE: longest-match trên kho từ HSK ≤ cấp
+     của bài; thẻ có pinyin + tên Hán-Việt ĐỎ + nghĩa VI + nút phát
+     âm + nhãn ✓ Đã học đọc từ kho tiến độ thật) và tab "Bài tập"
+     (nghe hiểu / chép chính tả / điền từ / luyện dịch sinh từ
+     CHÍNH các câu của bài — cùng bộ sinh của story-pack; nghe
+     bằng TTS vì bài đọc không có mốc âm thanh từng câu) thay thế
+     không gian khi được chọn — không còn panel phải cố định ép
+     bài đọc (sửa theo phản ánh chủ web 2026-11-20: panel 372px
+     khiến bài đọc chỉ còn ~56% bề ngang ở cửa sổ ~1200px).
 
    ADDITIVE thuần: index2.html chỉ thêm 1 thẻ <script>; không sửa
    engine đọc, không đổi id/khóa nào. Tiến độ phòng đọc lưu ở khóa
@@ -149,16 +154,15 @@
     if (byId("ttcRoomStyle")) return;
     var css = [
       ".ttc-room-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-items:start}",
-      "@media (min-width:1021px){.ttc-room-grid{grid-template-columns:minmax(0,1fr) 372px}}",
+      ".ttc-room-off{display:none!important}",
       ".ttc-room-side{background:#ffffff;border:1px solid #e7e9ee;border-radius:18px;padding:14px;box-sizing:border-box;min-width:0}",
-      ".ttc-room-tabs{display:flex;gap:4px;background:#f1f5f9;border-radius:999px;padding:4px;margin-bottom:12px}",
+      ".ttc-room-tabs{display:flex;gap:4px;background:#f1f5f9;border-radius:999px;padding:4px;margin-bottom:0}",
       ".ttc-room-tab{flex:1 1 0;border:none;background:transparent;border-radius:999px;padding:9px 6px;font:inherit;font-size:13.5px;font-weight:700;color:#0f172a;cursor:pointer}",
       ".ttc-room-tab.is-cur{background:" + BLUE + ";color:#ffffff}",
       ".ttc-room-sum{font-size:13px;color:#64748b;font-weight:600;margin:2px 0 10px}",
       ".ttc-room-setbtn{width:100%;padding:10px;border:1px solid #c7d7fb;border-radius:12px;background:#eff6ff;color:" + BLUE + ";font:inherit;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:12px}",
       ".ttc-room-setbtn[disabled]{opacity:.75;cursor:default}",
-      ".ttc-room-vlist{display:flex;flex-direction:column;gap:10px}",
-      "@media (min-width:1021px){.ttc-room-vlist{max-height:600px;overflow:auto;padding-right:2px}}",
+      ".ttc-room-vlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(250px,100%),1fr));gap:10px}",
       ".ttc-room-vcard{border:1px solid #eef1f6;border-radius:14px;padding:10px 12px;background:#ffffff}",
       ".ttc-room-vtop{display:flex;align-items:flex-start;gap:8px}",
       ".ttc-room-hanzi{font-size:21px;font-weight:800;color:#0f172a;line-height:1.25}",
@@ -213,9 +217,11 @@
   /* ---------------- trạng thái phòng ---------------- */
   var ui = {
     current: null,      /* {id, level, index, units, cues, vocab, pack} */
-    tab: "vocab",
+    tab: "read",        /* read | vocab | ex — tab sở hữu không gian phòng */
     screen: "home",     /* home | session | result (trong tab Bài tập) */
-    session: null       /* {list, i, score, byType:{type:{n,ok}}} */
+    session: null,      /* {list, i, score, byType:{type:{n,ok}}} */
+    passageEl: null,    /* node .ttc-reading-detail hiện tại */
+    barEl: null         /* thanh tab của phòng (#ttcRoomBar) */
   };
 
   function ensurePack() {
@@ -400,12 +406,7 @@
     if (!side || !ui.current) return;
     if (ui.screen === "session" && !ui.session) ui.screen = "home";
     if (ui.screen === "result" && !ui.session) ui.screen = "home";
-    var tabs =
-      '<div class="ttc-room-tabs" role="tablist">' +
-      '<button type="button" class="ttc-room-tab' + (ui.tab === "vocab" ? " is-cur" : "") + '" data-room-tab="vocab">📚 Từ vựng của bài</button>' +
-      '<button type="button" class="ttc-room-tab' + (ui.tab === "ex" ? " is-cur" : "") + '" data-room-tab="ex">✍️ Bài tập</button></div>' +
-      '<div data-room-body></div>';
-    side.innerHTML = tabs;
+    side.innerHTML = '<div data-room-body></div>';
     var body = side.querySelector("[data-room-body]");
     if (ui.tab === "vocab") renderVocab(body);
     else if (ui.screen === "session") renderQuestion(body);
@@ -413,21 +414,61 @@
     else renderExHome(body);
   }
 
+  /* Thanh tab của phòng: Bài đọc (mặc định) | Từ vựng | Bài tập.
+     Mỗi tab sở hữu toàn bộ không gian bên dưới thanh tab. */
+  var ROOM_TABS = [
+    { key: "read", label: "📖 Bài đọc" },
+    { key: "vocab", label: "📚 Từ vựng của bài" },
+    { key: "ex", label: "✍️ Bài tập" }
+  ];
+  function buildBar() {
+    var bar = document.createElement("div");
+    bar.className = "ttc-room-tabs";
+    bar.id = "ttcRoomBar";
+    bar.setAttribute("role", "tablist");
+    bar.setAttribute("aria-label", "Các phần của phòng đọc");
+    bar.innerHTML = ROOM_TABS.map(function (t) {
+      return '<button type="button" class="ttc-room-tab" data-room-tab="' + t.key + '" role="tab">' + t.label + '</button>';
+    }).join("");
+    return bar;
+  }
+  function applyTab() {
+    var side = byId("ttcRoomSide");
+    var rd = ui.passageEl;
+    var reading = ui.tab === "read";
+    if (rd) rd.classList.toggle("ttc-room-off", !reading);
+    if (side) side.classList.toggle("ttc-room-off", reading);
+    var bar = ui.barEl || byId("ttcRoomBar");
+    if (bar) {
+      Array.prototype.forEach.call(bar.querySelectorAll("[data-room-tab]"), function (b) {
+        var cur = b.getAttribute("data-room-tab") === ui.tab;
+        b.classList.toggle("is-cur", cur);
+        b.setAttribute("aria-selected", cur ? "true" : "false");
+      });
+    }
+  }
+
   /* ---------------- tương tác trong panel ---------------- */
   function onSideClick(ev) {
     var side = byId("ttcRoomSide");
-    if (!side || !side.contains(ev.target)) return;
+    var bar = ui.barEl || byId("ttcRoomBar");
     var t = ev.target.closest ? ev.target.closest("[data-room-tab],[data-room-speak],[data-room-set],[data-room-type],[data-room-mix],[data-room-play],[data-room-opt],[data-room-checkdict],[data-room-checktiles],[data-room-tile],[data-room-next],[data-room-again],[data-room-back]") : null;
     if (!t) return;
     var cur = ui.current;
     if (!cur) return;
 
     if (t.hasAttribute("data-room-tab")) {
-      ui.tab = t.getAttribute("data-room-tab");
-      if (ui.tab === "vocab") { ui.screen = "home"; ui.session = null; stopSpeak(); }
-      renderSide();
+      if (!bar || !bar.contains(t)) return;
+      var next = t.getAttribute("data-room-tab");
+      if (next === ui.tab) { applyTab(); return; }
+      ui.tab = next;
+      stopSpeak();
+      if (next === "vocab") { ui.screen = "home"; ui.session = null; }
+      if (next !== "read") renderSide();
+      applyTab();
       return;
     }
+    if (!side || !side.contains(ev.target)) return;
     if (t.hasAttribute("data-room-speak")) { speakZh(t.getAttribute("data-room-speak")); return; }
     if (t.hasAttribute("data-room-set")) {
       var store = loadStore();
@@ -535,21 +576,30 @@
     if (!ident) return;
     var units = extractUnits(rd);
     if (!units.length) return;
+    /* Mở bài MỚI thì về tab Bài đọc; engine dựng lại cùng một bài
+       (bật/tắt pinyin…) thì giữ nguyên tab người học đang xem. */
+    var newPassage = !ui.current || ui.current.id !== ident.id;
     /* Mọi lần engine dựng lại bài (mở bài mới, bật/tắt pinyin…) đều
        làm mới phiên bài tập: giữ phiên cũ sẽ trỏ vào cues đã bị thay. */
     ui.current = { id: ident.id, level: ident.level, index: ident.index, units: units, cues: null, vocab: null, pack: null };
     ui.screen = "home";
     ui.session = null;
+    if (newPassage) ui.tab = "read";
     var grid = document.createElement("div");
     grid.className = "ttc-room-grid";
     detail.insertBefore(grid, rd);
+    var bar = buildBar();
+    grid.appendChild(bar);
     grid.appendChild(rd);
     var side = document.createElement("aside");
     side.className = "ttc-room-side";
     side.id = "ttcRoomSide";
     side.setAttribute("aria-label", "Từ vựng và bài tập của bài đọc");
     grid.appendChild(side);
+    ui.passageEl = rd;
+    ui.barEl = bar;
     renderSide();
+    applyTab();
   }
 
   var pending = false;
