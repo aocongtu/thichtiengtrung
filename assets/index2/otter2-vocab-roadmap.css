@@ -55,7 +55,7 @@
     0%,100%{opacity:1}
     50%{opacity:.88}
   }
-  #ttcPathPanel.ttc-path-panel{margin-top:8px}
+  #ttcPathPanel.ttc-path-panel{margin-top:6px}
   .ttc-path-vault,.ttc-path-badges{
     margin:10px 0;padding:12px;border:1px solid #fecdd3;border-radius:14px;background:#fff;
     box-sizing:border-box;max-width:100%;overflow-x:hidden;position:relative;z-index:1;
@@ -157,7 +157,7 @@
     position:fixed !important;inset:0 !important;z-index:2147482000 !important;
     margin:0 !important;width:100% !important;max-width:none !important;height:100% !important;
     max-height:none !important;border-radius:0 !important;background:#fff7f8 !important;
-    overflow:auto !important;-webkit-overflow-scrolling:touch;padding:12px !important;
+    overflow:auto !important;-webkit-overflow-scrolling:touch;padding:8px !important;
     box-sizing:border-box !important;box-shadow:none !important;
   }
   /* Khi panel đã portal ra body: đảm bảo che toàn bộ chrome trang chủ */
@@ -191,7 +191,7 @@
   }
   #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar .ttc-path-fs-exit:hover{background:#9f1239;color:#fff}
   #ttcDailyVocab .ttc-path-game-hud{
-    margin:0 0 12px;padding:12px 14px;border-radius:16px;
+    margin:0 0 8px;padding:10px 14px;border-radius:16px;
     background:linear-gradient(145deg,#0f766e 0%,#115e59 45%,#134e4a 100%);
     color:#ecfdf5;box-shadow:0 10px 28px rgba(15,118,110,.28), inset 0 1px 0 rgba(255,255,255,.18);
     text-align:left;transform:translateZ(0);
@@ -203,7 +203,7 @@
     font-size:12px;font-weight:800;
   }
   #ttcDailyVocab .ttc-path-hud-xp{background:#fef08a;color:#854d0e}
-  #ttcDailyVocab .ttc-path-game-progress{height:10px;margin:10px 0 6px;border-radius:99px;background:rgba(255,255,255,.2);overflow:hidden}
+  #ttcDailyVocab .ttc-path-game-progress{height:8px;margin:6px 0 4px;border-radius:99px;background:rgba(255,255,255,.2);overflow:hidden}
   #ttcDailyVocab .ttc-path-game-progress span{display:block;height:100%;background:linear-gradient(90deg,#fde047,#4ade80);border-radius:99px}
   #ttcDailyVocab .ttc-path-game-meta{font-size:12px;font-weight:700;opacity:.92}
   #ttcDailyVocab .ttc-path-choice-3d{
@@ -216,9 +216,9 @@
   #ttcDailyVocab .ttc-path-choice-on.ttc-path-choice-3d{
     box-shadow:0 7px 0 #5b21b6,0 0 0 3px rgba(167,139,250,.55),0 14px 26px rgba(109,40,217,.25), inset 0 1px 0 rgba(255,255,255,.5);
   }
-  #ttcDailyVocab .ttc-path-fb-hanzi{margin:8px 0 4px;font-size:44px;line-height:1.15;font-weight:900;color:#14532d;text-align:center;position:relative;z-index:1;text-shadow:none;filter:none}
-  #ttcDailyVocab .ttc-path-fb-pinyin{margin:0 0 4px;font-size:16px;font-weight:800;color:#166534;text-align:center;position:relative;z-index:1;text-shadow:none;filter:none}
-  #ttcDailyVocab .ttc-path-fb-meaning{margin:0 0 8px;font-size:16px;font-weight:800;color:#14532d;text-align:center;position:relative;z-index:1;text-shadow:none;filter:none}
+  #ttcDailyVocab .ttc-path-fb-hanzi{margin:8px 0 4px;font-size:48px;line-height:1.15;font-weight:900;color:#14532d;text-align:center;position:relative;z-index:1;text-shadow:none;filter:none}
+  #ttcDailyVocab .ttc-path-fb-pinyin{margin:0 0 4px;font-size:18px;font-weight:800;color:#166534;text-align:center;position:relative;z-index:1;text-shadow:none;filter:none}
+  #ttcDailyVocab .ttc-path-fb-meaning{margin:0 0 8px;font-size:18px;font-weight:800;color:#14532d;text-align:center;position:relative;z-index:1;text-shadow:none;filter:none}
   #ttcDailyVocab .ttc-path-fb-section{margin:10px 0 4px;font-size:13px;font-weight:900;color:#166534;position:relative;z-index:1;text-shadow:none;filter:none}
   #ttcDailyVocab .ttc-path-fb-example{margin:0;font-size:17px;font-weight:800;color:#14532d;position:relative;z-index:1;text-shadow:none;filter:none}
   #ttcDailyVocab .ttc-path-fb-actions{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0;position:relative;z-index:1}
@@ -317,22 +317,22 @@
   html[data-theme="night"] .ttc-path-vault-detail{background:#0f172a;color:#e5e7eb;border-color:#4b5563}
   html[data-theme="night"] .ttc-path-vault-detail-h{color:#f8fafc}
   html[data-theme="night"] .ttc-dict-community{background:#111827;border-color:#4b5563}
-  #ttcDailyVocab{position:relative;margin:0 auto 8px;padding:14px;padding-top:14px;border:1px solid #fecdd3;border-radius:16px;background:#fff7f8;text-align:center;box-sizing:border-box;max-width:100%;overflow-x:hidden}
+  #ttcDailyVocab{position:relative;margin:0 auto 8px;padding:12px 14px 14px;border:1px solid #fecdd3;border-radius:16px;background:#fff7f8;text-align:center;box-sizing:border-box;max-width:100%;overflow-x:hidden}
   #ttcDailyVocab h3{margin:0 0 4px;color:#9f1239;font-size:20px;padding-right:7rem}
   #ttcDailyVocab .ttc-daily-note,#ttcDailyVocab .ttc-daily-meaning{margin:4px 0;color:#64748b;font-size:14px}
-  #ttcDailyVocab .ttc-path-quiz{margin-top:10px;text-align:left}
+  #ttcDailyVocab .ttc-path-quiz{margin-top:6px;text-align:left}
   #ttcDailyVocab{--ttc-path-q-fg:#16803C;--ttc-path-q-bg:#f0fdf4}
-  #ttcDailyVocab .ttc-path-q{margin:0 0 12px;padding:14px 14px 16px;border-radius:16px;background:linear-gradient(160deg,#f0fdf4 0%,#ecfdf5 55%,#f8fafc 100%);color:var(--ttc-path-q-fg,#16803C);box-shadow:0 10px 0 #bbf7d0,0 18px 28px rgba(22,128,60,.12), inset 0 1px 0 rgba(255,255,255,.95);transform:translateZ(0);font-weight:800}
-  #ttcDailyVocab .ttc-path-q-label{margin:0 0 8px;font-size:15px;font-weight:800;letter-spacing:.02em;color:var(--ttc-path-q-fg,#16803C)}
-  #ttcDailyVocab .ttc-path-q-hint{margin:10px 0 0;font-size:13px;font-weight:700;color:var(--ttc-path-q-fg,#16803C);opacity:.88}
-  #ttcDailyVocab .ttc-path-q-meaning{margin:0;font-size:22px;font-weight:800;line-height:1.45;color:var(--ttc-path-q-fg,#16803C)}
-  #ttcDailyVocab .ttc-daily-hanzi{display:block;font-size:56px;line-height:1.15;font-weight:800;color:#0f172a}
+  #ttcDailyVocab .ttc-path-q{margin:0 0 10px;padding:12px 16px 14px;border-radius:16px;background:linear-gradient(160deg,#f0fdf4 0%,#ecfdf5 55%,#f8fafc 100%);color:var(--ttc-path-q-fg,#16803C);box-shadow:0 8px 0 #bbf7d0,0 18px 28px rgba(22,128,60,.12), inset 0 1px 0 rgba(255,255,255,.95);transform:translateZ(0);font-weight:800}
+  #ttcDailyVocab .ttc-path-q-label{margin:0 0 6px;font-size:18px;font-weight:800;letter-spacing:.02em;color:var(--ttc-path-q-fg,#16803C)}
+  #ttcDailyVocab .ttc-path-q-hint{margin:10px 0 0;font-size:14px;font-weight:700;color:var(--ttc-path-q-fg,#16803C);opacity:.88}
+  #ttcDailyVocab .ttc-path-q-meaning{margin:0;font-size:27px;font-weight:800;line-height:1.45;color:var(--ttc-path-q-fg,#16803C)}
+  #ttcDailyVocab .ttc-daily-hanzi{display:block;font-size:66px;line-height:1.1;font-weight:800;color:#0f172a}
   #ttcDailyVocab .ttc-path-q .ttc-daily-hanzi{color:var(--ttc-path-q-fg,#16803C)}
   #ttcDailyVocab .ttc-path-q .ttc-han-viet{color:var(--ttc-path-q-fg,#16803C);font-size:.55em;font-weight:700;opacity:.9}
-  #ttcDailyVocab .ttc-daily-py{margin:8px 0 0;color:#0f766e;font-size:20px;font-weight:800}
+  #ttcDailyVocab .ttc-daily-py{margin:6px 0 0;color:#0f766e;font-size:24px;font-weight:800}
   #ttcDailyVocab .ttc-path-q .ttc-daily-py{color:var(--ttc-path-q-fg,#16803C)}
   #ttcDailyVocab .ttc-path-q .ttc-path-build{color:var(--ttc-path-q-fg,#16803C)}
-  #ttcDailyVocab .ttc-path-qcolor-bar{position:relative;margin:0 0 10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;z-index:4}
+  #ttcDailyVocab .ttc-path-qcolor-bar{position:relative;margin:0 0 6px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;z-index:4}
   #ttcDailyVocab .ttc-path-qcolor-btn{border:2px solid #15803d;border-radius:12px;background:#fff;color:#14532d;font-weight:800;font-size:13px;padding:10px 14px;min-height:44px;cursor:pointer;box-shadow:0 2px 8px rgba(15,23,42,.08)}
   #ttcDailyVocab .ttc-path-qcolor-btn[aria-expanded="true"]{background:#ecfdf5;border-color:#166534}
   #ttcDailyVocab .ttc-path-qcolor-panel{width:100%;max-width:100%;box-sizing:border-box;margin:0;padding:12px;border:1px solid #bbf7d0;border-radius:14px;background:#fff;box-shadow:0 10px 28px rgba(15,23,42,.14);overflow:hidden}
@@ -351,41 +351,41 @@
     #ttcDailyVocab .ttc-path-qcolor-btn{width:100%}
   }
   #ttcDailyVocab .ttc-daily-sentence{margin:8px 0}
-  #ttcDailyVocab .ttc-path-choices{display:flex;flex-direction:column;gap:10px;margin:0 0 12px;width:100%;box-sizing:border-box}
-  #ttcDailyVocab .ttc-path-choice{display:flex;align-items:flex-start;gap:12px;width:100%;box-sizing:border-box;margin:0;padding:14px 14px;border:2px solid #94a3b8;border-radius:14px;background:#f8fafc;color:#0f172a;font-size:17px;font-weight:700;line-height:1.45;text-align:left;cursor:pointer}
-  #ttcDailyVocab .ttc-path-choice-key{flex:0 0 auto;min-width:1.6em;height:1.6em;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;background:#e2e8f0;color:#1e293b;font-weight:800}
+  #ttcDailyVocab .ttc-path-choices{display:flex;flex-direction:column;gap:12px;margin:0 0 10px;width:100%;box-sizing:border-box}
+  #ttcDailyVocab .ttc-path-choice{display:flex;align-items:flex-start;gap:12px;width:100%;box-sizing:border-box;margin:0;padding:15px 18px;border:2px solid #94a3b8;border-radius:14px;background:#f8fafc;color:#0f172a;font-size:20px;font-weight:700;line-height:1.45;text-align:left;cursor:pointer}
+  #ttcDailyVocab .ttc-path-choice-key{flex:0 0 auto;min-width:1.8em;height:1.8em;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;background:#e2e8f0;color:#1e293b;font-weight:800}
   #ttcDailyVocab .ttc-path-choice-text{flex:1 1 auto;word-break:break-word}
   #ttcDailyVocab .ttc-path-choice-on{border-color:#6d28d9;background:#ede9fe;color:#4c1d95;box-shadow:0 0 0 2px rgba(109,40,217,.22)}
   #ttcDailyVocab .ttc-path-choice-on .ttc-path-choice-key{background:#6d28d9;color:#fff}
   #ttcDailyVocab .ttc-path-choice:disabled{opacity:.72;cursor:default}
   #ttcDailyVocab .ttc-path-tiles{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;padding:10px;border:1px solid #cbd5e1;border-radius:14px;background:#fff}
-  #ttcDailyVocab .ttc-daily-char{border:2px solid #64748b;background:#fff;color:#0f172a;border-radius:12px;font-size:28px;font-weight:800;margin:0;padding:10px 14px;cursor:pointer;min-width:48px;min-height:48px}
+  #ttcDailyVocab .ttc-daily-char{border:2px solid #64748b;background:#fff;color:#0f172a;border-radius:12px;font-size:31px;font-weight:800;margin:0;padding:10px 14px;cursor:pointer;min-width:52px;min-height:52px}
   #ttcDailyVocab .ttc-daily-char-used{opacity:.42;border-style:dashed;background:#f1f5f9}
-  #ttcDailyVocab .ttc-path-slot{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;width:48px;height:48px;border:2px dashed #94a3b8;border-radius:12px;background:#fff;color:var(--ttc-path-q-fg,#16803C);font-size:26px;font-weight:800;line-height:1;cursor:pointer;padding:0;margin:0;font-family:inherit;-webkit-appearance:none;appearance:none}
+  #ttcDailyVocab .ttc-path-slot{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;width:52px;height:52px;border:2px dashed #94a3b8;border-radius:12px;background:#fff;color:var(--ttc-path-q-fg,#16803C);font-size:29px;font-weight:800;line-height:1;cursor:pointer;padding:0;margin:0;font-family:inherit;-webkit-appearance:none;appearance:none}
   #ttcDailyVocab .ttc-path-slot-pending{outline:3px solid #f59e0b;outline-offset:1px}
   #ttcDailyVocab .ttc-daily-char:disabled{opacity:.55;cursor:default}
-  #ttcDailyVocab .ttc-path-build{font-size:34px;font-weight:800;letter-spacing:.12em;margin:10px 0 0;color:var(--ttc-path-q-fg,#16803C);min-height:1.2em}
+  #ttcDailyVocab .ttc-path-build{font-size:38px;font-weight:800;letter-spacing:.12em;margin:10px 0 0;color:var(--ttc-path-q-fg,#16803C);min-height:1.2em}
   #ttcDailyVocab .ttc-path-build.ttc-path-slots{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;letter-spacing:0;min-height:52px}
   #ttcDailyVocab .ttc-path-slot-empty{background:#f8fafc}
   #ttcDailyVocab .ttc-path-slot-filled{border-style:solid;border-color:#0f766e;background:#ecfdf5}
-  #ttcDailyVocab .ttc-path-input{width:100%;box-sizing:border-box;border:2px solid #64748b;border-radius:14px;padding:14px 12px;font-size:17px;font-weight:700;color:#0f172a;background:#fff}
-  #ttcDailyVocab .ttc-path-controls{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:4px 0 8px;padding:12px;border-radius:14px;background:#e2e8f0;border:1px solid #cbd5e1}
-  #ttcDailyVocab .ttc-path-btn{border:0;border-radius:14px;font-weight:800;font-size:16px;padding:14px 18px;cursor:pointer;min-height:48px;min-width:120px}
+  #ttcDailyVocab .ttc-path-input{width:100%;box-sizing:border-box;border:2px solid #64748b;border-radius:14px;padding:15px 14px;font-size:19px;font-weight:700;color:#0f172a;background:#fff}
+  #ttcDailyVocab .ttc-path-controls{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:2px 0 6px;padding:10px 12px;border-radius:14px;background:#e2e8f0;border:1px solid #cbd5e1}
+  #ttcDailyVocab .ttc-path-btn{border:0;border-radius:14px;font-weight:800;font-size:17px;padding:14px 18px;cursor:pointer;min-height:48px;min-width:120px}
   #ttcDailyVocab .ttc-path-btn-done{background:#d97706;color:#fff}
   #ttcDailyVocab .ttc-path-btn-done.ttc-path-btn-armed{box-shadow:inset 0 0 0 2px #fff}
   #ttcDailyVocab .ttc-path-btn-confirm{background:#15803d;color:#fff}
   #ttcDailyVocab .ttc-path-btn-clear{background:#475569;color:#fff}
   #ttcDailyVocab .ttc-path-btn:disabled{opacity:.55;cursor:default}
-  #ttcDailyVocab .ttc-path-learn{display:flex;align-items:flex-start;gap:12px;margin-top:8px;width:100%;box-sizing:border-box}
+  #ttcDailyVocab .ttc-path-learn{display:flex;align-items:flex-start;gap:12px;margin-top:6px;width:100%;box-sizing:border-box}
   #ttcDailyVocab .ttc-path-main{flex:1 1 auto;min-width:0;width:auto;text-align:left}
   #ttcDailyVocab .ttc-path-overview.ttc-path-overview-col,
   #ttcDailyVocab .ttc-path-overview-col{display:flex !important;flex-direction:column !important;flex-wrap:nowrap !important;align-items:stretch !important;align-self:flex-start;gap:6px;flex:0 0 124px;width:124px;max-width:124px;margin:0;padding:8px;border:1px solid #fecdd3;border-radius:14px;background:#fff;box-sizing:border-box;grid-template-columns:none !important}
-  #ttcDailyVocab .ttc-path-learn > .ttc-path-overview-col{margin-top:calc(13px + 16px + 2px + 8px)}
+  #ttcDailyVocab .ttc-path-learn > .ttc-path-overview-col{margin-top:calc(13px + 16px + 2px + 2px)}
   #ttcDailyVocab .ttc-path-stat-xp{border-color:#0f766e;background:linear-gradient(180deg,#ecfdf5,#fff);box-shadow:0 0 0 1px rgba(15,118,110,.12)}
   #ttcDailyVocab .ttc-path-stat-xp span{color:#0f766e;font-size:12px}
   #ttcDailyVocab .ttc-path-xp-value{color:#047857 !important;font-size:22px !important;font-weight:900 !important}
   #ttcDailyVocab .ttc-path-xp-pulse{animation:ttcPathXpPulse .85s ease}
-  #ttcDailyVocab .ttc-path-explain-bar{margin:0 0 8px}
+  #ttcDailyVocab .ttc-path-explain-bar{margin:0 0 6px}
   #ttcDailyVocab .ttc-path-explain-toggle{border:1px solid #94a3b8;border-radius:12px;background:#fff;color:#334155;font-weight:800;font-size:13px;padding:8px 12px;cursor:pointer}
   #ttcDailyVocab .ttc-path-explain-toggle[aria-expanded="true"]{border-color:#0f766e;color:#0f766e}
   #ttcDailyVocab .ttc-path-explain-panel{margin:8px 0 0;padding:10px 12px;border-radius:12px;background:#f8fafc;border:1px solid #e2e8f0;color:#475569;font-size:13px;font-weight:650;line-height:1.45;text-align:left}
@@ -401,9 +401,9 @@
   #ttcDailyVocab .ttc-path-feedback-bad{background:#fff7ed;border:2px solid #ea580c}
   #ttcDailyVocab .ttc-path-feedback-win{position:relative}
   #ttcDailyVocab .ttc-path-win-glow{display:none !important}
-  #ttcDailyVocab .ttc-path-feedback-title{margin:0 0 8px;font-size:22px;font-weight:900;position:relative;z-index:1;text-shadow:none;filter:none}
+  #ttcDailyVocab .ttc-path-feedback-title{margin:0 0 8px;font-size:24px;font-weight:900;position:relative;z-index:1;text-shadow:none;filter:none}
   #ttcDailyVocab .ttc-path-feedback-ok .ttc-path-feedback-title{
-    color:#dc2626;font-size:26px;letter-spacing:.02em;text-shadow:none;filter:none;
+    color:#dc2626;font-size:28px;letter-spacing:.02em;text-shadow:none;filter:none;
     animation:ttcPathTitleBlink 1.15s ease-in-out infinite;
   }
   #ttcDailyVocab .ttc-path-feedback-bad .ttc-path-feedback-title{color:#c2410c;animation:none}
@@ -427,7 +427,7 @@
   @keyframes ttcPathXpPulse{0%{transform:scale(1);box-shadow:0 0 0 0 rgba(5,150,105,.0)}40%{transform:scale(1.04);box-shadow:0 0 0 6px rgba(5,150,105,.22)}100%{transform:scale(1);box-shadow:0 0 0 0 rgba(5,150,105,.0)}}
   @keyframes ttcPathWinGlow{0%{opacity:0;transform:scale(.9)}35%{opacity:1;transform:scale(1.02)}100%{opacity:.55;transform:scale(1)}}
   #ttcDailyVocab .ttc-path-cancel{position:absolute;top:10px;right:10px;z-index:2;border:2px solid #9f1239;border-radius:12px;background:#fff;color:#9f1239;font-weight:800;font-size:13px;padding:8px 12px;cursor:pointer;box-shadow:0 2px 8px rgba(15,23,42,.08);max-width:calc(100% - 24px)}
-  #ttcDailyVocab .ttc-path-goals-bar{display:flex;justify-content:center;margin:8px 0 4px}
+  #ttcDailyVocab .ttc-path-goals-bar{display:flex;justify-content:center;margin:6px 0 2px}
   #ttcDailyVocab .ttc-path-goals-toggle{border:1px solid #94a3b8;border-radius:12px;background:#fff;color:#334155;font-weight:800;font-size:13px;padding:8px 12px;cursor:pointer}
   #ttcDailyVocab .ttc-path-goals-toggle[aria-expanded="true"]{border-color:#0f766e;color:#0f766e}
   .ttc-path-cancel-overlay{
@@ -640,7 +640,7 @@
   @media(max-width:420px){
     #ttcPathShell{width:calc(100% - 16px);margin:6px auto 8px}
     #ttcPathLauncher.ttc-path-launcher,#ttcAchOpen.ttc-ach-launch{font-size:14px;padding:8px 12px;min-height:42px}
-    #ttcDailyVocab{padding:12px 10px;padding-top:52px}
+    #ttcDailyVocab{padding:12px 10px;padding-top:48px}
     #ttcDailyVocab h3{padding-right:6.5rem;font-size:18px}
     #ttcDailyVocab .ttc-path-learn{flex-direction:column;align-items:stretch}
     #ttcDailyVocab .ttc-path-main{width:100%}
@@ -650,11 +650,11 @@
     #ttcDailyVocab .ttc-path-overview-col .ttc-path-stat{flex:0 0 auto;width:100%;max-width:100%}
     #ttcDailyVocab .ttc-path-stat-xp{flex:0 0 auto;width:100%}
     #ttcDailyVocab .ttc-path-overview{grid-template-columns:1fr}
-    #ttcDailyVocab .ttc-daily-hanzi{font-size:44px}
-    #ttcDailyVocab .ttc-path-q-meaning{font-size:18px}
-    #ttcDailyVocab .ttc-path-build{font-size:26px}
-    #ttcDailyVocab .ttc-path-slot{width:42px;height:42px;font-size:22px}
-    #ttcDailyVocab .ttc-path-choice{font-size:16px;padding:12px}
+    #ttcDailyVocab .ttc-daily-hanzi{font-size:50px}
+    #ttcDailyVocab .ttc-path-q-meaning{font-size:21px}
+    #ttcDailyVocab .ttc-path-build{font-size:30px}
+    #ttcDailyVocab .ttc-path-slot{width:46px;height:46px;font-size:25px}
+    #ttcDailyVocab .ttc-path-choice{font-size:17.5px;padding:13px 14px}
     #ttcDailyVocab .ttc-path-btn{min-width:108px;padding:12px 14px;font-size:15px}
     #ttcDailyVocab .ttc-path-cancel{top:8px;right:8px;font-size:12px;padding:7px 10px}
   }

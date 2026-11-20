@@ -1479,7 +1479,7 @@ html[data-theme="night"] .ttc-write-status{color:#4ade80}
     position: static !important;
     font-size: 12px;
     line-height: 1.35;
-    padding: 5px 10px;
+    padding: 3px 10px;
     text-align: center;
   }
   #otter2PathHost #ttcPathPanel.ttc-path-fs #ttcDailyVocab {
@@ -1500,14 +1500,14 @@ html[data-theme="night"] .ttc-write-status{color:#4ade80}
   #otter2PathHost #ttcDailyVocab {
     display: flex;
     flex-direction: column;
-    padding: 10px 10px 12px; /* bỏ padding-top 52px cũ (chừa chỗ cho nút Hủy tuyệt đối) */
+    padding: 8px 10px 10px; /* bỏ padding-top 52px cũ (chừa chỗ cho nút Hủy tuyệt đối) */
   }
 
   /* --- 2) HUD nén gọn: tối đa 2 hàng (tiêu đề+chip+EXP+Hủy / tiến độ+meta) --- */
   #otter2PathHost #ttcDailyVocab .ttc-path-game-hud {
     flex: 0 0 auto;
-    margin: 0 0 8px;
-    padding: 9px 11px;
+    margin: 0 0 6px;
+    padding: 7px 11px;
     border-radius: 14px;
   }
   #otter2PathHost #ttcDailyVocab .ttc-path-game-hud-row {
@@ -1521,7 +1521,7 @@ html[data-theme="night"] .ttc-write-status{color:#4ade80}
   #otter2PathHost #ttcDailyVocab .ttc-path-game-hud-row span.ttc-path-game-pill:nth-of-type(2) { display: none; }
   #otter2PathHost #ttcDailyVocab .ttc-path-game-progress { height: 6px; margin: 7px 0 4px; }
   #otter2PathHost #ttcDailyVocab .ttc-path-game-meta { font-size: 11px; }
-  #otter2PathHost #ttcDailyVocab h3 { padding-right: 0; font-size: 17px; margin: 0 0 6px; }
+  #otter2PathHost #ttcDailyVocab h3 { padding-right: 0; font-size: 15px; margin: 0 0 4px; }
   /* Nút HỦY LỘ TRÌNH sau khi JS đưa vào hàng HUD: pill nhỏ, trong khung, cuối hàng */
   #otter2PathHost #ttcDailyVocab .ttc-path-game-hud-row .ttc-path-cancel {
     position: static !important;
@@ -1563,7 +1563,7 @@ html[data-theme="night"] .ttc-write-status{color:#4ade80}
     width: 100%;
     max-width: 100%;
     padding: 6px;
-    margin: 0 0 8px;
+    margin: 0 0 6px;
     border-radius: 14px;
     overflow-x: auto;
     overflow-y: hidden;
@@ -1614,7 +1614,7 @@ html[data-theme="night"] .ttc-write-status{color:#4ade80}
     margin: 0;
   }
   /* Hàng "Chỉnh mục tiêu" khi chưa/không có toolbar (chế độ nhúng): gọn, giữa */
-  #otter2PathHost #ttcDailyVocab .ttc-path-goals-bar { flex: 0 0 auto; margin: 2px 0 6px; }
+  #otter2PathHost #ttcDailyVocab .ttc-path-goals-bar { flex: 0 0 auto; margin: 2px 0 4px; }
   #otter2PathHost #ttcDailyVocab .ttc-path-goals-bar:empty { display: none !important; }
   #otter2PathHost #ttcDailyVocab .ttc-path-goals-toggle { min-height: 36px; }
   /* Panel thiết lập mục tiêu khi mở trong fs: được cuộn nội bộ, không đội khung */
@@ -1629,7 +1629,7 @@ html[data-theme="night"] .ttc-write-status{color:#4ade80}
     flex-direction: column !important;
     align-items: stretch !important;
     gap: 8px;
-    margin-top: 6px;
+    margin-top: 4px;
     width: 100%;
   }
   #otter2PathHost #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-learn {
@@ -1655,7 +1655,7 @@ html[data-theme="night"] .ttc-write-status{color:#4ade80}
     overflow-x: auto;
     overflow-y: hidden;
     scroll-snap-type: x proximity;
-    padding: 2px 1px 4px;
+    padding: 1px 1px 2px;
     scrollbar-width: none;
     box-sizing: border-box;
   }
@@ -1668,7 +1668,7 @@ html[data-theme="night"] .ttc-write-status{color:#4ade80}
     display: flex;
     align-items: baseline;
     gap: 5px;
-    padding: 5px 8px;
+    padding: 4px 8px;
     border-radius: 9px;
     white-space: nowrap;
   }
@@ -1684,36 +1684,39 @@ html[data-theme="night"] .ttc-write-status{color:#4ade80}
   #otter2PathHost #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-daily-actions { flex: 0 0 auto; }
 
   /* --- 5) Thẻ câu hỏi + ô chữ linh hoạt: 1 câu điển hình vừa phần cao còn lại --- */
-  #otter2PathHost #ttcDailyVocab .ttc-path-q { padding: 12px 12px 13px; border-radius: 14px; }
-  #otter2PathHost #ttcDailyVocab .ttc-daily-hanzi { font-size: clamp(38px, 11vw, 48px); }
-  #otter2PathHost #ttcDailyVocab .ttc-path-q-meaning { font-size: 17px; }
-  #otter2PathHost #ttcDailyVocab .ttc-path-build.ttc-path-slots { gap: 6px; min-height: 46px; }
+  #otter2PathHost #ttcDailyVocab .ttc-path-q { padding: 9px 12px 10px; border-radius: 14px; }
+  #otter2PathHost #ttcDailyVocab .ttc-daily-py { font-size: 20px; margin-top: 4px; }
+  #otter2PathHost #ttcDailyVocab .ttc-path-overview-col .ttc-path-xp-value { font-size: 16px !important; }
+  #otter2PathHost #ttcDailyVocab .ttc-path-game-progress { height: 6px; }
+  #otter2PathHost #ttcDailyVocab .ttc-daily-hanzi { font-size: clamp(42px, 12vw, 54px); }
+  #otter2PathHost #ttcDailyVocab .ttc-path-q-meaning { font-size: 19px; }
+  #otter2PathHost #ttcDailyVocab .ttc-path-build.ttc-path-slots { gap: 6px; min-height: 50px; }
   #otter2PathHost #ttcDailyVocab .ttc-path-slot {
-    width: clamp(36px, 10.5vw, 46px);
+    width: clamp(40px, 11.5vw, 50px);
     height: auto;
     aspect-ratio: 1;
-    font-size: clamp(19px, 5.4vw, 24px);
+    font-size: clamp(21px, 6vw, 27px);
     padding: 0;
   }
   #otter2PathHost #ttcDailyVocab .ttc-path-tiles { gap: 7px; padding: 8px; }
   #otter2PathHost #ttcDailyVocab .ttc-daily-char {
     flex: 1 1 42px;
-    max-width: 58px;
-    min-width: 42px;
-    min-height: 42px;
+    max-width: 62px;
+    min-width: 44px;
+    min-height: 44px;
     aspect-ratio: 1;
     padding: 4px;
-    font-size: clamp(20px, 6vw, 26px);
+    font-size: clamp(22px, 6.5vw, 28px);
     display: inline-flex;
     align-items: center;
     justify-content: center;
   }
-  #otter2PathHost #ttcDailyVocab .ttc-path-choice { padding: 11px 12px; font-size: 15.5px; }
-  #otter2PathHost #ttcDailyVocab .ttc-path-controls { padding: 9px; gap: 8px; }
+  #otter2PathHost #ttcDailyVocab .ttc-path-choice { padding: 12px 14px; font-size: 17.5px; }
+  #otter2PathHost #ttcDailyVocab .ttc-path-controls { padding: 8px; gap: 8px; }
   #otter2PathHost #ttcDailyVocab .ttc-path-btn { min-height: 44px; min-width: 104px; padding: 11px 14px; font-size: 15px; }
   #otter2PathHost #ttcDailyVocab .ttc-path-feedback { padding: 10px 12px; }
-  #otter2PathHost #ttcDailyVocab .ttc-path-fb-hanzi { font-size: 36px; }
-  #otter2PathHost #ttcDailyVocab .ttc-path-feedback-ok .ttc-path-feedback-title { font-size: 21px; }
+  #otter2PathHost #ttcDailyVocab .ttc-path-fb-hanzi { font-size: 38px; }
+  #otter2PathHost #ttcDailyVocab .ttc-path-feedback-ok .ttc-path-feedback-title { font-size: 22px; }
 }
 /* Nickname ít quan trọng nhất: ẩn hẳn ở màn hình nhỏ để dải thống kê gọn */
 @media (max-width: 767px) {
@@ -1750,11 +1753,18 @@ html[data-theme="night"] .ttc-write-status{color:#4ade80}
 #ttcPathPanel.ttc-path-fs > .ttc-path-world-ticker {
   flex: 0 0 auto;
   position: static !important;
+  font-size: 12.5px;
+  line-height: 1.3;
+  padding: 2px 10px;
+  text-align: center;
 }
 #ttcPathPanel.ttc-path-fs #ttcDailyVocab {
   flex: 1 1 auto;
   min-height: 0;
   width: 100%;
+  margin-bottom: 0;
+  padding-top: 10px;
+  padding-bottom: 10px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -1773,13 +1783,17 @@ html[data-theme="night"] .ttc-write-status{color:#4ade80}
    thiết lập .ttc-path-goals là phần tử riêng nên không bị ẩn theo, và nút ở
    toolbar giữ nguyên handler toggle của module. */
 #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-goals-bar { display: none !important; }
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-daily-actions { margin-top: 0; }
+/* fs + đang học: ẩn nhãn "Lộ trình HSK x" vì HUD đã có tiêu đề + pill cấp —
+   bỏ hàng nhãn thừa cho câu hỏi lên cao (chủ web: "ở trên trống rất lớn"). */
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab:has(.ttc-path-learn) > h3 { display: none !important; }
 #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-learn {
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
-  padding-bottom: 10px;
+  padding-bottom: 4px;
 }
 /* Màn hình thiết lập lộ trình (chưa có .ttc-path-learn): cho daily tự cuộn
    để không bao giờ cắt mất nút Bắt đầu / Tiếp tục ở cuối. */
@@ -1807,8 +1821,8 @@ html[data-theme="night"] .ttc-write-status{color:#4ade80}
 /* --- Desktop (≥901px): toolbar 1 hàng đều, khu học căn giữa --- */
 @media (min-width: 901px) {
   #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-game-hud {
-    margin: 0 0 8px;
-    padding: 10px 14px;
+    margin: 0 0 6px;
+    padding: 8px 14px;
     border-radius: 14px;
   }
   #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar {
@@ -1817,8 +1831,8 @@ html[data-theme="night"] .ttc-write-status{color:#4ade80}
     align-items: stretch;
     gap: 6px;
     width: 100%;
-    padding: 6px;
-    margin: 0 0 8px;
+    padding: 5px 6px;
+    margin: 0 0 6px;
     border-radius: 14px;
     overflow-x: auto;
     overflow-y: hidden;
@@ -1830,8 +1844,8 @@ html[data-theme="night"] .ttc-write-status{color:#4ade80}
   #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar .ttc-path-fs-exit,
   #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar .ttc-path-goals-toggle {
     flex: 0 0 auto;
-    height: 40px;
-    min-height: 40px;
+    height: 36px;
+    min-height: 36px;
     font-size: 12.5px;
     padding: 6px 12px;
     display: inline-flex;
@@ -1851,8 +1865,8 @@ html[data-theme="night"] .ttc-write-status{color:#4ade80}
     flex: 0 1 auto;
     min-width: 170px;
     max-width: 230px;
-    height: 40px;
-    min-height: 40px;
+    height: 36px;
+    min-height: 36px;
     flex-direction: row !important;
     align-items: center;
     gap: 6px;
@@ -1883,16 +1897,16 @@ html[data-theme="night"] .ttc-write-status{color:#4ade80}
   #ttcPathPanel.ttc-path-fs > .ttc-path-world-ticker {
     font-size: 12px;
     line-height: 1.35;
-    padding: 5px 10px;
+    padding: 2px 10px;
     text-align: center;
   }
   #ttcPathPanel.ttc-path-fs #ttcDailyVocab {
-    padding: 10px 10px 12px;
+    padding: 7px 10px 8px;
     border-radius: 0;
   }
   #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-game-hud {
-    margin: 0 0 8px;
-    padding: 9px 11px;
+    margin: 0 0 6px;
+    padding: 7px 11px;
     border-radius: 14px;
   }
   #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-game-hud-row {
@@ -1905,7 +1919,7 @@ html[data-theme="night"] .ttc-write-status{color:#4ade80}
   #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-game-hud-row span.ttc-path-game-pill:nth-of-type(2) { display: none; }
   #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-game-progress { height: 6px; margin: 7px 0 4px; }
   #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-game-meta { font-size: 11px; }
-  #ttcPathPanel.ttc-path-fs #ttcDailyVocab h3 { padding-right: 0; font-size: 17px; margin: 0 0 6px; }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab h3 { padding-right: 0; font-size: 15px; margin: 0 0 4px; }
   #ttcPathPanel.ttc-path-fs .ttc-path-fs-toolbar {
     display: flex !important;
     flex-wrap: nowrap !important;
@@ -1913,8 +1927,8 @@ html[data-theme="night"] .ttc-write-status{color:#4ade80}
     gap: 6px;
     width: 100%;
     max-width: 100%;
-    padding: 6px;
-    margin: 0 0 8px;
+    padding: 5px 6px;
+    margin: 0 0 5px;
     border-radius: 14px;
     overflow-x: auto;
     overflow-y: hidden;
@@ -1967,7 +1981,7 @@ html[data-theme="night"] .ttc-write-status{color:#4ade80}
   #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-learn {
     flex-direction: column !important;
     align-items: stretch !important;
-    gap: 8px;
+    gap: 6px;
     margin-top: 6px;
     width: 100%;
   }
@@ -1986,7 +2000,7 @@ html[data-theme="night"] .ttc-write-status{color:#4ade80}
     overflow-x: auto;
     overflow-y: hidden;
     scroll-snap-type: x proximity;
-    padding: 2px 1px 4px;
+    padding: 1px 1px 2px;
     scrollbar-width: none;
     box-sizing: border-box;
   }
@@ -1999,7 +2013,7 @@ html[data-theme="night"] .ttc-write-status{color:#4ade80}
     display: flex;
     align-items: baseline;
     gap: 5px;
-    padding: 5px 8px;
+    padding: 4px 8px;
     border-radius: 9px;
     white-space: nowrap;
   }
@@ -2012,15 +2026,18 @@ html[data-theme="night"] .ttc-write-status{color:#4ade80}
   }
   #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-overview-col .ttc-path-bar { display: none !important; }
   #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-overview-col .ttc-path-stat-nick { display: none !important; }
-  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-q { padding: 12px 12px 13px; border-radius: 14px; }
-  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-daily-hanzi { font-size: clamp(38px, 11vw, 48px); }
-  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-q-meaning { font-size: 17px; }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-q { padding: 9px 12px 10px; border-radius: 14px; }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-daily-py { font-size: 20px; margin-top: 4px; }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-overview-col .ttc-path-xp-value { font-size: 16px !important; }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-game-progress { height: 6px; }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-daily-hanzi { font-size: clamp(42px, 12vw, 54px); }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-q-meaning { font-size: 19px; }
   #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-build.ttc-path-slots { gap: 6px; min-height: 46px; }
   #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-slot {
-    width: clamp(36px, 10.5vw, 46px);
+    width: clamp(40px, 11.5vw, 50px);
     height: auto;
     aspect-ratio: 1;
-    font-size: clamp(19px, 5.4vw, 24px);
+    font-size: clamp(21px, 6vw, 27px);
     padding: 0;
   }
   #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-tiles { gap: 7px; padding: 8px; }
@@ -2031,17 +2048,17 @@ html[data-theme="night"] .ttc-write-status{color:#4ade80}
     min-height: 42px;
     aspect-ratio: 1;
     padding: 4px;
-    font-size: clamp(20px, 6vw, 26px);
+    font-size: clamp(22px, 6.5vw, 28px);
     display: inline-flex;
     align-items: center;
     justify-content: center;
   }
-  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-choice { padding: 11px 12px; font-size: 15.5px; }
-  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-controls { padding: 9px; gap: 8px; }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-choice { padding: 12px 14px; font-size: 17.5px; }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-controls { padding: 8px; gap: 8px; }
   #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-btn { min-height: 44px; min-width: 104px; padding: 11px 14px; font-size: 15px; }
   #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-feedback { padding: 10px 12px; }
-  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-fb-hanzi { font-size: 36px; }
-  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-feedback-ok .ttc-path-feedback-title { font-size: 21px; }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-fb-hanzi { font-size: 38px; }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-feedback-ok .ttc-path-feedback-title { font-size: 22px; }
 }
 
 /* ===== TỰ THU VỪA MÀN HÌNH — KHÔNG CUỘN PHIÊN HỌC (additive, 2026-11-17) =====
@@ -2085,6 +2102,7 @@ html[data-theme="night"] .ttc-write-status{color:#4ade80}
 #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-feedback-host {
   flex: 0 1 auto;
   min-height: 0;
+  margin-bottom: 4px;
   display: flex;
   flex-direction: column;
 }
@@ -2111,8 +2129,8 @@ html[data-theme="night"] .ttc-write-status{color:#4ade80}
 }
 /* --- 2) Kích thước theo --ttc-fit (giá trị gốc desktop của module) --- */
 #ttcPathPanel.ttc-path-fs #ttcDailyVocab h3 {
-  font-size: calc(20px * var(--ttc-fit));
-  margin-bottom: calc(4px * var(--ttc-fit));
+  font-size: calc(17px * var(--ttc-fit));
+  margin-bottom: calc(2px * var(--ttc-fit));
 }
 #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-explain-bar {
   flex: 0 1 auto;
@@ -2133,80 +2151,81 @@ html[data-theme="night"] .ttc-write-status{color:#4ade80}
 }
 #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-qcolor-btn {
   font-size: calc(13px * var(--ttc-fit));
-  padding: calc(10px * var(--ttc-fit)) calc(14px * var(--ttc-fit));
-  min-height: calc(44px * var(--ttc-fit));
+  padding: calc(8px * var(--ttc-fit)) calc(12px * var(--ttc-fit));
+  min-height: calc(36px * var(--ttc-fit));
 }
 #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-q {
-  padding: calc(14px * var(--ttc-fit)) calc(14px * var(--ttc-fit)) calc(16px * var(--ttc-fit));
-  margin-bottom: calc(12px * var(--ttc-fit));
+  padding: calc(10px * var(--ttc-fit)) calc(16px * var(--ttc-fit)) calc(10px * var(--ttc-fit));
+  margin-bottom: calc(10px * var(--ttc-fit));
 }
 #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-q-label {
-  font-size: calc(15px * var(--ttc-fit));
-  margin-bottom: calc(8px * var(--ttc-fit));
+  font-size: calc(18px * var(--ttc-fit));
+  margin-bottom: calc(6px * var(--ttc-fit));
 }
-#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-daily-hanzi { font-size: calc(56px * var(--ttc-fit)); }
-#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-q-meaning { font-size: calc(22px * var(--ttc-fit)); }
-#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-build { font-size: calc(34px * var(--ttc-fit)); }
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-daily-hanzi { font-size: calc(66px * var(--ttc-fit)); }
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-q-meaning { font-size: calc(27px * var(--ttc-fit)); }
+#ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-build { font-size: calc(38px * var(--ttc-fit)); }
 #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-build.ttc-path-slots {
-  min-height: calc(52px * var(--ttc-fit));
+  min-height: calc(56px * var(--ttc-fit));
   gap: calc(8px * var(--ttc-fit));
 }
 #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-slot {
-  width: calc(48px * var(--ttc-fit));
-  height: calc(48px * var(--ttc-fit));
-  font-size: calc(26px * var(--ttc-fit));
+  width: calc(52px * var(--ttc-fit));
+  height: calc(52px * var(--ttc-fit));
+  font-size: calc(29px * var(--ttc-fit));
 }
 #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-tiles {
   gap: calc(10px * var(--ttc-fit));
   padding: calc(10px * var(--ttc-fit));
 }
 #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-daily-char {
-  font-size: calc(28px * var(--ttc-fit));
+  font-size: calc(31px * var(--ttc-fit));
   padding: calc(10px * var(--ttc-fit)) calc(14px * var(--ttc-fit));
-  min-width: calc(48px * var(--ttc-fit));
-  min-height: calc(48px * var(--ttc-fit));
+  min-width: calc(52px * var(--ttc-fit));
+  min-height: calc(52px * var(--ttc-fit));
 }
 #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-choices {
   flex: 1 1 auto;
   min-height: 0;
   justify-content: center;
   gap: calc(10px * var(--ttc-fit));
-  margin-bottom: calc(12px * var(--ttc-fit));
+  margin-bottom: calc(8px * var(--ttc-fit));
 }
 #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-choice {
   flex: 1 1 0;
-  min-height: calc(38px * var(--ttc-fit));
-  max-height: calc(88px * var(--ttc-fit));
+  min-height: calc(52px * var(--ttc-fit));
+  max-height: calc(104px * var(--ttc-fit));
   overflow: hidden;
   align-items: center;
-  font-size: calc(17px * var(--ttc-fit));
-  padding: calc(14px * var(--ttc-fit));
+  line-height: 1.32;
+  font-size: calc(20px * var(--ttc-fit));
+  padding: calc(11px * var(--ttc-fit)) calc(18px * var(--ttc-fit));
 }
 #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-controls {
   flex: 0 0 auto;
   gap: calc(10px * var(--ttc-fit));
-  padding: calc(12px * var(--ttc-fit));
-  margin: calc(4px * var(--ttc-fit)) 0 calc(8px * var(--ttc-fit));
+  padding: calc(8px * var(--ttc-fit));
+  margin: calc(2px * var(--ttc-fit)) 0 calc(5px * var(--ttc-fit));
 }
 #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-btn {
-  font-size: calc(16px * var(--ttc-fit));
-  padding: calc(14px * var(--ttc-fit)) calc(18px * var(--ttc-fit));
+  font-size: calc(17px * var(--ttc-fit));
+  padding: calc(13px * var(--ttc-fit)) calc(18px * var(--ttc-fit));
   min-height: calc(48px * var(--ttc-fit));
 }
 #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-feedback {
   padding: calc(12px * var(--ttc-fit)) calc(14px * var(--ttc-fit));
-  font-size: calc(15px * var(--ttc-fit));
+  font-size: calc(16px * var(--ttc-fit));
 }
 #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-feedback-title {
-  font-size: calc(22px * var(--ttc-fit));
+  font-size: calc(24px * var(--ttc-fit));
   margin-bottom: calc(8px * var(--ttc-fit));
 }
 #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-fb-hanzi {
-  font-size: calc(44px * var(--ttc-fit));
+  font-size: calc(48px * var(--ttc-fit));
   margin: calc(8px * var(--ttc-fit)) 0 calc(4px * var(--ttc-fit));
 }
 #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-fb-meaning {
-  font-size: calc(16px * var(--ttc-fit));
+  font-size: calc(18px * var(--ttc-fit));
   margin-bottom: calc(8px * var(--ttc-fit));
 }
 #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-fb-actions {
@@ -2225,32 +2244,33 @@ html[data-theme="night"] .ttc-write-status{color:#4ade80}
 /* --- 2b) Giá trị gốc mobile (<=900px) nhân --ttc-fit --- */
 @media (max-width: 900px) {
   #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-main { flex: 1 1 auto; }
-  #ttcPathPanel.ttc-path-fs #ttcDailyVocab h3 { font-size: calc(17px * var(--ttc-fit)); }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab h3 { font-size: calc(15px * var(--ttc-fit)); }
   #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-q {
-    padding: calc(12px * var(--ttc-fit)) calc(12px * var(--ttc-fit)) calc(13px * var(--ttc-fit));
+    padding: calc(10px * var(--ttc-fit)) calc(12px * var(--ttc-fit)) calc(11px * var(--ttc-fit));
   }
-  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-daily-hanzi { font-size: calc(clamp(38px, 11vw, 48px) * var(--ttc-fit)); }
-  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-q-meaning { font-size: calc(17px * var(--ttc-fit)); }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-daily-hanzi { font-size: calc(clamp(42px, 12vw, 54px) * var(--ttc-fit)); }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-q-meaning { font-size: calc(19px * var(--ttc-fit)); }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-qcolor-btn { min-height: calc(44px * var(--ttc-fit)); }
   #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-slot {
-    width: calc(clamp(36px, 10.5vw, 46px) * var(--ttc-fit));
+    width: calc(clamp(40px, 11.5vw, 50px) * var(--ttc-fit));
     height: auto;
-    font-size: calc(clamp(19px, 5.4vw, 24px) * var(--ttc-fit));
+    font-size: calc(clamp(21px, 6vw, 27px) * var(--ttc-fit));
   }
   #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-tiles {
     gap: calc(7px * var(--ttc-fit));
     padding: calc(8px * var(--ttc-fit));
   }
   #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-daily-char {
-    font-size: calc(clamp(20px, 6vw, 26px) * var(--ttc-fit));
-    min-width: calc(42px * var(--ttc-fit));
-    min-height: calc(42px * var(--ttc-fit));
-    max-width: calc(58px * var(--ttc-fit));
+    font-size: calc(clamp(22px, 6.5vw, 28px) * var(--ttc-fit));
+    min-width: calc(44px * var(--ttc-fit));
+    min-height: calc(44px * var(--ttc-fit));
+    max-width: calc(62px * var(--ttc-fit));
   }
   #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-choice {
-    font-size: calc(15.5px * var(--ttc-fit));
-    padding: calc(11px * var(--ttc-fit)) calc(12px * var(--ttc-fit));
+    font-size: calc(17.5px * var(--ttc-fit));
+    padding: calc(12px * var(--ttc-fit)) calc(14px * var(--ttc-fit));
   }
-  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-controls { padding: calc(9px * var(--ttc-fit)); gap: calc(8px * var(--ttc-fit)); }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-controls { padding: calc(8px * var(--ttc-fit)); gap: calc(8px * var(--ttc-fit)); }
   #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-btn {
     min-height: calc(44px * var(--ttc-fit));
     min-width: calc(104px * var(--ttc-fit));
@@ -2258,8 +2278,8 @@ html[data-theme="night"] .ttc-write-status{color:#4ade80}
     font-size: calc(15px * var(--ttc-fit));
   }
   #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-feedback { padding: calc(10px * var(--ttc-fit)) calc(12px * var(--ttc-fit)); }
-  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-fb-hanzi { font-size: calc(36px * var(--ttc-fit)); }
-  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-feedback-ok .ttc-path-feedback-title { font-size: calc(21px * var(--ttc-fit)); }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-fb-hanzi { font-size: calc(38px * var(--ttc-fit)); }
+  #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-feedback-ok .ttc-path-feedback-title { font-size: calc(22px * var(--ttc-fit)); }
   #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-overview-col .ttc-path-stat { padding: calc(5px * var(--ttc-fit)) calc(8px * var(--ttc-fit)); }
   #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-overview-col .ttc-path-stat span { font-size: calc(10px * var(--ttc-fit)); }
   #ttcPathPanel.ttc-path-fs #ttcDailyVocab .ttc-path-overview-col .ttc-path-stat b { font-size: calc(12.5px * var(--ttc-fit)); }
