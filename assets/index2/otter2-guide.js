@@ -37,7 +37,16 @@
       window.matchMedia("(prefers-reduced-motion: reduce)").matches
     );
 
-    /* ---------------- CSS (injected, guide-prefixed) ---------------- */
+    /* ---------------- CSS (injected, guide-prefixed) ----------------
+       ĐÁY PANEL NÉ NÚT CHAT (chủ web báo 2026-11-20): .guide-wrap chỉ chứa
+       panel (ẩn panel = wrap rỗng, vô hình) nên neo wrap CAO HƠN mép trên
+       của #aichatLauncher (z-index 12049, cao 48px) theo đúng quy ước xếp
+       chồng của nút 🏠: desktop launcher bottom:20 -> wrap bottom:80
+       (20+48+12 khoảng hở); ≤767px shell nâng launcher lên bottom:64 ->
+       wrap bottom:124 (64+48+12). max-height của panel giảm tương ứng để
+       giữ lề trên 16px. Nhờ vậy hàng cuối panel (Giọng đọc + "Cho bé nghỉ
+       một lát") luôn hiện đủ và bấm được, launcher vẫn nguyên vẹn bên dưới
+       panel; đóng panel thì mọi thứ như cũ. */
     var css = [
       ".guide-roam{position:fixed;left:0;top:0;z-index:90;width:118px;pointer-events:none;will-change:transform;transition:opacity .25s ease}",
       "@media (max-width:720px){.guide-roam{width:69px}}",
@@ -69,9 +78,10 @@
       ".guide-bubble p{margin:0;font-size:.84rem;font-weight:600;line-height:1.5}",
       ".guide-bubble .guide-hint{display:block;margin-top:5px;font-size:.72rem;font-weight:700;color:#d63a2f}",
       ".guide-bubble-x{position:absolute;top:2px;right:4px;border:0;background:transparent;color:#8a877e;font-size:.95rem;line-height:1;min-height:2rem;width:2rem;padding:0;cursor:pointer}",
-      ".guide-wrap{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:95;pointer-events:none}",
-      ".guide-panel{pointer-events:auto;width:min(336px,calc(100vw - 24px));max-height:calc(100vh - 32px - env(safe-area-inset-bottom,0px));overflow-y:auto;background:#fff;border:1px solid #e3e0d8;border-radius:20px;box-shadow:0 18px 50px rgba(25,25,33,.25);padding:16px;color:#23222b}",
+      ".guide-wrap{position:fixed;right:16px;bottom:calc(80px + env(safe-area-inset-bottom,0px));z-index:95;pointer-events:none}",
+      ".guide-panel{pointer-events:auto;width:min(336px,calc(100vw - 24px));max-height:calc(100vh - 96px - env(safe-area-inset-bottom,0px));overflow-y:auto;background:#fff;border:1px solid #e3e0d8;border-radius:20px;box-shadow:0 18px 50px rgba(25,25,33,.25);padding:16px;color:#23222b}",
       ".guide-panel[hidden]{display:none}",
+      "@media (max-width:767px){.guide-wrap{bottom:calc(124px + env(safe-area-inset-bottom,0px))}.guide-panel{max-height:calc(100vh - 140px - env(safe-area-inset-bottom,0px))}}",
       ".guide-head{display:flex;align-items:center;gap:10px}",
       ".guide-head img{width:44px;height:44px;border-radius:50%;object-fit:cover;object-position:center 8%;border:2px solid #f6d9d4;flex:none;background:#fdf3ec}",
       ".guide-head b{font-size:.95rem;display:block;line-height:1.25}",
@@ -500,7 +510,10 @@
        pickGuideVoice(), không đụng TTS chung của web, không đụng quy
        tắc câm trong zone học. computeGuideVoicePlan() là nguồn sự thật
        duy nhất — panel của bé (initGenderVoice) cũng đọc nó để hiện
-       dòng gợi ý "đang dùng giọng biến đổi cao độ" khi thật sự lệch. */
+       dòng gợi ý về giọng biến đổi cao độ khi thật sự lệch. Từ 07:57
+       2026-11-20: kế hoạch này chỉ còn áp cho utterance MÁY của bé —
+       đường dự phòng khi giọng mây lỗi/tắt; đường nói chính của bé là
+       giọng mây (khối Giọng mây ngay bên dưới). */
     var guideVoiceState = { manual: false, voiceName: "", voiceGender: "", pitch: 1, shifted: false, voice: null };
     function computeGuideVoicePlan() {
       var plan = { manual: false, voiceName: "", voiceGender: "", pitch: 1, shifted: false, voice: null };
@@ -554,12 +567,17 @@
        ~/workspace/supabase_fix/tts_cloud.md). Giọng theo giới tính hiện tại
        của bé: function tự map Nữ -> vi-VN-Wavenet-A, Nam -> vi-VN-Wavenet-D
        (bảng VOICES phía server — đổi giọng chỉ sửa 1 hằng số phía server).
-       Thứ tự ưu tiên trong speak():
-         (1) người học đã CHỌN TAY giọng máy trong Giọng đọc -> giọng máy
-             thắng tuyệt đối (đúng luật cũ của pickGuideVoice), mây không chen;
-         (2) chưa chọn tay + Giọng mây đang bật -> thử mây trước;
-         (3) mây lỗi/timeout/mất mạng/chưa có tương tác đầu tiên -> rơi về
-             giọng máy như cũ (kèm biến đổi cao độ như đã live).
+       Thứ tự ưu tiên trong speak() (chủ web chốt bổ sung 2026-11-20
+       07:57 — "Cho Bé mặc định giọng cloud luôn"):
+         (1) Giọng mây đang bật -> LUÔN thử mây trước cho bé, KỂ CẢ khi
+             người học đã chọn tay giọng máy: lựa chọn tay đó từ nay chỉ
+             điều khiển các phần đọc khác của web (từ điển / kho từ vựng
+             tự đọc khóa của picker) và là giọng DỰ PHÒNG của bé khi
+             mây lỗi — không còn thắng mây trong đường nói của bé nữa;
+         (2) mây lỗi/timeout/mất mạng/chưa có tương tác đầu tiên, hoặc
+             Giọng mây đã tắt -> rơi về giọng máy như cũ (kế hoạch
+             computeGuideVoicePlan: giọng đã chọn tay nếu còn trên máy,
+             kèm biến đổi cao độ như đã live).
        Giọng mây MẶC ĐỊNH BẬT (chủ web yêu cầu thay giọng); tắt bằng
        localStorage "otter2CloudTtsV1" = "0". Phát bằng <audio> bất đồng
        bộ: không chặn bong bóng chữ hay bước chạy của bé; đang tải/phát mây
@@ -581,13 +599,6 @@
     function cloudTtsEnabled() {
       try { return localStorage.getItem("otter2CloudTtsV1") !== "0"; }
       catch (eCI1) { return true; }
-    }
-    function manualDeviceVoiceChosen() {
-      var vp = window.otter2VoicePicker || null;
-      try {
-        if (vp && typeof vp.getChoice === "function") return !!(vp.getChoice("vi") || "");
-        return !!(localStorage.getItem("otter2VoicePickViV1") || "");
-      } catch (eCI2) { return false; }
     }
     function cloudAudioBusy() { return cloudAudioBusyFlag || cloudFetchBusy; }
     function stopCloudSpeech() {
@@ -615,7 +626,9 @@
        callback — trừ khi bé đã vào zone học, lúc đó câm hẳn theo luật. */
     function speakCloud(clean) {
       if (!cloudTtsEnabled()) return false;
-      if (manualDeviceVoiceChosen()) return false;
+      /* Không còn cửa "đã chọn tay giọng máy -> bỏ mây" (chủ web chốt
+         07:57 2026-11-20): mây là mặc định tuyệt đối cho bé; giọng máy
+         (kể cả giọng đã chọn tay) chỉ còn là dự phòng khi mây lỗi. */
       if (!userInteracted) return false;      /* autoplay: chờ tương tác đầu */
       if (typeof window.fetch !== "function") return false;
       cloudFetchBusy = true;
@@ -2195,21 +2208,25 @@
           }
           if (!(hasF && hasM)) {
             var missing = !hasF && !hasM ? "giọng nữ và giọng nam" : (!hasF ? "giọng nữ" : "giọng nam");
-            text = "Thiết bị chưa có đủ giọng " + langName + " cho bé đổi giọng — đang thiếu " + missing + ". " + osHintText(group);
+            text = "Thiết bị chưa có đủ giọng " + langName + " cho giọng máy — đang thiếu " + missing + ". " + osHintText(group);
           }
         }
-        /* Đang phải BIẾN ĐỔI CAO ĐỘ (chỉ giọng của bé — nhóm vi): khi kế
-           hoạch giọng thực tế (computeGuideVoicePlan) đang lệch tông vì
-           máy thiếu giọng thật của giới tính bé, nói rõ cho người học
-           biết bé đang tạm nói bằng "giọng biến đổi cao độ". Chỉ hiện
-           khi plan.shifted thật — máy đủ giọng / chọn tay thì không hiện. */
+        /* BIẾN ĐỔI CAO ĐỘ ở đường DỰ PHÒNG (chỉ giọng của bé — nhóm vi):
+           bé mặc định nói bằng giọng mây; khi mây không tải được mới rơi
+           về giọng máy theo computeGuideVoicePlan, và nếu kế hoạch đó
+           đang lệch tông vì máy thiếu giọng thật của giới tính bé thì
+           nói rõ cho người học biết phần dự phòng đang tạm dùng "giọng
+           biến đổi cao độ". Chỉ hiện khi plan.shifted thật — máy đủ
+           giọng / chọn tay thì không hiện. */
         if (group === "vi") {
           var plan = null;
           try { plan = computeGuideVoicePlan(); } catch (eHp) {}
           if (plan && plan.shifted) {
-            var pitchNote = "🎚️ Máy chưa có giọng " + (guideGender === "female" ? "nữ" : "nam") +
-              " thật nên Bé đang tạm nói bằng giọng biến đổi cao độ cho giống Bé " +
-              (guideGender === "female" ? "Nữ" : "Nam") + " hơn — tải thêm giọng thật theo hướng dẫn thì Bé sẽ dùng giọng thật nhé.";
+            var pitchNote = "🎚️ Bé mặc định nói bằng giọng mây (Google) nên không phụ thuộc giọng máy; " +
+              "chỉ khi giọng mây không tải được, Bé mới rơi về giọng máy — lúc đó máy chưa có giọng " +
+              (guideGender === "female" ? "nữ" : "nam") +
+              " thật nên Bé tạm nói bằng giọng biến đổi cao độ cho giống Bé " +
+              (guideGender === "female" ? "Nữ" : "Nam") + " hơn, tải thêm giọng thật theo hướng dẫn thì phần dự phòng đó sẽ là giọng thật nhé.";
             text = text ? text + " " + pitchNote : pitchNote;
           }
         }
