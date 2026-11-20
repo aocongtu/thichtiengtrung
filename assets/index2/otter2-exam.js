@@ -118,7 +118,23 @@
   }
   function splitSentences(zh) {
     var parts = String(zh || "").replace(/\s+/g, "").match(/[^。！？；]+[。！？；]?/g) || [];
-    return parts.map(function (s) { return s.trim(); }).filter(function (s) { return s.length >= 6; });
+    var out = [];
+    parts.forEach(function (p) {
+      var s = p.trim();
+      if (!s) return;
+      /* Vá 2026-11-20: dấu đóng trích dẫn ”/」/』 bị tách sang đầu mảnh
+         sau khi câu hội thoại kết thúc bằng ！/？ — mảnh "”..." không
+         tồn tại nguyên văn trong bài (dấu ” nằm cuối dòng trước) làm
+         câu sắp xếp/nhận diện sai lệch. Gắn dấu đóng về câu trước. */
+      var qm = s.match(/^[”」』]+/);
+      if (qm && out.length) {
+        out[out.length - 1] += qm[0];
+        s = s.slice(qm[0].length);
+        if (!s) return;
+      }
+      out.push(s);
+    });
+    return out.filter(function (s) { return s.length >= 6; });
   }
   /* Từ điển tách câu cho dạng sắp xếp từ: mọi từ vựng ở cấp <= level. */
   var segDictCache = {};
@@ -564,61 +580,321 @@
   }
 
   /* --- Câu hỏi từ một bài đọc ---
-     opts.order = true -> thêm dạng sắp xếp thứ tự câu (bản blueprint). */
+     NGUYÊN TẮC (vá chất lượng 2026-11-20, sau phản hồi của chủ web:
+     câu "Trong bài đọc, từ X có nghĩa là gì?" trả lời được bằng vốn từ
+     sẵn có, không cần đọc bài, lựa chọn nhiễu lại là nghĩa ngẫu nhiên
+     không liên quan): MỌI câu phần Đọc phải cần đến chính bài đọc —
+       · read-verify : chọn câu ĐÚNG theo bài; nhiễu là câu của bài đã
+         bị đổi một chi tiết (số liệu / thời gian / phủ định / trái
+         nghĩa / đại từ / từ nội dung lấy ngay trong bài) — phải đối
+         chiếu bài mới phân biệt được.
+       · read-fact   : điền THÔNG TIN (số, thứ, buổi, mốc thời gian)
+         đúng theo bài vào câu trích; thông tin phải xuất hiện đúng
+         một lần trong bài nên bài ghim đáp án.
+       · read-sentmean: nghĩa tiếng Việt của MỘT CÂU trong bài; nhiễu
+         là bản dịch của các câu KHÁC trong cùng bài (cùng chủ đề).
+       · read-sentence / read-order: nhận diện / thứ tự câu trong bài.
+       · read-cloze  : điền khuyết câu trích — chỉ dùng bổ sung cuối.
+     Dạng "nghĩa của từ" (read-vocab cũ) ĐÃ BỎ khỏi phần Đọc; nó chỉ
+     còn ở phần Từ vựng (genVocabMeaning). Mọi câu đột biến/điền phải
+     qua cổng: bản điền/đột biến không được là câu có thật trong corpus
+     (cùng triết lý với lớp bảo đảm một đáp án duy nhất ở trên).      */
+  function cleanIndexOf(s, w) {
+    var set = allWordHanziSet();
+    var from = 0;
+    while (true) {
+      var idx = s.indexOf(w, from);
+      if (idx < 0) return -1;
+      var prev = idx > 0 ? s.charAt(idx - 1) : "";
+      var next = idx + w.length < s.length ? s.charAt(idx + w.length) : "";
+      var dirty = false;
+      var cands = [];
+      if (prev) cands.push(prev + w);
+      if (next) cands.push(w + next);
+      if (prev && next) cands.push(prev + w + next);
+      for (var i = 0; i < cands.length; i++) {
+        if (cands[i] !== w && set[cands[i]]) { dirty = true; break; }
+      }
+      if (!dirty) return idx;
+      from = idx + 1;
+    }
+  }
+  var ANTONYM_PAIRS = [["多", "少"], ["大", "小"], ["高", "低"], ["快", "慢"], ["早", "晚"], ["新", "旧"], ["长", "短"], ["远", "近"], ["冷", "热"]];
+  var NEG_PATTERNS = [["不是", "是"], ["没有", "有"], ["不会", "会"], ["不能", "能"], ["不喜欢", "喜欢"], ["不想", "想"], ["不知道", "知道"]];
+  var PRON_SWAPS = [["我们", "他们"], ["他们", "我们"], ["我", "他"], ["她", "他"], ["他", "她"]];
+  var DAYPARTS = ["上午", "中午", "下午", "晚上", "早上", "早晨", "夜里", "白天"];
+  var DAYWORDS = ["今天", "明天", "昨天", "前天", "后天"];
+  var WEEKDAY_CHARS = "一二三四五六日天";
+  var CN_DIGITS = "一二三四五六七八九";
+  function mutateCnNumeral(tok) {
+    if (!tok || tok.length > 3) return null;
+    if (tok.length === 1) {
+      if ("一二三四五六七八九十两".indexOf(tok) < 0) return null;
+      var pool1 = "一二三四五六七八九十".split("").filter(function (c) { return c !== tok; });
+      return pool1;
+    }
+    var out = [];
+    for (var i = 0; i < tok.length; i++) {
+      var ch = tok.charAt(i);
+      if (CN_DIGITS.indexOf(ch) >= 0) {
+        for (var d = 0; d < CN_DIGITS.length; d++) {
+          var c2 = CN_DIGITS.charAt(d);
+          if (c2 !== ch) {
+            var v = tok.slice(0, i) + c2 + tok.slice(i + 1);
+            if (v.indexOf("一十") === 0) v = v.slice(1); /* 一十 -> 十, 一十三 -> 十三 */
+            if (v !== tok && out.indexOf(v) < 0) out.push(v);
+          }
+        }
+      }
+    }
+    return out.length ? out : null;
+  }
+  /* Sinh MỘT câu sai lệch từ câu s của bài: đổi đúng một chi tiết.
+     Trả null nếu không đổi được câu nào qua cổng kiểm chứng. */
+  function mutateSentence(s, zh, sentSet, poolAll, rng) {
+    var strategies = shuffle([0, 1, 2, 3, 4, 5], rng);
+    for (var si = 0; si < strategies.length; si++) {
+      var cand = null;
+      var st = strategies[si];
+      if (st === 0) { /* số Ả Rập */
+        var m = s.match(/\d+/);
+        if (m) {
+          var n = parseInt(m[0], 10);
+          var alts = n > 1000 ? [n + 1, n - 1, n + 2, n + 5] : [n + 1, n - 1, n + 2, n + 10, n * 2, n + 3];
+          alts = alts.filter(function (v) { return v > 0 && v !== n; });
+          if (alts.length) cand = s.replace(m[0], String(pickOne(alts, rng)));
+        }
+      } else if (st === 1) { /* số Hán + đơn vị */
+        var re = /[一二三四五六七八九十两]+(?=[点岁个本张件条只双把杯瓶碗块元角分秒天周月年号楼层路次遍课种样口家间辆班人])/g;
+        var mm, toks = [];
+        while ((mm = re.exec(s)) !== null) { if (mm[0] !== "十" || s.charAt(mm.index - 1) !== "十") toks.push({ t: mm[0], i: mm.index }); }
+        toks = toks.filter(function (x) { return !(x.t === "一" && "样下共".indexOf(s.charAt(x.i + 1)) >= 0); });
+        if (toks.length) {
+          var tk = pickOne(toks, rng);
+          var vars = mutateCnNumeral(tk.t);
+          if (vars && vars.length) cand = s.slice(0, tk.i) + pickOne(vars, rng) + s.slice(tk.i + tk.t.length);
+        }
+      } else if (st === 2) { /* thời gian: thứ / buổi / ngày */
+        var wd = s.match(/(星期|周)([一二三四五六日天])/);
+        if (wd) {
+          var nd = WEEKDAY_CHARS.split("").filter(function (c) { return c !== wd[2]; });
+          cand = s.replace(wd[0], wd[1] + pickOne(nd, rng));
+        } else {
+          var dp = DAYPARTS.filter(function (x) { return s.indexOf(x) >= 0; });
+          if (dp.length) {
+            var cur = pickOne(dp, rng);
+            cand = s.replace(cur, pickOne(DAYPARTS.filter(function (x) { return x !== cur; }), rng));
+          } else {
+            var dw = DAYWORDS.filter(function (x) { return s.indexOf(x) >= 0; });
+            if (dw.length) {
+              var cur2 = pickOne(dw, rng);
+              cand = s.replace(cur2, pickOne(DAYWORDS.filter(function (x) { return x !== cur2; }), rng));
+            }
+          }
+        }
+      } else if (st === 3) { /* phủ định / trái nghĩa */
+        var done = false;
+        for (var ni = 0; ni < NEG_PATTERNS.length && !done; ni++) {
+          if (s.indexOf(NEG_PATTERNS[ni][0]) >= 0) { cand = s.replace(NEG_PATTERNS[ni][0], NEG_PATTERNS[ni][1]); done = true; }
+        }
+        if (!done && s.indexOf("喜欢") >= 0 && s.indexOf("不喜欢") < 0) { cand = s.replace("喜欢", "不喜欢"); done = true; }
+        if (!done) {
+          var ap = shuffle(ANTONYM_PAIRS, rng);
+          for (var ai = 0; ai < ap.length && !done; ai++) {
+            var ix = cleanIndexOf(s, ap[ai][0]);
+            if (ix >= 0) { cand = s.slice(0, ix) + ap[ai][1] + s.slice(ix + ap[ai][0].length); done = true; }
+          }
+        }
+      } else if (st === 4) { /* đại từ chủ ngữ ở đầu câu/cụm */
+        if (s.indexOf("“") < 0) {
+          for (var pi = 0; pi < PRON_SWAPS.length && !cand; pi++) {
+            var from = PRON_SWAPS[pi][0], to = PRON_SWAPS[pi][1];
+            var at = -1, scan = 0;
+            while (scan < s.length) {
+              var f = s.indexOf(from, scan);
+              if (f < 0) break;
+              var pv = f > 0 ? s.charAt(f - 1) : "";
+              if (f === 0 || pv === "，" || pv === "：" || pv === "；" || pv === "。") { at = f; break; }
+              scan = f + 1;
+            }
+            if (at >= 0) cand = s.slice(0, at) + to + s.slice(at + from.length);
+          }
+        }
+      } else { /* đổi một từ nội dung bằng từ khác CÙNG BÀI (cùng chủ đề) */
+        var inS = poolAll.filter(function (w) {
+          return String(w.h || "").length >= 2 && cleanIndexOf(s, String(w.h)) >= 0;
+        });
+        if (inS.length) {
+          var w0 = pickOne(inS, rng);
+          var inPassage = poolAll.filter(function (w) {
+            var h = String(w.h || "");
+            return h.length >= 2 && h !== String(w0.h) && zh.indexOf(h) >= 0 && s.indexOf(h) < 0 &&
+              (!w0.t || !w.t || w.t === w0.t);
+          });
+          if (inPassage.length) {
+            var w2 = pickOne(inPassage, rng);
+            var ix2 = cleanIndexOf(s, String(w0.h));
+            if (ix2 >= 0) cand = s.slice(0, ix2) + String(w2.h) + s.slice(ix2 + String(w0.h).length);
+          }
+        }
+      }
+      if (!cand || cand === s) continue;
+      var key = cand.replace(/\s+/g, "");
+      if (sentSet[key]) continue;
+      if (corpusSentenceSet()[key]) continue;
+      return cand;
+    }
+    return null;
+  }
+  function passageLines(text) {
+    return String(text || "").split("\n").map(function (x) { return x.trim(); }).filter(function (x) { return x.length; });
+  }
+
   function passageQuestions(level, passage, poolAll, rng, otherPassages, opts) {
     var qs = [];
     var zh = String(passage.zh || "");
     var title = String(passage.title || "");
-    /* 1) Từ vựng trong bài */
-    var cands = poolAll.filter(function (w) {
-      return String(w.h || "").length >= 1 && zh.indexOf(String(w.h)) >= 0;
-    }).sort(function (a, b) { return String(b.h).length - String(a.h).length; });
-    var longCands = cands.filter(function (w) { return String(w.h).length >= 2; });
-    var useCands = longCands.length ? longCands : cands;
-    if (useCands.length) {
-      var w = pickOne(useCands.slice(0, 40), rng);
-      var wrongs = distractors(poolAll, function (x) { return x.m; }, normOpt, w.m, 3, rng, sameTypeFirst(w), meaningRejectFn(w));
-      if (wrongs.length >= 3) {
-        var sent = splitSentences(zh).filter(function (s) { return s.indexOf(String(w.h)) >= 0; })[0] || "";
-        qs.push(finalize({
-          section: "reading", type: "read-vocab",
-          stem: "Trong bài đọc, từ 「" + String(w.h) + "」 có nghĩa là gì?",
-          sub: "", passage: zh, passageTitle: title, speakText: null,
-          explainHead: "Từ 「" + String(w.h) + "」 · " + String(w.p),
-          explainBody: "Nghĩa: " + String(w.m) + (sent ? "\nCâu trong bài: " + sent : ""),
-          srcKey: "R" + level + "|" + passage.id + "|" + w.h
-        }, String(w.m), wrongs, rng));
-      }
-    }
-    /* 2) Điền khuyết trong đoạn */
     var sents = splitSentences(zh);
-    var clozeDone = false;
-    var shuffledSents = shuffle(sents, rng);
-    for (var si = 0; si < shuffledSents.length && !clozeDone; si++) {
-      var s = shuffledSents[si];
-      var inSent = poolAll.filter(function (w) { return String(w.h || "").length >= 2 && s.indexOf(String(w.h)) >= 0; });
-      if (!inSent.length) inSent = poolAll.filter(function (w) { return String(w.h || "").length >= 1 && s.indexOf(String(w.h)) >= 0; });
-      if (!inSent.length) continue;
-      var candWords = shuffle(inSent, rng);
-      for (var cwi = 0; cwi < candWords.length && !clozeDone; cwi++) {
-        var cw = candWords[cwi];
-        var blanked = blankOutSmart(s, cw.h);
-        if (!blanked) continue;
-        var cwrongs = distractors(poolAll, function (x) { return x.h; }, normOpt, cw.h, 3, rng, sameTypeFirst(cw), clozeRejectFn(cw, blanked, s, zh));
-        if (cwrongs.length < 3) continue;
+    var sentSet = {};
+    sents.forEach(function (x) { sentSet[x.replace(/\s+/g, "")] = 1; });
+    var caps = (opts && opts.deep) ? { verify: 3, fact: 2, mean: 2, cloze: 2 } : { verify: 2, fact: 1, mean: 1, cloze: 1 };
+
+    /* 1) Chọn câu ĐÚNG theo bài (nhiễu = câu của bài bị đổi chi tiết) */
+    var verifyBases = shuffle(sents.filter(function (s) {
+      return s.length >= 10 && s.length <= 62 && !isInterrogative(s);
+    }), rng);
+    var nVerify = 0;
+    for (var vi = 0; vi < verifyBases.length && nVerify < caps.verify; vi++) {
+      var base = verifyBases[vi];
+      var wrongs = [], seenW = {};
+      for (var att = 0; att < 8 && wrongs.length < 3; att++) {
+        var mut = mutateSentence(base, zh, sentSet, poolAll, rng);
+        if (mut && !seenW[mut]) { seenW[mut] = 1; wrongs.push(mut); }
+      }
+      if (wrongs.length < 3) { /* bổ sung bằng đột biến của câu khác trong bài */
+        var others = shuffle(sents.filter(function (s) { return s !== base && s.length >= 10 && s.length <= 62; }), rng);
+        for (var oi = 0; oi < others.length && wrongs.length < 3; oi++) {
+          var mut2 = mutateSentence(others[oi], zh, sentSet, poolAll, rng);
+          if (mut2 && !seenW[mut2]) { seenW[mut2] = 1; wrongs.push(mut2); }
+        }
+      }
+      if (wrongs.length < 3) continue;
+      qs.push(finalize({
+        section: "reading", type: "read-verify",
+        stem: "Câu nào sau đây ĐÚNG theo nội dung bài đọc?",
+        sub: "", passage: zh, passageTitle: title, speakText: null,
+        explainHead: "Câu đúng, trích nguyên văn từ bài: " + base,
+        explainBody: "Ba câu còn lại đều đã bị đổi một chi tiết so với bài đọc (số liệu, thời gian, phủ định hoặc nội dung) — đối chiếu lại bài để thấy chỗ khác.",
+        srcKey: "R" + level + "|" + passage.id + "|verify|" + hashStr(base)
+      }, base, wrongs, rng));
+      nVerify++;
+    }
+
+    /* 2) Điền THÔNG TIN đúng theo bài (số / thứ / buổi / mốc thời gian) */
+    var factDone = 0;
+    var factSents = shuffle(sents.filter(function (s) { return s.length >= 8 && s.length <= 62; }), rng);
+    for (var fi2 = 0; fi2 < factSents.length && factDone < caps.fact; fi2++) {
+      var fs = factSents[fi2];
+      var slots = [];
+      var dm;
+      var digitRe = /\d+/g;
+      while ((dm = digitRe.exec(fs)) !== null) {
+        (function (tok, idx) {
+          var n = parseInt(tok, 10);
+          var alts = n > 1000 ? [n + 1, n - 1, n + 2, n + 5] : [n + 1, n - 1, n + 2, n + 10, n * 2, n + 3];
+          slots.push({ i: idx, t: tok, vars: alts.filter(function (v) { return v > 0 && v !== n; }).map(String) });
+        })(dm[0], dm.index);
+      }
+      var wdRe = /(星期|周)([一二三四五六日天])/g;
+      while ((dm = wdRe.exec(fs)) !== null) {
+        (function (tok, idx, dayCh) {
+          slots.push({ i: idx, t: tok, vars: WEEKDAY_CHARS.split("").filter(function (c) { return c !== dayCh; }).map(function (c) { return tok.slice(0, tok.length - 1) + c; }) });
+        })(dm[0], dm.index, dm[2]);
+      }
+      DAYPARTS.concat(DAYWORDS).forEach(function (tw) {
+        var ix = fs.indexOf(tw);
+        if (ix >= 0) {
+          var fam = DAYPARTS.indexOf(tw) >= 0 ? DAYPARTS : DAYWORDS;
+          slots.push({ i: ix, t: tw, vars: fam.filter(function (x) { return x !== tw; }) });
+        }
+      });
+      var numRe = /[一二三四五六七八九十两]+(?=[点岁个本张件条只双把杯瓶碗块元角分秒天周月年号楼层路次遍课种样口家间辆班人])/g;
+      while ((dm = numRe.exec(fs)) !== null) {
+        if (dm[0] === "十" && fs.charAt(dm.index - 1) === "十") continue;
+        if (dm[0] === "一" && "样下共".indexOf(fs.charAt(dm.index + 1)) >= 0) continue;
+        (function (tok, idx) {
+          var vars = mutateCnNumeral(tok);
+          if (vars && vars.length >= 3) slots.push({ i: idx, t: tok, vars: vars });
+        })(dm[0], dm.index);
+      }
+      slots = slots.filter(function (sl) { return countOcc(zh, sl.t) === 1; });
+      if (!slots.length) continue;
+      var slot = pickOne(slots, rng);
+      var blankedF = fs.slice(0, slot.i) + "＿＿" + fs.slice(slot.i + slot.t.length);
+      var fwrongs = [], seenF = {};
+      var shuffledVars = shuffle(slot.vars, rng);
+      for (var vj = 0; vj < shuffledVars.length && fwrongs.length < 3; vj++) {
+        var v = shuffledVars[vj];
+        if (seenF[v]) continue;
+        var filled = fs.slice(0, slot.i) + v + fs.slice(slot.i + slot.t.length);
+        if (sentSet[filled.replace(/\s+/g, "")]) continue;
+        seenF[v] = 1;
+        fwrongs.push(v);
+      }
+      if (fwrongs.length < 3) continue;
+      qs.push(finalize({
+        section: "reading", type: "read-fact",
+        stem: "Điền thông tin ĐÚNG theo bài đọc vào chỗ trống trong câu sau:",
+        sub: blankedF, passage: zh, passageTitle: title, speakText: null,
+        explainHead: fs,
+        explainBody: "Thông tin đúng trong bài: " + slot.t + " — hãy tìm lại câu này trong bài đọc để đối chiếu.",
+        srcKey: "R" + level + "|" + passage.id + "|fact|" + hashStr(fs + "|" + slot.t),
+        sourceSentence: fs, targetWord: slot.t
+      }, slot.t, fwrongs, rng));
+      factDone++;
+    }
+
+    /* 3) Nghĩa của một câu trong bài (nhiễu = dịch của câu khác cùng bài) */
+    var zhLines = passageLines(passage.zh), viLines = passageLines(passage.vi);
+    if (zhLines.length >= 4 && zhLines.length === viLines.length) {
+      var viCount = {};
+      viLines.forEach(function (v) { var k = normOpt(v); viCount[k] = (viCount[k] || 0) + 1; });
+      var meanCands = [];
+      zhLines.forEach(function (zl, idx) {
+        if (zl.length < 10 || zl.length > 48) return;
+        if (splitSentences(zl).length !== 1) return;
+        if (viLines[idx].length < 8) return;
+        if (viCount[normOpt(viLines[idx])] !== 1) return;
+        meanCands.push(idx);
+      });
+      var nMean = 0;
+      var shuffledMean = shuffle(meanCands, rng);
+      for (var mi = 0; mi < shuffledMean.length && nMean < caps.mean; mi++) {
+        var li2 = shuffledMean[mi];
+        var correctVi = viLines[li2];
+        var nearIdx = [];
+        for (var d = 1; d < zhLines.length; d++) { if (li2 - d >= 0) nearIdx.push(li2 - d); if (li2 + d < zhLines.length) nearIdx.push(li2 + d); }
+        var mwrongs = [], seenM = {};
+        nearIdx.forEach(function (j) {
+          var v = viLines[j];
+          var k = normOpt(v);
+          if (k !== normOpt(correctVi) && !seenM[k] && mwrongs.length < 3) { seenM[k] = 1; mwrongs.push(v); }
+        });
+        if (mwrongs.length < 3) continue;
         qs.push(finalize({
-          section: "reading", type: "read-cloze",
-          stem: "Điền từ thích hợp vào chỗ trống trong câu trích từ bài đọc:",
-          sub: blanked, passage: zh, passageTitle: title, speakText: null,
-          explainHead: s,
-          explainBody: "Từ cần điền: " + String(cw.h) + " (" + String(cw.p) + ") — " + String(cw.m),
-          srcKey: "R" + level + "|" + passage.id + "|cloze|" + cw.h,
-          sourceSentence: s, targetWord: String(cw.h)
-        }, String(cw.h), cwrongs, rng));
-        clozeDone = true;
+          section: "reading", type: "read-sentmean",
+          stem: "Trong bài đọc có câu: 「" + zhLines[li2] + "」 Câu này có nghĩa là gì?",
+          sub: "", passage: zh, passageTitle: title, speakText: null,
+          explainHead: zhLines[li2],
+          explainBody: "Nghĩa đúng: " + correctVi + "\nCác lựa chọn còn lại là nghĩa của những câu khác trong cùng bài.",
+          srcKey: "R" + level + "|" + passage.id + "|mean|" + li2,
+          sourceSentence: zhLines[li2]
+        }, correctVi, mwrongs, rng));
+        nMean++;
       }
     }
-    /* 3) Câu nào có trong bài */
+
+    /* 4) Câu nào có trong bài */
     var longSents = sents.filter(function (s) { return s.length >= 8; });
     if (longSents.length && otherPassages.length) {
       var correct = pickOne(longSents, rng);
@@ -640,7 +916,7 @@
         }, String(correct), swrongs, rng));
       }
     }
-    /* 4) Sắp xếp thứ tự câu trong đoạn (chỉ bản blueprint) */
+    /* 5) Sắp xếp thứ tự câu trong đoạn (chỉ bản blueprint) */
     if (opts && opts.order) {
       var win = null;
       for (var wi = 0; wi + 3 < sents.length && !win; wi++) {
@@ -659,6 +935,33 @@
           explainBody: win.join("\n"),
           srcKey: "R" + level + "|" + passage.id + "|ord"
         }, win, rng));
+      }
+    }
+    /* 6) Điền khuyết trong đoạn (bổ sung cuối — câu trích từ chính bài) */
+    var clozeDone = 0;
+    var shuffledSents = shuffle(sents, rng);
+    for (var si = 0; si < shuffledSents.length && clozeDone < caps.cloze; si++) {
+      var s = shuffledSents[si];
+      var inSent = poolAll.filter(function (w) { return String(w.h || "").length >= 2 && s.indexOf(String(w.h)) >= 0; });
+      if (!inSent.length) inSent = poolAll.filter(function (w) { return String(w.h || "").length >= 1 && s.indexOf(String(w.h)) >= 0; });
+      if (!inSent.length) continue;
+      var candWords = shuffle(inSent, rng);
+      for (var cwi = 0; cwi < candWords.length && clozeDone < caps.cloze; cwi++) {
+        var cw = candWords[cwi];
+        var blanked = blankOutSmart(s, cw.h);
+        if (!blanked) continue;
+        var cwrongs = distractors(poolAll, function (x) { return x.h; }, normOpt, cw.h, 3, rng, sameTypeFirst(cw), clozeRejectFn(cw, blanked, s, zh));
+        if (cwrongs.length < 3) continue;
+        qs.push(finalize({
+          section: "reading", type: "read-cloze",
+          stem: "Điền từ thích hợp vào chỗ trống trong câu trích từ bài đọc:",
+          sub: blanked, passage: zh, passageTitle: title, speakText: null,
+          explainHead: s,
+          explainBody: "Từ cần điền: " + String(cw.h) + " (" + String(cw.p) + ") — " + String(cw.m),
+          srcKey: "R" + level + "|" + passage.id + "|cloze|" + cw.h,
+          sourceSentence: s, targetWord: String(cw.h)
+        }, String(cw.h), cwrongs, rng));
+        clozeDone++;
       }
     }
     return qs;
@@ -862,16 +1165,43 @@
           }
           if (usedThisPassage && passagesUsed.indexOf(p.id) < 0) passagesUsed.push(p.id);
         }
+        /* Vá 2026-11-20: KHÔNG còn lấp phần Đọc bằng câu từ vựng/điền
+           khuyết gắn nhãn "reading" (trả lời không cần bài đọc). Thiếu
+           câu thì vét sâu hơn chính các bài đọc (hạn mức deep: thêm câu
+           verify/fact/mean/cloze từ các câu khác của bài); vẫn thiếu
+           thì chấp nhận ít câu hơn — plan ghi số câu thật đã sinh. */
         guard = 0;
-        var fillMakers = [
-          function () { var q = genCloze(level, poolAll, poolEx, rng); if (q) q.section = "reading"; return q; },
-          function () { var q = genVocabMeaning(level, poolAll, rng); if (q) q.section = "reading"; return q; },
-          function () { var q = genVocabPinyin(level, poolAll, rng); if (q) q.section = "reading"; return q; }
-        ];
-        var fi = 0;
-        while (ri < want && guard++ < want * 40) { if (take(fillMakers[fi % 3], false)) { ri++; } fi++; }
+        while (ri < want && guard++ < 40) {
+          var progressed = false;
+          for (var pi2 = 0; pi2 < orderedPassages.length && ri < want; pi2++) {
+            var p2 = orderedPassages[pi2];
+            var others2 = passages.filter(function (x) { return x !== p2; });
+            var pqs2 = passageQuestions(level, p2, poolAll, rng, others2, { order: true, deep: true });
+            for (var qi2 = 0; qi2 < pqs2.length && ri < want; qi2++) {
+              if (fresh(pqs2[qi2], false)) {
+                questions.push(pqs2[qi2]); ri++; progressed = true;
+                if (passagesUsed.indexOf(p2.id) < 0) passagesUsed.push(p2.id);
+              }
+            }
+          }
+          if (!progressed) break;
+        }
         guard = 0;
-        while (ri < want && guard++ < want * 40) { if (take(fillMakers[fi % 3], true)) { ri++; } fi++; }
+        while (ri < want && guard++ < 40) {
+          var progressed2 = false;
+          for (var pi3 = 0; pi3 < orderedPassages.length && ri < want; pi3++) {
+            var p3 = orderedPassages[pi3];
+            var others3 = passages.filter(function (x) { return x !== p3; });
+            var pqs3 = passageQuestions(level, p3, poolAll, rng, others3, { order: true, deep: true });
+            for (var qi3 = 0; qi3 < pqs3.length && ri < want; qi3++) {
+              if (fresh(pqs3[qi3], true)) {
+                questions.push(pqs3[qi3]); ri++; progressed2 = true;
+                if (passagesUsed.indexOf(p3.id) < 0) passagesUsed.push(p3.id);
+              }
+            }
+          }
+          if (!progressed2) break;
+        }
       } else if (key === "writing") {
         var wi = 0; guard = 0;
         var usePassageCloze = !!bp.writingSub;
