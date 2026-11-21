@@ -149,8 +149,10 @@
       ".ttc-story-item .ttc-story-meta{flex:0 0 auto;text-align:right;font-size:11.5px;color:#64748b;line-height:1.5}",
       ".ttc-story-item .ttc-story-check{flex:0 0 auto;color:#059669;font-weight:900;font-size:13px;padding-top:2px}",
       ".ttc-story-stage{min-width:0}",
-      ".ttc-story-frame-wrap{position:relative;padding-top:56.25%;border-radius:14px;overflow:hidden;background:#16283F}",
+      "/* Dải an toàn 54px ở đáy khung (2026-11-22): phụ đề Hán + pinyin CHÁY SẴN trong file video nằm sát đáy hình; khi dừng, thanh điều khiển gốc của trình duyệt (~40px) đè lên và che mất dòng pinyin. Khung được kéo cao thêm 54px và hình video neo lên trên (object-fit:contain + object-position:top) nên toàn bộ hình — kèm phụ đề — kết thúc phía trên dải đáy, thanh điều khiển chỉ đè lên dải đen trống. */",
+      ".ttc-story-frame-wrap{position:relative;padding-top:calc(56.25% + 54px);border-radius:14px;overflow:hidden;background:#16283F}",
       ".ttc-story-frame-wrap iframe,.ttc-story-frame-wrap video{position:absolute;inset:0;width:100%;height:100%;border:0;background:#000}",
+      ".ttc-story-frame-wrap video{object-fit:contain;object-position:50% 0}",
       ".ttc-story-empty{padding:34px 16px;text-align:center;color:#64748b;font-size:14px;border:1.5px dashed rgba(100,116,139,.4);border-radius:14px;line-height:1.6}",
       ".ttc-story-now{margin:12px 0 2px;font-size:17px;font-weight:900}",
       ".ttc-story-now-vi{margin:0 0 4px;font-size:13.5px;color:#64748b;font-weight:700}",
@@ -217,8 +219,9 @@
       ".ttc-ss-play{flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:rgba(249,115,22,.10);color:#16283F;font-size:10px;display:flex;align-items:center;justify-content:center;padding-left:1px}",
       ".ttc-story-subrow.is-cur .ttc-ss-play{background:#F97316;color:#fff}",
       ".ttc-story-subrow .ttc-ss-main{min-width:0;flex:1}",
-      ".ttc-story-subrow .ttc-ss-zh{display:block;font-size:14.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
-      ".ttc-story-subrow .ttc-ss-vi{display:block;font-size:12px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
+      "/* Câu dài ở cột phải xuống tối đa 2 DÒNG (2026-11-22, chủ web yêu cầu) thay cho cắt cụt 1 dòng '...' — áp cho cả dòng Hán và dòng dịch Việt; nút play vẫn căn giữa theo chiều dọc của mục nên cột nút giữ thẳng hàng. */",
+      ".ttc-story-subrow .ttc-ss-zh{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:14.5px;font-weight:700;line-height:1.35;overflow-wrap:break-word}",
+      ".ttc-story-subrow .ttc-ss-vi{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:12px;color:#64748b;line-height:1.35;overflow-wrap:break-word}",
       ".ttc-sub-off-zh .ttc-story-subrow .ttc-ss-zh{display:none}",
       ".ttc-sub-off-vi .ttc-story-subrow .ttc-ss-vi{display:none}",
       "/* ==== Desktop >=1021px: PHÒNG HỌC chuẩn corodomo — danh sách truyện ẨN mặc định, mở bằng icon Danh sách phát ở thanh cài đặt dưới video, hiện dạng PANEL PHỦ trượt ở cạnh trái phòng (không đẩy bố cục); cột chính = video + karaoke + thanh cài đặt; vùng phụ đề chiếm 1/3 phải của stage và danh sách câu làm chủ chiều cao của nó. ==== */",
@@ -253,6 +256,9 @@
       "}",
       "/* ==== TOÀN MÀN HÌNH TRONG KHUNG PLAYER (2026-11-21): nút ⛶ ở thanh cài đặt gọi requestFullscreen trên .ttc-story-stage để full CẢ KHUNG đang xem (video + karaoke + thanh chỉnh + cột phụ đề), không full riêng thẻ video trần. Ẩn nút full gốc của trình duyệt (webkit) để học viên không bấm nhầm đường full-video-trần làm mất phụ đề. Luật :fullscreen và :-webkit-full-screen viết RIÊNG từng luật (không gộp chung selector) để Safari cũ không loại cả luật. ==== */",
       ".ttc-story-frame-wrap video::-webkit-media-controls-fullscreen-button{display:none}",
+      "/* Fullscreen + ĐANG DỪNG + không có cột phụ đề (màn hình ~16:9, khung bị karaoke/thanh chỉnh ăn chiều cao nên hình video chạm đáy khung): thu hẹp bề ngang thẻ video để hình lùi lên trên, chừa dải trống ở đáy cho thanh điều khiển gốc — phụ đề cháy trong video không bị che khi dừng. Có cột phụ đề thì khung đã hẹp sẵn, hình tự chừa dải đáy nhờ object-fit/object-position ở luật gốc. Lớp .is-paused do JS bật/tắt theo sự kiện pause/play/ended; đang phát thì khung giữ nguyên. 354px = trừ hao chiều cao phần ngoài khung (padding stage + thanh cài đặt + karaoke + 54px dải an toàn), lấy dư để dải trống không bao giờ nhỏ hơn thanh điều khiển. */",
+      ".ttc-story-body:not(.has-subs) .ttc-story-stage:fullscreen .ttc-story-frame-wrap.is-paused video{left:0;right:0;margin-left:auto;margin-right:auto;width:min(100%,calc(max(0px,100vh - 354px)*16/9))}",
+      ".ttc-story-body:not(.has-subs) .ttc-story-stage:-webkit-full-screen .ttc-story-frame-wrap.is-paused video{left:0;right:0;margin-left:auto;margin-right:auto;width:min(100%,calc(max(0px,100vh - 354px)*16/9))}",
       ".ttc-story-stage:fullscreen{width:100%;height:100%;box-sizing:border-box;background:#0f172a;color:#e2e8f0;display:flex;flex-direction:column;padding:14px;overflow:hidden;position:relative}",
       ".ttc-story-stage:-webkit-full-screen{width:100%;height:100%;box-sizing:border-box;background:#0f172a;color:#e2e8f0;display:flex;flex-direction:column;padding:14px;overflow:hidden;position:relative}",
       ".ttc-story-stage:fullscreen .ttc-story-frame-wrap{flex:1 1 auto;min-height:0;width:100%;max-width:none;padding-top:0}",
@@ -695,6 +701,18 @@
          hạn) là quyết định riêng, không nằm trong thay đổi này. */
       try { vid.disablePictureInPicture = true; } catch (e) {}
       vid.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+      /* Lớp .is-paused trên khung video: CSS fullscreen dùng trạng thái này
+         để chừa dải an toàn cho thanh điều khiển gốc khi đang dừng, sao cho
+         phụ đề cháy trong video không bị che (xem luật .is-paused ở khối
+         TOÀN MÀN HÌNH phía trên). */
+      var frameWrapEl = stageEl.querySelector(".ttc-story-frame-wrap");
+      var syncPausedCls = function () {
+        if (frameWrapEl) frameWrapEl.classList.toggle("is-paused", !!vid.paused);
+      };
+      vid.addEventListener("pause", syncPausedCls);
+      vid.addEventListener("ended", syncPausedCls);
+      vid.addEventListener("play", syncPausedCls);
+      syncPausedCls();
       vid.addEventListener("play", function () {
         if (!loadWatched()[entry.key]) { markWatched(entry.key); renderList(); }
       });
