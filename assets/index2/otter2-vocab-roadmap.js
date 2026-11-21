@@ -3310,8 +3310,8 @@ if (typeof window.ttcHanVietName !== "function") {
 
     /* ===== TTC PATH QUESTION COLOR (scoped #ttcDailyVocab) ===== */
     var TTC_PATH_QCOLOR_KEY = "ttc_path_q_color_v1";
-    var TTC_PATH_QCOLOR_DEFAULT = "#16803C";
-    var TTC_PATH_QCOLOR_BG = "#f0fdf4";
+    var TTC_PATH_QCOLOR_DEFAULT = "#16283F";
+    var TTC_PATH_QCOLOR_BG = "#F7F8FA";
     var TTC_PATH_QCOLOR_PRESETS = [
       { name: "Xanh lá cây đậm", hex: "#16803C" },
       { name: "Xanh lá cây", hex: "#16A34A" },

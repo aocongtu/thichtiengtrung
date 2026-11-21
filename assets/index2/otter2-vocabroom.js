@@ -23,7 +23,7 @@
   if (window.__TTC_VOCABROOM__) return;
   window.__TTC_VOCABROOM__ = true;
 
-  var GREEN = "#15803d";
+  var GREEN = "#F97316";
 
   function $(sel, root) { try { return (root || document).querySelector(sel); } catch (e) { return null; } }
   function byId(id) { return document.getElementById(id); }
@@ -79,14 +79,14 @@
       ".ttc-vr-title{font-size:19px;font-weight:900;color:" + GREEN + "}",
       ".ttc-vr-sub{font-size:12.5px;color:#64748b;font-weight:600}",
       ".ttc-vr-tabs{display:flex;gap:4px;background:#f1f5f9;border-radius:999px;padding:4px;max-width:430px}",
-      ".ttc-vr-tab{flex:1 1 0;border:none;background:transparent;border-radius:999px;padding:9px 6px;font:inherit;font-size:13.5px;font-weight:700;color:#0f172a;cursor:pointer}",
+      ".ttc-vr-tab{flex:1 1 0;border:none;background:transparent;border-radius:999px;padding:9px 6px;font:inherit;font-size:13.5px;font-weight:700;color:#16283F;cursor:pointer}",
       ".ttc-vr-tab.is-cur{background:" + GREEN + ";color:#ffffff}",
       ".ttc-vr-picker{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;margin-top:12px}",
       ".ttc-vr-picker[hidden]{display:none}",
       ".ttc-vr-game{display:flex;align-items:center;gap:11px;padding:13px 12px;border:1px solid #e7e9ee;border-radius:14px;background:#ffffff;font:inherit;text-align:left;cursor:pointer}",
-      ".ttc-vr-game:hover{border-color:#bbf7d0}",
-      ".ttc-vr-gico{flex:0 0 auto;width:40px;height:40px;border-radius:11px;background:#f0fdf4;display:inline-flex;align-items:center;justify-content:center;font-size:19px}",
-      ".ttc-vr-gname{font-size:14.5px;font-weight:800;color:#0f172a;display:block}",
+      ".ttc-vr-game:hover{border-color:#E3E8EF}",
+      ".ttc-vr-gico{flex:0 0 auto;width:40px;height:40px;border-radius:11px;background:#F7F8FA;display:inline-flex;align-items:center;justify-content:center;font-size:19px}",
+      ".ttc-vr-gname{font-size:14.5px;font-weight:800;color:#16283F;display:block}",
       ".ttc-vr-gsub{font-size:12px;color:#64748b;font-weight:600;display:block;margin-top:1px}"
     ];
     var st = document.createElement("style");

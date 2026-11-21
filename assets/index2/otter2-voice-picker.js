@@ -360,30 +360,30 @@
   var CSS =
     ".ovp-overlay{position:fixed;inset:0;z-index:2147483011;background:rgba(15,23,42,.55);backdrop-filter:blur(6px);display:grid;place-items:center;padding:14px 16px}" +
     ".ovp-overlay[hidden]{display:none!important}" +
-    ".ovp-panel{position:relative;width:min(440px,100%);max-height:min(90dvh,760px);overflow:auto;background:#fff;border-radius:20px;border:1px solid rgba(225,29,72,.14);box-shadow:0 22px 48px rgba(15,23,42,.28);padding:18px;font-family:inherit;color:#0f172a}" +
+    ".ovp-panel{position:relative;width:min(440px,100%);max-height:min(90dvh,760px);overflow:auto;background:#fff;border-radius:20px;border:1px solid rgba(22,40,63,.14);box-shadow:0 22px 48px rgba(15,23,42,.28);padding:18px;font-family:inherit;color:#16283F}" +
     ".ovp-close{position:absolute;top:10px;right:12px;border:0;background:transparent;font-size:24px;line-height:1;cursor:pointer;color:#64748b}" +
     ".ovp-title{font-weight:800;font-size:1.12rem;margin:0 30px 4px 0}" +
     ".ovp-sub{margin:0 0 12px;font-size:13px;color:#64748b}" +
     ".ovp-group{margin:0 0 14px}" +
-    ".ovp-group-head{display:flex;align-items:center;justify-content:space-between;font-weight:800;font-size:15px;margin:0 0 8px;color:#0f172a}" +
+    ".ovp-group-head{display:flex;align-items:center;justify-content:space-between;font-weight:800;font-size:15px;margin:0 0 8px;color:#16283F}" +
     ".ovp-group-head .ovp-count{font-size:12px;font-weight:700;color:#94a3b8}" +
-    ".ovp-subhead{font-size:12px;font-weight:800;letter-spacing:.02em;color:#e11d48;margin:10px 0 6px;text-transform:uppercase}" +
+    ".ovp-subhead{font-size:12px;font-weight:800;letter-spacing:.02em;color:#16283F;margin:10px 0 6px;text-transform:uppercase}" +
     ".ovp-row{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:1px solid #e2e8f0;background:#fff;border-radius:14px;padding:8px 10px;margin:0 0 6px;cursor:pointer;font:inherit}" +
-    ".ovp-row:hover{border-color:#fda4af;background:#fff7f8}" +
-    ".ovp-row.is-on{border-color:#e11d48;background:#fff1f2;box-shadow:0 0 0 1px #e11d48 inset}" +
+    ".ovp-row:hover{border-color:#E3E8EF;background:#fff7f8}" +
+    ".ovp-row.is-on{border-color:#E3E8EF;background:#F7F8FA;box-shadow:0 0 0 1px #F97316 inset}" +
     ".ovp-ava{width:40px;height:40px;border-radius:50%;flex:0 0 40px;background:#fdf4e3;border:1px solid #f1e3c8;object-fit:cover}" +
     ".ovp-main{flex:1 1 auto;min-width:0}" +
-    ".ovp-name{display:block;font-weight:700;font-size:14px;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}" +
+    ".ovp-name{display:block;font-weight:700;font-size:14px;color:#16283F;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}" +
     ".ovp-meta{display:block;font-size:12px;color:#64748b;margin-top:1px}" +
-    ".ovp-check{flex:0 0 auto;font-size:12px;font-weight:800;color:#e11d48}" +
-    ".ovp-try{flex:0 0 auto;width:34px;height:34px;border-radius:50%;border:1px solid #fecdd3;background:#fff1f2;color:#e11d48;display:inline-flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer}" +
-    ".ovp-try:hover{background:#ffe4e6}" +
+    ".ovp-check{flex:0 0 auto;font-size:12px;font-weight:800;color:#16283F}" +
+    ".ovp-try{flex:0 0 auto;width:34px;height:34px;border-radius:50%;border:1px solid #E3E8EF;background:#F7F8FA;color:#16283F;display:inline-flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer}" +
+    ".ovp-try:hover{background:#F7F8FA}" +
     ".ovp-empty{border:1px dashed #cbd5e1;border-radius:14px;padding:10px 12px;font-size:13px;color:#64748b;background:#f8fafc}" +
     ".ovp-rate{border-top:1px solid #f1f5f9;padding-top:12px;margin-top:2px}" +
     ".ovp-rate label{display:block;font-weight:700;font-size:13px;margin:0 0 6px;color:#334155}" +
     ".ovp-rate select{width:100%;padding:11px;border-radius:10px;border:1px solid #ddd;background:#fff;font-size:15px;box-sizing:border-box}" +
     ".ovp-foot{margin:10px 0 0;font-size:12px;color:#94a3b8}" +
-    ".ovp-launch{appearance:none;border:1px solid rgba(225,29,72,.22);background:#fff;color:#be123c;border-radius:999px;min-height:36px;padding:0 14px;font-weight:800;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;margin:0 0 8px 8px}";
+    ".ovp-launch{appearance:none;border:1px solid rgba(22,40,63,.14);background:#fff;color:#16283F;border-radius:999px;min-height:36px;padding:0 14px;font-weight:800;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;margin:0 0 8px 8px}";
 
   function injectStyle() {
     if (document.getElementById("otter2VoicePickerStyle")) return;

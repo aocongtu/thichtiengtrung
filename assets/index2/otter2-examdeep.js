@@ -27,7 +27,7 @@
   "use strict";
   if (window.__ttcExamDeep) return;
 
-  var ORANGE = "#c2410c";
+  var ORANGE = "#EA580C";
   var HIST_KEY = "otter2_exam_history_v1";
   var REVIEW_KEY = "otter2_exam_review_v1";
   var WRONG_KEY = "otter2_exam_wrongbook_v1";
@@ -535,10 +535,10 @@
     if (byId("ttcExamDeepStyle")) return;
     var css = [
       ".ttc-xd-h{margin:0 0 4px;color:" + ORANGE + ";font-size:17px}",
-      ".ttc-xd-lv{margin:18px 0 8px;color:#0f172a;font-size:15.5px}",
+      ".ttc-xd-lv{margin:18px 0 8px;color:#16283F;font-size:15.5px}",
       ".ttc-xd-note{color:#64748b;font-size:13.5px;margin:0 0 10px;line-height:1.55}",
       ".ttc-xd-row{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}",
-      ".ttc-xd-btn{border:1px solid #e2e8f0;background:#f8fafc;border-radius:11px;padding:10px 16px;font-weight:700;cursor:pointer;color:#c2410c;font-size:14px}",
+      ".ttc-xd-btn{border:1px solid #e2e8f0;background:#f8fafc;border-radius:11px;padding:10px 16px;font-weight:700;cursor:pointer;color:#16283F;font-size:14px}",
       ".ttc-xd-btn.primary{background:" + ORANGE + ";color:#fff;border-color:" + ORANGE + "}",
       ".ttc-xd-btn.small{padding:5px 11px;font-size:12.5px;margin-left:8px}",
       ".ttc-xd-homerow{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 4px}",
@@ -549,7 +549,7 @@
       ".ttc-xd-tbar i{display:block;height:100%;background:" + ORANGE + ";border-radius:99px}",
       ".ttc-xd-tnum{flex:0 0 92px;text-align:right;font-weight:600;color:#475569;font-size:13px;line-height:1.4}",
       ".ttc-xd-chips{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}",
-      ".ttc-xd-chip{display:inline-block;padding:2px 8px;border-radius:999px;background:#fff7ed;color:" + ORANGE + ";font-size:11px;font-weight:800;border:1px solid #fed7aa;cursor:pointer}",
+      ".ttc-xd-chip{display:inline-block;padding:2px 8px;border-radius:999px;background:#fff7ed;color:" + ORANGE + ";font-size:11px;font-weight:800;border:1px solid #E3E8EF;cursor:pointer}",
       ".ttc-xd-chip.ok{background:#f0fdf4;color:#15803d;border-color:#bbf7d0}",
       ".ttc-xd-chip.bad{background:#fef2f2;color:#b91c1c;border-color:#fecaca}",
       ".ttc-xd-chip.skip{background:#f1f5f9;color:#64748b;border-color:#e2e8f0}",
@@ -560,10 +560,10 @@
       ".ttc-xd-wmeta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:5px}",
       ".ttc-xd-wdate{font-size:11.5px;color:#94a3b8;font-weight:600}",
       ".ttc-xd-wpass{font-size:13.5px;color:#475569;background:#f8fafc;border-radius:9px;padding:8px 10px;margin:4px 0;line-height:1.55;white-space:pre-wrap}",
-      ".ttc-xd-wstem{font-size:14.5px;font-weight:700;color:#0f172a;line-height:1.5}",
+      ".ttc-xd-wstem{font-size:14.5px;font-weight:700;color:#16283F;line-height:1.5}",
       ".ttc-xd-wsub{font-size:14px;color:#334155;margin-top:2px}",
       ".ttc-xd-wans{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;margin-top:5px}",
-      ".ttc-xd-mine{color:#dc2626;font-weight:600}",
+      ".ttc-xd-mine{color:#16283F;font-weight:600}",
       ".ttc-xd-correct{color:#15803d;font-weight:700}",
       ".ttc-xd-wexp{font-size:12.5px;color:#64748b;margin-top:5px;line-height:1.55}",
       ".ttc-xd-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:9px;margin:12px 0}",

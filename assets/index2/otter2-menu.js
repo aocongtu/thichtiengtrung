@@ -178,9 +178,9 @@
     if (styleDone) return;
     styleDone = true;
     var css = [
-      "#ttcMenuBtn{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;flex:0 0 auto;margin-left:auto;border-radius:999px;border:1px solid #e2e8f0;background:#ffffff;color:#be123c;font-size:19px;line-height:1;cursor:pointer;box-shadow:0 2px 8px rgba(15,23,42,.05);padding:0}",
+      "#ttcMenuBtn{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;flex:0 0 auto;margin-left:auto;border-radius:999px;border:1px solid #e2e8f0;background:#ffffff;color:#16283F;font-size:19px;line-height:1;cursor:pointer;box-shadow:0 2px 8px rgba(15,23,42,.05);padding:0}",
       "#ttcMenuBtn:hover{border-color:#f0a3b2}",
-      "#ttcMenuBtn:focus-visible{outline:2px solid #be123c;outline-offset:2px}",
+      "#ttcMenuBtn:focus-visible{outline:2px solid #E3E8EF;outline-offset:2px}",
       "#ttcMenuPanel{position:fixed;z-index:1000600;width:min(322px,calc(100vw - 20px));max-height:calc(100vh - 84px);overflow-y:auto;background:#ffffff;color:#20242e;border:1px solid #e5e7eb;border-radius:16px;box-shadow:0 18px 44px rgba(15,23,42,.16);padding:8px 0 10px;font-size:15px;line-height:1.45;box-sizing:border-box}",
       "#ttcMenuPanel[hidden]{display:none}",
       ".ttc-menu-h{margin:10px 16px 4px;font-size:12px;font-weight:900;letter-spacing:1.2px;text-transform:uppercase}",
@@ -192,21 +192,21 @@
       ".ttc-menu-item:focus-visible{outline:2px solid currentColor;outline-offset:-2px}",
       ".ttc-menu-ico{flex:0 0 auto;width:22px;text-align:center;font-size:17px}",
       "/* LUẬT MÀU: mỗi nhóm một màu chủ đạo — tiêu đề nhóm và chữ nút/hàng mục cùng màu đó; cấm đen */",
-      ".ttc-menu-sec[data-sec='study'] .ttc-menu-h,.ttc-menu-sec[data-sec='study'] .ttc-menu-item{color:#be123c}",
-      ".ttc-menu-sec[data-sec='practice'] .ttc-menu-h,.ttc-menu-sec[data-sec='practice'] .ttc-menu-item{color:#0f766e}",
-      ".ttc-menu-sec[data-sec='account'] .ttc-menu-h,.ttc-menu-sec[data-sec='account'] .ttc-menu-item{color:#5b21b6}",
-      ".ttc-menu-sec[data-sec='info'] .ttc-menu-h,.ttc-menu-sec[data-sec='info'] .ttc-menu-item{color:#0369a1}",
+      ".ttc-menu-sec[data-sec='study'] .ttc-menu-h,.ttc-menu-sec[data-sec='study'] .ttc-menu-item{color:#16283F}",
+      ".ttc-menu-sec[data-sec='practice'] .ttc-menu-h,.ttc-menu-sec[data-sec='practice'] .ttc-menu-item{color:#16283F}",
+      ".ttc-menu-sec[data-sec='account'] .ttc-menu-h,.ttc-menu-sec[data-sec='account'] .ttc-menu-item{color:#16283F}",
+      ".ttc-menu-sec[data-sec='info'] .ttc-menu-h,.ttc-menu-sec[data-sec='info'] .ttc-menu-item{color:#16283F}",
       "/* REDESIGN GĐ1: liên kết chính sách nay nằm trong nhóm 'Tài khoản & Thông tin' (màu tím) nhưng giữ màu xanh Thông tin #0369a1 đã chốt — luật màu theo ĐÍCH, không theo vị trí. */",
-      ".ttc-menu-sec[data-sec='account'] .ttc-menu-item.ttc-menu-info-link{color:#0369a1}",
+      ".ttc-menu-sec[data-sec='account'] .ttc-menu-item.ttc-menu-info-link{color:#16283F}",
       "/* PWA (2026-11-19): nhóm Ứng dụng dùng đỏ thương hiệu — hành động của chính thương hiệu; mục ẩn mặc định, otter2-pwa.js chỉ hiện khi cài đặt khả thi (chưa cài + trình duyệt hỗ trợ + chưa bị người dùng tắt nhắc 30 ngày). */",
-      ".ttc-menu-sec[data-sec='app'] .ttc-menu-h,.ttc-menu-sec[data-sec='app'] .ttc-menu-item{color:#be123c}",
+      ".ttc-menu-sec[data-sec='app'] .ttc-menu-h,.ttc-menu-sec[data-sec='app'] .ttc-menu-item{color:#16283F}",
       "#ttcMenuAppSec[hidden]{display:none}",
       "/* ĐIỆN THOẠI (≤767px): header là lưới 3 hàng, .otter2-nav-right bị display:contents nên nút ☰ thành grid item — gán nó vào đúng ô 'account' (góc PHẢI TRÊN CÙNG, hàng 1) và lùi trái 50px (= nút tài khoản tròn 42px + 8px khoảng cách) để nằm ngay cạnh trái nút tài khoản, ngang hàng thương hiệu. */",
       "@media (max-width:767px){#ttcMenuBtn{grid-area:account;justify-self:end;align-self:center;margin:0 50px 0 0}}",
       "/* DESKTOP/TABLET (≥768px): các nút cụm phải của web có order 1–4 (🎨/Giản-Phồn/💬/Tài khoản) — cho ☰ order 5 để nó luôn là nút PHẢI NHẤT của header, đồng bộ góc phải với bản điện thoại. */",
       "@media (min-width:768px){#ttcMenuBtn{order:5}}",
       ".ttc-menu-user{padding:8px 16px 2px}",
-      ".ttc-menu-user-name{display:block;font-weight:800;font-size:15.5px;color:#5b21b6;word-break:break-word}",
+      ".ttc-menu-user-name{display:block;font-weight:800;font-size:15.5px;color:#16283F;word-break:break-word}",
       ".ttc-menu-user-mail{display:block;font-size:12.5px;color:#6b7280;word-break:break-all}"
     ];
     var st = document.createElement("style");

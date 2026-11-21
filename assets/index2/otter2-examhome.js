@@ -25,7 +25,7 @@
   if (window.__TTC_EXAMHOME__) return;
   window.__TTC_EXAMHOME__ = true;
 
-  var ORANGE = "#c2410c";
+  var ORANGE = "#EA580C";
   var HIST_KEY = "otter2_exam_history_v1";
   var REVIEW_KEY = "otter2_exam_review_v1";
   var SECTIONS = [
@@ -164,7 +164,7 @@
       ".ttc-xh-note{color:#64748b;font-size:13.5px;margin:0 0 10px;line-height:1.5}",
       ".ttc-xh-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:9px}",
       ".ttc-xh-cell{border:1px solid #e7e9ee;border-radius:14px;padding:11px 12px;background:#ffffff}",
-      ".ttc-xh-cell-name{font-size:13px;font-weight:800;color:#0f172a;margin-bottom:5px}",
+      ".ttc-xh-cell-name{font-size:13px;font-weight:800;color:#16283F;margin-bottom:5px}",
       ".ttc-xh-cell-num{font-size:14.5px;font-weight:800;color:" + ORANGE + "}",
       ".ttc-xh-cell-num.ttc-xh-none{color:#94a3b8}",
       ".ttc-xh-cell-sub{font-size:11.5px;color:#64748b;font-weight:600;margin-top:2px}",
@@ -172,9 +172,9 @@
       ".ttc-xh-wmeta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:5px}",
       ".ttc-xh-chip{padding:2px 8px;border-radius:999px;background:#fff7ed;color:" + ORANGE + ";font-size:11px;font-weight:800}",
       ".ttc-xh-wdate{font-size:11.5px;color:#94a3b8;font-weight:600}",
-      ".ttc-xh-wstem{font-size:14.5px;font-weight:700;color:#0f172a;line-height:1.5}",
+      ".ttc-xh-wstem{font-size:14.5px;font-weight:700;color:#16283F;line-height:1.5}",
       ".ttc-xh-wans{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;margin-top:4px}",
-      ".ttc-xh-mine{color:#dc2626;font-weight:600}",
+      ".ttc-xh-mine{color:#16283F;font-weight:600}",
       ".ttc-xh-correct{color:#15803d;font-weight:700}",
       ".ttc-xh-wexp{font-size:12.5px;color:#64748b;margin-top:4px;line-height:1.5}"
     ];

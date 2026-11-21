@@ -288,12 +288,12 @@
   }
 
   var NAV = [
-    { act: "home", icon: "🏠", label: "Trang chủ", color: "#be123c" },
-    { act: "roadmap", icon: "🗺️", label: "Lộ trình HSK", color: "#c026d3" },
-    { act: "story", icon: "🎬", label: "Phòng truyện", color: "#7c3aed" },
-    { act: "reading", icon: "📖", label: "Phòng đọc", color: "#2563eb" },
-    { act: "exam", icon: "📝", label: "Thi HSK", color: "#c2410c" },
-    { act: "chat", icon: "💬", label: "Tin nhắn", color: "#0f766e" }
+    { act: "home", icon: "🏠", label: "Trang chủ", color: "#16283F" },
+    { act: "roadmap", icon: "🗺️", label: "Lộ trình HSK", color: "#16283F" },
+    { act: "story", icon: "🎬", label: "Phòng truyện", color: "#16283F" },
+    { act: "reading", icon: "📖", label: "Phòng đọc", color: "#16283F" },
+    { act: "exam", icon: "📝", label: "Thi HSK", color: "#16283F" },
+    { act: "chat", icon: "💬", label: "Tin nhắn", color: "#16283F" }
   ];
 
   /* ---------------- style ---------------- */
@@ -301,7 +301,7 @@
     if (byId("ttcShellStyle")) return;
     var css = [
       /* ===== SIDEBAR (hiện ≥900px; 900–1199 bản mỏng 208px) ===== */
-      "#ttcShellSidebar{position:fixed;left:0;top:0;bottom:0;width:236px;background:#ffffff;border-right:1px solid #e7e9ee;z-index:96;display:none;flex-direction:column;padding:14px 14px calc(12px + env(safe-area-inset-bottom,0px));box-sizing:border-box;font-size:15px;line-height:1.45;color:#0f172a;overflow-y:auto;overflow-x:hidden}",
+      "#ttcShellSidebar{position:fixed;left:0;top:0;bottom:0;width:236px;background:#ffffff;border-right:1px solid #e7e9ee;z-index:96;display:none;flex-direction:column;padding:14px 14px calc(12px + env(safe-area-inset-bottom,0px));box-sizing:border-box;font-size:15px;line-height:1.45;color:#16283F;overflow-y:auto;overflow-x:hidden}",
       "@media (min-width:900px){#ttcShellSidebar{display:flex}html body.otter2-body{padding-left:236px}}",
       "@media (min-width:900px) and (max-width:1199px){#ttcShellSidebar{width:208px;padding:12px 10px calc(10px + env(safe-area-inset-bottom,0px))}html body.otter2-body{padding-left:208px}#ttcShellSidebar .ttc-shell-brand-name{font-size:15px}#ttcShellSidebar .ttc-shell-item{padding:9px 10px;font-size:14.5px}#ttcShellSidebar #ttcMenuBtn{padding:9px 10px;font-size:14.5px}}",
       /* Đáy sidebar không bị cắt: điều hướng là phần co giãn + cuộn nội bộ; hồ sơ ghim hiện ở đáy */
@@ -322,34 +322,34 @@
       ".ttc-shell-brand .ttc-shell-brand-name{font-weight:900;font-size:16.5px;line-height:1.2}",
       ".ttc-shell-brand .ttc-shell-brand-sub{font-size:11.5px;color:#64748b;font-weight:600}",
       ".ttc-shell-nav{display:flex;flex-direction:column;gap:4px;padding:10px 0 4px;flex:1 1 auto;min-height:0;overflow-y:auto}",
-      ".ttc-shell-item{display:flex;align-items:center;gap:11px;width:100%;box-sizing:border-box;padding:9px 12px;border:none;border-radius:12px;background:#ffffff;font:inherit;font-size:15px;font-weight:600;color:#0f172a;text-align:left;cursor:pointer;box-shadow:inset 0 0 0 rgba(0,0,0,0);flex:0 0 auto}",
+      ".ttc-shell-item{display:flex;align-items:center;gap:11px;width:100%;box-sizing:border-box;padding:9px 12px;border:none;border-radius:12px;background:#ffffff;font:inherit;font-size:15px;font-weight:600;color:#16283F;text-align:left;cursor:pointer;box-shadow:inset 0 0 0 rgba(0,0,0,0);flex:0 0 auto}",
       ".ttc-shell-item:hover{background:#f8fafc}",
-      ".ttc-shell-item:focus-visible{outline:2px solid var(--ttc-shell-c,#be123c);outline-offset:-2px}",
+      ".ttc-shell-item:focus-visible{outline:2px solid var(--ttc-shell-c,#E3E8EF);outline-offset:-2px}",
       ".ttc-shell-item .ttc-shell-ico{flex:0 0 auto;width:32px;height:32px;border-radius:10px;background:#f1f5f9;display:inline-flex;align-items:center;justify-content:center;font-size:16px}",
-      ".ttc-shell-item.is-active{background:#f8fafc;font-weight:800;color:var(--ttc-shell-c,#be123c);box-shadow:inset 3px 0 0 var(--ttc-shell-c,#be123c)}",
+      ".ttc-shell-item.is-active{background:#f8fafc;font-weight:800;color:var(--ttc-shell-c,#16283F);box-shadow:inset 3px 0 0 var(--ttc-shell-c,#F97316)}",
       ".ttc-shell-stats{margin-top:auto;border-top:1px solid #f1f5f9;padding:9px 6px 3px}",
-      ".ttc-shell-stats .ttc-shell-stats-num{font-size:24px;font-weight:900;color:#15803d;line-height:1.1}",
+      ".ttc-shell-stats .ttc-shell-stats-num{font-size:24px;font-weight:900;color:#16283F;line-height:1.1}",
       ".ttc-shell-stats .ttc-shell-stats-lbl{font-size:12.5px;color:#64748b;font-weight:600}",
       ".ttc-shell-stats .ttc-shell-stats-bar{height:8px;border-radius:99px;background:#f1f5f9;margin:9px 0 5px;overflow:hidden}",
-      ".ttc-shell-stats .ttc-shell-stats-bar i{display:block;height:100%;background:#15803d;border-radius:99px;width:0%}",
+      ".ttc-shell-stats .ttc-shell-stats-bar i{display:block;height:100%;background:#F97316;border-radius:99px;width:0%}",
       ".ttc-shell-stats .ttc-shell-stats-cap{font-size:12px;color:#64748b}",
       ".ttc-shell-profile{display:flex;align-items:center;gap:10px;border-top:1px solid #f1f5f9;padding-top:9px;margin-top:6px;cursor:pointer}",
-      ".ttc-shell-avatar{flex:0 0 auto;width:42px;height:42px;border-radius:50%;background:#5b21b6;color:#ffffff;display:inline-flex;align-items:center;justify-content:center;font-weight:900;font-size:17px}",
+      ".ttc-shell-avatar{flex:0 0 auto;width:42px;height:42px;border-radius:50%;background:#F97316;color:#ffffff;display:inline-flex;align-items:center;justify-content:center;font-weight:900;font-size:17px}",
       ".ttc-shell-profile .ttc-shell-pname{font-weight:800;font-size:14.5px;line-height:1.25;word-break:break-word}",
       ".ttc-shell-profile .ttc-shell-pmail{font-size:12px;color:#64748b;word-break:break-all}",
-      ".ttc-shell-pbtn{margin-top:7px;width:100%;padding:9px 12px;border:none;border-radius:12px;background:#5b21b6;color:#ffffff;font:inherit;font-size:14px;font-weight:800;cursor:pointer}",
+      ".ttc-shell-pbtn{margin-top:7px;width:100%;padding:9px 12px;border:none;border-radius:12px;background:#F97316;color:#ffffff;font:inherit;font-size:14px;font-weight:800;cursor:pointer}",
       ".ttc-shell-pbtn:hover{background:#4c1d95}",
       /* ===== THẺ BẢNG THÀNH TÍCH Ở CỘT PHẢI (mọi bề ngang) ===== */
-      "#ttcShellRailAch .ttc-shell-ach-num{font-size:30px;font-weight:900;color:#2563eb;line-height:1.1}",
+      "#ttcShellRailAch .ttc-shell-ach-num{font-size:30px;font-weight:900;color:#16283F;line-height:1.1}",
       "#ttcShellRailAch .ttc-shell-ach-lbl{font-size:12.5px;color:#64748b;font-weight:600;margin-top:2px}",
-      "#ttcShellRailAch .ttc-shell-ach-btn{margin-top:12px;width:100%;padding:11px;border:none;border-radius:12px;background:#2563eb;color:#ffffff;font:inherit;font-size:14.5px;font-weight:800;cursor:pointer}",
-      "#ttcShellRailAch .ttc-shell-ach-btn:hover{background:#1d4ed8}",
+      "#ttcShellRailAch .ttc-shell-ach-btn{margin-top:12px;width:100%;padding:11px;border:none;border-radius:12px;background:#F97316;color:#ffffff;font:inherit;font-size:14.5px;font-weight:800;cursor:pointer}",
+      "#ttcShellRailAch .ttc-shell-ach-btn:hover{background:#F97316}",
       "@media (max-width:1020px){#ttcShellRailAch{grid-column:1/-1}}",
       /* ===== THANH DƯỚI ĐIỆN THOẠI (≤767px) ===== */
       "#ttcShellBottomBar{position:fixed;left:0;right:0;bottom:0;z-index:80;background:#ffffff;border-top:1px solid #e7e9ee;display:none;padding-bottom:env(safe-area-inset-bottom,0px);box-sizing:border-box}",
-      "#ttcShellBottomBar .ttc-shell-bitem{flex:1 1 0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:7px 2px 6px;border:none;background:#ffffff;font:inherit;font-size:10.5px;font-weight:700;color:#0f172a;cursor:pointer;min-height:56px;box-sizing:border-box}",
+      "#ttcShellBottomBar .ttc-shell-bitem{flex:1 1 0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:7px 2px 6px;border:none;background:#ffffff;font:inherit;font-size:10.5px;font-weight:700;color:#16283F;cursor:pointer;min-height:56px;box-sizing:border-box}",
       "#ttcShellBottomBar .ttc-shell-bitem .ttc-shell-bico{font-size:19px;line-height:1.15}",
-      "#ttcShellBottomBar .ttc-shell-bitem.is-active{color:var(--ttc-shell-c,#be123c)}",
+      "#ttcShellBottomBar .ttc-shell-bitem.is-active{color:var(--ttc-shell-c,#16283F)}",
       "@media (max-width:767px){",
       "#ttcShellBottomBar{display:flex}",
       ".otter2-shell{margin-bottom:calc(88px + env(safe-area-inset-bottom,0px))}",
@@ -386,9 +386,9 @@
       "@media (min-width:900px) and (max-width:1199px){#otter2-home .otter2-dash-steps{grid-template-columns:repeat(5,1fr)}}",
       "#ttcShellSidebar .ttc-script-switch{width:100%;box-sizing:border-box;text-align:center;padding:9px 10px;border-radius:12px;font-size:13.5px}",
       "#ttcShellSidebar .otter2-theme-slot{display:flex;align-items:center;gap:11px;width:100%;box-sizing:border-box;padding:2px 6px;position:relative}",
-      "#ttcShellSidebar #ttcMenuBtn{width:100%;height:auto;margin:0;padding:11px 12px;justify-content:flex-start;gap:11px;border-radius:12px;border:1px solid #e7e9ee;background:#ffffff;font:inherit;font-size:15px;font-weight:600;color:#0f172a;box-shadow:none}",
+      "#ttcShellSidebar #ttcMenuBtn{width:100%;height:auto;margin:0;padding:11px 12px;justify-content:flex-start;gap:11px;border-radius:12px;border:1px solid #e7e9ee;background:#ffffff;font:inherit;font-size:15px;font-weight:600;color:#16283F;box-shadow:none}",
       "#ttcShellSidebar #ttcMenuBtn:hover{background:#f8fafc;border-color:#e7e9ee}",
-      ".ttc-shell-util-lbl{font-size:15px;font-weight:600;color:#0f172a}",
+      ".ttc-shell-util-lbl{font-size:15px;font-weight:600;color:#16283F}",
       "#otter2Nav .ttc-shell-util-lbl{display:none}",
       /* ===== V3 (2026-11-19): nút Tìm kiếm ở cột trái + vá "trống hoác" trang chủ =====
          (1) Anh Huy không thấy nút tìm kiếm: bản redesign chỉ còn lối vào
@@ -405,12 +405,12 @@
          học, thẻ rộng và thấp hơn hẳn. ≥1280px giữ nguyên bố cục mẫu. */
       ".ttc-shell-search{flex:0 0 auto;display:flex;align-items:center;gap:9px;margin:0 14px 10px;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:14px;background:#f8fafc;color:#64748b;font:inherit;font-size:14px;font-weight:600;cursor:pointer;text-align:left;transition:border-color .15s,background .15s,color .15s}",
       ".ttc-shell-search:hover{border-color:#cbd5e1;background:#ffffff;color:#334155}",
-      ".ttc-shell-search:focus-visible{outline:2px solid #2563eb;outline-offset:2px}",
-      ".ttc-shell-search.is-active{border-color:#fda4af;background:#fff1f2;color:#be123c}",
+      ".ttc-shell-search:focus-visible{outline:2px solid #E3E8EF;outline-offset:2px}",
+      ".ttc-shell-search.is-active{border-color:#E3E8EF;background:#F7F8FA;color:#16283F}",
       ".ttc-shell-search-ico{font-size:15px;line-height:1;flex:0 0 auto}",
       ".ttc-shell-search-tx{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}",
-      "html[data-theme=\"night\"] .ttc-shell-search{background:#0f172a;border-color:#334155;color:#94a3b8}",
-      "html[data-theme=\"night\"] .ttc-shell-search.is-active{background:#3b1220;border-color:#9f1239;color:#fda4af}",
+      "html[data-theme=\"night\"] .ttc-shell-search{background:#16283F;border-color:#334155;color:#94a3b8}",
+      "html[data-theme=\"night\"] .ttc-shell-search.is-active{background:#3b1220;border-color:#E3E8EF;color:#3C4756}",
       /* (html overflow-x:visible ở ≥1021px: index2 đặt overflow-x:hidden trên CẢ html lẫn body khiến position:sticky bị Chrome vô hiệu thầm lặng — đã kiểm chứng thực nghiệm: nới riêng html là sticky chạy, body vẫn giữ hidden làm chốt chặn tràn ngang.) */
       "@media (min-width:1021px){html{overflow-x:visible}#otter2-home .otter2-dash-side{position:sticky;top:16px;align-self:start}}",
       "@media (min-width:1021px) and (max-width:1279px){#otter2-home .otter2-dash-main{grid-template-columns:minmax(0,1fr)}#otter2-home .otter2-dash-main>.otter2-dash-course{grid-column:1;grid-row:3}#otter2-home .ttc-exam-midstack{grid-column:1;grid-row:4}#otter2-home .otter2-dash-main>section[aria-labelledby=\"otter2DashLessonsTitle\"]{grid-column:1/-1;grid-row:5}}"
@@ -495,7 +495,7 @@
     card.id = "ttcShellRailAch";
     card.setAttribute("aria-labelledby", "ttcShellRailAchTitle");
     card.innerHTML =
-      '<div class="otter2-dash-head"><h2 id="ttcShellRailAchTitle" style="color:#2563eb">Bảng thành tích</h2></div>' +
+      '<div class="otter2-dash-head"><h2 id="ttcShellRailAchTitle" style="color:#16283F">Bảng thành tích</h2></div>' +
       '<div class="ttc-shell-ach-num" id="ttcShellAchNum">0</div>' +
       '<div class="ttc-shell-ach-lbl">từ đã học của bạn · bảng xếp hạng theo số từ đã học</div>' +
       '<button type="button" class="ttc-shell-ach-btn" id="ttcShellAchBtn">Xem bảng thành tích</button>';

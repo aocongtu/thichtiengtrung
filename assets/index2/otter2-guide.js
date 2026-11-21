@@ -1943,23 +1943,23 @@
             ".guide-gv-gender{display:flex;align-items:center;gap:7px;flex-wrap:wrap}" +
             ".guide-gv-gender>span{font-size:.8rem;font-weight:700;color:#55534d}" +
             ".guide-gv-pill{border:1.5px solid #e3e0d8;background:#f6f4ef;color:#23222b;border-radius:999px;padding:7px 14px;font-size:.8rem;font-weight:700;min-height:2.3rem;cursor:pointer}" +
-            ".guide-gv-pill-male.is-active,.guide-gv-pill-male[aria-pressed=\"true\"]{border-color:#2563eb;background:#eff6ff;color:#1d4ed8}" +
-            ".guide-gv-pill-female.is-active,.guide-gv-pill-female[aria-pressed=\"true\"]{border-color:#db2777;background:#fdf2f8;color:#be185d}" +
+            ".guide-gv-pill-male.is-active,.guide-gv-pill-male[aria-pressed=\"true\"]{border-color:#E3E8EF;background:#F7F8FA;color:#16283F}" +
+            ".guide-gv-pill-female.is-active,.guide-gv-pill-female[aria-pressed=\"true\"]{border-color:#E3E8EF;background:#fdf2f8;color:#16283F}" +
             ".guide-gv-toggle{margin-top:9px}" +
             "#guideVoicePickBox{margin-top:4px}" +
             "#guideVoicePickBox[hidden]{display:none}" +
             ".guide-gv-group-title{font-weight:800;font-size:.85rem;margin:10px 0 6px;color:#23222b}" +
             ".guide-gv-list{display:flex;flex-direction:column;gap:6px}" +
             ".guide-gv-row,.gv-row{display:flex;align-items:center;gap:9px;width:100%;text-align:left;border:1px solid #e3e0d8;background:#fff;border-radius:12px;padding:6px 8px;cursor:pointer;font:inherit;box-sizing:border-box}" +
-            ".guide-gv-row:hover,.gv-row:hover{border-color:#fda4af;background:#fff7f8}" +
-            ".guide-gv-row.is-on,.gv-row.is-on{border-color:#e11d48;background:#fff1f2;box-shadow:0 0 0 1px #e11d48 inset}" +
+            ".guide-gv-row:hover,.gv-row:hover{border-color:#E3E8EF;background:#fff7f8}" +
+            ".guide-gv-row.is-on,.gv-row.is-on{border-color:#E3E8EF;background:#F7F8FA;box-shadow:0 0 0 1px #F97316 inset}" +
             ".guide-gv-ava{width:30px;height:30px;border-radius:50%;flex:0 0 30px;object-fit:cover;background:#fdf4e3}" +
             ".guide-gv-main{flex:1 1 auto;min-width:0}" +
             ".guide-gv-name{display:block;font-weight:700;font-size:.8rem;color:#23222b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}" +
             ".guide-gv-meta{display:block;font-size:.7rem;color:#8a877e;margin-top:1px}" +
-            ".guide-gv-check{flex:0 0 auto;font-size:.7rem;font-weight:800;color:#e11d48}" +
-            ".guide-gv-try{flex:0 0 auto;width:28px;height:28px;border-radius:50%;border:1px solid #fecdd3;background:#fff1f2;color:#e11d48;display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;cursor:pointer}" +
-            ".guide-gv-hint{background:#fef9c3;color:#854d0e;font-size:.72rem;line-height:1.55;border-radius:10px;padding:8px 10px;margin:6px 0 0}" +
+            ".guide-gv-check{flex:0 0 auto;font-size:.7rem;font-weight:800;color:#16283F}" +
+            ".guide-gv-try{flex:0 0 auto;width:28px;height:28px;border-radius:50%;border:1px solid #E3E8EF;background:#F7F8FA;color:#16283F;display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;cursor:pointer}" +
+            ".guide-gv-hint{background:#F7F8FA;color:#854d0e;font-size:.72rem;line-height:1.55;border-radius:10px;padding:8px 10px;margin:6px 0 0}" +
             ".guide-gv-hint[hidden]{display:none}" +
             ".guide-gv-fallback{font-size:.78rem;color:#8a877e;border:1px dashed #e3e0d8;border-radius:10px;padding:8px 10px;line-height:1.5}";
           document.head.appendChild(gvStyle);
@@ -2046,8 +2046,8 @@
           ".guide-wd-cell img{width:44px;height:56px;object-fit:cover;object-position:top center;border-radius:8px;background:#fdf4e3}" +
           ".guide-wd-name{font-size:.62rem;font-weight:700;color:#23222b;line-height:1.25;text-align:center}" +
           ".guide-wd-cell.guide-wd-wait img{opacity:.45;filter:saturate(.55)}" +
-          ".guide-wd-cell:hover{border-color:#fda4af;background:#fff7f8}" +
-          ".guide-wd-cell.is-on{border-color:#e11d48;background:#fff1f2;box-shadow:0 0 0 1px #e11d48 inset}" +
+          ".guide-wd-cell:hover{border-color:#E3E8EF;background:#fff7f8}" +
+          ".guide-wd-cell.is-on{border-color:#E3E8EF;background:#F7F8FA;box-shadow:0 0 0 1px #F97316 inset}" +
           ".guide-wd-note{font-size:.7rem;color:#8a877e;margin:8px 0 0}";
         document.head.appendChild(wdStyle);
         wdBox = document.createElement("div");

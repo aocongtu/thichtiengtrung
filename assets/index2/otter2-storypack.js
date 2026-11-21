@@ -200,7 +200,7 @@
 
   var LS_KEY = "otter2_storypack_v1";
   var PROGRESS_KEY = "otter2_hsk_vocab_progress_v1"; /* CHỈ ĐỌC */
-  var PURPLE = "#7c3aed";
+  var PURPLE = "#F97316";
   var SELF_SRC = "";
   try { SELF_SRC = (document.currentScript && document.currentScript.src) || ""; } catch (e) {}
 

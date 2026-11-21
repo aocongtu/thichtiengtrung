@@ -161,17 +161,17 @@
     /* Tô màu 4 nút kỹ năng (chủ web: nền trắng quá nhạt) — pastel phân
        biệt theo data-dash-goto, viền đậm hơn nền một tông, chữ tối giữ
        nguyên như core; chỉ nền/viền, không đổi kích thước/handler */
-    "#otter2-home .otter2-dash-skilltile[data-dash-goto='reading']{background:#fff;border-color:#e7e9ee;color:#2563eb}",
-    "#otter2-home .otter2-dash-skilltile[data-dash-goto='write']{background:#fff;border-color:#e7e9ee;color:#b45309}",
+    "#otter2-home .otter2-dash-skilltile[data-dash-goto='reading']{background:#fff;border-color:#e7e9ee;color:#16283F}",
+    "#otter2-home .otter2-dash-skilltile[data-dash-goto='write']{background:#fff;border-color:#e7e9ee;color:#16283F}",
     "#otter2-home .otter2-dash-skilltile[data-dash-goto='speak']{background:#fff;border-color:#e7e9ee;color:#ea580c}",
-    "#otter2-home .otter2-dash-skilltile[data-dash-goto='auto']{background:#fff;border-color:#e7e9ee;color:#c026d3}",
+    "#otter2-home .otter2-dash-skilltile[data-dash-goto='auto']{background:#fff;border-color:#e7e9ee;color:#16283F}",
     /* Ban đêm: cùng hệ màu nhưng trầm xuống để chữ sáng (#e5e7eb của core
        đêm) vẫn đọc rõ — selector thêm html[data-theme] (1,3,1) thắng cả
        luật pastel ngày (1,2,0) lẫn luật đêm của core (0,2,1) */
-    "html[data-theme='night'] #otter2-home .otter2-dash-skilltile[data-dash-goto='reading']{background:#1e293b;border-color:#334155;color:#93c5fd}",
-    "html[data-theme='night'] #otter2-home .otter2-dash-skilltile[data-dash-goto='write']{background:#1e293b;border-color:#334155;color:#fcd34d}",
-    "html[data-theme='night'] #otter2-home .otter2-dash-skilltile[data-dash-goto='speak']{background:#1e293b;border-color:#334155;color:#fdba74}",
-    "html[data-theme='night'] #otter2-home .otter2-dash-skilltile[data-dash-goto='auto']{background:#1e293b;border-color:#334155;color:#f0abfc}",
+    "html[data-theme='night'] #otter2-home .otter2-dash-skilltile[data-dash-goto='reading']{background:#1e293b;border-color:#334155;color:#3C4756}",
+    "html[data-theme='night'] #otter2-home .otter2-dash-skilltile[data-dash-goto='write']{background:#1e293b;border-color:#334155;color:#3C4756}",
+    "html[data-theme='night'] #otter2-home .otter2-dash-skilltile[data-dash-goto='speak']{background:#1e293b;border-color:#334155;color:#3C4756}",
+    "html[data-theme='night'] #otter2-home .otter2-dash-skilltile[data-dash-goto='auto']{background:#1e293b;border-color:#334155;color:#3C4756}",
 
     /* Panel Truyện kể: nén như panel thi + GIẢM TÔNG vòng 2 cho nền
        gradient (chủ web chê tím vẫn đậm): selector 2 ID + 2 class (2,2,0)

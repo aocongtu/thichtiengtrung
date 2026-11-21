@@ -92,16 +92,16 @@
     if (styleDone) return;
     styleDone = true;
     var css = [
-      ".ttc-pwa-foot-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;border:1.5px solid rgba(124,58,237,.4);background:rgba(124,58,237,.06);color:#5b21b6;font-weight:800;font-size:13px;min-height:38px;cursor:pointer;font:inherit}",
-      ".ttc-pwa-foot-btn:hover{background:rgba(124,58,237,.13)}",
-      "html[data-theme='night'] .ttc-pwa-foot-btn{color:#d8b4fe;border-color:rgba(216,180,254,.4);background:rgba(124,58,237,.16)}",
+      ".ttc-pwa-foot-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;border:1.5px solid rgba(22,40,63,.14);background:rgba(249,115,22,.10);color:#16283F;font-weight:800;font-size:13px;min-height:38px;cursor:pointer;font:inherit}",
+      ".ttc-pwa-foot-btn:hover{background:rgba(249,115,22,.10)}",
+      "html[data-theme='night'] .ttc-pwa-foot-btn{color:#d8b4fe;border-color:rgba(216,180,254,.4);background:rgba(249,115,22,.10)}",
       "#ttcPwaIosOverlay{position:fixed;inset:0;z-index:1000700;background:rgba(15,23,42,.48);display:flex;align-items:center;justify-content:center;padding:18px;box-sizing:border-box}",
       "#ttcPwaIosOverlay[hidden]{display:none}",
-      ".ttc-pwa-ios-card{background:#ffffff;color:#0f172a;border-radius:18px;max-width:360px;width:100%;padding:22px 20px 16px;box-shadow:0 22px 55px rgba(15,23,42,.28);box-sizing:border-box}",
-      ".ttc-pwa-ios-card h3{margin:0 0 6px;font-size:18px;font-weight:900;color:#be123c}",
+      ".ttc-pwa-ios-card{background:#ffffff;color:#16283F;border-radius:18px;max-width:360px;width:100%;padding:22px 20px 16px;box-shadow:0 22px 55px rgba(15,23,42,.28);box-sizing:border-box}",
+      ".ttc-pwa-ios-card h3{margin:0 0 6px;font-size:18px;font-weight:900;color:#16283F}",
       ".ttc-pwa-ios-card p{margin:0 0 12px;font-size:14px;line-height:1.55;color:#475569}",
       ".ttc-pwa-step{display:flex;gap:11px;align-items:flex-start;margin:0 0 12px;font-size:14.5px;line-height:1.5}",
-      ".ttc-pwa-step-n{flex:0 0 auto;width:24px;height:24px;border-radius:999px;background:#be123c;color:#fff;font-weight:800;font-size:13.5px;display:inline-flex;align-items:center;justify-content:center;margin-top:1px}",
+      ".ttc-pwa-step-n{flex:0 0 auto;width:24px;height:24px;border-radius:999px;background:#F97316;color:#fff;font-weight:800;font-size:13.5px;display:inline-flex;align-items:center;justify-content:center;margin-top:1px}",
       ".ttc-pwa-step svg{vertical-align:-3px;margin:0 2px}",
       ".ttc-pwa-ios-actions{display:flex;gap:9px;margin-top:16px}",
       ".ttc-pwa-ok{flex:1 1 auto;background:#be123c;color:#fff;border:none;border-radius:999px;padding:12px 16px;font:inherit;font-size:15px;font-weight:800;cursor:pointer}",
@@ -117,14 +117,14 @@
   var iosOverlay = null;
   function shareSvg() {
     return '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">' +
-      '<path d="M12 3v12" stroke="#2563eb" stroke-width="2.2" stroke-linecap="round"/>' +
-      '<path d="M7.5 6.5 12 2l4.5 4.5" stroke="#2563eb" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>' +
-      '<path d="M5 12v8a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 19 20v-8" stroke="#2563eb" stroke-width="2.2" stroke-linecap="round"/></svg>';
+      '<path d="M12 3v12" stroke="#16283F" stroke-width="2.2" stroke-linecap="round"/>' +
+      '<path d="M7.5 6.5 12 2l4.5 4.5" stroke="#16283F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>' +
+      '<path d="M5 12v8a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 19 20v-8" stroke="#16283F" stroke-width="2.2" stroke-linecap="round"/></svg>';
   }
   function plusSvg() {
     return '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">' +
-      '<rect x="3" y="3" width="18" height="18" rx="4.5" stroke="#2563eb" stroke-width="2"/>' +
-      '<path d="M12 8v8M8 12h8" stroke="#2563eb" stroke-width="2.2" stroke-linecap="round"/></svg>';
+      '<rect x="3" y="3" width="18" height="18" rx="4.5" stroke="#16283F" stroke-width="2"/>' +
+      '<path d="M12 8v8M8 12h8" stroke="#16283F" stroke-width="2.2" stroke-linecap="round"/></svg>';
   }
   function buildIosOverlay() {
     if (iosOverlay) return iosOverlay;

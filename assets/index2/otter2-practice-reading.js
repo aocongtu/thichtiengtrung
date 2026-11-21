@@ -216,13 +216,13 @@ function showReadingTranslation(text,pairs,clickedCharacter){
  let old=document.getElementById('ttcReadingTranslatePopup'); if(old) old.remove();
  const box=document.createElement('div'); box.id='ttcReadingTranslatePopup';
  box.setAttribute('role','dialog'); box.setAttribute('aria-label','Kết quả tra từ bài đọc');
- box.style.cssText='position:fixed;z-index:2147483000;right:12px;bottom:12px;width:min(420px,calc(100vw - 24px));max-height:min(52vh,520px);background:#fff;border:2px solid #16a34a;border-radius:14px;box-shadow:0 10px 40px #0004;padding:12px;display:flex;flex-direction:column;gap:8px;overflow:auto;color:#172033;';
- const head=document.createElement('div'); head.style.cssText='display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:700;color:#166534;position:sticky;top:0;background:#fff;padding-bottom:4px;z-index:1';
+ box.style.cssText='position:fixed;z-index:2147483000;right:12px;bottom:12px;width:min(420px,calc(100vw - 24px));max-height:min(52vh,520px);background:#fff;border:2px solid #E3E8EF;border-radius:14px;box-shadow:0 10px 40px #0004;padding:12px;display:flex;flex-direction:column;gap:8px;overflow:auto;color:#172033;';
+ const head=document.createElement('div'); head.style.cssText='display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:700;color:#16283F;position:sticky;top:0;background:#fff;padding-bottom:4px;z-index:1';
  const title=document.createElement('strong'); title.textContent='🔎 Tra từ bài đọc'; title.style.flex='1';
- const close=document.createElement('button'); close.type='button'; close.textContent='✖ Đóng'; close.style.cssText='background:#15803d;color:#fff;border:0;border-radius:8px;padding:8px 12px;cursor:pointer'; close.onclick=()=>box.remove();
+ const close=document.createElement('button'); close.type='button'; close.textContent='✖ Đóng'; close.style.cssText='background:#F97316;color:#fff;border:0;border-radius:8px;padding:8px 12px;cursor:pointer'; close.onclick=()=>box.remove();
  head.append(title,close); box.append(head);
  const selected=document.createElement('div'); selected.style.cssText='font-size:16px;font-weight:700;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere'; selected.textContent='Đã chọn: '+text; box.append(selected);
- const speakSelected=document.createElement('button'); speakSelected.type='button'; speakSelected.textContent='🔊 Đọc phần đã chọn'; speakSelected.style.cssText='align-self:flex-start;background:#15803d;color:#fff;border:0;border-radius:8px;padding:8px 12px;font-weight:700;cursor:pointer';
+ const speakSelected=document.createElement('button'); speakSelected.type='button'; speakSelected.textContent='🔊 Đọc phần đã chọn'; speakSelected.style.cssText='align-self:flex-start;background:#F97316;color:#fff;border:0;border-radius:8px;padding:8px 12px;font-weight:700;cursor:pointer';
  speakSelected.addEventListener('click',()=>{ if(!('speechSynthesis'in window)){alert('Trình duyệt chưa hỗ trợ đọc văn bản.');return;} window.speechSynthesis.cancel(); const utterance=new SpeechSynthesisUtterance(text); utterance.lang='zh-CN'; utterance.rate=readingRate; const voice=getVoice(); if(voice){utterance.voice=voice;utterance.lang=voice.lang||'zh-CN';} window.speechSynthesis.speak(utterance); });
  box.append(speakSelected);
  if(!entries.length){
@@ -232,9 +232,9 @@ function showReadingTranslation(text,pairs,clickedCharacter){
   entries.forEach((item)=>{
    if(item._tier!==lastTier){
     lastTier=item._tier;
-    const group=document.createElement('div'); group.style.cssText='margin-top:4px;font-size:12px;font-weight:800;color:#047857;letter-spacing:.02em'; group.textContent=item._label||('Nhom '+(lastTier+1)); box.append(group);
+    const group=document.createElement('div'); group.style.cssText='margin-top:4px;font-size:12px;font-weight:800;color:#16283F;letter-spacing:.02em'; group.textContent=item._label||('Nhom '+(lastTier+1)); box.append(group);
    }
-   const card=document.createElement('section'); card.style.cssText='border:1px solid #d1fae5;border-radius:10px;padding:10px;background:#f0fdf4;display:flex;flex-direction:column;gap:4px';
+   const card=document.createElement('section'); card.style.cssText='border:1px solid #d1fae5;border-radius:10px;padding:10px;background:#F7F8FA;display:flex;flex-direction:column;gap:4px';
    const z=document.createElement('div'); z.textContent=item.h; z.style.cssText='font-size:28px;font-weight:800;line-height:1.3;color:#064e3b'; card.append(z);
    (function(){
      const map=(window.TTC_HANVIET&&typeof window.TTC_HANVIET==='object')?window.TTC_HANVIET:null;
@@ -248,20 +248,20 @@ function showReadingTranslation(text,pairs,clickedCharacter){
        }
      }
      const name=document.createElement('div');
-     name.style.cssText='color:#0f172a;line-height:1.5;font-weight:700;overflow-wrap:anywhere';
+     name.style.cssText='color:#16283F;line-height:1.5;font-weight:700;overflow-wrap:anywhere';
      name.textContent=hv ? ('Tên Hán tự: '+hv) : 'Tên Hán tự: (chưa có dữ liệu âm Hán Việt)';
      card.append(name);
    })();
-   const pinyin=document.createElement('div'); pinyin.textContent='Pinyin: '+(item.p||'—'); pinyin.style.cssText='color:#1d4ed8;line-height:1.5;font-weight:700;overflow-wrap:anywhere'; card.append(pinyin);
-   const meaning=document.createElement('div'); meaning.textContent='Nghĩa: '+(item.m||'—'); meaning.style.cssText='color:#166534;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere'; card.append(meaning);
+   const pinyin=document.createElement('div'); pinyin.textContent='Pinyin: '+(item.p||'—'); pinyin.style.cssText='color:#16283F;line-height:1.5;font-weight:700;overflow-wrap:anywhere'; card.append(pinyin);
+   const meaning=document.createElement('div'); meaning.textContent='Nghĩa: '+(item.m||'—'); meaning.style.cssText='color:#16283F;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere'; card.append(meaning);
    if(item.radical){ const rad=document.createElement('div'); rad.textContent='Bộ thủ: '+item.radical; rad.style.cssText='color:#475569;line-height:1.45'; card.append(rad); }
    if(item.explanation){ const ex=document.createElement('div'); ex.textContent='Giải thích: '+item.explanation; ex.style.cssText='color:#334155;line-height:1.5;overflow-wrap:anywhere'; card.append(ex); }
    const meta=[]; if(item.t) meta.push(item.t); if(item.hsk!==''&&item.hsk!=null) meta.push('HSK '+item.hsk);
    if(meta.length){ const m=document.createElement('small'); m.textContent=meta.join(' · '); m.style.color='#64748b'; card.append(m); }
    if(item.example){
-    const ex=document.createElement('div'); ex.style.cssText='margin-top:4px;padding-top:6px;border-top:1px dashed #bbf7d0;display:flex;flex-direction:column;gap:2px';
-    const ez=document.createElement('div'); ez.textContent='📘 '+item.example; ez.style.cssText='color:#0f172a;line-height:1.5;overflow-wrap:anywhere'; ex.append(ez);
-    if(item.examplePinyin){ const ep=document.createElement('div'); ep.textContent=item.examplePinyin; ep.style.cssText='color:#2563eb;line-height:1.45;overflow-wrap:anywhere'; ex.append(ep); }
+    const ex=document.createElement('div'); ex.style.cssText='margin-top:4px;padding-top:6px;border-top:1px dashed #E3E8EF;display:flex;flex-direction:column;gap:2px';
+    const ez=document.createElement('div'); ez.textContent='📘 '+item.example; ez.style.cssText='color:#16283F;line-height:1.5;overflow-wrap:anywhere'; ex.append(ez);
+    if(item.examplePinyin){ const ep=document.createElement('div'); ep.textContent=item.examplePinyin; ep.style.cssText='color:#F97316;line-height:1.45;overflow-wrap:anywhere'; ex.append(ep); }
     if(item.exampleMeaning){ const em=document.createElement('div'); em.textContent=item.exampleMeaning; em.style.cssText='color:#475569;line-height:1.45;overflow-wrap:anywhere'; ex.append(em); }
     card.append(ex);
    }
@@ -422,7 +422,7 @@ let charOffset=0;const segments=paired.map((seg,index)=>{const start=charOffset;
   btn.id='ttcReadingFloatStop'; btn.type='button';
   btn.textContent='\u23F9 D\u1EEBng \u0111\u1ECDc';
   btn.setAttribute('aria-label','D\u1EEBng \u0111\u1ECDc b\u00E0i');
-  btn.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));z-index:99990;display:none;align-items:center;gap:8px;background:linear-gradient(180deg,#ef4444,#dc2626);color:#fff;border:2px solid rgba(255,255,255,.85);border-radius:999px;padding:13px 28px;font-size:17px;font-weight:800;line-height:1;box-shadow:0 10px 30px rgba(220,38,38,.45),0 2px 8px rgba(0,0,0,.25);cursor:pointer;touch-action:manipulation;';
+  btn.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));z-index:99990;display:none;align-items:center;gap:8px;background:linear-gradient(180deg,#F97316,#F97316);color:#fff;border:2px solid rgba(255,255,255,.85);border-radius:999px;padding:13px 28px;font-size:17px;font-weight:800;line-height:1;box-shadow:0 10px 30px rgba(22,40,63,.12),0 2px 8px rgba(0,0,0,.25);cursor:pointer;touch-action:manipulation;';
   btn.addEventListener('click',onClick);
   document.body.appendChild(btn);
   return btn;
