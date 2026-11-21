@@ -209,7 +209,7 @@
       ".ttc-story-subzone .ttc-story-abbar{order:2;flex:0 0 auto}",
       ".ttc-story-subzone .ttc-pack-panel{order:3}",
       ".ttc-story-subzone .ttc-story-sublist{order:3}",
-      "/* Danh sách câu: hàng 2 dòng gọn (Hán tự + nghĩa Việt nhỏ xám), nút play nhỏ bên trái, câu hiện tại tô nền tím nhạt + vạch trái. */",
+      "/* Danh sách câu: Hán tự + pinyin (dưới Hán, trên Việt — render từ cues[i][3], ẩn/hiện theo chip Pinyin qua .ttc-sub-off-py; trước 2026-11-22 row THIẾU hẳn phần tử pinyin nên bật chip mà không thấy gì) + nghĩa Việt nhỏ xám, nút play nhỏ bên trái, câu hiện tại tô nền cam nhạt + vạch trái. */",
       ".ttc-story-sublist{margin:0;max-height:264px;overflow:auto;border:1.5px solid rgba(100,116,139,.25);border-radius:14px;background:#fff}",
       "html[data-theme='night'] .ttc-story-sublist{background:#1e293b}",
       ".ttc-story-subrow{display:flex;gap:8px;align-items:center;width:100%;text-align:left;border:0;border-bottom:1px solid rgba(100,116,139,.14);background:transparent;color:inherit;padding:7px 10px;cursor:pointer;font-size:13.5px;line-height:1.3}",
@@ -219,10 +219,12 @@
       ".ttc-ss-play{flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:rgba(249,115,22,.10);color:#16283F;font-size:10px;display:flex;align-items:center;justify-content:center;padding-left:1px}",
       ".ttc-story-subrow.is-cur .ttc-ss-play{background:#F97316;color:#fff}",
       ".ttc-story-subrow .ttc-ss-main{min-width:0;flex:1}",
-      "/* Câu dài ở cột phải xuống tối đa 2 DÒNG (2026-11-22, chủ web yêu cầu) thay cho cắt cụt 1 dòng '...' — áp cho cả dòng Hán và dòng dịch Việt; nút play vẫn căn giữa theo chiều dọc của mục nên cột nút giữ thẳng hàng. */",
+      "/* Câu dài ở cột phải xuống tối đa 2 DÒNG (2026-11-22, chủ web yêu cầu) thay cho cắt cụt 1 dòng '...' — áp cho dòng Hán, dòng pinyin và dòng dịch Việt; nút play vẫn căn giữa theo chiều dọc của mục nên cột nút giữ thẳng hàng. */",
       ".ttc-story-subrow .ttc-ss-zh{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:14.5px;font-weight:700;line-height:1.35;overflow-wrap:break-word}",
+      ".ttc-story-subrow .ttc-ss-py{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:12.5px;font-weight:600;color:#475569;line-height:1.35;overflow-wrap:break-word}",
       ".ttc-story-subrow .ttc-ss-vi{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:12px;color:#64748b;line-height:1.35;overflow-wrap:break-word}",
       ".ttc-sub-off-zh .ttc-story-subrow .ttc-ss-zh{display:none}",
+      ".ttc-sub-off-py .ttc-story-subrow .ttc-ss-py{display:none}",
       ".ttc-sub-off-vi .ttc-story-subrow .ttc-ss-vi{display:none}",
       "/* ==== Desktop >=1021px: PHÒNG HỌC chuẩn corodomo — danh sách truyện ẨN mặc định, mở bằng icon Danh sách phát ở thanh cài đặt dưới video, hiện dạng PANEL PHỦ trượt ở cạnh trái phòng (không đẩy bố cục); cột chính = video + karaoke + thanh cài đặt; vùng phụ đề chiếm 1/3 phải của stage và danh sách câu làm chủ chiều cao của nó. ==== */",
       "@media (min-width:1021px){",
@@ -241,6 +243,7 @@
       ".ttc-story-body.has-subs .ttc-story-subzone:has(.ttc-pack-panel:not([hidden])) .ttc-story-abbar{display:none}",
       ".ttc-story-body.has-subs .ttc-story-subrow{padding:6px 10px}",
       ".ttc-story-body.has-subs .ttc-story-subrow .ttc-ss-zh{font-size:14px}",
+      ".ttc-story-body.has-subs .ttc-story-subrow .ttc-ss-py{font-size:12px}",
       ".ttc-story-body.has-subs .ttc-story-subrow .ttc-ss-vi{font-size:11.5px}",
       ".ttc-kara-bar .ttc-kw-zh{font-size:21px}",
       ".ttc-kara-bar .ttc-kw-punct{font-size:21px}",
@@ -816,6 +819,7 @@
           '<span class="ttc-ss-play" aria-hidden="true">▶</span>' +
           '<span class="ttc-ss-main">' +
           '<span class="ttc-ss-zh">' + esc(cueZh(i)) + "</span>" +
+          (c[3] ? '<span class="ttc-ss-py">' + esc(c[3]) + "</span>" : "") +
           '<span class="ttc-ss-vi">' + esc(c[4]) + "</span></span></button>";
       });
       listEl2.innerHTML = html;
