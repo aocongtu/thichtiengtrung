@@ -1,7 +1,7 @@
 /* Otter2 HSK1 vocabulary workspace — scoped */
 
 .otter2-hsk1-workspace{
-  margin-top:14px;padding-top:12px;border-top:1px solid rgba(225,29,72,.12);
+  margin-top:14px;padding-top:12px;border-top:1px solid rgba(22,40,63,.14);
 }
 .otter2-hsk1-toolbar{
   display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:10px;
@@ -9,48 +9,48 @@
 .otter2-hsk1-toolbar strong{font-size:15px;margin-right:auto}
 .otter2-hsk1-count{font-size:12px;font-weight:700;color:#64748b}
 .otter2-hsk1-progress{
-  height:8px;border-radius:999px;background:#ffe4e6;overflow:hidden;margin-bottom:12px;
+  height:8px;border-radius:999px;background:#F7F8FA;overflow:hidden;margin-bottom:12px;
 }
 .otter2-hsk1-progress>i{
-  display:block;height:100%;width:0;background:linear-gradient(90deg,#fb7185,#e11d48);border-radius:inherit;
+  display:block;height:100%;width:0;background:#F97316;border-radius:inherit;
 }
 .otter2-hsk1-cards{
   display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:10px;
 }
 .otter2-hsk1-card{
-  position:relative;background:#fff;border:1px solid rgba(225,29,72,.14);
+  position:relative;background:#fff;border:1px solid rgba(22,40,63,.14);
   border-radius:16px;padding:12px 12px 36px;box-shadow:0 10px 22px rgba(15,23,42,.06);
   cursor:pointer;text-align:left;
 }
-.otter2-hsk1-card:hover{border-color:#fda4af;transform:translateY(-1px)}
+.otter2-hsk1-card:hover{border-color:#E3E8EF;transform:translateY(-1px)}
 .otter2-hsk1-card .o2-hsk{
-  display:inline-block;font-size:11px;font-weight:800;color:#be123c;margin-bottom:4px;
+  display:inline-block;font-size:11px;font-weight:800;color:#16283F;margin-bottom:4px;
 }
 .otter2-hsk1-card .o2-type{
   display:block;font-size:11px;color:#64748b;font-weight:700;margin-bottom:6px;
 }
 .otter2-hsk1-card .o2-hanzi{
-  font-size:28px;font-weight:800;line-height:1.15;color:#0f172a;
+  font-size:28px;font-weight:800;line-height:1.15;color:#16283F;
 }
 .otter2-hsk1-card .o2-pinyin{
   font-size:14px;color:#64748b;margin:4px 0;
 }
 .otter2-hsk1-card.is-pinyin-off .o2-pinyin{display:none}
 .otter2-hsk1-card .o2-meaning{
-  font-size:13px;font-weight:600;color:#0f172a;line-height:1.35;
+  font-size:13px;font-weight:600;color:#16283F;line-height:1.35;
 }
 .otter2-hsk1-card .o2-speak{
   position:absolute;right:10px;bottom:10px;width:34px;height:34px;
-  border-radius:50%;border:1px solid rgba(225,29,72,.18);background:#fff1f2;
+  border-radius:50%;border:1px solid rgba(22,40,63,.14);background:#F7F8FA;
   cursor:pointer;font-size:14px;
 }
 .otter2-hsk1-card .o2-learned{
-  position:absolute;left:10px;bottom:12px;font-size:11px;font-weight:800;color:#16a34a;
+  position:absolute;left:10px;bottom:12px;font-size:11px;font-weight:800;color:#16283F;
 }
 .otter2-hsk1-card.is-learned{
-  border-color:#86efac;background:linear-gradient(180deg,#fff,#f0fdf4);
+  border-color:#E3E8EF;background:#F7F8FA;
 }
-.otter2-hsk1-card.is-learned .o2-learned{color:#15803d}
+.otter2-hsk1-card.is-learned .o2-learned{color:#16283F}
 
 .otter2-hsk1-detail{
   position:fixed;inset:0;z-index:12500;background:rgba(15,23,42,.45);
@@ -59,7 +59,7 @@
 .otter2-hsk1-detail[hidden]{display:none !important}
 .otter2-hsk1-detail-box{
   width:min(520px,100%);max-height:min(90vh,720px);overflow:auto;
-  background:#fff;border-radius:22px;padding:18px;border:1px solid rgba(225,29,72,.14);
+  background:#fff;border-radius:22px;padding:18px;border:1px solid rgba(22,40,63,.14);
   box-shadow:0 22px 48px rgba(15,23,42,.22);
 }
 .otter2-hsk1-detail-box h3{margin:0 0 6px;font-size:2rem}

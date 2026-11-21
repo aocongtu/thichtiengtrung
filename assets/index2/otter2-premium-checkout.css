@@ -64,7 +64,7 @@
 }
 .otter2-pay-result-sticky{
   margin:8px 0;padding:10px 12px;border-radius:10px;font-size:13px;font-weight:700;line-height:1.45;
-  background:#f1f5f9;color:#0f172a;border:1px solid #e2e8f0;
+  background:#f1f5f9;color:#16283F;border:1px solid #e2e8f0;
 }
 .otter2-pay-result-sticky[hidden]{display:none !important}
 .otter2-pay-result-sticky.is-ok{background:#ecfdf5;border-color:#86efac;color:#166534}
@@ -150,7 +150,7 @@
 .otter2-pay-history[hidden],
 .otter2-device-box[hidden]{display:none !important}
 .otter2-account-links-title{
-  margin:0 0 4px;color:#9f1239;font-size:12px;font-weight:800;
+  margin:0 0 4px;color:#16283F;font-size:12px;font-weight:800;
 }
 .otter2-account-link-row,
 .otter2-pay-history-row,
@@ -161,7 +161,7 @@
 .otter2-account-link-name{flex:1;font-weight:700;color:#333;font-size:13px}
 .otter2-account-link-state{color:#64748b;font-size:12px}
 .otter2-account-link-row button{
-  border:1px solid #e2e8f0;background:#fff;color:#9f1239;
+  border:1px solid #e2e8f0;background:#fff;color:#16283F;
   border-radius:7px;padding:4px 8px;font-size:12px;font-weight:700;cursor:pointer;
 }
 
@@ -196,7 +196,7 @@
   display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap;
 }
 .otter2-admin-card-actions button{
-  border:0;background:#15803d;color:#fff;border-radius:8px;
+  border:0;background:#F97316;color:#fff;border-radius:8px;
   padding:7px 10px;font-weight:800;font-size:12px;cursor:pointer;
 }
 .otter2-admin-reject-hint{color:#94a3b8;font-size:11px}

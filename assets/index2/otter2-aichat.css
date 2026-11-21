@@ -2,15 +2,15 @@
    Design law: white surfaces, section colour = Luyện tập teal #0f766e,
    no black titles/buttons, body text dark slate. */
 :root{
-  --aichat-teal:#0f766e;
-  --aichat-teal-dark:#115e59;
-  --aichat-teal-tint:#f0fdfa;
+  --aichat-teal:#F97316;
+  --aichat-teal-dark:#EA580C;
+  --aichat-teal-tint:#FFF7ED;
   --aichat-ink:#0f172a;
   --aichat-sub:#64748b;
   --aichat-faint:#94a3b8;
   --aichat-line:#e2e8f0;
   --aichat-grey-bg:#f1f5f9;
-  --aichat-fix:#c2410c;
+  --aichat-fix:#EA580C;
 }
 
 /* ---------- Launcher ---------- */
@@ -20,14 +20,14 @@
   background:var(--aichat-teal);color:#fff;border:none;cursor:pointer;
   padding:9px 16px 9px 9px;border-radius:999px;
   font-weight:600;font-size:14.5px;line-height:1.2;font-family:inherit;
-  box-shadow:0 10px 28px rgba(15,118,110,.38),0 2px 6px rgba(15,23,42,.18);
+  box-shadow:0 10px 28px rgba(22,40,63,.12),0 2px 6px rgba(15,23,42,.18);
   transition:transform .15s ease,background .15s ease;
 }
 #aichatLauncher:hover{background:var(--aichat-teal-dark);transform:translateY(-1px)}
 #aichatLauncher img{width:30px;height:30px;border-radius:50%;object-fit:cover;background:#fff}
 #aichatLauncher .aichat-launcher-dot{
   position:absolute;top:-2px;right:-2px;min-width:19px;height:19px;padding:0 5px;
-  border-radius:999px;background:#e11d48;color:#fff;border:2px solid #fff;
+  border-radius:999px;background:#F97316;color:#fff;border:2px solid #fff;
   font-weight:700;font-size:11px;line-height:15px;font-family:inherit;display:none;align-items:center;justify-content:center;
 }
 #aichatLauncher.has-unread .aichat-launcher-dot{display:flex}
@@ -103,14 +103,14 @@ html.aichat-locked,body.aichat-locked{overflow:hidden !important}
 }
 .aichat-avatar .aichat-online{
   position:absolute;right:1px;bottom:1px;width:13px;height:13px;border-radius:50%;
-  background:#22c55e;border:2.5px solid #fff;
+  background:#F7F8FA;border:2.5px solid #fff;
 }
 .aichat-convo-main{flex:1;min-width:0}
 .aichat-convo-name{font-size:15px;font-weight:600;color:var(--aichat-ink);display:flex;gap:6px;align-items:center;white-space:nowrap;overflow:hidden}
 .aichat-convo-name>span:first-child{overflow:hidden;text-overflow:ellipsis}
 .aichat-convo-name .aichat-ai-tag{
   font-size:9.5px;font-weight:800;letter-spacing:.05em;color:var(--aichat-teal);
-  background:var(--aichat-teal-tint);border:1px solid #99f6e4;border-radius:5px;padding:1px 5px;
+  background:var(--aichat-teal-tint);border:1px solid #E3E8EF;border-radius:5px;padding:1px 5px;
 }
 .aichat-convo-preview{
   font-size:13px;color:var(--aichat-sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;
@@ -127,7 +127,7 @@ html.aichat-locked,body.aichat-locked{overflow:hidden !important}
   display:flex;align-items:center;justify-content:center;font-size:24px;flex:0 0 auto;
 }
 .aichat-status-done{color:var(--aichat-teal);font-weight:600}
-.aichat-status-doing{color:#b45309;font-weight:600}
+.aichat-status-doing{color:#16283F;font-weight:600}
 
 /* skeleton + empty */
 .aichat-skeleton{padding:10px}
@@ -146,7 +146,7 @@ html.aichat-locked,body.aichat-locked{overflow:hidden !important}
 .aichat-thread-head .aichat-avatar img{width:38px;height:38px}
 .aichat-thread-name{font-size:15.5px;font-weight:700;color:var(--aichat-ink);line-height:1.15}
 .aichat-thread-status{font-size:12px;color:var(--aichat-sub);display:flex;align-items:center;gap:5px}
-.aichat-thread-status .aichat-online-dot{width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block}
+.aichat-thread-status .aichat-online-dot{width:8px;height:8px;border-radius:50%;background:#F7F8FA;display:inline-block}
 .aichat-thread-status.typing{color:var(--aichat-teal);font-style:italic}
 .aichat-context-bar{
   display:flex;align-items:center;gap:8px;padding:8px 12px;flex:0 0 auto;flex-wrap:wrap;
@@ -158,7 +158,7 @@ html.aichat-locked,body.aichat-locked{overflow:hidden !important}
 }
 .aichat-ai-quota{
   font-size:12px;font-weight:600;color:var(--aichat-teal);
-  background:#f0fdfa;border:1px dashed var(--aichat-teal);border-radius:999px;padding:4px 10px;
+  background:#F7F8FA;border:1px dashed var(--aichat-teal);border-radius:999px;padding:4px 10px;
   white-space:nowrap;
 }
 .aichat-mode-toggle{display:flex;background:#e2e8f0;border-radius:999px;padding:3px;margin-left:auto}
@@ -166,7 +166,7 @@ html.aichat-locked,body.aichat-locked{overflow:hidden !important}
   border:none;background:transparent;border-radius:999px;padding:5px 11px;
   font-size:12.5px;font-weight:600;color:#475569;transition:all .12s ease;
 }
-.aichat-mode-toggle button.on{background:var(--aichat-teal);color:#fff;box-shadow:0 2px 6px rgba(15,118,110,.35)}
+.aichat-mode-toggle button.on{background:var(--aichat-teal);color:#fff;box-shadow:0 2px 6px rgba(22,40,63,.12)}
 .aichat-progress{display:flex;gap:5px;align-items:center}
 .aichat-progress i{width:7px;height:7px;border-radius:50%;background:#cbd5e1;display:block}
 .aichat-progress i.done{background:var(--aichat-teal)}
@@ -233,8 +233,8 @@ html.aichat-locked,body.aichat-locked{overflow:hidden !important}
 .aichat-card .aichat-card-note{color:var(--aichat-sub);font-size:12.5px;margin-top:5px;line-height:1.45}
 .aichat-card.praise{border-left-color:var(--aichat-teal);background:var(--aichat-teal-tint)}
 .aichat-card.praise .aichat-card-title{color:var(--aichat-teal)}
-.aichat-card.hint{border-left-color:#b45309}
-.aichat-card.hint .aichat-card-title{color:#b45309}
+.aichat-card.hint{border-left-color:#E3E8EF}
+.aichat-card.hint .aichat-card-title{color:#16283F}
 .aichat-card.done-card{border-left-color:var(--aichat-teal);background:var(--aichat-teal-tint);text-align:left}
 .aichat-card.done-card .aichat-card-title{color:var(--aichat-teal);font-size:13px}
 .aichat-card .aichat-card-actions{display:flex;gap:8px;margin-top:9px;flex-wrap:wrap}
@@ -258,7 +258,7 @@ html.aichat-locked,body.aichat-locked{overflow:hidden !important}
 .aichat-newpill{
   position:absolute;left:50%;transform:translateX(-50%);bottom:12px;z-index:5;
   background:var(--aichat-teal);color:#fff;border:none;border-radius:999px;
-  font-size:12.5px;font-weight:700;padding:7px 14px;box-shadow:0 6px 18px rgba(15,118,110,.4);
+  font-size:12.5px;font-weight:700;padding:7px 14px;box-shadow:0 6px 18px rgba(22,40,63,.12);
   display:none;
 }
 .aichat-newpill.show{display:block}
@@ -266,12 +266,12 @@ html.aichat-locked,body.aichat-locked{overflow:hidden !important}
 /* ---------- Composer ---------- */
 .aichat-recbar{
   display:none;align-items:center;gap:8px;padding:7px 14px;flex:0 0 auto;
-  background:#fef2f2;border-top:1px solid #fecaca;color:#b91c1c;font-size:13px;font-weight:600;
+  background:#F7F8FA;border-top:1px solid #E3E8EF;color:#16283F;font-size:13px;font-weight:600;
 }
 .aichat-recbar.show{display:flex}
-.aichat-recbar .aichat-rec-dot{width:9px;height:9px;border-radius:50%;background:#dc2626;animation:aichatPulse 1s infinite}
+.aichat-recbar .aichat-rec-dot{width:9px;height:9px;border-radius:50%;background:#F97316;animation:aichatPulse 1s infinite}
 @keyframes aichatPulse{50%{opacity:.25}}
-.aichat-recbar button{margin-left:auto;border:none;background:#dc2626;color:#fff;border-radius:8px;padding:4px 12px;font-weight:700;font-size:12.5px}
+.aichat-recbar button{margin-left:auto;border:none;background:#F97316;color:#fff;border-radius:8px;padding:4px 12px;font-weight:700;font-size:12.5px}
 .aichat-composer{
   display:flex;align-items:flex-end;gap:6px;padding:9px 10px calc(9px + env(safe-area-inset-bottom,0px));
   border-top:1px solid var(--aichat-line);background:#fff;flex:0 0 auto;position:relative;
@@ -281,7 +281,7 @@ html.aichat-locked,body.aichat-locked{overflow:hidden !important}
   font-size:19px;color:#475569;display:inline-flex;align-items:center;justify-content:center;
 }
 .aichat-comp-btn:hover{background:var(--aichat-grey-bg)}
-.aichat-comp-btn.recording{background:#dc2626;color:#fff;animation:aichatPulse 1s infinite}
+.aichat-comp-btn.recording{background:#F97316;color:#fff;animation:aichatPulse 1s infinite}
 .aichat-input-wrap{
   flex:1;background:var(--aichat-grey-bg);border-radius:21px;display:flex;align-items:flex-end;
   padding:4px 6px 4px 14px;min-height:37px;
@@ -317,7 +317,7 @@ html.aichat-locked,body.aichat-locked{overflow:hidden !important}
 /* toast */
 .aichat-toast{
   position:absolute;left:50%;bottom:76px;transform:translateX(-50%) translateY(8px);z-index:8;
-  background:#0f172a;color:#fff;font-size:12.5px;padding:8px 14px;border-radius:999px;
+  background:#16283F;color:#fff;font-size:12.5px;padding:8px 14px;border-radius:999px;
   opacity:0;pointer-events:none;transition:all .2s ease;max-width:88%;text-align:center;
 }
 .aichat-toast.show{opacity:.94;transform:translateX(-50%)}

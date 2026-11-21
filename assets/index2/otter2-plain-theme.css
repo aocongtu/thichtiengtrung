@@ -1,0 +1,27 @@
+/* ============================================================
+   OTTER2 PLAIN THEME — "Babbel sạch" (owner order 2026-11-21)
+   Loaded LAST (link just before </body>) so it wins over the
+   per-section colour system. Palette:
+     headings  #16283F (navy)   body text #3C4756 (slate)
+     accent    #F97316 (orange) hover     #EA580C
+     surface   #FFFFFF / #F7F8FA          border #E3E8EF
+   Protected, never touched here: .ttt-rainbow title,
+   Hán-Việt red #9f1239 in learning content, user themes
+   ([data-theme] rules keep their own colours).
+   ============================================================ */
+body.otter2-body{
+  color:#3C4756;
+  font-family:system-ui,"Segoe UI",Roboto,"Helvetica Neue",Arial,"PingFang SC","Noto Sans SC",sans-serif;
+}
+body.otter2-body h1, body.otter2-body h2, body.otter2-body h3,
+body.otter2-body h4, body.otter2-body h5, body.otter2-body h6{
+  color:#16283F;
+}
+/* Hán-Việt names stay red everywhere in learning content,
+   including the vocab-path quiz whose question colour is a
+   user preference (default is navy now). */
+.ttc-han-viet{ color:#9f1239; }
+#ttcDailyVocab .ttc-path-q .ttc-han-viet{ color:#9f1239 !important; }
+/* One consistent keyboard-focus ring in the accent colour. */
+:focus-visible{ outline:2px solid #F97316; outline-offset:2px; }
+::selection{ background:#FFEDD5; }

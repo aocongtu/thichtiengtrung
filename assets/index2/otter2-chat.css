@@ -238,8 +238,8 @@
   width:8px;
   height:8px;
   border-radius:50%;
-  background:#22c55e;
-  box-shadow:0 0 0 3px #dcfce7;
+  background:#F7F8FA;
+  box-shadow:0 0 0 3px #F97316;
 }
 
 .ttc-chat-messages{
@@ -535,9 +535,9 @@
   height:auto;
   min-height:40px;
   padding:6px 10px !important;
-  color:#b91c1c !important;
-  -webkit-text-fill-color:#b91c1c !important;
-  background:#fff5f5 !important;
+  color:#16283F !important;
+  -webkit-text-fill-color:#16283F !important;
+  background:#F7F8FA !important;
 }
 .ttc-chat-gif-results button{
   width:100%;
@@ -629,9 +629,9 @@
   font-size:13px;
   font-weight:800;
   letter-spacing:.2px;
-  color:#b91c1c !important;
-  -webkit-text-fill-color:#b91c1c !important;
-  background:#fff5f5 !important;
+  color:#16283F !important;
+  -webkit-text-fill-color:#16283F !important;
+  background:#F7F8FA !important;
 }
 
 .ttc-chat-send{
