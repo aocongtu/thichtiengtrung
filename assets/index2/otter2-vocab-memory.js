@@ -44,7 +44,7 @@ function ttcVocabMemShowNote(msg, isError){
     el.id = "ttcVocabMemSyncNote";
     el.setAttribute("role", "status");
     el.setAttribute("aria-live", "polite");
-    el.style.cssText = "display:none;position:fixed;z-index:1000060;left:50%;bottom:18px;transform:translateX(-50%);max-width:min(420px,calc(100% - 24px));padding:10px 14px;border-radius:12px;border:1px solid #fecdd3;background:#fff;color:#9f1239;font-size:13px;font-weight:700;box-shadow:0 8px 20px rgba(15,23,42,.12);text-align:center;";
+    el.style.cssText = "display:none;position:fixed;z-index:1000060;left:50%;bottom:18px;transform:translateX(-50%);max-width:min(420px,calc(100% - 24px));padding:10px 14px;border-radius:12px;border:1px solid #E3E8EF;background:#fff;color:#16283F;font-size:13px;font-weight:700;box-shadow:0 8px 20px rgba(15,23,42,.12);text-align:center;";
     document.body.appendChild(el);
   }
   if(!msg){

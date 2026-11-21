@@ -785,7 +785,7 @@ if(number){
       .forEach(function(card){
         const selected = card.dataset.mode === mode;
         card.classList.toggle("active", selected);
-        card.style.borderColor = selected ? "#22c55e" : "";
+        card.style.borderColor = selected ? "#F97316" : "";
       });
 
   }
