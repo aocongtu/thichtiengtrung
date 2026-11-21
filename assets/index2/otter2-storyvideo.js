@@ -250,7 +250,41 @@
       ".ttc-story-body.ttc-picking .ttc-story-item{height:100%}",
       ".ttc-story-body.ttc-picking .ttc-story-empty{padding:18px 16px}",
       ".ttc-story-body.ttc-picking #ttcStoryPickBtn{display:none}",
-      "}"
+      "}",
+      "/* ==== TOÀN MÀN HÌNH TRONG KHUNG PLAYER (2026-11-21): nút ⛶ ở thanh cài đặt gọi requestFullscreen trên .ttc-story-stage để full CẢ KHUNG đang xem (video + karaoke + thanh chỉnh + cột phụ đề), không full riêng thẻ video trần. Ẩn nút full gốc của trình duyệt (webkit) để học viên không bấm nhầm đường full-video-trần làm mất phụ đề. Luật :fullscreen và :-webkit-full-screen viết RIÊNG từng luật (không gộp chung selector) để Safari cũ không loại cả luật. ==== */",
+      ".ttc-story-frame-wrap video::-webkit-media-controls-fullscreen-button{display:none}",
+      ".ttc-story-stage:fullscreen{width:100%;height:100%;box-sizing:border-box;background:#0f172a;color:#e2e8f0;display:flex;flex-direction:column;padding:14px;overflow:hidden;position:relative}",
+      ".ttc-story-stage:-webkit-full-screen{width:100%;height:100%;box-sizing:border-box;background:#0f172a;color:#e2e8f0;display:flex;flex-direction:column;padding:14px;overflow:hidden;position:relative}",
+      ".ttc-story-stage:fullscreen .ttc-story-frame-wrap{flex:1 1 auto;min-height:0;width:100%;max-width:none;padding-top:0}",
+      ".ttc-story-stage:-webkit-full-screen .ttc-story-frame-wrap{flex:1 1 auto;min-height:0;width:100%;max-width:none;padding-top:0}",
+      ".ttc-story-stage:fullscreen .ttc-story-karaoke{flex:0 0 auto}",
+      ".ttc-story-stage:-webkit-full-screen .ttc-story-karaoke{flex:0 0 auto}",
+      ".ttc-story-stage:fullscreen .ttc-story-setbar{flex:0 0 auto}",
+      ".ttc-story-stage:-webkit-full-screen .ttc-story-setbar{flex:0 0 auto}",
+      ".ttc-story-stage:fullscreen .ttc-story-now{display:none}",
+      ".ttc-story-stage:-webkit-full-screen .ttc-story-now{display:none}",
+      ".ttc-story-stage:fullscreen .ttc-story-now-vi{display:none}",
+      ".ttc-story-stage:-webkit-full-screen .ttc-story-now-vi{display:none}",
+      ".ttc-story-stage:fullscreen .ttc-story-meta-line{display:none}",
+      ".ttc-story-stage:-webkit-full-screen .ttc-story-meta-line{display:none}",
+      ".ttc-story-stage:fullscreen .ttc-story-navrow{display:none}",
+      ".ttc-story-stage:-webkit-full-screen .ttc-story-navrow{display:none}",
+      ".ttc-story-stage:fullscreen .ttc-story-sublist{color:#16283F}",
+      ".ttc-story-stage:-webkit-full-screen .ttc-story-sublist{color:#16283F}",
+      ".ttc-story-stage:fullscreen .ttc-kara-vi{color:#cbd5e1}",
+      ".ttc-story-stage:-webkit-full-screen .ttc-kara-vi{color:#cbd5e1}",
+      ".ttc-story-stage:fullscreen .ttc-story-ab-status{color:#94a3b8}",
+      ".ttc-story-stage:-webkit-full-screen .ttc-story-ab-status{color:#94a3b8}",
+      ".ttc-story-stage:fullscreen .ttc-story-ratechip{border-color:rgba(226,232,240,.35)}",
+      ".ttc-story-stage:-webkit-full-screen .ttc-story-ratechip{border-color:rgba(226,232,240,.35)}",
+      ".ttc-story-stage:fullscreen .ttc-story-subchip{border-color:rgba(226,232,240,.35)}",
+      ".ttc-story-stage:-webkit-full-screen .ttc-story-subchip{border-color:rgba(226,232,240,.35)}",
+      ".ttc-story-stage:fullscreen .ttc-story-abbtn{border-color:rgba(226,232,240,.35)}",
+      ".ttc-story-stage:-webkit-full-screen .ttc-story-abbtn{border-color:rgba(226,232,240,.35)}",
+      ".ttc-story-stage:fullscreen .ttc-story-iconbtn{border-color:rgba(226,232,240,.35);color:#cbd5e1}",
+      ".ttc-story-stage:-webkit-full-screen .ttc-story-iconbtn{border-color:rgba(226,232,240,.35);color:#cbd5e1}",
+      "@media (max-width:1020px){.ttc-story-stage:fullscreen .ttc-story-subzone{flex:0 1 36%;min-height:0}.ttc-story-stage:fullscreen .ttc-story-sublist{flex:1 1 auto;min-height:0;max-height:none}}",
+      "@media (max-width:1020px){.ttc-story-stage:-webkit-full-screen .ttc-story-subzone{flex:0 1 36%;min-height:0}.ttc-story-stage:-webkit-full-screen .ttc-story-sublist{flex:1 1 auto;min-height:0;max-height:none}}"
       ].join("\n");
     var st = document.createElement("style");
     st.id = "ttcStoryVideoStyle";
@@ -339,6 +373,44 @@
   function setSubsLayout(on) {
     var bodyEl = stageEl && stageEl.parentNode;
     if (bodyEl && bodyEl.classList) bodyEl.classList.toggle("has-subs", !!on);
+  }
+  /* ---------------- toàn màn hình TRONG KHUNG player ----------------
+     Nút ⛶ ở thanh cài đặt phóng to cả .ttc-story-stage (video + thanh
+     karaoke phụ đề + thanh chỉnh + cột danh sách câu) — KHÔNG dùng nút
+     full gốc của thẻ <video> vì nó chỉ full video trần, mất hết phụ đề
+     và nút chỉnh (chủ web báo lỗi 2026-11-21: "bật full màn hình phải
+     full ở bên trong khung của anh đang bật"). */
+  function fsElement() {
+    return document.fullscreenElement || document.webkitFullscreenElement || null;
+  }
+  function syncStoryFsBtn() {
+    if (!stageEl) return;
+    var b = stageEl.querySelector("#ttcStoryFsBtn");
+    if (!b) return;
+    var on = fsElement() === stageEl;
+    b.classList.toggle("is-cur", on);
+    b.setAttribute("aria-pressed", on ? "true" : "false");
+    b.title = on ? "Thoát toàn màn hình" : "Toàn màn hình";
+    b.setAttribute("aria-label", on ? "Thoát toàn màn hình" : "Toàn màn hình");
+  }
+  function toggleStoryFullscreen() {
+    if (fsElement()) {
+      var ex = document.exitFullscreen || document.webkitExitFullscreen;
+      if (ex) { try { ex.call(document); } catch (e) {} }
+      return;
+    }
+    if (!stageEl) return;
+    var req = stageEl.requestFullscreen || stageEl.webkitRequestFullscreen;
+    if (req) {
+      try {
+        var p = req.call(stageEl);
+        if (p && typeof p.catch === "function") p.catch(function () {});
+      } catch (e) {}
+      return;
+    }
+    /* iPhone Safari không cho element fullscreen: đành full video gốc. */
+    var vid = stageEl.querySelector("#ttcStoryVideoFrame");
+    if (vid && vid.webkitEnterFullscreen) { try { vid.webkitEnterFullscreen(); } catch (e) {} }
   }
   /* Trạng thái CHƯA CHỌN TRUYỆN (chưa có currentKey): bật class
      ttc-picking để CSS desktop trải danh sách truyện thành lưới đầy bề
@@ -477,8 +549,11 @@
     stageEl = overlay.querySelector("#ttcStoryVideoStage");
     overlay.querySelector("#ttcStoryVideoClose").addEventListener("click", closeZone);
     overlay.addEventListener("click", function (e) { if (e.target === overlay) closeZone(); });
+    document.addEventListener("fullscreenchange", syncStoryFsBtn);
+    document.addEventListener("webkitfullscreenchange", syncStoryFsBtn);
     document.addEventListener("keydown", function (e) {
       if (e.key !== "Escape" || !overlay.classList.contains("open")) return;
+      if (fsElement()) return; /* Esc khi đang full: trình duyệt tự thoát full, không đóng phòng */
       if (isDesktopRoom() && listPanelVisible() && state.currentKey) { setListOpen(false, true); return; }
       closeZone();
     });
@@ -574,6 +649,7 @@
       '<div class="ttc-story-setbar" id="ttcStorySetbar">' +
       '<div class="ttc-story-subtools" id="ttcStorySubTools" role="group" aria-label="Lớp phụ đề hiển thị" hidden></div>' +
       '<div class="ttc-story-setbar-right"><span class="ttc-story-rate-label" aria-hidden="true">🐢</span>' + rateBtns +
+      '<button type="button" class="ttc-story-iconbtn" id="ttcStoryFsBtn" aria-label="Toàn màn hình" title="Toàn màn hình" aria-pressed="false">⛶</button>' +
       '<button type="button" class="ttc-story-iconbtn" id="ttcStoryListBtn" aria-label="Danh sách phát" title="Danh sách phát" aria-pressed="false">☰</button>' +
       '<button type="button" class="ttc-story-iconbtn" id="ttcStorySetClose" aria-label="Đóng phòng truyện">✕</button></div></div>' +
       '<h3 class="ttc-story-now">' + esc(entry.title_zh) + "</h3>" +
@@ -586,6 +662,8 @@
       '<div class="ttc-story-subzone" id="ttcStorySubZone" hidden></div>';
     var lb = stageEl.querySelector("#ttcStoryListBtn");
     if (lb) lb.addEventListener("click", function () { setListOpen(!listPanelVisible(), true); });
+    var fsb = stageEl.querySelector("#ttcStoryFsBtn");
+    if (fsb) { fsb.addEventListener("click", toggleStoryFullscreen); syncStoryFsBtn(); }
     var scb = stageEl.querySelector("#ttcStorySetClose");
     if (scb) scb.addEventListener("click", function () { closeZone(); });
     var pb = stageEl.querySelector("#ttcStoryPrev");
