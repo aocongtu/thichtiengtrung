@@ -160,6 +160,61 @@
     if (willOpen) ensureTransferTimeDefault();
   }
 
+  function scrollElIntoPanelView(el, block) {
+    if (!el) return;
+    var doScroll = function () {
+      try {
+        el.scrollIntoView({ behavior: "smooth", block: block || "start" });
+      } catch (e) {
+        try {
+          el.scrollIntoView();
+        } catch (e2) {}
+      }
+    };
+    /* Defer so layout (details just opened / banner just shown) settles first,
+       and so this scroll wins over showResult()'s banner scroll. */
+    if (window.requestAnimationFrame) {
+      window.requestAnimationFrame(function () {
+        setTimeout(doScroll, 60);
+      });
+    } else {
+      setTimeout(doScroll, 60);
+    }
+  }
+
+  function clearPlanSelection() {
+    selectedPlan = null;
+    document.querySelectorAll("#otter2PriceBox .price-card").forEach(function (card) {
+      card.classList.remove("is-on");
+    });
+    var box = $("otter2PaymentDetails");
+    if (box) {
+      box.classList.remove("is-open");
+      box.style.display = "";
+    }
+    var planText = $("otter2SelectedPlanText");
+    if (planText) planText.textContent = "";
+    var amount = $("otter2PaymentAmount");
+    if (amount) amount.textContent = "";
+    var status = $("otter2PaymentStatus");
+    if (status) status.textContent = "";
+    var sticky = $("otter2PaymentResultSticky");
+    if (sticky) {
+      sticky.hidden = true;
+      sticky.textContent = "";
+      sticky.className = "otter2-pay-result-sticky";
+    }
+    var sendBtn = $("otter2SendPaymentBtn");
+    if (sendBtn) {
+      sendBtn.disabled = false;
+      sendBtn.textContent = "📤 GỬI YÊU CẦU THANH TOÁN";
+    }
+    setPremiumPanelOpen(true);
+    openAccountMenu();
+    var list = document.querySelector("#otter2PriceBox .price-list");
+    scrollElIntoPanelView(list || $("otter2PriceBox"), "start");
+  }
+
   function selectPlan(plan) {
     var data = PLANS[plan];
     var box = $("otter2PaymentDetails");
@@ -190,6 +245,9 @@
     );
     setPremiumPanelOpen(true);
     openAccountMenu();
+    /* Owner request: the payment/next-step area must appear right in front of
+       the customer as soon as a plan is picked — scroll the panel to it. */
+    scrollElIntoPanelView(box, "start");
   }
 
   /**
@@ -521,6 +579,15 @@
       });
     }
 
+    var reselectBtn = $("otter2ReselectPlanBtn");
+    if (reselectBtn && !reselectBtn.dataset.bound) {
+      reselectBtn.dataset.bound = "1";
+      reselectBtn.addEventListener("click", function (ev) {
+        ev.stopPropagation();
+        clearPlanSelection();
+      });
+    }
+
     var inAccountBtn = $("otter2AccountPremiumBtn");
     if (inAccountBtn && !inAccountBtn.dataset.bound) {
       inAccountBtn.dataset.bound = "1";
@@ -550,6 +617,7 @@
 
   window.OTTER2_PREMIUM_PLANS = PLANS;
   window.selectPlan = selectPlan;
+  window.otter2ClearPlanSelection = clearPlanSelection;
   window.sendPaymentRequest = sendPaymentRequest;
   window.otter2OpenPremiumCheckout = openPremiumInAccount;
   window.otter2TogglePremiumInAccount = togglePremiumInAccount;

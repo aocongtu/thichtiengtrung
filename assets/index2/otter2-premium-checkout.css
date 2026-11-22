@@ -100,6 +100,14 @@
 #otter2SelectedPlanText{
   padding:10px;margin-bottom:12px;border-radius:8px;background:#fff;font-weight:700;
 }
+.otter2-reselect-btn{
+  width:100%;box-sizing:border-box;margin:0 0 12px;min-height:44px;padding:10px 12px;
+  border:1.5px solid #F97316;border-radius:12px;background:#fff;color:#EA580C;
+  font-size:13px;font-weight:800;line-height:1.3;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+}
+.otter2-reselect-btn:hover{background:#FFF7ED;border-color:#EA580C}
 .otter2-bank-box{padding:12px;background:#fff;border-radius:8px;line-height:1.8}
 .otter2-transfer-box{margin-top:12px;padding:12px;background:#fff;border-radius:8px}
 .otter2-transfer-row{display:flex;gap:8px;align-items:center;margin-top:8px}
