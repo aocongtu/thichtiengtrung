@@ -327,6 +327,84 @@
     return null;
   }
 
+  /* ================= Vietnamese support + free-talk (fix2, 2026-11-22) =================
+     Owner report 2026-11-22: in the lobby, Vietnamese questions got canned
+     Chinese lines ("没关系。我们说汉语，好吗？") because free text only knew
+     (1) Chinese small talk, (2) practice intents, (3) the LOBBY_SOFT rotation —
+     and a premium price question even fell into the SHOP scenario via the
+     "bao nhieu" keyword. This layer runs BEFORE small talk / intents:
+       supportReply  -> account/register/email/premium/error questions are
+                        answered in Vietnamese with real, useful content;
+       viSocialReply -> Vietnamese small talk (identity, thanks, bye,
+                        how-are-you, how-to-learn) answered in Vietnamese;
+       isViGreeting  -> extended Vietnamese greetings (after intents, so
+                        "chao hoi" still starts the intro scenario);
+       looksVietnamese + VI_UNKNOWN -> an honest Vietnamese fallback that
+                        never dresses up as a Chinese practice line.
+     Inside a scenario the same support layer is checked first (see
+     handleUserText) so a support question never burns an AI turn or counts
+     as a practice answer; all other in-scenario text keeps the classic
+     brain path unchanged. */
+  var SUPPORT_REPLIES = {
+    register: "Bạn đang gặp khó ở bước đăng ký phải không? Hệ thống gửi email xác nhận của web đang được nâng cấp kênh gửi, nên có lúc thư chưa tới ngay được. Bạn thử giúp Bé nhé: ① chờ ít phút rồi kiểm tra cả hộp Spam / Quảng cáo trong Gmail; ② bấm nút “Gửi lại email xác nhận” ở trang đăng ký / đăng nhập; ③ nếu vẫn chưa nhận được, gửi email tới aocongtu34@gmail.com (nhớ ghi địa chỉ email bạn đã dùng để đăng ký) — đội hỗ trợ sẽ kích hoạt tài khoản giúp bạn. Bé xin lỗi vì sự bất tiện này nhé!",
+    password: "Quên mật khẩu thì đừng lo bạn nhé: ở trang Đăng nhập có nút “Quên mật khẩu” — bấm vào, nhập email đã đăng ký, web sẽ gửi thư đặt lại mật khẩu cho bạn. Thư có thể nằm trong hộp Spam / Quảng cáo, bạn kiểm tra cả ở đó nhé. Nếu mãi vẫn không thấy thư, gửi email tới aocongtu34@gmail.com để được hỗ trợ.",
+    login: "Bạn chưa đăng nhập được thì kiểm tra giúp Bé mấy ý này nhé: ① email và mật khẩu gõ đã đúng chưa (để ý phím Caps Lock và dấu cách thừa ở cuối); ② nếu mới đăng ký, tài khoản cần bấm link xác nhận trong email trước — kiểm tra cả hộp Spam / Quảng cáo, hoặc bấm “Gửi lại email xác nhận”; ③ quên mật khẩu thì dùng nút “Quên mật khẩu” ở trang Đăng nhập. Vẫn không vào được thì gửi email tới aocongtu34@gmail.com, đội hỗ trợ sẽ giúp bạn.",
+    premium: "Premium là gói nâng cao của Thích Tiếng Trung 3.0: mở khóa toàn bộ truyện HSK3–9, trò chuyện với Bé AI thật không giới hạn và thêm nhiều tính năng học nâng cao. Giá hiện hành và cách thanh toán có ngay trong mục Premium / menu tài khoản trên web — bạn mở ra là thấy và đăng ký ngay tại đó. Nếu thanh toán gặp trục trặc, gửi email tới aocongtu34@gmail.com để được hỗ trợ nhé!",
+    error: "Tiếc quá, bạn đang gặp lỗi phải không? Bạn thử giúp Bé: tải lại trang (trên máy tính bấm Ctrl + F5), kiểm tra lại mạng, rồi thử lại một lần nữa. Nếu vẫn lỗi, bạn chụp màn hình chỗ bị lỗi và gửi tới aocongtu34@gmail.com — nhớ ghi rõ lỗi ở mục nào (đăng ký, video, bài tập...) để đội hỗ trợ xem và sửa cho bạn nhé.",
+    account: "Câu hỏi về tài khoản thì Bé giúp được ở mức cơ bản: đăng ký / đăng nhập ở menu tài khoản trên web; nếu chưa nhận được email xác nhận, kiểm tra hộp Spam / Quảng cáo hoặc bấm “Gửi lại email xác nhận”. Cần hỗ trợ riêng về tài khoản của bạn, cứ gửi email tới aocongtu34@gmail.com nhé!"
+  };
+  function supportReply(text) {
+    var flat = flatText(text);
+    function has() { for (var i = 0; i < arguments.length; i++) if (flatHas(flat, arguments[i])) return true; return false; }
+    /* register + confirmation email first: the two are one flow for learners */
+    if (has("email", "gmail", "thu xac nhan", "xac nhan email", "ma xac nhan", "kich hoat", "gui lai email", "khong nhan duoc thu", "chua nhan duoc thu", "khong thay thu", "khong co thu", "spam", "confirmation email")) return SUPPORT_REPLIES.register;
+    if (has("dang ky", "dang ki", "tao tai khoan", "nich moi", "nick moi", "tai khoan moi", "dang ky tai khoan", "sign up", "register")) return SUPPORT_REPLIES.register;
+    if (has("mat khau", "password")) return SUPPORT_REPLIES.password;
+    if (has("dang nhap", "sign in", "log in", "login")) return SUPPORT_REPLIES.login;
+    if (has("premium", "nang cap", "goi vip", "vip", "thanh toan", "chuyen khoan", "mua goi", "gia premium")) return SUPPORT_REPLIES.premium;
+    if (has("bi loi", "loi roi", "co loi", "khong mo duoc", "khong xem duoc", "khong nghe duoc", "khong tai duoc", "khong chay duoc", "khong vao duoc", "khong hien", "bi hong")) return SUPPORT_REPLIES.error;
+    if (has("tai khoan")) return SUPPORT_REPLIES.account;
+    return null;
+  }
+  var VI_CHARS = /[àáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđ]/i;
+  var VI_WORDS = ["toi", "ban", "la", "khong", "duoc", "gi", "sao", "muon", "hoc", "nay", "nhe", "cua", "cho", "lam", "the", "nao", "co", "voi", "minh", "anh", "em", "chi", "oi", "roi", "ma", "thi", "se", "da", "va", "khi", "tai", "ve", "di", "chao", "cam", "khoe", "ten", "be"];
+  function looksVietnamese(text) {
+    var raw = String(text || "");
+    if (VI_CHARS.test(raw)) return true;
+    if (/[一-鿿]/.test(raw)) return false; // Chinese practice input
+    var toks = flatText(raw).split(/[^a-z]+/), hits = 0;
+    for (var i = 0; i < toks.length; i++) if (toks[i] && VI_WORDS.indexOf(toks[i]) >= 0) hits++;
+    return hits >= 2;
+  }
+  var VI_SOCIAL = {
+    identity: "Bé là Tiểu Bối — thầy tiếng Trung của Thích Tiếng Trung 3.0. Ở bản thường này, Bé luyện cùng bạn 4 tình huống hội thoại HSK1: giới thiệu bản thân, gọi món ăn, mua sắm và hỏi đường. Bạn muốn luyện tình huống nào trước?",
+    thanks: "Không có gì đâu ạ! (Tiếng Trung nói là 不客气 — bú kèqi đấy.) Bạn chịu khó luyện lắm. Mình luyện tiếp một tình huống nữa nhé — chọn bên dưới hoặc gõ điều bạn muốn học.",
+    bye: "Tạm biệt bạn nhé! (Tiếng Trung: 再见 — zàijiàn.) Hôm nay bạn đã chịu khó luyện rồi, mai mình gặp lại học tiếp nha.",
+    how: "Bé khỏe lắm, cảm ơn bạn hỏi thăm! Bé lúc nào cũng sẵn sàng luyện nói cùng bạn. Hôm nay bạn muốn luyện tình huống nào?",
+    learn: "Mình học từng bước nhỏ thôi bạn: trong mục trò chuyện này có 4 tình huống HSK1 — giới thiệu bản thân, gọi món, mua sắm, hỏi đường. Bạn chọn một tình huống rồi nói theo Bé, nói sai Bé sửa ngay cho. Ngoài ra trên web còn có kho từ vựng, truyện kể và bài học mới mỗi ngày nữa. Bạn thử bắt đầu với tình huống “Gặp gỡ & tự giới thiệu” nhé!",
+    greet: "Chào bạn! Bé là Tiểu Bối, thầy tiếng Trung của bạn. Mình luyện nói HSK1 nhé — bạn chọn một tình huống bên dưới, hoặc gõ điều bạn muốn luyện (ví dụ: “gọi món”, “hỏi đường”)."
+  };
+  function viSocialReply(text) {
+    var flat = flatText(text);
+    function has() { for (var i = 0; i < arguments.length; i++) if (flatHas(flat, arguments[i])) return true; return false; }
+    if (has("la ai", "ai day", "ten gi", "be ten", "ban ten", "gioi thieu ve be", "gioi thieu ban than be")) return VI_SOCIAL.identity;
+    if (has("cam on")) return VI_SOCIAL.thanks;
+    if (has("tam biet", "hen gap lai", "bye bye") || /(^|[^a-z])bye([^a-z]|$)/.test(flat)) return VI_SOCIAL.bye;
+    if (has("khoe khong", "khoe ko", "co khoe khong", "dao nay sao", "the nao roi")) return VI_SOCIAL.how;
+    if (has("hoc tieng trung", "hoc the nao", "bat dau tu dau", "bat dau hoc", "cach hoc", "lo trinh", "muon hoc tieng trung", "hoc sao")) return VI_SOCIAL.learn;
+    return null;
+  }
+  function isViGreeting(text) {
+    var flat = flatText(text).trim();
+    if (flat.indexOf("chao hoi") >= 0 || flat.indexOf("gioi thieu") >= 0) return false; // practice topics -> intent wins
+    return /^(em |anh |chi |minh )?(xin )?chao/.test(flat) || flatHas(flat, "chao be") || flatHas(flat, "chao ban") || flatHas(flat, "chao ca nha") || flatHas(flat, "chao thay");
+  }
+  var VI_UNKNOWN = [
+    "Câu này Bé bản thường chưa hiểu hết được — Bé nói thật để khỏi trả lời linh tinh nhé. Bé bản thường chủ yếu luyện hội thoại tiếng Trung theo 4 tình huống HSK1 có sẵn. Bạn chọn một tình huống bên dưới để luyện cùng Bé; còn khi vào trong tình huống, Bé AI thật (✨ ở thanh trên) sẽ trò chuyện linh hoạt hơn nhiều.",
+    "Phần này hơi ngoài bài của Bé bản thường rồi. Bạn thử hỏi lại ngắn gọn hơn, hoặc chọn một tình huống luyện nói bên dưới nhé. Trong các tình huống, Bé AI thật trò chuyện tự do hơn — bạn bấm vào một tình huống là gặp Bé AI thật đấy.",
+    "Bé bản thường mới vững HSK1 nên câu này Bé chưa theo kịp. Mình quay lại luyện nói nhé: chọn tình huống bên dưới hoặc gõ điều muốn luyện (gọi món, hỏi đường...). Muốn hỏi tự do thì vào một tình huống luyện nói, Bé AI thật sẽ đáp linh hoạt hơn."
+  ];
+
   /* ================= Mock brain ================= */
   function mockBrain(state, text) {
     var scen = SCENARIOS[state.scenId];
@@ -1051,6 +1129,24 @@
     store.lastPreview = line.zh; store.lastTime = fmtTime(new Date()); saveStore();
     return line;
   }
+  /* Vietnamese-only Bé message (fix2): support answers + Vietnamese small
+     talk. Rendered as a plain bubble — no pinyin/translation lines and no
+     zh-CN speech (speaking Vietnamese with a Chinese voice would garble). */
+  function addBeViMessage(text) {
+    var row = el("div", "aichat-row be");
+    var img = avaImg("aichat-msg-avatar", "Bé");
+    var bub = el("div", "aichat-bubble");
+    bub.appendChild(el("span", "aichat-vi-msg", text));
+    row.appendChild(img); row.appendChild(bub);
+    msgBox.appendChild(row);
+    var t = el("div", "aichat-time", fmtTime(new Date()));
+    t.style.marginLeft = "36px";
+    msgBox.appendChild(t);
+    history.push({ role: "be", zh: text });
+    store.lastPreview = text; store.lastTime = fmtTime(new Date()); saveStore();
+    markSeen();
+    return text;
+  }
   function addUserMessage(text, voice) {
     var row = el("div", "aichat-row me");
     var bub = el("div", "aichat-bubble");
@@ -1175,8 +1271,13 @@
   function handleLobbyText(text, voice) {
     addUserMessage(text, voice);
     scrollBottom(true);
-    var st = smallTalkReply(text);
-    var intent = st ? null : lobbyIntent(text);
+    /* fix2 order: support (VI) -> Chinese small talk -> Vietnamese social ->
+       practice intent -> Vietnamese greeting -> honest VI fallback ->
+       Chinese soft suggestion (non-Vietnamese text only). */
+    var sup = supportReply(text);
+    var st = sup ? null : smallTalkReply(text);
+    var vs = (!sup && !st) ? viSocialReply(text) : null;
+    var intent = (!sup && !st && !vs) ? lobbyIntent(text) : null;
     thread.busy = true;
     sendBtn.disabled = true;
     showTyping();
@@ -1184,12 +1285,20 @@
       hideTyping();
       thread.busy = false;
       sendBtn.disabled = false;
-      if (st) {
+      if (sup) {
+        addBeViMessage(sup);
+      } else if (st) {
         deliverBe([st], null);
+      } else if (vs) {
+        addBeViMessage(vs);
       } else if (intent) {
         // jump straight into the scenario; startScenario re-adds the user's
         // own message at the top of the fresh thread (keepText)
         startScenario(intent, false, text);
+      } else if (isViGreeting(text)) {
+        addBeViMessage(VI_SOCIAL.greet);
+      } else if (looksVietnamese(text)) {
+        addBeViMessage(pickRot("viunk", VI_UNKNOWN));
       } else {
         deliverBe([pickRot("soft", LOBBY_SOFT)], null);
       }
@@ -1203,6 +1312,23 @@
     sendBtn.disabled = true;
     addUserMessage(text, voice);
     scrollBottom(true);
+    /* fix2: Vietnamese SUPPORT questions are answered in Vietnamese right
+       here — scenario step, fail count and AI trial stay untouched (a
+       register/premium question must never be graded as a practice answer
+       or burn an AI turn). Any other text keeps the classic path: the real
+       AI brain when available, else the scripted retry + hint card. */
+    var supInScen = supportReply(text);
+    if (supInScen) {
+      setTimeout(function () { showTyping(); }, 320);
+      setTimeout(function () {
+        hideTyping();
+        addBeViMessage(supInScen);
+        thread.busy = false;
+        sendBtn.disabled = false;
+        scrollBottom(true);
+      }, 950);
+      return;
+    }
     thread.userTurns++;
     var scen = SCENARIOS[thread.scenId];
     var stepBefore = scen.steps[thread.stepIdx];
@@ -1389,7 +1515,7 @@
   });
 
   window.__ttcAIChat = {
-    version: "pilot-2.2-brain",
+    version: "pilot-2.3-vi-support",
     open: openPanel,
     close: closePanel,
     toggle: togglePanel,
@@ -1404,6 +1530,9 @@
     _segment: segment,
     _lobbyIntent: lobbyIntent,
     _smallTalk: smallTalkReply,
+    _support: supportReply,
+    _viSocial: viSocialReply,
+    _looksVi: looksVietnamese,
     _avatarSrc: currentAvatarSrc,
     _lobbyLines: function () {
       var all = [LOBBY_LINE, FALLBACK].concat(FALLBACKS, GUARD_POOL, LOBBY_SOFT);

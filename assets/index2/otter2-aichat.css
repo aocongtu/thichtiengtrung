@@ -191,6 +191,7 @@ html.aichat-locked,body.aichat-locked{overflow:hidden !important}
 .aichat-row.me .aichat-bubble{background:var(--aichat-teal);color:#fff;border-bottom-right-radius:5px}
 .aichat-bubble .aichat-py{display:block;font-size:12.5px;color:var(--aichat-teal);margin-top:3px;line-height:1.35}
 .aichat-bubble .aichat-vi{display:block;font-size:12.5px;color:var(--aichat-sub);font-style:italic;margin-top:1px;line-height:1.35}
+.aichat-bubble .aichat-vi-msg{display:block;line-height:1.5}
 .aichat-bubble .aichat-speak{
   float:right;margin:2px -4px 0 6px;width:26px;height:26px;border:none;border-radius:50%;
   background:#fff;color:var(--aichat-teal);font-size:12px;box-shadow:0 1px 3px rgba(15,23,42,.15);
