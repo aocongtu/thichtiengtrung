@@ -25,3 +25,58 @@ body.otter2-body h4, body.otter2-body h5, body.otter2-body h6{
 /* One consistent keyboard-focus ring in the accent colour. */
 :focus-visible{ outline:2px solid #F97316; outline-offset:2px; }
 ::selection{ background:#FFEDD5; }
+
+/* ============================================================
+   SIDEBAR TRÁI DESKTOP — Mẫu 1 "Ba cột cổ điển" (anh Huy chốt
+   2026-11-22; mèo áp dụng 2026-11-23 qua file override này,
+   KHÔNG sửa otter2-shell.js và KHÔNG đụng index2.html):
+   - Mục đang chọn: nền cam nhạt #FFEDD5 + chữ cam đậm #9A3412
+     + thanh cam mảnh ở cạnh trái — đúng mẫu đã duyệt (trước đây
+     mỗi mục một màu riêng trên nền gần như trắng, kèm viền focus
+     lồng trong nút trông như ngoặc lạ).
+   - Thêm nhãn nhóm HỌC TẬP / TIỆN ÍCH như mẫu.
+   - Nén nhịp dọc để cả 6 mục điều hướng hiện đủ, không phải
+     cuộn riêng trong cột, ở màn hình laptop thấp (≥768px);
+     dải rất thấp (≤700px) vẫn dùng nấc nén sẵn của shell.
+   - Thống kê tiến độ gói vào 1 thẻ nhỏ; hồ sơ vẫn ghim ở đáy.
+   Chỉ đổi màu trên theme sáng mặc định; theme đêm giữ nguyên.
+   ============================================================ */
+@media (min-width:900px){
+  #ttcShellSidebar .ttc-shell-nav::before,
+  #ttcShellSidebar .ttc-shell-util::before{
+    font-size:10.5px; font-weight:800; letter-spacing:.08em; color:#94a3b8;
+  }
+  #ttcShellSidebar .ttc-shell-nav::before{ content:"HỌC TẬP"; padding:0 6px; }
+  #ttcShellSidebar .ttc-shell-util{
+    border-top:1px solid #f1f5f9; margin-top:6px; padding-top:8px;
+  }
+  #ttcShellSidebar .ttc-shell-util::before{ content:"TIỆN ÍCH"; padding:0 6px 4px; }
+  #ttcShellSidebar .ttc-shell-item:focus-visible{ outline-color:#F97316; }
+}
+html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-item:hover{ background:#FFF7ED; }
+html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-item.is-active{
+  background:#FFEDD5; color:#9A3412; box-shadow:inset 3px 0 0 #F97316;
+}
+html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-item.is-active .ttc-shell-ico{ background:#FFE0BD; }
+html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-stats{
+  background:#F7F8FA; border:1px solid #E3E8EF; border-radius:14px;
+}
+@media (min-width:900px) and (min-height:701px){
+  #ttcShellSidebar{ padding-top:10px; }
+  #ttcShellSidebar .ttc-shell-brand{ padding:0 6px 4px; }
+  #ttcShellSidebar .ttc-shell-brand img{ width:34px; height:34px; }
+  #ttcShellSidebar .ttc-shell-search{ margin:0 14px 6px; padding:7px 12px; }
+  #ttcShellSidebar .ttc-shell-nav{ padding:2px 0 0; gap:2px; }
+  #ttcShellSidebar .ttc-shell-item{ padding:7px 12px; }
+  #ttcShellSidebar .ttc-shell-item .ttc-shell-ico{ width:28px; height:28px; font-size:14px; }
+  #ttcShellSidebar .ttc-shell-util{ gap:3px; }
+  #ttcShellSidebar .ttc-script-switch{ padding:6px 10px; }
+  #ttcShellSidebar .otter2-theme-slot{ padding:0 6px; }
+  #ttcShellSidebar #ttcMenuBtn{ padding:8px 12px; }
+  #ttcShellSidebar .ttc-shell-stats{ padding:8px 12px 6px; }
+  #ttcShellSidebar .ttc-shell-stats .ttc-shell-stats-num{ font-size:22px; }
+  #ttcShellSidebar .ttc-shell-stats .ttc-shell-stats-bar{ margin:5px 0 3px; height:6px; }
+  #ttcShellSidebar .ttc-shell-profile{ padding-top:6px; margin-top:4px; }
+  #ttcShellSidebar .ttc-shell-avatar{ width:38px; height:38px; }
+  #ttcShellSidebar .ttc-shell-pbtn{ padding:7px 12px; margin-top:5px; }
+}
