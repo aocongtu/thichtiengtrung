@@ -80,3 +80,30 @@ html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-stats{
   #ttcShellSidebar .ttc-shell-avatar{ width:38px; height:38px; }
   #ttcShellSidebar .ttc-shell-pbtn{ padding:7px 12px; margin-top:5px; }
 }
+
+/* ============================================================
+   ĐIỆN THOẠI — Mẫu 2 "Phòng học dẫn đầu" (anh Huy chốt
+   2026-11-22; mèo áp dụng 2026-11-23, cùng file override này):
+   - Thanh trên gom thành 1 thẻ trắng bo góc như mẫu (hiện các
+     nút đang rời rạc trên nền trong suốt). GIỮ NGUYÊN mọi nút:
+     Giản/Phồn + Giao diện + Chat Online chỉ có ở header (menu
+     ☰ cố ý không chứa, xem otter2-menu.js) nên không ẩn nút nào.
+   - Thanh dưới: mục đang chọn chữ cam đậm #EA580C + chấm cam
+     dưới chân — đúng mẫu (trước đây mỗi mục một màu riêng).
+   - Thẻ Học tiếp giữ nguyên ảnh Bé Rái Cá (mẫu vẽ thẻ cam
+     không ảnh; ép gradient sẽ đè lên ảnh linh vật của web).
+   ============================================================ */
+@media (max-width:899px){
+  #otter2Nav{
+    background:#ffffff; border:1px solid #E3E8EF; border-radius:20px;
+    box-shadow:0 1px 5px rgba(20,50,80,.06); padding:8px 10px 10px; margin:0 0 10px;
+  }
+}
+@media (max-width:767px){
+  #ttcShellBottomBar .ttc-shell-bitem{ position:relative; }
+  #ttcShellBottomBar .ttc-shell-bitem.is-active{ color:#EA580C; font-weight:800; }
+  #ttcShellBottomBar .ttc-shell-bitem.is-active::after{
+    content:""; position:absolute; left:50%; transform:translateX(-50%); bottom:3px;
+    width:5px; height:5px; border-radius:50%; background:#F97316;
+  }
+}
