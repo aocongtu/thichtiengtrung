@@ -849,7 +849,7 @@
       return {
         kind: "email_not_confirmed",
         text:
-          "📧 Email chưa được xác nhận. Hãy mở hộp thư (và Spam) để bấm link xác nhận từ Supabase, rồi đăng nhập lại. Có thể bấm 「Gửi lại email xác nhận」 bên dưới."
+          "📧 Tài khoản này chưa sẵn sàng để đăng nhập. Bạn nhắn Page Thích Tiếng Trung 3.0 để đội hỗ trợ kiểm tra giúp nhé."
       };
     }
     if (
@@ -858,7 +858,7 @@
     ) {
       return {
         kind: "invalid_credentials",
-        text: "Email hoặc mật khẩu không đúng. Nếu vừa đăng ký, hãy xác nhận email trước khi đăng nhập."
+        text: "Email hoặc mật khẩu không đúng. Hãy kiểm tra lại, hoặc dùng Quên mật khẩu nếu bạn không nhớ mật khẩu."
       };
     }
     if (lower.indexOf("too many requests") >= 0) {
@@ -868,64 +868,6 @@
       kind: "other",
       text: "Đăng nhập thất bại: " + (msg || "lỗi không xác định") + "."
     };
-  }
-
-  async function resendSignupConfirmation(email) {
-    var msg = $("otter2AuthMsg");
-    var normalized = normalizeEmail(email);
-    if (!normalized) {
-      setMsg(msg, "Thiếu email để gửi lại xác nhận.", "error");
-      return;
-    }
-    if (!state.client || !state.client.auth) {
-      setMsg(msg, "Chưa kết nối được máy chủ Auth.", "error");
-      return;
-    }
-    diag("SIGNUP_EMAIL_CONFIRMATION", { action: "resend_start", email: normalized });
-    try {
-      var res = await state.client.auth.resend({
-        type: "signup",
-        email: normalized
-      });
-      diag("SIGNUP_EMAIL_CONFIRMATION", {
-        action: "resend_response",
-        error: res.error && res.error.message
-      });
-      if (res.error) {
-        setMsg(msg, "Không gửi lại được email xác nhận: " + res.error.message, "error");
-        return;
-      }
-      setMsg(
-        msg,
-        "📬 Đã gửi lại email xác nhận tới " + normalized + ". Vui lòng kiểm tra hộp thư và Spam.",
-        "success"
-      );
-    } catch (e) {
-      diag("SIGNUP_EMAIL_CONFIRMATION", {
-        action: "resend_exception",
-        error: String(e && e.message || e)
-      });
-      setMsg(msg, "Không gửi lại được email xác nhận. Thử lại sau.", "error");
-    }
-  }
-
-  function ensureResendConfirmButton(email) {
-    var msg = $("otter2AuthMsg");
-    if (!msg || !msg.parentNode) return;
-    var existing = $("otter2ResendConfirmBtn");
-    if (existing) existing.remove();
-    var btn = document.createElement("button");
-    btn.type = "button";
-    btn.id = "otter2ResendConfirmBtn";
-    btn.className = "otter2-account-action";
-    btn.style.marginTop = "8px";
-    btn.textContent = "📬 Gửi lại email xác nhận";
-    btn.addEventListener("click", function (ev) {
-      ev.preventDefault();
-      ev.stopPropagation();
-      resendSignupConfirmation(email || ($("otter2LoginEmail") || {}).value);
-    });
-    msg.insertAdjacentElement("afterend", btn);
   }
 
   async function loginUser() {
@@ -961,9 +903,6 @@
       if (signed.error) {
         var mapped = mapLoginError(signed.error);
         setMsg(msg, mapped.text, "error");
-        if (mapped.kind === "email_not_confirmed" || mapped.kind === "invalid_credentials") {
-          ensureResendConfirmButton(email);
-        }
         return;
       }
       var session = signed.data && signed.data.session;
@@ -973,12 +912,7 @@
         expiresAt: session && session.expires_at
       });
       if (!session) {
-        setMsg(
-          msg,
-          "Auth không trả session. Nếu dự án yêu cầu xác nhận email, hãy xác nhận rồi thử lại.",
-          "error"
-        );
-        ensureResendConfirmButton(email);
+        setMsg(msg, "Đăng nhập chưa hoàn tất. Hãy thử lại sau giây lát.", "error");
         return;
       }
       setMsg(msg, "Đăng nhập thành công!", "success");
@@ -1088,32 +1022,27 @@
       if (user && identities.length === 0 && !session) {
         setMsg(
           msg,
-          "Email này có thể đã được đăng ký trước đó. Hãy thử đăng nhập, hoặc xác nhận email nếu chưa xác nhận.",
+          "Email này đã được đăng ký trước đó. Hãy đăng nhập để tiếp tục học nhé.",
           "error"
         );
         setAuthTab("login");
         if ($("otter2LoginEmail")) $("otter2LoginEmail").value = email;
-        ensureResendConfirmButton(email);
         return;
       }
 
       if (!session) {
-        diag("SIGNUP_EMAIL_CONFIRMATION", {
-          required: true,
+        diag("SIGNUP_NO_SESSION", {
           email: email,
           userId: user && user.id
         });
         setMsg(
           msg,
-          "✅ Tài khoản đã được tạo. 📧 Bạn PHẢI xác nhận email trước khi đăng nhập. Hãy mở hộp thư " +
-            email +
-            " (và Spam), bấm link xác nhận, rồi quay lại đăng nhập.",
+          "✅ Tài khoản đã được tạo. Hãy đăng nhập để bắt đầu học nhé!",
           "success"
         );
         setAuthTab("login");
         if ($("otter2LoginEmail")) $("otter2LoginEmail").value = email;
         if ($("otter2LoginPassword")) $("otter2LoginPassword").value = "";
-        ensureResendConfirmButton(email);
         return;
       }
 
