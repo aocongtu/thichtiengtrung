@@ -829,19 +829,26 @@
   }
 
   /* (3d) Nút Bảng thành tích THẬT (#otter2DashAchBtn): ở ngữ cảnh
-     Mondly dời sang góc phải thẻ Hoạt động dạng nút icon nhỏ
-     (đúng mẫu + giữ nguyên handler và điểm đến của Bé hướng dẫn);
-     rời ngữ cảnh là trả về đầu thẻ kỹ năng với nhãn đầy đủ. */
+     Mondly dời vào THẺ RIÊNG #ttcShellRailAch ở cột phải, ngay
+     dưới thẻ Nhiệm vụ hôm nay, với nhãn đầy đủ "Xem bảng thành
+     tích" (MONDLY v4.2 — anh Huy chê icon 🏆 nhỏ ở góc thẻ Hoạt
+     động khó thấy, duyệt phương án thẻ riêng dễ nhìn). Thẻ do
+     buildRailAch dựng sẵn: số #ttcShellAchNum là số từ đã học
+     THẬT do renderStats cập nhật (cùng nguồn thẻ Hoạt động);
+     khối CSS "MONDLY v4.2" hiện thẻ ở ngữ cảnh này và ẩn nút
+     mồi #ttcShellAchBtn của shell. Giữ nguyên handler của nút
+     thật + điểm đến của Bé hướng dẫn; rời ngữ cảnh là trả nút
+     về đầu thẻ kỹ năng với nhãn gốc. */
   function mondlyAchBtn(on) {
     var btn = byId("otter2DashAchBtn");
     if (!btn) return;
-    var actHead = document.querySelector('#otter2-home .otter2-dash-card[aria-labelledby="otter2DashActTitle"] .otter2-dash-head');
     var skillHead = document.querySelector('#otter2-home .otter2-dash-card[aria-labelledby="otter2DashLevelTitle"] .otter2-dash-head');
     if (on) {
-      if (actHead && btn.parentNode !== actHead) {
+      var achCard = byId("ttcShellRailAch");
+      if (achCard && btn.parentNode !== achCard) {
         if (!btn.getAttribute("data-ttc-orig-label")) btn.setAttribute("data-ttc-orig-label", btn.textContent);
-        actHead.appendChild(btn);
-        btn.textContent = "🏆";
+        achCard.appendChild(btn);
+        btn.textContent = "Xem bảng thành tích";
       }
     } else if (skillHead && btn.parentNode !== skillHead) {
       skillHead.appendChild(btn);

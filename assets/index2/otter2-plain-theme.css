@@ -740,13 +740,8 @@ html:not([data-theme="night"]) #ttcMondlySubbar #otter2ChatOnlineBtn:hover{ back
     border-style:dashed; border-color:#D8D8E0; background:#FBFBFC;
   }
 
-  /* Cột phải: Hoạt động (nút thành tích THẬT dời sang, dạng icon) + Nhiệm vụ */
-  html:not([data-theme="night"]) #otter2-home .otter2-dash-card[aria-labelledby="otter2DashActTitle"] #otter2DashAchBtn{
-    width:30px; height:30px; min-height:0; padding:0; border-radius:50%;
-    background:#ffffff; border:1px solid #E8EAEF; font-size:14px; line-height:1;
-    display:grid; place-items:center; color:#14161A;
-  }
-  html:not([data-theme="night"]) #otter2-home .otter2-dash-card[aria-labelledby="otter2DashActTitle"] #otter2DashAchBtn:hover{ background:#F7F7F9; }
+  /* Cột phải: Hoạt động + Nhiệm vụ (nút thành tích THẬT: v4.2 dời
+     vào thẻ riêng #ttcShellRailAch — xem khối MONDLY v4.2 cuối file) */
   html:not([data-theme="night"]) #otter2-home .otter2-dash-actnum .n{ font-size:36px; }
   html:not([data-theme="night"]) #otter2-home .otter2-dash-lvgrid{ margin-top:10px; gap:6px; }
   html:not([data-theme="night"]) #otter2-home .otter2-dash-lvcell{ padding:5px 4px; }
@@ -822,4 +817,49 @@ html:not([data-theme="night"]) #ttcMondlySubbar #otter2ChatOnlineBtn:hover{ back
 @media (min-width:900px){
   html:not([data-theme="night"]) #ttcMondlySubbar{ margin:2px 0 8px; }
   html:not([data-theme="night"]) #ttcMondlySubbar .ttc-seg-btn{ min-height:36px; }
+}
+
+/* ============================================================
+   MONDLY v4.2 (sáng 2026-11-24, Cá — anh Huy xem bản v4 trên
+   máy thật, chê nút Bảng thành tích nấp sau icon 🏆 nhỏ ở góc
+   thẻ Hoạt động khó thấy, và DUYỆT phương án "làm thẻ Bảng
+   thành tích riêng dưới thẻ Nhiệm vụ hôm nay"): thay cho cách
+   dời nút vào thẻ Hoạt động của v4, nay ở ngữ cảnh Mondly:
+   - Thẻ #ttcShellRailAch (shell.js buildRailAch dựng sẵn trong
+     cột phải .otter2-dash-side, ngay dưới thẻ Nhiệm vụ) HIỆN
+     LẠI, giữ phong cách thẻ Mondly (trắng, bo góc, viền mảnh —
+     nó vốn là .otter2-dash-card nên thừa hưởng đủ).
+   - Tiêu đề thêm 🏆 bằng ::before (engine Giản/Phồn không
+     dịch nhầm chữ trong CSS).
+   - Số #ttcShellAchNum = số từ đã học THẬT của học viên,
+     renderStats của shell cập nhật cùng nguồn số liệu với thẻ
+     Hoạt động (không vẽ "hạng N" — web không tính sẵn thứ hạng
+     cá nhân ở máy khách); số + dòng phụ xếp cùng một hàng cho
+     gọn chiều cao.
+   - Nút bấm trong thẻ là CHÍNH nút THẬT #otter2DashAchBtn do
+     shell.js (mondlyAchBtn) dời vào, nhãn "Xem bảng thành
+     tích" hiện rõ, dạng viên đen như nút chính của mẫu; nút
+     mồi #ttcShellAchBtn của shell ẩn đi ở ngữ cảnh này.
+   Cột phải được shell ghim sticky ở ≥1021px nên thẻ thêm vào
+   không đội chiều cao tổng của trang chủ. Chỉ desktop ≥1021px
+   + theme sáng; đêm/mobile/tablet giữ nguyên như cũ.
+   ============================================================ */
+@media (min-width:1021px){
+  html:not([data-theme="night"]) #ttcShellRailAch{ display:block !important; }
+  html:not([data-theme="night"]) #ttcShellRailAch .otter2-dash-head{ margin-bottom:3px; }
+  html:not([data-theme="night"]) #ttcShellRailAchTitle::before{ content:"🏆 "; }
+  html:not([data-theme="night"]) #ttcShellRailAch .ttc-shell-ach-num{
+    display:inline-block; vertical-align:middle; font-size:27px;
+  }
+  html:not([data-theme="night"]) #ttcShellRailAch .ttc-shell-ach-lbl{
+    display:inline-block; vertical-align:middle; margin:0 0 0 8px; font-size:12px;
+  }
+  html:not([data-theme="night"]) #ttcShellRailAch #ttcShellAchBtn{ display:none !important; }
+  html:not([data-theme="night"]) #ttcShellRailAch #otter2DashAchBtn{
+    display:block; width:100%; box-sizing:border-box; margin-top:9px;
+    padding:9px 12px; min-height:38px; border-radius:12px;
+    background:#14161A; border:1px solid #14161A; color:#ffffff;
+    font:inherit; font-size:14px; font-weight:700; text-align:center; cursor:pointer;
+  }
+  html:not([data-theme="night"]) #ttcShellRailAch #otter2DashAchBtn:hover{ background:#000000; }
 }
