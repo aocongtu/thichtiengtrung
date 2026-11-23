@@ -11,6 +11,18 @@
    đồng âm khi nghe). Blueprint, thang điểm, chế độ thi, giao
    diện và khóa localStorage giữ nguyên.
 
+   VÁ KHẨN 2026-11-24 — bug "Đang chuẩn bị…" KẸT VĨNH VIỄN (chủ web
+   bắt tại trận trên web thật): module khác (Học tự động...) ghi đè
+   window.words bằng gói từ MỘT cấp; allWords() cũ tin window.words
+   nên hồ câu các cấp khác rỗng -> genListenMeaning đọc .exampleMeaning
+   của undefined (TypeError) -> startExam/startCatalog chạy trong
+   setTimeout KHÔNG try/catch nên nút kẹt mãi. Vá 4 lớp: (1) allWords
+   ưu tiên ngân hàng đầy đủ OTTER2_HSK_ALL_DATA; (2) chặn null sau
+   pickOne ở 4 generator nghe/từ vựng; (3) take()/safeGen/
+   passageQuestionsSafe + lưới an toàn generateExam + buildCatalogUpTo
+   bỏ qua bản sinh rỗng; (4) startExam/startCatalog bọc try/catch,
+   lỗi là dựng lại trang chủ khu thi + báo rõ — nút không bao giờ kẹt.
+
    v2 (2026-11-17) nâng cấp từ v1:
    - ĐỀ SÁT ĐỀ THẬT: blueprint theo cấu trúc đề HSK thật từng cấp
      (HSK1: Nghe 20 + Đọc 20, thang 200, đạt 120; HSK2: 35+25/200/120;
@@ -92,11 +104,17 @@
 
   /* ---------------- Truy cập dữ liệu ---------------- */
   function allWords() {
-    if (Array.isArray(window.words) && window.words.length) return window.words;
-    if (window.OTTER2_HSK_ALL_DATA && Array.isArray(window.OTTER2_HSK_ALL_DATA.words)) {
-      window.words = window.OTTER2_HSK_ALL_DATA.words;
-      return window.words;
+    /* VÁ 2026-11-24 (bug "Đang chuẩn bị…" kẹt vĩnh viễn): ưu tiên ngân
+       hàng ĐẦY ĐỦ chính chủ OTTER2_HSK_ALL_DATA. Nhiều module khác
+       (Học tự động otter2-auto.js, flashcard...) GHI ĐÈ window.words
+       bằng gói từ của MỘT cấp rồi không khôi phục; bản cũ tin bất kỳ
+       window.words nào còn khác rỗng nên khu thi mất sạch từ của các
+       cấp còn lại -> hồ câu trống -> bộ sinh đề ném TypeError ->
+       nút đề kẹt "Đang chuẩn bị…" mãi (xem vá ở startExam/startCatalog). */
+    if (window.OTTER2_HSK_ALL_DATA && Array.isArray(window.OTTER2_HSK_ALL_DATA.words) && window.OTTER2_HSK_ALL_DATA.words.length) {
+      return window.OTTER2_HSK_ALL_DATA.words;
     }
+    if (Array.isArray(window.words) && window.words.length) return window.words;
     return [];
   }
   function wordsOfLevel(level) {
@@ -388,6 +406,7 @@
 
   function genListenMeaning(level, pool, rng) {
     var w = pickOne(pool, rng);
+    if (!w) return null; /* VÁ 2026-11-24: hồ trống -> null êm, không ném TypeError */
     var wrongs = distractors(pool, function (x) { return x.exampleMeaning; }, normOpt, w.exampleMeaning, 3, rng, null, listenMeaningRejectFn(w.exampleMeaning));
     if (wrongs.length < 3) return null;
     return finalize({
@@ -403,6 +422,7 @@
   }
   function genListenSentence(level, pool, rng) {
     var w = pickOne(pool, rng);
+    if (!w) return null; /* VÁ 2026-11-24 */
     var targetLen = String(w.example).length;
     var wrongs = distractors(pool, function (x) { return x.example; }, normOpt, w.example, 3, rng, function (a, b) {
       var da = Math.abs(String(a.example).length - targetLen), db = Math.abs(String(b.example).length - targetLen);
@@ -464,6 +484,7 @@
   }
   function genVocabMeaning(level, pool, rng) {
     var w = pickOne(pool, rng);
+    if (!w) return null; /* VÁ 2026-11-24 */
     var wrongs = distractors(pool, function (x) { return x.m; }, normOpt, w.m, 3, rng, sameTypeFirst(w), meaningRejectFn(w));
     if (wrongs.length < 3) return null;
     return finalize({
@@ -478,6 +499,7 @@
   }
   function genVocabPinyin(level, pool, rng) {
     var w = pickOne(pool, rng);
+    if (!w) return null; /* VÁ 2026-11-24 */
     var wrongs = distractors(pool, function (x) { return x.p; }, normPy, w.p, 3, rng, null, pinyinRejectFn(w));
     if (wrongs.length < 3) return null;
     return finalize({
@@ -1054,10 +1076,11 @@
       used[q.srcKey] = 1;
       return true;
     }
+    function safeGen(fn) { try { return fn(); } catch (e) { return null; } } /* VÁ 2026-11-24 */
     var listenMakers = [genListenMeaning, genListenSentence];
     var li = 0, guard = 0;
     while (li < spec.listen && guard++ < 80) {
-      var q = listenMakers[li % 2](level, poolEx, rng);
+      var q = safeGen(function () { return listenMakers[li % 2](level, poolEx, rng); });
       if (fresh(q)) { questions.push(q); li++; }
     }
     var vocabMakers = [genVocabMeaning, genCloze, genVocabPinyin];
@@ -1065,9 +1088,11 @@
     var vi2 = 0; guard = 0;
     while (vi2 < spec.vocab && guard++ < 120) {
       var mk = vocabMakers[order[vi2 % 3]];
-      var q2 = mk === genCloze ? genCloze(level, poolAll, poolEx, rng)
-        : mk === genVocabPinyin ? genVocabPinyin(level, poolAll, rng)
-        : genVocabMeaning(level, poolAll, rng);
+      var q2 = safeGen(function () {
+        return mk === genCloze ? genCloze(level, poolAll, poolEx, rng)
+          : mk === genVocabPinyin ? genVocabPinyin(level, poolAll, rng)
+          : genVocabMeaning(level, poolAll, rng);
+      });
       if (fresh(q2)) { questions.push(q2); vi2++; }
     }
     var passages = passagesOfLevel(level);
@@ -1079,14 +1104,14 @@
     var ri = 0;
     for (var pi = 0; pi < chosenPassages.length && ri < spec.reading; pi++) {
       var others = passages.filter(function (p) { return p !== chosenPassages[pi]; });
-      var pqs = passageQuestions(level, chosenPassages[pi], poolAll, rng, others, null);
+      var pqs = safeGen(function () { return passageQuestions(level, chosenPassages[pi], poolAll, rng, others, null); }) || [];
       for (var qi = 0; qi < pqs.length && ri < spec.reading; qi++) {
         if (fresh(pqs[qi])) { questions.push(pqs[qi]); ri++; }
       }
     }
     guard = 0;
     while (questions.length < spec.total && guard++ < 200) {
-      var q3 = genVocabMeaning(level, poolAll, rng);
+      var q3 = safeGen(function () { return genVocabMeaning(level, poolAll, rng); });
       if (fresh(q3)) questions.push(q3);
     }
     var plan = [
@@ -1102,6 +1127,13 @@
       passagesUsed: chosenPassages.map(function (p) { return p.id; }),
       generatedAt: Date.now()
     };
+  }
+
+  /* VÁ 2026-11-24: bọc an toàn cho passageQuestions — một bài đọc lỗi
+     chỉ làm đề thiếu vài câu, không giết cả lượt sinh đề. */
+  function passageQuestionsSafe(level, passage, poolAll, rng, otherPassages, opts) {
+    try { return passageQuestions(level, passage, poolAll, rng, otherPassages, opts) || []; }
+    catch (e) { return []; }
   }
 
   /* ---------------- Sinh đề theo blueprint ---------------- */
@@ -1124,7 +1156,8 @@
       return true;
     }
     function take(maker, relax) {
-      var q = maker();
+      var q = null;
+      try { q = maker(); } catch (e) { q = null; } /* VÁ 2026-11-24: một dạng câu lỗi chỉ làm đề mỏng đi, không giết cả đề */
       if (fresh(q, relax)) { questions.push(q); return true; }
       return false;
     }
@@ -1158,7 +1191,7 @@
         for (var pi = 0; pi < orderedPassages.length && ri < want; pi++) {
           var p = orderedPassages[pi];
           var others = passages.filter(function (x) { return x !== p; });
-          var pqs = passageQuestions(level, p, poolAll, rng, others, { order: true });
+          var pqs = passageQuestionsSafe(level, p, poolAll, rng, others, { order: true });
           var usedThisPassage = false;
           for (var qi = 0; qi < pqs.length && ri < want; qi++) {
             if (fresh(pqs[qi], false)) { questions.push(pqs[qi]); ri++; usedThisPassage = true; }
@@ -1176,7 +1209,7 @@
           for (var pi2 = 0; pi2 < orderedPassages.length && ri < want; pi2++) {
             var p2 = orderedPassages[pi2];
             var others2 = passages.filter(function (x) { return x !== p2; });
-            var pqs2 = passageQuestions(level, p2, poolAll, rng, others2, { order: true, deep: true });
+            var pqs2 = passageQuestionsSafe(level, p2, poolAll, rng, others2, { order: true, deep: true });
             for (var qi2 = 0; qi2 < pqs2.length && ri < want; qi2++) {
               if (fresh(pqs2[qi2], false)) {
                 questions.push(pqs2[qi2]); ri++; progressed = true;
@@ -1192,7 +1225,7 @@
           for (var pi3 = 0; pi3 < orderedPassages.length && ri < want; pi3++) {
             var p3 = orderedPassages[pi3];
             var others3 = passages.filter(function (x) { return x !== p3; });
-            var pqs3 = passageQuestions(level, p3, poolAll, rng, others3, { order: true, deep: true });
+            var pqs3 = passageQuestionsSafe(level, p3, poolAll, rng, others3, { order: true, deep: true });
             for (var qi3 = 0; qi3 < pqs3.length && ri < want; qi3++) {
               if (fresh(pqs3[qi3], true)) {
                 questions.push(pqs3[qi3]); ri++; progressed2 = true;
@@ -1239,8 +1272,20 @@
 
   function generateExam(level, modeKey, rng, opts) {
     rng = rng || Math.random;
-    if (modeKey === "mini" || modeKey === "standard") return generateLegacyExam(level, modeKey, rng);
-    return generateBlueprintExam(level, modeKey === "full" ? "full" : "reduced", rng, opts);
+    try {
+      if (modeKey === "mini" || modeKey === "standard") return generateLegacyExam(level, modeKey, rng);
+      return generateBlueprintExam(level, modeKey === "full" ? "full" : "reduced", rng, opts);
+    } catch (e) {
+      /* VÁ 2026-11-24: lưới an toàn cuối — sinh đề không bao giờ ném lỗi
+         ra ngoài; trả đề rỗng để tầng gọi (startExam/startCatalog) báo
+         rõ ràng và khôi phục nút, thay vì kẹt "Đang chuẩn bị…" mãi. */
+      return {
+        level: Number(level), mode: modeKey, sizeKey: modeKey, spec: null,
+        questions: [], total: 0, seconds: 0, sectionPlan: [],
+        scaleMax: 300, passMark: 180, passagesUsed: [],
+        generatedAt: Date.now(), genError: String(e && e.message || e)
+      };
+    }
   }
 
   /* ---------------- Chấm điểm kiểu Study4 ---------------- */
@@ -1377,10 +1422,12 @@
       for (var att = 0; att < CATALOG_ATTEMPTS; att++) {
         var seed = catalogSeed(level, idx, att);
         var cand = generateExam(level, "reduced", mulberry32(seed), { preferPassages: prefer });
+        if (!cand || !cand.questions || !cand.questions.length) continue; /* VÁ 2026-11-24: bỏ qua bản sinh rỗng/lỗi, thử hạt giống khác */
         var ov = overlapOf(cand, c.ledger);
         if (ov < bestOv) { bestOv = ov; best = cand; bestSeed = seed; }
         if (ov === 0 || (att >= 1 && ov <= 0.12)) break; /* đủ tốt — ưu tiên tốc độ mở đề */
       }
+      if (!best) return null; /* VÁ 2026-11-24: mọi lần thử đều rỗng -> để tầng gọi báo + khôi phục nút */
       best.mode = "catalog";
       best.testId = testIdOf(level, idx);
       best.seed = bestSeed;
@@ -1840,29 +1887,48 @@
     var btn = document.getElementById("ttcExamStart");
     if (btn) { btn.disabled = true; btn.textContent = "⏳ Đang sinh đề…"; }
     setTimeout(function () {
-      var exam = generateExam(state.level, state.mode);
-      if (!exam.questions.length) {
-        if (btn) { btn.disabled = false; btn.textContent = "🚀 Bắt đầu làm bài"; }
-        alert("⚠️ Chưa đủ dữ liệu để sinh đề ở cấp này. Vui lòng thử cấp khác.");
-        return;
+      /* VÁ 2026-11-24: bọc try/catch toàn bộ — bản cũ không có nên chỉ
+         một TypeError trong khâu sinh đề là nút kẹt "Đang sinh đề…"
+         vĩnh viễn, không thông báo, không bấm lại được. */
+      try {
+        var exam = generateExam(state.level, state.mode);
+        if (!exam.questions.length) {
+          if (btn) { btn.disabled = false; btn.textContent = "🚀 Bắt đầu làm bài"; }
+          alert("⚠️ Chưa đủ dữ liệu để sinh đề ở cấp này. Vui lòng thử cấp khác.");
+          return;
+        }
+        state.testId = null; state.seed = null;
+        beginWithExam(exam);
+      } catch (e) {
+        try { renderHome(); } catch (e2) {
+          if (btn) { btn.disabled = false; btn.textContent = "🚀 Bắt đầu làm bài"; }
+        }
+        alert("⚠️ Sinh đề gặp lỗi bất ngờ. Bạn bấm thử lại giúp mình nhé!");
       }
-      state.testId = null; state.seed = null;
-      beginWithExam(exam);
     }, 10);
   }
   function startCatalog(n, btn) {
     if (btn) { btn.disabled = true; btn.innerHTML = "Đề " + n + "<small>Đang chuẩn bị…</small>"; }
     setTimeout(function () {
-      var exam = buildCatalogUpTo(state.level, n);
-      if (!exam || !exam.questions.length) {
-        if (btn) { btn.disabled = false; }
-        alert("⚠️ Chưa đủ dữ liệu để sinh đề này. Vui lòng thử đề khác.");
-        renderHome();
-        return;
+      /* VÁ 2026-11-24: cùng lý do như startExam — lỗi sinh đề phải
+         khôi phục trang chủ khu thi (nút đề sáng lại), không kẹt. */
+      try {
+        var exam = buildCatalogUpTo(state.level, n);
+        if (!exam || !exam.questions.length) {
+          if (btn) { btn.disabled = false; }
+          alert("⚠️ Chưa đủ dữ liệu để sinh đề này. Vui lòng thử đề khác.");
+          renderHome();
+          return;
+        }
+        state.testId = exam.testId;
+        state.seed = exam.seed;
+        beginWithExam(exam);
+      } catch (e) {
+        try { renderHome(); } catch (e2) {
+          if (btn) { btn.disabled = false; btn.innerHTML = "Đề " + n + "<small>Chưa làm</small>"; }
+        }
+        alert("⚠️ Sinh đề gặp lỗi bất ngờ. Bạn bấm thử lại giúp mình nhé!");
       }
-      state.testId = exam.testId;
-      state.seed = exam.seed;
-      beginWithExam(exam);
     }, 10);
   }
   function isFullMode() { return state.exam && state.exam.mode === "full"; }
