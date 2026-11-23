@@ -107,3 +107,15 @@ html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-stats{
     width:5px; height:5px; border-radius:50%; background:#F97316;
   }
 }
+
+/* ===== 2026-11-23 (Meo): cum nut noi goc duoi phai - nang khoi thanh dieu huong =====
+   Anh Huy bao: nut "Tro chuyen cung Be" + be rai ca dan duong de len thanh duoi,
+   che muc Tin nhan. Chi ap dung mobile (<=767px, noi co thanh duoi):
+   - nut chat: bottom 64px -> 80px (+safe-area), cach han mep tren thanh duoi (~66px);
+   - be rai ca (.guide-wrap): bottom 124px -> 142px (+safe-area) de chan be dung
+     tren nut chat, khong cham thanh duoi. Desktop giu nguyen. */
+@media (max-width:767px){
+  html body #aichatLauncher{bottom:calc(80px + env(safe-area-inset-bottom,0px))}
+  body .guide-wrap{bottom:calc(142px + env(safe-area-inset-bottom,0px))}
+  body .guide-otter{scale:.65}
+}
