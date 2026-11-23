@@ -263,3 +263,563 @@ html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-stats{
   }
   html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-pbtn{ background:#14161A; }
 }
+
+/* ============================================================
+   MONDLY v3 (khuya 2026-11-23, Cá — lệnh anh Huy: "sửa lại toàn
+   bộ nút và giao diện web theo đúng mẫu anh gửi, sai là anh bắt
+   làm lại"): tiếp nối khối Mondly của Mèo (5de8a13 → 0a098ab →
+   dcc412d3). Phần Mèo đã làm đúng mẫu được GIỮ NGUYÊN (thẻ tím
+   trong thẻ Khóa tự học, nút đen, nền oải hương, thẻ phẳng).
+   Khối này làm nốt phần KHUNG còn thiếu so với bản vẽ:
+   (1) sidebar trái thành THANH TRÊN nằm trong cửa sổ (logo +
+       thanh viên thuốc điều hướng + tìm kiếm/menu/tài khoản);
+   (2) thẻ Học tiếp thành DÒNG CHÀO to (tên học viên thật do
+       otter2-shell.js renderGreeting điền);
+   (3) thanh công cụ phụ #ttcMondlySubbar (Giản/Phồn · Giao diện ·
+       Chat Online — các nút THẬT do shell.js dời vào);
+   (4) hàng chip LỘ TRÌNH (chip cấp đang học TÍM + "· đang học");
+   (5) lưới cột giữa đúng thứ tự mẫu + thẻ Hoạt động hiện lại ở
+       cột phải (số thật; web không có dữ liệu chuỗi ngày nên
+       KHÔNG vẽ chip ⚡/chuỗi ngày như bản vẽ — luật số liệu thật).
+   Chỉ desktop + theme sáng; đêm giữ khung cũ của Mèo/shell.
+   KHÔNG đụng .ttt-rainbow, .ttc-han-viet, màu đúng/sai.
+   ============================================================ */
+
+/* Viên trạng thái bài học mỗi ngày: bản cũ chữ trắng trên nền
+   #F7F8FA = tàng hình (cả điện thoại lẫn máy tính). Sửa mọi bề
+   ngang: Đã phát hành = xanh dương nhạt chữ navy như mẫu; Sắp
+   mở = xám; hôm nay = tím. */
+.otter2-dash-status{ background:#F1F1F4; color:#5B6472; }
+.otter2-dash-status.done{ background:#E1EBFD; color:#1D4ED8; }
+.otter2-dash-status.today{ background:#6C4CF1; color:#ffffff; }
+
+/* Thanh công cụ phụ: mặc định ẩn — chỉ bật ở desktop ≥1021px
+   theme sáng (khối dưới); <1021px/đêm các nút thật trở về vị trí
+   cũ do placeUtility của shell.js quản. */
+#ttcMondlySubbar{ display:none; }
+
+/* ---------- (1) THANH TRÊN TRONG CỬA SỔ — desktop ≥900px ---------- */
+@media (min-width:900px){
+  html:not([data-theme="night"]) body.otter2-body{ padding-left:0; padding-top:76px; }
+  html:not([data-theme="night"]) #ttcShellSidebar{
+    top:12px; left:50%; transform:translateX(-50%); bottom:auto;
+    width:min(var(--otter2-max), calc(100% - 24px)); height:64px;
+    flex-direction:row; align-items:center; gap:10px;
+    padding:0 16px; overflow:visible;
+    background:#ffffff; border:1px solid rgba(203,208,225,.85);
+    border-bottom:1px solid #F1F1F4; border-radius:22px 22px 0 0;
+    box-shadow:none;
+  }
+  /* Cửa sổ dính liền dưới thanh trên thành MỘT khung như mẫu */
+  html:not([data-theme="night"]) .otter2-shell{
+    margin:0 auto 28px; border-top:0; border-radius:0 0 28px 28px;
+  }
+  html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-brand{
+    border-bottom:0; padding:0; flex:none; gap:10px;
+  }
+  html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-brand img{
+    width:40px; height:40px; border-radius:50%;
+  }
+  html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-brand-name{
+    font-size:16.5px; white-space:nowrap;
+  }
+  html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-brand-sub{ display:none; }
+  /* Tìm kiếm -> nút tròn như mẫu */
+  html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-search{
+    order:3; flex:none; width:44px; height:44px; margin:0; padding:0;
+    border-radius:50%; border:1px solid #E8EAEF; background:#ffffff;
+    justify-content:center; gap:0;
+  }
+  html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-search:hover{
+    background:#F7F7F9; border-color:#E8EAEF; color:#16283F;
+  }
+  html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-search-tx{ display:none; }
+  html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-search-ico{ font-size:17px; }
+  /* Điều hướng -> thanh viên thuốc xám nhạt ở giữa, mục chọn ĐEN */
+  html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-nav{
+    order:2; flex:1 1 auto; min-width:0; flex-direction:row; align-items:center;
+    justify-content:center; gap:2px; padding:4px; margin:0 4px;
+    background:#F1F1F4; border-radius:999px;
+    overflow-x:auto; overflow-y:hidden; scrollbar-width:none;
+  }
+  html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-nav::-webkit-scrollbar{ display:none; }
+  html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-nav::before{ display:none; }
+  html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-item{
+    flex:none; width:auto; padding:8px 13px; border-radius:999px;
+    font-size:14.5px; gap:0; background:transparent; box-shadow:none;
+  }
+  html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-item .ttc-shell-ico{ display:none; }
+  html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-item:hover{ background:#E7E7EC; }
+  html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-item.is-active{
+    background:#14161A; color:#ffffff; box-shadow:none;
+  }
+  html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-item.is-active:hover{ background:#14161A; }
+  /* Cụm tiện ích ở thanh trên: chỉ còn nút Menu (tròn) */
+  html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-util{
+    order:4; flex:none; flex-direction:row; padding:0; margin:0; gap:0;
+  }
+  html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-util::before{ display:none; }
+  html:not([data-theme="night"]) #ttcShellSidebar #ttcMenuBtn{
+    width:44px; height:44px; margin:0; padding:0; border-radius:50%;
+    justify-content:center; gap:0; border:1px solid #E8EAEF; background:#ffffff;
+    box-shadow:none;
+  }
+  html:not([data-theme="night"]) #ttcShellSidebar #ttcMenuBtn:hover{ background:#F7F7F9; border-color:#E8EAEF; }
+  html:not([data-theme="night"]) #ttcShellSidebar #ttcMenuBtn .ttc-shell-util-lbl{ display:none; }
+  /* Thống kê của sidebar ẩn ở thanh trên (đã có ở thẻ Hoạt động) */
+  html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-stats{ display:none; }
+  /* Hồ sơ -> avatar tròn TÍM + mũi tên xuống + nút Đăng nhập viên đen */
+  html:not([data-theme="night"]) #ttcShellSidebar > div:last-child{
+    order:5; flex:none; display:flex; align-items:center;
+  }
+  html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-profile{
+    border-top:0; padding:0; margin:0; gap:0;
+  }
+  html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-profile > div{ display:none; }
+  html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-avatar{
+    background:#6C4CF1; width:42px; height:42px;
+  }
+  html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-profile::after{
+    content:"▾"; color:#8A8F98; font-size:12px; margin-left:5px;
+  }
+  html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-pbtn{
+    width:auto; margin:0 0 0 10px; padding:9px 16px; border-radius:999px;
+    font-size:13.5px; white-space:nowrap;
+  }
+}
+/* Dải 900–1199px: thanh trên nén lại cho vừa */
+@media (min-width:900px) and (max-width:1199px){
+  html:not([data-theme="night"]) #ttcShellSidebar{ gap:6px; padding:0 10px; }
+  /* Thanh viên thuốc hẹp: căn trái để cuộn ngang được từ đầu,
+     tránh mục đầu bị cắt khuất sau logo khi căn giữa tràn hai phía */
+  html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-nav{ justify-content:flex-start; }
+  html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-brand-name{ font-size:15px; }
+  html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-item{ padding:7px 9px; font-size:13.5px; }
+  html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-pbtn{ padding:8px 12px; font-size:12.5px; }
+}
+
+
+/* Thanh công cụ phụ hiện từ 900px (placeUtility dời nút vào từ 900px;
+   ẩn ở dải này sẽ làm mất nút Giản/Phồn + Giao diện + Chat). */
+@media (min-width:900px){
+/* Thanh công cụ phụ: nền xám rất nhạt full-width trong cửa sổ */
+html:not([data-theme="night"]) #ttcMondlySubbar{
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  background:#F7F7F9; border:1px solid #ECECF1; border-radius:16px;
+  padding:6px 10px; margin:2px 0 14px;
+}
+html:not([data-theme="night"]) #ttcMondlySubbar .ttc-script-switch{
+  background:#ffffff; border:1px solid #E8EAEF; color:#14161A;
+  box-shadow:0 1px 3px rgba(16,24,40,.08); min-height:38px;
+  padding:0 18px; font-size:13.5px;
+}
+html:not([data-theme="night"]) #ttcMondlySubbar .ttc-script-switch:hover{ background:#F7F7F9; }
+html:not([data-theme="night"]) #ttcMondlySubbar .ttc-script-switch[aria-pressed="true"]{
+  background:#14161A; color:#ffffff; border-color:#14161A; box-shadow:none;
+}
+html:not([data-theme="night"]) #ttcMondlySubbar .otter2-theme-slot{
+  display:flex; align-items:center; gap:9px; position:relative;
+  width:auto; padding:0 8px;
+}
+html:not([data-theme="night"]) #ttcMondlySubbar #otter2ThemeNavBtn{
+  font-size:0; width:34px; height:34px; padding:0;
+  background:transparent; border:0; box-shadow:none; border-radius:50%;
+}
+html:not([data-theme="night"]) #ttcMondlySubbar #otter2ThemeNavBtn::before{
+  content:"🦦"; font-size:19px; line-height:1;
+}
+html:not([data-theme="night"]) #ttcMondlySubbar .ttc-shell-util-lbl{
+  font-size:14px; font-weight:600; color:#3F4356;
+}
+html:not([data-theme="night"]) #ttcMondlySubbar #otter2ChatOnlineBtn{
+  display:inline-flex; align-items:center; width:auto; height:auto;
+  min-height:38px; padding:6px 10px; background:transparent; border:0;
+  box-shadow:none; border-radius:999px; font-size:17px;
+}
+html:not([data-theme="night"]) #ttcMondlySubbar #otter2ChatOnlineBtn::after{
+  content:"Chat Online"; font-size:14px; font-weight:600; color:#3F4356; margin-left:8px;
+}
+html:not([data-theme="night"]) #ttcMondlySubbar #otter2ChatOnlineBtn:hover{ background:#ECECF1; }
+}
+
+/* ---------- (2)(3)(4)(5) TRANG CHỦ — desktop ≥1021px ---------- */
+@media (min-width:1021px){
+
+  /* (2) Dòng chào: thẻ Học tiếp phẳng thành một dòng chào to */
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-continue{
+    display:flex; align-items:center; gap:18px; padding:4px 4px 0;
+  }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-continue .otter2-dash-kicker{ display:none; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-continue img{ display:none; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-continue p{ display:none; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-continue h3{
+    margin:0; font-size:clamp(24px, 2.6vw, 32px); font-weight:800;
+    letter-spacing:-.01em; color:#14161A;
+  }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-continue .otter2-dash-ctared{
+    width:auto; margin-left:auto; min-height:48px; padding:12px 24px;
+    border-radius:999px; flex:none;
+  }
+
+  /* (4) Hàng chip LỘ TRÌNH */
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-strip{
+    display:flex; align-items:center; gap:8px; background:transparent;
+    border:0; box-shadow:none; border-radius:0; padding:0; margin:0;
+    overflow:visible;
+  }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-strip::before{
+    content:"LỘ TRÌNH"; font-size:11px; font-weight:800;
+    letter-spacing:.09em; color:#8A8F98; margin-right:2px; flex:none;
+  }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-chip{
+    flex:none; background:#F1F1F4; border:0; border-radius:999px;
+    padding:9px 15px; font-size:13.5px; font-weight:700; color:#3F4356;
+    min-height:0; box-shadow:none; white-space:nowrap;
+  }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-chip small{ display:none; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-chip:hover{ background:#E7E7EC; color:#14161A; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-chip.is-cur{ background:#6C4CF1; color:#ffffff; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-chip.is-cur::after{
+    content:" · đang học"; font-weight:600;
+  }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-chip.is-cur:hover{ background:#6C4CF1; color:#ffffff; }
+
+  /* (5) Thẻ Khóa tự học: các hàng phòng học ngang + nút tròn "›" */
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-course .otter2-feature{
+    flex-direction:row; align-items:center; justify-content:flex-start;
+    text-align:left; min-height:60px; height:auto; padding:10px 14px; gap:12px;
+  }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-course .otter2-feature .otter2-ico{
+    margin:0; flex:none;
+  }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-course .otter2-feature::after{
+    content:"›"; margin-left:auto; flex:none; width:34px; height:34px;
+    border-radius:50%; background:#ffffff; border:1px solid #E8EAEF;
+    display:grid; place-items:center; font-size:19px; font-weight:700;
+    color:#3F4356; line-height:1;
+  }
+
+  /* (5) Thẻ Trình độ & kỹ năng: nút đầu thẻ thành viên xám nhạt,
+     ô kỹ năng xám nhạt bo 16, thanh tiến độ từ vựng TÍM */
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-retest{
+    background:#F1F1F4; color:#14161A; border:0;
+  }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-retest:hover{ background:#E7E7EC; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-skill{ background:#F6F6F8; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-track > i{ background:#6C4CF1; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-skilltile{
+    background:#F6F6F8; border:1.5px solid transparent; border-radius:16px;
+  }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-skilltile:hover{
+    background:#F2EFFF; border-color:#D9CFFF;
+  }
+
+  /* (5) Cột phải: thẻ Hoạt động hiện lại (shell V2 từng ẩn) */
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-card[aria-labelledby="otter2DashActTitle"]{
+    display:block;
+  }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-lvcell.has{ background:#F2EFFF; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-lvcell.has b::after{ background:#6C4CF1; }
+  /* Cột phải sticky: chừa thanh trên cố định */
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-side{ top:92px; }
+  /* Nhiệm vụ hôm nay: vòng icon nhuốm màu nhẹ như mẫu */
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-task .ic.c1{ background:#FFEEDD; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-task .ic.c2{ background:#FFF3C4; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-task .ic.c3{ background:#E2F7E5; }
+
+  /* Thẻ Luyện thi HSK: chip cấp đang chọn TÍM + ô cúp nhuốm tím */
+  html:not([data-theme="night"]) #otter2-home .ttc-exam-panel-chip.is-cur{
+    background:#6C4CF1; border-color:#6C4CF1; color:#ffffff;
+  }
+  html:not([data-theme="night"]) #otter2-home .ttc-exam-panel-trophy{
+    background:#F2EFFF; border-color:#E4DEFF; border-radius:16px;
+  }
+
+  /* Lộ trình HSK 1–9 (thẻ nấc): nấc đang học TÍM như chip */
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-step{
+    background:#F6F6F8; border:1.5px solid transparent; border-radius:16px;
+  }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-step:hover{
+    background:#F2EFFF; border-color:#D9CFFF;
+  }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-step.is-cur{
+    background:#6C4CF1; border-color:#6C4CF1; color:#ffffff;
+  }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-step.is-cur small{ color:rgba(255,255,255,.85); }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-step.is-cur .learned{ color:#FFE9A8; }
+
+  /* Bài học mỗi ngày: hàng bài bo góc + hover xám nhạt như bảng mẫu */
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-lesson{
+    border-radius:14px; padding:12px 10px;
+  }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-lesson:hover{ background:#F7F7F9; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-thumb{ background:#F2EFFF; }
+  /* Nút chính của thẻ Học theo video (truyện kể) -> viên ĐEN như mẫu */
+  html:not([data-theme="night"]) #otter2-home .ttc-story-panel-btn{
+    background:#14161A; border-color:#14161A; color:#ffffff;
+    border-radius:999px; box-shadow:none;
+  }
+}
+
+/* Thứ tự cột giữa ≥1280px (2 cột): chào → công cụ phụ đã ở ngoài
+   lưới; trong lưới: chào → LỘ TRÌNH → Khóa tự học | cụm thi+kỹ
+   năng → Bài học mỗi ngày → Lộ trình 1–9. */
+@media (min-width:1280px){
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-continue{ grid-column:1/-1; grid-row:1; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-strip{ grid-column:1/-1; grid-row:2; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-course{ grid-column:1; grid-row:3; }
+  html:not([data-theme="night"]) #otter2-home .ttc-exam-midstack{ grid-column:2; grid-row:3; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-main > section[aria-labelledby="otter2DashLessonsTitle"]{ grid-column:1/-1; grid-row:4; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-main > .otter2-dash-road{ grid-column:1/-1; grid-row:5; }
+}
+/* 1021–1279px: cột giữa 1 cột (như shell đã định) + chèn hàng
+   công cụ/LỘ TRÌNH vào đúng thứ tự dọc. */
+@media (min-width:1021px) and (max-width:1279px){
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-continue{ grid-column:1; grid-row:1; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-strip{ grid-column:1; grid-row:2; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-main > .otter2-dash-road{ grid-column:1; grid-row:3; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-main > .otter2-dash-course{ grid-column:1; grid-row:4; }
+  html:not([data-theme="night"]) #otter2-home .ttc-exam-midstack{ grid-column:1; grid-row:5; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-main > section[aria-labelledby="otter2DashLessonsTitle"]{ grid-column:1/-1; grid-row:6; }
+}
+
+/* ============================================================
+   MONDLY v4 (sáng 2026-11-24, Cá — vòng sửa 2 theo lời chê của
+   anh Huy trên ảnh v3: "giản và phồn em ghép chung à cá? anh
+   thấy mẫu chưa giống nhé. cột trái của anh gộp vào mà! nhìn
+   nó gọn và đủ cả màn hình nhé" + lệnh bổ sung 07:07: BỎ HẲN
+   thẻ Học theo video VÀ thẻ Luyện thi HSK khỏi trang chủ — kể
+   cả thẻ thi nhỏ ở cột phải — vì Thi HSK đã có nút trên thanh
+   ngang trên cùng):
+   (1) GIẢN/PHỒN TÁCH RIÊNG: 2 nút .ttc-seg-btn do shell.js dựng
+       trong #ttcMondlySubbar (gạt gộp cũ #ttcScriptSwitch ẩn ở
+       ngữ cảnh này nhưng vẫn là nút bị bấm hộ — đúng cơ chế
+       chuyển đổi gốc); nút đang chọn = viên TRẮNG; 4 mục của
+       thanh rải đều flex:1 như mẫu.
+   (2) CỘT TRÁI GỘP ĐÚNG MẪU: ẩn hàng nút cũ .otter2-feature-row,
+       hiện 4 hàng phòng học .ttc-dash-rooms do shell.js dựng
+       (icon + tên + mô tả nhỏ + nút tròn "›", bấm qua ô kỹ năng
+       thật); thẻ tím giữ nguyên ở trên.
+   (3) GỌN + ĐỦ MỘT MÀN HÌNH: cửa sổ rộng ~100%−80px (mép ~40px
+       ở 1440); bỏ khỏi bề mặt: thẻ Luyện thi, thẻ Học theo
+       video, thẻ Bảng thành tích riêng, section Lộ trình 1–9;
+       cột giữa chỉ còn thẻ Trình độ & kỹ năng (viên "▶ Thi lại"
+       #ttcDashRetest do shell.js dựng mở khu thi thật; ô kỹ
+       năng có thanh + viên trạng thái TRUNG TÍNH — web không có
+       dữ kiện thật theo kỹ năng, luật số liệu thật cấm bịa mức
+       Khá/Đang lên/Ổn như bản vẽ); cột phải chỉ còn Hoạt động
+       (nút 🏆 nhỏ = nút Bảng thành tích THẬT được shell.js dời
+       sang) + Nhiệm vụ hôm nay; bảng Bài học mỗi ngày mảnh (số
+       tròn thay chữ Hán do shell.js đổi ở ngữ cảnh này, bỏ ô
+       tìm kiếm, viên tiến độ "—"); dòng chào bỏ viên "Học
+       tiếp", chữ xám như mẫu; nén padding/cỡ chữ toàn trang chủ.
+   Chỉ desktop + theme sáng; đêm giữ khung v3, mobile giữ Mẫu 2.
+   KHÔNG đụng .ttt-rainbow, .ttc-han-viet, màu đúng/sai.
+   ============================================================ */
+
+/* ---------- (1) THANH CÔNG CỤ PHỤ: 4 MỤC RẢI ĐỀU ---------- */
+@media (min-width:900px){
+  html:not([data-theme="night"]) #ttcMondlySubbar{
+    justify-content:flex-start; gap:4px; padding:6px 8px; margin:2px 0 10px;
+    background:#FAFAFB;
+  }
+  html:not([data-theme="night"]) #ttcMondlySubbar #ttcScriptSwitch{ display:none !important; }
+  html:not([data-theme="night"]) #ttcMondlySubbar .ttc-seg-btn{
+    display:flex; flex:1 1 0; align-items:center; justify-content:center; gap:7px;
+    background:transparent; border:1px solid transparent; border-radius:999px;
+    min-height:38px; padding:7px 10px; cursor:pointer;
+    font:inherit; font-size:14px; font-weight:600; color:#3F4356;
+  }
+  html:not([data-theme="night"]) #ttcMondlySubbar .ttc-seg-btn::before{
+    font-size:16px; font-weight:700; color:#14161A; line-height:1;
+  }
+  html:not([data-theme="night"]) #ttcMondlySubbar .ttc-seg-simplified::before{ content:"\7B80"; }
+  html:not([data-theme="night"]) #ttcMondlySubbar .ttc-seg-traditional::before{ content:"\7E41"; }
+  html:not([data-theme="night"]) #ttcMondlySubbar .ttc-seg-btn:hover{ background:#F1F1F4; }
+  html:not([data-theme="night"]) #ttcMondlySubbar .ttc-seg-btn[aria-pressed="true"]{
+    background:#ffffff; color:#14161A; font-weight:700;
+    border-color:#E8EAEF; box-shadow:0 1px 3px rgba(16,24,40,.10);
+  }
+  html:not([data-theme="night"]) #ttcMondlySubbar .otter2-theme-slot{
+    flex:1 1 0; justify-content:center; padding:0;
+  }
+  html:not([data-theme="night"]) #ttcMondlySubbar #otter2ChatOnlineBtn{
+    flex:1 1 0; justify-content:center;
+  }
+}
+
+/* ---------- (2)+(3) TRANG CHỦ GỌN MỘT MÀN HÌNH ---------- */
+@media (min-width:1021px){
+  /* Cửa sổ gần hết chiều ngang (mép ~40px ở bề ngang 1440) */
+  html:not([data-theme="night"]) #ttcShellSidebar{ width:min(1400px, calc(100% - 80px)); }
+  html:not([data-theme="night"]) .otter2-shell{ width:min(1400px, calc(100% - 80px)); }
+
+  /* Bỏ khỏi bề mặt trang chủ (chức năng vẫn tới được như cũ:
+     thi qua thanh ngang trên cùng, truyện qua thanh ngang,
+     thành tích qua nút 🏆 ở thẻ Hoạt động) */
+  html:not([data-theme="night"]) #otter2-home #otter2ExamPanel,
+  html:not([data-theme="night"]) #otter2-home #otter2StoryVideoPanel,
+  html:not([data-theme="night"]) #otter2-home #otter2VideoPanel{ display:none !important; }
+  html:not([data-theme="night"]) #ttcShellRailAch{ display:none !important; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-road{ display:none !important; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-search{ display:none; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-course .otter2-feature-row{ display:none; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-hero p,
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-hero .otter2-dash-hero-cta{ display:none; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-note{ display:none; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-tag{ display:none; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-continue .otter2-dash-ctared{ display:none; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-skilltile small{ display:none; }
+
+  /* Nén nhịp chung toàn trang chủ */
+  html:not([data-theme="night"]) #otter2-home{ gap:12px; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-card{ padding:13px 15px; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-head{ margin-bottom:9px; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-head h2{ font-size:16px; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-main{ gap:12px; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-side{ gap:12px; }
+
+  /* Dòng chào: chữ xám như mẫu, không viên Học tiếp */
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-continue{ padding:0 4px; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-continue h3{
+    font-size:clamp(22px, 2.3vw, 29px); color:#9BA1A9;
+  }
+  /* Hàng chip LỘ TRÌNH thấp hơn */
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-chip{ padding:6px 12px; font-size:13px; }
+
+  /* Cột trái: thẻ tím nén + 4 hàng phòng học đúng mẫu */
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-hero{ padding:12px 14px; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-hero h3{ font-size:17px; margin:7px 0 0; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-prow{ margin-top:10px; font-size:12px; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-bar{ margin-top:5px; }
+  html:not([data-theme="night"]) #otter2-home .ttc-dash-rooms{ display:grid; gap:7px; margin-top:10px; }
+  html:not([data-theme="night"]) #otter2-home .ttc-dash-room{
+    display:flex; align-items:center; gap:11px; width:100%; box-sizing:border-box;
+    padding:8px 12px; border:1.5px solid transparent; border-radius:14px;
+    background:#F6F6F8; color:#14161A; font:inherit; text-align:left; cursor:pointer;
+  }
+  html:not([data-theme="night"]) #otter2-home .ttc-dash-room:hover{ background:#F2EFFF; border-color:#D9CFFF; }
+  html:not([data-theme="night"]) #otter2-home .ttc-dash-room-ico{ font-size:19px; line-height:1; flex:none; }
+  html:not([data-theme="night"]) #otter2-home .ttc-dash-room-main{ flex:1; min-width:0; display:grid; }
+  html:not([data-theme="night"]) #otter2-home .ttc-dash-room-main strong{ font-size:13.5px; font-weight:700; color:#14161A; }
+  html:not([data-theme="night"]) #otter2-home .ttc-dash-room-main small{ font-size:11.5px; color:#8A8F98; font-weight:600; }
+  html:not([data-theme="night"]) #otter2-home .ttc-dash-room-chev{
+    flex:none; width:28px; height:28px; border-radius:50%;
+    background:#ffffff; border:1px solid #E8EAEF;
+    display:grid; place-items:center; font-size:17px; font-weight:700; color:#3F4356; line-height:1;
+  }
+
+  /* Cột giữa: thẻ Trình độ & kỹ năng — viên Thi lại + ô có thanh/viên */
+  html:not([data-theme="night"]) #otter2-home #ttcDashRetest{
+    display:inline-flex; align-items:center; min-height:32px; padding:6px 13px;
+    background:#ffffff; border:1px solid #E4E6EA; border-radius:999px;
+    font:inherit; font-size:12.5px; font-weight:700; color:#14161A; cursor:pointer;
+  }
+  html:not([data-theme="night"]) #otter2-home #ttcDashRetest:hover{ background:#F7F7F9; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-levelbig .lv{ font-size:38px; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-levelbig .meta{ font-size:12px; line-height:1.45; }
+  html:not([data-theme="night"]) #otter2-home .ttc-meta-line{ display:block; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-skill{ margin-top:10px; padding:9px 12px; border-radius:12px; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-skill h4{ margin-bottom:6px; font-size:13px; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-track{ height:8px; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-skill .cap{ margin-top:5px; font-size:12px; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-skillgrid{ gap:8px; margin-top:9px; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-skilltile{
+    display:flex; flex-direction:column; gap:7px; padding:10px 12px; min-height:0;
+  }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-skilltile strong{ font-size:13.5px; }
+  html:not([data-theme="night"]) #otter2-home .ttc-tile-bar{
+    display:block; height:6px; border-radius:99px; background:#E7E7EC; overflow:hidden;
+  }
+  html:not([data-theme="night"]) #otter2-home .ttc-tile-bar > i{ display:block; height:100%; width:0; background:#C9CBD4; border-radius:99px; }
+  html:not([data-theme="night"]) #otter2-home .ttc-tile-pill{
+    display:inline-flex; align-self:flex-end; padding:2px 9px; border-radius:999px;
+    background:#F1F1F4; color:#8A8F98; font-size:10.5px; font-weight:800; line-height:1.5;
+  }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-skilltile[data-dash-goto="auto"]{
+    border-style:dashed; border-color:#D8D8E0; background:#FBFBFC;
+  }
+
+  /* Cột phải: Hoạt động (nút thành tích THẬT dời sang, dạng icon) + Nhiệm vụ */
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-card[aria-labelledby="otter2DashActTitle"] #otter2DashAchBtn{
+    width:30px; height:30px; min-height:0; padding:0; border-radius:50%;
+    background:#ffffff; border:1px solid #E8EAEF; font-size:14px; line-height:1;
+    display:grid; place-items:center; color:#14161A;
+  }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-card[aria-labelledby="otter2DashActTitle"] #otter2DashAchBtn:hover{ background:#F7F7F9; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-actnum .n{ font-size:36px; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-lvgrid{ margin-top:10px; gap:6px; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-lvcell{ padding:5px 4px; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-task{ padding:7px 2px; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-task .ic{ width:36px; height:36px; font-size:16px; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-cta{ margin-top:10px; padding:11px; min-height:44px; font-size:14.5px; }
+
+  /* Bài học mỗi ngày: bảng mảnh như mẫu */
+  html:not([data-theme="night"]) #otter2-home section[aria-labelledby="otter2DashLessonsTitle"] .otter2-dash-head{ flex-wrap:wrap; }
+  html:not([data-theme="night"]) #otter2-home section[aria-labelledby="otter2DashLessonsTitle"] .otter2-dash-sub{ order:3; flex:1 1 100%; margin-top:1px; }
+  html:not([data-theme="night"]) #otter2-home #ttcLessonsPlus{
+    display:grid; place-items:center; width:30px; height:30px; border-radius:50%;
+    background:#ffffff; border:1px solid #E8EAEF; color:#3F4356;
+    font-size:18px; font-weight:600; line-height:1; text-decoration:none; order:2; margin-left:auto;
+  }
+  html:not([data-theme="night"]) #otter2-home #ttcLessonsPlus:hover{ background:#F7F7F9; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-lesson{
+    grid-template-columns:30px minmax(0,1fr) auto auto; gap:10px;
+    padding:6px 8px; border-radius:10px;
+  }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-thumb{
+    width:30px; height:30px; font-size:13.5px; background:#F2EFFF; color:#4326C9;
+  }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-lesson-main strong{ font-size:13.5px; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-lesson-main small{
+    font-size:12px; margin-top:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-status{ padding:4px 8px; font-size:11px; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-lesson::after{
+    content:"—"; padding:4px 9px; border-radius:7px; background:#F1F1F4; color:#8A8F98;
+    font-size:11px; font-weight:800; line-height:1.35; white-space:nowrap;
+  }
+}
+
+/* ============================================================
+   MONDLY v4.1 — nén nhịp đợt 2 (sau ảnh kiểm chứng v4: đáy thẻ
+   Bài học còn tràn ~120px khỏi màn 1024). Chỉ siết thêm
+   padding/chiều cao ở đúng ngữ cảnh Mondly ≥1021px sáng; tên ô
+   kỹ năng thống nhất màu mực như mẫu (ô phát âm đang cam do
+   luật cũ của theme). Không đổi cấu trúc, không đổi số liệu.
+   ============================================================ */
+@media (min-width:1021px){
+  html:not([data-theme="night"]) #otter2-home{ gap:10px; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-card{ padding:11px 14px; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-head{ margin-bottom:7px; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-main{ gap:10px; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-side{ gap:10px; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-continue{ padding:0 4px; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-continue h3{ font-size:clamp(21px, 2.2vw, 27px); }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-chip{ padding:5px 11px; }
+  /* Cột trái */
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-hero{ padding:10px 12px; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-prow{ margin-top:8px; }
+  html:not([data-theme="night"]) #otter2-home .ttc-dash-rooms{ gap:6px; margin-top:8px; }
+  html:not([data-theme="night"]) #otter2-home .ttc-dash-room{ padding:6px 10px; }
+  /* Cột giữa */
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-levelbig .lv{ font-size:34px; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-skill{ margin-top:8px; padding:7px 11px; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-skillgrid{ gap:7px; margin-top:8px; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-skilltile{ gap:6px; padding:8px 11px; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-skilltile strong{ color:#14161A; }
+  html:not([data-theme="night"]) #otter2-home .ttc-tile-bar{ height:5px; }
+  /* Cột phải */
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-actnum .n{ font-size:32px; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-lvgrid{ margin-top:8px; gap:5px; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-lvcell{ padding:4px; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-task{ padding:5px 2px; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-cta{ margin-top:8px; padding:9px; min-height:42px; }
+  /* Bảng bài học */
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-lesson{ padding:2px 8px; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-thumb{ width:28px; height:28px; font-size:13px; }
+}
+@media (min-width:900px){
+  html:not([data-theme="night"]) #ttcMondlySubbar{ margin:2px 0 8px; }
+  html:not([data-theme="night"]) #ttcMondlySubbar .ttc-seg-btn{ min-height:36px; }
+}

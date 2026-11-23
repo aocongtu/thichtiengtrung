@@ -127,6 +127,22 @@
        tiền lệ bundle ảnh của web); tên trang gắn class .ttt-rainbow
        — CƠ CHẾ GỐC của web (index2.html) — và bỏ gradient tĩnh riêng
        của shell khỏi .ttc-shell-brand-name để không tranh chấp.
+
+   ===== V5 — KHUNG MONDLY ĐÚNG MẪU ANH HUY GỬI (khuya 2026-11-23) =====
+   Anh Huy gửi bản vẽ "khung Mondly" + lệnh "sửa lại toàn bộ nút và
+   giao diện web theo đúng mẫu anh gửi". Phần khung do CSS trong
+   otter2-plain-theme.css (khối Mondly v3) đảm nhiệm: sidebar trái
+   thành THANH TRÊN nằm trong cửa sổ trắng trên nền oải hương.
+   Module này chỉ bổ sung phần CSS không làm được — DỜI NÚT THẬT:
+   - Thanh công cụ phụ #ttcMondlySubbar trong cửa sổ (dưới thanh
+     trên): desktop + theme sáng, placeUtility dời Giản/Phồn +
+     Giao diện + Chat Online vào đây (đúng 4 mục của mẫu); theme
+     đêm / <900px các nút trở về vị trí cũ nguyên vẹn.
+   - Dải chip chọn cấp (.otter2-dash-strip) vào cột giữa dưới dòng
+     chào = hàng "LỘ TRÌNH" của mẫu (CSS hiện ở ≥1021px sáng).
+   - Dòng chào: tiêu đề thẻ Học tiếp hiện tên học viên thật khi đã
+     đăng nhập (renderGreeting, cùng nguồn displayName hồ sơ).
+   Không đổi id/khoá dữ liệu nào; mọi nút dời đi vẫn là nút thật.
    ============================================================ */
 (function () {
   "use strict";
@@ -345,6 +361,16 @@
       "#ttcShellRailAch .ttc-shell-ach-btn{margin-top:12px;width:100%;padding:11px;border:none;border-radius:12px;background:#F97316;color:#ffffff;font:inherit;font-size:14.5px;font-weight:800;cursor:pointer}",
       "#ttcShellRailAch .ttc-shell-ach-btn:hover{background:#F97316}",
       "@media (max-width:1020px){#ttcShellRailAch{grid-column:1/-1}}",
+      /* ===== MONDLY v4 (2026-11-24): phần tử shell.js dựng cho bề
+         mặt Mondly — mặc định ẨN ở mọi ngữ cảnh; khối CSS "MONDLY
+         v4" cuối otter2-plain-theme.css bật đúng desktop sáng. ===== */
+      ".ttc-seg-btn{display:none}",
+      ".ttc-dash-rooms{display:none}",
+      ".ttc-tile-bar{display:none}",
+      ".ttc-tile-pill{display:none}",
+      ".ttc-meta-line{display:none}",
+      "#ttcDashRetest{display:none}",
+      "#ttcLessonsPlus{display:none}",
       /* ===== THANH DƯỚI ĐIỆN THOẠI (≤767px) ===== */
       "#ttcShellBottomBar{position:fixed;left:0;right:0;bottom:0;z-index:80;background:#ffffff;border-top:1px solid #e7e9ee;display:none;padding-bottom:env(safe-area-inset-bottom,0px);box-sizing:border-box}",
       "#ttcShellBottomBar .ttc-shell-bitem{flex:1 1 0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:7px 2px 6px;border:none;background:#ffffff;font:inherit;font-size:10.5px;font-weight:700;color:#16283F;cursor:pointer;min-height:56px;box-sizing:border-box}",
@@ -546,8 +572,29 @@
     var sw = byId("ttcScriptSwitch");
     var slot = $(".otter2-theme-slot");
     var mb = byId("ttcMenuBtn");
-    if (mqDesk.matches) {
-      var util = byId("ttcShellUtil");
+    var chat = byId("otter2ChatOnlineBtn");
+    var util = byId("ttcShellUtil");
+    var sub = byId("ttcMondlySubbar");
+    var night = false;
+    try { night = document.documentElement.getAttribute("data-theme") === "night"; } catch (e) {}
+    if (mqDesk.matches && !night && sub) {
+      /* MONDLY v3 (khuya 2026-11-23): desktop + theme sáng — các
+         nút THẬT Giản/Phồn + Giao diện + Chat Online dời vào THANH
+         CÔNG CỤ PHỤ trong cửa sổ (đúng mẫu Mondly anh Huy gửi);
+         nút Menu ở lại thanh trên (sidebar đã thành thanh ngang). */
+      if (sw && sw.parentNode !== sub) sub.appendChild(sw);
+      if (slot && slot.parentNode !== sub) {
+        sub.appendChild(slot);
+        ensureUtilLabel(slot, byId("otter2ThemeNavBtn"), "Giao diện");
+      }
+      if (chat && chat.parentNode !== sub) sub.appendChild(chat);
+      if (util && mb && mb.parentNode !== util) {
+        util.appendChild(mb);
+        ensureUtilLabel(mb, null, "Menu");
+      }
+    } else if (mqDesk.matches) {
+      /* Desktop theme đêm: giữ nguyên hành vi V2/V3 (util trong
+         sidebar, Chat Online ở thanh trên như cũ). */
       if (!util) return;
       if (sw && sw.parentNode !== util) util.appendChild(sw);
       if (slot && slot.parentNode !== util) {
@@ -558,14 +605,293 @@
         util.appendChild(mb);
         ensureUtilLabel(mb, null, "Menu");
       }
+      var rightN = $(".otter2-nav-right");
+      var premN = byId("otter2PremiumBtn");
+      if (rightN && chat && chat.parentNode !== rightN) rightN.insertBefore(chat, premN);
     } else {
       var right = $(".otter2-nav-right");
       if (!right) return;
-      var chat = byId("otter2ChatOnlineBtn");
-      if (sw && sw.parentNode !== right) right.insertBefore(sw, chat);
-      if (slot && slot.parentNode !== right) right.insertBefore(slot, chat);
+      var prem = byId("otter2PremiumBtn");
+      if (sw && sw.parentNode !== right) right.insertBefore(sw, prem);
+      if (slot && slot.parentNode !== right) right.insertBefore(slot, prem);
+      if (chat && chat.parentNode !== right) right.insertBefore(chat, prem);
       if (mb && mb.parentNode !== right) right.appendChild(mb);
     }
+  }
+
+  /* MONDLY v3: thanh công cụ phụ — một node duy nhất trong cửa sổ
+     .otter2-shell, ngay dưới thanh trên; CSS (otter2-plain-theme)
+     chỉ cho hiện ở desktop ≥1021px + theme sáng. */
+  function buildSubbar() {
+    if (byId("ttcMondlySubbar")) return true;
+    var shellEl = $(".otter2-shell");
+    var nav = byId("otter2Nav");
+    if (!shellEl || !nav || nav.parentNode !== shellEl) return false;
+    var bar = document.createElement("div");
+    bar.id = "ttcMondlySubbar";
+    bar.setAttribute("aria-label", "Công cụ hiển thị");
+    shellEl.insertBefore(bar, nav.nextSibling);
+    return true;
+  }
+
+  /* ================= MONDLY v4 (2026-11-24, vòng sửa 2) =================
+     Anh Huy chê v3: (1) Giản/Phồn gộp một nút — phải TÁCH RIÊNG;
+     (2) cột trái phải gộp đúng mẫu (thẻ tím + 4 hàng phòng học);
+     (3) toàn bộ phải GỌN, đủ một màn hình. CSS ở khối "MONDLY v4"
+     cuối otter2-plain-theme.css; module này dựng các nút THẬT mà
+     CSS không dựng được và nối chúng vào cơ chế gốc của web. */
+
+  /* (1) Hai nút Giản thể / Phồn thể riêng trong thanh công cụ phụ.
+     Gạt gốc #ttcScriptSwitch bị CSS ẩn ở ngữ cảnh Mondly nhưng vẫn
+     là nút bị bấm hộ (.click()) — giữ nguyên 100% cơ chế chuyển
+     đổi + hộp xác nhận của engine ttc-script-switch; viên trắng
+     (aria-pressed) nhảy theo dataset.scriptMode của gạt gốc.
+     Chữ Giản/Phồn vẽ bằng CSS ::before nên engine không dịch nhầm. */
+  function segMode() {
+    var sw = byId("ttcScriptSwitch");
+    return sw && sw.dataset && sw.dataset.scriptMode === "traditional" ? "traditional" : "simplified";
+  }
+  function syncSeg() {
+    var s = byId("ttcSegSimplified"), t = byId("ttcSegTraditional");
+    if (!s || !t) return;
+    var trad = segMode() === "traditional";
+    s.setAttribute("aria-pressed", String(!trad));
+    t.setAttribute("aria-pressed", String(trad));
+  }
+  function buildSegButtons() {
+    var bar = byId("ttcMondlySubbar");
+    if (!bar) return;
+    if (byId("ttcSegSimplified")) { syncSeg(); return; }
+    function mk(id, cls, label, mode) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.id = id;
+      b.className = "ttc-seg-btn " + cls;
+      b.setAttribute("aria-pressed", "false");
+      b.setAttribute("aria-label", label);
+      var tx = document.createElement("span");
+      tx.className = "ttc-seg-tx";
+      tx.textContent = label;
+      b.appendChild(tx);
+      b.addEventListener("click", function () {
+        if (segMode() !== mode) {
+          var sw = byId("ttcScriptSwitch");
+          if (sw) sw.click();
+        }
+        syncSeg();
+        setTimeout(syncSeg, 80);
+      });
+      return b;
+    }
+    var s = mk("ttcSegSimplified", "ttc-seg-simplified", "Giản thể", "simplified");
+    var t = mk("ttcSegTraditional", "ttc-seg-traditional", "Phồn thể", "traditional");
+    bar.insertBefore(s, bar.firstChild);
+    bar.insertBefore(t, s.nextSibling);
+    syncSeg();
+  }
+
+  /* (2) Bốn hàng phòng học trong thẻ Khóa tự học (đúng mẫu): mỗi
+     hàng bấm qua Ô KỸ NĂNG THẬT tương ứng (handler gốc của
+     dashboard lo điều hướng) — không handler song song. */
+  function buildCourseRooms() {
+    var course = $("#otter2-home .otter2-dash-course");
+    if (!course || course.querySelector(".ttc-dash-rooms")) return;
+    var rooms = [
+      { g: "reading", ico: "🎧", name: "Nghe & Đọc", desc: "Vào khu Luyện tập" },
+      { g: "write", ico: "✍️", name: "Viết chữ Hán", desc: "Mở workspace cấp này" },
+      { g: "speak", ico: "🎙️", name: "Nói & phát âm", desc: "Mở Luyện phát âm" },
+      { g: "auto", ico: "✦", name: "Học tự động", desc: "Chế độ Học auto" }
+    ];
+    var wrap = document.createElement("div");
+    wrap.className = "ttc-dash-rooms";
+    rooms.forEach(function (r) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "ttc-dash-room";
+      var ic = document.createElement("span");
+      ic.className = "ttc-dash-room-ico";
+      ic.textContent = r.ico;
+      var main = document.createElement("span");
+      main.className = "ttc-dash-room-main";
+      var nm = document.createElement("strong");
+      nm.textContent = r.name;
+      var ds = document.createElement("small");
+      ds.textContent = r.desc;
+      main.appendChild(nm);
+      main.appendChild(ds);
+      var ch = document.createElement("span");
+      ch.className = "ttc-dash-room-chev";
+      ch.textContent = "›";
+      b.appendChild(ic);
+      b.appendChild(main);
+      b.appendChild(ch);
+      b.addEventListener("click", function () {
+        var tile = document.querySelector('.otter2-dash-skilltile[data-dash-goto="' + r.g + '"]');
+        if (tile) tile.click();
+      });
+      wrap.appendChild(b);
+    });
+    var hero = course.querySelector(".otter2-dash-hero");
+    if (hero && hero.nextSibling) course.insertBefore(wrap, hero.nextSibling);
+    else course.appendChild(wrap);
+  }
+
+  /* (3a) Thẻ Trình độ & kỹ năng: thêm thanh + viên TRUNG TÍNH vào
+     từng ô kỹ năng (web không có dữ kiện thật theo từng kỹ năng —
+     luật số liệu thật: để trống/"—", không bịa mức độ như bản vẽ),
+     dòng meta "11.000 từ · 9 cấp" còn thiếu so với mẫu, và nút
+     viên "▶ Thi lại" mở khu thi THẬT (cùng đường ACTIONS.exam). */
+  function buildSkillBits() {
+    var card = $('#otter2-home .otter2-dash-card[aria-labelledby="otter2DashLevelTitle"]');
+    if (!card) return;
+    var tiles = card.querySelectorAll(".otter2-dash-skilltile");
+    Array.prototype.forEach.call(tiles, function (tile) {
+      if (tile.querySelector(".ttc-tile-bar")) return;
+      var bar = document.createElement("span");
+      bar.className = "ttc-tile-bar";
+      bar.appendChild(document.createElement("i"));
+      var pill = document.createElement("span");
+      pill.className = "ttc-tile-pill";
+      pill.textContent = tile.getAttribute("data-dash-goto") === "auto" ? "sắp mở" : "—";
+      tile.appendChild(bar);
+      tile.appendChild(pill);
+    });
+    var meta = card.querySelector(".otter2-dash-levelbig .meta");
+    if (meta && !meta.querySelector(".ttc-meta-line")) {
+      var ml = document.createElement("span");
+      ml.className = "ttc-meta-line";
+      ml.textContent = "11.000 từ · 9 cấp";
+      meta.appendChild(ml);
+    }
+    var head = card.querySelector(".otter2-dash-head");
+    if (head && !byId("ttcDashRetest")) {
+      var rt = document.createElement("button");
+      rt.type = "button";
+      rt.id = "ttcDashRetest";
+      rt.className = "ttc-dash-retest";
+      rt.textContent = "▶ Thi lại";
+      rt.addEventListener("click", function () { ACTIONS.exam(); });
+      head.appendChild(rt);
+    }
+  }
+
+  /* (3b) Nút "+" ở thẻ Bài học mỗi ngày: nối tới Trang Facebook
+     nơi đăng bài 19:30 (hành động thật như mẫu). */
+  function buildLessonsPlus() {
+    var sec = $('#otter2-home section[aria-labelledby="otter2DashLessonsTitle"]');
+    if (!sec || byId("ttcLessonsPlus")) return;
+    var head = sec.querySelector(".otter2-dash-head");
+    if (!head) return;
+    var a = document.createElement("a");
+    a.id = "ttcLessonsPlus";
+    a.className = "ttc-lessons-plus";
+    a.href = "https://www.facebook.com/thich.tieng.trung.3.0";
+    a.target = "_blank";
+    a.rel = "noopener";
+    a.setAttribute("aria-label", "Bài học mới mỗi ngày trên Facebook");
+    a.title = "Bài học mới 19:30 mỗi ngày trên Facebook";
+    a.textContent = "+";
+    head.appendChild(a);
+  }
+
+  /* Ngữ cảnh Mondly trang chủ: desktop ≥1021px + theme sáng. */
+  function mondlyHomeOn() {
+    var night = false;
+    try { night = document.documentElement.getAttribute("data-theme") === "night"; } catch (e) {}
+    return !night && !!window.matchMedia && window.matchMedia("(min-width:1021px)").matches;
+  }
+
+  /* (3c) Bảng bài học mảnh như mẫu: số tròn thay chữ Hán + bỏ tiền
+     tố "Bài N ·" khỏi tên (số đã nằm trong vòng tròn). Chỉ đổi ở
+     ngữ cảnh Mondly; rời ngữ cảnh là khôi phục nguyên văn. */
+  function mondlyLessons(on) {
+    var rows = document.querySelectorAll("#otter2DashLessonList .otter2-dash-lesson");
+    Array.prototype.forEach.call(rows, function (row) {
+      var strong = row.querySelector(".otter2-dash-lesson-main strong");
+      var thumb = row.querySelector(".otter2-dash-thumb");
+      if (!strong || !thumb) return;
+      if (on && !row.hasAttribute("data-ttc-mondly")) {
+        var m = /^\s*Bài\s*(\d+)\s*·\s*(.+)$/.exec(strong.textContent || "");
+        if (!m) return;
+        row.setAttribute("data-ttc-orig-strong", strong.textContent);
+        row.setAttribute("data-ttc-orig-thumb", thumb.textContent);
+        strong.textContent = m[2];
+        thumb.textContent = m[1];
+        row.setAttribute("data-ttc-mondly", "1");
+      } else if (!on && row.hasAttribute("data-ttc-mondly")) {
+        strong.textContent = row.getAttribute("data-ttc-orig-strong") || strong.textContent;
+        thumb.textContent = row.getAttribute("data-ttc-orig-thumb") || thumb.textContent;
+        row.removeAttribute("data-ttc-mondly");
+        row.removeAttribute("data-ttc-orig-strong");
+        row.removeAttribute("data-ttc-orig-thumb");
+      }
+    });
+  }
+
+  /* (3d) Nút Bảng thành tích THẬT (#otter2DashAchBtn): ở ngữ cảnh
+     Mondly dời sang góc phải thẻ Hoạt động dạng nút icon nhỏ
+     (đúng mẫu + giữ nguyên handler và điểm đến của Bé hướng dẫn);
+     rời ngữ cảnh là trả về đầu thẻ kỹ năng với nhãn đầy đủ. */
+  function mondlyAchBtn(on) {
+    var btn = byId("otter2DashAchBtn");
+    if (!btn) return;
+    var actHead = document.querySelector('#otter2-home .otter2-dash-card[aria-labelledby="otter2DashActTitle"] .otter2-dash-head');
+    var skillHead = document.querySelector('#otter2-home .otter2-dash-card[aria-labelledby="otter2DashLevelTitle"] .otter2-dash-head');
+    if (on) {
+      if (actHead && btn.parentNode !== actHead) {
+        if (!btn.getAttribute("data-ttc-orig-label")) btn.setAttribute("data-ttc-orig-label", btn.textContent);
+        actHead.appendChild(btn);
+        btn.textContent = "🏆";
+      }
+    } else if (skillHead && btn.parentNode !== skillHead) {
+      skillHead.appendChild(btn);
+      var orig = btn.getAttribute("data-ttc-orig-label");
+      if (orig) {
+        btn.textContent = orig;
+        btn.removeAttribute("data-ttc-orig-label");
+      }
+    }
+  }
+
+  function mondlyExtras() {
+    buildSegButtons();
+    buildCourseRooms();
+    buildSkillBits();
+    buildLessonsPlus();
+    var on = mondlyHomeOn();
+    mondlyLessons(on);
+    mondlyAchBtn(on);
+    syncSeg();
+  }
+
+  /* MONDLY v3: hàng chip LỘ TRÌNH (dải chọn cấp .otter2-dash-strip
+     sẵn có của dashboard) chuyển vào cột giữa, ngay dưới dòng chào
+     (thẻ Học tiếp) — đúng thứ tự của mẫu Mondly. CSS chỉ hiện dải ở
+     desktop ≥1021px theme sáng; bề ngang/theme khác dải vẫn ẩn như
+     thiết kế V2 (không mất cơ chế: chip vẫn bấm được khi hiện). */
+  function moveStrip() {
+    var strip = $("#otter2-home .otter2-dash-strip");
+    var main = $("#otter2-home .otter2-dash-main");
+    var cont = $("#otter2-home .otter2-dash-continue");
+    if (!strip || !main) return false;
+    if (strip.parentNode !== main) {
+      if (cont && cont.parentNode === main) main.insertBefore(strip, cont.nextSibling);
+      else main.insertBefore(strip, main.firstChild);
+    }
+    return true;
+  }
+
+  /* MONDLY v3: dòng chào đầu trang chủ — thẻ "Học tiếp" thành dòng
+     chào đúng mẫu: có tên học viên THẬT khi đã đăng nhập (cùng
+     nguồn displayName của khối hồ sơ sidebar); khách chưa đăng
+     nhập thì chào trung tính như hero cũ của web. */
+  function renderGreeting() {
+    var gt = byId("otter2DashContinueTitle");
+    if (!gt) return;
+    var u = currentUser();
+    var nm = u ? displayName(u) : "";
+    var txt = nm ? ("Chào mừng trở lại, " + nm + "!") : "Chào mừng bạn quay trở lại!";
+    if (gt.textContent !== txt) gt.textContent = txt;
   }
 
   /* ---------------- trạng thái + số liệu ---------------- */
@@ -623,7 +949,7 @@
     profileEls.mail.style.display = "none";
     profileEls.btn.textContent = "Tài khoản của tôi";
   }
-  function renderAll() { renderStats(); renderProfile(); syncActive(); placeUtility(); }
+  function renderAll() { renderStats(); renderProfile(); syncActive(); placeUtility(); renderGreeting(); mondlyExtras(); }
 
   /* ---------------- khởi tạo ---------------- */
   var built = false;
@@ -634,12 +960,18 @@
     var okRail = buildRailAch();
     var okMove = moveContinueCard();
     var okRoad = moveRoadCard();
+    var okSub = buildSubbar();
+    var okStrip = moveStrip();
     placeUtility();
-    if (okSidebar && okBar && okRail && okMove && okRoad) {
+    mondlyExtras();
+    if (okSidebar && okBar && okRail && okMove && okRoad && okSub && okStrip) {
       if (!built) {
         built = true;
         if (mqDesk.addEventListener) mqDesk.addEventListener("change", placeUtility);
         else if (mqDesk.addListener) mqDesk.addListener(placeUtility);
+        var mqM = window.matchMedia ? window.matchMedia("(min-width:1021px)") : null;
+        if (mqM && mqM.addEventListener) mqM.addEventListener("change", renderAll);
+        else if (mqM && mqM.addListener) mqM.addListener(renderAll);
         document.addEventListener("click", function (ev) {
           var t = ev.target && ev.target.closest ? ev.target.closest("[data-shell-act]") : null;
           if (t) { runAction(t.getAttribute("data-shell-act")); setTimeout(syncActive, 450); }
