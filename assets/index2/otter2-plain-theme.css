@@ -125,10 +125,9 @@ html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-stats{
    2026-11-23, thay hướng cam của Mẫu 1 cho khu nội dung):
    - Nền khu học: xám oải hương nhẹ; thẻ trắng bo 24, viền rất
      nhạt + bóng mềm; tiêu đề thẻ gần đen #14161A.
-   - Thẻ "Học tiếp": nền tím gradient, chữ trắng, nhãn cấp thành
-     viên thuốc trắng mờ, nút trắng chữ tím (đúng thẻ khóa học
-     trong mẫu).
-   - Thanh tiến độ: rãnh xám nhạt, phần đầy gradient tím.
+   - Thẻ khóa học tím nằm TRONG thẻ trắng "Khóa tự học" (chi
+     tiết chính của mẫu): tím gradient, nhãn cam, thanh tiến độ
+     VÀNG; thẻ "Học tiếp" giữ nền trắng + nút đen.
    - Ô phòng học (.otter2-feature) + ô cấp HSK (.otter2-dash-
      lvcell): nền xám rất nhạt bo 14–16 như ô kỹ năng trong mẫu,
      hover nhuốm tím nhạt.
@@ -155,29 +154,41 @@ html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-stats{
   html:not([data-theme="night"]) #otter2-home .otter2-dash-card h3{ color:#14161A; }
   html:not([data-theme="night"]) #otter2-home .otter2-dash-sub{ color:#8A8F98; }
 
-  html:not([data-theme="night"]) #otter2-home .otter2-dash-continue{
-    background:linear-gradient(135deg,#7C5CFC 0%,#5B3DF0 58%,#4A2FD6 100%);
-    border-color:transparent; color:#ffffff;
-  }
+  /* Thẻ "Học tiếp": thẻ trắng như mẫu, nhãn cấp viên tím nhạt,
+     nút chính màu đen. */
   html:not([data-theme="night"]) #otter2-home .otter2-dash-continue .otter2-dash-kicker{
-    background:rgba(255,255,255,.22); color:#ffffff; border-radius:999px; padding:4px 12px;
-    justify-self:start;
+    background:#F2EFFF; color:#6C4CF1; border-radius:999px; padding:4px 12px;
+    justify-self:start; font-weight:700;
   }
-  html:not([data-theme="night"]) #otter2-home .otter2-dash-continue h3{ color:#ffffff; }
-  html:not([data-theme="night"]) #otter2-home .otter2-dash-continue p{ color:rgba(255,255,255,.88); }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-continue h3{ color:#14161A; font-size:21px; }
   html:not([data-theme="night"]) #otter2-home .otter2-dash-continue img{
-    border-radius:20px; box-shadow:0 8px 22px rgba(30,16,90,.35);
+    border-radius:20px; box-shadow:0 8px 22px rgba(31,35,52,.12);
   }
   html:not([data-theme="night"]) #otter2-home .otter2-dash-continue .otter2-dash-ctared{
-    background:#ffffff; color:#4326C9; border-radius:12px; font-weight:800;
-    box-shadow:0 6px 16px rgba(30,16,90,.28);
+    background:#14161A; color:#ffffff; border-radius:12px; font-weight:800;
   }
 
-  html:not([data-theme="night"]) #otter2-home .otter2-dash-bar{
-    background:#ECECF1; height:9px; border-radius:99px;
+  /* Thẻ khóa học TÍM nằm trong thẻ trắng "Khóa tự học" — đúng
+     chi tiết chính của mẫu Mondly: thẻ tím bo 18, nhãn cam,
+     thanh tiến độ VÀNG trên rãnh trắng mờ, nút trắng chữ tím. */
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-hero{
+    background:linear-gradient(135deg,#7C5CFC 0%,#5B3DF0 58%,#4A2FD6 100%);
+    border-radius:18px; color:#ffffff;
   }
-  html:not([data-theme="night"]) #otter2-home .otter2-dash-bar > i{
-    background:linear-gradient(90deg,#8B6CFF,#6C4CF1); border-radius:99px;
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-hero h3{ color:#ffffff; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-hero p{ color:rgba(255,255,255,.85); }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-hero .otter2-dash-badge{
+    background:#FF8A3D; color:#ffffff; border-radius:999px;
+  }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-hero .otter2-dash-prow{ color:#ffffff; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-hero .otter2-dash-hero-cta{
+    background:#ffffff; color:#4326C9; border-radius:10px; font-weight:800;
+  }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-hero .otter2-dash-bar{
+    background:rgba(255,255,255,.28); height:9px; border-radius:99px;
+  }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-hero .otter2-dash-bar > i{
+    background:#FFC531; border-radius:99px;
   }
 
   html:not([data-theme="night"]) #otter2-home .otter2-feature{
