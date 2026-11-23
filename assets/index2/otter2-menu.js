@@ -491,14 +491,14 @@
         if (card) card.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 200);
     },
-    /* REDESIGN GĐ1: Tin nhắn = mở đúng cửa sổ chat AI (nút thật
-       #aichatLauncher ở góc phải); dự phòng nút Chat Online thật
+    /* REDESIGN GĐ1: mục này = mở đúng cửa sổ chat AI qua API
+       window.__ttcAIChat (viên pill nổi #aichatLauncher đã gỡ hẳn
+       theo lệnh anh Huy 2026-11-24); dự phòng nút Chat Online thật
        ở header khi module chat AI vắng mặt. */
     chat: function () {
       var tries = 0;
       (function check() {
-        var l = byId("aichatLauncher");
-        if (l) { l.click(); return; }
+        if (window.__ttcAIChat && typeof window.__ttcAIChat.toggle === "function") { window.__ttcAIChat.toggle(); return; }
         tries++;
         if (tries < 10) { setTimeout(check, 250); return; }
         var c = byId("otter2ChatOnlineBtn");

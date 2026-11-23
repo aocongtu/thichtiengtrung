@@ -721,17 +721,10 @@
   var firstOpen = true;
 
   function buildUI() {
-    launcher = el("button", null);
-    launcher.id = "aichatLauncher";
-    launcher.type = "button";
-    launcher.setAttribute("aria-label", "Trò chuyện cùng Bé");
-    var li = avaImg(null, "Bé");
-    var lt = el("span", null, "Trò chuyện cùng Bé");
-    var dot = el("span", "aichat-launcher-dot", "1");
-    launcher.appendChild(li); launcher.appendChild(lt); launcher.appendChild(dot);
-    launcher.classList.add("has-unread");
-    launcher.addEventListener("click", togglePanel);
-    document.body.appendChild(launcher);
+    /* Viên pill nổi "Trò chuyện cùng Bé" (#aichatLauncher) đã GỠ HẲN
+       theo lệnh anh Huy 2026-11-24: trùng chức năng với nút "Hỏi Bé"
+       ở thanh điều hướng. Panel chat mở qua window.__ttcAIChat
+       (nút Hỏi Bé ở shell/menu) — launcher giữ null vĩnh viễn. */
 
     panel = el("div", null);
     panel.id = "aichatPanel";
@@ -1043,7 +1036,7 @@
     filterList();
   }
   function openThread(scenId) {
-    launcher.classList.remove("has-unread");
+    if (launcher) launcher.classList.remove("has-unread");
     listView.classList.remove("active");
     threadView.classList.add("active");
     if (scenId) startScenario(scenId, false);
@@ -1489,7 +1482,7 @@
     bindViewport();
     fitPanel();
     resolveAvatar();
-    launcher.classList.remove("has-unread");
+    if (launcher) launcher.classList.remove("has-unread");
     if (firstOpen) {
       firstOpen = false;
       listView.classList.add("active");

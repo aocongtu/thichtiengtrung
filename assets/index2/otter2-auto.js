@@ -107,7 +107,6 @@
     var vocabBody = document.getElementById("autoLearningBody");
     var exampleBody = document.getElementById("ttcEA2Body");
     var vocabCollapse = document.getElementById("autoLearningCollapseToggle");
-    var exampleCollapse = document.getElementById("ttcEA2CollapseToggle");
 
     if (which === "vocab") {
       if (example) {
@@ -131,10 +130,6 @@
     } else if (which === "example") {
       setActiveLaunch("example");
       if (exampleBody) exampleBody.hidden = false;
-      if (exampleCollapse) {
-        exampleCollapse.textContent = "thu nhỏ lại −";
-        exampleCollapse.setAttribute("aria-expanded", "true");
-      }
       if (vocab && !vocab.classList.contains(FS_CLASS)) vocab.style.display = "none";
       enterFullscreen(example, "example");
     }

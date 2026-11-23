@@ -90,6 +90,9 @@ if(window.__OTTER2_AUTO_EA2__) return; window.__OTTER2_AUTO_EA2__=true;
     const reset =
       $("ttcEA2Reset");
 
+    const pinyinToggle =
+      $("ttcEA2PinyinToggle");
+
 
     /* =======================================================
        💾 STORAGE RIÊNG
@@ -153,6 +156,14 @@ if(window.__OTTER2_AUTO_EA2__) return; window.__OTTER2_AUTO_EA2__=true;
       localStorage.getItem(KEY_LOOP) === "1";
 
     let showMeaning = true;
+
+    /*
+     * Trạng thái pinyin của panel câu ví dụ.
+     * Mặc định MỞ — khớp với cách render vẫn luôn hiện
+     * dòng pinyin trước đây; nút gạt chỉ đổi biến này.
+     */
+
+    let pinyinOn = true;
 
 
     /*
@@ -449,9 +460,11 @@ if(window.__OTTER2_AUTO_EA2__) return; window.__OTTER2_AUTO_EA2__=true;
 
 
       pinyin.textContent =
-        String(
-          w.examplePinyin || ""
-        );
+        pinyinOn
+          ? String(
+              w.examplePinyin || ""
+            )
+          : "";
 
 
       meaning.textContent =
@@ -828,7 +841,7 @@ if(window.__OTTER2_AUTO_EA2__) return; window.__OTTER2_AUTO_EA2__=true;
 
 
       auto.textContent =
-        "▶️ Tự động";
+        "▶ Phát";
 
     }
 
@@ -1323,7 +1336,7 @@ if(window.__OTTER2_AUTO_EA2__) return; window.__OTTER2_AUTO_EA2__=true;
 
 
         auto.textContent =
-          "⏸️ Dừng tự động";
+          "⏸ Tạm dừng";
 
 
         schedule();
@@ -1561,6 +1574,54 @@ if(window.__OTTER2_AUTO_EA2__) return; window.__OTTER2_AUTO_EA2__=true;
 
       }
     );
+
+
+    /* =======================================================
+       🔤 PINYIN — NÚT BẬT/TẮT TRÊN TOPBAR
+       (Trước đây nút này không hề được bind: render luôn
+       hiện pinyin trong khi nhãn mặc định ghi "đóng".)
+       ======================================================= */
+
+    function updatePinyinToggle(){
+
+      if(!pinyinToggle){
+
+        return;
+
+      }
+
+      pinyinToggle.setAttribute(
+        "aria-pressed",
+        pinyinOn ? "true" : "false"
+      );
+
+      pinyinToggle.textContent =
+        pinyinOn
+          ? "pinyin：mở"
+          : "pinyin：đóng";
+
+    }
+
+
+    if(pinyinToggle){
+
+      pinyinToggle.addEventListener(
+        "click",
+        function(){
+
+          pinyinOn = !pinyinOn;
+
+          updatePinyinToggle();
+
+          render();
+
+        }
+      );
+
+    }
+
+
+    updatePinyinToggle();
 
 
     /* =======================================================

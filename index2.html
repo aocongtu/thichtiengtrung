@@ -24673,6 +24673,34 @@ body #ttcExampleAutoV2.otter2-auto-fs-open{
   gap:9px !important;
   margin-top:12px !important;
 }
+/* topbar câu ví dụ: đã bỏ nút "thu nhỏ lại" bên phải — ghim nút pinyin
+   sát trái, tiêu đề nằm cân giữa thật sự */
+#ttcExampleAutoV2.otter2-auto-fs-open .ea2-topbar{
+  position:relative !important;
+  justify-content:center !important;
+}
+#ttcExampleAutoV2.otter2-auto-fs-open #ttcEA2PinyinToggle{
+  position:absolute !important;
+  left:0 !important;
+  top:50% !important;
+  transform:translateY(-50%) !important;
+}
+/* hàng điều khiển câu ví dụ: Trước / Phát-Tạm dừng / Sau là 3 viên
+   bằng nhau; hàng Lặp / Chiều cũng chia đều cho cân đối */
+#ttcExampleAutoV2.otter2-auto-fs-open #ttcEA2Prev,
+#ttcExampleAutoV2.otter2-auto-fs-open #ttcEA2Auto,
+#ttcExampleAutoV2.otter2-auto-fs-open #ttcEA2Next{
+  flex:1 1 0 !important;
+  max-width:280px !important;
+  text-align:center !important;
+  white-space:nowrap !important;
+}
+#ttcExampleAutoV2.otter2-auto-fs-open #ttcEA2Loop,
+#ttcExampleAutoV2.otter2-auto-fs-open #ttcEA2Direction{
+  flex:1 1 0 !important;
+  max-width:360px !important;
+  text-align:center !important;
+}
 #ttcExampleAutoV2.otter2-auto-fs-open .ea2-btn{
   border-radius:999px !important;
   min-height:46px !important;
@@ -24689,13 +24717,16 @@ body #ttcExampleAutoV2.otter2-auto-fs-open{
   transform:translateY(-1px);
 }
 #ttcExampleAutoV2.otter2-auto-fs-open .ea2-btn.green{
-  background:#F97316;
+  /* background PHẢI !important: rule .ea2-btn chung ở trên đặt
+     background trắng !important — thiếu !important ở đây khiến nút
+     Phát/Tạm dừng thành chữ trắng trên nền trắng (nhãn vô hình). */
+  background:#F97316 !important;
   border-color:#E3E8EF !important;
   color:#ffffff !important;
   box-shadow:0 8px 20px rgba(22,40,63,.12) !important;
 }
 #ttcExampleAutoV2.otter2-auto-fs-open .ea2-btn.green:hover{
-  background:#F97316;
+  background:#F97316 !important;
   filter:brightness(1.07);
 }
 #ttcExampleAutoV2.otter2-auto-fs-open .ea2-btn.reset{

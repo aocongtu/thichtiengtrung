@@ -14,7 +14,7 @@
 
    Nội dung:
    1) SIDEBAR TRÁI cố định (desktop ≥900px, xem V3): 6 đích — Trang chủ ·
-      Lộ trình HSK · Phòng truyện · Phòng đọc · Thi HSK · Tin nhắn;
+      Lộ trình HSK · Phòng truyện · Phòng đọc · Thi HSK · Hỏi Bé;
       dưới cùng: khối hồ sơ học viên (đọc trạng thái tài khoản thật)
       + thống kê tiến độ THẬT (đọc otter2_hsk_vocab_progress_v1 và
       OTTER2_HSK_ALL_DATA.counts — chỉ đọc, cùng nguồn với dashboard).
@@ -277,10 +277,13 @@
       }, 380);
     },
     chat: function () {
+      /* Mở chat AI qua API window.__ttcAIChat (viên pill nổi
+         #aichatLauncher đã gỡ hẳn theo lệnh anh Huy 2026-11-24 —
+         nav "Hỏi Bé" là lối vào duy nhất); dự phòng nút Chat
+         Online thật ở header khi module chat AI vắng mặt. */
       var tries = 0;
       (function check() {
-        var l = byId("aichatLauncher");
-        if (l) { l.click(); return; }
+        if (window.__ttcAIChat && typeof window.__ttcAIChat.toggle === "function") { window.__ttcAIChat.toggle(); return; }
         tries++;
         if (tries < 10) { setTimeout(check, 250); return; }
         var c = byId("otter2ChatOnlineBtn");
@@ -309,7 +312,7 @@
     { act: "story", icon: "🎬", label: "Phòng truyện", color: "#16283F" },
     { act: "reading", icon: "📖", label: "Phòng đọc", color: "#16283F" },
     { act: "exam", icon: "📝", label: "Thi HSK", color: "#16283F" },
-    { act: "chat", icon: "💬", label: "Tin nhắn", color: "#16283F" }
+    { act: "chat", icon: "💬", label: "Hỏi Bé", color: "#16283F" }
   ];
 
   /* ---------------- style ---------------- */
