@@ -230,3 +230,36 @@ html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-stats{
   html:not([data-theme="night"]) .otter2-hsk1-card{ border-color:#ECECF1; border-radius:16px; }
   html:not([data-theme="night"]) .otter2-hsk1-card:hover{ border-color:#C9B8FF; }
 }
+
+/* ============================================================
+   Mondly v2 (khuya 2026-11-23): anh Huy hỏi "giống chỗ nào?" —
+   bản v1 mới mượn màu (tím/đen/oải hương), chưa giống KHUNG:
+   mẫu thật có (1) toàn bộ web nằm trong 1 CỬA SỔ trắng bo góc
+   lớn trên nền oải hương, (2) thẻ PHẲNG viền mảnh gần như
+   không bóng, (3) đầu trang là dòng chào to thay vì 1 thẻ,
+   (4) cam gần như biến mất khỏi các nút chính. Khối này làm
+   nốt phần CSS làm được: đóng khung cửa sổ cho .otter2-shell
+   (cột trái cố định vẫn nằm ngoài khung — giới hạn CSS),
+   thẻ phẳng, thẻ Học tiếp thành dòng chào, nút thi + nút
+   Đăng nhập thành đen. Chưa đẩy khi anh Huy chưa duyệt.
+   ============================================================ */
+@media (min-width:900px){
+  html:not([data-theme="night"]) body.otter2-body{ background:#E6E4EF; }
+  html:not([data-theme="night"]) .otter2-shell{
+    border-radius:28px; margin:16px 16px 16px 0;
+    box-shadow:0 24px 60px rgba(31,35,52,.14);
+  }
+  html:not([data-theme="night"]) #otter2-home{ background:transparent; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-card{
+    border:1px solid #E8EAEF; border-radius:20px;
+    box-shadow:0 1px 3px rgba(16,24,40,.05);
+  }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-card.otter2-dash-continue{
+    background:transparent; border-color:transparent; box-shadow:none;
+  }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-continue h3{ font-size:26px; }
+  html:not([data-theme="night"]) #otter2-home .ttc-exam-panel-btn{
+    background:#14161A; color:#ffffff;
+  }
+  html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-pbtn{ background:#14161A; }
+}
