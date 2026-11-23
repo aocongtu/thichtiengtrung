@@ -119,3 +119,103 @@ html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-stats{
   body .guide-wrap{bottom:calc(142px + env(safe-area-inset-bottom,0px))}
   body .guide-otter{scale:.65}
 }
+
+/* ============================================================
+   DESKTOP TRANG CHỦ — mẫu dashboard Mondly (anh Huy chốt tối
+   2026-11-23, thay hướng cam của Mẫu 1 cho khu nội dung):
+   - Nền khu học: xám oải hương nhẹ; thẻ trắng bo 24, viền rất
+     nhạt + bóng mềm; tiêu đề thẻ gần đen #14161A.
+   - Thẻ "Học tiếp": nền tím gradient, chữ trắng, nhãn cấp thành
+     viên thuốc trắng mờ, nút trắng chữ tím (đúng thẻ khóa học
+     trong mẫu).
+   - Thanh tiến độ: rãnh xám nhạt, phần đầy gradient tím.
+   - Ô phòng học (.otter2-feature) + ô cấp HSK (.otter2-dash-
+     lvcell): nền xám rất nhạt bo 14–16 như ô kỹ năng trong mẫu,
+     hover nhuốm tím nhạt.
+   - Cột phải: hàng nhiệm vụ bo 14, nhãn phải (.mins) thành viên
+     thuốc xám; nút chính "Vào học ngay" màu ĐEN như nút "Go to
+     tasks" trong mẫu; nút Bảng thành tích trắng viền.
+   - Cột trái: mục đang chọn thành viên ĐEN chữ trắng như mục
+     chọn trên thanh điều hướng của mẫu (thay nền cam nhạt của
+     Mẫu 1 ban sáng — anh Huy đã chốt lại theo mẫu mới).
+   - Thẻ từ vựng: bo 16, viền nhạt, hover viền tím nhạt (chỉ
+     khung thẻ; chữ Hán/Hán-Việt/pinyin giữ nguyên).
+   Chỉ desktop ≥900px + theme sáng; KHÔNG đụng .ttt-rainbow,
+   .ttc-han-viet, index2.html hay JS nào.
+   ============================================================ */
+@media (min-width:900px){
+  html:not([data-theme="night"]) #otter2-home{
+    background:linear-gradient(180deg,#EFEDF6 0%,#E8E6F1 100%);
+  }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-card{
+    background:#ffffff; border:1px solid #ECECF1; border-radius:24px;
+    box-shadow:0 10px 30px rgba(31,35,52,.06);
+  }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-card h2,
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-card h3{ color:#14161A; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-sub{ color:#8A8F98; }
+
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-continue{
+    background:linear-gradient(135deg,#7C5CFC 0%,#5B3DF0 58%,#4A2FD6 100%);
+    border-color:transparent; color:#ffffff;
+  }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-continue .otter2-dash-kicker{
+    background:rgba(255,255,255,.22); color:#ffffff; border-radius:999px; padding:4px 12px;
+    justify-self:start;
+  }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-continue h3{ color:#ffffff; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-continue p{ color:rgba(255,255,255,.88); }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-continue img{
+    border-radius:20px; box-shadow:0 8px 22px rgba(30,16,90,.35);
+  }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-continue .otter2-dash-ctared{
+    background:#ffffff; color:#4326C9; border-radius:12px; font-weight:800;
+    box-shadow:0 6px 16px rgba(30,16,90,.28);
+  }
+
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-bar{
+    background:#ECECF1; height:9px; border-radius:99px;
+  }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-bar > i{
+    background:linear-gradient(90deg,#8B6CFF,#6C4CF1); border-radius:99px;
+  }
+
+  html:not([data-theme="night"]) #otter2-home .otter2-feature{
+    background:#F6F6F8; border:1.5px solid transparent; border-radius:16px;
+  }
+  html:not([data-theme="night"]) #otter2-home .otter2-feature:hover{
+    background:#F2EFFF; border-color:#D9CFFF;
+  }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-lvcell{
+    background:#F6F6F8; border:1.5px solid transparent; border-radius:14px;
+  }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-lvcell:hover{
+    background:#F2EFFF; border-color:#D9CFFF;
+  }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-lvcell b{ color:#14161A; }
+
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-task{ border-radius:14px; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-task:hover{ background:#F6F6F8; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-task .tt small{ color:#8A8F98; }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-task .mins{
+    background:#F1F1F4; border-radius:999px; padding:4px 10px; color:#3F4356; font-weight:700;
+  }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-cta{
+    background:#14161A; color:#ffffff; border-radius:12px; font-weight:700;
+  }
+  html:not([data-theme="night"]) #otter2-home .otter2-dash-cta:hover{ background:#000000; }
+  html:not([data-theme="night"]) #otter2-home .ttc-shell-ach-btn{
+    background:#ffffff; color:#14161A; border:1.5px solid #E4E6EA; border-radius:12px; font-weight:700;
+  }
+
+  html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-item.is-active{
+    background:#14161A; color:#ffffff; box-shadow:none; border-radius:12px;
+  }
+  html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-item.is-active:hover{ background:#14161A; }
+  html:not([data-theme="night"]) #ttcShellSidebar .ttc-shell-item.is-active .ttc-shell-ico{
+    background:rgba(255,255,255,.16);
+  }
+
+  html:not([data-theme="night"]) .otter2-hsk1-card{ border-color:#ECECF1; border-radius:16px; }
+  html:not([data-theme="night"]) .otter2-hsk1-card:hover{ border-color:#C9B8FF; }
+}
