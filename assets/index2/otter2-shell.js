@@ -912,9 +912,23 @@
     }
     return "home";
   }
+  var lastAct = "home";
+  function overlayAct() {
+    var ex = byId("ttcExamOverlay");
+    if (ex && ex.classList.contains("open")) return "exam";
+    var st = byId("ttcStoryVideoOverlay");
+    if (st && st.classList.contains("open")) return "story";
+    var ch = byId("aichatPanel");
+    if (ch && ch.classList.contains("open")) return "chat";
+    return null;
+  }
   function syncActive() {
     var scr = currentScreen();
-    var active = scr === "home" ? "home" : (scr === "reading" ? "reading" : null);
+    var active = overlayAct();
+    if (!active) {
+      if (scr === "reading") active = "reading";
+      else if (scr === "home") active = lastAct === "roadmap" ? "roadmap" : "home";
+    }
     var btns = document.querySelectorAll("[data-shell-act]");
     Array.prototype.forEach.call(btns, function (b) {
       b.classList.toggle("is-active", b.getAttribute("data-shell-act") === active);
@@ -990,7 +1004,7 @@
         else if (mqM && mqM.addListener) mqM.addListener(renderAll);
         document.addEventListener("click", function (ev) {
           var t = ev.target && ev.target.closest ? ev.target.closest("[data-shell-act]") : null;
-          if (t) { runAction(t.getAttribute("data-shell-act")); setTimeout(syncActive, 450); }
+          if (t) { lastAct = t.getAttribute("data-shell-act"); runAction(lastAct); syncActive(); setTimeout(syncActive, 450); }
         });
         setInterval(renderAll, 4000);
         renderAll();
