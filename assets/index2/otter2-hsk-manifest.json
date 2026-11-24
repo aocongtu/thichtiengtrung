@@ -27,6 +27,7 @@
   "match_expected": true,
   "files": [
     "otter2-hsk-all-data.js",
-    "otter2-hsk1-data.js"
+    "otter2-hsk1-data.js",
+    "otter2-hsk-lite-data.js"
   ]
 }

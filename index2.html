@@ -3120,7 +3120,8 @@ window.OTTER2_HSK_MANIFEST = {
   "match_expected": true,
   "files": [
     "otter2-hsk-all-data.js",
-    "otter2-hsk1-data.js"
+    "otter2-hsk1-data.js",
+    "otter2-hsk-lite-data.js"
   ],
   "examples_coverage": {
     "1": 300,
@@ -3129,31 +3130,19 @@ window.OTTER2_HSK_MANIFEST = {
     "4": 1000,
     "5": 1600,
     "6": 1800,
-    "7": 791,
-    "8": 748,
-    "9": 755,
-    "total_with_example": 7694,
-    "total_missing": 3306,
-    "source": "index.html const words + window.ttcExtraGlossaries",
-    "note": "HSK7-9 gaps equal empty examples in index1; no fabricated data"
+    "7": 1867,
+    "8": 1867,
+    "9": 1866,
+    "total_with_example": 11000,
+    "total_missing": 0,
+    "source": "otter2-hsk-all-data.js (Dot A 2026-11-24: enrichment + examples-plus folded into main bank)",
+    "note": "Full coverage: every entry carries an example in the main bank file"
   },
   "examples_enriched_at": "2026-11-15T10:40:03.465Z"
 };
   </script>
   <script id="otter2-hsk-all-data-embedded" src="assets/index2/otter2-hsk-all-data.js"></script>
-  <script id="otter2-hsk-enrichment-patch">
-  /* Muse 2026-11-16: du lieu HSK chuyen sang file ngoai otter2-hsk-all-data.js de giam kich thuoc trang.
-     Ban va duoi day ap lai 13 vi du da duoc bo sung (examples_enriched) + gieo window.words nhu ban nhung cu. */
-  (function(){
-    var all = window.OTTER2_HSK_ALL_DATA; if(!all || !Array.isArray(all.words)) return;
-    var PATCH = [{"i": 5420, "set": {"example": "我们需要了解半导体。", "examplePinyin": "Wǒmen xūyào liǎojiě bàndǎotǐ.", "exampleMeaning": "Chúng ta cần tìm hiểu về chất bán dẫn."}}, {"i": 5994, "set": {"example": "我们需要了解护理。", "examplePinyin": "Wǒmen xūyào liǎojiě hùlǐ.", "exampleMeaning": "Chúng ta cần tìm hiểu về điều dưỡng; chăm sóc."}}, {"i": 6658, "set": {"example": "我们需要了解司法。", "examplePinyin": "Wǒmen xūyào liǎojiě sīfǎ.", "exampleMeaning": "Chúng ta cần tìm hiểu về tư pháp."}}, {"i": 6740, "set": {"example": "我们需要了解推理。", "examplePinyin": "Wǒmen xūyào liǎojiě tuīlǐ.", "exampleMeaning": "Chúng ta cần tìm hiểu về suy luận."}}, {"i": 6795, "set": {"example": "我们需要了解温室。", "examplePinyin": "Wǒmen xūyào liǎojiě wēnshì.", "exampleMeaning": "Chúng ta cần tìm hiểu về nhà kính."}}, {"i": 7079, "set": {"example": "我们需要了解预算。", "examplePinyin": "Wǒmen xūyào liǎojiě yùsuàn.", "exampleMeaning": "Chúng ta cần tìm hiểu về ngân sách; dự toán."}}, {"i": 7776, "set": {"example": "我们需要了解供应链。", "examplePinyin": "Wǒmen xūyào liǎojiě gōngyìngliàn.", "exampleMeaning": "Chúng ta cần tìm hiểu về chuỗi cung ứng."}}, {"i": 8550, "set": {"example": "我们需要了解数据库。", "examplePinyin": "Wǒmen xūyào liǎojiě shùjùkù.", "exampleMeaning": "Chúng ta cần tìm hiểu về cơ sở dữ liệu."}}, {"i": 8850, "set": {"example": "我们需要了解旋律。", "examplePinyin": "Wǒmen xūyào liǎojiě xuánlǜ.", "exampleMeaning": "Chúng ta cần tìm hiểu về giai điệu."}}, {"i": 9073, "set": {"example": "我们需要了解仲裁。", "examplePinyin": "Wǒmen xūyào liǎojiě zhòngcái.", "exampleMeaning": "Chúng ta cần tìm hiểu về trọng tài."}}, {"i": 9945, "set": {"example": "我们需要了解立法。", "examplePinyin": "Wǒmen xūyào liǎojiě lìfǎ.", "exampleMeaning": "Chúng ta cần tìm hiểu về lập pháp."}}, {"i": 10227, "set": {"example": "我们需要了解迁徙。", "examplePinyin": "Wǒmen xūyào liǎojiě qiānxǐ.", "exampleMeaning": "Chúng ta cần tìm hiểu về di cư; dịch chuyển dân cư."}}, {"i": 10461, "set": {"example": "我们需要了解诉讼。", "examplePinyin": "Wǒmen xūyào liǎojiě sùsòng.", "exampleMeaning": "Chúng ta cần tìm hiểu về tố tụng; kiện tụng."}}];
-    PATCH.forEach(function(p){ var w = all.words[p.i]; if(w){ for(var k in p.set){ w[k] = p.set[k]; } } });
-    var META = {"examples_enriched_at": "2026-11-15T10:37:58.982Z", "examples_source": "index.html const words + window.ttcExtraGlossaries", "examples_note": "Merged by lemma_id|entry_id then hsk|h|p. Never overwrite non-empty with empty. No fabricated examples. HSK7-9 remaining gaps equal empty examples in index1 sources."};
-    for(var mk in META){ all[mk] = META[mk]; }
-    if(!Array.isArray(window.words) || !window.words.length){ window.words = all.words.slice(); }
-  })();
-  </script>
-  <script id="otter2-examples-plus" src="assets/index2/otter2-examples-plus.js"></script>
+  <script id="otter2-hsk-lite-data-embedded" src="assets/index2/otter2-hsk-lite-data.js"></script>
   <script id="otter2-hsk1-engine-embedded">
 /**
  * Otter2 HSK vocabulary bank (Kho từ vựng HSK) — index2 only.
