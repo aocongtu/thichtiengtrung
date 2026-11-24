@@ -310,7 +310,7 @@
     { act: "home", icon: "🏠", label: "Trang chủ", color: "#16283F" },
     { act: "roadmap", icon: "🗺️", label: "Lộ trình HSK", color: "#16283F" },
     { act: "story", icon: "🎬", label: "Phòng truyện", color: "#16283F" },
-    { act: "reading", icon: "📖", label: "Phòng đọc", color: "#16283F" },
+    { act: "reading", icon: "📖", label: "Luyện tập", color: "#16283F" },
     { act: "exam", icon: "📝", label: "Thi HSK", color: "#16283F" },
     { act: "chat", icon: "💬", label: "Hỏi Bé", color: "#16283F" }
   ];

@@ -121,7 +121,7 @@
      file. Nhãn là tên PHÒNG mới; action giữ nguyên cơ chế thật. */
   var STUDY_ITEMS = [
     { act: "story", icon: "🎬", label: "Phòng truyện" },
-    { act: "reading", icon: "📖", label: "Phòng đọc" },
+    { act: "reading", icon: "📖", label: "Luyện tập" },
     { act: "vocab", icon: "📚", label: "Phòng từ vựng" },
     { act: "path", icon: "🗺️", label: "Lộ trình từ vựng" },
     { act: "exam", icon: "📝", label: "Thi HSK" },
