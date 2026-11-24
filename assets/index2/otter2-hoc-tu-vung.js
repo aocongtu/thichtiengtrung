@@ -255,7 +255,12 @@
       ".htv-ov-card{border:1.5px solid #d8e0ec;background:#f8fafd;border-radius:16px;padding:14px 8px;cursor:pointer;text-align:center}",
       ".htv-ov-lv{display:block;font-size:19px;font-weight:900;color:" + NAVY + "}",
       ".htv-ov-n{display:block;font-size:13px;color:#63738a;font-weight:700;margin-top:3px}",
-      "#ttcHtvOverlay,#ttcTypeOverlay,#ttcOvOverlay{position:fixed;inset:0;background:#eef1f6;z-index:12060;overflow-y:auto;-webkit-overflow-scrolling:touch}",
+      ".htv-hub-list{display:grid;gap:10px;margin-top:6px}",
+      ".htv-hub-row{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;box-sizing:border-box;border:1.5px solid #d8e0ec;background:#f8fafd;border-radius:16px;padding:16px;cursor:pointer;text-align:left}",
+      ".htv-hub-name{font-size:18px;font-weight:900;color:" + NAVY + "}",
+      ".htv-hub-n{font-size:13.5px;color:#63738a;font-weight:700}",
+      ".htv-hub-chev{font-size:18px;color:" + BLUE + ";font-weight:900}",
+      "#ttcHtvOverlay,#ttcTypeOverlay,#ttcOvOverlay,#ttcTypeHubOverlay{position:fixed;inset:0;background:#eef1f6;z-index:12060;overflow-y:auto;-webkit-overflow-scrolling:touch}",
       ".htv-wrap{max-width:880px;margin:0 auto;padding:10px 10px calc(28px + env(safe-area-inset-bottom,0px))}",
       ".htv-panel{background:#fff;border:1px solid #e3e8f0;border-radius:20px;padding:16px 14px;box-shadow:0 4px 18px rgba(22,40,63,.06)}",
       ".htv-title{font-size:21px;font-weight:900;color:" + NAVY + ";margin:2px 0 10px}",
@@ -1045,27 +1050,66 @@
     return true;
   }
 
-  /* ---- hàng nút loại từ riêng ở Phòng từ vựng ---- */
+  /* ---- 1 nút "Loại từ" duy nhất ở Phòng từ vựng -> mở hub full màn hình ----
+     (anh Huy chốt bước 3, 2026-11-25: 5 nút loại từ gộp thành 1 nút "Loại từ";
+     nhấn vào mở toàn màn hình chọn loại, nhấn 1 loại mở HSK 1–9 để chọn) */
   function buildTypeEntry() {
     var anchor = byId("ttcOverviewBtn") || byId("otter2HskLevelRow");
     if (!anchor || !anchor.parentNode) return false;
     if (!byId("ttcTypeEntry")) {
-      var counts = typeCounts();
       var wrap = document.createElement("div");
-      wrap.className = "htv-typerow";
       wrap.id = "ttcTypeEntry";
-      wrap.innerHTML = '<div class="htv-typerow-lab">🏷 Học theo loại từ <small>· bấm 1 loại để mở full màn hình, chọn cấp rồi học luôn</small></div>' +
-        '<div class="htv-typerow-chips">' + TYPE_NAMES.map(function (t) {
-          return '<button type="button" class="htv-chip" data-ttc-type="' + esc(t) + '">' + esc(t) + " · " + counts[t].total + "</button>";
-        }).join("") + "</div>";
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "htv-overview-btn";
+      btn.id = "ttcTypeEntryBtn";
+      btn.innerHTML = '<span>🏷 Loại từ <span class="htv-ov-sub">· 5 loại — mở full màn hình, chọn loại rồi chọn cấp HSK 1–9</span></span><span class="htv-ov-chev">Mở ➜</span>';
+      btn.addEventListener("click", openTypeHub);
+      wrap.appendChild(btn);
       anchor.parentNode.insertBefore(wrap, anchor.nextSibling);
-      wrap.addEventListener("click", function (e) {
-        var b = e.target.closest("[data-ttc-type]"); if (!b) return;
-        openTypeOverlay(b.getAttribute("data-ttc-type"));
-      });
     }
     paintRoomEntries();
     return true;
+  }
+
+  /* ---- hub LOẠI TỪ (full màn hình): chọn 1 loại ---- */
+  function buildTypeHub() {
+    if (byId("ttcTypeHubOverlay")) return;
+    ensureStyle();
+    var counts = typeCounts();
+    var ov = document.createElement("div");
+    ov.id = "ttcTypeHubOverlay";
+    ov.hidden = true;
+    ov.innerHTML =
+      '<div class="htv-wrap"><div class="htv-panel">' +
+      '<button type="button" class="htv-close" id="hubClose">✕ Đóng</button>' +
+      '<div class="htv-title">🏷 Loại từ <small>· chọn 1 loại để mở HSK 1–9</small></div>' +
+      '<button type="button" class="htv-back" id="hubBack">← Phòng từ vựng</button>' +
+      '<div class="htv-hub-list" id="hubList">' + TYPE_NAMES.map(function (t) {
+        return '<button type="button" class="htv-hub-row" data-hub-type="' + esc(t) + '">' +
+          '<span><span class="htv-hub-name">' + esc(t) + '</span><br><span class="htv-hub-n">' + counts[t].total + " từ trong kho HSK 1–9</span></span>" +
+          '<span class="htv-hub-chev">➜</span></button>';
+      }).join("") + "</div>" +
+      "</div></div>";
+    document.body.appendChild(ov);
+    byId("hubClose").addEventListener("click", closeTypeHub);
+    byId("hubBack").addEventListener("click", closeTypeHub);
+    byId("hubList").addEventListener("click", function (e) {
+      var b = e.target.closest("[data-hub-type]"); if (!b) return;
+      openTypeOverlay(b.getAttribute("data-hub-type"), true);
+    });
+  }
+  function openTypeHub() {
+    buildTypeHub();
+    var ov = byId("ttcTypeHubOverlay");
+    ov.hidden = false;
+    document.body.style.overflow = "hidden";
+    ov.scrollTop = 0;
+  }
+  function closeTypeHub() {
+    var ov = byId("ttcTypeHubOverlay");
+    if (ov) ov.hidden = true;
+    if (!S.open && !T.open) document.body.style.overflow = "";
   }
 
   /* ---- màn hình TỔNG QUÁT (full màn hình) ---- */
@@ -1118,7 +1162,7 @@
   }
 
   /* ---- màn hình LOẠI TỪ (full màn hình, độc lập từng loại) ---- */
-  var T = { open: false, type: null, level: 1, mode: "list", fcIndex: 0, fcFlip: false, shown: 120 };
+  var T = { open: false, type: null, level: 1, mode: "list", fcIndex: 0, fcFlip: false, shown: 120, fromHub: false };
   function buildTypeOverlay() {
     if (byId("ttcTypeOverlay")) return;
     ensureStyle();
@@ -1141,7 +1185,11 @@
       "</div></div>";
     document.body.appendChild(ov);
     byId("tyClose").addEventListener("click", closeTypeOverlay);
-    byId("tyBack").addEventListener("click", closeTypeOverlay);
+    byId("tyBack").addEventListener("click", function () {
+      var backToHub = T.fromHub;
+      closeTypeOverlay();
+      if (backToHub) openTypeHub();
+    });
     byId("tyChips").addEventListener("click", function (e) {
       var b = e.target.closest("[data-ty-level]"); if (!b) return;
       var lv = Number(b.getAttribute("data-ty-level"));
@@ -1183,9 +1231,11 @@
       c.classList.toggle("on", c.getAttribute("data-ty-mode") === T.mode);
     });
   }
-  function openTypeOverlay(type) {
+  function openTypeOverlay(type, fromHub) {
     buildTypeOverlay();
     closeOvOverlay();
+    closeTypeHub();
+    T.fromHub = !!fromHub;
     T.type = type;
     T.open = true;
     var counts = typeCounts()[type] || { total: 0 };
