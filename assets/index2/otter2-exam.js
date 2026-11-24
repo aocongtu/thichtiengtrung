@@ -40,6 +40,19 @@
    (4) cổng độ giống áp thêm cho read-sentmean, read-sentence,
    listen-sentence + lưới quét cuối trong generateExam.
 
+   ÁP CHUẨN LÀM ĐỀ 2026-11-24 (chủ web dặn qua Mèo, Đội XuCup
+   #151–152) cho đề blueprint (Thi thật mô phỏng / Thi rút gọn /
+   thư viện): Nghe trộn 40/30/30 (nghe từ chọn nghĩa · nghe câu
+   chọn nghĩa · nghe từ chọn pinyin), Đọc trộn 40/30/30 (từ->nghĩa
+   · nghĩa->từ · điền từ vào câu), mỗi từ tối đa MỘT lần trong cả
+   đề (sổ usedWords chung, nới trùng nguồn cũng không nới trùng
+   từ), vị trí đáp án đúng rải đều A/B/C/D (chênh tối đa 1), câu
+   điền khuyết qua kiểm chứng điền-cả-4-lựa-chọn ở lưới quét cuối,
+   đề thiếu câu/validate lỗi thì bỏ và sinh lại tối đa 6 lượt.
+   Viết HSK3–6 xen kẽ sắp xếp từ + điền khuyết; HSK6 vẫn là dạng
+   thay thế bài luận có ghi chú UI, HSK3–5 thêm ghi chú thay thế
+   chấm tự động. HSK7–9 giữ bản mô phỏng thang 300 như cũ.
+
    v2 (2026-11-17) nâng cấp từ v1:
    - ĐỀ SÁT ĐỀ THẬT: blueprint theo cấu trúc đề HSK thật từng cấp
      (HSK1: Nghe 20 + Đọc 20, thang 200, đạt 120; HSK2: 35+25/200/120;
@@ -511,6 +524,52 @@
       srcKey: "L" + level + "|" + w.h + "|" + w.p
     }, String(w.example), wrongs, rng);
   }
+  /* ÁP CHUẨN 2026-11-24 — Nghe TỪ chọn nghĩa: TTS chỉ đọc đúng
+     một từ. Nhiễu là nghĩa của từ khác cùng cấp (ưu tiên cùng loại
+     từ), bị loại khi gloss chồng lấn với nghĩa đúng (meaningRejectFn)
+     HOẶC khi từ nhiễu ĐỒNG ÂM trọn vẹn với từ đích (cùng pinyin gồm
+     thanh điệu): người nghe không thấy chữ Hán nên nghĩa của từ
+     đồng âm cũng sẽ "đúng" với âm vừa nghe. */
+  function genListenWordMeaning(level, pool, rng) {
+    var w = pickOne(pool, rng);
+    if (!w) return null; /* VÁ 2026-11-24 */
+    var baseReject = meaningRejectFn(w);
+    var wrongs = distractors(pool, function (x) { return x.m; }, normOpt, w.m, 3, rng, sameTypeFirst(w), function (entry) {
+      if (!entry) return true;
+      if (baseReject(entry)) return true;
+      return normPy(entry.p) === normPy(w.p); /* đồng âm trọn vẹn với từ đích */
+    });
+    if (wrongs.length < 3) return null;
+    return finalize({
+      section: "listen", type: "listen-word-meaning",
+      stem: "Nghe TỪ sau và chọn nghĩa tiếng Việt ĐÚNG của từ.",
+      sub: "", passage: null, passageTitle: "",
+      speakText: String(w.h),
+      explainHead: String(w.h) + " · " + String(w.p),
+      explainBody: "Nghĩa đúng: " + String(w.m) +
+        (hasFullExample(w) ? "\nVí dụ: " + String(w.example) + " (" + String(w.examplePinyin) + ") — " + String(w.exampleMeaning) : ""),
+      srcKey: "L" + level + "|wm|" + w.h + "|" + w.p
+    }, String(w.m), wrongs, rng);
+  }
+  /* ÁP CHUẨN 2026-11-24 — Nghe TỪ chọn cách đọc: TTS đọc một từ,
+     đáp án là pinyin. Nhiễu lấy từ từ khác cùng cấp (ưu tiên cùng
+     loại từ); pinyinRejectFn loại cách đọc khác của chính chữ Hán
+     đó, bộ đáp án không chứa pinyin trùng đáp án đúng. */
+  function genListenWordPinyin(level, pool, rng) {
+    var w = pickOne(pool, rng);
+    if (!w) return null; /* VÁ 2026-11-24 */
+    var wrongs = distractors(pool, function (x) { return x.p; }, normPy, w.p, 3, rng, sameTypeFirst(w), pinyinRejectFn(w));
+    if (wrongs.length < 3) return null;
+    return finalize({
+      section: "listen", type: "listen-word-pinyin",
+      stem: "Nghe TỪ sau và chọn PINYIN ĐÚNG của từ.",
+      sub: "", passage: null, passageTitle: "",
+      speakText: String(w.h),
+      explainHead: String(w.h) + " · " + String(w.p),
+      explainBody: "Pinyin đúng: " + String(w.p) + "\nNghĩa: " + String(w.m),
+      srcKey: "L" + level + "|wp|" + w.h + "|" + w.p
+    }, String(w.p), wrongs, rng);
+  }
   /* Nghe hội thoại 2 lượt: lượt 1 = câu hỏi thật từ kho câu ví dụ,
      lượt 2 = câu trả lời (ưu tiên câu có dùng chung từ vựng với lượt 1).
      Đáp án kiểm chứng = nghĩa của lượt 2 trong dữ liệu. */
@@ -582,6 +641,46 @@
       explainBody: "Pinyin đúng: " + String(w.p) + "\nNghĩa: " + String(w.m),
       srcKey: "V" + level + "|" + w.h + "|" + w.p
     }, String(w.p), wrongs, rng);
+  }
+  /* ÁP CHUẨN 2026-11-24 — Đọc: NGHĨA -> TỪ. Đáp án là chữ Hán;
+     nhiễu là từ khác cùng cấp (ưu tiên cùng loại từ) và bị loại khi
+     gloss của nó chồng lấn với nghĩa đích (từ nhiễu đó cũng trả lời
+     đúng nghĩa được hỏi) hoặc trùng chính chữ Hán đích. */
+  function genMeaningWord(level, pool, rng) {
+    for (var t = 0; t < 24; t++) {
+      var w = pickOne(pool, rng);
+      if (!w) return null; /* VÁ 2026-11-24 */
+      var wrongs = distractors(pool, function (x) { return x.h; }, normOpt, w.h, 3, rng, sameTypeFirst(w), function (entry) {
+        if (!entry) return true;
+        if (String(entry.h || "") === String(w.h)) return true;
+        return glossOverlapM(String(w.m || ""), String(entry.m || ""));
+      });
+      if (wrongs.length < 3) continue;
+      return finalize({
+        section: "reading", type: "read-meaning-word",
+        stem: "Nghĩa tiếng Việt 「" + String(w.m) + "」 tương ứng với từ Hán nào?",
+        sub: "", passage: null, passageTitle: "", speakText: null,
+        explainHead: String(w.h) + " · " + String(w.p),
+        explainBody: "Từ đúng: " + String(w.h) + " (" + String(w.p) + ") — " + String(w.m) +
+          (hasFullExample(w) ? "\nVí dụ: " + String(w.example) + " (" + String(w.examplePinyin) + ") — " + String(w.exampleMeaning) : ""),
+        srcKey: "R" + level + "|mw|" + w.h + "|" + w.p
+      }, String(w.h), wrongs, rng);
+    }
+    return null;
+  }
+  /* Hai wrapper đổi nhãn phần cho đúng quota Đọc của chuẩn: lõi
+     sinh (và mọi cổng một-đáp-án của nó) dùng lại nguyên vẹn. */
+  function genReadWordMeaning(level, pool, rng) {
+    var q = genVocabMeaning(level, pool, rng);
+    if (!q) return null;
+    q.section = "reading"; q.type = "read-word-meaning";
+    return q;
+  }
+  function genReadFill(level, poolAll, poolEx, rng) {
+    var q = genCloze(level, poolAll, poolEx, rng);
+    if (!q) return null;
+    q.section = "reading"; q.type = "read-fill";
+    return q;
   }
   function blankOut(sentence, word) {
     var idx = String(sentence).indexOf(String(word));
@@ -1164,6 +1263,18 @@
     var f = 20 / totalQ;
     return bp.sec.map(function (s) { return Math.max(2, Math.round(s[1] * f)); });
   }
+  /* ÁP CHUẨN 2026-11-24: chia số câu theo tỉ lệ (vd 40/30/30) bằng
+     phương pháp phần dư lớn nhất — tổng luôn đúng số câu của phần,
+     mỗi dạng lệch tỉ lệ lý tưởng chưa tới 1 câu. */
+  function quotaCounts(total, weights) {
+    var raw = weights.map(function (w) { return total * w; });
+    var out = raw.map(function (v) { return Math.floor(v); });
+    var left = total - out.reduce(function (a, b) { return a + b; }, 0);
+    var order = raw.map(function (v, i) { return { i: i, frac: v - Math.floor(v) }; })
+      .sort(function (a, b) { return (b.frac - a.frac) || (a.i - b.i); });
+    for (var k = 0; k < left; k++) out[order[k % order.length].i]++;
+    return out;
+  }
   var SIZE_SPEC = {
     mini: { total: 10, listen: 3, vocab: 4, reading: 3, passages: 1, seconds: 600, label: "Mini · 10 câu · 10 phút" },
     standard: { total: 20, listen: 6, vocab: 8, reading: 6, passages: 2, seconds: 1500, label: "Chuẩn · 20 câu · 25 phút" }
@@ -1249,6 +1360,32 @@
     catch (e) { return []; }
   }
 
+  /* ÁP CHUẨN 2026-11-24 — trích TỪ ĐÍCH của một câu hỏi để khử
+     trùng từ vựng XUYÊN SUỐT cả đề (mỗi từ tối đa 1 lần/đề):
+       · targetWord của sắp xếp/điền khuyết (trừ read-fact: đích là
+         thông tin số/thời gian trong bài, không phải từ vựng);
+       · srcKey của các generator nghe/từ vựng/viết;
+       · với dạng mà ĐÁP ÁN LÀ TỪ (nghĩa->từ, điền khuyết): cả 4 lựa
+         chọn đều tính là "đã xuất hiện" — từ đã làm nhiễu thì không
+         quay lại làm từ đích ở câu khác. */
+  var WORD_OPTION_TYPES = { "read-meaning-word": 1, "cloze": 1, "read-cloze": 1, "read-fill": 1, "write-cloze": 1 };
+  function questionTargetWords(q) {
+    var out = [], seen = {};
+    function add(x) {
+      x = String(x == null ? "" : x).trim();
+      if (x && !seen[x]) { seen[x] = 1; out.push(x); }
+    }
+    if (!q) return out;
+    if (q.targetWord && q.type !== "read-fact") add(q.targetWord);
+    var p = String(q.srcKey || "").split("|");
+    if (p[1] === "dlg") { add(p[2]); add(p[3]); }
+    else if (p[1] === "ord" || p[1] === "wm" || p[1] === "wp" || p[1] === "mw") add(p[2]);
+    else if (p[1] === "pcloze") add(p[3]);
+    else if (/^[LVW]\d+$/.test(p[0] || "") && p[1] && ["verify", "fact", "mean", "sent"].indexOf(p[1]) < 0) add(p[1]);
+    if (WORD_OPTION_TYPES[q.type] && Array.isArray(q.options)) q.options.forEach(add);
+    return out;
+  }
+
   /* ---------------- Sinh đề theo blueprint ---------------- */
   function generateBlueprintExam(level, mode, rng, opts) {
     opts = opts || {};
@@ -1257,22 +1394,50 @@
     var poolAll = wordsOfLevel(level);
     var poolEx = exampleWordsOfLevel(level);
     var passages = passagesOfLevel(level);
-    var used = {}, usedTyped = {};
+    var used = {}, usedTyped = {}, usedWords = {};
     var questions = [];
     var passagesUsed = [];
     function fresh(q, relax) {
       if (!q) return false;
+      /* ÁP CHUẨN 2026-11-24: khử trùng TỪ ĐÍCH là tuyệt đối — kể cả
+         lượt "relax" nới trùng nguồn cũng không được để một từ làm
+         từ đích (hoặc làm lựa chọn-từ) lần thứ hai trong cùng đề. */
+      var ws = questionTargetWords(q);
+      for (var wi2 = 0; wi2 < ws.length; wi2++) if (usedWords[ws[wi2]]) return false;
       if (!relax && used[q.srcKey]) return false;
       if (relax && usedTyped[q.srcKey + "#" + q.type]) return false;
       used[q.srcKey] = 1;
       usedTyped[q.srcKey + "#" + q.type] = 1;
+      ws.forEach(function (w) { usedWords[w] = 1; });
       return true;
     }
-    function take(maker, relax) {
+    function takeTo(dest, maker, relax) {
       var q = null;
       try { q = maker(); } catch (e) { q = null; } /* VÁ 2026-11-24: một dạng câu lỗi chỉ làm đề mỏng đi, không giết cả đề */
-      if (fresh(q, relax)) { questions.push(q); return true; }
+      if (fresh(q, relax)) { dest.push(q); return true; }
       return false;
+    }
+    function take(maker, relax) { return takeTo(questions, maker, relax); }
+    /* Điền đúng quota một dạng câu: lượt 1 giữ trùng nguồn nghiêm,
+       lượt 2 nới trùng nguồn (nhưng không nới trùng từ đích). */
+    function fillQuota(dest, wantForType, maker) {
+      var n = 0, guard = 0, cap = Math.max(120, wantForType * 100);
+      while (n < wantForType && guard++ < cap) { if (takeTo(dest, maker, false)) n++; }
+      guard = 0;
+      while (n < wantForType && guard++ < cap) { if (takeTo(dest, maker, true)) n++; }
+      return n;
+    }
+    /* Xen kẽ các danh sách dạng câu theo vòng tròn để trong một
+       phần, các dạng không bị dồn thành từng khối dài. */
+    function interleave(lists) {
+      var out = [], idx = lists.map(function () { return 0; }), left = true;
+      while (left) {
+        left = false;
+        lists.forEach(function (list, li3) {
+          if (idx[li3] < list.length) { out.push(list[idx[li3]++]); left = true; }
+        });
+      }
+      return out;
     }
     var plan = [];
     bp.sec.forEach(function (sDef, sIdx) {
@@ -1280,77 +1445,36 @@
       var before = questions.length;
       var guard;
       if (key === "listen") {
-        var makers = [
-          function () { return genListenDialogue(level, poolEx, rng); },
-          function () { return genListenMeaning(level, poolEx, rng); },
-          function () { return genListenSentence(level, poolEx, rng); }
-        ];
-        var li = 0; guard = 0;
-        while (li < want && guard++ < want * 40) {
-          if (take(makers[li % 3], false)) li++;
-          else makers.push(makers.shift()); /* dạng này đang bí nguồn — xoay sang dạng khác */
-        }
-        guard = 0;
-        while (li < want && guard++ < want * 40) { if (take(makers[li % 3], true)) li++; }
+        /* ÁP CHUẨN 2026-11-24 — Nghe trộn 40/30/30:
+           nghe từ chọn nghĩa 40% · nghe câu chọn nghĩa 30% ·
+           nghe từ chọn cách đọc 30%. (Dạng hội thoại/nhận diện câu
+           cũ chỉ còn ở chế độ luyện nhanh Mini/Chuẩn.) */
+        var lq = quotaCounts(want, [0.4, 0.3, 0.3]);
+        var lWordMeaning = [], lSentenceMeaning = [], lWordPinyin = [];
+        fillQuota(lWordMeaning, lq[0], function () { return genListenWordMeaning(level, poolAll, rng); });
+        fillQuota(lSentenceMeaning, lq[1], function () { return genListenMeaning(level, poolEx, rng); });
+        fillQuota(lWordPinyin, lq[2], function () { return genListenWordPinyin(level, poolAll, rng); });
+        interleave([lWordMeaning, lSentenceMeaning, lWordPinyin]).forEach(function (q) { questions.push(q); });
       } else if (key === "reading") {
-        var orderedPassages = opts.preferPassages && opts.preferPassages.length
-          ? opts.preferPassages.slice()
-          : shuffle(passages, rng);
-        if (!orderedPassages.length) {
-          var fb = fallbackPassage(level, poolEx, rng);
-          if (fb) orderedPassages = [fb];
-        }
-        var ri = 0;
-        for (var pi = 0; pi < orderedPassages.length && ri < want; pi++) {
-          var p = orderedPassages[pi];
-          var others = passages.filter(function (x) { return x !== p; });
-          var pqs = passageQuestionsSafe(level, p, poolAll, rng, others, { order: true });
-          var usedThisPassage = false;
-          for (var qi = 0; qi < pqs.length && ri < want; qi++) {
-            if (fresh(pqs[qi], false)) { questions.push(pqs[qi]); ri++; usedThisPassage = true; }
-          }
-          if (usedThisPassage && passagesUsed.indexOf(p.id) < 0) passagesUsed.push(p.id);
-        }
-        /* Vá 2026-11-20: KHÔNG còn lấp phần Đọc bằng câu từ vựng/điền
-           khuyết gắn nhãn "reading" (trả lời không cần bài đọc). Thiếu
-           câu thì vét sâu hơn chính các bài đọc (hạn mức deep: thêm câu
-           verify/fact/mean/cloze từ các câu khác của bài); vẫn thiếu
-           thì chấp nhận ít câu hơn — plan ghi số câu thật đã sinh. */
-        guard = 0;
-        while (ri < want && guard++ < 40) {
-          var progressed = false;
-          for (var pi2 = 0; pi2 < orderedPassages.length && ri < want; pi2++) {
-            var p2 = orderedPassages[pi2];
-            var others2 = passages.filter(function (x) { return x !== p2; });
-            var pqs2 = passageQuestionsSafe(level, p2, poolAll, rng, others2, { order: true, deep: true });
-            for (var qi2 = 0; qi2 < pqs2.length && ri < want; qi2++) {
-              if (fresh(pqs2[qi2], false)) {
-                questions.push(pqs2[qi2]); ri++; progressed = true;
-                if (passagesUsed.indexOf(p2.id) < 0) passagesUsed.push(p2.id);
-              }
-            }
-          }
-          if (!progressed) break;
-        }
-        guard = 0;
-        while (ri < want && guard++ < 40) {
-          var progressed2 = false;
-          for (var pi3 = 0; pi3 < orderedPassages.length && ri < want; pi3++) {
-            var p3 = orderedPassages[pi3];
-            var others3 = passages.filter(function (x) { return x !== p3; });
-            var pqs3 = passageQuestionsSafe(level, p3, poolAll, rng, others3, { order: true, deep: true });
-            for (var qi3 = 0; qi3 < pqs3.length && ri < want; qi3++) {
-              if (fresh(pqs3[qi3], true)) {
-                questions.push(pqs3[qi3]); ri++; progressed2 = true;
-                if (passagesUsed.indexOf(p3.id) < 0) passagesUsed.push(p3.id);
-              }
-            }
-          }
-          if (!progressed2) break;
-        }
+        /* ÁP CHUẨN 2026-11-24 — Đọc trộn 40/30/30:
+           từ -> nghĩa 40% · nghĩa -> từ 30% · điền từ vào câu 30%.
+           (Câu hỏi theo bài đọc passageQuestions vẫn dùng ở chế độ
+           luyện nhanh Mini/Chuẩn; blueprint đề thi theo chuẩn mới
+           dùng đúng bộ ba dạng này.) */
+        var rq = quotaCounts(want, [0.4, 0.3, 0.3]);
+        var rWordMeaning = [], rMeaningWord = [], rFill = [];
+        fillQuota(rWordMeaning, rq[0], function () { return genReadWordMeaning(level, poolAll, rng); });
+        fillQuota(rMeaningWord, rq[1], function () { return genMeaningWord(level, poolAll, rng); });
+        fillQuota(rFill, rq[2], function () { return genReadFill(level, poolAll, poolEx, rng); });
+        interleave([rWordMeaning, rMeaningWord, rFill]).forEach(function (q) { questions.push(q); });
       } else if (key === "writing") {
         var wi = 0; guard = 0;
-        var usePassageCloze = !!bp.writingSub;
+        /* ÁP CHUẨN 2026-11-24: phần Viết mọi cấp 3–6 (và mô phỏng
+           7–9) xen kẽ sắp xếp từ + điền khuyết từ bài đọc — hai dạng
+           viết chấm tự động được. Riêng HSK6 đó là dạng THAY THẾ bài
+           luận (cờ writingSub + ghi chú UI); HSK3–5 cũng ghi chú ở
+           trang chủ khu thi là dạng thay thế chấm tự động. */
+        var usePassageCloze = true;
         while (wi < want && guard++ < want * 60) {
           var mkW = (usePassageCloze && wi % 2 === 1)
             ? function () { return genWritingPassageCloze(level, poolAll, passages, rng); }
@@ -1389,10 +1513,29 @@
      nhau quá SIM_MAX thì loại khỏi đề (đề mỏng đi một câu còn hơn
      để lọt câu lỗi giống nhau như chủ web đã bắt được). */
   var SENT_OPTION_TYPES = { "read-verify": 1, "read-sentmean": 1, "read-sentence": 1, "listen-sentence": 1 };
+  /* ÁP CHUẨN 2026-11-24 — kiểm chứng máy móc LUẬT VÀNG cho câu
+     điền khuyết ở tầng quét cuối: thử điền CẢ 4 lựa chọn vào chỗ
+     trống bằng chính cổng lúc sinh (clozeRejectFn: câu điền ra có
+     thật trong corpus / nhiễu cùng lớp đóng trong khung không ghim
+     đều bị coi là "cũng đúng"). Câu nào có một lựa chọn nhiễu vẫn
+     điền đúng thì bị loại khỏi đề. */
+  var CLOZE_SWEEP_TYPES = { "cloze": 1, "read-cloze": 1, "read-fill": 1, "write-cloze": 1 };
+  function clozeOptionsUnique(q) {
+    if (!q || !Array.isArray(q.options) || !q.targetWord || !q.sub || !q.sourceSentence) return true;
+    var reject = clozeRejectFn({ h: q.targetWord }, q.sub, q.sourceSentence, q.passage || null);
+    for (var i = 0; i < q.options.length; i++) {
+      var opt = String(q.options[i]);
+      if (opt === String(q.correctText)) continue;
+      if (reject({ h: opt })) return false;
+    }
+    return true;
+  }
   function sweepSimilarOptions(exam) {
     if (!exam || !Array.isArray(exam.questions)) return exam;
     var kept = exam.questions.filter(function (q) {
-      if (!q || !SENT_OPTION_TYPES[q.type]) return true;
+      if (!q) return false;
+      if (CLOZE_SWEEP_TYPES[q.type] && !clozeOptionsUnique(q)) return false;
+      if (!SENT_OPTION_TYPES[q.type]) return true;
       if (!Array.isArray(q.options) || q.options.length !== 4) return true;
       return !optionsTooSimilar(q.options);
     });
@@ -1403,11 +1546,54 @@
     return exam;
   }
 
+  /* ÁP CHUẨN 2026-11-24 — rải đều vị trí đáp án đúng A/B/C/D trên
+     toàn đề: số câu có đáp án ở mỗi vị trí chênh nhau tối đa 1.
+     Chỉ hoán đổi vị trí của đáp án đúng với một lựa chọn khác trong
+     cùng câu (giữ nguyên bộ đáp án + correctText), câu sắp xếp
+     không có vị trí đáp án nên bỏ qua. */
+  function balanceAnswerPositions(exam, rng) {
+    if (!exam || !Array.isArray(exam.questions)) return exam;
+    var mcqs = exam.questions.filter(function (q) {
+      return q && Array.isArray(q.options) && q.options.length === 4 &&
+        typeof q.answer === "number" && q.correctText != null && q.options[q.answer] === q.correctText;
+    });
+    if (!mcqs.length) return exam;
+    var positions = mcqs.map(function (_, i) { return i % 4; });
+    positions = shuffle(positions, rng);
+    mcqs.forEach(function (q, idx) {
+      var want = positions[idx];
+      if (q.answer === want) return;
+      var correct = q.options[q.answer];
+      q.options[q.answer] = q.options[want];
+      q.options[want] = correct;
+      q.answer = want;
+    });
+    return exam;
+  }
+
   function generateExam(level, modeKey, rng, opts) {
     rng = rng || Math.random;
     try {
-      if (modeKey === "mini" || modeKey === "standard") return sweepSimilarOptions(generateLegacyExam(level, modeKey, rng));
-      return sweepSimilarOptions(generateBlueprintExam(level, modeKey === "full" ? "full" : "reduced", rng, opts));
+      if (modeKey === "mini" || modeKey === "standard") {
+        return balanceAnswerPositions(sweepSimilarOptions(generateLegacyExam(level, modeKey, rng)), rng);
+      }
+      /* ÁP CHUẨN 2026-11-24 — checklist phát hành trong chính bộ
+         sinh: đề blueprint thiếu câu so với khuôn hoặc validateExam
+         có lỗi thì BỎ bản đó và sinh lại (tối đa 6 lượt, RNG chạy
+         tiếp nên mỗi lượt là một đề khác). Hết lượt mà vẫn thiếu:
+         trả bản đầy nhất để tầng gọi báo rõ + khôi phục nút theo vá
+         chống kẹt, không ném lỗi ra ngoài. */
+      var bpMode = modeKey === "full" ? "full" : "reduced";
+      var bp = blueprintFor(level);
+      var wantCounts = bpMode === "full" ? bp.sec.map(function (s) { return s[1]; }) : reducedCounts(bp);
+      var wantTotal = wantCounts.reduce(function (a, b) { return a + b; }, 0);
+      var best = null;
+      for (var attempt = 0; attempt < 6; attempt++) {
+        var cand = sweepSimilarOptions(generateBlueprintExam(level, bpMode, rng, opts));
+        if (!best || cand.total > best.total) best = cand;
+        if (cand.total >= wantTotal && validateExam(cand).length === 0) { best = cand; break; }
+      }
+      return balanceAnswerPositions(best, rng);
     } catch (e) {
       /* VÁ 2026-11-24: lưới an toàn cuối — sinh đề không bao giờ ném lỗi
          ra ngoài; trả đề rỗng để tầng gọi (startExam/startCatalog) báo
@@ -1506,7 +1692,7 @@
       if (typeof q.answer !== "number" || q.answer < 0 || q.answer > 3) errs.push(tag + ": bad answer idx");
       else if (q.options[q.answer] !== q.correctText) errs.push(tag + ": answer!=correctText");
       if (q.section === "listen" && !String(q.speakText || "").trim()) errs.push(tag + ": listen without speakText");
-      if ((q.type === "cloze" || q.type === "read-cloze" || q.type === "write-cloze")) {
+      if ((q.type === "cloze" || q.type === "read-cloze" || q.type === "read-fill" || q.type === "write-cloze")) {
         if (!q.sourceSentence || String(q.sourceSentence).indexOf(q.targetWord) < 0) errs.push(tag + ": cloze source lacks target");
         if (!q.sub || q.sub.indexOf("＿＿") < 0) errs.push(tag + ": cloze not blanked");
       }
@@ -1931,6 +2117,8 @@
     var extraNote = "";
     if (state.level === 6) {
       extraNote = '<div class="ttc-exam-note" style="margin-top:10px">✍️ Lưu ý HSK6: đề thật có 1 bài luận tự viết (không chấm tự động được). Trong bản thi thử này, phần Viết được thay bằng <b>sắp xếp từ thành câu + điền khuyết nâng cao</b> với trọng số điểm tương đương — đề thi thử khác (Study4…) cũng xử lý tương tự.</div>';
+    } else if (state.level >= 3 && state.level <= 5) {
+      extraNote = '<div class="ttc-exam-note" style="margin-top:10px">✍️ Lưu ý HSK' + state.level + ': phần Viết trên web dùng <b>sắp xếp từ thành câu + điền khuyết</b> để chấm tự động — đây là dạng thay thế tương đương cho các dạng viết của đề thật, trọng số điểm giữ nguyên.</div>';
     } else if (state.level >= 7) {
       extraNote = '<div class="ttc-exam-note" style="margin-top:10px">ℹ️ HSK7–9 dùng <b>bản mô phỏng</b> theo tỉ lệ phần của đề cấp cao, chấm thang 300, mốc đạt 180.</div>';
     }
@@ -3221,6 +3409,8 @@
     isCorrect: isCorrectAnswer,
     blueprint: blueprintFor,
     reducedCounts: reducedCounts,
+    quotaCounts: quotaCounts,
+    targetWordsOf: questionTargetWords,
     catalog: {
       perLevel: CATALOG_PER_LEVEL,
       seed: catalogSeed,
