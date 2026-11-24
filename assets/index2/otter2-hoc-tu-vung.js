@@ -1072,7 +1072,6 @@
   function buildOvOverlay() {
     if (byId("ttcOvOverlay")) return;
     ensureStyle();
-    var counts = typeCounts();
     var cards = "", lv;
     for (lv = 1; lv <= 9; lv++) {
       cards += '<button type="button" class="htv-ov-card" data-ov-level="' + lv + '"><span class="htv-ov-lv">HSK ' + lv + '</span><span class="htv-ov-n">' + levelCount(lv) + " từ</span></button>";
@@ -1080,6 +1079,9 @@
     var ov = document.createElement("div");
     ov.id = "ttcOvOverlay";
     ov.hidden = true;
+    /* Bước 1 (anh Huy chốt 2026-11-25): màn Tổng quát CHỈ giữ 9 thẻ cấp —
+       mục Theo loại từ (đã có hàng riêng ngoài Phòng) và mục Khu học từ
+       XuCup (đã có thẻ Học từ vựng riêng) là THỪA nên xoá hẳn. */
     ov.innerHTML =
       '<div class="htv-wrap"><div class="htv-panel">' +
       '<button type="button" class="htv-close" id="ovClose">✕ Đóng</button>' +
@@ -1087,12 +1089,6 @@
       '<button type="button" class="htv-back" id="ovBack">← Phòng từ vựng</button>' +
       '<div class="htv-sec">📈 Theo cấp độ <small>· bấm 1 cấp để vào học cấp đó trong Phòng từ vựng</small></div>' +
       '<div class="htv-ov-grid" id="ovLevels">' + cards + "</div>" +
-      '<div class="htv-sec">🏷 Theo loại từ <small>· mỗi loại mở full màn hình riêng: chọn cấp rồi học luôn trong đó</small></div>' +
-      '<div class="htv-chips" id="ovTypes">' + TYPE_NAMES.map(function (t) {
-        return '<button type="button" class="htv-chip" data-ov-type="' + esc(t) + '">' + esc(t) + " · " + counts[t].total + " từ</button>";
-      }).join("") + "</div>" +
-      '<div class="htv-sec">📚 Khu học từ kiểu XuCup</div>' +
-      '<button type="button" class="htv-hvbtn" id="ovOpenHtv" style="margin-top:2px">📚 Mở Học từ vựng (danh sách · flashcard · trắc nghiệm)</button>' +
       "</div></div>";
     document.body.appendChild(ov);
     byId("ovClose").addEventListener("click", closeOvOverlay);
@@ -1107,11 +1103,6 @@
       }
       toast("Không tìm thấy nút " + lvTxt + " 😅");
     });
-    byId("ovTypes").addEventListener("click", function (e) {
-      var b = e.target.closest("[data-ov-type]"); if (!b) return;
-      openTypeOverlay(b.getAttribute("data-ov-type"));
-    });
-    byId("ovOpenHtv").addEventListener("click", function () { closeOvOverlay(); openOverlay(); });
   }
   function openOvOverlay() {
     buildOvOverlay();
