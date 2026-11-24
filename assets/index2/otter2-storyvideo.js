@@ -29,9 +29,11 @@
    (scrollIntoView trên .ttc-story-frame-wrap + scroll-margin)
    — trước đây bấm truyện ở cuối danh sách phải tự cuộn lên.
    Bổ sung CHẶNG 1 (2026-11-18, học theo corodomo): LỚP PHỤ ĐỀ
-   ĐỒNG BỘ TỪNG CÂU + LẶP A–B, pilot trên 30 truyện HSK1. Thanh
-   câu hiện tại (Hán tự + pinyin + nghĩa Việt) chạy khớp giọng đọc;
-   danh sách câu bấm để nhảy đoạn (seek); công tắc từng lớp
+   ĐỒNG BỘ TỪNG CÂU + LẶP A–B, pilot trên 30 truyện HSK1. Câu
+   hiện tại chạy khớp giọng đọc (dòng nghĩa Việt ngay dưới video +
+   tô sáng trong danh sách câu; thanh karaoke khổ lớn đã gỡ
+   2026-11-24 theo lệnh chủ web); danh sách câu bấm để nhảy đoạn
+   (seek); công tắc từng lớp
    Hán tự/Pinyin/Nghĩa Việt + chuyển Phồn thể (dùng lại engine
    __ttcTraditionalHanzi của trang), lưu ở localStorage
    "otter2_storyvideo_sub_v1". Dữ liệu cues nạp lười từ
@@ -173,23 +175,11 @@
       ".ttc-story-iconbtn.is-cur{background:#F97316;color:#fff;border-color:#E3E8EF}",
       ".ttc-story-ratechip:hover{border-color:#E3E8EF}",
       ".ttc-story-ratechip.is-cur{background:#F97316;color:#fff;border-color:#E3E8EF}",
-      "/* ==== PHÒNG TRUYỆN CHUẨN CORODOMO (2026-11-19): karaoke dưới video + danh sách câu làm chủ cột phải + thanh cài đặt mảnh ==== */",
-      "/* Thanh karaoke: nền tối bo tròn ngay dưới video; pinyin TỪNG TỪ phía trên từng nhóm chữ Hán, gạch chân theo từ bằng tím nhạt của khu truyện; nghĩa Việt là dòng riêng ngay dưới thanh. */",
-      ".ttc-story-karaoke{margin:10px 0 0}",
-      ".ttc-kara-bar{position:relative;background:#26303f;border-radius:14px;padding:12px 14px 13px;min-height:60px;box-shadow:0 8px 22px rgba(15,23,42,.18)}",
-      ".ttc-kara-tag{position:absolute;top:7px;right:11px;font-size:10px;font-weight:800;letter-spacing:.4px;color:rgba(255,255,255,.55)}",
-      ".ttc-kara-idle{display:block;color:#cbd5e1;font-size:14px;font-weight:700;padding:8px 0 4px}",
-      ".ttc-kara-words{display:flex;flex-wrap:wrap;gap:3px 9px;align-items:flex-end;padding-right:88px}",
-      ".ttc-kw{display:inline-flex;flex-direction:column;align-items:center}",
-      ".ttc-kw-py{font-size:11.5px;font-weight:600;line-height:1.25;color:#3C4756;letter-spacing:.2px;text-transform:lowercase;white-space:nowrap}",
-      ".ttc-kw-zh{font-size:20px;font-weight:800;line-height:1.28;color:#fff;border-bottom:2.5px solid #E3E8EF;padding-bottom:1px;white-space:nowrap}",
-      ".ttc-kw-punct{font-size:20px;font-weight:800;line-height:1.28;color:#fff;padding-bottom:3.5px}",
-      ".ttc-kara-fb-py{display:block;font-size:12.5px;font-weight:600;color:#3C4756;line-height:1.35}",
-      ".ttc-kara-fb-zh{display:block;font-size:20px;font-weight:800;color:#fff;line-height:1.35;margin-top:1px}",
+      "/* ==== PHÒNG TRUYỆN CHUẨN CORODOMO (2026-11-19): danh sách câu làm chủ cột phải + thanh cài đặt mảnh ==== */",
+      "/* Dòng nghĩa Việt của câu đang phát ngay dưới video. (Thanh karaoke khổ lớn nền tối từng nằm ở đây — ĐÃ GỠ 2026-11-24 theo lệnh chủ web: thừa vì video đã có phụ đề cháy Hán + pinyin + Việt, mà thẻ chiếm ~250px trên mobile, đẩy hết điều khiển Phụ đề/Bài tập/A–B khỏi màn hình.) */",
+      ".ttc-story-karaoke{margin:0}",
       ".ttc-kara-vi{margin:6px 2px 0;font-size:13.5px;font-weight:600;color:#334155;line-height:1.45}",
       "html[data-theme='night'] .ttc-kara-vi{color:#cbd5e1}",
-      ".ttc-sub-off-zh .ttc-kw-zh,.ttc-sub-off-zh .ttc-kw-punct,.ttc-sub-off-zh .ttc-kara-fb-zh{display:none}",
-      ".ttc-sub-off-py .ttc-kw-py,.ttc-sub-off-py .ttc-kara-fb-py{display:none}",
       ".ttc-sub-off-vi .ttc-kara-vi{display:none}",
       "/* Chip lớp phụ đề nằm trong thanh cài đặt mảnh dưới video (setbar), không còn hàng riêng. */",
       ".ttc-story-subtools{display:flex;flex-wrap:nowrap;gap:4px;align-items:center;margin:0}",
@@ -226,7 +216,7 @@
       ".ttc-sub-off-zh .ttc-story-subrow .ttc-ss-zh{display:none}",
       ".ttc-sub-off-py .ttc-story-subrow .ttc-ss-py{display:none}",
       ".ttc-sub-off-vi .ttc-story-subrow .ttc-ss-vi{display:none}",
-      "/* ==== Desktop >=1021px: PHÒNG HỌC chuẩn corodomo — danh sách truyện ẨN mặc định, mở bằng icon Danh sách phát ở thanh cài đặt dưới video, hiện dạng PANEL PHỦ trượt ở cạnh trái phòng (không đẩy bố cục); cột chính = video + karaoke + thanh cài đặt; vùng phụ đề chiếm 1/3 phải của stage và danh sách câu làm chủ chiều cao của nó. ==== */",
+      "/* ==== Desktop >=1021px: PHÒNG HỌC chuẩn corodomo — danh sách truyện ẨN mặc định, mở bằng icon Danh sách phát ở thanh cài đặt dưới video, hiện dạng PANEL PHỦ trượt ở cạnh trái phòng (không đẩy bố cục); cột chính = video + dòng nghĩa Việt + thanh cài đặt; vùng phụ đề chiếm 1/3 phải của stage và danh sách câu làm chủ chiều cao của nó. ==== */",
       "@media (min-width:1021px){",
       ".ttc-story-body{grid-template-columns:minmax(0,1fr)}",
       ".ttc-story-list{position:absolute;top:64px;left:10px;bottom:10px;width:308px;z-index:40;background:#fff;border:1px solid #e7e9ee;border-radius:16px;box-shadow:0 24px 60px rgba(2,6,23,.28);padding:12px;max-height:none;display:none}",
@@ -245,8 +235,6 @@
       ".ttc-story-body.has-subs .ttc-story-subrow .ttc-ss-zh{font-size:14px}",
       ".ttc-story-body.has-subs .ttc-story-subrow .ttc-ss-py{font-size:12px}",
       ".ttc-story-body.has-subs .ttc-story-subrow .ttc-ss-vi{font-size:11.5px}",
-      ".ttc-kara-bar .ttc-kw-zh{font-size:21px}",
-      ".ttc-kara-bar .ttc-kw-punct{font-size:21px}",
       "/* Trạng thái CHƯA CHỌN TRUYỆN (.ttc-picking): danh sách truyện là nội dung chính của panel — trải LƯỚI đầy bề ngang (cột tối thiểu 330px), hàng chip cấp không còn bị panel phủ 308px che khuất, không còn khoảng trống lớn bên phải + icon ☰ lơ lửng giữa panel (chủ web phản ánh 'bảng chọn bé tẹo' 2026-11-19). Đang phát truyện thì class tắt: phòng học về đúng chuẩn corodomo đã duyệt (danh sách = panel phủ 308px mở bằng icon ở thanh cài đặt). */",
       ".ttc-story-body.ttc-picking{display:flex;flex-direction:column;gap:14px;align-items:stretch}",
       ".ttc-story-body.ttc-picking .ttc-story-stage{order:1}",
@@ -468,64 +456,8 @@
   }
   function applyListPref() { setListOpen(listPrefOpen || !state.currentKey, false); }
 
-  /* ---------------- tách từ cho thanh karaoke ----------------
-     Cùng thuật toán tách-từ-dài-nhất của gói bài tập (ngân hàng từ theo cấp
-     trong OTTER2_HSK_ALL_DATA): ghép pinyin TỪNG TỪ bằng cách căn âm tiết
-     của câu (mỗi chữ Hán = 1 âm tiết). Âm tiết không khớp số chữ -> trả
-     null, thanh karaoke hiển thị pinyin theo câu (chế độ dự phòng). */
-  var KARA_PUNCT_RE = /[，。？！：；、·…—「」『』""''“”‘’（）()《》〈〉\s]/;
-  var karaBankCache = {};
-  function karaBank(level) {
-    if (karaBankCache[level]) return karaBankCache[level];
-    var all = window.OTTER2_HSK_ALL_DATA;
-    if (!all || !all.words) return null;
-    var byLen = {}, maxLen = 1, n = 0;
-    all.words.forEach(function (w) {
-      if (!w || !w.h || Number(w.hsk) !== Number(level)) return;
-      var L = w.h.length;
-      if (!byLen[L]) byLen[L] = {};
-      byLen[L][w.h] = w; n++;
-      if (L > maxLen) maxLen = L;
-    });
-    if (!n) return null;
-    karaBankCache[level] = { byLen: byLen, maxLen: maxLen };
-    return karaBankCache[level];
-  }
-  function segmentCue(zh, bank) {
-    var toks = [], i = 0;
-    zh = String(zh || "");
-    while (i < zh.length) {
-      var ch = zh.charAt(i);
-      if (KARA_PUNCT_RE.test(ch)) { toks.push({ text: ch, punct: true }); i++; continue; }
-      var hit = null;
-      for (var L = Math.min(bank.maxLen, zh.length - i); L >= 1; L--) {
-        var cand = zh.substr(i, L);
-        if (bank.byLen[L] && bank.byLen[L][cand]) { hit = cand; break; }
-      }
-      if (hit) { toks.push({ text: hit }); i += hit.length; }
-      else { toks.push({ text: ch }); i++; }
-    }
-    return toks;
-  }
-  function karaokeWords(cue, level) {
-    var bank = karaBank(level);
-    if (!bank) return null;
-    var toks = segmentCue(cue[2], bank);
-    var han = 0;
-    toks.forEach(function (t) { if (!t.punct) han += t.text.length; });
-    var syl = String(cue[3] || "").split(/\s+/).filter(Boolean).map(function (t) {
-      return t.replace(/[，。？！：；、,.?!:;…]+$/, "");
-    }).filter(Boolean);
-    if (syl.length !== han) return null;
-    var out = [], k = 0;
-    toks.forEach(function (t) {
-      if (t.punct) { out.push({ punct: t.text }); return; }
-      var py = [];
-      for (var j = 0; j < t.text.length; j++) py.push(syl[k++]);
-      out.push({ zh: t.text, py: py.join(" ") });
-    });
-    return out;
-  }
+  /* (Đã gỡ 2026-11-24: bộ tách từ karaoke — KARA_PUNCT_RE / karaBank /
+     segmentCue / karaokeWords — chỉ phục vụ thanh karaoke khổ lớn vừa bỏ.) */
 
   /* ---------------- state ---------------- */
   var state = { tab: 1, currentKey: null, flat: [] };
@@ -741,17 +673,14 @@
     zone.hidden = false;
     setSubsLayout(true);
 
-    /* Thanh karaoke: chèn vào stage ngay TRƯỚC thanh cài đặt (tức ngay dưới
-       video) — câu hiện tại sống ở đây + nổi bật trong danh sách, không còn
-       khối câu khổ lớn trong cột phải. */
+    /* Dòng nghĩa Việt của câu đang phát: chèn vào stage ngay TRƯỚC thanh cài
+       đặt (tức ngay dưới video). (Thanh karaoke khổ lớn từng ở đây đã gỡ
+       2026-11-24 — xem ghi chú ở khối CSS. Câu hiện tại vẫn được tô sáng
+       trong danh sách câu.) */
     var kara = document.createElement("div");
     kara.className = "ttc-story-karaoke";
     kara.id = "ttcStoryKaraoke";
-    kara.innerHTML =
-      '<div class="ttc-kara-bar"><span class="ttc-kara-tag" id="ttcStorySubTag">📜 PHỤ ĐỀ TỪNG CÂU</span>' +
-      '<span class="ttc-kara-idle" id="ttcStorySubIdle">🎬 Phần mở đầu…</span>' +
-      '<span class="ttc-kara-words" id="ttcStoryKaraWords"></span></div>' +
-      '<p class="ttc-kara-vi" id="ttcStorySubVi"></p>';
+    kara.innerHTML = '<p class="ttc-kara-vi" id="ttcStorySubVi"></p>';
     var setbar = stageEl.querySelector("#ttcStorySetbar");
     if (setbar && setbar.parentNode) setbar.parentNode.insertBefore(kara, setbar);
     else stageEl.insertBefore(kara, zone);
@@ -778,9 +707,6 @@
       '<button type="button" class="ttc-story-abbtn" id="ttcStoryClearAB" disabled aria-label="Xoá lặp">✖</button></div>' +
       '<div class="ttc-story-sublist" id="ttcStorySubList" aria-label="Danh sách câu — bấm để nhảy tới đoạn"></div>';
 
-    var tagEl = kara.querySelector("#ttcStorySubTag");
-    var idleEl = kara.querySelector("#ttcStorySubIdle");
-    var wordsEl = kara.querySelector("#ttcStoryKaraWords");
     var viEl = kara.querySelector("#ttcStorySubVi");
     var listEl2 = zone.querySelector("#ttcStorySubList");
     var statusEl = zone.querySelector("#ttcStoryABStatus");
@@ -788,28 +714,10 @@
     var clearBtn = zone.querySelector("#ttcStoryClearAB");
 
     function cueZh(i) { return tradText(cues[i][2]); }
+    /* Đồng bộ câu hiện tại: chỉ còn dòng nghĩa Việt dưới video (thanh karaoke
+       khổ lớn đã gỡ 2026-11-24); tô sáng câu trong danh sách do syncToTime lo. */
     function renderKaraoke(idx) {
-      if (idx < 0 || idx >= cues.length) {
-        tagEl.textContent = "📜 PHỤ ĐỀ TỪNG CÂU";
-        idleEl.style.display = "";
-        idleEl.textContent = idx < 0 ? "🎬 Phần mở đầu…" : "✦ Phần kết — bấm vào một câu để nghe lại nhé!";
-        wordsEl.innerHTML = "";
-        viEl.textContent = "";
-        return;
-      }
-      tagEl.textContent = "📜 CÂU " + (idx + 1) + "/" + cues.length;
-      idleEl.style.display = "none";
-      var words = karaokeWords(cues[idx], entry.level);
-      if (words) {
-        wordsEl.innerHTML = words.map(function (w) {
-          if (w.punct) return '<span class="ttc-kw-punct">' + esc(w.punct) + "</span>";
-          return '<span class="ttc-kw"><span class="ttc-kw-py">' + esc(w.py) + '</span>' +
-            '<span class="ttc-kw-zh">' + esc(tradText(w.zh)) + "</span></span>";
-        }).join("");
-      } else {
-        wordsEl.innerHTML = '<span class="ttc-kara-fb"><span class="ttc-kara-fb-py">' + esc(cues[idx][3]) + '</span>' +
-          '<span class="ttc-kara-fb-zh">' + esc(cueZh(idx)) + "</span></span>";
-      }
+      if (idx < 0 || idx >= cues.length) { viEl.textContent = ""; return; }
       viEl.textContent = cues[idx][4];
     }
     function renderList() {
