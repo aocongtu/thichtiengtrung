@@ -374,8 +374,25 @@ if (typeof window.ttcHanVietName !== "function") {
     return Math.round((b - a) / 86400000);
   }
   function levelWords(level){
-    if (typeof words === "undefined" || !Array.isArray(words)) return [];
-    return words.filter(function(word){ return Number(word.hsk) === Number(level) && word.h && word.m; });
+    /* Đọc từ kho gốc toàn cục, KHÔNG bám biến `words`: engine Phòng từ vựng
+       (openHskLevel) ghi đè window.words thành gói của đúng 1 cấp đang mở,
+       khiến lộ trình của cấp khác ra rỗng ("Cấp này chưa có từ để học") —
+       đúng bài học của kho đề thi: luôn lấy OTTER2_HSK_ALL_DATA.
+       Thứ tự trong kho gốc giữ nguyên nên index tiến độ không lệch. */
+    var src = null;
+    if (typeof window.otter2GetWordsForHsk === "function") {
+      try { src = window.otter2GetWordsForHsk(level); } catch (eSrc) { src = null; }
+    }
+    if (!src || !src.length) {
+      if (window.OTTER2_HSK_ALL_DATA && Array.isArray(window.OTTER2_HSK_ALL_DATA.words)) {
+        src = window.OTTER2_HSK_ALL_DATA.words;
+      }
+    }
+    if (!src || !src.length) {
+      if (typeof words === "undefined" || !Array.isArray(words)) return [];
+      src = words;
+    }
+    return src.filter(function(word){ return Number(word.hsk) === Number(level) && word.h && word.m; });
   }
   function pathStatus(state, list){
     if (!state || !state.on) return "Chưa học";
