@@ -12,6 +12,9 @@
    - KHÔNG đụng bất kỳ khoá localStorage tiến độ nào của site;
      sao ★ + từ sai trắc nghiệm lưu ở khoá RIÊNG ttc_hoc_tu_vung_v1.
    - Thi thử = nhảy sang Khu thi có sẵn của site (không làm trùng).
+   - Khoá Premium (anh Huy chốt 2026-11-25): HSK 1–2 free, HSK 3–9
+     khoá bằng chính cổng window.checkPremiumAccess/hasPremiumAccess
+     của web (chip gắn 🔒) — như luật chung của thichtiengtrung.
    ============================================================ */
 (function () {
   "use strict";
@@ -98,8 +101,22 @@
     hvOn: true, trad: false,
     voice: "g:Kore", speed: "normal", readMeaning: false, hl: "#ffe066",
     fcIndex: 0, fcFlip: false,
-    playing: false, playToken: 0
+    playing: false, playToken: 0,
+    access: null /* null = chưa rõ, true = có Premium/Free Trial, false = Free */
   };
+
+  /* ---- cổng Premium theo luật chung của web: HSK 1–2 free, HSK 3–9 Premium ----
+     Dùng đúng cổng sẵn có window.checkPremiumAccess / window.hasPremiumAccess
+     (otter2-premium-gate.js) — cùng luồng đăng nhập/đăng ký như Lộ trình. */
+  function refreshAccess() {
+    if (typeof window.hasPremiumAccess === "function") {
+      return Promise.resolve(window.hasPremiumAccess()).then(function (ok) {
+        S.access = !!ok; return S.access;
+      }).catch(function () { S.access = false; return false; });
+    }
+    return Promise.resolve(S.access);
+  }
+  function levelLocked(lv) { return Number(lv) >= 3 && S.access !== true; }
   var GEMINI_VOICES = [
     { n: "Kore", g: "Nữ" }, { n: "Zephyr", g: "Nữ" }, { n: "Aoede", g: "Nữ" },
     { n: "Leda", g: "Nữ" }, { n: "Sulafat", g: "Nữ" },
@@ -387,10 +404,23 @@
     });
     byId("htvChips").addEventListener("click", function (e) {
       var b = e.target.closest("[data-htv-level]"); if (!b) return;
-      stopSpeak();
-      S.level = Number(b.getAttribute("data-htv-level"));
-      S.fcIndex = 0; S.fcFlip = false;
-      paintControls(); renderBody();
+      var lv = Number(b.getAttribute("data-htv-level"));
+      var enter = function () {
+        stopSpeak();
+        S.level = lv;
+        S.fcIndex = 0; S.fcFlip = false;
+        paintControls(); renderBody();
+      };
+      if (lv >= 3 && S.access !== true && typeof window.checkPremiumAccess === "function") {
+        /* cổng của web tự lo: chưa đăng nhập -> mở đăng nhập + báo;
+           Free -> báo nội dung Premium; Premium/Free Trial -> cho qua */
+        Promise.resolve(window.checkPremiumAccess(lv)).then(function (ok) {
+          if (ok) { enter(); refreshAccess().then(paintControls); }
+          else refreshAccess().then(paintControls);
+        }).catch(function () {});
+        return;
+      }
+      enter();
     });
     byId("htvModes").addEventListener("click", function (e) {
       var b = e.target.closest("[data-htv-mode]"); if (!b) return;
@@ -429,7 +459,9 @@
   function paintControls() {
     var chips = document.querySelectorAll("[data-htv-level]");
     chips.forEach(function (c) {
-      c.classList.toggle("on", Number(c.getAttribute("data-htv-level")) === S.level);
+      var lv = Number(c.getAttribute("data-htv-level"));
+      c.classList.toggle("on", lv === S.level);
+      c.textContent = "HSK " + lv + " · " + levelCount(lv) + (levelLocked(lv) ? " 🔒" : "");
     });
     var modes = document.querySelectorAll("[data-htv-mode]");
     modes.forEach(function (c) { c.classList.toggle("on", c.getAttribute("data-htv-mode") === S.mode); });
@@ -472,6 +504,7 @@
     S.open = true;
     document.body.style.overflow = "hidden";
     paintControls(); renderBody();
+    refreshAccess().then(paintControls);
     ov.scrollTop = 0;
   }
   function closeOverlay() {
