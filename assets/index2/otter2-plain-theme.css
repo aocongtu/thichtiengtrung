@@ -863,3 +863,35 @@ html:not([data-theme="night"]) #ttcMondlySubbar #otter2ChatOnlineBtn:hover{ back
   }
   html:not([data-theme="night"]) #ttcShellRailAch #otter2DashAchBtn:hover{ background:#000000; }
 }
+
+/* ============================================================
+   VÁ LỖI CỘT PHẢI STICKY ĐÈ DẢI PHẢI KHU TỪ VỰNG (2026-11-24)
+   Cơ chế lỗi (đã đo thực nghiệm trên bản thật, desktop ≥1021px):
+   cột phải .otter2-dash-side được shell ghim sticky (top:92px),
+   nhưng vì .otter2-dash là display:contents nên khối chứa của
+   sticky là TOÀN BỘ #otter2-home — cột phải trượt theo suốt
+   chiều cao trang chủ, không nhả ra ở cuối dashboard. Panel
+   #otter2HskJourney là hàng lưới full-width nằm dưới dashboard
+   nên khi cuộn qua khu từ vựng, cột phải đứng yên phủ lên dải
+   phải 350px của panel ở mọi vị trí cuộn (đo: sideVp cố định
+   top:92..bottom:762, x:1029..1379 trong suốt 53.000px cuộn).
+   Thẻ từ .otter2-hsk1-card có position:relative nên vẫn nổi
+   trên cột phải (bấm được), nhưng nền panel tĩnh + các khe
+   giữa thẻ bị cột phải vẽ đè → dải phải của workspace lem
+   nhem, nội dung tĩnh trong dải bị che thật (cùng cơ chế đã
+   che nút pinyin trước đây).
+   Cách sửa (ít xâm lấn nhất — không đổi DOM, không đổi lưới,
+   không đổi diện mạo dashboard): nâng cả panel journey thành
+   một lớp xếp chồng riêng (position:relative + z-index:2) nằm
+   TRÊN cột phải sticky. Khi cuộn tới khu từ vựng, panel (nền
+   trắng đục) trượt phủ lên cột phải thay vì bị đè; khi còn ở
+   vùng dashboard, journey chưa chồng lấn cột phải nên diện
+   mạo + hành vi sticky giữ nguyên 100%. Chỉ áp ở ≥1021px —
+   nơi sticky tồn tại; mobile/tablet giữ nguyên như cũ. Mọi
+   theme (sticky của shell không phân biệt theme). Bé hướng
+   dẫn (z-index ~200050) và modal chi tiết thẻ (12500) vẫn
+   nổi trên panel như cũ.
+   ============================================================ */
+@media (min-width:1021px){
+  #otter2-home #otter2HskJourney{ position:relative; z-index:2; }
+}
