@@ -292,7 +292,8 @@
       ".htv-hvbtn{margin-top:14px;background:" + BLUE + ";color:#fff;border:0;border-radius:12px;padding:12px 18px;font-size:15.5px;font-weight:800;cursor:pointer}",
       ".htv-hvbtn.off{background:#eef1f6;color:#5b6a7d;border:1px solid #d8e0ec}",
       ".htv-count{color:#5b6a7d;font-size:15px;margin:16px 2px 4px}",
-      ".htv-wrow{display:flex;gap:10px;padding:13px 6px;border-bottom:1px solid #edf0f5;align-items:flex-start;border-radius:10px}",
+      ".htv-wrow{display:flex;gap:10px;padding:13px 6px;border-bottom:1px solid #edf0f5;align-items:flex-start;border-radius:10px;cursor:pointer}",
+      ".htv-wrow:hover{background:#f7f9fc}",
       ".htv-wrow.playing{box-shadow:inset 0 0 0 999px rgba(255,255,255,.25)}",
       ".htv-idx{color:#8b98a9;font-size:14px;min-width:26px;text-align:right;padding-top:9px}",
       ".htv-wmain{flex:1;min-width:0}",
@@ -306,6 +307,12 @@
       ".htv-star.on{background:#ffe066;color:#8a6d00}",
       ".htv-mean{font-size:16.5px;color:#22314a;margin-top:3px;line-height:1.35}",
       ".htv-ex{font-size:13.5px;color:#63738a;margin-top:4px;line-height:1.4}",
+      "/* Hộp ví dụ kiểu XuCup (lệnh anh Huy 2026-11-25): ẩn sẵn, nhấn vào từ mới hiện TO RÕ */",
+      ".htv-exbox{margin-top:8px;background:#f7f9fc;border:1px solid #d8e0ec;border-radius:10px;padding:10px 12px}",
+      ".htv-ex-h{font-size:20px;font-weight:700;color:#1d2a39;line-height:1.35}",
+      ".htv-ex-p{color:#0a4d8c;font-weight:700;font-size:16px;margin-top:3px}",
+      ".htv-ex-m{color:#31445a;font-weight:500;font-size:15.5px;margin-top:3px;line-height:1.4}",
+      ".htv-spk-ex{margin-top:9px;color:#0b5ed7;font-weight:700;font-size:14px}",
       ".htv-more{display:block;margin:16px auto 4px;background:#fff;border:1px solid #d8e0ec;color:" + BLUE + ";border-radius:999px;padding:11px 22px;font-weight:800;font-size:14.5px;cursor:pointer}",
       ".htv-empty{padding:26px 8px;text-align:center;color:#63738a;font-size:15px;line-height:1.5}",
       "/* flashcard */",
@@ -581,12 +588,13 @@
   function rowHtml(w, idx) {
     var star = isStar(w);
     var hv = S.hvOn && w.v ? '<span class="htv-hv">[' + esc(String(w.v).toUpperCase()) + "]</span>" : "";
-    var ex = "";
-    if (w.example) {
-      ex = '<div class="htv-ex">' + esc(dispH(w.example)) +
-        (w.examplePinyin ? " · " + esc(w.examplePinyin) : "") +
-        (w.exampleMeaning ? "<br>" + esc(w.exampleMeaning) : "") + "</div>";
-    }
+    /* Ví dụ kiểu XuCup: hộp ẩn sẵn trong hàng, nhấn vào từ mới xổ ra (xem paintRows). */
+    var ex = '<div class="htv-exbox" hidden>' + (w.example
+      ? '<div class="htv-ex-h">' + esc(dispH(w.example)) + "</div>" +
+        (w.examplePinyin ? '<div class="htv-ex-p">' + esc(w.examplePinyin) + "</div>" : "") +
+        (w.exampleMeaning ? '<div class="htv-ex-m">' + esc(w.exampleMeaning) + "</div>" : "") +
+        '<button type="button" class="htv-spk htv-spk-ex" data-htv-speakex="' + idx + '">🔊 Nghe ví dụ · Hear example</button>'
+      : '<div class="htv-ex-m">Chưa có ví dụ. · No example yet.</div>') + "</div>";
     return '<div class="htv-wrow" data-htv-row="' + idx + '">' +
       '<div class="htv-idx">' + (idx + 1) + "</div>" +
       '<div class="htv-wmain"><div class="htv-hline">' +
@@ -627,13 +635,28 @@
     }
     body.innerHTML = h;
     body.querySelectorAll("[data-htv-speak]").forEach(function (b) {
-      b.addEventListener("click", function () {
+      b.addEventListener("click", function (e) {
+        e.stopPropagation();
         var w = list[Number(b.getAttribute("data-htv-speak"))];
         if (w) speakWord(w);
       });
     });
+    body.querySelectorAll("[data-htv-speakex]").forEach(function (b) {
+      b.addEventListener("click", function (e) {
+        e.stopPropagation();
+        var w = list[Number(b.getAttribute("data-htv-speakex"))];
+        if (w && w.example) speak(dispH(w.example), "zh");
+      });
+    });
+    body.querySelectorAll("[data-htv-row]").forEach(function (r) {
+      r.addEventListener("click", function () {
+        var box = r.querySelector(".htv-exbox");
+        if (box) { box.hidden = !box.hidden; r.classList.toggle("open", !box.hidden); }
+      });
+    });
     body.querySelectorAll("[data-htv-star]").forEach(function (b) {
-      b.addEventListener("click", function () {
+      b.addEventListener("click", function (e) {
+        e.stopPropagation();
         var w = list[Number(b.getAttribute("data-htv-star"))];
         if (!w) return;
         var on = toggleStar(w);
@@ -1376,13 +1399,28 @@
     if (n < list.length) h += '<button type="button" class="htv-more" id="tyMore">Xem thêm · More (' + (list.length - n) + " từ nữa)</button>";
     body.innerHTML = h;
     body.querySelectorAll("[data-htv-speak]").forEach(function (b) {
-      b.addEventListener("click", function () {
+      b.addEventListener("click", function (e) {
+        e.stopPropagation();
         var w = list[Number(b.getAttribute("data-htv-speak"))];
         if (w) speakWord(w);
       });
     });
+    body.querySelectorAll("[data-htv-speakex]").forEach(function (b) {
+      b.addEventListener("click", function (e) {
+        e.stopPropagation();
+        var w = list[Number(b.getAttribute("data-htv-speakex"))];
+        if (w && w.example) speak(dispH(w.example), "zh");
+      });
+    });
+    body.querySelectorAll("[data-htv-row]").forEach(function (r) {
+      r.addEventListener("click", function () {
+        var box = r.querySelector(".htv-exbox");
+        if (box) { box.hidden = !box.hidden; r.classList.toggle("open", !box.hidden); }
+      });
+    });
     body.querySelectorAll("[data-htv-star]").forEach(function (b) {
-      b.addEventListener("click", function () {
+      b.addEventListener("click", function (e) {
+        e.stopPropagation();
         var w = list[Number(b.getAttribute("data-htv-star"))];
         if (!w) return;
         var on = toggleStar(w);
