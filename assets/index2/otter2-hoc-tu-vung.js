@@ -242,6 +242,9 @@
       ".htv-card-title{display:block;font-size:18px;font-weight:900}",
       ".htv-card-sub{display:block;font-size:12.5px;opacity:.88;margin-top:2px}",
       ".htv-card-btn{background:#fff;color:#16283F;border:0;border-radius:999px;padding:9px 14px;font-weight:800;font-size:13.5px;cursor:pointer;white-space:nowrap}",
+      ".htv-overview-btn{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;box-sizing:border-box;background:#fff;border:1.5px solid #d8e0ec;color:" + NAVY + ";border-radius:14px;padding:13px 16px;font-size:15.5px;font-weight:800;cursor:pointer;margin:2px 0 10px}",
+      ".htv-overview-btn .htv-ov-sub{font-size:12.5px;font-weight:600;color:#7a8799}",
+      ".htv-overview-btn .htv-ov-chev{font-size:14px;color:" + BLUE + ";font-weight:900}",
       "#ttcHtvOverlay{position:fixed;inset:0;background:#eef1f6;z-index:12060;overflow-y:auto;-webkit-overflow-scrolling:touch}",
       ".htv-wrap{max-width:880px;margin:0 auto;padding:10px 10px calc(28px + env(safe-area-inset-bottom,0px))}",
       ".htv-panel{background:#fff;border:1px solid #e3e8f0;border-radius:20px;padding:16px 14px;box-shadow:0 4px 18px rgba(22,40,63,.06)}",
@@ -952,6 +955,53 @@
       tile.addEventListener("click", openOverlay);
       picker.insertBefore(tile, picker.firstChild);
     }
+    buildOverviewToggle();
+    return true;
+  }
+  /* ---- Gộp hàng chọn cấp HSK + chip loại từ sau 1 nút "Xem tổng quát từ vựng" ----
+     (anh Huy khoanh đỏ 2 hàng này 2026-11-25: gộp cho gọn, nhấn nút mới xem)
+     Chỉ gập/hiện 2 container có sẵn #otter2HskLevelRow + #otter2TypeRow,
+     không đụng logic chọn cấp/lọc loại của engine. Mặc định gập. */
+  var OV_KEY = "ttc_vocab_overview_v1";
+  var ovState = lsGet(OV_KEY) || { open: false };
+  if (typeof ovState.open !== "boolean") ovState.open = false;
+  function ovPaintBtn() {
+    var btn = byId("ttcOverviewBtn");
+    if (!btn) return;
+    var chev = btn.querySelector(".htv-ov-chev");
+    if (chev) chev.textContent = ovState.open ? "▴ Thu gọn" : "▾ Mở xem";
+    btn.setAttribute("aria-expanded", String(!!ovState.open));
+    /* nút chỉ thuộc view Thẻ từ: tab Luyện tập (picker đang hiện) thì ẩn nút theo */
+    var pk = document.querySelector("[data-vr-picker]");
+    var practice = !!(pk && window.getComputedStyle(pk).display !== "none");
+    btn.style.display = practice ? "none" : "";
+  }
+  function ovApply() {
+    var lr = byId("otter2HskLevelRow"), tr = byId("otter2TypeRow");
+    if (!lr || !tr) return false;
+    var disp = ovState.open ? "" : "none";
+    lr.style.display = disp;
+    tr.style.display = disp;
+    ovPaintBtn();
+    return true;
+  }
+  function buildOverviewToggle() {
+    var lr = byId("otter2HskLevelRow");
+    if (!lr || !lr.parentNode) return false;
+    if (!byId("ttcOverviewBtn")) {
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "htv-overview-btn";
+      btn.id = "ttcOverviewBtn";
+      btn.innerHTML = '<span>📋 Xem tổng quát từ vựng <span class="htv-ov-sub">· chọn cấp HSK + lọc theo loại từ</span></span><span class="htv-ov-chev">▾ Mở xem</span>';
+      btn.addEventListener("click", function () {
+        ovState.open = !ovState.open;
+        lsSet(OV_KEY, ovState);
+        ovApply();
+      });
+      lr.parentNode.insertBefore(btn, lr);
+    }
+    ovApply();
     return true;
   }
   window.ttcOpenHocTuVung = openOverlay;
@@ -959,7 +1009,20 @@
   function init() {
     ensureStyle();
     if (!buildEntry()) { setTimeout(init, 600); return; }
-    setInterval(function () { if (!byId("ttcHocTuVungCard")) buildEntry(); }, 1500);
+    setInterval(function () {
+      if (!byId("ttcHocTuVungCard")) buildEntry();
+      if (!byId("ttcOverviewBtn")) buildOverviewToggle();
+      else {
+        /* giữ trạng thái gập + đồng bộ nút theo tab Thẻ từ/Luyện tập;
+           khi đang MỞ thì để engine tự do ẩn/hiện, chỉ ép khi đang GẬP */
+        if (!ovState.open) {
+          var lr = byId("otter2HskLevelRow"), tr = byId("otter2TypeRow");
+          if (lr && lr.style.display !== "none") lr.style.display = "none";
+          if (tr && tr.style.display !== "none") tr.style.display = "none";
+        }
+        ovPaintBtn();
+      }
+    }, 1500);
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
