@@ -968,8 +968,14 @@
     var okSidebar = buildSidebar();
     var okBar = buildBottomBar();
     var okRail = buildRailAch();
-    var okMove = moveContinueCard();
-    var okRoad = moveRoadCard();
+    var okMove = moveContinueCard() || !$(".otter2-dash-continue");
+    /* BƯỚC 2 (anh Huy chốt 2026-11-25): thẻ Lộ trình (.otter2-dash-road) đã
+       XOÁ hẳn khỏi trang chủ — không có thẻ thì coi như xong. Trước đây
+       thiếu thẻ làm moveRoadCard() trả false mãi, build() không bao giờ
+       hoàn tất nên listener click của thanh điều hướng dưới cùng không
+       được gắn -> cả thanh bị "đơ" (bài học: đừng để 1 thẻ tuỳ chọn làm
+       cổng cứng cho việc khởi tạo thanh điều hướng). */
+    var okRoad = moveRoadCard() || !$(".otter2-dash-road");
     var okSub = buildSubbar();
     var okStrip = moveStrip();
     placeUtility();
