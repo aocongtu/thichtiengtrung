@@ -23,6 +23,23 @@
    bỏ qua bản sinh rỗng; (4) startExam/startCatalog bọc try/catch,
    lỗi là dựng lại trang chủ khu thi + báo rõ — nút không bao giờ kẹt.
 
+   VÁ CHẤT LƯỢNG ĐÁP ÁN 2026-11-24 — chủ web bắt lỗi đề HSK9 thật:
+   câu đọc hiểu "Câu nào ĐÚNG theo bài?" có 4 đáp án gần như TRÙNG
+   NHAU, chỉ khác đúng một động từ, hai đáp án còn sai ngữ pháp
+   ("被讨论来", "被提醒来"). Gốc rễ: đáp án nhiễu của read-verify
+   sinh bằng cách đột biến CHÍNH câu đúng (đổi một chi tiết) nên cả
+   bộ đáp án giống nhau 0,80–0,98; và nhánh thay từ nội dung của
+   mutateSentence thay cả động từ, động từ mới không gánh nổi bổ
+   ngữ theo sau. Vá 4 lớp: (1) CỔNG ĐỘ GIỐNG — Dice bigram ký tự
+   sau chuẩn hoá, ngưỡng SIM_MAX = 0,70: bộ 4 đáp án có cặp nào
+   giống quá ngưỡng thì sinh lại / loại câu; (2) read-verify đổi
+   nguồn nhiễu: mỗi đáp án sai là MỘT CÂU KHÁC trong cùng bài bị
+   làm sai một chi tiết đóng — khung câu khác hẳn, vẫn phải đọc
+   bài mới phân biệt được; (3) mutateSentence chỉ còn thay DANH
+   TỪ <-> DANH TỪ cùng độ dài, chặn vị trí ngay trước bổ ngữ;
+   (4) cổng độ giống áp thêm cho read-sentmean, read-sentence,
+   listen-sentence + lưới quét cuối trong generateExam.
+
    v2 (2026-11-17) nâng cấp từ v1:
    - ĐỀ SÁT ĐỀ THẬT: blueprint theo cấu trúc đề HSK thật từng cấp
      (HSK1: Nghe 20 + Đọc 20, thang 200, đạt 120; HSK2: 35+25/200/120;
@@ -201,6 +218,55 @@
     q.correctText = correctText;
     q.answer = opts.indexOf(correctText);
     return q;
+  }
+
+  /* ============================================================
+     CỔNG ĐỘ GIỐNG ĐÁP ÁN (vá chất lượng 2026-11-24).
+     Độ giống hai đáp án = hệ số Dice trên bigram ký tự sau chuẩn
+     hoá (bỏ khoảng trắng + dấu câu, hạ chữ thường):
+       sim = 2 * |bigram chung| / (|bigram A| + |bigram B|)
+     Hai câu chỉ khác nhau MỘT chi tiết (đổi số, đổi buổi, thêm/bớt
+     phủ định, thay một động từ...) đạt ~0,80–0,98. Hai câu khác
+     nhau thật trong cùng một bài đọc thường < 0,55.
+     NGƯỠNG: SIM_MAX = 0,70 — bộ 4 đáp án có bất kỳ cặp nào giống
+     nhau quá 0,70 thì bị coi là "đáp án lỗi giống nhau", phải
+     sinh lại đáp án nhiễu theo nguồn khác hoặc loại câu hỏi đó;
+     không để lọt ra đề (các generator tự kiểm + lưới quét cuối
+     trong generateExam). Chỉ áp cho các dạng đáp án là CÂU đầy đủ
+     (read-verify, read-sentmean, read-sentence, listen-sentence);
+     đáp án dạng từ/thẻ thông tin (cloze, read-fact, pinyin...)
+     khác cơ chế nên không qua cổng này.                    */
+  var SIM_MAX = 0.70;
+  function normSimText(s) {
+    return String(s == null ? "" : s).toLowerCase().replace(/[\s。，、；：？！·…—「」『』“”‘’（）()《》〈〉.,;:?!'"_~\-]/g, "");
+  }
+  function optSimilarity(a, b) {
+    a = normSimText(a); b = normSimText(b);
+    if (!a || !b) return 0;
+    if (a === b) return 1;
+    if (a.length < 2 || b.length < 2) {
+      var setB = {}, common = 0, i0;
+      for (i0 = 0; i0 < b.length; i0++) setB[b.charAt(i0)] = 1;
+      for (i0 = 0; i0 < a.length; i0++) if (setB[a.charAt(i0)]) common++;
+      return common / Math.max(a.length, b.length);
+    }
+    var grams = {}, i, g;
+    for (i = 0; i + 1 < a.length; i++) { g = a.substr(i, 2); grams[g] = (grams[g] || 0) + 1; }
+    var inter = 0;
+    for (i = 0; i + 1 < b.length; i++) {
+      g = b.substr(i, 2);
+      if (grams[g] > 0) { grams[g]--; inter++; }
+    }
+    return (2 * inter) / ((a.length - 1) + (b.length - 1));
+  }
+  function optionsTooSimilar(options) {
+    if (!Array.isArray(options)) return false;
+    for (var i = 0; i < options.length; i++) {
+      for (var j = i + 1; j < options.length; j++) {
+        if (optSimilarity(options[i], options[j]) > SIM_MAX) return true;
+      }
+    }
+    return false;
   }
   function sameTypeFirst(word) {
     return function (a, b) {
@@ -381,9 +447,15 @@
   }
   function listenSentenceRejectFn(targetEntry) {
     var target = normSpeakPy(targetEntry && targetEntry.examplePinyin || "");
+    var targetText = String(targetEntry && targetEntry.example || "");
     return function (entry) {
-      if (!entry || !target) return false;
-      return normSpeakPy(entry.examplePinyin || "") === target;
+      if (!entry) return false;
+      if (target && normSpeakPy(entry.examplePinyin || "") === target) return true;
+      /* VÁ 2026-11-24: loại cả câu ví dụ gần như trùng nguyên văn
+         với câu đích (corpus có các cặp câu tối thiểu chỉ khác một
+         từ) — qua CỔNG ĐỘ GIỐNG SIM_MAX như phần Đọc. */
+      if (targetText && optSimilarity(entry.example || "", targetText) > SIM_MAX) return true;
+      return false;
     };
   }
   function listenMeaningRejectFn(correctMeaning) {
@@ -606,10 +678,13 @@
      câu "Trong bài đọc, từ X có nghĩa là gì?" trả lời được bằng vốn từ
      sẵn có, không cần đọc bài, lựa chọn nhiễu lại là nghĩa ngẫu nhiên
      không liên quan): MỌI câu phần Đọc phải cần đến chính bài đọc —
-       · read-verify : chọn câu ĐÚNG theo bài; nhiễu là câu của bài đã
-         bị đổi một chi tiết (số liệu / thời gian / phủ định / trái
-         nghĩa / đại từ / từ nội dung lấy ngay trong bài) — phải đối
-         chiếu bài mới phân biệt được.
+       · read-verify : chọn câu ĐÚNG theo bài; nhiễu là các CÂU KHÁC
+         trong cùng bài đã bị đổi một chi tiết (số liệu / thời gian /
+         phủ định / trái nghĩa / đại từ / danh từ cùng bài) — khung
+         câu khác hẳn câu đúng, phải đối chiếu bài mới phân biệt
+         được. (Từ 2026-11-24: CẤM đột biến chính câu đúng — bộ đáp
+         án thành 4 bản sao chỉ khác một từ; mọi bộ đáp án dạng câu
+         phải qua CỔNG ĐỘ GIỐNG SIM_MAX = 0,70.)
        · read-fact   : điền THÔNG TIN (số, thứ, buổi, mốc thời gian)
          đúng theo bài vào câu trích; thông tin phải xuất hiện đúng
          một lần trong bài nên bài ghim đáp án.
@@ -642,6 +717,19 @@
     }
   }
   var ANTONYM_PAIRS = [["多", "少"], ["大", "小"], ["高", "低"], ["快", "慢"], ["早", "晚"], ["新", "旧"], ["长", "短"], ["远", "近"], ["冷", "热"]];
+  /* Bổ ngữ kết quả/phương hướng thường đứng ngay sau động từ — vị
+     trí thay từ mà ký tự ngay sau là một trong các chữ này thì rất
+     dễ sinh câu sai ngữ pháp (vá 2026-11-24, lỗi "被讨论来"). */
+  var COMPLEMENT_AFTER = "来去上下进出回过到完好住开掉着";
+  /* Chỉ coi là DANH TỪ khi loại từ có "Danh từ" mà không lẫn
+     "Động từ" (dữ liệu có nhiều loại tổ hợp "Danh từ / Động từ"
+     — vị trí trong câu không chắc là danh từ nên loại ra). */
+  function isNounWord(w) {
+    var t = String((w && w.t) || "");
+    if (!t) return false;
+    if (t.indexOf("Động từ") >= 0 || t.indexOf("động từ") >= 0) return false;
+    return t.indexOf("Danh từ") >= 0 || t.indexOf("danh từ") >= 0 || t === "n" || t === "名词";
+  }
   var NEG_PATTERNS = [["不是", "是"], ["没有", "有"], ["不会", "会"], ["不能", "能"], ["不喜欢", "喜欢"], ["不想", "想"], ["不知道", "知道"]];
   var PRON_SWAPS = [["我们", "他们"], ["他们", "我们"], ["我", "他"], ["她", "他"], ["他", "她"]];
   var DAYPARTS = ["上午", "中午", "下午", "晚上", "早上", "早晨", "夜里", "白天"];
@@ -717,7 +805,11 @@
       } else if (st === 3) { /* phủ định / trái nghĩa */
         var done = false;
         for (var ni = 0; ni < NEG_PATTERNS.length && !done; ni++) {
-          if (s.indexOf(NEG_PATTERNS[ni][0]) >= 0) { cand = s.replace(NEG_PATTERNS[ni][0], NEG_PATTERNS[ni][1]); done = true; }
+          if (s.indexOf(NEG_PATTERNS[ni][0]) < 0) continue;
+          /* "不是……而是……" là cặp liên từ cố định: bỏ 不 sẽ thành
+             "是……而是……" sai ngữ pháp — bỏ qua mẫu này (vá 2026-11-24). */
+          if (NEG_PATTERNS[ni][0] === "不是" && s.indexOf("而是") > s.indexOf("不是")) continue;
+          cand = s.replace(NEG_PATTERNS[ni][0], NEG_PATTERNS[ni][1]); done = true;
         }
         if (!done && s.indexOf("喜欢") >= 0 && s.indexOf("不喜欢") < 0) { cand = s.replace("喜欢", "不喜欢"); done = true; }
         if (!done) {
@@ -742,21 +834,28 @@
             if (at >= 0) cand = s.slice(0, at) + to + s.slice(at + from.length);
           }
         }
-      } else { /* đổi một từ nội dung bằng từ khác CÙNG BÀI (cùng chủ đề) */
+      } else { /* đổi một DANH TỪ trong câu bằng danh từ khác CÙNG BÀI.
+         VÁ NGỮ PHÁP 2026-11-24: bản cũ thay cả ĐỘNG từ — "留下" bị
+         thay bằng "讨论/提醒" sinh câu sai ngữ pháp "被讨论来 /
+         被提醒来" (động từ thay vào không gánh được bổ ngữ 来 theo
+         sau). Nay chỉ thay danh từ <-> danh từ (isNounWord), CÙNG
+         độ dài ký tự, và vị trí thay không đứng ngay trước bổ ngữ
+         kết quả/phương hướng (COMPLEMENT_AFTER). */
         var inS = poolAll.filter(function (w) {
-          return String(w.h || "").length >= 2 && cleanIndexOf(s, String(w.h)) >= 0;
+          return isNounWord(w) && String(w.h || "").length >= 2 && cleanIndexOf(s, String(w.h)) >= 0;
         });
         if (inS.length) {
           var w0 = pickOne(inS, rng);
           var inPassage = poolAll.filter(function (w) {
             var h = String(w.h || "");
-            return h.length >= 2 && h !== String(w0.h) && zh.indexOf(h) >= 0 && s.indexOf(h) < 0 &&
-              (!w0.t || !w.t || w.t === w0.t);
+            return isNounWord(w) && h.length === String(w0.h).length && h !== String(w0.h) && zh.indexOf(h) >= 0 && s.indexOf(h) < 0;
           });
           if (inPassage.length) {
             var w2 = pickOne(inPassage, rng);
             var ix2 = cleanIndexOf(s, String(w0.h));
-            if (ix2 >= 0) cand = s.slice(0, ix2) + String(w2.h) + s.slice(ix2 + String(w0.h).length);
+            if (ix2 >= 0 && COMPLEMENT_AFTER.indexOf(s.charAt(ix2 + String(w0.h).length)) < 0) {
+              cand = s.slice(0, ix2) + String(w2.h) + s.slice(ix2 + String(w0.h).length);
+            }
           }
         }
       }
@@ -781,32 +880,45 @@
     sents.forEach(function (x) { sentSet[x.replace(/\s+/g, "")] = 1; });
     var caps = (opts && opts.deep) ? { verify: 3, fact: 2, mean: 2, cloze: 2 } : { verify: 2, fact: 1, mean: 1, cloze: 1 };
 
-    /* 1) Chọn câu ĐÚNG theo bài (nhiễu = câu của bài bị đổi chi tiết) */
+    /* 1) Chọn câu ĐÚNG theo bài.
+       VÁ CHẤT LƯỢNG 2026-11-24 (chủ web bắt lỗi đề HSK9 thật: 4 đáp
+       án gần như trùng nhau, chỉ khác một động từ, có đáp án sai ngữ
+       pháp): đáp án nhiễu KHÔNG còn sinh bằng cách đột biến chính
+       câu đúng nữa — mọi đột biến một chi tiết đều khiến bộ đáp án
+       giống nhau 0,80–0,98. Mỗi đáp án nhiễu nay là MỘT CÂU KHÁC
+       trong cùng bài (mỗi câu nguồn khác nhau) đã bị làm sai một
+       chi tiết đóng (số liệu / thời gian / phủ định / trái nghĩa /
+       đại từ / danh từ cùng bài): khung câu khác hẳn, nội dung vẫn
+       thuộc bài nên phải đọc kỹ mới loại được. Toàn bộ 4 đáp án
+       phải qua CỔNG ĐỘ GIỐNG (cặp giống nhất <= SIM_MAX): trượt
+       cổng thì thử lại với nguồn khác (tối đa 3 lượt), vẫn trượt
+       hoặc thiếu nguồn thì BỎ câu hỏi này thay vì để lọt đề lỗi. */
     var verifyBases = shuffle(sents.filter(function (s) {
       return s.length >= 10 && s.length <= 62 && !isInterrogative(s);
     }), rng);
     var nVerify = 0;
     for (var vi = 0; vi < verifyBases.length && nVerify < caps.verify; vi++) {
       var base = verifyBases[vi];
-      var wrongs = [], seenW = {};
-      for (var att = 0; att < 8 && wrongs.length < 3; att++) {
-        var mut = mutateSentence(base, zh, sentSet, poolAll, rng);
-        if (mut && !seenW[mut]) { seenW[mut] = 1; wrongs.push(mut); }
-      }
-      if (wrongs.length < 3) { /* bổ sung bằng đột biến của câu khác trong bài */
-        var others = shuffle(sents.filter(function (s) { return s !== base && s.length >= 10 && s.length <= 62; }), rng);
-        for (var oi = 0; oi < others.length && wrongs.length < 3; oi++) {
-          var mut2 = mutateSentence(others[oi], zh, sentSet, poolAll, rng);
-          if (mut2 && !seenW[mut2]) { seenW[mut2] = 1; wrongs.push(mut2); }
+      var wrongs = null;
+      for (var attV = 0; attV < 3 && !wrongs; attV++) {
+        var srcPool = shuffle(sents.filter(function (s) {
+          return s !== base && s.length >= 8 && s.length <= 62 && !isInterrogative(s);
+        }), rng);
+        var candW = [], seenW = {};
+        for (var oi = 0; oi < srcPool.length && candW.length < 3; oi++) {
+          var mut = mutateSentence(srcPool[oi], zh, sentSet, poolAll, rng);
+          if (mut && !seenW[mut]) { seenW[mut] = 1; candW.push(mut); }
         }
+        if (candW.length < 3) break; /* bài thiếu câu nguồn — bỏ câu này */
+        if (!optionsTooSimilar([base].concat(candW))) wrongs = candW;
       }
-      if (wrongs.length < 3) continue;
+      if (!wrongs) continue;
       qs.push(finalize({
         section: "reading", type: "read-verify",
         stem: "Câu nào sau đây ĐÚNG theo nội dung bài đọc?",
         sub: "", passage: zh, passageTitle: title, speakText: null,
         explainHead: "Câu đúng, trích nguyên văn từ bài: " + base,
-        explainBody: "Ba câu còn lại đều đã bị đổi một chi tiết so với bài đọc (số liệu, thời gian, phủ định hoặc nội dung) — đối chiếu lại bài để thấy chỗ khác.",
+        explainBody: "Ba câu còn lại đều KHÔNG đúng với bài đọc: mỗi câu nói về một ý khác trong bài nhưng đã bị đổi một chi tiết (số liệu, thời gian, phủ định, đại từ hoặc nội dung) — đối chiếu lại bài để thấy chỗ sai.",
         srcKey: "R" + level + "|" + passage.id + "|verify|" + hashStr(base)
       }, base, wrongs, rng));
       nVerify++;
@@ -903,6 +1015,7 @@
           if (k !== normOpt(correctVi) && !seenM[k] && mwrongs.length < 3) { seenM[k] = 1; mwrongs.push(v); }
         });
         if (mwrongs.length < 3) continue;
+        if (optionsTooSimilar([correctVi].concat(mwrongs))) continue; /* CỔNG ĐỘ GIỐNG 2026-11-24 */
         qs.push(finalize({
           section: "reading", type: "read-sentmean",
           stem: "Trong bài đọc có câu: 「" + zhLines[li2] + "」 Câu này có nghĩa là gì?",
@@ -927,7 +1040,7 @@
       var ownSentSet = {};
       sents.forEach(function (x) { ownSentSet[x] = 1; });
       var swrongs = distractors(otherSents.map(function (s) { return { s: s }; }), function (x) { return x.s; }, normOpt, correct, 3, rng, null, function (entry) { return !!ownSentSet[entry.s]; });
-      if (swrongs.length >= 3) {
+      if (swrongs.length >= 3 && !optionsTooSimilar([String(correct)].concat(swrongs))) { /* CỔNG ĐỘ GIỐNG 2026-11-24 */
         qs.push(finalize({
           section: "reading", type: "read-sentence",
           stem: "Câu nào sau đây XUẤT HIỆN trong bài đọc trên?",
@@ -1270,11 +1383,31 @@
     };
   }
 
+  /* Lưới quét cuối của CỔNG ĐỘ GIỐNG (2026-11-24): các generator
+     dạng câu đã tự kiểm lúc sinh; lớp này chặn nốt mọi đường lọt —
+     câu nào thuộc dạng đáp án-câu mà bộ đáp án vẫn có cặp giống
+     nhau quá SIM_MAX thì loại khỏi đề (đề mỏng đi một câu còn hơn
+     để lọt câu lỗi giống nhau như chủ web đã bắt được). */
+  var SENT_OPTION_TYPES = { "read-verify": 1, "read-sentmean": 1, "read-sentence": 1, "listen-sentence": 1 };
+  function sweepSimilarOptions(exam) {
+    if (!exam || !Array.isArray(exam.questions)) return exam;
+    var kept = exam.questions.filter(function (q) {
+      if (!q || !SENT_OPTION_TYPES[q.type]) return true;
+      if (!Array.isArray(q.options) || q.options.length !== 4) return true;
+      return !optionsTooSimilar(q.options);
+    });
+    if (kept.length !== exam.questions.length) {
+      exam.questions = kept;
+      exam.total = kept.length;
+    }
+    return exam;
+  }
+
   function generateExam(level, modeKey, rng, opts) {
     rng = rng || Math.random;
     try {
-      if (modeKey === "mini" || modeKey === "standard") return generateLegacyExam(level, modeKey, rng);
-      return generateBlueprintExam(level, modeKey === "full" ? "full" : "reduced", rng, opts);
+      if (modeKey === "mini" || modeKey === "standard") return sweepSimilarOptions(generateLegacyExam(level, modeKey, rng));
+      return sweepSimilarOptions(generateBlueprintExam(level, modeKey === "full" ? "full" : "reduced", rng, opts));
     } catch (e) {
       /* VÁ 2026-11-24: lưới an toàn cuối — sinh đề không bao giờ ném lỗi
          ra ngoài; trả đề rỗng để tầng gọi (startExam/startCatalog) báo
