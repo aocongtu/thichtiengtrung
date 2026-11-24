@@ -1147,56 +1147,64 @@
   }
 
   /* ---- màn hình TỔNG QUÁT (full màn hình) ----
-     Anh Huy chốt lại (2026-11-25): "Xem tổng quát" CHÍNH LÀ DANH SÁCH CŨ
-     của thichtiengtrung — anh chỉ muốn danh sách cũ GỌN hơn và xem full
-     màn hình (kéo xuống rồi nhấn "⬆ Từ số 1" về ngay từ đầu). Màn này
-     chỉ để XEM danh sách gốc theo cấp, KHÔNG trỏ sang Học từ vựng XuCup
-     (tính năng đó đã hoàn tất, đứng riêng). */
-  var OV_PAGE = 150;
-  var OV = { open: false, level: 1, shown: OV_PAGE };
-  function ovRowHtml(w, idx) {
-    var hv = w.v ? '<span class="htv-hv">[' + esc(String(w.v).toUpperCase()) + "]</span>" : "";
-    return '<div class="htv-wrow">' +
-      '<div class="htv-idx">' + (idx + 1) + "</div>" +
-      '<div class="htv-wmain"><div class="htv-hline">' +
-      '<span class="htv-hz">' + esc(dispH(w.h)) + "</span>" + hv +
-      '<span class="htv-py">' + esc(w.p) + "</span>" +
-      (w.t ? '<span class="htv-type">' + esc(w.t) + "</span>" : "") +
-      '</div><div class="htv-mean">' + esc(w.m) + "</div></div></div>";
+     Anh Huy chốt rõ (2026-11-25): "Xem tổng quát" CHÍNH LÀ DANH SÁCH LƯỚI
+     THẺ cũ của thichtiengtrung vốn có từ đầu (lưới #otter2Hsk1Cards trong
+     Phòng từ vựng) — KHÔNG phải danh sách kiểu XuCup lắp vào. Màn này bê
+     NGUYÊN cụm lưới thẻ THẬT của web vào full màn hình (dời node thật, đóng
+     màn thì trả về chỗ cũ): thẻ, nút nghe đọc, đánh dấu đã học... đều là
+     của web, chạy y nguyên. Chip cấp bấm qua nút cấp THẬT của web nên cổng
+     đăng nhập/Premium vẫn do web xử lý. Nút "⬆ Từ số 1" ở ngay trong màn. */
+  var OV = { open: false, level: 1, paintedLevel: 0, moved: false, home: null, next: null };
+  function ovGridBox() { return byId("otter2Hsk1Cards"); }
+  function ovTitleLevel() {
+    var t = byId("otter2Hsk1Title");
+    if (t) { var m = /HSK\s*(\d)/.exec(t.textContent || ""); if (m) return Number(m[1]); }
+    return 0;
   }
-  function paintOv() {
+  function ovPaintChips() {
     var chips = byId("ovChips"); if (!chips) return;
+    var cur = ovTitleLevel() || OV.level;
+    OV.level = cur;
+    if (OV.paintedLevel === cur && chips.children.length) { ovPaintCount(); return; }
+    OV.paintedLevel = cur;
     var h = "";
     for (var lv = 1; lv <= 9; lv++) {
-      h += '<button type="button" class="htv-chip' + (lv === OV.level ? " on" : "") + '" data-ov-level="' + lv + '">HSK ' + lv + " · " + levelCount(lv) + (levelLocked(lv) ? " 🔒" : "") + "</button>";
+      h += '<button type="button" class="htv-chip' + (lv === cur ? " on" : "") + '" data-ov-level="' + lv + '">HSK ' + lv + " · " + levelCount(lv) + (levelLocked(lv) ? " 🔒" : "") + "</button>";
     }
     chips.innerHTML = h;
-    var pack = packFor(OV.level);
-    var count = byId("ovCount");
-    if (count) count.textContent = "Danh sách HSK " + OV.level + " · " + pack.length + " từ — bản gọn của danh sách cũ, kéo xuống xem tiếp";
-    var body = byId("ovBody");
-    if (body) {
-      var n = Math.min(OV.shown, pack.length), rows = "";
-      for (var i = 0; i < n; i++) rows += ovRowHtml(pack[i], i);
-      body.innerHTML = rows || '<div class="htv-empty">Cấp này chưa có từ 😅</div>';
-    }
-    var more = byId("ovMore");
-    if (more) more.hidden = OV.shown >= pack.length;
+    ovPaintCount();
   }
-  function pickOvLevel(lv) {
-    var enter = function () {
-      OV.level = lv; OV.shown = OV_PAGE;
-      paintOv();
-      var ov = byId("ttcOvOverlay"); if (ov) ov.scrollTop = 0;
-    };
-    if (lv >= 3 && S.access !== true && typeof window.checkPremiumAccess === "function") {
-      Promise.resolve(window.checkPremiumAccess(lv)).then(function (ok) {
-        if (ok) { enter(); refreshAccess().then(paintOv); }
-        else refreshAccess().then(paintOv);
-      }).catch(function () {});
-      return;
+  function ovPaintCount() {
+    var count = byId("ovCount"); if (!count) return;
+    var box = ovGridBox();
+    var n = box ? box.children.length : 0;
+    var empty = byId("ovEmpty");
+    if (empty) empty.hidden = n > 0;
+    count.textContent = n
+      ? "Lưới thẻ HSK " + OV.level + " · " + n + " thẻ — lưới cũ của web, kéo xuống xem tiếp"
+      : "Chạm 1 cấp ở trên để mở lưới thẻ của cấp đó";
+  }
+  function ovMoveIn() {
+    var box = ovGridBox(), slot = byId("ovGridSlot");
+    if (!box || !slot || OV.moved) return;
+    OV.home = box.parentNode; OV.next = box.nextSibling;
+    slot.appendChild(box);
+    OV.moved = true;
+  }
+  function ovMoveBack() {
+    var box = ovGridBox();
+    if (!box || !OV.moved) return;
+    if (OV.home) {
+      if (OV.next && OV.next.parentNode === OV.home) OV.home.insertBefore(box, OV.next);
+      else OV.home.appendChild(box);
     }
-    enter();
+    OV.moved = false; OV.home = null; OV.next = null;
+  }
+  function ovPickLevel(lv) {
+    var btn = document.querySelector('#otter2HskLevelRow [data-otter2-hsk="' + lv + '"]');
+    if (btn) btn.click();
+    var ov = byId("ttcOvOverlay"); if (ov) ov.scrollTop = 0;
+    setTimeout(function () { OV.paintedLevel = 0; ovPaintChips(); }, 700);
   }
   function buildOvOverlay() {
     if (byId("ttcOvOverlay")) return;
@@ -1207,12 +1215,12 @@
     ov.innerHTML =
       '<div class="htv-wrap"><div class="htv-panel">' +
       '<button type="button" class="htv-close" id="ovClose">✕ Đóng</button>' +
-      '<div class="htv-title">📋 Tổng quát từ vựng <small>· danh sách cũ của web, bản gọn · 11.000 từ HSK 1–9</small></div>' +
+      '<div class="htv-title">📋 Tổng quát từ vựng <small>· lưới thẻ từ của web, full màn hình</small></div>' +
       '<button type="button" class="htv-back" id="ovBack">← Phòng từ vựng</button>' +
       '<div class="htv-chips" id="ovChips"></div>' +
       '<div class="htv-count" id="ovCount"></div>' +
-      '<div id="ovBody"></div>' +
-      '<button type="button" class="htv-playbtn" id="ovMore" hidden style="width:100%;justify-content:center;margin-top:10px">Xem thêm · Xem thêm từ</button>' +
+      '<div id="ovGridSlot"></div>' +
+      '<div class="htv-empty" id="ovEmpty" hidden>Chạm 1 cấp ở trên để mở lưới thẻ của cấp đó nha 🦦</div>' +
       "</div></div>";
     document.body.appendChild(ov);
     ov.addEventListener("scroll", syncTopBtn, { passive: true });
@@ -1220,42 +1228,29 @@
     byId("ovBack").addEventListener("click", closeOvOverlay);
     byId("ovChips").addEventListener("click", function (e) {
       var b = e.target.closest("[data-ov-level]"); if (!b) return;
-      pickOvLevel(Number(b.getAttribute("data-ov-level")));
+      ovPickLevel(Number(b.getAttribute("data-ov-level")));
     });
-    byId("ovMore").addEventListener("click", function () {
-      OV.shown += OV_PAGE;
-      paintOv();
-    });
-  }
-  function roomOpenLevel() {
-    var ws = byId("otter2Hsk1Workspace");
-    var t = byId("otter2Hsk1Title");
-    if (ws && !ws.hidden && t) {
-      var m = /HSK\s*(\d)/.exec(t.textContent || "");
-      if (m) return Number(m[1]);
-    }
-    return 0;
   }
   function openOvOverlay() {
     buildOvOverlay();
-    S.trad = pageIsTrad();
-    var detected = roomOpenLevel();
-    if (detected && !levelLocked(detected)) OV.level = detected;
-    if (levelLocked(OV.level)) OV.level = 1;
-    OV.shown = OV_PAGE;
     var ov = byId("ttcOvOverlay");
     ov.hidden = false;
     OV.open = true;
     document.body.style.overflow = "hidden";
     ov.scrollTop = 0;
-    paintOv();
-    refreshAccess().then(function () {
-      if (levelLocked(OV.level)) OV.level = 1;
-      paintOv();
-    });
+    ovMoveIn();
+    var box = ovGridBox();
+    /* Đang lọc theo loại từ thì bỏ lọc để lưới hiện đủ cả cấp (nút "Tất cả"
+       của web chỉ hiện khi đang lọc — clearType.hidden = !activeType). */
+    var clearType = byId("otter2Hsk1ClearType");
+    if (box && box.children.length && clearType && !clearType.hidden) clearType.click();
+    if (!box || !box.children.length) ovPickLevel(OV.level || 1);
+    OV.paintedLevel = 0;
+    ovPaintChips();
     syncTopBtn();
   }
   function closeOvOverlay() {
+    ovMoveBack();
     var ov = byId("ttcOvOverlay");
     if (ov) ov.hidden = true;
     OV.open = false;
