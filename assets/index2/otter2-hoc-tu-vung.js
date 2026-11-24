@@ -245,7 +245,17 @@
       ".htv-overview-btn{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;box-sizing:border-box;background:#fff;border:1.5px solid #d8e0ec;color:" + NAVY + ";border-radius:14px;padding:13px 16px;font-size:15.5px;font-weight:800;cursor:pointer;margin:2px 0 10px}",
       ".htv-overview-btn .htv-ov-sub{font-size:12.5px;font-weight:600;color:#7a8799}",
       ".htv-overview-btn .htv-ov-chev{font-size:14px;color:" + BLUE + ";font-weight:900}",
-      "#ttcHtvOverlay{position:fixed;inset:0;background:#eef1f6;z-index:12060;overflow-y:auto;-webkit-overflow-scrolling:touch}",
+      ".htv-typerow{margin:2px 0 12px}",
+      ".htv-typerow-lab{font-size:15px;font-weight:800;color:" + NAVY + ";margin-bottom:8px}",
+      ".htv-typerow-lab small{color:#7a8799;font-weight:600;font-size:12.5px}",
+      ".htv-typerow-chips{display:flex;flex-wrap:wrap;gap:8px}",
+      ".htv-sec{font-size:16.5px;font-weight:900;color:" + NAVY + ";margin:18px 0 10px}",
+      ".htv-sec small{color:#7a8799;font-weight:600;font-size:13px}",
+      ".htv-ov-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}",
+      ".htv-ov-card{border:1.5px solid #d8e0ec;background:#f8fafd;border-radius:16px;padding:14px 8px;cursor:pointer;text-align:center}",
+      ".htv-ov-lv{display:block;font-size:19px;font-weight:900;color:" + NAVY + "}",
+      ".htv-ov-n{display:block;font-size:13px;color:#63738a;font-weight:700;margin-top:3px}",
+      "#ttcHtvOverlay,#ttcTypeOverlay,#ttcOvOverlay{position:fixed;inset:0;background:#eef1f6;z-index:12060;overflow-y:auto;-webkit-overflow-scrolling:touch}",
       ".htv-wrap{max-width:880px;margin:0 auto;padding:10px 10px calc(28px + env(safe-area-inset-bottom,0px))}",
       ".htv-panel{background:#fff;border:1px solid #e3e8f0;border-radius:20px;padding:16px 14px;box-shadow:0 4px 18px rgba(22,40,63,.06)}",
       ".htv-title{font-size:21px;font-weight:900;color:" + NAVY + ";margin:2px 0 10px}",
@@ -956,53 +966,447 @@
       picker.insertBefore(tile, picker.firstChild);
     }
     buildOverviewToggle();
+    buildTypeEntry();
     return true;
   }
-  /* ---- Gộp hàng chọn cấp HSK + chip loại từ sau 1 nút "Xem tổng quát từ vựng" ----
-     (anh Huy khoanh đỏ 2 hàng này 2026-11-25: gộp cho gọn, nhấn nút mới xem)
-     Chỉ gập/hiện 2 container có sẵn #otter2HskLevelRow + #otter2TypeRow,
-     không đụng logic chọn cấp/lọc loại của engine. Mặc định gập. */
-  var OV_KEY = "ttc_vocab_overview_v1";
-  var ovState = lsGet(OV_KEY) || { open: false };
-  if (typeof ovState.open !== "boolean") ovState.open = false;
-  function ovPaintBtn() {
-    var btn = byId("ttcOverviewBtn");
-    if (!btn) return;
-    var chev = btn.querySelector(".htv-ov-chev");
-    if (chev) chev.textContent = ovState.open ? "▴ Thu gọn" : "▾ Mở xem";
-    btn.setAttribute("aria-expanded", String(!!ovState.open));
-    /* nút chỉ thuộc view Thẻ từ: tab Luyện tập (picker đang hiện) thì ẩn nút theo */
+  /* ================= TỔNG QUÁT + LOẠI TỪ — FULL MÀN HÌNH =================
+     Anh Huy chốt 2026-11-25: nút "Xem tổng quát từ vựng" phải bật FULL MÀN
+     HÌNH như mục Học từ vựng (xổ tại chỗ ra y hệt ban đầu = thừa); hàng nút
+     LOẠI TỪ để riêng, mỗi nút cũng mở full màn hình độc lập: vào 1 loại ->
+     chọn HSK 1–9 (kèm số từ từng cấp) -> học luôn trong đó (Danh sách ·
+     Flashcard · Trắc nghiệm). 2 hàng gốc #otter2HskLevelRow/#otter2TypeRow
+     ẩn hẳn cho gọn; chọn cấp trong màn Tổng quát vẫn bấm nút vòng tròn THẬT
+     của engine nên cổng đăng nhập/tiến độ giữ nguyên 100%. Loại từ dùng
+     đúng 5 loại + đúng cách khớp của engine (wordMatchesType). */
+  var TYPE_NAMES = ["Động từ", "Danh từ", "Tính từ", "Đại từ", "Số từ"];
+  function normTypeTok(s) { return String(s || "").toLocaleLowerCase("vi").replace(/\s+/g, " ").trim(); }
+  function typeMatches(w, type) {
+    var raw = String(w.t || "").trim();
+    if (!raw) return false;
+    var wanted = normTypeTok(type);
+    return raw.split(/[\/,;|]+/).some(function (item) {
+      var n = normTypeTok(item);
+      return n === wanted || n.indexOf(wanted + " ") === 0;
+    });
+  }
+  var _typeCounts = null; /* {type: {1..9: n, total: n}} */
+  function typeCounts() {
+    if (_typeCounts) return _typeCounts;
+    var out = {}, lv;
+    TYPE_NAMES.forEach(function (t) { out[t] = { total: 0 }; for (lv = 1; lv <= 9; lv++) out[t][lv] = 0; });
+    bankWords().forEach(function (w) {
+      var l = Number(w.hsk);
+      if (!(l >= 1 && l <= 9)) return;
+      TYPE_NAMES.forEach(function (t) { if (typeMatches(w, t)) { out[t][l]++; out[t].total++; } });
+    });
+    _typeCounts = out;
+    return out;
+  }
+  var _typePacks = {}; /* "type|level" -> [words] */
+  function typePack(type, level) {
+    var k = type + "|" + level;
+    if (_typePacks[k]) return _typePacks[k];
+    var out = packFor(level).filter(function (w) { return typeMatches(w, type); });
+    _typePacks[k] = out;
+    return out;
+  }
+  function roomPracticeOn() {
     var pk = document.querySelector("[data-vr-picker]");
-    var practice = !!(pk && window.getComputedStyle(pk).display !== "none");
-    btn.style.display = practice ? "none" : "";
+    return !!(pk && window.getComputedStyle(pk).display !== "none");
   }
-  function ovApply() {
+  function hideOldRows() {
     var lr = byId("otter2HskLevelRow"), tr = byId("otter2TypeRow");
-    if (!lr || !tr) return false;
-    var disp = ovState.open ? "" : "none";
-    lr.style.display = disp;
-    tr.style.display = disp;
-    ovPaintBtn();
-    return true;
+    if (lr && lr.style.display !== "none") lr.style.display = "none";
+    if (tr && tr.style.display !== "none") tr.style.display = "none";
   }
+  function paintRoomEntries() {
+    var prac = roomPracticeOn();
+    ["ttcOverviewBtn", "ttcTypeEntry"].forEach(function (id) {
+      var el = byId(id);
+      if (el) el.style.display = prac ? "none" : "";
+    });
+  }
+
+  /* ---- nút "Xem tổng quát từ vựng" ở Phòng từ vựng -> mở full màn hình ---- */
   function buildOverviewToggle() {
     var lr = byId("otter2HskLevelRow");
     if (!lr || !lr.parentNode) return false;
+    hideOldRows();
     if (!byId("ttcOverviewBtn")) {
       var btn = document.createElement("button");
       btn.type = "button";
       btn.className = "htv-overview-btn";
       btn.id = "ttcOverviewBtn";
-      btn.innerHTML = '<span>📋 Xem tổng quát từ vựng <span class="htv-ov-sub">· chọn cấp HSK + lọc theo loại từ</span></span><span class="htv-ov-chev">▾ Mở xem</span>';
-      btn.addEventListener("click", function () {
-        ovState.open = !ovState.open;
-        lsSet(OV_KEY, ovState);
-        ovApply();
-      });
+      btn.innerHTML = '<span>📋 Xem tổng quát từ vựng <span class="htv-ov-sub">· toàn cảnh kho từ, mở full màn hình</span></span><span class="htv-ov-chev">Mở ➜</span>';
+      btn.addEventListener("click", openOvOverlay);
       lr.parentNode.insertBefore(btn, lr);
     }
-    ovApply();
+    paintRoomEntries();
     return true;
+  }
+
+  /* ---- hàng nút loại từ riêng ở Phòng từ vựng ---- */
+  function buildTypeEntry() {
+    var anchor = byId("ttcOverviewBtn") || byId("otter2HskLevelRow");
+    if (!anchor || !anchor.parentNode) return false;
+    if (!byId("ttcTypeEntry")) {
+      var counts = typeCounts();
+      var wrap = document.createElement("div");
+      wrap.className = "htv-typerow";
+      wrap.id = "ttcTypeEntry";
+      wrap.innerHTML = '<div class="htv-typerow-lab">🏷 Học theo loại từ <small>· bấm 1 loại để mở full màn hình, chọn cấp rồi học luôn</small></div>' +
+        '<div class="htv-typerow-chips">' + TYPE_NAMES.map(function (t) {
+          return '<button type="button" class="htv-chip" data-ttc-type="' + esc(t) + '">' + esc(t) + " · " + counts[t].total + "</button>";
+        }).join("") + "</div>";
+      anchor.parentNode.insertBefore(wrap, anchor.nextSibling);
+      wrap.addEventListener("click", function (e) {
+        var b = e.target.closest("[data-ttc-type]"); if (!b) return;
+        openTypeOverlay(b.getAttribute("data-ttc-type"));
+      });
+    }
+    paintRoomEntries();
+    return true;
+  }
+
+  /* ---- màn hình TỔNG QUÁT (full màn hình) ---- */
+  function buildOvOverlay() {
+    if (byId("ttcOvOverlay")) return;
+    ensureStyle();
+    var counts = typeCounts();
+    var cards = "", lv;
+    for (lv = 1; lv <= 9; lv++) {
+      cards += '<button type="button" class="htv-ov-card" data-ov-level="' + lv + '"><span class="htv-ov-lv">HSK ' + lv + '</span><span class="htv-ov-n">' + levelCount(lv) + " từ</span></button>";
+    }
+    var ov = document.createElement("div");
+    ov.id = "ttcOvOverlay";
+    ov.hidden = true;
+    ov.innerHTML =
+      '<div class="htv-wrap"><div class="htv-panel">' +
+      '<button type="button" class="htv-close" id="ovClose">✕ Đóng</button>' +
+      '<div class="htv-title">📋 Tổng quát từ vựng <small>· 11.000 từ HSK 1–9</small></div>' +
+      '<button type="button" class="htv-back" id="ovBack">← Phòng từ vựng</button>' +
+      '<div class="htv-sec">📈 Theo cấp độ <small>· bấm 1 cấp để vào học cấp đó trong Phòng từ vựng</small></div>' +
+      '<div class="htv-ov-grid" id="ovLevels">' + cards + "</div>" +
+      '<div class="htv-sec">🏷 Theo loại từ <small>· mỗi loại mở full màn hình riêng: chọn cấp rồi học luôn trong đó</small></div>' +
+      '<div class="htv-chips" id="ovTypes">' + TYPE_NAMES.map(function (t) {
+        return '<button type="button" class="htv-chip" data-ov-type="' + esc(t) + '">' + esc(t) + " · " + counts[t].total + " từ</button>";
+      }).join("") + "</div>" +
+      '<div class="htv-sec">📚 Khu học từ kiểu XuCup</div>' +
+      '<button type="button" class="htv-hvbtn" id="ovOpenHtv" style="margin-top:2px">📚 Mở Học từ vựng (danh sách · flashcard · trắc nghiệm)</button>' +
+      "</div></div>";
+    document.body.appendChild(ov);
+    byId("ovClose").addEventListener("click", closeOvOverlay);
+    byId("ovBack").addEventListener("click", closeOvOverlay);
+    byId("ovLevels").addEventListener("click", function (e) {
+      var b = e.target.closest("[data-ov-level]"); if (!b) return;
+      var lvTxt = "HSK " + b.getAttribute("data-ov-level");
+      closeOvOverlay();
+      var nodes = document.querySelectorAll("#otter2HskLevelRow .otter2-node");
+      for (var i = 0; i < nodes.length; i++) {
+        if (nodes[i].textContent.trim() === lvTxt) { nodes[i].click(); return; }
+      }
+      toast("Không tìm thấy nút " + lvTxt + " 😅");
+    });
+    byId("ovTypes").addEventListener("click", function (e) {
+      var b = e.target.closest("[data-ov-type]"); if (!b) return;
+      openTypeOverlay(b.getAttribute("data-ov-type"));
+    });
+    byId("ovOpenHtv").addEventListener("click", function () { closeOvOverlay(); openOverlay(); });
+  }
+  function openOvOverlay() {
+    buildOvOverlay();
+    var ov = byId("ttcOvOverlay");
+    ov.hidden = false;
+    document.body.style.overflow = "hidden";
+    ov.scrollTop = 0;
+  }
+  function closeOvOverlay() {
+    var ov = byId("ttcOvOverlay");
+    if (ov) ov.hidden = true;
+    if (!S.open && !T.open) document.body.style.overflow = "";
+  }
+
+  /* ---- màn hình LOẠI TỪ (full màn hình, độc lập từng loại) ---- */
+  var T = { open: false, type: null, level: 1, mode: "list", fcIndex: 0, fcFlip: false, shown: 120 };
+  function buildTypeOverlay() {
+    if (byId("ttcTypeOverlay")) return;
+    ensureStyle();
+    var ov = document.createElement("div");
+    ov.id = "ttcTypeOverlay";
+    ov.hidden = true;
+    ov.innerHTML =
+      '<div class="htv-wrap"><div class="htv-panel">' +
+      '<button type="button" class="htv-close" id="tyClose">✕ Đóng</button>' +
+      '<div class="htv-title" id="tyTitle">🏷 Loại từ</div>' +
+      '<button type="button" class="htv-back" id="tyBack">← Quay lại</button>' +
+      '<div class="htv-chips" id="tyChips"></div>' +
+      '<div class="htv-modes" id="tyModes" style="grid-template-columns:1fr 1fr 1fr">' +
+      '<button type="button" class="htv-mode" data-ty-mode="list">📋 Danh sách</button>' +
+      '<button type="button" class="htv-mode" data-ty-mode="flash">🃏 Flashcard</button>' +
+      '<button type="button" class="htv-mode" data-ty-mode="quiz">❓ Trắc nghiệm</button>' +
+      "</div>" +
+      '<div class="htv-count" id="tyCount"></div>' +
+      '<div id="tyBody"></div>' +
+      "</div></div>";
+    document.body.appendChild(ov);
+    byId("tyClose").addEventListener("click", closeTypeOverlay);
+    byId("tyBack").addEventListener("click", closeTypeOverlay);
+    byId("tyChips").addEventListener("click", function (e) {
+      var b = e.target.closest("[data-ty-level]"); if (!b) return;
+      var lv = Number(b.getAttribute("data-ty-level"));
+      var enter = function () {
+        stopSpeak();
+        T.level = lv; T.fcIndex = 0; T.fcFlip = false; T.shown = 120;
+        paintType(); renderTypeBody();
+      };
+      if (lv >= 3 && S.access !== true && typeof window.checkPremiumAccess === "function") {
+        Promise.resolve(window.checkPremiumAccess(lv)).then(function (ok) {
+          if (ok) { enter(); refreshAccess().then(paintType); }
+          else refreshAccess().then(paintType);
+        }).catch(function () {});
+        return;
+      }
+      enter();
+    });
+    byId("tyModes").addEventListener("click", function (e) {
+      var b = e.target.closest("[data-ty-mode]"); if (!b) return;
+      stopSpeak();
+      T.mode = b.getAttribute("data-ty-mode");
+      T.fcFlip = false;
+      paintType(); renderTypeBody();
+    });
+  }
+  function paintType() {
+    var counts = typeCounts();
+    var title = byId("tyTitle");
+    if (title) title.innerHTML = "🏷 " + esc(T.type || "Loại từ") + " <small>· " + (T.type ? counts[T.type].total : 0) + " từ trong kho HSK 1–9</small>";
+    var chips = byId("tyChips");
+    if (chips) {
+      var h = "";
+      for (var lv = 1; lv <= 9; lv++) {
+        h += '<button type="button" class="htv-chip' + (lv === T.level ? " on" : "") + '" data-ty-level="' + lv + '">HSK ' + lv + " · " + (T.type ? counts[T.type][lv] : 0) + (levelLocked(lv) ? " 🔒" : "") + "</button>";
+      }
+      chips.innerHTML = h;
+    }
+    document.querySelectorAll("[data-ty-mode]").forEach(function (c) {
+      c.classList.toggle("on", c.getAttribute("data-ty-mode") === T.mode);
+    });
+  }
+  function openTypeOverlay(type) {
+    buildTypeOverlay();
+    closeOvOverlay();
+    T.type = type;
+    T.open = true;
+    var counts = typeCounts()[type] || { total: 0 };
+    if (!counts[T.level]) {
+      for (var lv = 1; lv <= 9; lv++) if (counts[lv]) { T.level = lv; break; }
+    }
+    T.mode = "list"; T.fcIndex = 0; T.fcFlip = false; T.shown = 120;
+    var ov = byId("ttcTypeOverlay");
+    ov.hidden = false;
+    document.body.style.overflow = "hidden";
+    paintType(); renderTypeBody();
+    refreshAccess().then(paintType);
+    ov.scrollTop = 0;
+  }
+  function closeTypeOverlay() {
+    stopSpeak();
+    var ov = byId("ttcTypeOverlay");
+    if (ov) ov.hidden = true;
+    T.open = false;
+    if (!S.open) document.body.style.overflow = "";
+  }
+  function renderTypeBody() {
+    var body = byId("tyBody"); if (!body) return;
+    var count = byId("tyCount");
+    var pool = typePack(T.type, T.level);
+    if (T.mode === "flash") { if (count) count.textContent = ""; renderTypeFlash(body, pool); return; }
+    if (T.mode === "quiz") { if (count) count.textContent = ""; renderTypeQuizStart(body, pool); return; }
+    if (count) count.textContent = pool.length + " " + String(T.type || "").toLowerCase() + " · HSK " + T.level;
+    if (!pool.length) {
+      body.innerHTML = '<div class="htv-empty">Cấp này không có ' + esc(String(T.type || "").toLowerCase()) + " nào trong kho 😅<br>Chọn cấp khác nhé!</div>";
+      return;
+    }
+    paintTypeRows(body, pool);
+  }
+  function paintTypeRows(body, list) {
+    var h = "", i;
+    var n = Math.min(T.shown, list.length);
+    for (i = 0; i < n; i++) h += rowHtml(list[i], i);
+    if (n < list.length) h += '<button type="button" class="htv-more" id="tyMore">Xem thêm · More (' + (list.length - n) + " từ nữa)</button>";
+    body.innerHTML = h;
+    body.querySelectorAll("[data-htv-speak]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var w = list[Number(b.getAttribute("data-htv-speak"))];
+        if (w) speakWord(w);
+      });
+    });
+    body.querySelectorAll("[data-htv-star]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var w = list[Number(b.getAttribute("data-htv-star"))];
+        if (!w) return;
+        var on = toggleStar(w);
+        b.classList.toggle("on", on);
+        b.textContent = on ? "★" : "☆";
+        var rc = byId("htvReviewCount"); if (rc) rc.textContent = reviewCount();
+      });
+    });
+    var more = byId("tyMore");
+    if (more) more.addEventListener("click", function () {
+      T.shown = Math.min(T.shown + 120, list.length);
+      paintTypeRows(body, list);
+    });
+  }
+  /* flashcard của màn loại từ */
+  var _tyFcList = null, _tyFcKey = "";
+  function renderTypeFlash(body, pool) {
+    var key = T.type + "|" + T.level;
+    if (_tyFcKey !== key || !_tyFcList) { _tyFcList = pool.slice(); _tyFcKey = key; T.fcIndex = 0; }
+    var list = _tyFcList;
+    if (!list.length) {
+      body.innerHTML = '<div class="htv-empty">Chưa có từ nào để lật thẻ ở cấp này 🃏</div>';
+      return;
+    }
+    if (T.fcIndex >= list.length) T.fcIndex = 0;
+    var w = list[T.fcIndex];
+    var star = isStar(w);
+    var front =
+      '<div class="htv-hz">' + esc(dispH(w.h)) + "</div>" +
+      (S.hvOn && w.v ? '<div class="htv-hv" style="font-size:19px">[' + esc(String(w.v).toUpperCase()) + "]</div>" : "") +
+      '<div class="htv-py" style="font-size:20px">' + esc(w.p) + "</div>" +
+      (w.t ? '<div><span class="htv-type">' + esc(w.t) + "</span></div>" : "") +
+      '<div class="htv-qz-sub">Chạm vào thẻ để xem nghĩa 👆</div>';
+    var back =
+      '<div class="htv-fc-mean">' + esc(w.m) + "</div>" +
+      (w.example ? '<div class="htv-ex" style="text-align:left;font-size:15px">' + esc(dispH(w.example)) +
+        (w.examplePinyin ? " · " + esc(w.examplePinyin) : "") +
+        (w.exampleMeaning ? "<br>" + esc(w.exampleMeaning) : "") + "</div>" : "") +
+      '<div class="htv-qz-sub">Chạm để lật lại 👆</div>';
+    body.innerHTML =
+      '<div class="htv-fc" id="tyFcCard">' + (T.fcFlip ? back : front) + "</div>" +
+      '<div class="htv-fc-nav">' +
+      '<button type="button" id="tyFcPrev">⬅ Trước</button>' +
+      '<span class="htv-qz-sub">' + (T.fcIndex + 1) + " / " + list.length + "</span>" +
+      '<button type="button" id="tyFcSpeak">🔊 Nghe</button>' +
+      '<button type="button" id="tyFcStar">' + (star ? "★ Đã lưu" : "☆ Lưu ôn") + "</button>" +
+      '<button type="button" id="tyFcShuffle">🔀 Trộn</button>' +
+      '<button type="button" id="tyFcNext">Tiếp ➡</button>' +
+      "</div>";
+    byId("tyFcCard").addEventListener("click", function () { T.fcFlip = !T.fcFlip; renderTypeFlash(body, pool); });
+    byId("tyFcPrev").addEventListener("click", function () { T.fcIndex = (T.fcIndex - 1 + list.length) % list.length; T.fcFlip = false; renderTypeFlash(body, pool); });
+    byId("tyFcNext").addEventListener("click", function () { T.fcIndex = (T.fcIndex + 1) % list.length; T.fcFlip = false; renderTypeFlash(body, pool); });
+    byId("tyFcSpeak").addEventListener("click", function () { speakWord(w); });
+    byId("tyFcStar").addEventListener("click", function () { toggleStar(w); var rc = byId("htvReviewCount"); if (rc) rc.textContent = reviewCount(); renderTypeFlash(body, pool); });
+    byId("tyFcShuffle").addEventListener("click", function () {
+      _tyFcList = shuffle(_tyFcList || list);
+      T.fcIndex = 0; T.fcFlip = false;
+      renderTypeFlash(body, pool);
+    });
+  }
+  /* trắc nghiệm của màn loại từ (dùng lại bộ sinh câu hỏi của Học từ vựng) */
+  var TQZ = null;
+  function renderTypeQuizStart(body, pool) {
+    body.innerHTML =
+      '<div class="htv-empty" style="text-align:left;padding:10px 4px">' +
+      "<b style='font-size:17px;color:" + NAVY + "'>❓ Trắc nghiệm " + esc(T.type || "") + " · HSK " + T.level + "</b><br>" +
+      "10 câu từ các " + esc(String(T.type || "").toLowerCase()) + " của cấp này · 3 dạng: chọn nghĩa · chọn chữ · điền khuyết.<br>" +
+      "Không bấm giờ, chọn là biết đúng/sai ngay. Từ sai tự vào ⭐ Từ cần ôn.</div>" +
+      '<button type="button" class="htv-qz-next" id="tyQzStart" style="width:100%">▶ Bắt đầu</button>';
+    byId("tyQzStart").addEventListener("click", function () {
+      var qs = buildRound(pool, packFor(T.level));
+      if (qs.length < 4) { toast("Chưa đủ dữ kiện để tạo vòng trắc nghiệm 😅"); return; }
+      TQZ = { qs: qs, idx: 0, score: 0, missed: [] };
+      renderTypeQuizQ();
+    });
+  }
+  function renderTypeQuizQ() {
+    var body = byId("tyBody"); if (!body || !TQZ) return;
+    var q = TQZ.qs[TQZ.idx], w = q.w;
+    var prompt = "";
+    if (q.type === "meaning") {
+      prompt = '<div class="htv-qz-sub">Từ này nghĩa là gì?</div><div class="htv-qz-big">' + esc(dispH(w.h)) +
+        '</div><div class="htv-qz-sub">' + esc(w.p) + (w.t ? " · " + esc(w.t) : "") + "</div>";
+    } else if (q.type === "word") {
+      prompt = '<div class="htv-qz-sub">Nghĩa này là của từ nào?</div><div class="htv-qz-prompt">' + esc(w.m) + "</div>";
+    } else {
+      prompt = '<div class="htv-qz-sub">Điền từ đúng vào chỗ trống:</div><div class="htv-qz-prompt">' + esc(q.blanked) + "</div>" +
+        (w.exampleMeaning ? '<div class="htv-qz-sub">' + esc(w.exampleMeaning) + "</div>" : "");
+    }
+    var opts = q.opts.map(function (o, i) {
+      return '<button type="button" class="htv-qz-opt" data-ty-opt="' + i + '">' + esc(o.txt) + "</button>";
+    }).join("");
+    body.innerHTML =
+      '<div class="htv-qz-sub">Câu ' + (TQZ.idx + 1) + " / " + TQZ.qs.length + " · Đúng: " + TQZ.score + "</div>" +
+      prompt + '<div class="htv-qz-opts">' + opts + "</div>" +
+      '<div class="htv-qz-fb" id="tyQzFb"></div>' +
+      '<div class="htv-qz-bar"><span></span><button type="button" class="htv-qz-next" id="tyQzNext" hidden>' +
+      (TQZ.idx + 1 >= TQZ.qs.length ? "Xem kết quả 🏁" : "Câu tiếp ➡") + "</button></div>";
+    body.querySelectorAll("[data-ty-opt]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        if (q.picked >= 0) return;
+        var i = Number(b.getAttribute("data-ty-opt"));
+        q.picked = i;
+        var ok = q.opts[i].ok;
+        if (ok) TQZ.score++;
+        else { TQZ.missed.push(w); addMissed(w); }
+        body.querySelectorAll("[data-ty-opt]").forEach(function (x, xi) {
+          x.disabled = true;
+          if (q.opts[xi].ok) x.classList.add("ok");
+          else if (xi === i) x.classList.add("bad");
+        });
+        var fb = byId("tyQzFb");
+        fb.className = "htv-qz-fb show " + (ok ? "ok" : "bad");
+        fb.innerHTML = (ok ? "✅ Đúng rồi! " : "❌ Chưa đúng. ") + quizExplain(w);
+        var rc = byId("htvReviewCount"); if (rc) rc.textContent = reviewCount();
+        var nx = byId("tyQzNext"); if (nx) nx.hidden = false;
+        speak(w.h, "zh");
+      });
+    });
+    var nx = byId("tyQzNext");
+    if (nx) nx.addEventListener("click", function () {
+      TQZ.idx++;
+      if (TQZ.idx >= TQZ.qs.length) renderTypeQuizEnd(); else renderTypeQuizQ();
+    });
+  }
+  function renderTypeQuizEnd() {
+    var body = byId("tyBody"); if (!body || !TQZ) return;
+    var total = TQZ.qs.length;
+    var missedHtml = "";
+    if (TQZ.missed.length) {
+      missedHtml = '<div style="margin-top:12px"><b>Từ cần ôn lại:</b>' +
+        TQZ.missed.map(function (w) {
+          return '<div class="htv-ex" style="font-size:15px">• <b>' + esc(dispH(w.h)) + "</b> " + esc(w.p) + " — " + esc(w.m) + "</div>";
+        }).join("") + "</div>";
+    }
+    body.innerHTML =
+      '<div class="htv-qz-score">🏁 ' + TQZ.score + " / " + total + "</div>" +
+      '<div class="htv-empty" style="padding:4px">' +
+      (TQZ.score === total ? "Xuất sắc! Đúng hết luôn 🎉" :
+        TQZ.score >= total * 0.7 ? "Khá lắm! Ôn lại mấy từ sai là chắc bài 💪" :
+          "Không sao, từ sai đã vào ⭐ Từ cần ôn — luyện lại là nhớ ngay 🌱") + "</div>" +
+      missedHtml +
+      '<div class="htv-qz-bar">' +
+      (TQZ.missed.length ? '<button type="button" class="htv-playbtn" id="tyQzRetry">🔁 Luyện lại từ sai</button>' : "<span></span>") +
+      '<button type="button" class="htv-qz-next" id="tyQzAgain">↻ Vòng mới</button></div>' +
+      '<button type="button" class="htv-more" id="tyQzToList">📋 Về danh sách</button>';
+    var rt = byId("tyQzRetry");
+    if (rt) rt.addEventListener("click", function () {
+      var qs = buildRound(TQZ.missed.slice(), packFor(T.level));
+      if (qs.length < 1) { toast("Chưa đủ dữ kiện để luyện lại 😅"); return; }
+      TQZ = { qs: qs, idx: 0, score: 0, missed: [] };
+      renderTypeQuizQ();
+    });
+    byId("tyQzAgain").addEventListener("click", function () {
+      var pool = typePack(T.type, T.level);
+      var qs = buildRound(pool, packFor(T.level));
+      if (qs.length < 4) { toast("Chưa đủ dữ kiện để tạo vòng mới 😅"); return; }
+      TQZ = { qs: qs, idx: 0, score: 0, missed: [] };
+      renderTypeQuizQ();
+    });
+    byId("tyQzToList").addEventListener("click", function () {
+      T.mode = "list";
+      paintType(); renderTypeBody();
+    });
   }
   window.ttcOpenHocTuVung = openOverlay;
 
@@ -1012,16 +1416,9 @@
     setInterval(function () {
       if (!byId("ttcHocTuVungCard")) buildEntry();
       if (!byId("ttcOverviewBtn")) buildOverviewToggle();
-      else {
-        /* giữ trạng thái gập + đồng bộ nút theo tab Thẻ từ/Luyện tập;
-           khi đang MỞ thì để engine tự do ẩn/hiện, chỉ ép khi đang GẬP */
-        if (!ovState.open) {
-          var lr = byId("otter2HskLevelRow"), tr = byId("otter2TypeRow");
-          if (lr && lr.style.display !== "none") lr.style.display = "none";
-          if (tr && tr.style.display !== "none") tr.style.display = "none";
-        }
-        ovPaintBtn();
-      }
+      if (!byId("ttcTypeEntry")) buildTypeEntry();
+      hideOldRows();
+      paintRoomEntries();
     }, 1500);
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
