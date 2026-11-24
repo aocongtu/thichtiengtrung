@@ -261,6 +261,10 @@
       ".htv-hub-n{font-size:13.5px;color:#63738a;font-weight:700}",
       ".htv-hub-chev{font-size:18px;color:" + BLUE + ";font-weight:900}",
       ".htv-topbtn{position:fixed;right:14px;bottom:calc(20px + env(safe-area-inset-bottom, 0px));z-index:12070;background:" + NAVY + ";color:#fff;border:none;border-radius:999px;padding:11px 16px;font-size:14.5px;font-weight:800;box-shadow:0 8px 22px rgba(15,35,60,.35);cursor:pointer}",
+      "/* Nút tròn xanh Nghe tiếp · Resume kiểu XuCup: nổi góc phải, trên nút ⬆ */",
+      ".htv-resumefab{position:fixed;right:14px;bottom:calc(86px + env(safe-area-inset-bottom, 0px));z-index:12070;width:52px;height:52px;border-radius:50%;border:none;background:#22a55b;color:#fff;font-size:20px;box-shadow:0 8px 22px rgba(15,60,35,.42);cursor:pointer;display:flex;align-items:center;justify-content:center}",
+      ".htv-resumefab:active{transform:scale(.95)}",
+      ".htv-fab-n{position:absolute;top:-8px;right:-10px;background:#0f2a4a;color:#fff;font-size:11px;font-weight:800;border-radius:999px;padding:2px 7px;box-shadow:0 3px 8px rgba(0,0,0,.3)}",
       "#ttcHtvOverlay,#ttcTypeOverlay,#ttcOvOverlay,#ttcTypeHubOverlay{position:fixed;inset:0;background:#eef1f6;z-index:12060;overflow-y:auto;-webkit-overflow-scrolling:touch}",
       ".htv-wrap{max-width:880px;margin:0 auto;padding:10px 10px calc(28px + env(safe-area-inset-bottom,0px))}",
       ".htv-panel{background:#fff;border:1px solid #e3e8f0;border-radius:20px;padding:16px 14px;box-shadow:0 4px 18px rgba(22,40,63,.06)}",
@@ -405,6 +409,7 @@
       '<div class="htv-row"><button type="button" class="htv-playbtn" id="htvPlayAll">▶️ Đọc cả danh sách <small>· Play all</small></button></div>' +
       '<div class="htv-row"><input id="htvFromNum" class="htv-num" type="number" min="1" placeholder="Số · No">' +
       '<button type="button" class="htv-playbtn" id="htvPlayFrom">▶️ Từ số này <small>· Play from #</small></button></div>' +
+      '<div class="htv-row"><button type="button" class="htv-playbtn" id="htvResume" hidden>⏵ Nghe tiếp <small>· Resume</small> <span id="htvResumeN"></span></button></div>' +
       '<div class="htv-row"><span class="htv-lab">🎨 Màu tô <small>· Highlight</small></span>' +
       '<input id="htvHl" class="htv-color" type="color" value="' + esc(S.hl) + '"></div>' +
       '<label class="htv-check"><input type="checkbox" id="htvReadMeaning"> Đọc cả nghĩa <small>· Word + meaning</small></label>' +
@@ -465,6 +470,7 @@
       if (!n || n < 1) { toast("Nhập số thứ tự của từ muốn bắt đầu đọc nhé"); return; }
       startPlayAll(n - 1);
     });
+    byId("htvResume").addEventListener("click", function () { resumePlay(); });
     byId("htvHl").addEventListener("input", function () { S.hl = this.value; });
     byId("htvReadMeaning").addEventListener("change", function () { S.readMeaning = this.checked; });
     byId("htvScript").addEventListener("change", function () {
@@ -507,6 +513,46 @@
     if (!b) return;
     if (S.playing) { b.classList.add("stop"); b.innerHTML = "⏹ Dừng đọc <small>· Stop</small>"; }
     else { b.classList.remove("stop"); b.innerHTML = "▶️ Đọc cả danh sách <small>· Play all</small>"; }
+    syncResume();
+  }
+  /* ---- Nghe tiếp · Resume kiểu XuCup (anh Huy lệnh 2026-11-25): vị trí đang
+     nghe dở lưu theo từng cấp trong máy (khoá riêng của module, không đụng
+     khoá tiến độ học); dừng giữa chừng thì lần sau bấm Nghe tiếp là đọc tiếp
+     đúng từ đó, có nút trong bảng điều khiển + nút tròn xanh nổi. ---- */
+  function posKey() { return "ttc_htv_pos_" + S.level; }
+  function savePos(idx) { try { localStorage.setItem(posKey(), String(idx)); } catch (e) {} }
+  function savedPos() { try { return Number(localStorage.getItem(posKey()) || 0) || 0; } catch (e) { return 0; } }
+  function clearPos() { try { localStorage.removeItem(posKey()); } catch (e) {} }
+  function buildResumeFab() {
+    if (byId("htvResumeFab")) return;
+    ensureStyle();
+    var b = document.createElement("button");
+    b.type = "button";
+    b.id = "htvResumeFab";
+    b.className = "htv-resumefab";
+    b.title = "Nghe tiếp · Resume";
+    b.innerHTML = "⏵<span class=\"htv-fab-n\" id=\"htvFabN\"></span>";
+    b.hidden = true;
+    b.addEventListener("click", function () { resumePlay(); });
+    document.body.appendChild(b);
+  }
+  function syncResume() {
+    buildResumeFab();
+    var ov = byId("ttcHtvOverlay");
+    var pos = savedPos();
+    var list = S.mode === "list" ? currentList() : [];
+    var ok = !!(ov && !ov.hidden && !S.playing && S.mode === "list" && pos > 0 && pos < list.length);
+    var rb = byId("htvResume");
+    if (rb) { rb.hidden = !ok; var rn = byId("htvResumeN"); if (rn) rn.textContent = ok ? "#" + (pos + 1) : ""; }
+    var fab = byId("htvResumeFab");
+    if (fab) { fab.hidden = !ok; var fn = byId("htvFabN"); if (fn) fn.textContent = ok ? "#" + (pos + 1) : ""; }
+  }
+  function resumePlay() {
+    var pos = savedPos();
+    var list = currentList();
+    if (pos <= 0 || pos >= list.length) { syncResume(); return; }
+    if (_shown < list.length) { _shown = list.length; paintRows(byId("htvBody"), list); }
+    startPlayAll(pos);
   }
   function setMode(m) {
     stopSpeak();
@@ -541,6 +587,7 @@
     S.open = false;
     document.body.style.overflow = "";
     syncTopBtn();
+    syncResume();
   }
 
   /* ---- nút nổi "⬆ Từ số 1" trong các màn full màn hình ----
@@ -626,6 +673,7 @@
     }
     _shown = Math.min(PAGE, list.length);
     paintRows(body, list);
+    syncResume();
   }
   function paintRows(body, list) {
     var h = "";
@@ -689,7 +737,7 @@
     var i = fromIdx;
     var step = function () {
       if (token !== S.playToken || !S.playing) return;
-      if (i >= list.length) { stopSpeak(); toast("Đã đọc hết danh sách 🎉"); return; }
+      if (i >= list.length) { clearPos(); stopSpeak(); toast("Đã đọc hết danh sách 🎉"); return; }
       var rows = document.querySelectorAll("[data-htv-row]");
       rows.forEach(function (r) { r.classList.remove("playing"); r.style.background = ""; });
       if (i >= _shown && S.mode === "list" || (S.mode === "review" && i >= _shown)) {
@@ -703,6 +751,7 @@
         row.style.background = S.hl;
         try { row.scrollIntoView({ block: "center", behavior: "smooth" }); } catch (e) {}
       }
+      if (S.mode === "list") savePos(i);
       var w = list[i];
       i++;
       speakWord(w).then(function () {
