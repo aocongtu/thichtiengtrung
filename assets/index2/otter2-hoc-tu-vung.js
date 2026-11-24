@@ -260,6 +260,7 @@
       ".htv-hub-name{font-size:18px;font-weight:900;color:" + NAVY + "}",
       ".htv-hub-n{font-size:13.5px;color:#63738a;font-weight:700}",
       ".htv-hub-chev{font-size:18px;color:" + BLUE + ";font-weight:900}",
+      ".htv-topbtn{position:fixed;right:14px;bottom:calc(20px + env(safe-area-inset-bottom, 0px));z-index:12070;background:" + NAVY + ";color:#fff;border:none;border-radius:999px;padding:11px 16px;font-size:14.5px;font-weight:800;box-shadow:0 8px 22px rgba(15,35,60,.35);cursor:pointer}",
       "#ttcHtvOverlay,#ttcTypeOverlay,#ttcOvOverlay,#ttcTypeHubOverlay{position:fixed;inset:0;background:#eef1f6;z-index:12060;overflow-y:auto;-webkit-overflow-scrolling:touch}",
       ".htv-wrap{max-width:880px;margin:0 auto;padding:10px 10px calc(28px + env(safe-area-inset-bottom,0px))}",
       ".htv-panel{background:#fff;border:1px solid #e3e8f0;border-radius:20px;padding:16px 14px;box-shadow:0 4px 18px rgba(22,40,63,.06)}",
@@ -414,6 +415,7 @@
     wireOverlay(ov);
   }
   function wireOverlay(ov) {
+    ov.addEventListener("scroll", syncTopBtn, { passive: true });
     byId("htvClose").addEventListener("click", closeOverlay);
     byId("htvBack").addEventListener("click", closeOverlay);
     byId("htvSearch").addEventListener("input", function () {
@@ -525,12 +527,65 @@
     refreshAccess().then(paintControls);
     ov.scrollTop = 0;
   }
+  /* Vào thẳng 1 cấp TRONG màn Học từ vựng (full màn hình) — dùng cho thẻ cấp
+     ở màn Tổng quát. Đúng ý anh Huy (2026-11-25): học ngay trong full màn
+     hình, kéo xuống rồi nhấn "⬆ Từ số 1" là về từ đầu; KHÔNG đá ra Phòng
+     từ vựng nữa (đường vòng rườm rà). Cấp 3–9 qua cổng Premium của web
+     trước khi mở màn. */
+  function enterHtvLevel(lv) {
+    var enter = function () {
+      stopSpeak();
+      S.level = lv;
+      S.fcIndex = 0; S.fcFlip = false;
+      if (S.mode !== "list") S.mode = "list";
+      openOverlay();
+    };
+    if (lv >= 3 && S.access !== true && typeof window.checkPremiumAccess === "function") {
+      Promise.resolve(window.checkPremiumAccess(lv)).then(function (ok) {
+        if (ok) { enter(); refreshAccess().then(paintControls); }
+      }).catch(function () {});
+      return;
+    }
+    enter();
+  }
   function closeOverlay() {
     stopSpeak();
     var ov = byId("ttcHtvOverlay");
     if (ov) ov.hidden = true;
     S.open = false;
     document.body.style.overflow = "";
+    syncTopBtn();
+  }
+
+  /* ---- nút nổi "⬆ Từ số 1" trong các màn full màn hình ----
+     Đúng ý anh Huy (2026-11-25): đang kéo xuống xem từ, nhấn 1 cái là về
+     ngay từ số 1 trong chính màn đó — không phải quay về đầu trang rồi
+     lại kéo xuống như ở ngoài Phòng. Chỉ hiện khi đã cuộn sâu > 500px. */
+  function activeScrollOverlay() {
+    if (S.open) return byId("ttcHtvOverlay");
+    if (typeof T !== "undefined" && T.open) return byId("ttcTypeOverlay");
+    return null;
+  }
+  function buildTopBtn() {
+    if (byId("ttcTopBtn")) return;
+    ensureStyle();
+    var b = document.createElement("button");
+    b.type = "button";
+    b.id = "ttcTopBtn";
+    b.className = "htv-topbtn";
+    b.textContent = "⬆ Từ số 1";
+    b.hidden = true;
+    b.addEventListener("click", function () {
+      var ov = activeScrollOverlay();
+      if (ov) ov.scrollTo({ top: 0, behavior: "smooth" });
+    });
+    document.body.appendChild(b);
+  }
+  function syncTopBtn() {
+    buildTopBtn();
+    var btn = byId("ttcTopBtn");
+    var ov = activeScrollOverlay();
+    btn.hidden = !(ov && !ov.hidden && ov.scrollTop > 500);
   }
 
   /* ---------------- danh sách hiện tại ---------------- */
@@ -1131,7 +1186,7 @@
       '<button type="button" class="htv-close" id="ovClose">✕ Đóng</button>' +
       '<div class="htv-title">📋 Tổng quát từ vựng <small>· 11.000 từ HSK 1–9</small></div>' +
       '<button type="button" class="htv-back" id="ovBack">← Phòng từ vựng</button>' +
-      '<div class="htv-sec">📈 Theo cấp độ <small>· bấm 1 cấp để vào học cấp đó trong Phòng từ vựng</small></div>' +
+      '<div class="htv-sec">📈 Theo cấp độ <small>· bấm 1 cấp để học luôn tại đây, full màn hình</small></div>' +
       '<div class="htv-ov-grid" id="ovLevels">' + cards + "</div>" +
       "</div></div>";
     document.body.appendChild(ov);
@@ -1139,13 +1194,9 @@
     byId("ovBack").addEventListener("click", closeOvOverlay);
     byId("ovLevels").addEventListener("click", function (e) {
       var b = e.target.closest("[data-ov-level]"); if (!b) return;
-      var lvTxt = "HSK " + b.getAttribute("data-ov-level");
+      var lv = Number(b.getAttribute("data-ov-level"));
       closeOvOverlay();
-      var nodes = document.querySelectorAll("#otter2HskLevelRow .otter2-node");
-      for (var i = 0; i < nodes.length; i++) {
-        if (nodes[i].textContent.trim() === lvTxt) { nodes[i].click(); return; }
-      }
-      toast("Không tìm thấy nút " + lvTxt + " 😅");
+      enterHtvLevel(lv);
     });
   }
   function openOvOverlay() {
@@ -1184,6 +1235,7 @@
       '<div id="tyBody"></div>' +
       "</div></div>";
     document.body.appendChild(ov);
+    ov.addEventListener("scroll", syncTopBtn, { passive: true });
     byId("tyClose").addEventListener("click", closeTypeOverlay);
     byId("tyBack").addEventListener("click", function () {
       var backToHub = T.fromHub;
@@ -1256,6 +1308,7 @@
     if (ov) ov.hidden = true;
     T.open = false;
     if (!S.open) document.body.style.overflow = "";
+    syncTopBtn();
   }
   function renderTypeBody() {
     var body = byId("tyBody"); if (!body) return;
@@ -1460,6 +1513,7 @@
       if (!byId("ttcTypeEntry")) buildTypeEntry();
       hideOldRows();
       paintRoomEntries();
+      syncTopBtn();
     }, 1500);
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
