@@ -6,7 +6,11 @@
 .otter2-hsk1-toolbar{
   display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:10px;
 }
-.otter2-hsk1-toolbar strong{font-size:15px;margin-right:auto}
+/* Cụm phải (pinyin/số từ/Tất cả) KHÔNG đẩy sang phải nữa: cột phải trang chủ
+   (.otter2-dash-side) là sticky, khi cuộn nó phủ lên góc phải của workspace
+   và che đúng nút pinyin. Gom cả cụm về phía trái cạnh tiêu đề cho luôn
+   hiện trọn + bấm được ở mọi bề rộng. */
+.otter2-hsk1-toolbar strong{font-size:15px}
 .otter2-hsk1-count{font-size:12px;font-weight:700;color:#64748b}
 .otter2-hsk1-progress{
   height:8px;border-radius:999px;background:#F7F8FA;overflow:hidden;margin-bottom:12px;
