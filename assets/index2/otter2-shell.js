@@ -482,18 +482,16 @@
       '<div class="ttc-shell-stats-cap" id="ttcShellStatsCap">HSK 1 · 0 / 300 từ</div></div>' +
       '<div><div class="ttc-shell-profile" id="ttcShellProfile"><span class="ttc-shell-avatar" id="ttcShellAvatar">?</span>' +
       '<div style="min-width:0"><div class="ttc-shell-pname" id="ttcShellPName">Khách</div>' +
-      '<div class="ttc-shell-pmail" id="ttcShellPMail">Chưa đăng nhập</div></div></div>' +
-      '<button type="button" class="ttc-shell-pbtn" id="ttcShellPBtn">Đăng nhập</button></div>';
+      '<div class="ttc-shell-pmail" id="ttcShellPMail">Chưa đăng nhập</div></div></div></div>';
     document.body.appendChild(aside);
     sidebar = aside;
     statsEls = { num: byId("ttcShellStatsNum"), bar: byId("ttcShellStatsBar"), cap: byId("ttcShellStatsCap") };
-    profileEls = { avatar: byId("ttcShellAvatar"), name: byId("ttcShellPName"), mail: byId("ttcShellPMail"), btn: byId("ttcShellPBtn") };
+    profileEls = { avatar: byId("ttcShellAvatar"), name: byId("ttcShellPName"), mail: byId("ttcShellPMail") };
     /* stopPropagation là BẮT BUỘC (V4): otter2-account.js có handler
        document "bấm ra ngoài thì đóng menu tài khoản" — cú click thật
        của người dùng mà nổi bọt tới document sẽ đóng ngay menu mà
        #otter2AvatarBtn.click() vừa mở, trong cùng một event (nút
        header thật sống sót vì handler của nó tự stopPropagation). */
-    profileEls.btn.addEventListener("click", function (ev) { if (ev) ev.stopPropagation(); runAction("account"); });
     var profRow = byId("ttcShellProfile");
     if (profRow) profRow.addEventListener("click", function (ev) { if (ev) ev.stopPropagation(); runAction("account"); });
     /* Nút Tìm kiếm cột trái: listener riêng (không dùng data-shell-act
@@ -797,11 +795,11 @@
     head.appendChild(a);
   }
 
-  /* Ngữ cảnh Mondly trang chủ: desktop ≥1021px + theme sáng. */
+  /* Ngữ cảnh Mondly trang chủ: desktop ≥1021px, MỌI theme
+     (ban đêm đã có bản gương Mondly màu tối trong plain-theme
+     từ 2026-11-25 nên các biến đổi DOM này áp cả ban đêm). */
   function mondlyHomeOn() {
-    var night = false;
-    try { night = document.documentElement.getAttribute("data-theme") === "night"; } catch (e) {}
-    return !night && !!window.matchMedia && window.matchMedia("(min-width:1021px)").matches;
+    return !!window.matchMedia && window.matchMedia("(min-width:1021px)").matches;
   }
 
   /* (3c) Bảng bài học mảnh như mẫu: số tròn thay chữ Hán + bỏ tiền
@@ -960,7 +958,6 @@
       profileEls.name.textContent = "Khách";
       profileEls.mail.textContent = "Chưa đăng nhập";
       profileEls.mail.style.display = "";
-      profileEls.btn.textContent = "Đăng nhập";
       return;
     }
     var name = displayName(u) || "Tài khoản của tôi";
@@ -971,7 +968,6 @@
        nguyên trong khung tài khoản khi mở ra. */
     profileEls.mail.textContent = "";
     profileEls.mail.style.display = "none";
-    profileEls.btn.textContent = "Tài khoản của tôi";
   }
   function renderAll() { renderStats(); renderProfile(); syncActive(); placeUtility(); renderGreeting(); mondlyExtras(); }
 
