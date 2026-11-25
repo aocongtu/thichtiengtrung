@@ -434,6 +434,7 @@
     wireOverlay(ov);
   }
   function wireOverlay(ov) {
+    ov.addEventListener("scroll", syncTopBtn, { passive: true });
     byId("htvClose").addEventListener("click", closeOverlay);
     byId("htvBack").addEventListener("click", closeOverlay);
     byId("htvSearch").addEventListener("input", function () {
@@ -605,6 +606,7 @@
     S.mode = m; S.fcFlip = false;
     if (m === "flash") S.fcIndex = Math.min(S.fcIndex, Math.max(0, currentList().length - 1));
     paintControls(); renderBody();
+    syncTopBtn();
   }
   function gotoExam() {
     closeOverlay();
@@ -624,6 +626,7 @@
     paintControls(); renderBody();
     refreshAccess().then(paintControls);
     ov.scrollTop = 0;
+    syncTopBtn();
   }
 
   function closeOverlay() {
@@ -644,6 +647,9 @@
   function activeScrollOverlay() {
     if (typeof T !== "undefined" && T.open) return byId("ttcTypeOverlay");
     if (typeof OV !== "undefined" && OV.open) return byId("ttcOvOverlay");
+    /* Màn Học từ vựng cũng có nút ⬆ Từ số 1 (anh Huy hỏi 2026-11-25) —
+       chỉ ở chế độ Danh sách/Từ cần ôn, nơi có danh sách dài để kéo. */
+    if (S.open && (S.mode === "list" || S.mode === "review")) return byId("ttcHtvOverlay");
     return null;
   }
   function buildTopBtn() {
