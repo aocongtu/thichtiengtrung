@@ -204,6 +204,95 @@
     }
   }
 
+  /* ------------- giọng chuẩn (canon) khi chưa có lựa chọn -------------
+     Vì sao (2026-11-25, anh Huy báo "đang nghe tự nhiên tiếng bị bé
+     lại", gặp toàn trang, nhiều nhất ở phần từ vựng): khi người học
+     chưa từng tự chọn giọng, mỗi module tự vớ "giọng đầu tiên khớp"
+     trong getVoices() — mà danh sách giọng nạp dần (giọng nội bộ hiện
+     trước, giọng mạng Google/Microsoft hiện sau) nên giọng được chọn
+     NHẢY giữa các lần đọc: giọng này to, giọng kia nhỏ, nghe như
+     tiếng tự tụt. Canon ghim MỘT giọng cho cả phiên theo hạng cố
+     định, lưu lại cho các lần mở trang sau; chỉ nâng cấp đúng một
+     lần nếu giọng hạng cao hơn xuất hiện muộn, không bao giờ đổi
+     ngang/xuống giữa chừng. */
+  var LS_CANON = { zh: "otter2CanonVoiceZhV1", vi: "otter2CanonVoiceViV1" };
+  var canonMem = { zh: null, vi: null };
+
+  function zhTier(v) {
+    var l = normLang(v.lang);
+    var n = String(v.name || "").toLowerCase();
+    if (/zh-tw|zh-hk|zh-mo/.test(l) || /taiwan|hong kong|cantonese|粵|粤/.test(n)) return 9;
+    if (
+      l.indexOf("zh-cn") === 0 || l === "zh" || l.indexOf("zh-hans") === 0 ||
+      l.indexOf("cmn") === 0 || /mandarin|simplified|普通话|简体/.test(n)
+    ) {
+      if (n.indexOf("google") !== -1) return 1;
+      if (/xiaoxiao|huihui|yaoyao|kangkang|xiaoyi|yunyang|yunye|yunxia/.test(n)) return 2;
+      if (v.localService === false) return 3;
+      return 4;
+    }
+    if (l.indexOf("zh") === 0 || /chinese|中文/.test(n)) return 5;
+    return -1;
+  }
+  function viTier(v) {
+    var l = normLang(v.lang);
+    var n = String(v.name || "").toLowerCase();
+    if (l.indexOf("vi") !== 0 && !/viet/.test(n)) return -1;
+    if (n.indexOf("google") !== -1) return 1;
+    if (/hoaimy|namminh|hoai my|nam minh/.test(n)) return 2;
+    if (v.localService === false) return 3;
+    return 4;
+  }
+  function tierOf(group, v) {
+    return group === "zh" ? zhTier(v) : viTier(v);
+  }
+  function bestVoice(group) {
+    refreshVoices();
+    var best = null;
+    var bt = 999;
+    for (var i = 0; i < cachedVoices.length; i++) {
+      var v = cachedVoices[i];
+      if (voiceGroup(v) !== group) continue;
+      var t = tierOf(group, v);
+      if (t < 0) continue;
+      if (t < bt) {
+        bt = t;
+        best = v;
+      }
+    }
+    return best ? { voice: best, tier: bt } : null;
+  }
+  function canonicalVoice(group) {
+    var key = LS_CANON[group];
+    var cur = canonMem[group];
+    if (cur) {
+      var still = findVoice(group, cur.name);
+      if (still) {
+        var b = bestVoice(group);
+        if (b && b.voice.name !== cur.name && b.tier < cur.tier) {
+          canonMem[group] = { name: b.voice.name, tier: b.tier };
+          lsSet(key, b.voice.name);
+          return b.voice;
+        }
+        return still;
+      }
+      canonMem[group] = null;
+    }
+    var savedName = lsGet(key);
+    if (savedName) {
+      var sv = findVoice(group, savedName);
+      if (sv) {
+        canonMem[group] = { name: savedName, tier: tierOf(group, sv) };
+        return sv;
+      }
+    }
+    var first = bestVoice(group);
+    if (!first) return null;
+    canonMem[group] = { name: first.voice.name, tier: first.tier };
+    lsSet(key, first.voice.name);
+    return first.voice;
+  }
+
   /* ---------------- bọc speechSynthesis.speak ---------------- */
 
   // Dấu hiệu tiếng Việt trong văn bản (khi utterance không ghi lang/voice):
@@ -230,9 +319,15 @@
     if (!u || u.__vpLock) return;
     var group = utteranceGroup(u);
     if (!group) return;
+    // Chuẩn hoá âm lượng: mọi lời đọc zh/vi đều ở mức tối đa (một số
+    // module quên gán volume, một số giọng máy tự đọc nhỏ — ghim về 1
+    // để độ to không nhảy giữa các lần đọc).
+    try {
+      u.volume = 1;
+    } catch (e) {}
     var name = getChoice(group);
-    if (!name) return; // chưa chọn → giữ nguyên hành vi mặc định của trang
-    var chosen = findVoice(group, name);
+    var chosen = name ? findVoice(group, name) : null;
+    if (!chosen) chosen = canonicalVoice(group);
     if (!chosen) return;
     if (!u.voice) {
       try {

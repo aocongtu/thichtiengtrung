@@ -3769,9 +3769,16 @@ window.OTTER2_HSK_MANIFEST = {
     u.rate = 0.92;
     u.pitch = 1;
     var voices = speechSynthesis.getVoices() || [];
-    var zh = voices.find(function (v) {
-      return /zh(-|_|$)|chinese|中文/i.test(v.lang + " " + v.name);
-    });
+    var zh =
+      voices.find(function (v) {
+        var L = String(v.lang || "").toLowerCase().replace(/_/g, "-");
+        var N = String(v.name || "").toLowerCase();
+        if (/zh-tw|zh-hk|cantonese|taiwan|hong kong/.test(L + " " + N)) return false;
+        return L.indexOf("zh-cn") === 0 || /mandarin|simplified|huihui|yaoyao|xiaoxiao/.test(N);
+      }) ||
+      voices.find(function (v) {
+        return /zh(-|_|$)|chinese|中文/i.test(v.lang + " " + v.name);
+      });
     if (zh) u.voice = zh;
     setTimeout(function () {
       if (gen !== sayGen) return;
