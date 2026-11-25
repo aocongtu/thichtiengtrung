@@ -1398,3 +1398,14 @@ html[data-theme="night"] .ttc-xd-mine{ color:#CBD5E1; }
 html[data-theme="night"] .ttc-xd-correct{ color:#4ADE80; }
 html[data-theme="night"] .ttc-xd-wexp{ color:#94A3B8; }
 html[data-theme="night"] .ttc-xd-analysis{ border-top-color:#334155; }
+
+/* ============================================================
+   NIGHT RESCUE 7 (2026-11-25, Cá): con số lớn trong thẻ
+   thống kê ttc-xd (chữ navy chìm) + bong bóng thoại của Bé
+   (nền trắng chói trên nền tối).
+   ============================================================ */
+html[data-theme="night"] .ttc-xd-stat b{ color:#F1F5F9; }
+html[data-theme="night"] .ttc-xd-stat span{ color:#94A3B8; }
+html[data-theme="night"] .ttc-xd-sname{ color:#E2E8F0; }
+html[data-theme="night"] .guide-bubble{ background:#1E293B; border-color:#334155; color:#E2E8F0; }
+html[data-theme="night"] .guide-bubble-x{ color:#94A3B8; }
