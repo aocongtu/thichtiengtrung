@@ -48,8 +48,8 @@
        một lát") luôn hiện đủ và bấm được, launcher vẫn nguyên vẹn bên dưới
        panel; đóng panel thì mọi thứ như cũ. */
     var css = [
-      ".guide-roam{position:fixed;left:0;top:0;z-index:90;width:118px;pointer-events:none;will-change:transform;transition:opacity .25s ease}",
-      "@media (max-width:720px){.guide-roam{width:69px}}",
+      ".guide-roam{position:fixed;left:0;top:0;z-index:90;width:94px;pointer-events:none;will-change:transform;transition:opacity .25s ease}",
+      "@media (max-width:720px){.guide-roam{width:55px}}",
       ".guide-roam.guide-scrolling{opacity:.45}",
       ".guide-roam.guide-scrolling .guide-otter{scale:.85}",
       "@media (max-width:720px){.guide-roam.guide-scrolling .guide-otter{scale:.8}}",
@@ -793,7 +793,7 @@
     var tripActive = false, roamTimer = null, roamIdx = 0;
 
     function clampNum(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
-    function roamW() { return roam.offsetWidth || 118; }
+    function roamW() { return roam.offsetWidth || 94; }
     function roamH() { return roam.offsetHeight || 150; }
     /* Lộ trình fullscreen đang mở? (module gốc gắn .ttc-path-fs cho panel
        đã portal ra body + khoá cuộn bằng body.ttc-path-fs-lock) */
@@ -918,7 +918,7 @@
        bằng function/var trong cùng scope build() nên mọi chỗ gọi trước
        (speak, say, parkOtter, chatter...) đều thấy — function declaration
        được hoist, còn activeZoneId chỉ đổi khi watcher chạy (sau build). */
-    var activeZoneId = null; /* "path" | "auto" | "ach" | "write" | "reading" | "exam" | "story" | null */
+    var activeZoneId = null; /* "path" | "auto" | "ach" | "write" | "reading" | "exam" | "story" | "vocab" | null */
     function zoneQuiet() {
       /* Học auto + Luyện phát âm/Nghe & Đọc: web đang phát giọng đọc bài
          học — bé KHÔNG được phát giọng ở đây, chỉ biểu cảm bằng emoji. */
@@ -935,7 +935,7 @@
          là "nhà" + điểm rơi an toàn của bé trong zone; từ 2026-11-17 bé
          còn ROAMING 2D tự do ngay trong các zone này (xem roamStep) —
          chướng ngại được cộng thêm nội dung của chính overlay đang mở. */
-      return activeZoneId === "auto" || activeZoneId === "ach" || activeZoneId === "write" || activeZoneId === "exam" || activeZoneId === "story";
+      return activeZoneId === "auto" || activeZoneId === "ach" || activeZoneId === "write" || activeZoneId === "exam" || activeZoneId === "story" || activeZoneId === "vocab";
     }
     /* Chướng ngại CỘNG THÊM theo zone (khảo sát selector thật trong
        index2.html + otter2-vocab-roadmap.js/css + module auto/viết):
@@ -959,7 +959,8 @@
       ach: ".ttc-ach-panel,.ttc-ach-toolbar",
       write: ".ttc-write-card",
       exam: ".ttc-exam-card",
-      story: ".ttc-story-shell"
+      story: ".ttc-story-shell",
+      vocab: ".htv-panel,.htv-topbtn,.htv-ttsbar"
     };
     /* Gốc của từng zone: thao tác chạm/bấm vào BẤT KỲ đâu trong gốc (kể cả
        nền của overlay) khi zone đang mở đều tính là "người học đang thao
@@ -970,7 +971,8 @@
       ach: "#ttcAchHost",
       write: "#ttcWriteOverlay",
       exam: "#ttcExamOverlay,#ttcScoreBoardOverlay",
-      story: "#ttcStoryVideoOverlay"
+      story: "#ttcStoryVideoOverlay",
+      vocab: "#ttcHtvOverlay"
     };
     function zoneObstacleSel() {
       return activeZoneId ? (ZONE_OBSTACLE_SEL[activeZoneId] || null) : null;
@@ -2391,33 +2393,37 @@
       var zoneStyle = document.createElement("style");
       zoneStyle.id = "guide-zone-style";
       zoneStyle.textContent =
-        "[data-guide-root].guide-zone-auto .guide-roam{z-index:200050 !important;width:88px}" +
+        "[data-guide-root].guide-zone-auto .guide-roam{z-index:200050 !important;width:70px}" +
         "[data-guide-root].guide-zone-auto .guide-wrap{z-index:200051 !important}" +
         "[data-guide-root].guide-zone-auto .guide-restore{z-index:200050 !important}" +
         "[data-guide-root].guide-zone-auto .guide-spot-overlay{z-index:200049 !important}" +
-        "[data-guide-root].guide-zone-ach .guide-roam{z-index:1000070 !important;width:88px}" +
+        "[data-guide-root].guide-zone-ach .guide-roam{z-index:1000070 !important;width:70px}" +
         "[data-guide-root].guide-zone-ach .guide-wrap{z-index:1000071 !important}" +
         "[data-guide-root].guide-zone-ach .guide-restore{z-index:1000070 !important}" +
         "[data-guide-root].guide-zone-ach .guide-spot-overlay{z-index:1000069 !important}" +
-        "[data-guide-root].guide-zone-write .guide-roam{z-index:100010 !important;width:88px}" +
+        "[data-guide-root].guide-zone-write .guide-roam{z-index:100010 !important;width:70px}" +
         "[data-guide-root].guide-zone-write .guide-wrap{z-index:100011 !important}" +
         "[data-guide-root].guide-zone-write .guide-restore{z-index:100010 !important}" +
         "[data-guide-root].guide-zone-write .guide-spot-overlay{z-index:100009 !important}" +
-        "[data-guide-root].guide-zone-exam .guide-roam{z-index:1000210 !important;width:88px}" +
+        "[data-guide-root].guide-zone-exam .guide-roam{z-index:1000210 !important;width:70px}" +
         "[data-guide-root].guide-zone-exam .guide-wrap{z-index:1000211 !important}" +
         "[data-guide-root].guide-zone-exam .guide-restore{z-index:1000210 !important}" +
         "[data-guide-root].guide-zone-exam .guide-spot-overlay{z-index:1000209 !important}" +
-        "[data-guide-root].guide-zone-story .guide-roam{z-index:1000212 !important;width:88px}" +
+        "[data-guide-root].guide-zone-story .guide-roam{z-index:1000212 !important;width:70px}" +
         "[data-guide-root].guide-zone-story .guide-wrap{z-index:1000213 !important}" +
         "[data-guide-root].guide-zone-story .guide-restore{z-index:1000212 !important}" +
         "[data-guide-root].guide-zone-story .guide-spot-overlay{z-index:1000211 !important}" +
+        "[data-guide-root].guide-zone-vocab .guide-roam{z-index:12100 !important;width:70px}" +
+        "[data-guide-root].guide-zone-vocab .guide-wrap{z-index:12101 !important}" +
+        "[data-guide-root].guide-zone-vocab .guide-restore{z-index:12100 !important}" +
+        "[data-guide-root].guide-zone-vocab .guide-spot-overlay{z-index:12099 !important}" +
         "@media (max-width:720px){" +
-        "[data-guide-root].guide-zone-auto .guide-roam,[data-guide-root].guide-zone-ach .guide-roam,[data-guide-root].guide-zone-write .guide-roam,[data-guide-root].guide-zone-exam .guide-roam,[data-guide-root].guide-zone-story .guide-roam{width:74px}}" +
+        "[data-guide-root].guide-zone-auto .guide-roam,[data-guide-root].guide-zone-ach .guide-roam,[data-guide-root].guide-zone-write .guide-roam,[data-guide-root].guide-zone-exam .guide-roam,[data-guide-root].guide-zone-story .guide-roam,[data-guide-root].guide-zone-vocab .guide-roam{width:59px}}" +
         /* Roaming trong zone đưa bé lên gần mép trên được: bong bóng lật
            XUỐNG dưới bé (placeBubble gắn .guide-bubble-below) — cùng kiểu
            với rule fs của lộ trình trong #guide-fs-style. */
-        "[data-guide-root].guide-zone-auto .guide-roam.guide-bubble-below .guide-bubble,[data-guide-root].guide-zone-ach .guide-roam.guide-bubble-below .guide-bubble,[data-guide-root].guide-zone-write .guide-roam.guide-bubble-below .guide-bubble,[data-guide-root].guide-zone-exam .guide-roam.guide-bubble-below .guide-bubble,[data-guide-root].guide-zone-story .guide-roam.guide-bubble-below .guide-bubble{bottom:auto;top:calc(100% + 10px);border-radius:16px 4px 16px 16px}" +
-        "[data-guide-root].guide-zone-auto .guide-roam.guide-bubble-below.guide-bubble-left .guide-bubble,[data-guide-root].guide-zone-ach .guide-roam.guide-bubble-below.guide-bubble-left .guide-bubble,[data-guide-root].guide-zone-write .guide-roam.guide-bubble-below.guide-bubble-left .guide-bubble,[data-guide-root].guide-zone-exam .guide-roam.guide-bubble-below.guide-bubble-left .guide-bubble,[data-guide-root].guide-zone-story .guide-roam.guide-bubble-below.guide-bubble-left .guide-bubble{border-radius:4px 16px 16px 16px}" +
+        "[data-guide-root].guide-zone-auto .guide-roam.guide-bubble-below .guide-bubble,[data-guide-root].guide-zone-ach .guide-roam.guide-bubble-below .guide-bubble,[data-guide-root].guide-zone-write .guide-roam.guide-bubble-below .guide-bubble,[data-guide-root].guide-zone-exam .guide-roam.guide-bubble-below .guide-bubble,[data-guide-root].guide-zone-story .guide-roam.guide-bubble-below .guide-bubble,[data-guide-root].guide-zone-vocab .guide-roam.guide-bubble-below .guide-bubble{bottom:auto;top:calc(100% + 10px);border-radius:16px 4px 16px 16px}" +
+        "[data-guide-root].guide-zone-auto .guide-roam.guide-bubble-below.guide-bubble-left .guide-bubble,[data-guide-root].guide-zone-ach .guide-roam.guide-bubble-below.guide-bubble-left .guide-bubble,[data-guide-root].guide-zone-write .guide-roam.guide-bubble-below.guide-bubble-left .guide-bubble,[data-guide-root].guide-zone-exam .guide-roam.guide-bubble-below.guide-bubble-left .guide-bubble,[data-guide-root].guide-zone-story .guide-roam.guide-bubble-below.guide-bubble-left .guide-bubble,[data-guide-root].guide-zone-vocab .guide-roam.guide-bubble-below.guide-bubble-left .guide-bubble{border-radius:4px 16px 16px 16px}" +
         ".guide-bubble.guide-bubble-emoji{width:auto;max-width:62vw;padding:9px 13px}" +
         ".guide-bubble.guide-bubble-emoji p{font-size:1.5rem;line-height:1.3;text-align:center;white-space:nowrap}" +
         ".guide-bubble.guide-bubble-emoji .guide-hint{display:none}";
@@ -2448,6 +2454,10 @@
           var sv = document.getElementById("ttcStoryVideoOverlay");
           if (sv && sv.classList.contains("open")) return "story";
         } catch (eS) {}
+        try {
+          var hv = document.getElementById("ttcHtvOverlay");
+          if (hv && !hv.hidden) return "vocab";
+        } catch (eV) {}
         try {
           var rp = document.querySelector('[data-otter2-screen-panel="reading"]');
           if (rp && !rp.hidden && isVisible(rp)) return "reading";
@@ -2533,8 +2543,8 @@
       function onZoneChange(prev, z) {
         if (z === "auto") resetAutoWatch();
         if (roam.hidden || tripActive) return; /* bé đang nghỉ: không xuất hiện ở zone nào */
-        var overlayIn = z === "auto" || z === "ach" || z === "write" || z === "exam" || z === "story";
-        var overlayOut = prev === "auto" || prev === "ach" || prev === "write" || prev === "exam" || prev === "story";
+        var overlayIn = z === "auto" || z === "ach" || z === "write" || z === "exam" || z === "story" || z === "vocab";
+        var overlayOut = prev === "auto" || prev === "ach" || prev === "write" || prev === "exam" || prev === "story" || prev === "vocab";
         if (overlayIn) {
           /* CHẠY (runTo) tới dock của zone trước — không teleport;
              reduced-motion thì runTo tự đặt vị trí tức thì và jumpOtter
@@ -2567,7 +2577,7 @@
           try { relocateIfBlocked(); } catch (eZr) {}
         }, 600);
       }
-      var ZONE_WATCH_IDS = ["ttcPathPanel", "autoLearning", "ttcExampleAutoV2", "ttcAchHost", "ttcWriteOverlay", "ttcExamOverlay", "ttcScoreBoardOverlay", "ttcStoryVideoOverlay"];
+      var ZONE_WATCH_IDS = ["ttcPathPanel", "autoLearning", "ttcExampleAutoV2", "ttcAchHost", "ttcWriteOverlay", "ttcExamOverlay", "ttcScoreBoardOverlay", "ttcStoryVideoOverlay", "ttcHtvOverlay"];
       function ensureZoneRelocateWatchers() {
         for (var i = 0; i < ZONE_WATCH_IDS.length; i++) {
           var el = document.getElementById(ZONE_WATCH_IDS[i]);
@@ -2588,8 +2598,8 @@
           var prev = lastZone;
           lastZone = z;
           activeZoneId = z;
-          root.classList.remove("guide-zone-auto", "guide-zone-ach", "guide-zone-write", "guide-zone-exam", "guide-zone-story");
-          if (z === "auto" || z === "ach" || z === "write" || z === "exam" || z === "story") root.classList.add("guide-zone-" + z);
+          root.classList.remove("guide-zone-auto", "guide-zone-ach", "guide-zone-write", "guide-zone-exam", "guide-zone-story", "guide-zone-vocab");
+          if (z === "auto" || z === "ach" || z === "write" || z === "exam" || z === "story" || z === "vocab") root.classList.add("guide-zone-" + z);
           try { onZoneChange(prev, z); } catch (eZc) {}
         }
         try { autoPlayTick(); } catch (eAp) {}
@@ -2613,13 +2623,13 @@
       var fsStyle = document.createElement("style");
       fsStyle.id = "guide-fs-style";
       fsStyle.textContent =
-        "body.ttc-path-fs-lock .guide-roam{z-index:2147483000 !important;width:88px}" +
+        "body.ttc-path-fs-lock .guide-roam{z-index:2147483000 !important;width:70px}" +
         "body.ttc-path-fs-lock .guide-wrap{z-index:2147483001 !important}" +
         "body.ttc-path-fs-lock .guide-restore{z-index:2147483000 !important}" +
         "body.ttc-path-fs-lock .guide-spot-overlay{z-index:2147482999 !important}" +
         "body.ttc-path-fs-lock .guide-bubble{bottom:auto;top:calc(100% + 10px);border-radius:16px 4px 16px 16px}" +
         "body.ttc-path-fs-lock .guide-roam.guide-bubble-left .guide-bubble{border-radius:4px 16px 16px 16px}" +
-        "@media (max-width:720px){body.ttc-path-fs-lock .guide-roam{width:74px}}";
+        "@media (max-width:720px){body.ttc-path-fs-lock .guide-roam{width:59px}}";
       document.head.appendChild(fsStyle);
       var wasFs = false;
       setInterval(function () {
