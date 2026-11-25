@@ -1310,3 +1310,31 @@ html[data-theme="night"] #otter2DictRoot .otter2-dict-recent button{ background:
 html[data-theme="night"] #otter2PracticeHub #ttcActionFrame .ttc-action-buttons button{ background:#1E293B; border-color:#334155; color:#E2E8F0; }
 html[data-theme="night"] #otter2PracticeHub #ttcActionFrame .ttc-action-buttons button.active{ background:#F97316; border-color:#F97316; color:#fff; }
 html[data-theme="night"] .otter2-reading-top .otter2-btn{ background:#1E293B !important; border-color:#334155 !important; color:#E2E8F0 !important; }
+
+/* ============================================================
+   NIGHT RESCUE 3 (2026-11-25, Cá): 3 điểm sót cuối —
+   (1) 6 nút Luyện tập: luật gốc dùng !important (nền trắng/
+   chữ #333/-webkit-text-fill-color) nên phải đáp bằng
+   !important; (2) nút trong hộp gợi ý tra từ có nền trắng
+   riêng che mất nền panel; (3) chữ phụ của từ điển mở rộng
+   (o2x) + các bề mặt sáng còn lại trong Thi HSK (câu xem
+   lại, nút điều hướng, thanh tiến độ, ô sắp xếp từ, tiêu
+   đề h3 đặt màu inline).
+   ============================================================ */
+html[data-theme="night"] #otter2PracticeHub #ttcActionFrame .ttc-action-buttons button{ background:#1E293B !important; color:#E2E8F0 !important; border-color:#334155 !important; -webkit-text-fill-color:#E2E8F0 !important; box-shadow:none !important; }
+html[data-theme="night"] #otter2PracticeHub #ttcActionFrame .ttc-action-buttons button:hover{ background:#263449 !important; color:#E2E8F0 !important; -webkit-text-fill-color:#E2E8F0 !important; }
+html[data-theme="night"] #otter2PracticeHub #ttcActionFrame .ttc-action-buttons button.active{ background:#F97316 !important; color:#fff !important; border-color:#F97316 !important; -webkit-text-fill-color:#fff !important; }
+html[data-theme="night"] #otter2DictRoot .otter2-dict-suggest button{ background:#1E293B; }
+html[data-theme="night"] #otter2DictRoot .ttc-sg-hz{ color:#E2E8F0; }
+html[data-theme="night"] .o2x-sub{ color:#94A3B8; }
+html[data-theme="night"] .o2x-note{ color:#94A3B8; }
+html[data-theme="night"] .o2x-chip small{ color:#E2E8F0; }
+html[data-theme="night"] .o2x-secttl{ color:#E2E8F0; }
+html[data-theme="night"] .o2x-title{ color:#E2E8F0; }
+html[data-theme="night"] .ttc-exam-reviewq{ background:#1E293B; border-color:#334155; color:#CBD5E1; }
+html[data-theme="night"] .ttc-exam-btn{ background:#1E293B; border-color:#334155; color:#E2E8F0; }
+html[data-theme="night"] .ttc-exam-progress{ background:#334155; }
+html[data-theme="night"] .ttc-exam-ord-answer{ background:#1E293B; border-color:#334155; }
+html[data-theme="night"] .ttc-exam-modedesc{ color:#CBD5E1; }
+html[data-theme="night"] .ttc-exam-card h3{ color:#E2E8F0 !important; }
+html[data-theme="night"] .ttc-exam-hist h3{ color:#E2E8F0; }
