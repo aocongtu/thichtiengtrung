@@ -580,7 +580,7 @@
     var sub = byId("ttcMondlySubbar");
     var night = false;
     try { night = document.documentElement.getAttribute("data-theme") === "night"; } catch (e) {}
-    if (mqDesk.matches && !night && sub) {
+    if (mqDesk.matches && sub) {
       /* MONDLY v3 (khuya 2026-11-23): desktop + theme sáng — các
          nút THẬT Giản/Phồn + Giao diện + Chat Online dời vào THANH
          CÔNG CỤ PHỤ trong cửa sổ (đúng mẫu Mondly anh Huy gửi);

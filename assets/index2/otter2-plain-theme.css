@@ -895,3 +895,370 @@ html:not([data-theme="night"]) #ttcMondlySubbar #otter2ChatOnlineBtn:hover{ back
 @media (min-width:1021px){
   #otter2-home #otter2HskJourney{ position:relative; z-index:2; }
 }
+
+/* ============================================================
+   MONDLY BẢN ĐÊM (2026-11-25, Cá — anh Huy báo: bật Ban đêm thì
+   web tụt về GIAO DIỆN CŨ: sidebar dọc trắng + dashboard cũ).
+   Nguyên nhân: toàn bộ các khối Mondly v1–v4.2 ở trên đều gói
+   trong html:not([data-theme="night"]) nên ban đêm không áp.
+   Khối này là BẢN GƯƠNG TỰ ĐỘNG của chính các luật đó: giữ
+   nguyên thứ tự cascade + mọi thuộc tính bố cục, chỉ thay bảng
+   màu sáng -> tối (nền #16283F/#1E293B, viền #334155, chữ
+   #F1F5F9/#CBD5E1, mục đang chọn = viên CAM #F97316 cho nổi
+   trên nền tối). shell.js placeUtility đồng thời cho ban đêm
+   dùng chung thanh công cụ phụ #ttcMondlySubbar như ban ngày.
+   Tiêu đề 7 màu + tên Hán-Việt đỏ: KHÔNG luật nào ở đây chạm
+   vào (.ttt-rainbow / .ttc-han-viet không xuất hiện).
+   ============================================================ */
+html[data-theme="night"] #ttcShellSidebar .ttc-shell-item:hover{background:#431407}
+html[data-theme="night"] #ttcShellSidebar .ttc-shell-item.is-active{background:#431407;color:#FDBA74;box-shadow:inset 3px 0 0 #F97316}
+html[data-theme="night"] #ttcShellSidebar .ttc-shell-item.is-active .ttc-shell-ico{background:#7C2D12}
+html[data-theme="night"] #ttcShellSidebar .ttc-shell-stats{background:#1E293B;border:1px solid #334155;border-radius:14px}
+@media (min-width:900px){
+html[data-theme="night"] #otter2-home{background:linear-gradient(180deg,#0B1220 0%,#0F172A 100%)}
+html[data-theme="night"] #otter2-home .otter2-dash-card{background:#16283F;border:1px solid #334155;border-radius:24px;box-shadow:0 10px 30px rgba(31,35,52,.06)}
+html[data-theme="night"] #otter2-home .otter2-dash-card h2,html[data-theme="night"] #otter2-home .otter2-dash-card h3{color:#F1F5F9}
+html[data-theme="night"] #otter2-home .otter2-dash-sub{color:#94A3B8}
+html[data-theme="night"] #otter2-home .otter2-dash-continue .otter2-dash-kicker{background:#2A2350;color:#6C4CF1;border-radius:999px;padding:4px 12px;justify-self:start;font-weight:700}
+html[data-theme="night"] #otter2-home .otter2-dash-continue h3{color:#F1F5F9;font-size:21px}
+html[data-theme="night"] #otter2-home .otter2-dash-continue img{border-radius:20px;box-shadow:0 8px 22px rgba(31,35,52,.12)}
+html[data-theme="night"] #otter2-home .otter2-dash-continue .otter2-dash-ctared{background:#F97316;color:#ffffff;border-radius:12px;font-weight:800}
+html[data-theme="night"] #otter2-home .otter2-dash-hero{background:linear-gradient(135deg,#7C5CFC 0%,#5B3DF0 58%,#4A2FD6 100%);border-radius:18px;color:#ffffff}
+html[data-theme="night"] #otter2-home .otter2-dash-hero h3{color:#ffffff}
+html[data-theme="night"] #otter2-home .otter2-dash-hero p{color:rgba(255,255,255,.85)}
+html[data-theme="night"] #otter2-home .otter2-dash-hero .otter2-dash-badge{background:#FF8A3D;color:#ffffff;border-radius:999px}
+html[data-theme="night"] #otter2-home .otter2-dash-hero .otter2-dash-prow{color:#ffffff}
+html[data-theme="night"] #otter2-home .otter2-dash-hero .otter2-dash-hero-cta{background:#16283F;color:#C4B5FD;border-radius:10px;font-weight:800}
+html[data-theme="night"] #otter2-home .otter2-dash-hero .otter2-dash-bar{background:rgba(255,255,255,.28);height:9px;border-radius:99px}
+html[data-theme="night"] #otter2-home .otter2-dash-hero .otter2-dash-bar > i{background:#FFC531;border-radius:99px}
+html[data-theme="night"] #otter2-home .otter2-feature{background:#1E293B;border:1.5px solid transparent;border-radius:16px}
+html[data-theme="night"] #otter2-home .otter2-feature:hover{background:#2A2350;border-color:#5B21B6}
+html[data-theme="night"] #otter2-home .otter2-dash-lvcell{background:#1E293B;border:1.5px solid transparent;border-radius:14px}
+html[data-theme="night"] #otter2-home .otter2-dash-lvcell:hover{background:#2A2350;border-color:#5B21B6}
+html[data-theme="night"] #otter2-home .otter2-dash-lvcell b{color:#F1F5F9}
+html[data-theme="night"] #otter2-home .otter2-dash-task{border-radius:14px}
+html[data-theme="night"] #otter2-home .otter2-dash-task:hover{background:#1E293B}
+html[data-theme="night"] #otter2-home .otter2-dash-task .tt small{color:#94A3B8}
+html[data-theme="night"] #otter2-home .otter2-dash-task .mins{background:#0B1220;border-radius:999px;padding:4px 10px;color:#CBD5E1;font-weight:700}
+html[data-theme="night"] #otter2-home .otter2-dash-cta{background:#F97316;color:#ffffff;border-radius:12px;font-weight:700}
+html[data-theme="night"] #otter2-home .otter2-dash-cta:hover{background:#EA580C}
+html[data-theme="night"] #otter2-home .ttc-shell-ach-btn{background:#16283F;color:#F1F5F9;border:1.5px solid #334155;border-radius:12px;font-weight:700}
+html[data-theme="night"] #ttcShellSidebar .ttc-shell-item.is-active{background:#F97316;color:#ffffff;box-shadow:none;border-radius:12px}
+html[data-theme="night"] #ttcShellSidebar .ttc-shell-item.is-active:hover{background:#F97316}
+html[data-theme="night"] #ttcShellSidebar .ttc-shell-item.is-active .ttc-shell-ico{background:rgba(255,255,255,.16)}
+html[data-theme="night"] .otter2-hsk1-card{border-color:#334155;border-radius:16px}
+html[data-theme="night"] .otter2-hsk1-card:hover{border-color:#C9B8FF}
+}
+@media (min-width:900px){
+html[data-theme="night"] body.otter2-body{background:#0B1220}
+html[data-theme="night"] .otter2-shell{border-radius:28px;margin:16px 16px 16px 0;box-shadow:0 24px 60px rgba(31,35,52,.14)}
+html[data-theme="night"] #otter2-home{background:transparent}
+html[data-theme="night"] #otter2-home .otter2-dash-card{border:1px solid #334155;border-radius:20px;box-shadow:0 1px 3px rgba(16,24,40,.05)}
+html[data-theme="night"] #otter2-home .otter2-dash-card.otter2-dash-continue{background:transparent;border-color:transparent;box-shadow:none}
+html[data-theme="night"] #otter2-home .otter2-dash-continue h3{font-size:26px}
+html[data-theme="night"] #otter2-home .ttc-exam-panel-btn{background:#F97316;color:#ffffff}
+html[data-theme="night"] #ttcShellSidebar .ttc-shell-pbtn{background:#F97316}
+}
+@media (min-width:900px){
+html[data-theme="night"] body.otter2-body{padding-left:0;padding-top:76px}
+html[data-theme="night"] #ttcShellSidebar{top:12px;left:50%;transform:translateX(-50%);bottom:auto;width:min(var(--otter2-max), calc(100% - 24px));height:64px;flex-direction:row;align-items:center;gap:10px;padding:0 16px;overflow:visible;background:#16283F;border:1px solid rgba(51,65,85,.9);border-bottom:1px solid #1E293B;border-radius:22px 22px 0 0;box-shadow:none}
+html[data-theme="night"] .otter2-shell{margin:0 auto 28px;border-top:0;border-radius:0 0 28px 28px}
+html[data-theme="night"] #ttcShellSidebar .ttc-shell-brand{border-bottom:0;padding:0;flex:none;gap:10px}
+html[data-theme="night"] #ttcShellSidebar .ttc-shell-brand img{width:40px;height:40px;border-radius:50%}
+html[data-theme="night"] #ttcShellSidebar .ttc-shell-brand-name{font-size:16.5px;white-space:nowrap}
+html[data-theme="night"] #ttcShellSidebar .ttc-shell-brand-sub{display:none}
+html[data-theme="night"] #ttcShellSidebar .ttc-shell-search{order:3;flex:none;width:44px;height:44px;margin:0;padding:0;border-radius:50%;border:1px solid #334155;background:#16283F;justify-content:center;gap:0}
+html[data-theme="night"] #ttcShellSidebar .ttc-shell-search:hover{background:#1E293B;border-color:#334155;color:#16283F}
+html[data-theme="night"] #ttcShellSidebar .ttc-shell-search-tx{display:none}
+html[data-theme="night"] #ttcShellSidebar .ttc-shell-search-ico{font-size:17px}
+html[data-theme="night"] #ttcShellSidebar .ttc-shell-nav{order:2;flex:1 1 auto;min-width:0;flex-direction:row;align-items:center;justify-content:center;gap:2px;padding:4px;margin:0 4px;background:#0B1220;border-radius:999px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
+html[data-theme="night"] #ttcShellSidebar .ttc-shell-nav::-webkit-scrollbar{display:none}
+html[data-theme="night"] #ttcShellSidebar .ttc-shell-nav::before{display:none}
+html[data-theme="night"] #ttcShellSidebar .ttc-shell-item{flex:none;width:auto;padding:8px 13px;border-radius:999px;font-size:14.5px;gap:0;background:transparent;box-shadow:none}
+html[data-theme="night"] #ttcShellSidebar .ttc-shell-item .ttc-shell-ico{display:none}
+html[data-theme="night"] #ttcShellSidebar .ttc-shell-item:hover{background:#263449}
+html[data-theme="night"] #ttcShellSidebar .ttc-shell-item.is-active{background:#F97316;color:#ffffff;box-shadow:none}
+html[data-theme="night"] #ttcShellSidebar .ttc-shell-item.is-active:hover{background:#F97316}
+html[data-theme="night"] #ttcShellSidebar .ttc-shell-util{order:4;flex:none;flex-direction:row;padding:0;margin:0;gap:0}
+html[data-theme="night"] #ttcShellSidebar .ttc-shell-util::before{display:none}
+html[data-theme="night"] #ttcShellSidebar #ttcMenuBtn{width:44px;height:44px;margin:0;padding:0;border-radius:50%;justify-content:center;gap:0;border:1px solid #334155;background:#16283F;box-shadow:none}
+html[data-theme="night"] #ttcShellSidebar #ttcMenuBtn:hover{background:#1E293B;border-color:#334155}
+html[data-theme="night"] #ttcShellSidebar #ttcMenuBtn .ttc-shell-util-lbl{display:none}
+html[data-theme="night"] #ttcShellSidebar .ttc-shell-stats{display:none}
+html[data-theme="night"] #ttcShellSidebar > div:last-child{order:5;flex:none;display:flex;align-items:center}
+html[data-theme="night"] #ttcShellSidebar .ttc-shell-profile{border-top:0;padding:0;margin:0;gap:0}
+html[data-theme="night"] #ttcShellSidebar .ttc-shell-profile > div{display:none}
+html[data-theme="night"] #ttcShellSidebar .ttc-shell-avatar{background:#6C4CF1;width:42px;height:42px}
+html[data-theme="night"] #ttcShellSidebar .ttc-shell-profile::after{content:"▾";color:#94A3B8;font-size:12px;margin-left:5px}
+html[data-theme="night"] #ttcShellSidebar .ttc-shell-pbtn{width:auto;margin:0 0 0 10px;padding:9px 16px;border-radius:999px;font-size:13.5px;white-space:nowrap}
+}
+@media (min-width:900px) and (max-width:1199px){
+html[data-theme="night"] #ttcShellSidebar{gap:6px;padding:0 10px}
+html[data-theme="night"] #ttcShellSidebar .ttc-shell-nav{justify-content:flex-start}
+html[data-theme="night"] #ttcShellSidebar .ttc-shell-brand-name{font-size:15px}
+html[data-theme="night"] #ttcShellSidebar .ttc-shell-item{padding:7px 9px;font-size:13.5px}
+html[data-theme="night"] #ttcShellSidebar .ttc-shell-pbtn{padding:8px 12px;font-size:12.5px}
+}
+@media (min-width:900px){
+html[data-theme="night"] #ttcMondlySubbar{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#1E293B;border:1px solid #334155;border-radius:16px;padding:6px 10px;margin:2px 0 14px}
+html[data-theme="night"] #ttcMondlySubbar .ttc-script-switch{background:#16283F;border:1px solid #334155;color:#F1F5F9;box-shadow:0 1px 3px rgba(16,24,40,.08);min-height:38px;padding:0 18px;font-size:13.5px}
+html[data-theme="night"] #ttcMondlySubbar .ttc-script-switch:hover{background:#1E293B}
+html[data-theme="night"] #ttcMondlySubbar .ttc-script-switch[aria-pressed="true"]{background:#F97316;color:#ffffff;border-color:#F97316;box-shadow:none}
+html[data-theme="night"] #ttcMondlySubbar .otter2-theme-slot{display:flex;align-items:center;gap:9px;position:relative;width:auto;padding:0 8px}
+html[data-theme="night"] #ttcMondlySubbar #otter2ThemeNavBtn{font-size:0;width:34px;height:34px;padding:0;background:transparent;border:0;box-shadow:none;border-radius:50%}
+html[data-theme="night"] #ttcMondlySubbar #otter2ThemeNavBtn::before{content:"🦦";font-size:19px;line-height:1}
+html[data-theme="night"] #ttcMondlySubbar .ttc-shell-util-lbl{font-size:14px;font-weight:600;color:#CBD5E1}
+html[data-theme="night"] #ttcMondlySubbar #otter2ChatOnlineBtn{display:inline-flex;align-items:center;width:auto;height:auto;min-height:38px;padding:6px 10px;background:transparent;border:0;box-shadow:none;border-radius:999px;font-size:17px}
+html[data-theme="night"] #ttcMondlySubbar #otter2ChatOnlineBtn::after{content:"Chat Online";font-size:14px;font-weight:600;color:#CBD5E1;margin-left:8px}
+html[data-theme="night"] #ttcMondlySubbar #otter2ChatOnlineBtn:hover{background:#263449}
+}
+@media (min-width:1021px){
+html[data-theme="night"] #otter2-home .otter2-dash-continue{display:flex;align-items:center;gap:18px;padding:4px 4px 0}
+html[data-theme="night"] #otter2-home .otter2-dash-continue .otter2-dash-kicker{display:none}
+html[data-theme="night"] #otter2-home .otter2-dash-continue img{display:none}
+html[data-theme="night"] #otter2-home .otter2-dash-continue p{display:none}
+html[data-theme="night"] #otter2-home .otter2-dash-continue h3{margin:0;font-size:clamp(24px, 2.6vw, 32px);font-weight:800;letter-spacing:-.01em;color:#F1F5F9}
+html[data-theme="night"] #otter2-home .otter2-dash-continue .otter2-dash-ctared{width:auto;margin-left:auto;min-height:48px;padding:12px 24px;border-radius:999px;flex:none}
+html[data-theme="night"] #otter2-home .otter2-dash-strip{display:flex;align-items:center;gap:8px;background:transparent;border:0;box-shadow:none;border-radius:0;padding:0;margin:0;overflow:visible}
+html[data-theme="night"] #otter2-home .otter2-dash-strip::before{content:"LỘ TRÌNH";font-size:11px;font-weight:800;letter-spacing:.09em;color:#94A3B8;margin-right:2px;flex:none}
+html[data-theme="night"] #otter2-home .otter2-dash-chip{flex:none;background:#0B1220;border:0;border-radius:999px;padding:9px 15px;font-size:13.5px;font-weight:700;color:#CBD5E1;min-height:0;box-shadow:none;white-space:nowrap}
+html[data-theme="night"] #otter2-home .otter2-dash-chip small{display:none}
+html[data-theme="night"] #otter2-home .otter2-dash-chip:hover{background:#263449;color:#F1F5F9}
+html[data-theme="night"] #otter2-home .otter2-dash-chip.is-cur{background:#6C4CF1;color:#ffffff}
+html[data-theme="night"] #otter2-home .otter2-dash-chip.is-cur::after{content:" · đang học";font-weight:600}
+html[data-theme="night"] #otter2-home .otter2-dash-chip.is-cur:hover{background:#6C4CF1;color:#ffffff}
+html[data-theme="night"] #otter2-home .otter2-dash-course .otter2-feature{flex-direction:row;align-items:center;justify-content:flex-start;text-align:left;min-height:60px;height:auto;padding:10px 14px;gap:12px}
+html[data-theme="night"] #otter2-home .otter2-dash-course .otter2-feature .otter2-ico{margin:0;flex:none}
+html[data-theme="night"] #otter2-home .otter2-dash-course .otter2-feature::after{content:"›";margin-left:auto;flex:none;width:34px;height:34px;border-radius:50%;background:#16283F;border:1px solid #334155;display:grid;place-items:center;font-size:19px;font-weight:700;color:#CBD5E1;line-height:1}
+html[data-theme="night"] #otter2-home .otter2-dash-retest{background:#0B1220;color:#F1F5F9;border:0}
+html[data-theme="night"] #otter2-home .otter2-dash-retest:hover{background:#263449}
+html[data-theme="night"] #otter2-home .otter2-dash-skill{background:#1E293B}
+html[data-theme="night"] #otter2-home .otter2-dash-track > i{background:#6C4CF1}
+html[data-theme="night"] #otter2-home .otter2-dash-skilltile{background:#1E293B;border:1.5px solid transparent;border-radius:16px}
+html[data-theme="night"] #otter2-home .otter2-dash-skilltile:hover{background:#2A2350;border-color:#5B21B6}
+html[data-theme="night"] #otter2-home .otter2-dash-card[aria-labelledby="otter2DashActTitle"]{display:block}
+html[data-theme="night"] #otter2-home .otter2-dash-lvcell.has{background:#2A2350}
+html[data-theme="night"] #otter2-home .otter2-dash-lvcell.has b::after{background:#6C4CF1}
+html[data-theme="night"] #otter2-home .otter2-dash-side{top:92px}
+html[data-theme="night"] #otter2-home .otter2-dash-task .ic.c1{background:#431407}
+html[data-theme="night"] #otter2-home .otter2-dash-task .ic.c2{background:#422006}
+html[data-theme="night"] #otter2-home .otter2-dash-task .ic.c3{background:#052E16}
+html[data-theme="night"] #otter2-home .ttc-exam-panel-chip.is-cur{background:#6C4CF1;border-color:#6C4CF1;color:#ffffff}
+html[data-theme="night"] #otter2-home .ttc-exam-panel-trophy{background:#2A2350;border-color:#E4DEFF;border-radius:16px}
+html[data-theme="night"] #otter2-home .otter2-dash-step{background:#1E293B;border:1.5px solid transparent;border-radius:16px}
+html[data-theme="night"] #otter2-home .otter2-dash-step:hover{background:#2A2350;border-color:#5B21B6}
+html[data-theme="night"] #otter2-home .otter2-dash-step.is-cur{background:#6C4CF1;border-color:#6C4CF1;color:#ffffff}
+html[data-theme="night"] #otter2-home .otter2-dash-step.is-cur small{color:rgba(255,255,255,.85)}
+html[data-theme="night"] #otter2-home .otter2-dash-step.is-cur .learned{color:#FFE9A8}
+html[data-theme="night"] #otter2-home .otter2-dash-lesson{border-radius:14px;padding:12px 10px}
+html[data-theme="night"] #otter2-home .otter2-dash-lesson:hover{background:#1E293B}
+html[data-theme="night"] #otter2-home .otter2-dash-thumb{background:#2A2350}
+html[data-theme="night"] #otter2-home .ttc-story-panel-btn{background:#F97316;border-color:#F97316;color:#ffffff;border-radius:999px;box-shadow:none}
+}
+@media (min-width:1280px){
+html[data-theme="night"] #otter2-home .otter2-dash-continue{grid-column:1/-1;grid-row:1}
+html[data-theme="night"] #otter2-home .otter2-dash-strip{grid-column:1/-1;grid-row:2}
+html[data-theme="night"] #otter2-home .otter2-dash-course{grid-column:1;grid-row:3}
+html[data-theme="night"] #otter2-home .ttc-exam-midstack{grid-column:2;grid-row:3}
+html[data-theme="night"] #otter2-home .otter2-dash-main > section[aria-labelledby="otter2DashLessonsTitle"]{grid-column:1/-1;grid-row:4}
+html[data-theme="night"] #otter2-home .otter2-dash-main > .otter2-dash-road{grid-column:1/-1;grid-row:5}
+}
+@media (min-width:1021px) and (max-width:1279px){
+html[data-theme="night"] #otter2-home .otter2-dash-continue{grid-column:1;grid-row:1}
+html[data-theme="night"] #otter2-home .otter2-dash-strip{grid-column:1;grid-row:2}
+html[data-theme="night"] #otter2-home .otter2-dash-main > .otter2-dash-road{grid-column:1;grid-row:3}
+html[data-theme="night"] #otter2-home .otter2-dash-main > .otter2-dash-course{grid-column:1;grid-row:4}
+html[data-theme="night"] #otter2-home .ttc-exam-midstack{grid-column:1;grid-row:5}
+html[data-theme="night"] #otter2-home .otter2-dash-main > section[aria-labelledby="otter2DashLessonsTitle"]{grid-column:1/-1;grid-row:6}
+}
+@media (min-width:900px){
+html[data-theme="night"] #ttcMondlySubbar{justify-content:flex-start;gap:4px;padding:6px 8px;margin:2px 0 10px;background:#131F38}
+html[data-theme="night"] #ttcMondlySubbar #ttcScriptSwitch{display:none !important}
+html[data-theme="night"] #ttcMondlySubbar .ttc-seg-btn{display:flex;flex:1 1 0;align-items:center;justify-content:center;gap:7px;background:transparent;border:1px solid transparent;border-radius:999px;min-height:38px;padding:7px 10px;cursor:pointer;font:inherit;font-size:14px;font-weight:600;color:#CBD5E1}
+html[data-theme="night"] #ttcMondlySubbar .ttc-seg-btn::before{font-size:16px;font-weight:700;color:#F1F5F9;line-height:1}
+html[data-theme="night"] #ttcMondlySubbar .ttc-seg-simplified::before{content:"\7B80"}
+html[data-theme="night"] #ttcMondlySubbar .ttc-seg-traditional::before{content:"\7E41"}
+html[data-theme="night"] #ttcMondlySubbar .ttc-seg-btn:hover{background:#0B1220}
+html[data-theme="night"] #ttcMondlySubbar .ttc-seg-btn[aria-pressed="true"]{background:#16283F;color:#F1F5F9;font-weight:700;border-color:#334155;box-shadow:0 1px 3px rgba(16,24,40,.10)}
+html[data-theme="night"] #ttcMondlySubbar .otter2-theme-slot{flex:1 1 0;justify-content:center;padding:0}
+html[data-theme="night"] #ttcMondlySubbar #otter2ChatOnlineBtn{flex:1 1 0;justify-content:center}
+}
+@media (min-width:1021px){
+html[data-theme="night"] #ttcShellSidebar{width:min(1400px, calc(100% - 80px))}
+html[data-theme="night"] .otter2-shell{width:min(1400px, calc(100% - 80px))}
+html[data-theme="night"] #otter2-home #otter2ExamPanel,html[data-theme="night"] #otter2-home #otter2StoryVideoPanel,html[data-theme="night"] #otter2-home #otter2VideoPanel{display:none !important}
+html[data-theme="night"] #ttcShellRailAch{display:none !important}
+html[data-theme="night"] #otter2-home .otter2-dash-road{display:none !important}
+html[data-theme="night"] #otter2-home .otter2-dash-search{display:none}
+html[data-theme="night"] #otter2-home .otter2-dash-course .otter2-feature-row{display:none}
+html[data-theme="night"] #otter2-home .otter2-dash-hero p,html[data-theme="night"] #otter2-home .otter2-dash-hero .otter2-dash-hero-cta{display:none}
+html[data-theme="night"] #otter2-home .otter2-dash-note{display:none}
+html[data-theme="night"] #otter2-home .otter2-dash-tag{display:none}
+html[data-theme="night"] #otter2-home .otter2-dash-continue .otter2-dash-ctared{display:none}
+html[data-theme="night"] #otter2-home .otter2-dash-skilltile small{display:none}
+html[data-theme="night"] #otter2-home{gap:12px}
+html[data-theme="night"] #otter2-home .otter2-dash-card{padding:13px 15px}
+html[data-theme="night"] #otter2-home .otter2-dash-head{margin-bottom:9px}
+html[data-theme="night"] #otter2-home .otter2-dash-head h2{font-size:16px}
+html[data-theme="night"] #otter2-home .otter2-dash-main{gap:12px}
+html[data-theme="night"] #otter2-home .otter2-dash-side{gap:12px}
+html[data-theme="night"] #otter2-home .otter2-dash-continue{padding:0 4px}
+html[data-theme="night"] #otter2-home .otter2-dash-continue h3{font-size:clamp(22px, 2.3vw, 29px);color:#94A3B8}
+html[data-theme="night"] #otter2-home .otter2-dash-chip{padding:6px 12px;font-size:13px}
+html[data-theme="night"] #otter2-home .otter2-dash-hero{padding:12px 14px}
+html[data-theme="night"] #otter2-home .otter2-dash-hero h3{font-size:17px;margin:7px 0 0}
+html[data-theme="night"] #otter2-home .otter2-dash-prow{margin-top:10px;font-size:12px}
+html[data-theme="night"] #otter2-home .otter2-dash-bar{margin-top:5px}
+html[data-theme="night"] #otter2-home .ttc-dash-rooms{display:grid;gap:7px;margin-top:10px}
+html[data-theme="night"] #otter2-home .ttc-dash-room{display:flex;align-items:center;gap:11px;width:100%;box-sizing:border-box;padding:8px 12px;border:1.5px solid transparent;border-radius:14px;background:#1E293B;color:#F1F5F9;font:inherit;text-align:left;cursor:pointer}
+html[data-theme="night"] #otter2-home .ttc-dash-room:hover{background:#2A2350;border-color:#5B21B6}
+html[data-theme="night"] #otter2-home .ttc-dash-room-ico{font-size:19px;line-height:1;flex:none}
+html[data-theme="night"] #otter2-home .ttc-dash-room-main{flex:1;min-width:0;display:grid}
+html[data-theme="night"] #otter2-home .ttc-dash-room-main strong{font-size:13.5px;font-weight:700;color:#F1F5F9}
+html[data-theme="night"] #otter2-home .ttc-dash-room-main small{font-size:11.5px;color:#94A3B8;font-weight:600}
+html[data-theme="night"] #otter2-home .ttc-dash-room-chev{flex:none;width:28px;height:28px;border-radius:50%;background:#16283F;border:1px solid #334155;display:grid;place-items:center;font-size:17px;font-weight:700;color:#CBD5E1;line-height:1}
+html[data-theme="night"] #otter2-home #ttcDashRetest{display:inline-flex;align-items:center;min-height:32px;padding:6px 13px;background:#16283F;border:1px solid #334155;border-radius:999px;font:inherit;font-size:12.5px;font-weight:700;color:#F1F5F9;cursor:pointer}
+html[data-theme="night"] #otter2-home #ttcDashRetest:hover{background:#1E293B}
+html[data-theme="night"] #otter2-home .otter2-dash-levelbig .lv{font-size:38px}
+html[data-theme="night"] #otter2-home .otter2-dash-levelbig .meta{font-size:12px;line-height:1.45}
+html[data-theme="night"] #otter2-home .ttc-meta-line{display:block}
+html[data-theme="night"] #otter2-home .otter2-dash-skill{margin-top:10px;padding:9px 12px;border-radius:12px}
+html[data-theme="night"] #otter2-home .otter2-dash-skill h4{margin-bottom:6px;font-size:13px}
+html[data-theme="night"] #otter2-home .otter2-dash-track{height:8px}
+html[data-theme="night"] #otter2-home .otter2-dash-skill .cap{margin-top:5px;font-size:12px}
+html[data-theme="night"] #otter2-home .otter2-dash-skillgrid{gap:8px;margin-top:9px}
+html[data-theme="night"] #otter2-home .otter2-dash-skilltile{display:flex;flex-direction:column;gap:7px;padding:10px 12px;min-height:0}
+html[data-theme="night"] #otter2-home .otter2-dash-skilltile strong{font-size:13.5px}
+html[data-theme="night"] #otter2-home .ttc-tile-bar{display:block;height:6px;border-radius:99px;background:#263449;overflow:hidden}
+html[data-theme="night"] #otter2-home .ttc-tile-bar > i{display:block;height:100%;width:0;background:#475569;border-radius:99px}
+html[data-theme="night"] #otter2-home .ttc-tile-pill{display:inline-flex;align-self:flex-end;padding:2px 9px;border-radius:999px;background:#0B1220;color:#94A3B8;font-size:10.5px;font-weight:800;line-height:1.5}
+html[data-theme="night"] #otter2-home .otter2-dash-skilltile[data-dash-goto="auto"]{border-style:dashed;border-color:#475569;background:#1E293B}
+html[data-theme="night"] #otter2-home .otter2-dash-actnum .n{font-size:36px}
+html[data-theme="night"] #otter2-home .otter2-dash-lvgrid{margin-top:10px;gap:6px}
+html[data-theme="night"] #otter2-home .otter2-dash-lvcell{padding:5px 4px}
+html[data-theme="night"] #otter2-home .otter2-dash-task{padding:7px 2px}
+html[data-theme="night"] #otter2-home .otter2-dash-task .ic{width:36px;height:36px;font-size:16px}
+html[data-theme="night"] #otter2-home .otter2-dash-cta{margin-top:10px;padding:11px;min-height:44px;font-size:14.5px}
+html[data-theme="night"] #otter2-home section[aria-labelledby="otter2DashLessonsTitle"] .otter2-dash-head{flex-wrap:wrap}
+html[data-theme="night"] #otter2-home section[aria-labelledby="otter2DashLessonsTitle"] .otter2-dash-sub{order:3;flex:1 1 100%;margin-top:1px}
+html[data-theme="night"] #otter2-home #ttcLessonsPlus{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#16283F;border:1px solid #334155;color:#CBD5E1;font-size:18px;font-weight:600;line-height:1;text-decoration:none;order:2;margin-left:auto}
+html[data-theme="night"] #otter2-home #ttcLessonsPlus:hover{background:#1E293B}
+html[data-theme="night"] #otter2-home .otter2-dash-lesson{grid-template-columns:30px minmax(0,1fr) auto auto;gap:10px;padding:6px 8px;border-radius:10px}
+html[data-theme="night"] #otter2-home .otter2-dash-thumb{width:30px;height:30px;font-size:13.5px;background:#2A2350;color:#C4B5FD}
+html[data-theme="night"] #otter2-home .otter2-dash-lesson-main strong{font-size:13.5px}
+html[data-theme="night"] #otter2-home .otter2-dash-lesson-main small{font-size:12px;margin-top:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html[data-theme="night"] #otter2-home .otter2-dash-status{padding:4px 8px;font-size:11px}
+html[data-theme="night"] #otter2-home .otter2-dash-lesson::after{content:"—";padding:4px 9px;border-radius:7px;background:#0B1220;color:#94A3B8;font-size:11px;font-weight:800;line-height:1.35;white-space:nowrap}
+}
+@media (min-width:1021px){
+html[data-theme="night"] #otter2-home{gap:10px}
+html[data-theme="night"] #otter2-home .otter2-dash-card{padding:11px 14px}
+html[data-theme="night"] #otter2-home .otter2-dash-head{margin-bottom:7px}
+html[data-theme="night"] #otter2-home .otter2-dash-main{gap:10px}
+html[data-theme="night"] #otter2-home .otter2-dash-side{gap:10px}
+html[data-theme="night"] #otter2-home .otter2-dash-continue{padding:0 4px}
+html[data-theme="night"] #otter2-home .otter2-dash-continue h3{font-size:clamp(21px, 2.2vw, 27px)}
+html[data-theme="night"] #otter2-home .otter2-dash-chip{padding:5px 11px}
+html[data-theme="night"] #otter2-home .otter2-dash-hero{padding:10px 12px}
+html[data-theme="night"] #otter2-home .otter2-dash-prow{margin-top:8px}
+html[data-theme="night"] #otter2-home .ttc-dash-rooms{gap:6px;margin-top:8px}
+html[data-theme="night"] #otter2-home .ttc-dash-room{padding:6px 10px}
+html[data-theme="night"] #otter2-home .otter2-dash-levelbig .lv{font-size:34px}
+html[data-theme="night"] #otter2-home .otter2-dash-skill{margin-top:8px;padding:7px 11px}
+html[data-theme="night"] #otter2-home .otter2-dash-skillgrid{gap:7px;margin-top:8px}
+html[data-theme="night"] #otter2-home .otter2-dash-skilltile{gap:6px;padding:8px 11px}
+html[data-theme="night"] #otter2-home .otter2-dash-skilltile strong{color:#F1F5F9}
+html[data-theme="night"] #otter2-home .ttc-tile-bar{height:5px}
+html[data-theme="night"] #otter2-home .otter2-dash-actnum .n{font-size:32px}
+html[data-theme="night"] #otter2-home .otter2-dash-lvgrid{margin-top:8px;gap:5px}
+html[data-theme="night"] #otter2-home .otter2-dash-lvcell{padding:4px}
+html[data-theme="night"] #otter2-home .otter2-dash-task{padding:5px 2px}
+html[data-theme="night"] #otter2-home .otter2-dash-cta{margin-top:8px;padding:9px;min-height:42px}
+html[data-theme="night"] #otter2-home .otter2-dash-lesson{padding:2px 8px}
+html[data-theme="night"] #otter2-home .otter2-dash-thumb{width:28px;height:28px;font-size:13px}
+}
+@media (min-width:900px){
+html[data-theme="night"] #ttcMondlySubbar{margin:2px 0 8px}
+html[data-theme="night"] #ttcMondlySubbar .ttc-seg-btn{min-height:36px}
+}
+@media (min-width:1021px){
+html[data-theme="night"] #ttcShellRailAch{display:block !important}
+html[data-theme="night"] #ttcShellRailAch .otter2-dash-head{margin-bottom:3px}
+html[data-theme="night"] #ttcShellRailAchTitle::before{content:"🏆 "}
+html[data-theme="night"] #ttcShellRailAch .ttc-shell-ach-num{display:inline-block;vertical-align:middle;font-size:27px}
+html[data-theme="night"] #ttcShellRailAch .ttc-shell-ach-lbl{display:inline-block;vertical-align:middle;margin:0 0 0 8px;font-size:12px}
+html[data-theme="night"] #ttcShellRailAch #ttcShellAchBtn{display:none !important}
+html[data-theme="night"] #ttcShellRailAch #otter2DashAchBtn{display:block;width:100%;box-sizing:border-box;margin-top:9px;padding:9px 12px;min-height:38px;border-radius:12px;background:#F97316;border:1px solid #F97316;color:#ffffff;font:inherit;font-size:14px;font-weight:700;text-align:center;cursor:pointer}
+html[data-theme="night"] #ttcShellRailAch #otter2DashAchBtn:hover{background:#EA580C}
+}
+
+/* ============================================================
+   NIGHT RESCUE (2026-11-25, Cá): các tiêu đề/bề mặt do từng
+   module tự hard-code màu sáng, không theo theme đêm — chữ
+   navy #16283F chìm trên nền tối hoặc thẻ trắng chói giữa
+   trang tối (đã kiểm chứng live từng màn hình).
+   ============================================================ */
+/* Thanh điều hướng dưới (mobile) + nút tìm kiếm tròn */
+html[data-theme="night"] #ttcShellBottomBar{ background:#16283F; border-top-color:#334155; }
+html[data-theme="night"] #ttcShellBottomBar .ttc-shell-bitem{ color:#CBD5E1; }
+html[data-theme="night"] #ttcShellSidebar .ttc-shell-search{ color:#E2E8F0; }
+html[data-theme="night"] #ttcShellSidebar .ttc-shell-search:hover{ color:#FFFFFF; }
+/* Trang chủ: panel Luyện thi + Học theo video */
+html[data-theme="night"] .ttc-exam-panel-title{ color:#E2E8F0 !important; }
+html[data-theme="night"] .ttc-exam-panel-desc{ color:#94A3B8 !important; }
+html[data-theme="night"] .ttc-exam-panel-chip{ background:#1E293B; border-color:#334155; color:#E2E8F0; }
+html[data-theme="night"] .ttc-exam-panel-chip:hover{ background:#263449; }
+html[data-theme="night"] .ttc-exam-panel-last{ background:#1E293B; border-color:#334155; color:#CBD5E1; }
+html[data-theme="night"] .ttc-exam-panel-free{ background:#F97316; color:#FFFFFF; box-shadow:none; }
+html[data-theme="night"] #otter2ExamPanel::after{ color:rgba(255,255,255,.05); }
+html[data-theme="night"] .ttc-story-panel-title{ color:#E2E8F0 !important; }
+html[data-theme="night"] .ttc-story-panel-desc{ color:#94A3B8 !important; }
+html[data-theme="night"] .ttc-story-panel-free{ background:#F97316; color:#FFFFFF; }
+/* Thẻ Bảng thành tích cột phải (tiêu đề có style inline navy) */
+html[data-theme="night"] #ttcShellRailAchTitle{ color:#E2E8F0 !important; }
+html[data-theme="night"] .ttc-shell-ach-num{ color:#E2E8F0; }
+html[data-theme="night"] .ttc-shell-ach-lbl{ color:#94A3B8; }
+/* Hộp thoại Truyện kể: tiêu đề */
+html[data-theme="night"] .ttc-story-top h2{ color:#E2E8F0 !important; }
+/* Chân trang */
+html[data-theme="night"] .ttc-footer-h{ color:#E2E8F0 !important; }
+html[data-theme="night"] .ttc-footer-desc{ color:#94A3B8; }
+html[data-theme="night"] .ttc-footer-brand{ color:#E2E8F0; }
+html[data-theme="night"] .ttc-footer-list a, html[data-theme="night"] .ttc-footer-list button{ color:#CBD5E1; }
+/* Màn Tra từ vựng: tiêu đề + thẻ kết quả kho HSK */
+html[data-theme="night"] #otter2-vocab h1{ color:#E2E8F0 !important; }
+html[data-theme="night"] .otter2-dict-kinds-hint{ color:#94A3B8 !important; }
+html[data-theme="night"] #otter2DictRoot .otter2-dict-results-title{ color:#E2E8F0; }
+html[data-theme="night"] #otter2DictRoot .otter2-dict-card{ background:#1E293B; border-color:#334155; box-shadow:none; }
+html[data-theme="night"] #otter2DictRoot .otter2-dict-card .hanzi{ color:#E2E8F0; }
+html[data-theme="night"] #otter2DictRoot .otter2-dict-card .meaning{ color:#CBD5E1; }
+html[data-theme="night"] #otter2DictRoot .otter2-dict-card .hsk{ background:#0B1220; color:#E2E8F0; border-color:#334155; }
+html[data-theme="night"] #otter2DictRoot .otter2-dict-card .type{ background:#431407; color:#FDBA74; border-color:#7C2D12; }
+/* Từ điển mở rộng 125k (chi tiết + gợi ý + ví dụ) */
+html[data-theme="night"] .o2x-char{ background:#1E293B; border-color:#334155; }
+html[data-theme="night"] .o2x-chip{ background:#1E293B; border-color:#334155; color:#E2E8F0; }
+html[data-theme="night"] .o2x-chip small{ color:#FDBA74; }
+html[data-theme="night"] .o2x-hvline{ color:#CBD5E1; }
+html[data-theme="night"] .o2x-char-mn{ color:#CBD5E1; }
+html[data-theme="night"] .o2x-sub{ color:#94A3B8; }
+html[data-theme="night"] .o2x-note{ color:#94A3B8; }
+html[data-theme="night"] .o2x-say{ background:#334155; }
+html[data-theme="night"] .o2x-say:hover{ background:#475569; }
+/* Màn Luyện tập: tiêu đề + mô tả + 6 nút chức năng + khu đọc */
+html[data-theme="night"] .otter2-reading-top h1{ color:#E2E8F0 !important; }
+html[data-theme="night"] .otter2-practice-note{ color:#94A3B8 !important; }
+html[data-theme="night"] .otter2-practice-actions button{ background:#1E293B; border-color:#334155; color:#E2E8F0; }
+html[data-theme="night"] .ttc-reading-section-head h2{ color:#E2E8F0 !important; }
+html[data-theme="night"] #ttcReadingSection .ttc-reading-secondary{ background:#1E293B; border-color:#334155; color:#E2E8F0; }
+html[data-theme="night"] #ttcReadingLevels button{ background:#1E293B; border-color:#334155; color:#E2E8F0; }
+/* Hộp thoại Thi HSK: toàn bộ theo theme đêm */
+html[data-theme="night"] #ttcExamOverlay .ttc-exam-card{ background:#16283F; color:#E2E8F0; }
+html[data-theme="night"] .ttc-hub-title{ color:#E2E8F0; }
+html[data-theme="night"] .ttc-hub-close{ background:#1E293B; color:#E2E8F0; }
+html[data-theme="night"] .ttc-exam-level, html[data-theme="night"] .ttc-exam-size, html[data-theme="night"] .ttc-exam-libcell, html[data-theme="night"] .ttc-exam-opt, html[data-theme="night"] .ttc-exam-chip, html[data-theme="night"] .ttc-exam-gcell, html[data-theme="night"] .ttc-exam-tab{ background:#1E293B; border-color:#334155; color:#E2E8F0; }
+html[data-theme="night"] .ttc-exam-tab .cnt{ color:#94A3B8; }
+html[data-theme="night"] .ttc-exam-level small{ color:#94A3B8; }
+html[data-theme="night"] .ttc-exam-stickwrap{ background:#16283F; }
+html[data-theme="night"] .ttc-exam-dialog{ background:#16283F; color:#E2E8F0; }
+html[data-theme="night"] .ttc-exam-note{ background:#431407; border-color:#7C2D12; color:#FDBA74; }
+html[data-theme="night"] .ttc-exam-sub{ color:#94A3B8; }
