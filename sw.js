@@ -5,10 +5,14 @@
    - Điều hướng / tài liệu HTML: NETWORK-FIRST. Có mạng là luôn
      nhận bản mới nhất từ máy chủ; chỉ khi mất mạng mới dùng bản
      sao đã lưu (hoặc trang báo ngoại tuyến gọn nhẹ).
-   - Tài nguyên tĩnh (js/css/ảnh/font cùng nguồn): stale-while-
-     revalidate trong cache CÓ PHIÊN BẢN — bản mới được tải nền
-     và dùng từ lần mở sau; khi sw.js đổi VERSION, activate sẽ
-     xoá sạch mọi cache cũ.
+   - Mã nguồn (js/css/webmanifest): NETWORK-FIRST (đổi 2026-11-25
+     từ stale-while-revalidate — bản SWR khiến lần mở đầu sau mỗi
+     lần đẩy sửa luôn thấy giao diện CŨ, chủ trang kiểm chứng
+     tưởng fix hỏng; nay có mạng là nhận bản mới ngay, mất mạng
+     mới dùng bản sao đã lưu).
+   - Ảnh/font/icon: stale-while-revalidate trong cache CÓ PHIÊN
+     BẢN — bản mới được tải nền và dùng từ lần mở sau; khi sw.js
+     đổi VERSION, activate sẽ xoá sạch mọi cache cũ.
    - Chỉ chặn GET cùng nguồn, không có Range. Video/âm thanh
      (Supabase, R2 — khác nguồn, có Range) và mọi API đều đi
      thẳng ra mạng, SW không đụng vào.
@@ -22,7 +26,7 @@
    ============================================================ */
 "use strict";
 
-var VERSION = "v1";
+var VERSION = "v2";
 var CACHE_STATIC = "ttc-pwa-static-" + VERSION;
 var CACHE_PAGES = "ttc-pwa-pages-" + VERSION;
 var KEEP = [CACHE_STATIC, CACHE_PAGES];
@@ -75,6 +79,11 @@ function isStaticAsset(url) {
   return /\.(?:js|css|svg|png|jpe?g|webp|gif|ico|woff2?|ttf|webmanifest)$/i.test(url.pathname);
 }
 
+/* Mã nguồn: luôn ưu tiên bản mới từ mạng (xem ghi chú đầu file). */
+function isCodeAsset(url) {
+  return /\.(?:js|css|webmanifest)$/i.test(url.pathname);
+}
+
 self.addEventListener("fetch", function (event) {
   var req = event.request;
   if (req.method !== "GET") return;
@@ -113,7 +122,27 @@ self.addEventListener("fetch", function (event) {
     return;
   }
 
-  /* --- Tài nguyên tĩnh: STALE-WHILE-REVALIDATE --- */
+  /* --- Mã nguồn (js/css): NETWORK-FIRST --- */
+  if (isCodeAsset(url)) {
+    event.respondWith(
+      fetch(req).then(function (res) {
+        if (res && res.ok) {
+          var copy = res.clone();
+          caches.open(CACHE_STATIC).then(function (cache) { cache.put(req, copy); });
+        }
+        return res;
+      }).catch(function () {
+        return caches.open(CACHE_STATIC).then(function (cache) {
+          return cache.match(req).then(function (hit) {
+            return hit || Response.error();
+          });
+        });
+      })
+    );
+    return;
+  }
+
+  /* --- Ảnh/font/icon: STALE-WHILE-REVALIDATE --- */
   if (isStaticAsset(url)) {
     event.respondWith(
       caches.open(CACHE_STATIC).then(function (cache) {

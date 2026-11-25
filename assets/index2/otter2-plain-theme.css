@@ -1338,3 +1338,18 @@ html[data-theme="night"] .ttc-exam-ord-answer{ background:#1E293B; border-color:
 html[data-theme="night"] .ttc-exam-modedesc{ color:#CBD5E1; }
 html[data-theme="night"] .ttc-exam-card h3{ color:#E2E8F0 !important; }
 html[data-theme="night"] .ttc-exam-hist h3{ color:#E2E8F0; }
+
+/* ============================================================
+   NIGHT RESCUE 4 (2026-11-25, Cá): màn hình KẾT QUẢ Thi HSK —
+   điểm % và tổng điểm (chữ navy chìm trên nền tối), hộp
+   "Mức sẵn sàng" 3 mức (nền pastel sáng), huy hiệu ĐẠT/
+   CHƯA ĐẠT, đoạn chữ đặt màu inline trong thẻ thi.
+   ============================================================ */
+html[data-theme="night"] .ttc-exam-score{ color:#F1F5F9; }
+html[data-theme="night"] .ttc-exam-total{ color:#E2E8F0; }
+html[data-theme="night"] .ttc-exam-passbadge.ok{ background:#052E16; color:#4ADE80; }
+html[data-theme="night"] .ttc-exam-passbadge.bad{ background:#3B0A0A; color:#F87171; }
+html[data-theme="night"] .ttc-exam-verdict.ready{ background:#052E16; border-color:#14532D; color:#86EFAC; }
+html[data-theme="night"] .ttc-exam-verdict.pass{ background:#33270A; border-color:#92400E; color:#FDE68A; }
+html[data-theme="night"] .ttc-exam-verdict.fail{ background:#3B0A0A; border-color:#7F1D1D; color:#FCA5A5; }
+html[data-theme="night"] .ttc-exam-card p{ color:#94A3B8 !important; }
