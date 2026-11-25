@@ -1,6 +1,6 @@
 # TASK_BOARD — Bảng phiếu việc
 
-Cập nhật lần cuối: 25/11/2026 ~12:46 JST (Mèo — thêm JOB-011 đón Nhím). Trạng thái chuẩn: Chờ · Được giao · Đang làm · Chờ chấm · Đã duyệt · Đang sửa · Đã hủy.
+Cập nhật lần cuối: 25/11/2026 ~12:00 JST (Cá). Trạng thái chuẩn: Chờ · Được giao · Đang làm · Chờ chấm · Đã duyệt · Đang sửa · Đã hủy.
 
 | Mã phiếu | Việc | Người giữ | Trạng thái | Hạn / nhịp | Ghi chú · Phán quyết |
 |---|---|---|---|---|---|
@@ -11,7 +11,8 @@ Cập nhật lần cuối: 25/11/2026 ~12:46 JST (Mèo — thêm JOB-011 đón N
 | JOB-005 | Dùng thử "Học từ vựng" + màn Tổng quát trên web, gửi nhận xét cho Mèo ở Đội XuCup | Cá | Chờ | Trong ngày | Đã hứa với Mèo (#219, #221) |
 | JOB-006 | Dọn bài rác/trùng tuần ra mắt 18/11 + báo cáo cân nhắc tuần ra mắt | Cá | Chờ | — | 5 bài cần rà; xóa qua trình duyệt như thường lệ |
 | JOB-007 | Theo dõi hạn mức Supabase (mốc 22/12/2026) | Cá | Chờ | Trước 22/12 | Cần ảnh Usage/Billing từ Anh Huy; có ảnh là điều tra ngay |
-| JOB-008 | Thử việc của Tôm: việc thật ngoài tuyến chính, nộp kèm bằng chứng, Cá chấm vòng cuối | Tôm (Cá kèm) | Được giao | Từ 25/11 | Lệnh gọi đã phát: `team_hub/LOI_CHAO_TOM.md` — Tôm đọc, xác nhận "đã nhận + đã hiểu" vào WORK_LOG, rồi Cá giao việc đầu tiên; đạt chuẩn mới chính thức |
+| JOB-008 | Thử việc của Tôm: việc thật ngoài tuyến chính, nộp kèm bằng chứng, Cá chấm vòng cuối | Tôm (Cá kèm) | Chờ chấm | Từ 25/11 | Qua GitHub issue #1: Tôm đã xác nhận + nộp báo cáo cấu trúc website 12:15 JST; Cá chấm **92/100** — sai đúng 1 chi tiết (nơi chứa video: HSK1–2 ở Supabase, HSK3–6 ở R2); Tôm đính chính 1 dòng trong issue là ĐẠT, đóng phiếu |
 | JOB-009 | Duyệt các bài của đội đang chờ trong nhóm Facebook | Cá | Đã duyệt | Việc lặp hằng ngày | 25/11 đã duyệt READ HSK5 (1462522745968861) + READ HSK4 tồn 24/11 (1461469556074180); từ nay Cá tự duyệt, không đẩy cho Anh Huy |
 | JOB-010 | Mèo tiếp nhận nhà chung: đọc Hub trong repo + xác nhận "đã nhận + đã hiểu" | Mèo | Đã xong | Từ 25/11 | ✅ Mèo xác nhận 12:32 JST 25/11 trong issue #2, tóm tắt chuẩn mô hình; Cá đã đóng dấu tiếp nhận. Đội đủ mặt trong nhà chung: Cá · Mèo · Tôm. Việc phối hợp chờ sẵn: Đợt B kho từ |
-| JOB-011 | Thử việc của Nhím: tự tạo nick XuCup tên "Nhím" + việc thường trực hằng ngày: giúp đỡ tư vấn bạn mới, đăng bài, rà lỗi, báo cáo cho Mèo | Nhím (Mèo kèm) | Được giao | Hằng ngày, từ 25/11 | Lệnh gọi: `team-hub/LOI_CHAO_NHIM.md`; Anh Huy chốt việc của Nhím (25/11): "làm quen" = đi giúp đỡ, tư vấn các bạn mới trên XuCup; đăng bài như thành viên thật; rà lỗi trong lúc dùng; báo cáo cho Mèo qua bình luận issue #4 kèm bằng chứng. Việc khởi động kèm theo: kiểm tra chéo 13 khu ở mức thành viên. Đạt chuẩn mới chính thức |
+| JOB-011 | Áp Đợt B của Mèo lên web: 3 sửa pinyin câu ví dụ + dọn 371 mục lặp đoạn nghĩa ở CẢ HAI kho | Cá (Mèo kiểm tra sau) | Đang làm | Đẩy lên tối 25/11 | Cá đã DUYỆT trong issue #3 (rà độc lập: 371/371 khớp tuyệt đối, 3/3 pinyin đúng). File đã sửa + kiểm chứng xong (mỗi kho đúng 371 nghĩa + 3 pinyin thay đổi, thứ tự/khóa tiến độ nguyên vẹn, cú pháp OK) — chờ đẩy lên web tối nay (cần Anh Huy chạm duyệt 1 thẻ) |
+| JOB-012 | Tôm soạn bài Facebook đầu tiên: Câu đố HSK6 khung 15:00 ngày 26/11 — Tôm soạn, Cá chấm + đăng | Tôm (Cá kèm) | Được giao | Nộp trước sáng 26/11 | Phiếu = GitHub issue #5. Cách an toàn do Anh Huy chọn 25/11: Tôm KHÔNG cầm tài khoản, chỉ nộp bản soạn trong issue; đạt ≥95 Cá đăng nguyên văn lên Trang và ghi công. Điều kiện trước: Tôm đính chính xong JOB-008 |

@@ -3,6 +3,7 @@
 Ghi mọi sự kiện quan trọng: ban hành luật, phán quyết, sự cố và cách sửa cấu trúc. Mới nhất ở trên.
 
 ## 2026-11-25
+- ~13:11 JST — **Anh Huy giao việc Facebook cho Tôm theo CÁCH AN TOÀN + Cá đã phát phiếu JOB-012 (issue #5)**: Tôm soạn bài Câu đố HSK6 (khung 15:00 ngày 26/11), nộp trong issue; Cá chấm QC ≥95 thì đăng nguyên văn lên Trang. Tôm không cầm tài khoản nào (Cá đã trình rủi ro Meta khóa nick chính + luật mật khẩu không qua chat; Anh Huy chọn cách an toàn).
 - ~12:57 JST — **Anh Huy chốt tuyến trực tiếp + tuyển thêm Nhím 🦔**: "nhím làm việc cho mèo, còn tôm làm việc cho em nhé cá" — Tôm là đệ tử trực tiếp của Cá; Nhím là trợ lý mới, đệ tử trực tiếp của Mèo ở làn XuCup. Hai phòng đối xứng. Đã cập nhật EMPLOYEES + hồ sơ đội; Nhím chờ Mèo gọi vào nhà chung.
 - ~12:52 JST — **Đợt B: Cá ĐÃ DUYỆT (issue #3) + đã sửa sẵn file web (JOB-011)**: rà độc lập toàn danh sách của Mèo — 371/371 mục khớp tuyệt đối ở cả hai kho, 3/3 sửa pinyin đúng chuẩn, không thay đổi ngoài phạm vi (148 mục chỉ lệch khoảng trắng quanh ";" KHÔNG có đoạn trùng → để nguyên, ngoài phạm vi duyệt). File hai kho đã sửa + kiểm chứng từng trường (chỉ đúng 371 nghĩa + 3 pinyin đổi mỗi kho; khóa tiến độ nguyên vẹn); chờ đẩy lên web tối nay khi Anh Huy rảnh chạm duyệt.
 - ~12:36 JST — **MÈO ĐÃ VỀ NHÀ — ĐỘI ĐỦ MẶT**: Mèo xác nhận tiếp nhận JOB-010 trong issue #2 lúc 12:32 JST ("Mèo — đã nhận + đã hiểu" + tóm tắt đúng mô hình Hub/phiếu/làn); Cá đóng dấu tiếp nhận trong issue. Từ giờ cả 3 trợ lý (Cá · Mèo · Tôm) cùng làm việc qua Hub trong repo.
