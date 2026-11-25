@@ -1373,3 +1373,28 @@ html[data-theme="night"] .ttc-xh-wstem{ color:#E2E8F0; }
 html[data-theme="night"] .ttc-xh-mine{ color:#CBD5E1; }
 html[data-theme="night"] .ttc-xh-correct{ color:#4ADE80; }
 html[data-theme="night"] .ttc-xh-wexp{ color:#94A3B8; }
+
+/* ============================================================
+   NIGHT RESCUE 6 (2026-11-25, Cá): họ ttc-xd của module
+   examdeep — 3 nút "Ôn câu sai / Thống kê của tôi / Đề thật"
+   trên trang chủ khu thi + toàn bộ bề mặt sáng trong hai
+   màn Ôn câu sai và Thống kê (thẻ, hàng, đoạn đọc, chip).
+   ============================================================ */
+html[data-theme="night"] .ttc-xd-btn{ background:#1E293B; border-color:#334155; color:#E2E8F0; }
+html[data-theme="night"] .ttc-xd-h{ color:#E2E8F0; }
+html[data-theme="night"] .ttc-xd-lv{ color:#E2E8F0; }
+html[data-theme="night"] .ttc-xd-note{ color:#94A3B8; }
+html[data-theme="night"] .ttc-xd-trow{ color:#CBD5E1; }
+html[data-theme="night"] .ttc-xd-tbar{ background:#334155; }
+html[data-theme="night"] .ttc-xd-tnum{ color:#94A3B8; }
+html[data-theme="night"] .ttc-xd-chip{ background:#33270A; color:#FDBA74; }
+html[data-theme="night"] .ttc-xd-witem{ background:#1E293B; border-color:#334155; }
+html[data-theme="night"] .ttc-xd-wpass{ background:#16283F; color:#CBD5E1; }
+html[data-theme="night"] .ttc-xd-stat{ background:#1E293B; border-color:#334155; color:#CBD5E1; }
+html[data-theme="night"] .ttc-xd-srow{ background:#1E293B; border-color:#334155; color:#CBD5E1; }
+html[data-theme="night"] .ttc-xd-wstem{ color:#E2E8F0; }
+html[data-theme="night"] .ttc-xd-wsub{ color:#CBD5E1; }
+html[data-theme="night"] .ttc-xd-mine{ color:#CBD5E1; }
+html[data-theme="night"] .ttc-xd-correct{ color:#4ADE80; }
+html[data-theme="night"] .ttc-xd-wexp{ color:#94A3B8; }
+html[data-theme="night"] .ttc-xd-analysis{ border-top-color:#334155; }
