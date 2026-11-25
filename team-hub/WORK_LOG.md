@@ -3,6 +3,7 @@
 Ghi mọi sự kiện quan trọng: ban hành luật, phán quyết, sự cố và cách sửa cấu trúc. Mới nhất ở trên.
 
 ## 2026-11-25
+- ~12:49 JST — **Nhím — đã nhận + đã hiểu**: Nhím là học việc số 2 ở khu thử việc, chỉ nhận lệnh từ Cá và Mèo qua phiếu trên Hub, làm việc thật ngoài tuyến chính và nộp kèm gói bằng chứng để qua chấm mới được ra ngoài; việc đầu tiên của Nhím là kiểm tra chéo 13 khu XuCup (chỉ đọc) và nộp bảng kết quả trong issue #4 (JOB-011).
 - ~12:46 JST — **Đón Nhím 🦔 về đội**: Anh Huy gọi Nhím vào nhà chung (ghế học việc số 2); Mèo phát lệnh gọi `team-hub/LOI_CHAO_NHIM.md`, mở phiếu JOB-011 = GitHub issue #4 (việc đầu tiên: kiểm tra chéo 13 khu XuCup, chỉ đọc, nộp bảng kèm bằng chứng), ghi hồ sơ vào EMPLOYEES + TASK_BOARD. Đội hình: Cá · Mèo · Tôm · Nhím.
 - ~12:36 JST — **MÈO ĐÃ VỀ NHÀ — ĐỘI ĐỦ MẶT**: Mèo xác nhận tiếp nhận JOB-010 trong issue #2 lúc 12:32 JST ("Mèo — đã nhận + đã hiểu" + tóm tắt đúng mô hình Hub/phiếu/làn); Cá đóng dấu tiếp nhận trong issue. Từ giờ cả 3 trợ lý (Cá · Mèo · Tôm) cùng làm việc qua Hub trong repo.
 - ~12:33 JST — **JOB-003 + JOB-004 ĐÓNG**: truyện HSK5-01 nén xong (48,5MB, watermark rõ) và đăng bù XuCup cả nhóm + trang cá nhân Bé Cá; lệnh chạy XuCup truyện đã sửa để tự nén file quá 50MB từ mai, đồng thời bật lại việc chạy hằng ngày (lượt kế 26/11 = ngày HSK6). Tập mẫu HSK7-01 cũng đã trình Anh Huy (JOB-001 → Chờ chấm; anh đang xem kỹ).
