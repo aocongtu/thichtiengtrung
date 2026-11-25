@@ -262,16 +262,16 @@
       ".htv-hub-n{font-size:13.5px;color:#63738a;font-weight:700}",
       ".htv-hub-chev{font-size:18px;color:" + BLUE + ";font-weight:900}",
       ".htv-topbtn{position:fixed;right:14px;bottom:calc(20px + env(safe-area-inset-bottom, 0px));z-index:12070;background:" + NAVY + ";color:#fff;border:none;border-radius:999px;padding:11px 16px;font-size:14.5px;font-weight:800;box-shadow:0 8px 22px rgba(15,35,60,.35);cursor:pointer}",
-      "/* Nút tròn xanh Nghe tiếp · Resume kiểu XuCup: nổi góc phải, trên nút ⬆ */",
-      ".htv-resumefab{position:fixed;right:14px;bottom:calc(86px + env(safe-area-inset-bottom, 0px));z-index:12070;width:52px;height:52px;border-radius:50%;border:none;background:#22a55b;color:#fff;font-size:20px;box-shadow:0 8px 22px rgba(15,60,35,.42);cursor:pointer;display:flex;align-items:center;justify-content:center}",
-      ".htv-resumefab:active{transform:scale(.95)}",
       ".htv-fab-n{position:absolute;top:-8px;right:-10px;background:#0f2a4a;color:#fff;font-size:11px;font-weight:800;border-radius:999px;padding:2px 7px;box-shadow:0 3px 8px rgba(0,0,0,.3)}",
-      "/* Thanh nổi lúc đang đọc kiểu XuCup: ⏸ Tạm dừng + ⏹ Dừng (đỏ), cùng vị trí với nút xanh Nghe tiếp */",
+      "/* Thanh nổi DUY NHẤT kiểu XuCup (anh Huy chốt 2026-11-25): đang đọc hiện ⏸ Tạm dừng + ⏹ Dừng (đỏ); dừng xong nút ⏹ biến mất, thay bằng nút ⏵ Nghe tiếp (xanh) ngay tại đó */",
       ".htv-ttsbar{position:fixed;right:14px;bottom:calc(86px + env(safe-area-inset-bottom, 0px));z-index:12070;display:flex;gap:10px}",
       ".htv-ttsbar button{width:52px;height:52px;border-radius:50%;border:none;color:#fff;font-size:20px;box-shadow:0 8px 22px rgba(15,35,60,.4);cursor:pointer;display:flex;align-items:center;justify-content:center}",
       ".htv-ttsbar button:active{transform:scale(.95)}",
       ".htv-tts-pause{background:#16283F}",
       ".htv-tts-stop{background:#e5484d}",
+      ".htv-tts-resume{background:#22a55b;position:relative}",
+      "/* QUAN TRỌNG: CSS display:flex/inline-flex ở trên thắng thuộc tính hidden mặc định — phải ép ẩn tường minh, nếu không nút 'đã ẩn' vẫn hiện trên màn hình (lỗi anh Huy bắt được 2026-11-25) */",
+      ".htv-ttsbar[hidden],.htv-ttsbar button[hidden],#htvResume[hidden]{display:none!important}",
       "#ttcHtvOverlay,#ttcTypeOverlay,#ttcOvOverlay,#ttcTypeHubOverlay{position:fixed;inset:0;background:#eef1f6;z-index:12060;overflow-y:auto;-webkit-overflow-scrolling:touch}",
       ".htv-wrap{max-width:880px;margin:0 auto;padding:10px 10px calc(28px + env(safe-area-inset-bottom,0px))}",
       ".htv-panel{background:#fff;border:1px solid #e3e8f0;border-radius:20px;padding:16px 14px;box-shadow:0 4px 18px rgba(22,40,63,.06)}",
@@ -532,29 +532,13 @@
   function savePos(idx) { try { localStorage.setItem(posKey(), String(idx)); } catch (e) {} }
   function savedPos() { try { return Number(localStorage.getItem(posKey()) || 0) || 0; } catch (e) { return 0; } }
   function clearPos() { try { localStorage.removeItem(posKey()); } catch (e) {} }
-  function buildResumeFab() {
-    if (byId("htvResumeFab")) return;
-    ensureStyle();
-    var b = document.createElement("button");
-    b.type = "button";
-    b.id = "htvResumeFab";
-    b.className = "htv-resumefab";
-    b.title = "Nghe tiếp · Resume";
-    b.innerHTML = "⏵<span class=\"htv-fab-n\" id=\"htvFabN\"></span>";
-    b.hidden = true;
-    b.addEventListener("click", function () { resumePlay(); });
-    document.body.appendChild(b);
-  }
   function syncResume() {
-    buildResumeFab();
     var ov = byId("ttcHtvOverlay");
     var pos = savedPos();
     var list = S.mode === "list" ? currentList() : [];
     var ok = !!(ov && !ov.hidden && !S.playing && S.mode === "list" && pos > 0 && pos < list.length);
     var rb = byId("htvResume");
     if (rb) { rb.hidden = !ok; var rn = byId("htvResumeN"); if (rn) rn.textContent = ok ? "#" + (pos + 1) : ""; }
-    var fab = byId("htvResumeFab");
-    if (fab) { fab.hidden = !ok; var fn = byId("htvFabN"); if (fn) fn.textContent = ok ? "#" + (pos + 1) : ""; }
   }
   function resumePlay() {
     var pos = savedPos();
@@ -563,9 +547,10 @@
     if (_shown < list.length) { _shown = list.length; paintRows(byId("htvBody"), list); }
     startPlayAll(pos);
   }
-  /* ---- Thanh nổi lúc đang đọc kiểu XuCup (anh Huy lệnh 2026-11-25, tin 215):
-     đang đọc thì hiện ⏸ Tạm dừng + ⏹ Dừng (đỏ) để dừng ngay cả khi đã kéo
-     xuống giữa danh sách; dừng xong vị trí vẫn được giữ để Nghe tiếp. ---- */
+  /* ---- Thanh nổi DUY NHẤT kiểu XuCup (anh Huy lệnh 2026-11-25, tin 215 +
+     chốt lại khi thử thật): đang đọc thì hiện ⏸ Tạm dừng + ⏹ Dừng (đỏ);
+     dừng xong thì ⏹ biến mất, thay bằng ⏵ Nghe tiếp (xanh) ngay tại đó —
+     đúng cơ chế syncTtsBar của XuCup. ---- */
   function buildTtsBar() {
     if (byId("htvTtsBar")) return;
     ensureStyle();
@@ -574,19 +559,37 @@
     bar.className = "htv-ttsbar";
     bar.hidden = true;
     bar.innerHTML = '<button type="button" class="htv-tts-pause" id="htvTtsPause" title="Tạm dừng · Pause">⏸</button>' +
-      '<button type="button" class="htv-tts-stop" id="htvTtsStop" title="Dừng đọc · Stop">⏹</button>';
+      '<button type="button" class="htv-tts-stop" id="htvTtsStop" title="Dừng đọc · Stop">⏹</button>' +
+      '<button type="button" class="htv-tts-resume" id="htvTtsResume" title="Nghe tiếp · Resume">⏵<span class="htv-fab-n" id="htvBarResumeN"></span></button>';
     document.body.appendChild(bar);
     byId("htvTtsPause").addEventListener("click", function () { togglePlayPause(); });
     byId("htvTtsStop").addEventListener("click", function () { stopSpeak(); });
+    byId("htvTtsResume").addEventListener("click", function () { resumePlay(); });
   }
   function syncTtsBar() {
     buildTtsBar();
     var ov = byId("ttcHtvOverlay");
     var bar = byId("htvTtsBar");
     if (!bar) return;
-    bar.hidden = !(ov && !ov.hidden && S.playing);
-    var bp = byId("htvTtsPause");
-    if (bp) bp.textContent = S.paused ? "▶" : "⏸";
+    var bp = byId("htvTtsPause"), bs = byId("htvTtsStop"), br = byId("htvTtsResume");
+    var ovOpen = !!(ov && !ov.hidden);
+    if (ovOpen && S.playing) {
+      bar.hidden = false;
+      if (bp) { bp.hidden = false; bp.textContent = S.paused ? "▶" : "⏸"; }
+      if (bs) bs.hidden = false;
+      if (br) br.hidden = true;
+      return;
+    }
+    var pos = savedPos();
+    var list = S.mode === "list" ? currentList() : [];
+    if (ovOpen && S.mode === "list" && pos > 0 && pos < list.length) {
+      bar.hidden = false;
+      if (bp) bp.hidden = true;
+      if (bs) bs.hidden = true;
+      if (br) { br.hidden = false; var bn = byId("htvBarResumeN"); if (bn) bn.textContent = "#" + (pos + 1); }
+    } else {
+      bar.hidden = true;
+    }
   }
   function togglePlayPause() {
     if (!S.playing) return;
@@ -727,6 +730,7 @@
     _shown = Math.min(PAGE, list.length);
     paintRows(body, list);
     syncResume();
+    syncTtsBar();
   }
   function paintRows(body, list) {
     var h = "";
