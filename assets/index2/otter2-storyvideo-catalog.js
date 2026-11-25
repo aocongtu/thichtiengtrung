@@ -1664,7 +1664,339 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "voice": "google:cmn-CN-Wavenet-A",
     "voice_label": "Giọng Google · Nữ"
    }
+  ],
+  "6": [
+   {
+    "key": "hsk6-01",
+    "level": 6,
+    "title_zh": "标准的边界",
+    "title_vi": "Ranh giới của tiêu chuẩn",
+    "duration_s": 544.2,
+    "drive_id": "1vCg4tnAwgHcMfj4j_aqlYZve5VpXohCB",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk6-01.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk6-02",
+    "level": 6,
+    "title_zh": "一份没有被采用的报告",
+    "title_vi": "Bản báo cáo không được áp dụng",
+    "duration_s": 548.6,
+    "drive_id": "1PsbnyqP26xvxEnKlg4JAVmx70wI9AaRD",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk6-02.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   },
+   {
+    "key": "hsk6-03",
+    "level": 6,
+    "title_zh": "城市记忆的数字化",
+    "title_vi": "Số hóa ký ức của một thành phố",
+    "duration_s": 555.9,
+    "drive_id": "187yMcC-ohewdEgqlN_ojc6vijdp94XcW",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk6-03.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk6-04",
+    "level": 6,
+    "title_zh": "慢病管理",
+    "title_vi": "Quản lý bệnh mạn tính",
+    "duration_s": 553.5,
+    "drive_id": "1NsJ5d6vv5id-jtkHiM7EWu2kFC2rAPse",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk6-04.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   },
+   {
+    "key": "hsk6-05",
+    "level": 6,
+    "title_zh": "公共艺术的位置",
+    "title_vi": "Vị trí của nghệ thuật công cộng",
+    "duration_s": 522.6,
+    "drive_id": "1-XkzhP3KVtWUS1NbjutTEsPOOAnRGpMr",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk6-05.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk6-06",
+    "level": 6,
+    "title_zh": "算法推荐的菜单",
+    "title_vi": "Thực đơn do thuật toán gợi ý",
+    "duration_s": 558.8,
+    "drive_id": "1xhrEm2XJWEbs7JDq8AmqpQXG6IHiTxRP",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk6-06.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   },
+   {
+    "key": "hsk6-07",
+    "level": 6,
+    "title_zh": "跨代同住",
+    "title_vi": "Ba thế hệ dưới một mái nhà",
+    "duration_s": 572,
+    "drive_id": "1G3fUQIDRQ44rR9OfHTWI3V7wFC7j-nty",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk6-07.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk6-08",
+    "level": 6,
+    "title_zh": "证据的重量",
+    "title_vi": "Sức nặng của bằng chứng",
+    "duration_s": 543.1,
+    "drive_id": "1b2RSJIqzmsPD-2C0O8EUe8XYwauiEmKj",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk6-08.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   },
+   {
+    "key": "hsk6-09",
+    "level": 6,
+    "title_zh": "修复而不是替换",
+    "title_vi": "Sửa chữa thay vì thay mới",
+    "duration_s": 569.9,
+    "drive_id": "1eUSxFLdTOIhH9-KgSuxCRBszoVkB3p-O",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk6-09.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk6-10",
+    "level": 6,
+    "title_zh": "学校里的失败记录",
+    "title_vi": "Bản ghi thất bại trong trường học",
+    "duration_s": 572.6,
+    "drive_id": "1NJQB627Nb_yETf_-uGAsszdmJbltNg9t",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk6-10.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   },
+   {
+    "key": "hsk6-11",
+    "level": 6,
+    "title_zh": "志愿者的边界",
+    "title_vi": "Ranh giới của tình nguyện viên",
+    "duration_s": 568.9,
+    "drive_id": "1fxu02DTo4ugxkacKK58WagHhqiWAt0Wr",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk6-11.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk6-12",
+    "level": 6,
+    "title_zh": "乡村学校的网络课",
+    "title_vi": "Lớp học qua mạng ở trường làng",
+    "duration_s": 579.1,
+    "drive_id": "1NrbCylrZyycvCYUpU1vItyhzgLnRzqhU",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk6-12.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   },
+   {
+    "key": "hsk6-13",
+    "level": 6,
+    "title_zh": "公开数据的误用",
+    "title_vi": "Sự lạm dụng dữ liệu công khai",
+    "duration_s": 531.3,
+    "drive_id": "1O45bUvy7uiIDjSOQzCAahzZ5ZEfXtl1s",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk6-13.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk6-14",
+    "level": 6,
+    "title_zh": "职业转换",
+    "title_vi": "Chuyển nghề ở tuổi ba mươi lăm",
+    "duration_s": 585.1,
+    "drive_id": "1gJhrtWme2qJ4pg0rpQacQUFr3p3Zht5l",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk6-14.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   },
+   {
+    "key": "hsk6-15",
+    "level": 6,
+    "title_zh": "社区调解",
+    "title_vi": "Hòa giải ở khu dân cư",
+    "duration_s": 550.7,
+    "drive_id": "1sQre02opVtkk4F1eUtEewolyab7-m_p8",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk6-15.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk6-16",
+    "level": 6,
+    "title_zh": "研究的样本",
+    "title_vi": "Mẫu của nghiên cứu",
+    "duration_s": 544.1,
+    "drive_id": "1NQKyOnNFsLnVmViYRbdJjP3qgqhmHfg1",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk6-16.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   },
+   {
+    "key": "hsk6-17",
+    "level": 6,
+    "title_zh": "共享单车以后",
+    "title_vi": "Sau khi có xe đạp chia sẻ",
+    "duration_s": 548.1,
+    "drive_id": "1bBayIrHMaTtZM0TsuFYnRVX9v0dVfs54",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk6-17.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk6-18",
+    "level": 6,
+    "title_zh": "家庭会议",
+    "title_vi": "Cuộc họp gia đình",
+    "duration_s": 570.1,
+    "drive_id": "1mAbQobbbdYiDCFOM1MBQEzsbkZv8UzvM",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk6-18.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   },
+   {
+    "key": "hsk6-19",
+    "level": 6,
+    "title_zh": "博物馆的复制品",
+    "title_vi": "Bản sao trong bảo tàng",
+    "duration_s": 554.6,
+    "drive_id": "1tb2y8WsgE6LJWa0C8uHzOUgs4YAvgZKC",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk6-19.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk6-20",
+    "level": 6,
+    "title_zh": "习惯的证据",
+    "title_vi": "Bằng chứng của thói quen",
+    "duration_s": 582.1,
+    "drive_id": "1Lv77E7qsJWn-_a_mbyM2LsX8BGFCzuvO",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk6-20.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   },
+   {
+    "key": "hsk6-21",
+    "level": 6,
+    "title_zh": "会议纪要里缺了什么",
+    "title_vi": "Biên bản họp còn thiếu điều gì",
+    "duration_s": 543.6,
+    "drive_id": "1ydgEbh0ipPzJIXMBqitzdnro484TCFVL",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk6-21.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk6-22",
+    "level": 6,
+    "title_zh": "绩效指标的副作用",
+    "title_vi": "Tác dụng phụ của chỉ số hiệu suất",
+    "duration_s": 572.3,
+    "drive_id": "1X9b6SqIVKNBkOOgU8N-hQLwUHi3Vbz7X",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk6-22.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   },
+   {
+    "key": "hsk6-23",
+    "level": 6,
+    "title_zh": "把反馈变成改进",
+    "title_vi": "Biến phản hồi thành cải tiến",
+    "duration_s": 576.3,
+    "drive_id": "1lFOiSa2LEX7RBvRXxuF54rvpM4qVfJZa",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk6-23.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk6-24",
+    "level": 6,
+    "title_zh": "专家意见与常识冲突时",
+    "title_vi": "Khi ý kiến chuyên gia xung đột với lẽ thường",
+    "duration_s": 573.7,
+    "drive_id": "1eViTGPCcq5r9EwWdxnRpaqte_tCs0IlS",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk6-24.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   },
+   {
+    "key": "hsk6-25",
+    "level": 6,
+    "title_zh": "项目延期的真实原因",
+    "title_vi": "Nguyên nhân thật sự của việc hoãn dự án",
+    "duration_s": 549,
+    "drive_id": "1KOn3Gh-1IP-hhwi78Dxru5JT66QQ0n_t",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk6-25.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk6-26",
+    "level": 6,
+    "title_zh": "信息公开的分寸",
+    "title_vi": "Chừng mực của việc công khai thông tin",
+    "duration_s": 530.2,
+    "drive_id": "15nFpae244ZZEMKZtA7hNxhzXTGPQVICX",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk6-26.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   },
+   {
+    "key": "hsk6-27",
+    "level": 6,
+    "title_zh": "培训为什么无效",
+    "title_vi": "Vì sao đào tạo không hiệu quả",
+    "duration_s": 548.4,
+    "drive_id": "15RV5E-SzStOrOZ4BaHPjBWIZ24t2xASb",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk6-27.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk6-28",
+    "level": 6,
+    "title_zh": "客户满意度调查的陷阱",
+    "title_vi": "Cái bẫy của khảo sát hài lòng khách hàng",
+    "duration_s": 574.6,
+    "drive_id": "1rQ3JhK-GEEhFAVjti8C5TLhL0qvy1B_b",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk6-28.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   },
+   {
+    "key": "hsk6-29",
+    "level": 6,
+    "title_zh": "把例外写成规则的风险",
+    "title_vi": "Nguy cơ khi viết ngoại lệ thành quy tắc",
+    "duration_s": 576.9,
+    "drive_id": "1fYZIV3sNlzyDMelORvgZpBtqwjmYZG1R",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk6-29.mp4",
+    "voice": "google:cmn-CN-Wavenet-B",
+    "voice_label": "Giọng Google · Nam"
+   },
+   {
+    "key": "hsk6-30",
+    "level": 6,
+    "title_zh": "协作中的默契与误解",
+    "title_vi": "Sự ăn ý và hiểu lầm trong hợp tác",
+    "duration_s": 566.5,
+    "drive_id": "1Mmd9cEZ5HpimlgUoFMjfNB385Yiqv7Mn",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk6-30.mp4",
+    "voice": "google:cmn-CN-Wavenet-A",
+    "voice_label": "Giọng Google · Nữ"
+   }
   ]
  },
- "total": 150
+ "total": 180
 };
