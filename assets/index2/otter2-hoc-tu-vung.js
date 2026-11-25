@@ -263,11 +263,10 @@
       ".htv-hub-chev{font-size:18px;color:" + BLUE + ";font-weight:900}",
       ".htv-topbtn{position:fixed;right:14px;bottom:calc(20px + env(safe-area-inset-bottom, 0px));z-index:12070;background:" + NAVY + ";color:#fff;border:none;border-radius:999px;padding:11px 16px;font-size:14.5px;font-weight:800;box-shadow:0 8px 22px rgba(15,35,60,.35);cursor:pointer}",
       ".htv-fab-n{position:absolute;top:-8px;right:-10px;background:#0f2a4a;color:#fff;font-size:11px;font-weight:800;border-radius:999px;padding:2px 7px;box-shadow:0 3px 8px rgba(0,0,0,.3)}",
-      "/* Thanh nổi DUY NHẤT kiểu XuCup (anh Huy chốt 2026-11-25): đang đọc hiện ⏸ Tạm dừng + ⏹ Dừng (đỏ); dừng xong nút ⏹ biến mất, thay bằng nút ⏵ Nghe tiếp (xanh) ngay tại đó */",
+      "/* Thanh nổi DUY NHẤT kiểu XuCup (anh Huy chốt 2026-11-25): chỉ 1 nút đổi theo trạng thái — đang đọc hiện ⏹ Dừng (đỏ), dừng xong thay bằng ⏵ Nghe tiếp (xanh); nút ⏸ màu đen đã bỏ vì thừa */",
       ".htv-ttsbar{position:fixed;right:14px;bottom:calc(86px + env(safe-area-inset-bottom, 0px));z-index:12070;display:flex;gap:10px}",
       ".htv-ttsbar button{width:52px;height:52px;border-radius:50%;border:none;color:#fff;font-size:20px;box-shadow:0 8px 22px rgba(15,35,60,.4);cursor:pointer;display:flex;align-items:center;justify-content:center}",
       ".htv-ttsbar button:active{transform:scale(.95)}",
-      ".htv-tts-pause{background:#16283F}",
       ".htv-tts-stop{background:#e5484d}",
       ".htv-tts-resume{background:#22a55b;position:relative}",
       "/* QUAN TRỌNG: CSS display:flex/inline-flex ở trên thắng thuộc tính hidden mặc định — phải ép ẩn tường minh, nếu không nút 'đã ẩn' vẫn hiện trên màn hình (lỗi anh Huy bắt được 2026-11-25) */",
@@ -548,9 +547,9 @@
     startPlayAll(pos);
   }
   /* ---- Thanh nổi DUY NHẤT kiểu XuCup (anh Huy lệnh 2026-11-25, tin 215 +
-     chốt lại khi thử thật): đang đọc thì hiện ⏸ Tạm dừng + ⏹ Dừng (đỏ);
-     dừng xong thì ⏹ biến mất, thay bằng ⏵ Nghe tiếp (xanh) ngay tại đó —
-     đúng cơ chế syncTtsBar của XuCup. ---- */
+     chốt lại khi thử thật): chỉ 1 nút đổi theo trạng thái — đang đọc thì
+     hiện ⏹ Dừng (đỏ); dừng xong ⏹ biến mất, thay bằng ⏵ Nghe tiếp (xanh)
+     ngay tại đó — đúng cơ chế syncTtsBar của XuCup. ---- */
   function buildTtsBar() {
     if (byId("htvTtsBar")) return;
     ensureStyle();
@@ -558,11 +557,11 @@
     bar.id = "htvTtsBar";
     bar.className = "htv-ttsbar";
     bar.hidden = true;
-    bar.innerHTML = '<button type="button" class="htv-tts-pause" id="htvTtsPause" title="Tạm dừng · Pause">⏸</button>' +
-      '<button type="button" class="htv-tts-stop" id="htvTtsStop" title="Dừng đọc · Stop">⏹</button>' +
+    /* Anh Huy chốt: bỏ nút ⏸ màu đen (thừa) — thanh chỉ còn 1 nút đổi theo
+       trạng thái: ⏹ Dừng khi đang đọc, ⏵ Nghe tiếp khi đã dừng. */
+    bar.innerHTML = '<button type="button" class="htv-tts-stop" id="htvTtsStop" title="Dừng đọc · Stop">⏹</button>' +
       '<button type="button" class="htv-tts-resume" id="htvTtsResume" title="Nghe tiếp · Resume">⏵<span class="htv-fab-n" id="htvBarResumeN"></span></button>';
     document.body.appendChild(bar);
-    byId("htvTtsPause").addEventListener("click", function () { togglePlayPause(); });
     byId("htvTtsStop").addEventListener("click", function () { stopSpeak(); });
     byId("htvTtsResume").addEventListener("click", function () { resumePlay(); });
   }
@@ -571,11 +570,10 @@
     var ov = byId("ttcHtvOverlay");
     var bar = byId("htvTtsBar");
     if (!bar) return;
-    var bp = byId("htvTtsPause"), bs = byId("htvTtsStop"), br = byId("htvTtsResume");
+    var bs = byId("htvTtsStop"), br = byId("htvTtsResume");
     var ovOpen = !!(ov && !ov.hidden);
     if (ovOpen && S.playing) {
       bar.hidden = false;
-      if (bp) { bp.hidden = false; bp.textContent = S.paused ? "▶" : "⏸"; }
       if (bs) bs.hidden = false;
       if (br) br.hidden = true;
       return;
@@ -584,25 +582,11 @@
     var list = S.mode === "list" ? currentList() : [];
     if (ovOpen && S.mode === "list" && pos > 0 && pos < list.length) {
       bar.hidden = false;
-      if (bp) bp.hidden = true;
       if (bs) bs.hidden = true;
       if (br) { br.hidden = false; var bn = byId("htvBarResumeN"); if (bn) bn.textContent = "#" + (pos + 1); }
     } else {
       bar.hidden = true;
     }
-  }
-  function togglePlayPause() {
-    if (!S.playing) return;
-    if (S.paused) {
-      S.paused = false;
-      try { if (window.speechSynthesis) window.speechSynthesis.resume(); } catch (e) {}
-      if (_audio) { try { var p = _audio.play(); if (p && p.catch) p.catch(function () {}); } catch (e) {} }
-    } else {
-      S.paused = true;
-      try { if (window.speechSynthesis) window.speechSynthesis.pause(); } catch (e) {}
-      if (_audio) { try { _audio.pause(); } catch (e) {} }
-    }
-    syncTtsBar();
   }
   function setMode(m) {
     stopSpeak();
