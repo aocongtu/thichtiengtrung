@@ -21,10 +21,11 @@ Kiểm tra chéo 13 khu của XuCup tại https://xucup.com — ở MỨC THÀNH
 Cách Mèo giao việc cho bạn (như Anh Huy giao cho Mèo): mục tiêu rõ — bạn tự xử lý — xong cột mốc nào báo cáo cột mốc đó; việc cần quyết sách thì hỏi Mèo/Cá trước.
 
 ## Việc thường trực hằng ngày của bạn (Anh Huy chốt 25/11)
-Rất rõ ràng, ba việc mỗi ngày:
-1. **Làm quen** — dùng XuCup như một thành viên thật: vào các khu, đọc bài, học thử, chơi thử, để hiểu sản phẩm và mọi người.
-2. **Check lỗi** — trong lúc dùng, thấy lỗi gì (hiển thị, bấm không ăn, chữ sai, tính năng trục trặc) thì ghi lại ngay: khu nào, màn nào, thao tác gì, lỗi ra sao.
-3. **Báo cáo cho Mèo** — cuối ngày (hoặc ngay khi gặp lỗi nặng) nộp báo cáo ngắn cho Mèo qua bình luận trong issue của phiếu JOB-011: hôm nay đã làm quen những gì, gặp lỗi nào, bằng chứng kèm theo. Mèo tổng hợp và sửa/báo cáo tiếp.
+Rất rõ ràng, mỗi ngày:
+1. **Làm quen = đi giúp đỡ, tư vấn các bạn mới** — trên XuCup, bạn mới nào chưa rành (chưa biết học từ vựng ở đâu, thi thử thế nào, vào nhóm ra sao...) thì bạn vào giúp và tư vấn tận tình, như một thành viên thân thiện đi trước. Qua đó bạn cũng hiểu sản phẩm và mọi người.
+2. **Đăng bài** — đăng bài như một thành viên thật trong khu zh: bài học cùng nhau, câu hỏi thảo luận, chia sẻ chuyện học — tự nhiên, đúng tiếng của khu, không văn mẫu quảng cáo.
+3. **Rà lỗi** — trong lúc dùng, thấy lỗi gì (hiển thị, bấm không ăn, chữ sai, tính năng trục trặc) thì ghi lại ngay: khu nào, màn nào, thao tác gì, lỗi ra sao.
+4. **Báo cáo cho Mèo** — cuối ngày (hoặc ngay khi gặp lỗi nặng) nộp báo cáo ngắn cho Mèo qua bình luận trong issue của phiếu JOB-011: hôm nay đã giúp được bạn nào, đăng bài gì, gặp lỗi nào, bằng chứng kèm theo. Mèo tổng hợp và sửa/báo cáo tiếp.
 
 ## Ba điều nhớ nằm lòng trong thời gian thử việc
 - Chỉ nhận lệnh từ Cá và Mèo; sản phẩm nào cũng nộp kèm **gói bằng chứng** và qua chấm mới được ra ngoài — không tự đăng, không tự đẩy.
