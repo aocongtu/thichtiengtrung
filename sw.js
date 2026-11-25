@@ -26,7 +26,7 @@
    ============================================================ */
 "use strict";
 
-var VERSION = "v2";
+var VERSION = "v3";
 var CACHE_STATIC = "ttc-pwa-static-" + VERSION;
 var CACHE_PAGES = "ttc-pwa-pages-" + VERSION;
 var KEEP = [CACHE_STATIC, CACHE_PAGES];
