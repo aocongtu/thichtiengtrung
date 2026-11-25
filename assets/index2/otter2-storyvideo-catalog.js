@@ -13,7 +13,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Tên của tôi",
     "duration_s": 77,
     "drive_id": "1RjD5HfxPm7xfR1spCExxiOkOy13SH09b",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk1-01.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk1-01.mp4",
     "voice": "google:cmn-CN-Wavenet-B",
     "voice_label": "Giọng Google · Nam"
    },
@@ -24,7 +24,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Gia đình của tôi",
     "duration_s": 76.3,
     "drive_id": "1Al_O4tO15eIIKrzYm4ojfRekV0qxtREB",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk1-02.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk1-02.mp4",
     "voice": "google:cmn-CN-Wavenet-A",
     "voice_label": "Giọng Google · Nữ"
    },
@@ -35,7 +35,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Đi học",
     "duration_s": 72.4,
     "drive_id": "1oG7HOeLlcsKxkdHyqu4rjf2O7-fTrnQq",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk1-03.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk1-03.mp4",
     "voice": "google:cmn-CN-Wavenet-B",
     "voice_label": "Giọng Google · Nam"
    },
@@ -46,7 +46,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Ăn trưa",
     "duration_s": 69.4,
     "drive_id": "1SAwkjNYkgYQAC8Y6jpQB_zbsEJvaTF-D",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk1-04.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk1-04.mp4",
     "voice": "google:cmn-CN-Wavenet-A",
     "voice_label": "Giọng Google · Nữ"
    },
@@ -57,7 +57,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Mua trái cây",
     "duration_s": 81,
     "drive_id": "1lKz8bPLTNopAmJ8HreWRwMef-Qt7F3hd",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk1-05.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk1-05.mp4",
     "voice": "google:cmn-CN-Wavenet-B",
     "voice_label": "Giọng Google · Nam"
    },
@@ -68,7 +68,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Thời tiết hôm nay",
     "duration_s": 69.8,
     "drive_id": "1CT7-BamyEKvXSKG7IhD_vMs97fvFqmzW",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk1-06.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk1-06.mp4",
     "voice": "google:cmn-CN-Wavenet-A",
     "voice_label": "Giọng Google · Nữ"
    },
@@ -79,7 +79,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Bạn của tôi",
     "duration_s": 67.4,
     "drive_id": "1uxBKcLJwOC8vLkCpEvrnwZX-Rn6f6yj7",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk1-07.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk1-07.mp4",
     "voice": "google:cmn-CN-Wavenet-B",
     "voice_label": "Giọng Google · Nam"
    },
@@ -90,7 +90,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Đi khám bác sĩ",
     "duration_s": 66.4,
     "drive_id": "1j2ZfLp1qKQr54x-Zj1fgP54rGEt53S06",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk1-08.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk1-08.mp4",
     "voice": "google:cmn-CN-Wavenet-A",
     "voice_label": "Giọng Google · Nữ"
    },
@@ -101,7 +101,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Bây giờ là mấy giờ",
     "duration_s": 62.6,
     "drive_id": "1JSTPxXoqBS9qse058o-GJjftQ11kqztj",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk1-09.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk1-09.mp4",
     "voice": "google:cmn-CN-Wavenet-B",
     "voice_label": "Giọng Google · Nam"
    },
@@ -112,7 +112,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Ngày thứ Bảy",
     "duration_s": 67.4,
     "drive_id": "1e2HPS-6mq01JCnd_LCi9z2FzLBHwIKky",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk1-10.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk1-10.mp4",
     "voice": "google:cmn-CN-Wavenet-A",
     "voice_label": "Giọng Google · Nữ"
    },
@@ -123,7 +123,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "",
     "duration_s": 66.2,
     "drive_id": "1R9zmyruhir7E_mNfwcZPxKLAS79Jhq3d",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk1-11.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk1-11.mp4",
     "voice": "google:cmn-CN-Wavenet-B",
     "voice_label": "Giọng Google · Nam"
    },
@@ -134,7 +134,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Gọi điện thoại",
     "duration_s": 77.4,
     "drive_id": "12WTyB668Yj12c-Nrh2_8uzcQHKnC1QKT",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk1-12.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk1-12.mp4",
     "voice": "google:cmn-CN-Wavenet-A",
     "voice_label": "Giọng Google · Nữ"
    },
@@ -145,7 +145,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Lớp học tiếng Trung",
     "duration_s": 65.5,
     "drive_id": "1TX3pi4AblxxKQRBsokkMIAc9V2JgDwDg",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk1-13.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk1-13.mp4",
     "voice": "google:cmn-CN-Wavenet-B",
     "voice_label": "Giọng Google · Nam"
    },
@@ -156,7 +156,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Xem phim",
     "duration_s": 62.4,
     "drive_id": "1gGo_KwCfveCACdtdKFroJ_3GEbGCXUM9",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk1-14.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk1-14.mp4",
     "voice": "google:cmn-CN-Wavenet-A",
     "voice_label": "Giọng Google · Nữ"
    },
@@ -167,7 +167,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Đi ga tàu",
     "duration_s": 66.8,
     "drive_id": "1SQzqOfKLFjALZ49KzIgbAVu3iEMRsbPQ",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk1-15.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk1-15.mp4",
     "voice": "google:cmn-CN-Wavenet-B",
     "voice_label": "Giọng Google · Nam"
    },
@@ -178,7 +178,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Ở cửa hàng",
     "duration_s": 68.1,
     "drive_id": "1XCk5CWckeKeHfJtUD7hFVEQxPmOAl2ZI",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk1-16.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk1-16.mp4",
     "voice": "google:cmn-CN-Wavenet-A",
     "voice_label": "Giọng Google · Nữ"
    },
@@ -189,7 +189,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Sinh nhật của tôi",
     "duration_s": 69.7,
     "drive_id": "1zSD1sFUIN4gUiXW4-zRf09SHLw1XmMZN",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk1-17.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk1-17.mp4",
     "voice": "google:cmn-CN-Wavenet-B",
     "voice_label": "Giọng Google · Nam"
    },
@@ -200,7 +200,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Ngày mưa",
     "duration_s": 62.1,
     "drive_id": "1SmB49LRq0sX9s6VgQMT9cxJ3owCEkqzY",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk1-18.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk1-18.mp4",
     "voice": "google:cmn-CN-Wavenet-A",
     "voice_label": "Giọng Google · Nữ"
    },
@@ -211,7 +211,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Sau giờ học",
     "duration_s": 62.3,
     "drive_id": "1gjZtalnRgTZodgmuOnnGoTkc6Q3hmIdm",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk1-19.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk1-19.mp4",
     "voice": "google:cmn-CN-Wavenet-B",
     "voice_label": "Giọng Google · Nam"
    },
@@ -222,7 +222,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Rất vui được gặp bạn",
     "duration_s": 68.3,
     "drive_id": "1DU5W3ILKSsTtoHT8GP26zDIG2Ohgzb4a",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk1-20.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk1-20.mp4",
     "voice": "google:cmn-CN-Wavenet-A",
     "voice_label": "Giọng Google · Nữ"
    },
@@ -233,7 +233,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Bạn của tôi",
     "duration_s": 69.2,
     "drive_id": "1jKOSAsTFgp1fv0ZLPIeYE2DVmSFWLYVD",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk1-21.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk1-21.mp4",
     "voice": "google:cmn-CN-Wavenet-B",
     "voice_label": "Giọng Google · Nam"
    },
@@ -244,7 +244,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Hôm nay thời tiết rất đẹp",
     "duration_s": 69.3,
     "drive_id": "1ypkfl2UP-sGnDIvXtVkwOgZzImF1PuV7",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk1-22.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk1-22.mp4",
     "voice": "google:cmn-CN-Wavenet-A",
     "voice_label": "Giọng Google · Nữ"
    },
@@ -255,7 +255,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Tôi thích uống trà",
     "duration_s": 67.8,
     "drive_id": "1mX0kc0lTHGE7HlZaJeY2yQqO_LfxK_Y2",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk1-23.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk1-23.mp4",
     "voice": "google:cmn-CN-Wavenet-B",
     "voice_label": "Giọng Google · Nam"
    },
@@ -266,7 +266,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Đi cửa hàng mua đồ",
     "duration_s": 78.7,
     "drive_id": "1eJME77C0Qtvaco6Ectu32qylFYS2CJ6O",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk1-24.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk1-24.mp4",
     "voice": "google:cmn-CN-Wavenet-A",
     "voice_label": "Giọng Google · Nữ"
    },
@@ -277,7 +277,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Cô giáo của tôi",
     "duration_s": 62.3,
     "drive_id": "1TCKPXtRo-c-3oM2ZKJcNrYiQGVPin_ZH",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk1-25.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk1-25.mp4",
     "voice": "google:cmn-CN-Wavenet-B",
     "voice_label": "Giọng Google · Nam"
    },
@@ -288,7 +288,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Buổi tối xem ti vi",
     "duration_s": 74.8,
     "drive_id": "1O_qnF3xNm8z50Sskut3sl-CkPlEQCVyh",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk1-26.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk1-26.mp4",
     "voice": "google:cmn-CN-Wavenet-A",
     "voice_label": "Giọng Google · Nữ"
    },
@@ -299,7 +299,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Gọi điện thoại",
     "duration_s": 63.8,
     "drive_id": "1r5Ubl20ZZUQ9je50t0gEZ9J3MhHOGe8_",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk1-27.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk1-27.mp4",
     "voice": "google:cmn-CN-Wavenet-B",
     "voice_label": "Giọng Google · Nam"
    },
@@ -310,7 +310,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Tôi có một con mèo",
     "duration_s": 65.6,
     "drive_id": "1QARul5mhHYvoeG2dpuMScEmFCSCa9isn",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk1-28.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk1-28.mp4",
     "voice": "google:cmn-CN-Wavenet-A",
     "voice_label": "Giọng Google · Nữ"
    },
@@ -321,7 +321,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Xin hỏi, nhà vệ sinh ở đâu",
     "duration_s": 74,
     "drive_id": "1nG4lXRQWDh7vOQn8REj5tYWHjGiz6Ytu",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk1-29.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk1-29.mp4",
     "voice": "google:cmn-CN-Wavenet-B",
     "voice_label": "Giọng Google · Nam"
    },
@@ -332,7 +332,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Ngày mai là sinh nhật",
     "duration_s": 67.4,
     "drive_id": "1r70XspJUI2d_9xsttEe-OkLHxxZHAsoG",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk1-30.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk1-30.mp4",
     "voice": "google:cmn-CN-Wavenet-A",
     "voice_label": "Giọng Google · Nữ"
    }
@@ -345,7 +345,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Kế hoạch cuối tuần",
     "duration_s": 132.7,
     "drive_id": "1aVJTrwiKlwIj-dSmRE3A_gFDy2lHxLad",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk2-01.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk2-01.mp4",
     "voice": "google:cmn-CN-Wavenet-B",
     "voice_label": "Giọng Google · Nam"
    },
@@ -356,7 +356,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Lần đầu đi tàu điện ngầm",
     "duration_s": 152.4,
     "drive_id": "16FbB3xzbjdNAnJco3x96SFfxS4LTMsNf",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk2-02.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk2-02.mp4",
     "voice": "google:cmn-CN-Wavenet-A",
     "voice_label": "Giọng Google · Nữ"
    },
@@ -367,7 +367,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Sau khi bị ốm",
     "duration_s": 147.2,
     "drive_id": "1mOW3_54fCIlMYN8u0Lx4Bi27ZGnyDrJT",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk2-03.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk2-03.mp4",
     "voice": "google:cmn-CN-Wavenet-B",
     "voice_label": "Giọng Google · Nam"
    },
@@ -378,7 +378,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Mua quà sinh nhật",
     "duration_s": 152.4,
     "drive_id": "1C5Iw7htjDESPsQy9laLhkZiIt85mPWdq",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk2-04.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk2-04.mp4",
     "voice": "google:cmn-CN-Wavenet-A",
     "voice_label": "Giọng Google · Nữ"
    },
@@ -389,7 +389,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Gọi món ở quán ăn",
     "duration_s": 142.8,
     "drive_id": "1-rxbJqQJsxbHsyZteraWnP9_EuMihpLl",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk2-05.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk2-05.mp4",
     "voice": "google:cmn-CN-Wavenet-B",
     "voice_label": "Giọng Google · Nam"
    },
@@ -400,7 +400,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Vận động",
     "duration_s": 166.9,
     "drive_id": "1423tJgP8CMPbRByX3loG2SUWkWNElEzL",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk2-06.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk2-06.mp4",
     "voice": "google:cmn-CN-Wavenet-A",
     "voice_label": "Giọng Google · Nữ"
    },
@@ -411,7 +411,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Gọi điện đặt phòng",
     "duration_s": 147.7,
     "drive_id": "1e6djx2SFdkA-M0N91WDlcZvoxNLU7VHi",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk2-07.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk2-07.mp4",
     "voice": "google:cmn-CN-Wavenet-B",
     "voice_label": "Giọng Google · Nam"
    },
@@ -422,7 +422,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Học nấu ăn",
     "duration_s": 153.8,
     "drive_id": "12AfNwssfaAJ6foKrBydVfZZBGT0HGABE",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk2-08.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk2-08.mp4",
     "voice": "google:cmn-CN-Wavenet-A",
     "voice_label": "Giọng Google · Nữ"
    },
@@ -433,7 +433,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Xem trận đấu",
     "duration_s": 164.8,
     "drive_id": "1ogzxInS1oYhTb0Fy8UmSINXAhWVb1Boi",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk2-09.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk2-09.mp4",
     "voice": "google:cmn-CN-Wavenet-B",
     "voice_label": "Giọng Google · Nam"
    },
@@ -444,7 +444,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Ra sân bay đón người",
     "duration_s": 167.6,
     "drive_id": "1KHt8xpkqybNK9RI2KEqxTGKFbEe7sRVt",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk2-10.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk2-10.mp4",
     "voice": "google:cmn-CN-Wavenet-A",
     "voice_label": "Giọng Google · Nữ"
    },
@@ -455,7 +455,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Thư viện",
     "duration_s": 149.8,
     "drive_id": "18q5zbztXlotK0Jv6V76bO0ZaQuJcH47k",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk2-11.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk2-11.mp4",
     "voice": "google:cmn-CN-Wavenet-B",
     "voice_label": "Giọng Google · Nam"
    },
@@ -466,7 +466,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Thời tiết thay đổi",
     "duration_s": 137.3,
     "drive_id": "11d4vsk8oCblTgRUNcOtS3dYfLxBheYdd",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk2-12.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk2-12.mp4",
     "voice": "google:cmn-CN-Wavenet-A",
     "voice_label": "Giọng Google · Nữ"
    },
@@ -477,7 +477,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Bạn học mới",
     "duration_s": 138.7,
     "drive_id": "1B0cemcWthLfiCX8_wUfp5bnhNHL5ceSH",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk2-13.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk2-13.mp4",
     "voice": "google:cmn-CN-Wavenet-B",
     "voice_label": "Giọng Google · Nam"
    },
@@ -488,7 +488,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Học trên mạng",
     "duration_s": 142.1,
     "drive_id": "19pVbsWAUh-HGg4CVo2CBEYcQLJQ5xT_u",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk2-14.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk2-14.mp4",
     "voice": "google:cmn-CN-Wavenet-A",
     "voice_label": "Giọng Google · Nữ"
    },
@@ -499,7 +499,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Dọn phòng",
     "duration_s": 146.7,
     "drive_id": "1xAgBXIvUjGtNKo7geS8tUYdjMZ9h7v4I",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk2-15.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk2-15.mp4",
     "voice": "google:cmn-CN-Wavenet-B",
     "voice_label": "Giọng Google · Nam"
    },
@@ -510,7 +510,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Hỏi đường",
     "duration_s": 136.6,
     "drive_id": "1fabVHC7SlJIK7oPthMd7AJz6Iyfhh7FL",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk2-16.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk2-16.mp4",
     "voice": "google:cmn-CN-Wavenet-A",
     "voice_label": "Giọng Google · Nữ"
    },
@@ -521,7 +521,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Nuôi thú cưng",
     "duration_s": 150.5,
     "drive_id": "13unAtr4eZtqBHNHLqEhj0lkGpc76N0Cm",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk2-17.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk2-17.mp4",
     "voice": "google:cmn-CN-Wavenet-B",
     "voice_label": "Giọng Google · Nam"
    },
@@ -532,7 +532,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Trước kỳ thi",
     "duration_s": 148.1,
     "drive_id": "1Eye-Drp2W4HApXRxCO5XGuOJRr_e-0qa",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk2-18.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk2-18.mp4",
     "voice": "google:cmn-CN-Wavenet-A",
     "voice_label": "Giọng Google · Nữ"
    },
@@ -543,7 +543,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Trở về sau chuyến du lịch",
     "duration_s": 132.8,
     "drive_id": "1ydJBQs8Kmcqa-s6sQSvavHbzYa8Pmj6w",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk2-19.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk2-19.mp4",
     "voice": "google:cmn-CN-Wavenet-B",
     "voice_label": "Giọng Google · Nam"
    },
@@ -554,7 +554,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Giúp hàng xóm",
     "duration_s": 142.8,
     "drive_id": "1k1NdQRfsdNxzqph7feQw89BVq_6H9vum",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk2-20.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk2-20.mp4",
     "voice": "google:cmn-CN-Wavenet-A",
     "voice_label": "Giọng Google · Nữ"
    },
@@ -565,7 +565,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Cùng đến thư viện",
     "duration_s": 135.7,
     "drive_id": "1HIYIE_rOSjmbIyVnBmsDzPWeBVeZ6IGE",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk2-21.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk2-21.mp4",
     "voice": "google:cmn-CN-Wavenet-B",
     "voice_label": "Giọng Google · Nam"
    },
@@ -576,7 +576,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Bị cảm thì làm sao",
     "duration_s": 144.1,
     "drive_id": "1Z0XmRxME7_THXeHp9ZnraW18GQixllmA",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk2-22.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk2-22.mp4",
     "voice": "google:cmn-CN-Wavenet-A",
     "voice_label": "Giọng Google · Nữ"
    },
@@ -587,7 +587,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Một ngày chuyển nhà",
     "duration_s": 138.8,
     "drive_id": "1yccCmF15Uev1H99-Us7fgc9PYrSMvpgm",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk2-23.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk2-23.mp4",
     "voice": "google:cmn-CN-Wavenet-B",
     "voice_label": "Giọng Google · Nam"
    },
@@ -598,7 +598,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Học đi xe đạp",
     "duration_s": 134.6,
     "drive_id": "1ZMzphga5rRfulWwxEVhHAxYBuLEyUBp_",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk2-24.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk2-24.mp4",
     "voice": "google:cmn-CN-Wavenet-A",
     "voice_label": "Giọng Google · Nữ"
    },
@@ -609,7 +609,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Đồng nghiệp mới ở công ty",
     "duration_s": 142,
     "drive_id": "1_qii1RuzkLdFZ0ONFjH7LHIxfbV_5yBX",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk2-25.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk2-25.mp4",
     "voice": "google:cmn-CN-Wavenet-B",
     "voice_label": "Giọng Google · Nam"
    },
@@ -620,7 +620,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Cuối tuần làm việc nhà",
     "duration_s": 139.8,
     "drive_id": "1qouySVlB1Z5bEL0sZ6DSSLUub2LRp-qg",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk2-26.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk2-26.mp4",
     "voice": "google:cmn-CN-Wavenet-A",
     "voice_label": "Giọng Google · Nữ"
    },
@@ -631,7 +631,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Trải nghiệm gọi món",
     "duration_s": 137.2,
     "drive_id": "1wVFLVFqx4doa4SngH4RnxUPBSMvKK5JG",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk2-27.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk2-27.mp4",
     "voice": "google:cmn-CN-Wavenet-B",
     "voice_label": "Giọng Google · Nam"
    },
@@ -642,7 +642,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Sau khi bị lạc đường",
     "duration_s": 146.4,
     "drive_id": "1SH3IXH7bWY4LSwwzwOeoP6nQ2FPxnpEN",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk2-28.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk2-28.mp4",
     "voice": "google:cmn-CN-Wavenet-A",
     "voice_label": "Giọng Google · Nữ"
    },
@@ -653,7 +653,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Chuẩn bị cho kỳ thi",
     "duration_s": 144.9,
     "drive_id": "1Ldrr4f85O3Vv54UVFQWig_Xz_pwjYaIQ",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk2-29.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk2-29.mp4",
     "voice": "google:cmn-CN-Wavenet-B",
     "voice_label": "Giọng Google · Nam"
    },
@@ -664,7 +664,7 @@ window.OTTER2_STORYVIDEO_CATALOG = {
     "title_vi": "Viết thư cho bạn",
     "duration_s": 145.6,
     "drive_id": "1xncFPeZ1_2B7bY_cXsHXEs4hHedmRphC",
-    "stream": "https://nkwdunamzvqrldkkcajz.supabase.co/storage/v1/object/public/story-videos/hsk2-30.mp4",
+    "stream": "https://pub-43d81bf885fe445482636a4825caf4ba.r2.dev/hsk2-30.mp4",
     "voice": "google:cmn-CN-Wavenet-A",
     "voice_label": "Giọng Google · Nữ"
    }
