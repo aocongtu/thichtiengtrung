@@ -101,7 +101,7 @@
     hvOn: true, trad: false,
     voice: "g:Kore", speed: "normal", readMeaning: false, hl: "#ffe066",
     fcIndex: 0, fcFlip: false,
-    playing: false, playToken: 0,
+    playing: false, paused: false, playToken: 0,
     access: null /* null = chưa rõ, true = có Premium/Free Trial, false = Free */
   };
 
@@ -226,6 +226,7 @@
   function stopSpeak() {
     S.playToken++;
     S.playing = false;
+    S.paused = false;
     try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch (e) {}
     if (_audio) { try { _audio.pause(); } catch (e) {} _audio = null; }
     paintPlayButtons();
@@ -265,6 +266,12 @@
       ".htv-resumefab{position:fixed;right:14px;bottom:calc(86px + env(safe-area-inset-bottom, 0px));z-index:12070;width:52px;height:52px;border-radius:50%;border:none;background:#22a55b;color:#fff;font-size:20px;box-shadow:0 8px 22px rgba(15,60,35,.42);cursor:pointer;display:flex;align-items:center;justify-content:center}",
       ".htv-resumefab:active{transform:scale(.95)}",
       ".htv-fab-n{position:absolute;top:-8px;right:-10px;background:#0f2a4a;color:#fff;font-size:11px;font-weight:800;border-radius:999px;padding:2px 7px;box-shadow:0 3px 8px rgba(0,0,0,.3)}",
+      "/* Thanh nổi lúc đang đọc kiểu XuCup: ⏸ Tạm dừng + ⏹ Dừng (đỏ), cùng vị trí với nút xanh Nghe tiếp */",
+      ".htv-ttsbar{position:fixed;right:14px;bottom:calc(86px + env(safe-area-inset-bottom, 0px));z-index:12070;display:flex;gap:10px}",
+      ".htv-ttsbar button{width:52px;height:52px;border-radius:50%;border:none;color:#fff;font-size:20px;box-shadow:0 8px 22px rgba(15,35,60,.4);cursor:pointer;display:flex;align-items:center;justify-content:center}",
+      ".htv-ttsbar button:active{transform:scale(.95)}",
+      ".htv-tts-pause{background:#16283F}",
+      ".htv-tts-stop{background:#e5484d}",
       "#ttcHtvOverlay,#ttcTypeOverlay,#ttcOvOverlay,#ttcTypeHubOverlay{position:fixed;inset:0;background:#eef1f6;z-index:12060;overflow-y:auto;-webkit-overflow-scrolling:touch}",
       ".htv-wrap{max-width:880px;margin:0 auto;padding:10px 10px calc(28px + env(safe-area-inset-bottom,0px))}",
       ".htv-panel{background:#fff;border:1px solid #e3e8f0;border-radius:20px;padding:16px 14px;box-shadow:0 4px 18px rgba(22,40,63,.06)}",
@@ -514,6 +521,7 @@
     if (S.playing) { b.classList.add("stop"); b.innerHTML = "⏹ Dừng đọc <small>· Stop</small>"; }
     else { b.classList.remove("stop"); b.innerHTML = "▶️ Đọc cả danh sách <small>· Play all</small>"; }
     syncResume();
+    syncTtsBar();
   }
   /* ---- Nghe tiếp · Resume kiểu XuCup (anh Huy lệnh 2026-11-25): vị trí đang
      nghe dở lưu theo từng cấp trong máy (khoá riêng của module, không đụng
@@ -554,6 +562,44 @@
     if (_shown < list.length) { _shown = list.length; paintRows(byId("htvBody"), list); }
     startPlayAll(pos);
   }
+  /* ---- Thanh nổi lúc đang đọc kiểu XuCup (anh Huy lệnh 2026-11-25, tin 215):
+     đang đọc thì hiện ⏸ Tạm dừng + ⏹ Dừng (đỏ) để dừng ngay cả khi đã kéo
+     xuống giữa danh sách; dừng xong vị trí vẫn được giữ để Nghe tiếp. ---- */
+  function buildTtsBar() {
+    if (byId("htvTtsBar")) return;
+    ensureStyle();
+    var bar = document.createElement("div");
+    bar.id = "htvTtsBar";
+    bar.className = "htv-ttsbar";
+    bar.hidden = true;
+    bar.innerHTML = '<button type="button" class="htv-tts-pause" id="htvTtsPause" title="Tạm dừng · Pause">⏸</button>' +
+      '<button type="button" class="htv-tts-stop" id="htvTtsStop" title="Dừng đọc · Stop">⏹</button>';
+    document.body.appendChild(bar);
+    byId("htvTtsPause").addEventListener("click", function () { togglePlayPause(); });
+    byId("htvTtsStop").addEventListener("click", function () { stopSpeak(); });
+  }
+  function syncTtsBar() {
+    buildTtsBar();
+    var ov = byId("ttcHtvOverlay");
+    var bar = byId("htvTtsBar");
+    if (!bar) return;
+    bar.hidden = !(ov && !ov.hidden && S.playing);
+    var bp = byId("htvTtsPause");
+    if (bp) bp.textContent = S.paused ? "▶" : "⏸";
+  }
+  function togglePlayPause() {
+    if (!S.playing) return;
+    if (S.paused) {
+      S.paused = false;
+      try { if (window.speechSynthesis) window.speechSynthesis.resume(); } catch (e) {}
+      if (_audio) { try { var p = _audio.play(); if (p && p.catch) p.catch(function () {}); } catch (e) {} }
+    } else {
+      S.paused = true;
+      try { if (window.speechSynthesis) window.speechSynthesis.pause(); } catch (e) {}
+      if (_audio) { try { _audio.pause(); } catch (e) {} }
+    }
+    syncTtsBar();
+  }
   function setMode(m) {
     stopSpeak();
     S.mode = m; S.fcFlip = false;
@@ -588,6 +634,7 @@
     document.body.style.overflow = "";
     syncTopBtn();
     syncResume();
+    syncTtsBar();
   }
 
   /* ---- nút nổi "⬆ Từ số 1" trong các màn full màn hình ----
@@ -756,7 +803,14 @@
       i++;
       speakWord(w).then(function () {
         if (token !== S.playToken) return;
-        setTimeout(step, 260);
+        /* Đang tạm dừng thì giữ nguyên từ đang đọc, không bước tiếp —
+           cần thiết vì giọng máy có hẹn giờ dự phòng tự xong dù đang dừng. */
+        var afterSpeak = function () {
+          if (token !== S.playToken) return;
+          if (S.paused) { setTimeout(afterSpeak, 200); return; }
+          setTimeout(step, 260);
+        };
+        afterSpeak();
       });
     };
     setTimeout(step, 60);
