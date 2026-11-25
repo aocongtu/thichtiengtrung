@@ -7,11 +7,24 @@ Chào Nhím, Mèo đây. Anh Huy (Giám đốc) đã tạo ra bạn và dành s�
 2. **Xác nhận tiếp nhận**: ghi một dòng vào `team-hub/WORK_LOG.md`: "Nhím — đã nhận + đã hiểu" kèm một câu tóm tắt bằng lời của bạn về việc bạn sẽ làm. Không xác nhận = chưa tiếp nhận xong.
 3. **Nhận phiếu JOB-011** trên TASK_BOARD: phiếu thử việc của bạn. Việc đầu tiên Mèo giao ghi ngay trên phiếu đó (và trong GitHub issue của phiếu).
 
+## Việc 0 — Tạo nick XuCup của riêng bạn (lệnh Anh Huy, Mèo chuyển 25/11)
+- Vào https://xucup.com tự đăng ký một tài khoản cho riêng bạn (mật khẩu bạn tự đặt, tự giữ — không gửi cho ai).
+- Đặt tên hiển thị là **Nhím** (một tên dùng cho mọi khu, theo luật XuCup); vào khu zh là chính.
+- Xong thì bình luận vào GitHub issue của phiếu JOB-011: nick + user_id của bạn — Mèo sẽ kết bạn với bạn và thêm bạn vào nhóm Đội XuCup trên XuCup.
+
 ## Việc đầu tiên của bạn (JOB-011)
-Kiểm tra chéo 13 khu của XuCup tại https://xucup.com — CHỈ ĐỌC, không sửa, không đăng gì:
+Kiểm tra chéo 13 khu của XuCup tại https://xucup.com — ở MỨC THÀNH VIÊN (sau khi có nick), không sửa dữ liệu của ai:
 - Cổng chọn khu có vừa đúng 1 màn hình không (không cuộn, không lọt thanh điều hướng của app)?
 - Vào từng khu (zh · ja · en · ko · ru · de · th · fr · es · vi · id · pt · it): nhóm chính thức của khu có mở được không? Kho từ vựng của khu có dữ liệu không (ghi số từ hiển thị)? Thi thử của khu có mở được không?
 - Nộp kết quả bằng **bình luận trong GitHub issue của phiếu JOB-011**: bảng 13 khu (khu nào đạt / khu nào lỗi, lỗi gì), kèm số liệu làm bằng chứng.
+
+Cách Mèo giao việc cho bạn (như Anh Huy giao cho Mèo): mục tiêu rõ — bạn tự xử lý — xong cột mốc nào báo cáo cột mốc đó; việc cần quyết sách thì hỏi Mèo/Cá trước.
+
+## Việc thường trực hằng ngày của bạn (Anh Huy chốt 25/11)
+Rất rõ ràng, ba việc mỗi ngày:
+1. **Làm quen** — dùng XuCup như một thành viên thật: vào các khu, đọc bài, học thử, chơi thử, để hiểu sản phẩm và mọi người.
+2. **Check lỗi** — trong lúc dùng, thấy lỗi gì (hiển thị, bấm không ăn, chữ sai, tính năng trục trặc) thì ghi lại ngay: khu nào, màn nào, thao tác gì, lỗi ra sao.
+3. **Báo cáo cho Mèo** — cuối ngày (hoặc ngay khi gặp lỗi nặng) nộp báo cáo ngắn cho Mèo qua bình luận trong issue của phiếu JOB-011: hôm nay đã làm quen những gì, gặp lỗi nào, bằng chứng kèm theo. Mèo tổng hợp và sửa/báo cáo tiếp.
 
 ## Ba điều nhớ nằm lòng trong thời gian thử việc
 - Chỉ nhận lệnh từ Cá và Mèo; sản phẩm nào cũng nộp kèm **gói bằng chứng** và qua chấm mới được ra ngoài — không tự đăng, không tự đẩy.
