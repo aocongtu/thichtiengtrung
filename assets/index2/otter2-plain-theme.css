@@ -1262,3 +1262,51 @@ html[data-theme="night"] .ttc-exam-stickwrap{ background:#16283F; }
 html[data-theme="night"] .ttc-exam-dialog{ background:#16283F; color:#E2E8F0; }
 html[data-theme="night"] .ttc-exam-note{ background:#431407; border-color:#7C2D12; color:#FDBA74; }
 html[data-theme="night"] .ttc-exam-sub{ color:#94A3B8; }
+
+/* ============================================================
+   NIGHT RESCUE 2 (2026-11-25, Cá — sau lượt kiểm chứng live
+   bằng hard reload): các mảng trắng/chữ chìm còn sót — đầu
+   hộp thoại hub, banner miễn phí + lịch sử + thanh kỹ năng
+   trong Thi HSK, thẻ chi tiết từ điển + hộp gợi ý, 6 nút
+   chức năng Luyện tập (luật gốc dùng 2 ID nên phải khớp độ
+   đặc hiệu), chữ mục chưa chọn trên thanh trên.
+   ============================================================ */
+html[data-theme="night"] #ttcShellSidebar .ttc-shell-item{ color:#CBD5E1; }
+html[data-theme="night"] .ttc-hub-card{ background:#16283F; color:#E2E8F0; }
+html[data-theme="night"] .ttc-hub-head{ background:#16283F; border-bottom-color:#334155; }
+html[data-theme="night"] .ttc-hub-close{ border-color:#334155; }
+html[data-theme="night"] .ttc-exam-free{ background:#1E293B; border-color:#334155; color:#CBD5E1; }
+html[data-theme="night"] .ttc-exam-hist-item{ background:#1E293B; border-color:#334155; color:#CBD5E1; }
+html[data-theme="night"] .ttc-exam-secbar{ color:#CBD5E1; }
+html[data-theme="night"] .ttc-exam-secbar .bar{ background:#334155; }
+html[data-theme="night"] .ttc-exam-secbar .val{ color:#E2E8F0; }
+html[data-theme="night"] .ttc-exam-timer{ background:#1E293B; color:#E2E8F0; }
+html[data-theme="night"] #otter2DictRoot .ttc-dict{ background:#1E293B; border-color:#334155; box-shadow:none; }
+html[data-theme="night"] #otter2DictRoot .ttc-dict .han{ color:#E2E8F0; }
+html[data-theme="night"] #otter2DictRoot .ttc-dict-sub{ color:#94A3B8; }
+html[data-theme="night"] #otter2DictRoot .ttc-sense{ background:#16283F; border-color:#334155; }
+html[data-theme="night"] #otter2DictRoot .ttc-pos{ color:#E2E8F0; }
+html[data-theme="night"] #otter2DictRoot .ttc-hsk{ background:#0B1220; color:#E2E8F0; border-color:#334155; }
+html[data-theme="night"] #otter2DictRoot .ttc-mean{ color:#E2E8F0; }
+html[data-theme="night"] #otter2DictRoot .ttc-note{ color:#94A3B8; }
+html[data-theme="night"] #otter2DictRoot .ttc-ex{ background:#1E293B; border-left-color:#334155; }
+html[data-theme="night"] #otter2DictRoot .ttc-ex b{ color:#E2E8F0; }
+html[data-theme="night"] #otter2DictRoot .ttc-ex i{ color:#CBD5E1; }
+html[data-theme="night"] #otter2DictRoot .ttc-ex span{ color:#94A3B8; }
+html[data-theme="night"] #otter2DictRoot .ttc-rel > span{ color:#94A3B8; }
+html[data-theme="night"] #otter2DictRoot .ttc-rel button{ background:#1E293B; color:#E2E8F0; border-color:#334155; }
+html[data-theme="night"] #otter2DictRoot .otter2-dict-kinds-row button{ background:#1E293B; color:#E2E8F0; border-color:#334155; }
+html[data-theme="night"] #otter2DictRoot .otter2-dict-kinds-row button.is-on{ background:#F97316; color:#fff; border-color:#F97316; }
+html[data-theme="night"] #otter2DictRoot .otter2-dict-suggest{ background:#1E293B; border-color:#334155; box-shadow:none; }
+html[data-theme="night"] #otter2DictRoot .otter2-dict-suggest button{ color:#E2E8F0; }
+html[data-theme="night"] #otter2DictRoot .otter2-dict-suggest button + button{ border-top-color:#334155; }
+html[data-theme="night"] #otter2DictRoot .otter2-dict-suggest button:hover{ background:#263449; }
+html[data-theme="night"] #otter2DictRoot .ttc-sg-mn{ color:#CBD5E1; }
+html[data-theme="night"] #otter2DictRoot .ttc-sg-lv{ background:#0B1220; color:#E2E8F0; }
+html[data-theme="night"] #otter2DictRoot .otter2-dict-sg-empty{ color:#94A3B8; }
+html[data-theme="night"] #otter2DictRoot .otter2-dict-status{ color:#E2E8F0; }
+html[data-theme="night"] #otter2DictRoot .otter2-dict-recent > span{ color:#FDBA74; }
+html[data-theme="night"] #otter2DictRoot .otter2-dict-recent button{ background:#1E293B; color:#E2E8F0; border-color:#334155; }
+html[data-theme="night"] #otter2PracticeHub #ttcActionFrame .ttc-action-buttons button{ background:#1E293B; border-color:#334155; color:#E2E8F0; }
+html[data-theme="night"] #otter2PracticeHub #ttcActionFrame .ttc-action-buttons button.active{ background:#F97316; border-color:#F97316; color:#fff; }
+html[data-theme="night"] .otter2-reading-top .otter2-btn{ background:#1E293B !important; border-color:#334155 !important; color:#E2E8F0 !important; }
