@@ -1353,3 +1353,23 @@ html[data-theme="night"] .ttc-exam-verdict.ready{ background:#052E16; border-col
 html[data-theme="night"] .ttc-exam-verdict.pass{ background:#33270A; border-color:#92400E; color:#FDE68A; }
 html[data-theme="night"] .ttc-exam-verdict.fail{ background:#3B0A0A; border-color:#7F1D1D; color:#FCA5A5; }
 html[data-theme="night"] .ttc-exam-card p{ color:#94A3B8 !important; }
+
+/* ============================================================
+   NIGHT RESCUE 5 (2026-11-25, Cá): hai mảng sót cuối trong
+   Thi HSK — ô "💡 Giải thích" ở màn xem lại bài và khối
+   "Kết quả theo kỹ năng" + sổ câu sai (module examhome,
+   họ ttc-xh) trong hộp thoại thi.
+   ============================================================ */
+html[data-theme="night"] .ttc-exam-explain{ background:#1E293B; border-color:#334155; color:#CBD5E1; }
+html[data-theme="night"] .ttc-xh-h{ color:#E2E8F0; }
+html[data-theme="night"] .ttc-xh-note{ color:#94A3B8; }
+html[data-theme="night"] .ttc-xh-cell{ background:#1E293B; border-color:#334155; }
+html[data-theme="night"] .ttc-xh-cell-name{ color:#E2E8F0; }
+html[data-theme="night"] .ttc-xh-cell-num{ color:#E2E8F0; }
+html[data-theme="night"] .ttc-xh-cell-sub{ color:#94A3B8; }
+html[data-theme="night"] .ttc-xh-witem{ background:#1E293B; border-color:#334155; }
+html[data-theme="night"] .ttc-xh-chip{ background:#33270A; color:#FDBA74; }
+html[data-theme="night"] .ttc-xh-wstem{ color:#E2E8F0; }
+html[data-theme="night"] .ttc-xh-mine{ color:#CBD5E1; }
+html[data-theme="night"] .ttc-xh-correct{ color:#4ADE80; }
+html[data-theme="night"] .ttc-xh-wexp{ color:#94A3B8; }
