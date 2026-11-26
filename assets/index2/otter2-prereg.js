@@ -99,7 +99,8 @@
     banner.innerHTML =
       '<div class="ttc-prereg-banner-in">' +
         '<span class="ttc-prereg-banner-txt">🔧 Hệ thống tài khoản đang bảo trì tới 5/12 — ' +
-        'bạn vẫn học bình thường nhé, tiến độ được lưu ngay trên máy của bạn.</span>' +
+        'bạn vẫn học bình thường nhé, tiến độ được lưu ngay trên máy của bạn.<br>' +
+        '🎁 Bé mở MIỄN PHÍ toàn bộ truyện Premium tới hết 5/12 — bạn cứ vào xem thoải mái, không cần đăng nhập!</span>' +
         '<button type="button" id="ttcPreregOpenBtn"' + (done ? " disabled" : "") + '>' +
         (done ? "Đã ghi danh ✓" : "Ghi danh mở tài khoản") + "</button>" +
         '<button type="button" id="ttcPreregCloseX" aria-label="Đóng thông báo">×</button>' +

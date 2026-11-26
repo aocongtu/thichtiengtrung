@@ -28,6 +28,13 @@
   window.__otter2HasUserInteracted = function () { return __userInteracted; };
   function __silentNow() { return !__userInteracted; }
 
+  /* --- MỞ FREE CHỮA CHÁY (thêm 2026-11-26) ---
+     Supabase bị khóa tới 5/12 nên không ai đăng nhập được: chủ web quyết
+     định mở MIỄN PHÍ toàn bộ nội dung Premium cho mọi người tới HẾT ngày
+     5/12/2026 giờ Việt Nam (mốc dưới = 2026-12-06T00:00:00+07:00). Sau mốc
+     này hàm trả false và mọi logic cũ dưới đây chạy lại y nguyên. */
+  function ttcOpenFreeNow() { return Date.now() < Date.UTC(2026, 11, 5, 17, 0, 0); }
+
   function ttcMembershipRowIsPremium(row, nowMs) {
     if (!row) return false;
     if (String(row.status || "") !== "active") return false;
@@ -94,6 +101,7 @@
   }
 
   async function hasPremiumAccess() {
+    if (ttcOpenFreeNow()) return true; /* mở free chữa cháy: không gọi Supabase */
     if (!window.currentUser) return false;
     try {
       if (await hasActiveMembership()) return true;
@@ -110,6 +118,7 @@
   }
 
   async function checkPremiumAccess(level) {
+    if (ttcOpenFreeNow()) return true; /* mở free chữa cháy: không mở modal đăng nhập */
     var n = Number(level);
     if (!window.currentUser) {
       if (__silentNow()) return false; /* gọi lúc load trang: im lặng */
@@ -137,6 +146,7 @@
   }
 
   async function checkPremiumFeature() {
+    if (ttcOpenFreeNow()) return true; /* mở free chữa cháy: không mở modal đăng nhập */
     if (!window.currentUser) {
       if (__silentNow()) return false; /* gọi lúc load trang: im lặng */
       if (typeof window.otter2AccountOpenLogin === "function") {
