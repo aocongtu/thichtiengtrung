@@ -480,7 +480,6 @@
     },
     reading: function () {
       ensureScreen("reading");
-      clickLater("#ttcReadingLauncher", 380);
     },
     /* REDESIGN GĐ1: Bài học mỗi ngày = thẻ dashboard thật trên
        trang chủ — chuyển về màn home rồi cuộn tới đúng thẻ. */

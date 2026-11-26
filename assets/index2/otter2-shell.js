@@ -261,7 +261,7 @@
       });
     },
     story: function () { ensureScreen("home"); clickLater("#otter2FeatStoryVideo", 120); },
-    reading: function () { ensureScreen("reading"); clickLater("#ttcReadingLauncher", 380); },
+    reading: function () { ensureScreen("reading"); },
     exam: function () { ensureScreen("home"); clickLater("#otter2FeatExam", 120); },
     dict: function () {
       /* Dùng ĐÚNG cơ chế tra từ sẵn có của Menu ☰ (otter2-menu.js):
