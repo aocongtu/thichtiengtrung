@@ -1356,8 +1356,13 @@ function clearTestWrongWords(){
 
 function ttcAppearUnder(anchor, panel){
   if(!anchor || !panel) return;
-  if(panel.previousElementSibling !== anchor){
-    anchor.insertAdjacentElement("afterend", panel);
+  /* Panel phai nam trong #otter2PracticePanels (toan chieu ngang, duoi hang
+     nut cua hub). Chen panel vao .otter2-practice-col-left (cot hep chua nut)
+     lam hang hub cao vuot, day mascot cot phai xuong canh panel va panel bi
+     bo hep theo cot trai — loi "Be khong lo" canh khu test. */
+  var home = document.getElementById("otter2PracticePanels");
+  if(home && panel.parentElement !== home){
+    home.appendChild(panel);
   }
 }
 
