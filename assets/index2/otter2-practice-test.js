@@ -51,6 +51,12 @@ var testScore = 0;
 var testAnswered = false;
 var testFinished = false;
 
+/* Trạng thái lần chấm thật gần nhất của câu hiện tại (phục vụ chấm lại có kiểm soát):
+   lastGradedValue = đáp án người dùng đã nộp (đã bỏ khoảng trắng), null = câu này chưa chấm;
+   lastGradedCorrect = lần chấm đầu của câu này đúng hay sai. */
+var lastGradedValue = null;
+var lastGradedCorrect = false;
+
 /* --- globals --- */
 
 let testWrongWords =
@@ -94,6 +100,46 @@ function saveTestWrongWord(word){
 
     });
 
+
+    localStorage.setItem(
+      "wrongWords",
+      JSON.stringify(testWrongWords)
+    );
+
+  }
+
+
+  updateTestWrongWordCount();
+
+}
+
+
+
+
+/*
+   Gỡ một từ khỏi danh sách từ sai (dùng khi chấm lại thành đúng).
+   Cùng cơ chế lưu với saveTestWrongWord: mảng testWrongWords + localStorage "wrongWords",
+   khóa trùng là trường h.
+*/
+
+function removeTestWrongWord(word){
+
+  if(!word || !word.h) return;
+
+
+  const before =
+    testWrongWords.length;
+
+
+  testWrongWords =
+    testWrongWords.filter(function(item){
+
+      return item.h !== word.h;
+
+    });
+
+
+  if(testWrongWords.length !== before){
 
     localStorage.setItem(
       "wrongWords",
@@ -170,14 +216,60 @@ function clearLocalTestProgress(level){
 }
 
 
+/*
+   Gợi ý nhẹ khi người dùng bấm Kiểm tra ở câu đã chấm mà không đủ điều kiện chấm lại.
+   Chỉ chèn thêm MỘT dòng vào cuối vùng kết quả (không ghi đè kết quả đang hiển thị),
+   và không chèn trùng khi bấm lặp lại.
+*/
+
+function showTestGradedHint(result){
+
+  if(!result) return;
+
+
+  if(result.querySelector(".ttc-test-graded-hint")) return;
+
+
+  const hint =
+    document.createElement("div");
+
+
+  hint.className =
+    "ttc-test-graded-hint";
+
+
+  hint.textContent =
+    "Câu này đã chấm rồi — bấm ➡️ Câu tiếp để sang câu mới nhé";
+
+
+  hint.style.fontSize =
+    "14px";
+
+
+  hint.style.fontWeight =
+    "600";
+
+
+  hint.style.color =
+    "#d08a00";
+
+
+  hint.style.marginTop =
+    "6px";
+
+
+  result.appendChild(hint);
+
+}
+
+
+
+
 function checkTest(){
 
   /*
-     Không cho kiểm tra lại câu đã hoàn thành
+     Bài đã hoàn thành thì khóa hẳn, không chấm gì thêm
   */
-
-  if(testAnswered) return;
-
 
   if(testFinished) return;
 
@@ -205,6 +297,111 @@ function checkTest(){
     inputElement.value.trim();
 
 
+  const cleanInput =
+    input.replace(/\s+/g,"");
+
+
+  const cleanAnswer =
+    w.h
+      .trim()
+      .replace(/\s+/g,"");
+
+
+  /* ==================================================
+     🔁 CÂU ĐÃ CHẤM RỒI
+     - Lần đầu đã ĐÚNG: khóa như cũ, chỉ hiện gợi ý.
+     - Lần đầu SAI + đáp án trong ô ĐÃ THAY ĐỔI so với lần
+       chấm đó: cho chấm lại để cập nhật hiển thị + sổ từ sai,
+       nhưng ĐIỂM GIỮ NGUYÊN theo lần chấm đầu (không cộng
+       điểm cho lần sửa sau khi đáp án đã lộ).
+     - Ngoài hai trường hợp trên: hiện gợi ý, không im lặng.
+  ================================================== */
+
+  if(testAnswered){
+
+    const canRegrade =
+      !lastGradedCorrect &&
+      lastGradedValue !== null &&
+      cleanInput !== "" &&
+      cleanInput !== lastGradedValue;
+
+
+    if(!canRegrade){
+
+      showTestGradedHint(result);
+
+
+      return;
+
+    }
+
+
+    lastGradedValue = cleanInput;
+
+
+    if(cleanInput === cleanAnswer){
+
+      lastGradedCorrect = true;
+
+
+      /*
+         ⭐ GỠ TỪ KHỎI DANH SÁCH TỪ SAI
+      */
+
+      removeTestWrongWord(w);
+
+
+      /* Chỉ hiển thị đúng một dòng chữ, không kế thừa nội dung cũ. */
+      result.innerHTML =
+        "Chính xác" +
+        "<br><span style=\"font-size:14px;font-weight:600;\">(Sửa đúng rồi — điểm vẫn tính theo lần chấm đầu tiên nhé)</span>";
+      result.classList.add("ttc-test-correct-only");
+      result.style.color = "#087536";
+      result.style.fontSize = "24px";
+      result.style.fontWeight = "800";
+
+    }
+    else{
+
+      result.classList.remove("ttc-test-correct-only");
+      result.innerHTML =
+        `❌ Chưa đúng.<br>
+         Đáp án: <strong>${w.h}</strong><br>
+         Pinyin: ${w.p || ""}`;
+
+
+      result.style.color =
+        "#d35b5b";
+
+    }
+
+
+    document
+      .getElementById("score")
+      .textContent =
+        `Điểm hiện tại: ${getTestScorePercent()} / 100`;
+
+
+    /*
+       🔊 ĐỌC ĐÁP ÁN ĐÚNG
+    */
+
+    setTimeout(function(){
+
+      say(w.h);
+
+    },150);
+
+
+    updateTestButtonState();
+    saveLocalTestProgress();
+
+
+    return;
+
+  }
+
+
   /* ==================================================
      ⚠️ CHƯA NHẬP
   ================================================== */
@@ -225,16 +422,6 @@ function checkTest(){
   }
 
 
-  const cleanInput =
-    input.replace(/\s+/g,"");
-
-
-  const cleanAnswer =
-    w.h
-      .trim()
-      .replace(/\s+/g,"");
-
-
   /* ==================================================
      ✅ ĐÚNG
   ================================================== */
@@ -245,6 +432,12 @@ function checkTest(){
 
 
     testAnswered = true;
+
+
+    lastGradedValue = cleanInput;
+
+
+    lastGradedCorrect = true;
 
 /* ==================================================
    💾 LƯU TIẾN ĐỘ
@@ -316,6 +509,12 @@ saveTestProgress(
 
   testAnswered = true;
 
+
+  lastGradedValue = cleanInput;
+
+
+  lastGradedCorrect = false;
+
 /* ==================================================
    💾 LƯU TIẾN ĐỘ
 ================================================== */
@@ -360,7 +559,51 @@ function sayTestAnswer(){
   if(!w) return;
 
 
-  say(w.h);
+  /*
+     Đường chính: window.say dùng chung toàn trang.
+     Nếu đường đó ném lỗi (hoặc không tồn tại) thì tự đọc thẳng
+     bằng speechSynthesis thô — suy giảm chất lượng chứ không câm hẳn
+     (khuôn tầng cuối của whiteHatSpeak ở panel Luyện câu).
+  */
+
+  try{
+
+    if(typeof window.say !== "function"){
+
+      throw new Error("window.say unavailable");
+
+    }
+
+
+    window.say(w.h);
+
+  }
+  catch(e){
+
+    try{
+
+      if("speechSynthesis" in window){
+
+        const u =
+          new SpeechSynthesisUtterance(String(w.h));
+
+
+        u.lang =
+          "zh-CN";
+
+
+        u.rate =
+          0.9;
+
+
+        speechSynthesis.speak(u);
+
+      }
+
+    }
+    catch(e2){}
+
+  }
 
 }
 
@@ -754,6 +997,7 @@ function saveLocalTestProgress(){
     localStorage.setItem(getLocalTestProgressKey(currentHSK), JSON.stringify({
       hsk_level:Number(currentHSK), current_index:Number(testIndex)||0,
       score:Number(testScore)||0, answered:!!testAnswered, completed:!!testFinished,
+      graded_value:lastGradedValue, graded_correct:!!lastGradedCorrect,
       input_value:input ? input.value : "", result_html:result ? result.innerHTML : "",
       result_color:result ? result.style.color : "", updated_at:Date.now()
     }));
@@ -954,6 +1198,8 @@ if(progress.completed){
     }
     testAnswered=!!localProgress.answered;
     testFinished=!!localProgress.completed;
+    lastGradedValue=(typeof localProgress.graded_value === "string") ? localProgress.graded_value : null;
+    lastGradedCorrect=!!localProgress.graded_correct;
     document.getElementById("score").textContent=
       `Điểm hiện tại: ${getTestScorePercent()} / 100`;
     updateTestButtonState();
@@ -979,6 +1225,12 @@ function showTestQuestion(){
 
 
   testAnswered = false;
+
+
+  lastGradedValue = null;
+
+
+  lastGradedCorrect = false;
 
 
   document

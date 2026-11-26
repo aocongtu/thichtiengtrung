@@ -3,6 +3,11 @@
 if(window.__OTTER2_AUTO_VOCAB__) return; window.__OTTER2_AUTO_VOCAB__=true;
 let chineseVoice = null;
 
+/* Bộ đếm thế hệ cho say() — chống đọc chồng khi gọi say() liên tiếp.
+   BẮT BUỘC khai báo ở đây: trước đây biến này không được khai báo ở đâu
+   khiến ++__ttcSayGen trong say() ném ReferenceError và window.say chết im lặng. */
+var __ttcSayGen = 0;
+
 let selectedVoiceName = localStorage.getItem("ttsVoiceName") || "";
 
 let selectedRate = parseFloat(localStorage.getItem("ttsRate") || "0.65");
