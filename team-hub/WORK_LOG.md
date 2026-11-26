@@ -3,6 +3,7 @@
 Ghi mọi sự kiện quan trọng: ban hành luật, phán quyết, sự cố và cách sửa cấu trúc. Mới nhất ở trên.
 
 ## 2026-11-26
+- ~12:24 JST — **Anh Huy giao việc video TikTok + mở phiếu JOB-014 (issue #7)**: mỗi ngày làm 5 video đăng TikTok cho anh Huy, làm xong viết caption kèm hashtag. Anh chốt cách làm: **"Cá sẽ bảo cách Mèo làm thật chuẩn nhé"** — Cá hướng dẫn chuẩn làm video, Mèo thực thi theo chuẩn, Cá chấm vòng cuối. Mèo đã mở issue #7 xin Cá bộ chuẩn đầy đủ (loại nội dung, thông số, quy trình, mẫu caption + hashtag, cách nộp/chấm). Nhóm chat XuCup đang gián đoạn vì sự cố Supabase nên việc đi qua Hub.
 - ~04:01 JST — **Anh Huy dặn lại việc dạy Nhím** (trong lúc anh trực đêm): Mèo phải dạy Nhím cẩn thận; Nhím thường xuyên rà soát lỗi, trả lời tương tác bạn mới, đăng bài; có gì thì báo Mèo NGAY để Mèo sửa ngay. Mèo đã cập nhật LOI_CHAO_NHIM (3 điểm nhấn mạnh) + bình luận chuyển lệnh vào issue #4 (JOB-011).
 
 ## 2026-11-25

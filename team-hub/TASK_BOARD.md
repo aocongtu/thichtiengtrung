@@ -1,6 +1,6 @@
 # TASK_BOARD — Bảng phiếu việc
 
-Cập nhật lần cuối: 25/11/2026 ~12:00 JST (Cá). Trạng thái chuẩn: Chờ · Được giao · Đang làm · Chờ chấm · Đã duyệt · Đang sửa · Đã hủy.
+Cập nhật lần cuối: 26/11/2026 ~12:25 JST (Mèo). Trạng thái chuẩn: Chờ · Được giao · Đang làm · Chờ chấm · Đã duyệt · Đang sửa · Đã hủy.
 
 | Mã phiếu | Việc | Người giữ | Trạng thái | Hạn / nhịp | Ghi chú · Phán quyết |
 |---|---|---|---|---|---|
@@ -17,3 +17,4 @@ Cập nhật lần cuối: 25/11/2026 ~12:00 JST (Cá). Trạng thái chuẩn: C
 | JOB-011 | Áp Đợt B của Mèo lên web: 3 sửa pinyin câu ví dụ + dọn 371 mục lặp đoạn nghĩa ở CẢ HAI kho | Cá (Mèo kiểm tra sau) | Đang làm | Đẩy lên tối 25/11 | Cá đã DUYỆT trong issue #3 (rà độc lập: 371/371 khớp tuyệt đối, 3/3 pinyin đúng). File đã sửa + kiểm chứng xong (mỗi kho đúng 371 nghĩa + 3 pinyin thay đổi, thứ tự/khóa tiến độ nguyên vẹn, cú pháp OK) — chờ đẩy lên web tối nay (cần Anh Huy chạm duyệt 1 thẻ) |
 | JOB-012 | Tôm soạn bài Facebook đầu tiên: Câu đố HSK6 khung 15:00 ngày 26/11 — Tôm soạn, Cá chấm + đăng | Tôm (Cá kèm) | Được giao | Nộp trước sáng 26/11 | Phiếu = GitHub issue #5. Cách an toàn do Anh Huy chọn 25/11: Tôm KHÔNG cầm tài khoản, chỉ nộp bản soạn trong issue; đạt ≥95 Cá đăng nguyên văn lên Trang và ghi công. Điều kiện trước: Tôm đính chính xong JOB-008 |
 | JOB-013 | Tôm sản xuất video ngắn mỹ nhân/nam nhân cổ phong — 3 clip/ngày, Cá chấm QC, Anh Huy nghiệm thu 1–3 clip/ngày | Tôm (Cá kèm) | Được giao | Hằng ngày, từ 26/11 | Phiếu = GitHub issue #6 (+ bình luận bổ sung mẫu video). Chuẩn: dọc 9:16, 10–15s, phong cách 3D donghua theo video mẫu anh Huy gửi 25/11 ~23:54 (đi trong đại điện, cận mặt, kết đội hình 3 người); nhân vật GỐC, không sao chép mẫu, không watermark. Nộp MP4 vào repo tom-videos/<ngày>/. Ưu tiên sau JOB-008 đính chính + JOB-012 |
+| JOB-014 | Cá hướng dẫn Mèo cách làm video TikTok thật chuẩn — Mèo làm 5 video/ngày đăng TikTok cho Anh Huy, mỗi video kèm caption + hashtag | Cá (hướng dẫn) · Mèo (thực thi) | Được giao | Hằng ngày | Phiếu = GitHub issue #7. Lệnh Anh Huy 26/11 ~12:24 JST: "Cá sẽ bảo cách Mèo làm thật chuẩn nhé" — Cá cho chuẩn (loại nội dung, thông số, quy trình, mẫu caption + bộ hashtag, cách nộp/chấm), Mèo làm theo đúng chuẩn, Cá chấm vòng cuối |
