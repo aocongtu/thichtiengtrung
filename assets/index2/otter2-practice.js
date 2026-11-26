@@ -186,3 +186,154 @@
     ensureShells();
   }
 })();
+
+/* ============================================================
+   Nút "← Quay lại" của màn Luyện tập — Phương án A:
+   - Đang có panel luyện tập mở → lần bấm Quay lại CHỈ đóng panel,
+     đưa màn về hub, và chặn delegation toàn cục [data-otter2-screen]
+     (listener bubble trên document của index2.html) để không văng
+     về Trang chủ.
+   - Không có panel nào mở → không can thiệp, Quay lại về Trang chủ
+     như cũ.
+   Phạm vi: listener capture gắn trên section #otter2-reading nên
+   chỉ tác động đúng nút Quay lại của màn Luyện tập; nút sinh đôi ở
+   màn "Học auto tự động" (#otter2-auto) không bị ảnh hưởng.
+   Đóng panel bằng ĐÚNG cơ chế toggle sẵn có của từng module.
+   ============================================================ */
+(function () {
+  "use strict";
+
+  /* Nút hub gọi openVocabularyTestChooser / openSentences (onclick inline). */
+  function hubButton(fnName) {
+    var wrap = document.getElementById("ttcActionFrameButtons");
+    if (!wrap) return null;
+    var btns = wrap.querySelectorAll("button");
+    for (var i = 0; i < btns.length; i++) {
+      var oc = btns[i].getAttribute("onclick") || "";
+      if (oc.indexOf(fnName) !== -1) return btns[i];
+    }
+    return null;
+  }
+
+  /* Đóng mọi panel đang mở bằng cơ chế riêng của từng module.
+     Trả về true nếu có ít nhất một panel/overlay đang mở. */
+  function closeOpenPracticePanels() {
+    var closed = false;
+
+    /* Nối từ đúng — overlay toàn màn hình, đóng bằng nút đóng của nó. */
+    var matchOverlay = document.getElementById("ttcMatchOverlay");
+    if (matchOverlay && matchOverlay.classList.contains("ttc-match-open")) {
+      var matchClose = matchOverlay.querySelector(".ttc-match-close");
+      if (matchClose) matchClose.click();
+      else matchOverlay.classList.remove("ttc-match-open");
+      closed = true;
+    }
+
+    /* Phản xạ đoán nghĩa — overlay toàn màn hình, đóng bằng nút của nó
+       (close() của module còn hủy giọng đọc đang phát). */
+    var listenOverlay = document.getElementById("ttcListenOverlay");
+    if (listenOverlay && listenOverlay.classList.contains("ttc-listen-open")) {
+      var listenClose = listenOverlay.querySelector(".ttc-listen-close");
+      if (listenClose) listenClose.click();
+      else listenOverlay.classList.remove("ttc-listen-open");
+      closed = true;
+    }
+
+    /* Luyện đọc — bấm lại launcher: handler tự toggle tắt + stopReading(). */
+    var readingSection = document.getElementById("ttcReadingSection");
+    if (readingSection && readingSection.classList.contains("ttc-open")) {
+      var readingBtn = document.getElementById("ttcReadingLauncher");
+      if (readingBtn) readingBtn.click();
+      closed = true;
+    }
+
+    /* Gõ Hán tự — bấm lại launcher: handler tự toggle tắt + stopAudio(). */
+    var typingSection = document.getElementById("ttcListeningSection");
+    if (typingSection && typingSection.classList.contains("ttc-listening-open")) {
+      var typingBtn = document.getElementById("ttcListeningLauncher");
+      if (typingBtn) typingBtn.click();
+      closed = true;
+    }
+
+    /* Luyện câu — gọi lại openSentences(btn): nhánh toggle-close của
+       chính module khi đủ điều kiện (hiện + nút đang active); nếu lệch
+       trạng thái thì áp đúng hai câu lệnh đóng của nhánh đó. */
+    var sentenceSection = document.getElementById("sentenceSection");
+    if (
+      sentenceSection &&
+      !sentenceSection.classList.contains("hidden") &&
+      sentenceSection.style.display !== "none"
+    ) {
+      var sentenceBtn = hubButton("openSentences");
+      if (
+        sentenceBtn &&
+        sentenceBtn.classList.contains("active") &&
+        typeof window.openSentences === "function"
+      ) {
+        window.openSentences(sentenceBtn);
+      } else {
+        sentenceSection.classList.add("hidden");
+        if (sentenceBtn) sentenceBtn.classList.remove("active");
+      }
+      closed = true;
+    }
+
+    /* Test từ vựng — gọi lại openVocabularyTestChooser(btn): nhánh
+       toggle-close của chính module (ẩn section + gỡ active + gỡ
+       overlay chọn cấp). Overlay chọn cấp mở một mình (chưa vào test)
+       thì đóng bằng nút × của chính overlay. */
+    var testSection = document.getElementById("testSection");
+    var chooser = document.getElementById("ttcVocabularyTestChooser");
+    if (testSection && !testSection.classList.contains("hidden")) {
+      var testBtn = hubButton("openVocabularyTestChooser");
+      if (testBtn && typeof window.openVocabularyTestChooser === "function") {
+        window.openVocabularyTestChooser(testBtn);
+      } else {
+        testSection.classList.add("hidden");
+        if (testBtn) testBtn.classList.remove("active");
+        if (chooser) chooser.remove();
+      }
+      closed = true;
+    } else if (chooser) {
+      var chooserClose = chooser.querySelector(".ttc-vocab-test-close");
+      if (chooserClose) chooserClose.click();
+      else chooser.remove();
+      closed = true;
+    }
+
+    return closed;
+  }
+
+  function initBackInterceptor() {
+    var section = document.getElementById("otter2-reading");
+    if (!section || section.dataset.otter2BackGuard === "1") return;
+    var backBtn = section.querySelector(
+      '.otter2-reading-top [data-otter2-screen="home"]'
+    );
+    if (!backBtn) return;
+    section.dataset.otter2BackGuard = "1";
+    /* Capture trên section: chạy trước pha bubble của document, nên
+       stopPropagation() tại đây chặn được delegation toàn cục khi
+       cần đóng panel; khi không có panel mở thì để sự kiện đi tiếp
+       như bình thường. */
+    section.addEventListener(
+      "click",
+      function (ev) {
+        if (!ev.target || (ev.target !== backBtn && !backBtn.contains(ev.target))) {
+          return;
+        }
+        if (closeOpenPracticePanels()) {
+          ev.preventDefault();
+          ev.stopPropagation();
+        }
+      },
+      true
+    );
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initBackInterceptor);
+  } else {
+    initBackInterceptor();
+  }
+})();
