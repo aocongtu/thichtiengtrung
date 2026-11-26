@@ -825,6 +825,8 @@ try{
 
 bindLocalTestProgressAutosave();
 
+bindTestKeyboard();
+
 /* Ưu tiên trạng thái đầy đủ trên trình duyệt; dùng tiến độ tài khoản cũ làm dự phòng. */
 const localProgress = loadLocalTestProgress(currentHSK);
 const progress = localProgress || await loadTestProgress(currentHSK);
@@ -1365,6 +1367,133 @@ function ttcAppearUnder(anchor, panel){
     home.appendChild(panel);
   }
 }
+
+
+/* =========================================================
+   ⌨️ PHÍM TẮT PANEL TEST — theo đúng hộp "💡 Giải thích"
+   của panel (trước đây CHỈ có chữ hướng dẫn, không hề có
+   handler nào được gắn — bấm Enter/Ctrl không chạy gì cả):
+   · Enter trong ô nhập → Kiểm tra; ô đang trống → 🔊 Phát âm
+   · Ctrl → 🔊 Phát âm (giống panel Luyện câu)
+   · Space ngoài ô nhập → Câu tiếp
+   ⚠️ Luôn bỏ qua phím khi IME đang chốt chữ Hán
+   (event.isComposing / keyCode 229): Enter lúc đó là để
+   chọn chữ Hán, đáp án chưa commit vào ô nhập — nếu chấm
+   ngay lúc đó sẽ đọc trúng ô trống/chữ chưa chốt.
+========================================================= */
+
+function bindTestKeyboard(){
+
+  const input =
+    document.getElementById("testInput");
+
+
+  if(!input || input.dataset.ttcTestKeyboard) return;
+
+
+  input.dataset.ttcTestKeyboard = "1";
+
+
+  input.addEventListener(
+    "keydown",
+    function(event){
+
+      if(event.isComposing || event.keyCode === 229) return;
+
+
+      if(event.repeat) return;
+
+
+      if(event.key !== "Enter") return;
+
+
+      event.preventDefault();
+
+
+      if(input.value.trim()){
+
+        checkTest();
+
+      }
+      else{
+
+        sayTestAnswer();
+
+      }
+
+    }
+  );
+
+}
+
+
+document.addEventListener(
+  "keydown",
+  function(event){
+
+    const section =
+      document.getElementById("testSection");
+
+
+    if(!section || section.classList.contains("hidden")) return;
+
+
+    if(event.isComposing || event.keyCode === 229) return;
+
+
+    if(event.repeat) return;
+
+
+    /*
+       CTRL → 🔊 PHÁT ÂM (đường của nút "🔊 Nghe")
+    */
+
+    if(event.key === "Control"){
+
+      event.preventDefault();
+
+      sayTestAnswer();
+
+      return;
+
+    }
+
+
+    /*
+       SPACE NGOÀI Ô NHẬP → CÂU TIẾP
+       (đang gõ trong ô nhập/thảo văn bản thì Space
+       vẫn gõ khoảng trắng bình thường)
+    */
+
+    if(event.code === "Space"){
+
+      const active = document.activeElement;
+
+
+      if(
+        active &&
+        (
+          active.tagName === "INPUT" ||
+          active.tagName === "TEXTAREA" ||
+          active.tagName === "SELECT" ||
+          active.isContentEditable
+        )
+      ){
+
+        return;
+
+      }
+
+
+      event.preventDefault();
+
+      nextTest();
+
+    }
+
+  },
+  true
+);
 
 
 window.openVocabularyTestChooser = openVocabularyTestChooser;
