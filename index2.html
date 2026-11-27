@@ -22651,7 +22651,10 @@ setupFlashcardMobile();
         const translated=Array.isArray(data?.[0])
           ? data[0].map(x=>String(x?.[0]||"")).join("").trim()
           : "";
-        if(translated && !isEnglishOrForeign(translated))return translated;
+        /* Chấp nhận mọi kết quả dịch có nội dung: tiếng Việt không dấu
+           (bi quan, gan, hoa sen...) cũng là tiếng Việt đúng — loại bỏ
+           chúng ở đây từng khiến nghĩa trống vĩnh viễn. */
+        if(translated)return translated;
       }catch(e){}
       return "";
     }
@@ -22664,10 +22667,12 @@ setupFlashcardMobile();
       const key=String(w.h)+"|"+String(w.p||"");
       const saved=cache[key]||{};
 
-      if(saved.m && !isEnglishOrForeign(saved.m))w.m=saved.m;
-      if(saved.e && !isEnglishOrForeign(saved.e))w.exampleMeaning=saved.e;
+      if(saved.keepM && saved.m)w.m=saved.m;
+      else if(saved.m && !isEnglishOrForeign(saved.m))w.m=saved.m;
+      if(saved.keepE && saved.e)w.exampleMeaning=saved.e;
+      else if(saved.e && !isEnglishOrForeign(saved.e))w.exampleMeaning=saved.e;
 
-      if(isEnglishOrForeign(w.m)){
+      if(!saved.keepM && isEnglishOrForeign(w.m)){
         const original=String(w.m).trim();
         const special=applySpecial(original);
         if(special){
@@ -22679,7 +22684,7 @@ setupFlashcardMobile();
         }
       }
 
-      if(isEnglishOrForeign(w.exampleMeaning)){
+      if(!saved.keepE && isEnglishOrForeign(w.exampleMeaning)){
         const original=String(w.exampleMeaning).trim();
         const special=applySpecial(original);
         if(special){
@@ -22713,19 +22718,36 @@ setupFlashcardMobile();
           delete item.w.__ttcSourceEnglishExample;
         }
       }else{
-        /* Không bao giờ để English hiện ra UI nếu API tạm thời lỗi. */
+        /* Dịch không ra kết quả (API lỗi): trả lại nghĩa gốc để không
+           trống vĩnh viễn; chưa ghi keep nên lần tải sau sẽ thử dịch lại. */
         if(item.type==="m"){
-          item.w.m="";
+          item.w.m=item.source;
+          delete item.w.__ttcSourceEnglishMeaning;
         }else{
-          item.w.exampleMeaning="";
+          item.w.exampleMeaning=item.source;
+          delete item.w.__ttcSourceEnglishExample;
         }
       }
 
       const key=item.key;
-      cache[key]={
-        m:isEnglishOrForeign(item.w.m)?"":item.w.m,
-        e:isEnglishOrForeign(item.w.exampleMeaning)?"":item.w.exampleMeaning
-      };
+      const prev=cache[key]||{};
+      if(vi){
+        /* Đã có kết quả: ghi keep cho trường vừa xử lý để tiếng Việt
+           không dấu không bị bắt nhầm ở các lần tải sau. */
+        cache[key]={
+          m:item.w.m,
+          e:item.w.exampleMeaning,
+          keepM:item.type==="m"?1:(prev.keepM||0),
+          keepE:item.type==="e"?1:(prev.keepE||0)
+        };
+      }else{
+        cache[key]={
+          m:isEnglishOrForeign(item.w.m)?"":item.w.m,
+          e:isEnglishOrForeign(item.w.exampleMeaning)?"":item.w.exampleMeaning,
+          keepM:prev.keepM||0,
+          keepE:prev.keepE||0
+        };
+      }
       saveCache();
 
       if(
