@@ -12,6 +12,9 @@
      phòng (Test từ vựng · Luyện câu · Luyện đọc · Gõ Hán tự · Nối
      từ · Phản xạ đoán nghĩa) — bấm là chạy đúng cơ chế thật mà
      menu 12 mục vẫn dùng (sang màn Luyện tập + bấm nút thật).
+     ★ ĐÃ BỎ tab này 2026-11-28 (anh Huy: "nút luyện tập bên này bị
+     thừa") — trùng với màn Luyện tập riêng; phòng chỉ còn thẻ từ.
+     setTab/GAMES/launchGame giữ lại dạng API chết, không còn UI.
 
    LUẬT DỮ LIỆU CỨNG: otter2_hsk_vocab_progress_v1 BẤT KHẢ XÂM —
    module này KHÔNG đọc cũng KHÔNG ghi khóa đó; trạng thái đã học
@@ -103,29 +106,15 @@
     var bar = document.createElement("div");
     bar.className = "ttc-vr-bar";
     bar.id = "ttcVocabRoomBar";
+    /* 2026-11-28 (anh Huy): BỎ tab "🎮 Luyện tập" trong phòng — trùng với
+       màn Luyện tập riêng ở thanh dưới, để là thừa. Phòng chỉ còn phần
+       thẻ từ; 6 mini-game sống ở màn Luyện tập như cũ. */
     bar.innerHTML =
       '<div class="ttc-vr-head"><span class="ttc-vr-title">📚 Phòng từ vựng</span>' +
-      '<span class="ttc-vr-sub">Kho từ HSK 1–9 · ' + fmt(totalWords()) + ' từ · thẻ từ có tên Hán-Việt đỏ</span></div>' +
-      '<div class="ttc-vr-tabs" role="tablist">' +
-      '<button type="button" class="ttc-vr-tab is-cur" data-vr-tab="cards">📚 Thẻ từ</button>' +
-      '<button type="button" class="ttc-vr-tab" data-vr-tab="practice">🎮 Luyện tập</button></div>' +
-      '<div class="ttc-vr-picker" data-vr-picker hidden>' +
-      GAMES.map(function (g) {
-        return '<button type="button" class="ttc-vr-game" data-vr-game="' + g.key + '">' +
-          '<span class="ttc-vr-gico" aria-hidden="true">' + g.icon + '</span>' +
-          '<span><span class="ttc-vr-gname">' + g.name + '</span>' +
-          '<span class="ttc-vr-gsub">' + g.sub + '</span></span></button>';
-      }).join("") + '</div>';
+      '<span class="ttc-vr-sub">Kho từ HSK 1–9 · ' + fmt(totalWords()) + ' từ · thẻ từ có tên Hán-Việt đỏ</span></div>';
     var head = journey.firstElementChild;
     if (head && head.nextSibling) journey.insertBefore(bar, head.nextSibling);
     else journey.insertBefore(bar, journey.firstChild);
-    bar.addEventListener("click", function (ev) {
-      var t = ev.target && ev.target.closest ? ev.target.closest("[data-vr-tab],[data-vr-game]") : null;
-      if (!t) return;
-      if (t.hasAttribute("data-vr-tab")) { setTab(t.getAttribute("data-vr-tab")); return; }
-      var key = t.getAttribute("data-vr-game");
-      for (var i = 0; i < GAMES.length; i++) if (GAMES[i].key === key) { launchGame(GAMES[i].sel); return; }
-    });
     return true;
   }
   function setTab(next) {
