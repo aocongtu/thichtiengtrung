@@ -99,7 +99,7 @@
   var S = {
     open: false, level: 1, mode: "list", query: "",
     hvOn: true, trad: false,
-    voice: "g:Kore", speed: "normal", readMeaning: false, hl: "#ffe066",
+    voice: "g:Kore", speed: "1", readMeaning: false, hl: "#ffe066",
     fcIndex: 0, fcFlip: false,
     playing: false, paused: false, playToken: 0,
     access: null /* null = chưa rõ, true = có Premium/Free Trial, false = Free */
@@ -152,6 +152,11 @@
     for (i = 0; i < vs.length; i++) if (vs[i].lang && vs[i].lang.toLowerCase().indexOf(langPrefix.split("-")[0]) === 0) return vs[i];
     return null;
   }
+  function speedRate() {
+    var v = parseFloat(S.speed);
+    if (!isNaN(v) && v > 0) return v;
+    return S.speed === "slow" ? 0.5 : (S.speed === "fast" ? 1.5 : 1);
+  }
   function speakDevice(text, lang) {
     return new Promise(function (resolve) {
       if (!window.speechSynthesis || !text) { resolve(false); return; }
@@ -165,7 +170,7 @@
         }
         if (!v) v = pickDeviceVoice(u.lang);
         if (v) u.voice = v;
-        u.rate = S.speed === "slow" ? 0.65 : (S.speed === "fast" ? 1.15 : 0.95);
+        u.rate = speedRate();
         var done = false;
         var finish = function (ok) { if (!done) { done = true; resolve(ok); } };
         u.onend = function () { finish(true); };
@@ -183,7 +188,7 @@
         try {
           if (_audio) { try { _audio.pause(); } catch (e) {} }
           _audio = new Audio(url);
-          _audio.playbackRate = S.speed === "slow" ? 0.7 : (S.speed === "fast" ? 1.15 : 1.0);
+          _audio.playbackRate = speedRate();
           _audio.onended = function () { resolve(true); };
           _audio.onerror = function () { resolve(false); };
           var p = _audio.play();
@@ -410,9 +415,14 @@
       '<div class="htv-row"><span class="htv-lab">🔊 Giọng đọc <small>· Voice</small></span>' +
       '<select id="htvVoice" class="htv-sel">' + voiceOptionsHtml() + "</select></div>" +
       '<div class="htv-row"><select id="htvSpeed" class="htv-sel">' +
-      '<option value="slow">🐢 Chậm · Slow</option>' +
-      '<option value="normal">🚶 Vừa · Normal</option>' +
-      '<option value="fast">🏃 Nhanh · Fast</option></select></div>' +
+      '<option value="0.25">🐢 0.25× · Rất chậm</option>' +
+      '<option value="0.35">0.35×</option>' +
+      '<option value="0.5">0.5× · Chậm</option>' +
+      '<option value="0.75">0.75×</option>' +
+      '<option value="1">🚶 1.0× · Vừa · Normal</option>' +
+      '<option value="1.5">1.5×</option>' +
+      '<option value="2">2.0× · Nhanh</option>' +
+      '<option value="3">🏃 3.0× · Rất nhanh</option></select></div>' +
       '<div class="htv-row"><button type="button" class="htv-playbtn" id="htvPlayAll">▶️ Đọc cả danh sách <small>· Play all</small></button></div>' +
       '<div class="htv-row"><input id="htvFromNum" class="htv-num" type="number" min="1" placeholder="Số · No">' +
       '<button type="button" class="htv-playbtn" id="htvPlayFrom">▶️ Từ số này <small>· Play from #</small></button></div>' +
