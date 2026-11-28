@@ -165,7 +165,7 @@
         }
         if (!v) v = pickDeviceVoice(u.lang);
         if (v) u.voice = v;
-        u.rate = S.speed === "slow" ? 0.75 : (S.speed === "fast" ? 1.15 : 0.95);
+        u.rate = S.speed === "slow" ? 0.65 : (S.speed === "fast" ? 1.15 : 0.95);
         var done = false;
         var finish = function (ok) { if (!done) { done = true; resolve(ok); } };
         u.onend = function () { finish(true); };
@@ -183,6 +183,7 @@
         try {
           if (_audio) { try { _audio.pause(); } catch (e) {} }
           _audio = new Audio(url);
+          _audio.playbackRate = S.speed === "slow" ? 0.7 : (S.speed === "fast" ? 1.15 : 1.0);
           _audio.onended = function () { resolve(true); };
           _audio.onerror = function () { resolve(false); };
           var p = _audio.play();
