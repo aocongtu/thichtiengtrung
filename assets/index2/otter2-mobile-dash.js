@@ -224,8 +224,8 @@
     "#otter2-home .otter2-dash-step small{font-size:10px}",
 
     /* Hành trình HSK: full-width, chỉ ép đệm + nút tròn */
-    "#otter2-home #otter2HskJourney.otter2-panel{padding:12px}",
-    "#otter2-home .otter2-node{width:60px;height:60px}",
+    "#otter2HskJourney.otter2-panel{padding:12px}",
+    "#otter2HskJourney .otter2-node{width:60px;height:60px}",
 
     /* Banner Facebook: full-width, ép đệm + cắt mô tả 2 dòng */
     "#otter2-home .otter2-fb-banner{padding:10px 12px}",

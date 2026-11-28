@@ -414,12 +414,9 @@
 
   var ACTIONS = {
     vocab: function () {
-      ensureScreen("home");
-      var journey = byId("otter2HskJourney");
-      if (!isVis(journey)) {
-        var openBtn = byId("otter2OpenVocabBankBtn");
-        if (openBtn) openBtn.click();
-      }
+      /* 2026-11-28: kho từ nằm ở màn Lộ trình HSK toàn màn hình */
+      if (typeof window.otter2ShowScreen === "function") window.otter2ShowScreen("roadmap");
+      else ensureScreen("roadmap");
       whenVisible("#otter2HskJourney", function () {
         var ws = byId("otter2Hsk1Workspace");
         if (!isVis(ws)) {
@@ -458,16 +455,9 @@
       }, 150);
     },
     journey: function () {
-      ensureScreen("home");
-      var journey = byId("otter2HskJourney");
-      if (!isVis(journey)) {
-        var openBtn = byId("otter2OpenVocabBankBtn");
-        if (openBtn) openBtn.click();
-      }
-      whenVisible("#otter2HskJourney", function (el) {
-        var t = el || byId("otter2HskJourney");
-        if (t) t.scrollIntoView({ behavior: "smooth", block: "start" });
-      });
+      /* 2026-11-28: mở màn Lộ trình HSK toàn màn hình */
+      if (typeof window.otter2ShowScreen === "function") window.otter2ShowScreen("roadmap");
+      else ensureScreen("roadmap");
     },
     dict: function () {
       ensureScreen("vocab");

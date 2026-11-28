@@ -249,16 +249,10 @@
       else ensureScreen("home");
     },
     roadmap: function () {
-      ensureScreen("home");
-      var journey = byId("otter2HskJourney");
-      if (!isVis(journey)) {
-        var openBtn = byId("otter2OpenVocabBankBtn");
-        if (openBtn) openBtn.click();
-      }
-      whenVisible("#otter2HskJourney", function (el) {
-        var t = el || byId("otter2HskJourney");
-        if (t) t.scrollIntoView({ behavior: "smooth", block: "start" });
-      });
+      /* 2026-11-28 (anh Huy): Lộ trình HSK là MÀN RIÊNG toàn màn hình
+         (panel "roadmap") — không còn mở kho từ ngay trên trang chủ. */
+      if (typeof window.otter2ShowScreen === "function") window.otter2ShowScreen("roadmap");
+      else ensureScreen("roadmap");
     },
     story: function () { ensureScreen("home"); clickLater("#otter2FeatStoryVideo", 120); },
     reading: function () { ensureScreen("reading"); },
@@ -925,7 +919,8 @@
     var active = overlayAct();
     if (!active) {
       if (scr === "reading") active = "reading";
-      else if (scr === "home") active = lastAct === "roadmap" ? "roadmap" : "home";
+      else if (scr === "roadmap") active = "roadmap";
+      else if (scr === "home") active = "home";
     }
     var btns = document.querySelectorAll("[data-shell-act]");
     Array.prototype.forEach.call(btns, function (b) {

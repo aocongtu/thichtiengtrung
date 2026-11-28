@@ -1104,7 +1104,7 @@
     #otter2-home .otter2-dash{display:contents}
     #otter2-home .otter2-dash-main{grid-area:main}
     #otter2-home .otter2-dash-side{grid-area:side;gap:18px}
-    #otter2-home #otter2HskJourney{grid-area:journey;margin:0;border-radius:26px;padding:18px}
+    #otter2-roadmap #otter2HskJourney{margin:0;border-radius:26px;padding:18px}
     #otter2-home .otter2-fb-banner{grid-area:banner;margin:0;padding:13px 18px;border-radius:20px;box-shadow:0 10px 24px rgba(15,23,42,.06)}
     #otter2-home .otter2-dash-road{grid-area:road}
     /* Hero cũ -> khối lời chào sạch kiểu mockup (bỏ nền ảnh hoa anh đào + linh vật trang trí) */
@@ -1342,13 +1342,13 @@ html[data-theme="night"] .ttc-dict-sub{color:#94a3b8}
 .otter2-dash-status.today{background:#F7F8FA}
 .otter2-dash-thumb.r{background:#f1f5f9;color:#16283F}
 .otter2-dash-tag.video{background:#f1f5f9;color:#16283F}
-#otter2-home #otter2HskJourney .otter2-node.is-on{background:#F97316;color:#fff;border-color:#E3E8EF}
-#otter2-home #otter2HskJourney .otter2-type-btn.is-on{background:#F97316;color:#fff;border-color:#E3E8EF}
+#otter2HskJourney .otter2-node.is-on{background:#F97316;color:#fff;border-color:#E3E8EF}
+#otter2HskJourney .otter2-type-btn.is-on{background:#F97316;color:#fff;border-color:#E3E8EF}
 html[data-theme="night"] .otter2-dash-course .otter2-feature--vocab{background:#1e293b;color:#4ade80}
 html[data-theme="night"] .otter2-dash-chip.is-cur{background:#16a34a;color:#fff}
 html[data-theme="night"] #otter2-home .otter2-dash-chip.is-cur{background:#16a34a;border-color:#16a34a;color:#fff}
-html[data-theme="night"] #otter2-home #otter2HskJourney .otter2-node.is-on{background:#16a34a;color:#fff;border-color:#16a34a}
-html[data-theme="night"] #otter2-home #otter2HskJourney .otter2-type-btn.is-on{background:#16a34a;color:#fff;border-color:#16a34a}
+html[data-theme="night"] #otter2HskJourney .otter2-node.is-on{background:#16a34a;color:#fff;border-color:#16a34a}
+html[data-theme="night"] #otter2HskJourney .otter2-type-btn.is-on{background:#16a34a;color:#fff;border-color:#16a34a}
 /* ===== GỘP LỐI VÀO LỘ TRÌNH VÀO THẺ HERO + ẨN THẺ DƯỚI (yêu cầu chủ web 2026-11-17) =====
    Thẻ "Học từ vựng theo lộ trình" ở cuối cột trái (#otter2PathProgress) bị ẩn hẳn.
    Markup + id giữ nguyên 100% trong HTML (không phá script nào); panel lộ trình và
@@ -2768,7 +2768,21 @@ html[data-theme="night"] .ttc-script-switch{background:#1e293b;color:#fda4af;bor
              nhờ vậy thẻ hero "Lộ trình từ vựng" của Khóa tự học nhô lên trên. -->
       </div>
 
-<div class="otter2-panel otter2-hsk-journey" id="otter2HskJourney" hidden>
+      <!-- ===== HẾT DASHBOARD ===== -->
+    </section>
+    <!-- SCREEN: LỘ TRÌNH HSK — toàn màn hình như Luyện tập (anh Huy, 2026-11-28).
+         Panel kho từ #otter2HskJourney chuyển từ trang chủ về đây, giữ nguyên
+         engine + tab Phòng từ vựng + thẻ Học từ vựng. Ảnh Bé ngồi học bài là
+         ảnh cũ otter-headphones trong kho mascot poses. -->
+    <section class="otter2-screen" id="otter2-roadmap" data-otter2-screen-panel="roadmap" hidden aria-label="Lộ trình HSK">
+      <div class="otter2-roadmap-hub">
+        <div class="otter2-reading-top">
+          <button type="button" class="otter2-btn" data-otter2-screen="home">← Quay lại</button>
+          <h1>Lộ trình HSK</h1>
+        </div>
+        <p class="otter2-practice-note">Hành trình chinh phục HSK 1–9 · chọn một cấp để xem thẻ từ, hoặc vào “Học từ vựng” kiểu XuCup ngay trong phòng.</p>
+        <img class="otter2-roadmap-mascot" src="assets/index2/mascot/poses/otter-headphones.jpg" alt="Rái cá ngồi học bài bên bàn học" width="1024" height="1024" loading="lazy" decoding="async" />
+<div class="otter2-panel otter2-hsk-journey" id="otter2HskJourney">
         <h2>Hành trình chinh phục HSK</h2>
         <div class="otter2-journey" id="otter2HskLevelRow" role="group" aria-label="Cấp HSK">
           <button type="button" class="otter2-node" data-otter2-hsk="1">HSK 1</button>
@@ -2799,8 +2813,9 @@ html[data-theme="night"] .ttc-script-switch{background:#1e293b;color:#fda4af;bor
           <div class="otter2-hsk1-cards" id="otter2Hsk1Cards"></div>
         </div>
       </div>
-      <!-- ===== HẾT DASHBOARD ===== -->
+      </div>
     </section>
+
 
     <!-- SCREEN 2: DICTIONARY (engine Otter2, dữ liệu HSK 1–9) -->
     <section class="otter2-screen" id="otter2-vocab" data-otter2-screen-panel="vocab" hidden aria-label="Tra từ vựng">
@@ -3594,14 +3609,15 @@ window.OTTER2_HSK_MANIFEST = {
   function toggleJourney(forceOpen) {
     var journey = $("otter2HskJourney");
     var btn = $("otter2OpenVocabBankBtn");
-    if (!journey || !btn) return;
-    var open = typeof forceOpen === "boolean" ? forceOpen : journey.hidden;
-    journey.hidden = !open;
-    btn.setAttribute("aria-expanded", open ? "true" : "false");
-    btn.classList.toggle("is-on", open);
-    if (open) {
-      journey.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    if (!journey) return;
+    /* 2026-11-28 (anh Huy): kho từ vựng sống trong MÀN LỘ TRÌNH HSK toàn
+       màn hình — nút này là lối vào màn đó, không còn đóng/mở tại chỗ. */
+    journey.hidden = false;
+    if (btn) {
+      btn.setAttribute("aria-expanded", "true");
+      btn.classList.add("is-on");
     }
+    if (typeof window.otter2ShowScreen === "function") window.otter2ShowScreen("roadmap");
   }
 
   function bind() {
@@ -22950,6 +22966,8 @@ setupFlashcardMobile();
 
   /* Điều hướng: luôn đi qua ĐÚNG nút điều khiển thật của trang */
   function openJourney() {
+    /* 2026-11-28: kho từ đã chuyển sang màn Lộ trình HSK toàn màn hình */
+    if (typeof window.otter2ShowScreen === "function") window.otter2ShowScreen("roadmap");
     var j = $("otter2HskJourney");
     var b = $("otter2OpenVocabBankBtn");
     if (j && j.hidden && b) b.click();

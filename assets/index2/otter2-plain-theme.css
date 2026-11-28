@@ -893,7 +893,7 @@ html:not([data-theme="night"]) #ttcMondlySubbar #otter2ChatOnlineBtn:hover{ back
    nổi trên panel như cũ.
    ============================================================ */
 @media (min-width:1021px){
-  #otter2-home #otter2HskJourney{ position:relative; z-index:2; }
+  #otter2-roadmap #otter2HskJourney{ position:relative; z-index:2; }
 }
 
 /* ============================================================
@@ -1409,3 +1409,10 @@ html[data-theme="night"] .ttc-xd-stat span{ color:#94A3B8; }
 html[data-theme="night"] .ttc-xd-sname{ color:#E2E8F0; }
 html[data-theme="night"] .guide-bubble{ background:#1E293B; border-color:#334155; color:#E2E8F0; }
 html[data-theme="night"] .guide-bubble-x{ color:#94A3B8; }
+
+/* ============================================================
+   MÀN LỘ TRÌNH HSK TOÀN MÀN HÌNH (2026-11-28, anh Huy): khung
+   hub + ảnh Bé rái cá ngồi học bài (ảnh cũ otter-headphones).
+   ============================================================ */
+.otter2-roadmap-hub{max-width:1060px;margin:0 auto}
+.otter2-roadmap-mascot{display:block;width:min(320px,84%);height:auto;margin:4px auto 16px;border-radius:24px;box-shadow:0 12px 28px rgba(15,23,42,.14)}
